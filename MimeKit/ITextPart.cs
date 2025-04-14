@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -65,7 +65,7 @@ namespace MimeKit {
 		/// Checks whether the text part's Content-Type is <c>text/enriched</c> or its
 		/// predecessor, <c>text/richtext</c> (not to be confused with <c>text/rtf</c>).
 		/// </remarks>
-		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is enriched; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITextPart"/> has been disposed.
 		/// </exception>
@@ -83,7 +83,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the text is flowed; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is flowed; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITextPart"/> has been disposed.
 		/// </exception>
@@ -100,7 +100,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is html; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITextPart"/> has been disposed.
 		/// </exception>
@@ -114,7 +114,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Checks whether the text part's Content-Type is <c>text/plain</c>.
 		/// </remarks>
-		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is html; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITextPart"/> has been disposed.
 		/// </exception>
@@ -128,7 +128,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Checks whether the text part's Content-Type is <c>text/rtf</c>.
 		/// </remarks>
-		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is RTF; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITextPart"/> has been disposed.
 		/// </exception>
@@ -174,7 +174,7 @@ namespace MimeKit {
 		/// <paramref name="encoding"/> is set to the encoding for the specified charset and <paramref name="confidence"/> is
 		/// set to <see cref="TextEncodingConfidence.Tentative"/>.</para>
 		/// </remarks>
-		/// <returns><c>true</c> if an encoding was detected; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if an encoding was detected; otherwise, <see langword="false" />.</returns>
 		/// <param name="encoding">The detected encoding; otherwise, <see langword="null"/>.</param>
 		/// <param name="confidence">The confidence in the detected encoding being correct.</param>
 		/// <exception cref="System.ObjectDisposedException">

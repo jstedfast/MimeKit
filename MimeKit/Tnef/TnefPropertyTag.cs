@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -5547,7 +5547,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the property contains multiple values.
 		/// </remarks>
-		/// <value><c>true</c> if the property contains multiple values; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the property contains multiple values; otherwise, <see langword="false" />.</value>
 		public bool IsMultiValued {
 			get { return (((short) type) & MultiValuedFlag) != 0; }
 		}
@@ -5558,7 +5558,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the property has a special name.
 		/// </remarks>
-		/// <value><c>true</c> if the property has a special name; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the property has a special name; otherwise, <see langword="false" />.</value>
 		public bool IsNamed {
 			get { return (int) id >= (int) NamedMin && (int) id <= (int) NamedMax; }
 		}
@@ -5569,7 +5569,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the property value type is valid.
 		/// </remarks>
-		/// <value><c>true</c> if the property value type is valid; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the property value type is valid; otherwise, <see langword="false" />.</value>
 		public bool IsTnefTypeValid {
 			get {
 				switch (ValueTnefType) {
@@ -5700,8 +5700,8 @@ namespace MimeKit.Tnef {
 		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyTag"/>.
 		/// </remarks>
 		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefPropertyTag"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
-		/// <see cref="TnefPropertyTag"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="TnefPropertyTag"/>; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (object obj)
 		{
 			return obj is TnefPropertyTag tag
@@ -5743,7 +5743,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <param name="left">The first object to compare.</param>
 		/// <param name="right">The second object to compare.</param>
-		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <see langword="false" />.</returns>
 		public static bool operator == (TnefPropertyTag left, TnefPropertyTag right)
 		{
 			return left.Equals (right);
@@ -5757,7 +5757,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <param name="left">The first object to compare.</param>
 		/// <param name="right">The second object to compare.</param>
-		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <see langword="false" />.</returns>
 		public static bool operator != (TnefPropertyTag left, TnefPropertyTag right)
 		{
 			return !(left == right);

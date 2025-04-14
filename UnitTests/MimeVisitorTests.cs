@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ namespace UnitTests {
 				while (!parser.IsEndOfStream) {
 					var filename = string.Format (CultureInfo.InvariantCulture, "jwz.body.{0}.html", index);
 					var path = Path.Combine (dataDir, filename);
-					var message = parser.ParseMessage ();
+					using var message = parser.ParseMessage ();
 					string expected, actual;
 
 					visitor.Visit (message);

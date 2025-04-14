@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time.</param>
-		/// <param name="requirePrivateKey"><c>true</c> if a private key is required.</param>
+		/// <param name="requirePrivateKey"><see langword="true" /> if a private key is required.</param>
 		/// <param name="fields">The desired fields.</param>
 		IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields);
 
@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificate records populated with the desired fields.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
-		/// <param name="trustedAnchorsOnly"><c>true</c> if only trusted anchor certificates should be returned.</param>
+		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
 		IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields);
 
@@ -183,6 +183,7 @@ namespace MimeKit.Cryptography {
 		/// Updates the specified fields of the record in the database.
 		/// </remarks>
 		/// <param name="record">The CRL record.</param>
+		[Obsolete ("This method is not used and will be removed in a future release.")]
 		void Update (X509CrlRecord record);
 
 		/// <summary>

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -148,10 +148,10 @@ namespace UnitTests {
 		[Test]
 		public void TestReassembleGirlOnTrainPhotoExample ()
 		{
-			var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.0.eml"));
-			var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.1.eml"));
-			var message2 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.2.eml"));
-			var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
+			using var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.0.eml"));
+			using var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.1.eml"));
+			using var message2 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.2.eml"));
+			using var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 
 			Assert.That (message0, Is.Not.Null, "Failed to parse message-partial.0.eml");
 			Assert.That (message1, Is.Not.Null, "Failed to parse message-partial.1.eml");
@@ -164,7 +164,7 @@ namespace UnitTests {
 			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body, (MessagePartial) message2.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message0, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((MimeMessage) null, partials));
-			var message = MessagePartial.Join (message0, partials);
+			using var message = MessagePartial.Join (message0, partials);
 
 			Assert.That (message, Is.Not.Null, "Failed to reconstruct the message");
 			Assert.That (message.Subject, Is.EqualTo ("Photo of a girl with feather earrings"), "Subjects do not match");
@@ -184,9 +184,9 @@ namespace UnitTests {
 		[Test]
 		public void TestReassembleRfc2046Example ()
 		{
-			var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.0.eml"));
-			var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.1.eml"));
-			var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.eml"));
+			using var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.0.eml"));
+			using var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.1.eml"));
+			using var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.eml"));
 
 			Assert.That (message0, Is.Not.Null, "Failed to parse rfc2046.0.eml");
 			Assert.That (message1, Is.Not.Null, "Failed to parse rfc2046.1.eml");
@@ -197,7 +197,7 @@ namespace UnitTests {
 			var partials = new MessagePartial[] { (MessagePartial) message0.Body, (MessagePartial) message1.Body };
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join (null, message0, partials));
 			Assert.Throws<ArgumentNullException> (() => MessagePartial.Join ((MimeMessage) null, partials));
-			var message = MessagePartial.Join (message0, partials);
+			using var message = MessagePartial.Join (message0, partials);
 
 			Assert.That (message, Is.Not.Null, "Failed to reconstruct the message");
 			Assert.That (message.Subject, Is.EqualTo ("Audio mail"), "Subjects do not match");
@@ -209,7 +209,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSplit ()
 		{
-			var message = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
+			using var message = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
 			var parts = new List<MessagePartial> ();
 
@@ -222,7 +222,10 @@ namespace UnitTests {
 				Assert.That (parts[i].Number, Is.EqualTo (i + 1), "Number");
 			}
 
-			var combined = MessagePartial.Join (message, parts);
+			using var combined = MessagePartial.Join (message, parts);
+
+			foreach (var msg in split)
+				msg.Dispose ();
 
 			AssertRawMessageStreams (message, combined);
 		}

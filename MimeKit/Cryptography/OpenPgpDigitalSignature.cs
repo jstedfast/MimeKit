@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -113,7 +113,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the digital signature.
 		/// </remarks>
-		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>
@@ -151,7 +151,7 @@ namespace MimeKit.Cryptography {
 		/// Verifies the digital signature.
 		/// </remarks>
 		/// <param name="verifySignatureOnly">This option is ignored for OpenPGP digital signatures.</param>
-		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>

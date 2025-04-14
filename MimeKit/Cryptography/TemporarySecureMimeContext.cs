@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -88,7 +89,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
-		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the mailbox address can be used for signing; otherwise, <see langword="false" />.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -111,7 +112,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
-		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -259,7 +260,10 @@ namespace MimeKit.Cryptography {
 
 		X509Certificate GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
+			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
+			X509Certificate domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -276,16 +280,27 @@ namespace MimeKit.Cryptography {
 					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
 						continue;
 				} else {
-					var address = certificate.GetSubjectEmailAddress ();
+					var emailAddress = certificate.GetSubjectEmailAddress (true);
 
-					if (!address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+					if (!emailAddress.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
+						// Fall back to matching the domain...
+						if (domainCertificate == null) {
+							var domains = certificate.GetSubjectDnsNames (true);
+
+							if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
+								// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
+								domainCertificate = certificate;
+							}
+						}
+
 						continue;
+					}
 				}
 
 				return certificate;
 			}
 
-			return null;
+			return domainCertificate;
 		}
 
 		/// <summary>
@@ -320,7 +335,11 @@ namespace MimeKit.Cryptography {
 
 		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter key)
 		{
+			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
+			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
+			X509Certificate domainCertificate = null;
+			AsymmetricKeyParameter domainKey = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -340,18 +359,30 @@ namespace MimeKit.Cryptography {
 					if (!fingerprint.Equals (secure.Fingerprint, StringComparison.OrdinalIgnoreCase))
 						continue;
 				} else {
-					var address = certificate.GetSubjectEmailAddress ();
+					var address = certificate.GetSubjectEmailAddress (true);
 
-					if (!address.Equals (mailbox.Address, StringComparison.OrdinalIgnoreCase))
+					if (!address.Equals (mailboxAddress, StringComparison.OrdinalIgnoreCase)) {
+						// Fall back to matching the domain...
+						if (domainCertificate == null) {
+							var domains = certificate.GetSubjectDnsNames (true);
+
+							if (domains.Any (domain => domain.Equals (mailboxDomain, StringComparison.OrdinalIgnoreCase))) {
+								// Cache this certificate. We will only use this if we do not find an exact match based on the full email address.
+								domainCertificate = certificate;
+								domainKey = key;
+							}
+						}
+
 						continue;
+					}
 				}
 
 				return certificate;
 			}
 
-			key = null;
+			key = domainKey;
 
-			return null;
+			return domainCertificate;
 		}
 
 		/// <summary>
@@ -547,6 +578,29 @@ namespace MimeKit.Cryptography {
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
+			var obsolete = new List<int> ();
+			var delta = crl.IsDelta ();
+
+			// scan over our list of CRLs by the same issuer to check if this CRL obsoletes any
+			// older CRLs or if there are any newer CRLs that obsolete this one.
+			for (int i = 0; i < crls.Count; i++) {
+				if (!crls[i].IssuerDN.Equals (crl.IssuerDN))
+					continue;
+
+				if (!crls[i].IsDelta () && crls[i].ThisUpdate >= crl.ThisUpdate) {
+					// we have a complete CRL that obsoletes this CRL
+					return;
+				}
+
+				if (!delta)
+					obsolete.Add (i);
+			}
+
+			// remove any obsoleted CRLs
+			for (int i = obsolete.Count - 1; i>= 0; i--)
+				crls.RemoveAt (obsolete[i]);
+
+			// add the new CRL
 			crls.Add (crl);
 		}
 

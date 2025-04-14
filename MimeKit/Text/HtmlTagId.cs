@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -864,12 +864,19 @@ namespace MimeKit.Text {
 
 		static HtmlTagIdExtensions ()
 		{
-			var values = (HtmlTagId[]) Enum.GetValues (typeof (HtmlTagId));
+#if NET8_0_OR_GREATER
+			var values = Enum.GetValuesAsUnderlyingType<HtmlTagId> ();
+#else
+			var values = Enum.GetValues (typeof (HtmlTagId));
+#endif
 
 			IdMapping = new Dictionary<string, HtmlTagId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
-			for (int i = 1; i < values.Length; i++)
-				IdMapping.Add (values[i].ToHtmlTagName (), values[i]);
+			for (int i = 1; i < values.Length; i++) {
+				var value = (HtmlTagId) values.GetValue (i);
+
+				IdMapping.Add (TagNames[i - 1], value);
+			}
 		}
 
 		/// <summary>
@@ -918,7 +925,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Determines whether the HTML tag is an empty element.
 		/// </remarks>
-		/// <returns><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the tag is an empty element; otherwise, <see langword="false" />.</returns>
 		/// <param name="id">Identifier.</param>
 		public static bool IsEmptyElement (this HtmlTagId id)
 		{
@@ -951,7 +958,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Determines whether the HTML tag is a formatting element.
 		/// </remarks>
-		/// <returns><c>true</c> if the HTML tag is a formatting element; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the HTML tag is a formatting element; otherwise, <see langword="false" />.</returns>
 		/// <param name="id">The HTML tag identifier.</param>
 		public static bool IsFormattingElement (this HtmlTagId id)
 		{

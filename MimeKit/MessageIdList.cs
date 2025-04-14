@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -228,8 +228,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the list contains the specified Message-Id.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified Message-Id is contained;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified Message-Id is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <see langword="null"/>.
@@ -268,8 +268,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first instance of the specified Message-Id from the list if it exists.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified Message-Id was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified Message-Id was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="messageId">The Message-Id.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <see langword="null"/>.
@@ -304,7 +304,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="MessageIdList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}

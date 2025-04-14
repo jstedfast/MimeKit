@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -138,8 +138,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the parameter list contains a parameter with the specified name.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested parameter exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the requested parameter exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
@@ -210,8 +210,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the parameter with the specified name from the list, if it exists.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified parameter was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified parameter was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
@@ -277,7 +277,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\ParameterExamples.cs" region="OverrideFileNameParameterEncoding"/>
 		/// </example>
-		/// <returns><c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the parameter exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -297,7 +297,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the value of the parameter with the specified name.
 		/// </remarks>
-		/// <returns><c>true</c> if the parameter exists; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the parameter exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -337,7 +337,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="ParameterList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -368,6 +368,9 @@ namespace MimeKit {
 			table.Add (param.Name, param);
 			parameters.Add (param);
 
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
+
 			OnChanged ();
 		}
 
@@ -379,11 +382,20 @@ namespace MimeKit {
 		/// </remarks>
 		public void Clear ()
 		{
-			foreach (var param in parameters)
+			bool hadBoundary = false;
+
+			foreach (var param in parameters) {
+				if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+					hadBoundary = true;
+
 				param.Changed -= OnParamChanged;
+			}
 
 			parameters.Clear ();
 			table.Clear ();
+
+			if (hadBoundary)
+				OnBoundaryChanged ();
 
 			OnChanged ();
 		}
@@ -394,8 +406,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the parameter list contains the specified parameter.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified parameter is contained;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified parameter is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="param"/> is <see langword="null"/>.
@@ -428,8 +440,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified parameter from the list.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified parameter was removed;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified parameter was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="param"/> is <see langword="null"/>.
@@ -444,6 +456,9 @@ namespace MimeKit {
 
 			param.Changed -= OnParamChanged;
 			table.Remove (param.Name);
+
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
 
 			OnChanged ();
 
@@ -506,6 +521,9 @@ namespace MimeKit {
 			table.Add (param.Name, param);
 			param.Changed += OnParamChanged;
 
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
+
 			OnChanged ();
 		}
 
@@ -529,6 +547,9 @@ namespace MimeKit {
 			param.Changed -= OnParamChanged;
 			parameters.RemoveAt (index);
 			table.Remove (param.Name);
+
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
 
 			OnChanged ();
 		}
@@ -581,6 +602,10 @@ namespace MimeKit {
 				param.Changed -= OnParamChanged;
 				value.Changed += OnParamChanged;
 				parameters[index] = value;
+
+				if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase) ||
+					value.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+					OnBoundaryChanged ();
 
 				OnChanged ();
 			}
@@ -650,10 +675,22 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
+		internal event EventHandler BoundaryChanged;
+
+		void OnBoundaryChanged ()
+		{
+			BoundaryChanged?.Invoke (this, EventArgs.Empty);
+		}
+
 		internal event EventHandler Changed;
 
 		void OnParamChanged (object sender, EventArgs args)
 		{
+			var param = (Parameter) sender;
+
+			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+				OnBoundaryChanged ();
+
 			OnChanged ();
 		}
 

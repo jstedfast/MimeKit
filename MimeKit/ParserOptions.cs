@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ using MimeKit.Cryptography;
 
 using MimeKit.Tnef;
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -76,25 +77,25 @@ namespace MimeKit {
 		/// Get or set whether the rfc822 address parser should ignore unquoted commas in address names.
 		/// </summary>
 		/// <remarks>
-		/// <para>In general, you'll probably want this value to be <c>true</c> (the default) as it allows
+		/// <para>In general, you'll probably want this value to be <see langword="true" /> (the default) as it allows
 		/// maximum interoperability with existing (broken) mail clients and other mail software such as
 		/// sloppily written perl scripts (aka spambots) that do not properly quote the name when it
 		/// contains a comma.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the address parser should ignore unquoted commas in address names; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the address parser should ignore unquoted commas in address names; otherwise, <see langword="false" />.</value>
 		public bool AllowUnquotedCommasInAddresses { get; set; }
 
 		/// <summary>
 		/// Get or set whether the rfc822 address parser should allow addresses without a domain.
 		/// </summary>
 		/// <remarks>
-		/// <para>In general, you'll probably want this value to be <c>true</c> (the default) as it allows
+		/// <para>In general, you'll probably want this value to be <see langword="true" /> (the default) as it allows
 		/// maximum interoperability with older email messages that may contain local UNIX addresses.</para>
 		/// <para>This option exists in order to allow parsing of mailbox addresses that do not have an
 		/// @domain component. These types of addresses are rare and were typically only used when sending
 		/// mail to other users on the same UNIX system.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the address parser should allow mailbox addresses without a domain; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the address parser should allow mailbox addresses without a domain; otherwise, <see langword="false" />.</value>
 		public bool AllowAddressesWithoutDomain { get; set; }
 
 		/// <summary>
@@ -155,8 +156,8 @@ namespace MimeKit {
 		/// at <a href="http://www.jwz.org/doc/content-length.html">
 		/// http://www.jwz.org/doc/content-length.html</a>.
 		/// </remarks>
-		/// <value><c>true</c> if the Content-Length value should be respected;
-		/// otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the Content-Length value should be respected;
+		/// otherwise, <see langword="false" />.</value>
 		public bool RespectContentLength { get; set; }
 
 		/// <summary>
@@ -244,7 +245,11 @@ namespace MimeKit {
 		/// <para><paramref name="type"/> does not have a constructor that takes
 		/// only a <see cref="MimeEntityConstructorArgs"/> argument.</para>
 		/// </exception>
-		public void RegisterMimeType (string mimeType, Type type)
+		public void RegisterMimeType (string mimeType,
+#if NET8_0_OR_GREATER
+			[DynamicallyAccessedMembers (DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+			Type type)
 		{
 			if (mimeType is null)
 				throw new ArgumentNullException (nameof (mimeType));
@@ -305,9 +310,9 @@ namespace MimeKit {
 			return false;
 		}
 
-		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool toplevel, int depth)
+		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
 		{
-			var args = new MimeEntityConstructorArgs (this, contentType, headers, toplevel);
+			var args = new MimeEntityConstructorArgs (this, contentType, headers, hasBodySeparator, toplevel);
 			var subtype = contentType.MediaSubtype;
 			var type = contentType.MediaType;
 

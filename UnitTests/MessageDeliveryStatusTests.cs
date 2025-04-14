@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var mds = new MessageDeliveryStatus ();
+			using var mds = new MessageDeliveryStatus ();
 
 			Assert.Throws<ArgumentNullException> (() => mds.Accept (null));
 		}
@@ -44,7 +44,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroups ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -70,7 +70,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsNoBlankLine ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -96,7 +96,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsWithContent ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -132,7 +132,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsMultipleBlankLines ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -158,7 +158,7 @@ namespace UnitTests {
 		public void TestSerializedContent ()
 		{
 			const string expected = "Reporting-MTA: dns; mm1\nArrival-Date: Mon, 29 Jul 1996 02:12:50 -0700\n\nFinal-Recipient: RFC822; newsletter-request@imusic.com\nAction: failed\nDiagnostic-Code: X-LOCAL; 500 (err.nosuchuser)\n\n";
-			var mds = new MessageDeliveryStatus ();
+			using var mds = new MessageDeliveryStatus ();
 			var recipient = new HeaderList ();
 			var status = new HeaderList {
 				{ "Reporting-MTA", "dns; mm1" },

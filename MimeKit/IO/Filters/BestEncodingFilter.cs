@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -145,7 +145,7 @@ namespace MimeKit.IO.Filters {
 				while (inptr < inend && (c = *inptr++) != (byte) '\n') {
 					if (c == 0)
 						count0++;
-					else if ((c & 0x80) != 0)
+					else if (c > 127)
 						count8++;
 
 					if (!hasMarker && markerLength < 5)

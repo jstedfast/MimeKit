@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			var certificate = new X509Certificate2 (signer.Certificate.GetEncoded ());
 			var chain = new[] { DotNetUtilities.FromX509Certificate (certificate) };
@@ -161,7 +161,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
@@ -195,7 +195,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSignerIdentifierType ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			List<X509Certificate> certificates;
 			AsymmetricKeyParameter key;
 			var password = "no.secret";
@@ -229,7 +229,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestRsaSignaturePadding ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 
 			Assert.That (signer.RsaSignaturePadding, Is.Null, "Default RsaSignaturePadding");

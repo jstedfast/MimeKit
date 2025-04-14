@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -223,7 +223,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="format">The preferred text format.</param>
 		/// <param name="body">The MIME part containing the message body in the preferred text format.</param>
-		/// <returns><c>true</c> if the body part is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the body part is found; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
@@ -254,7 +254,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the multipart/related entity contains a part matching the specified URI.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified part exists; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified part exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="uri">The URI of the MIME part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <see langword="null"/>.

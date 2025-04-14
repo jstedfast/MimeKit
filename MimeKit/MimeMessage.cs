@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -91,7 +91,7 @@ namespace MimeKit {
 		MessageImportance importance = MessageImportance.Normal;
 		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
-		readonly RfcComplianceMode compliance;
+		internal readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		LazyLoadedFields lazyLoaded;
 		MailboxAddress resentSender;
@@ -225,12 +225,59 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
 		/// </summary>
 		/// <remarks>
+		/// Creates a new <see cref="MimeMessage"/>.
+		/// </remarks>
+		/// <param name="headers">A list of initial message headers.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="headers"/> is <see langword="null"/>.
+		/// </exception>
+		public MimeMessage (IEnumerable<Header> headers)
+		{
+			if (headers is null)
+				throw new ArgumentNullException (nameof (headers));
+
+			addresses = new Dictionary<HeaderId, InternetAddressList> ();
+			compliance = RfcComplianceMode.Strict;
+
+			// initialize our address lists
+			foreach (var id in StandardAddressHeaders) {
+				var list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
+				addresses.Add (id, list);
+			}
+
+			references = new MessageIdList ();
+			references.Changed += ReferencesChanged;
+
+			if (headers is HeaderList headerList) {
+				Headers = headerList;
+			} else {
+				Headers = new HeaderList (ParserOptions.Default.Clone ());
+
+				foreach (var header in headers)
+					Headers.Add (header);
+			}
+
+			Headers.Changed += HeadersChanged;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new MIME message, specifying details at creation time.
 		/// </remarks>
 		/// <param name="from">The list of addresses in the From header.</param>
 		/// <param name="to">The list of addresses in the To header.</param>
 		/// <param name="subject">The subject of the message.</param>
 		/// <param name="body">The body of the message.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="from"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="to"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="subject"/> is <see langword="null"/>.</para>
+		/// </exception>
 		public MimeMessage (IEnumerable<InternetAddress> from, IEnumerable<InternetAddress> to, string subject, MimeEntity body) : this ()
 		{
 			From.AddRange (from);
@@ -461,10 +508,15 @@ namespace MimeKit {
 		/// Get or set the address in the Sender header.
 		/// </summary>
 		/// <remarks>
-		/// The sender may differ from the addresses in <see cref="From"/> if
-		/// the message was sent by someone on behalf of someone else.
+		/// <para>The "Sender" field specifies the mailbox of the agent responsible for
+		/// the actual transmission of the message. For example, if a secretary were to send a
+		/// message for another person, the mailbox of the secretary would appear in the
+		/// "Sender" field and the mailbox of the actual author would appear in the "From"
+		/// field. If the originator of the message can be indicated by a single mailbox and
+		/// the author and transmitter are identical, the "Sender" field SHOULD NOT be used.
+		/// Otherwise, both fields SHOULD appear.</para>
 		/// </remarks>
-		/// <value>The address in the Sender header.</value>
+		/// <value>The address in the Sender header, if available.</value>
 		public MailboxAddress Sender {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.Sender) == 0) {
@@ -1167,7 +1219,7 @@ namespace MimeKit {
 		/// <c>Resent-Cc</c> and <c>Resent-Bcc</c> headers will be used. Otherwise, the recipients defined by the <c>To</c>, <c>Cc</c>
 		/// and <c>Bcc</c> headers will be used.</para>
 		/// </remarks>
-		/// <param name="onlyUnique">If <c>true</c>, only mailboxes with a unique address will be included.</param>
+		/// <param name="onlyUnique">If <see langword="true" />, only mailboxes with a unique address will be included.</param>
 		/// <returns>The concatenated list of recipients.</returns>
 		public IList<MailboxAddress> GetRecipients (bool onlyUnique = false)
 		{
@@ -1254,7 +1306,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -1299,11 +1351,13 @@ namespace MimeKit {
 					filtered.Flush (cancellationToken);
 				}
 
-				if (stream is ICancellableStream cancellable) {
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator) {
+					if (stream is ICancellableStream cancellable) {
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 
 				if (!headersOnly) {
@@ -1328,7 +1382,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -1373,7 +1427,8 @@ namespace MimeKit {
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator)
+					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 
 				if (!headersOnly) {
 					try {
@@ -1446,7 +1501,7 @@ namespace MimeKit {
 		/// Writes the message to the output stream using the default formatting options.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -1470,7 +1525,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -2256,7 +2311,7 @@ namespace MimeKit {
 		}
 #endif // ENABLE_CRYPTO
 
-		IEnumerable<Header> MergeHeaders ()
+		internal IEnumerable<Header> MergeHeaders ()
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 
@@ -2544,8 +2599,8 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 			if (disposing && Body != null)
@@ -2573,7 +2628,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2582,7 +2637,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -2617,7 +2672,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2626,7 +2681,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -2721,7 +2776,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2729,7 +2784,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -2754,7 +2809,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2762,7 +2817,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.

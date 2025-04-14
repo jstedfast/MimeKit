@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -95,7 +95,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Indicates whether this certificate revocation list is a delta.
 		/// </remarks>
-		/// <value><c>true</c> if th crl is delta; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if th crl is delta; otherwise, <see langword="false" />.</value>
 		public bool IsDelta { get; internal set; }
 
 		/// <summary>

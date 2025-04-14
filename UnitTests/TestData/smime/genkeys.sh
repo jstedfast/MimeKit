@@ -28,3 +28,11 @@ fi
 if [ ! -e "ec/smime.key" ]; then
     openssl ecparam -name secp384r1 -genkey -noout -out ec/smime.key > /dev/null
 fi
+
+if [ ! -e "dnsnames/smime.key" ]; then
+    openssl genrsa -out dnsnames/smime.key 4096 > /dev/null
+fi
+
+if [ ! -e "nochain/smime.key" ]; then
+    openssl genrsa -out nochain/smime.key 4096 > /dev/null
+fi

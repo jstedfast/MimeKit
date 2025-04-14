@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,6 +52,7 @@ namespace MimeKit {
 		async Task<bool> StepByteOrderMarkAsync (CancellationToken cancellationToken)
 		{
 			int bomIndex = 0;
+			bool complete;
 
 			do {
 				var available = await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
@@ -64,26 +65,25 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						StepByteOrderMark (inbuf, ref bomIndex);
+						complete = StepByteOrderMark (inbuf, ref bomIndex);
 					}
 				}
-			} while (inputIndex == inputEnd);
+			} while (!complete && inputIndex == inputEnd);
 
-			return bomIndex == 0 || bomIndex == UTF8ByteOrderMark.Length;
+			return complete;
 		}
 
 		async Task StepMboxMarkerAsync (CancellationToken cancellationToken)
 		{
-			int mboxMarkerIndex, mboxMarkerLength;
-			long mboxMarkerOffset;
+			bool midline = false;
 			bool complete;
-			int left = 0;
 
+			// consume data until we find a line that begins with "From "
 			do {
-				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
+				var available = await ReadAheadAsync (5, 0, cancellationToken).ConfigureAwait (false);
 
-				if (available <= left) {
-					// failed to find a From line; EOF reached
+				if (available < 5) {
+					// failed to find the beginning of the mbox marker; EOF reached
 					state = MimeParserState.Error;
 					inputIndex = inputEnd;
 					return;
@@ -91,12 +91,37 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						complete = StepMboxMarker (inbuf, ref left, out mboxMarkerIndex, out mboxMarkerLength, out mboxMarkerOffset);
+						complete = StepMboxMarkerStart (inbuf, ref midline);
 					}
 				}
 			} while (!complete);
 
-			await OnMboxMarkerReadAsync (input, mboxMarkerIndex, mboxMarkerLength, mboxMarkerOffset, lineNumber - 1, cancellationToken).ConfigureAwait (false);
+			var mboxMarkerOffset = GetOffset (inputIndex);
+			var mboxMarkerLineNumber = lineNumber;
+
+			OnMboxMarkerBegin (mboxMarkerOffset, lineNumber, cancellationToken);
+
+			do {
+				if (await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false) < 1) {
+					// failed to find the end of the mbox marker; EOF reached
+					state = MimeParserState.Error;
+					return;
+				}
+
+				int startIndex = inputIndex;
+				int count;
+
+				unsafe {
+					fixed (byte* inbuf = input) {
+						complete = StepMboxMarker (inbuf, out count);
+					}
+				}
+
+				// TODO: Remove beginOffset and lineNumber arguments from OnMboxMarkerReadAsync() in v5.0
+				await OnMboxMarkerReadAsync (input, startIndex, count, mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken).ConfigureAwait (false);
+			} while (!complete);
+
+			OnMboxMarkerEnd (mboxMarkerOffset, mboxMarkerLineNumber, GetOffset (inputIndex), cancellationToken);
 
 			state = MimeParserState.MessageHeaders;
 		}
@@ -108,7 +133,7 @@ namespace MimeKit {
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
-			//preHeaderLength = 0;
+			currentBoundary = null;
 			headerCount = 0;
 
 			currentContentLength = null;
@@ -133,14 +158,25 @@ namespace MimeKit {
 					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
 				if (left == 0) {
+					// Note: The only way to get here is if this is the first-pass throgh this loop and we're at EOF, so headerCount should ALWAYS be 0.
+
+					if (toplevel && headerCount == 0) {
+						// EOF has been reached before any headers have been parsed for Parse[Headers,Entity,Message]Async.
+						state = MimeParserState.Eos;
+						return;
+					}
+
+					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
 					state = MimeParserState.Content;
-					eof = true;
 					break;
 				}
 
 				// Check for an empty line denoting the end of the header block.
-				if (IsEndOfHeaderBlock (left))
+				if (IsEndOfHeaderBlock (left)) {
+					await OnBodySeparatorAsync (beginOffset, beginLineNumber, GetOffset (inputIndex), CancellationToken.None).ConfigureAwait (false);
+					state = MimeParserState.Content;
 					break;
+				}
 
 				// Scan ahead a bit to see if this looks like an invalid header.
 				do {
@@ -178,6 +214,12 @@ namespace MimeKit {
 							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
 						} while (true);
+
+						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
+						if (state == MimeParserState.Boundary)
+							break;
+
+						// Fall through and act as if we're consuming a header.
 					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
 						do {
@@ -193,10 +235,18 @@ namespace MimeKit {
 							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
 						} while (true);
-					}
 
-					if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
-						break;
+						// state will be one of the following values:
+						// 1. Complete: This means that we've found an actual mbox marker
+						// 2. Error: Invalid *first* header and it was not a valid mbox marker
+						// 3. MessageHeaders or Headers: let it fall through and treat it as an invalid headers
+						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+							break;
+
+						// Fall through and act as if we're consuming a header.
+					} else {
+						// Fall through and act as if we're consuming a header.
+					}
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
@@ -221,6 +271,7 @@ namespace MimeKit {
 					}
 
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
+						state = MimeParserState.Content;
 						eof = true;
 						break;
 					}
@@ -241,19 +292,50 @@ namespace MimeKit {
 			await OnHeadersEndAsync (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task<bool> SkipLineAsync (bool consumeNewLine, CancellationToken cancellationToken)
+		async Task<bool> SkipBoundaryMarkerAsync (string boundary, bool endBoundary, CancellationToken cancellationToken)
 		{
-			do {
-				unsafe {
-					fixed (byte* inbuf = input) {
-						if (InnerSkipLine (inbuf, consumeNewLine))
-							return true;
-					}
-				}
+			long beginOffset = GetOffset (inputIndex);
+			int beginLineNumber = lineNumber;
+			int startIndex = inputIndex;
+			bool result;
 
-				if (await ReadAheadAsync (ReadAheadSize, 1, cancellationToken).ConfigureAwait (false) <= 0)
-					return false;
-			} while (true);
+			if (endBoundary)
+				await OnMultipartEndBoundaryBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+			else
+				await OnMultipartBoundaryBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+
+			unsafe {
+				fixed (byte* inbuf = input) {
+					result = SkipBoundaryMarkerInternal (inbuf, endBoundary);
+				}
+			}
+
+			int count = inputIndex - startIndex;
+
+			if (endBoundary)
+				await OnMultipartEndBoundaryReadAsync (input, startIndex, count, beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+			else
+				await OnMultipartBoundaryReadAsync (input, startIndex, count, beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+
+			long endOffset = GetOffset (inputIndex);
+
+			if (endBoundary) {
+				await OnMultipartEndBoundaryEndAsync (beginOffset, beginLineNumber, endOffset, cancellationToken).ConfigureAwait (false);
+
+#pragma warning disable 618
+				// Obsolete
+				await OnMultipartEndBoundaryAsync (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+#pragma warning restore 618
+			} else {
+				await OnMultipartBoundaryEndAsync (beginOffset, beginLineNumber, endOffset, cancellationToken).ConfigureAwait (false);
+
+#pragma warning disable 618
+				// Obsolete
+				await OnMultipartBoundaryAsync (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
+#pragma warning restore 618
+			}
+
+			return result;
 		}
 
 		async Task<MimeParserState> StepAsync (CancellationToken cancellationToken)
@@ -356,7 +438,7 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			if (bounds.Count > 0) {
+			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
@@ -392,12 +474,6 @@ namespace MimeKit {
 			var currentBeginOffset = headerBlockBegin;
 
 			await OnMimeMessageBeginAsync (currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-
-			//if (preHeaderLength > 0) {
-				// FIXME: how to solve this?
-				//message.MboxMarker = new byte[preHeaderLength];
-				//Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
-			//}
 
 			var type = GetContentType (null);
 			MimeEntityType entityType;
@@ -459,39 +535,18 @@ namespace MimeKit {
 
 		async Task MultipartScanSubpartsAsync (ContentType multipartContentType, int depth, CancellationToken cancellationToken)
 		{
-			var boundaryOffset = GetOffset (inputIndex);
-
 			do {
 				// skip over the boundary marker
-				if (!await SkipLineAsync (true, cancellationToken).ConfigureAwait (false)) {
-					await OnMultipartBoundaryAsync (multipartContentType.Boundary, boundaryOffset, GetOffset (inputIndex), lineNumber, cancellationToken).ConfigureAwait (false);
+				if (!await SkipBoundaryMarkerAsync (multipartContentType.Boundary, endBoundary: false, cancellationToken).ConfigureAwait (false)) {
 					boundary = BoundaryType.Eos;
 					return;
 				}
-
-				await OnMultipartBoundaryAsync (multipartContentType.Boundary, boundaryOffset, GetOffset (inputIndex), lineNumber - 1, cancellationToken).ConfigureAwait (false);
 
 				var beginLineNumber = lineNumber;
 
 				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
 				state = MimeParserState.Headers;
 				await StepAsync (cancellationToken).ConfigureAwait (false);
-
-				if (state == MimeParserState.Boundary) {
-					if (headerCount == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary) {
-							//beginOffset = GetOffset (inputIndex);
-							continue;
-						}
-						return;
-					}
-
-					// This part has no content, but that will be handled in ConstructMultipartAsync()
-					// or ConstructMimePartAsync().
-				}
-
-				//if (state == ParserState.Complete && headers.Count == 0)
-				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipartContentType);
 				var currentHeadersEndOffset = headerBlockEnd;
@@ -527,8 +582,6 @@ namespace MimeKit {
 					await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 					break;
 				}
-
-				boundaryOffset = endOffset;
 			} while (boundary == BoundaryType.ImmediateBoundary);
 		}
 
@@ -560,14 +613,7 @@ namespace MimeKit {
 
 			if (boundary == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
-				// FIXME: multipart.WriteEndBoundary = true;
-
-				var boundaryOffset = GetOffset (inputIndex);
-				var boundaryLineNumber = lineNumber;
-
-				await SkipLineAsync (false, cancellationToken).ConfigureAwait (false);
-
-				await OnMultipartEndBoundaryAsync (marker, boundaryOffset, GetOffset (inputIndex), boundaryLineNumber, cancellationToken).ConfigureAwait (false);
+				await SkipBoundaryMarkerAsync (marker, endBoundary: true, cancellationToken).ConfigureAwait (false);
 
 				PopBoundary ();
 
@@ -578,19 +624,8 @@ namespace MimeKit {
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
 
-			// FIXME: multipart.WriteEndBoundary = false;
-
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
-
-			unsafe {
-				fixed (byte* inbuf = input) {
-					if (boundary == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
-						boundary = BoundaryType.ImmediateEndBoundary;
-					else if (boundary == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
-						boundary = BoundaryType.ImmediateBoundary;
-				}
-			}
 
 			endOffset = GetEndOffset (inputIndex);
 
@@ -649,8 +684,13 @@ namespace MimeKit {
 			state = MimeParserState.Headers;
 			toplevel = true;
 
-			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+			// parse the headers
+			switch (await StepAsync (cancellationToken).ConfigureAwait (false)) {
+			case MimeParserState.Error:
 				throw new FormatException ("Failed to parse entity headers.");
+			case MimeParserState.Eos:
+				throw new FormatException ("End of stream.");
+			}
 
 			var type = GetContentType (null);
 			var currentHeadersEndOffset = headerBlockEnd;
@@ -719,19 +759,23 @@ namespace MimeKit {
 				}
 			}
 
+			var beginLineNumber = lineNumber;
 			toplevel = true;
 
 			// parse the headers
-			var beginLineNumber = lineNumber;
-			if (state < MimeParserState.Content && await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
+			switch (await StepAsync (cancellationToken).ConfigureAwait (false)) {
+			case MimeParserState.Error:
 				throw new FormatException ("Failed to parse message headers.");
+			case MimeParserState.Eos:
+				throw new FormatException ("End of stream.");
+			}
 
 			var currentHeadersEndOffset = headerBlockEnd;
 			var currentBeginOffset = headerBlockBegin;
 
 			await OnMimeMessageBeginAsync (currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			if (format == MimeFormat.Mbox && options.RespectContentLength && currentContentLength.HasValue && currentContentLength.Value != -1)
+			if (format == MimeFormat.Mbox && options.RespectContentLength && currentContentLength.HasValue)
 				contentEnd = GetOffset (inputIndex) + currentContentLength.Value;
 			else
 				contentEnd = 0;

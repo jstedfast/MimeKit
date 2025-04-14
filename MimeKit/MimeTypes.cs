@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -1037,7 +1037,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the standard file extension for a MIME-type.
 		/// </remarks>
-		/// <returns><c>true</c> if the extension is known for the specified MIME-type; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the extension is known for the specified MIME-type; otherwise, <see langword="false" />.</returns>
 		/// <param name="mimeType">The MIME-type.</param>
 		/// <param name="extension">The file name extension for the specified MIME-type.</param>
 		/// <exception cref="System.ArgumentNullException">

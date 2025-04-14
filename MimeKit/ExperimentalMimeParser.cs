@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -57,10 +57,13 @@ namespace MimeKit {
 		byte[] preHeaderBuffer;
 		int preHeaderLength;
 
+		byte[] rawBoundary;
+
 		// MimePart content and Multipart preamble/epilogue state
 		Stream content;
 
 		bool parsingMessageHeaders;
+		bool hasBodySeparator;
 		int depth;
 
 		bool persistent;
@@ -70,7 +73,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="ExperimentalMimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="ExperimentalMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="ExperimentalMimeParser"/>
@@ -80,7 +83,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -93,7 +96,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="ExperimentalMimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="ExperimentalMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="ExperimentalMimeParser"/>
@@ -102,7 +105,7 @@ namespace MimeKit {
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -115,7 +118,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="ExperimentalMimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="ExperimentalMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="ExperimentalMimeParser"/>
@@ -125,7 +128,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -140,7 +143,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="ExperimentalMimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="ExperimentalMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="ExperimentalMimeParser"/>
@@ -151,7 +154,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -189,7 +192,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -199,7 +202,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -233,7 +236,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -242,7 +245,7 @@ namespace MimeKit {
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -251,20 +254,45 @@ namespace MimeKit {
 			SetStream (stream, MimeFormat.Default, persistent);
 		}
 
-		void PopEntity ()
+		void PushEntity (MimeEntity entity)
 		{
-			if (stack.Count > 1) {
-				var entity = (MimeEntity) stack.Pop ();
+			if (stack.Count > 0) {
 				var parent = stack.Peek ();
 
-				if (parent is MimeMessage message)
+				if (parent is Multipart multipart) {
+					multipart.AddInternal (entity, rawBoundary);
+					rawBoundary = null;
+				} else if (parent is MimeMessage message) {
 					message.Body = entity;
-				else
-					((Multipart) parent).InternalAdd (entity);
+				}
 			}
+
+			stack.Push (entity);
+		}
+
+		void PopEntity ()
+		{
+			if (stack.Count > 1)
+				stack.Pop ();
 		}
 
 		#region Mbox Events
+
+		/// <summary>
+		/// Called when an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnMboxMarkerBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			mboxMarkerOffset = beginOffset;
+			mboxMarkerLength = 0;
+		}
 
 		/// <summary>
 		/// Called when an Mbox marker is encountered in the stream.
@@ -281,12 +309,13 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
 		{
-			if (mboxMarkerBuffer.Length < count)
-				Array.Resize (ref mboxMarkerBuffer, count);
+			int needed = mboxMarkerLength + count;
 
-			Buffer.BlockCopy (buffer, startIndex, mboxMarkerBuffer, 0, count);
-			mboxMarkerOffset = beginOffset;
-			mboxMarkerLength = count;
+			if (mboxMarkerBuffer.Length < needed)
+				Array.Resize (ref mboxMarkerBuffer, needed);
+
+			Buffer.BlockCopy (buffer, startIndex, mboxMarkerBuffer, mboxMarkerLength, count);
+			mboxMarkerLength += count;
 		}
 
 		#endregion Mbox Events
@@ -307,6 +336,7 @@ namespace MimeKit {
 		{
 			headers.Clear ();
 			preHeaderLength = 0;
+			hasBodySeparator = false;
 		}
 
 		/// <summary>
@@ -350,6 +380,22 @@ namespace MimeKit {
 			parsingMessageHeaders = false;
 		}
 
+		/// <summary>
+		/// Called when the body separator is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>Called when the body separator is encountered in the stream.</para>
+		/// <para>This method is always called before <see cref="OnHeadersEnd"/> if a body separator is found.</para>
+		/// </remarks>
+		/// <param name="beginOffset">The offset into the stream where the body separator began.</param>
+		/// <param name="lineNumber">The line number where the body separator was found.</param>
+		/// <param name="endOffset">The offset into the stream where the body separator ended.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnBodySeparator (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+		{
+			hasBodySeparator = true;
+		}
+
 		#endregion Header Events
 
 		#region MimeMessage Events
@@ -373,6 +419,12 @@ namespace MimeKit {
 				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
 			}
 
+			if (stack.Count > 0) {
+				var rfc822 = (MessagePart) stack.Peek ();
+
+				rfc822.Message = message;
+			}
+
 			stack.Push (message);
 		}
 
@@ -391,12 +443,8 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
-			if (stack.Count > 1) {
-				var message = (MimeMessage) stack.Pop ();
-				var rfc822 = (MessagePart) stack.Peek ();
-
-				rfc822.Message = message;
-			}
+			if (stack.Count > 1)
+				stack.Pop ();
 		}
 
 		#endregion MimeMessage Events
@@ -417,9 +465,9 @@ namespace MimeKit {
 		protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
-			var part = Options.CreateEntity (contentType, headers, toplevel, depth);
+			var part = Options.CreateEntity (contentType, headers, hasBodySeparator, toplevel, depth);
 
-			stack.Push (part);
+			PushEntity (part);
 		}
 
 		/// <summary>
@@ -525,10 +573,10 @@ namespace MimeKit {
 		protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
-			var rfc822 = Options.CreateEntity (contentType, headers, toplevel, depth);
+			var rfc822 = Options.CreateEntity (contentType, headers, hasBodySeparator, toplevel, depth);
 
 			parsingMessageHeaders = true;
-			stack.Push (rfc822);
+			PushEntity (rfc822);
 			depth++;
 		}
 
@@ -570,43 +618,10 @@ namespace MimeKit {
 		protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
 			var toplevel = stack.Count > 0 && stack.Peek () is MimeMessage;
-			var multipart = Options.CreateEntity (contentType, headers, toplevel, depth);
+			var multipart = Options.CreateEntity (contentType, headers, hasBodySeparator, toplevel, depth);
 
-			stack.Push (multipart);
+			PushEntity (multipart);
 			depth++;
-		}
-
-		/// <summary>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMultipartBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-		}
-
-		/// <summary>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMultipartEndBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-			var multipart = (Multipart) stack.Peek ();
-
-			multipart.WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -660,6 +675,58 @@ namespace MimeKit {
 			multipart.RawPreamble = ((MemoryStream) content).ToArray ();
 			content.Dispose ();
 			content = null;
+		}
+
+		/// <summary>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart boundary is encountered in the stream.
+		/// </remarks>
+		/// <param name="buffer">The buffer containing the boundary marker.</param>
+		/// <param name="startIndex">The index denoting the starting position of the boundary marker within the buffer.</param>
+		/// <param name="count">The length of the boundary marker within the buffer, in bytes.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="lineNumber">The line number where the boundary marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnMultipartBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			// Note: Each call to OnMultipartBoundaryRead will contain a full boundary marker. If rawBoundary is *not* null,
+			// then it means that we've encountered a "double boundary". In order to support this scenario, we append the
+			// second (or third, etc) boundary to the existing rawBoundary buffer.
+			int rawIndex;
+
+			if (rawBoundary != null) {
+				rawIndex = rawBoundary.Length;
+				Array.Resize (ref rawBoundary, rawIndex + count);
+			} else {
+				rawBoundary = new byte[count];
+				rawIndex = 0;
+			}
+
+			Buffer.BlockCopy (buffer, startIndex, rawBoundary, rawIndex, count);
+		}
+
+		/// <summary>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// Called when a multipart end boundary is encountered in the stream.
+		/// </remarks>
+		/// <param name="buffer">The buffer containing the boundary marker.</param>
+		/// <param name="startIndex">The index denoting the starting position of the boundary marker within the buffer.</param>
+		/// <param name="count">The length of the boundary marker within the buffer, in bytes.</param>
+		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
+		/// <param name="lineNumber">The line number where the boundary marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected override void OnMultipartEndBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			var multipart = (Multipart) stack.Peek ();
+			var rawEndBoundary = new byte[count];
+
+			Buffer.BlockCopy (buffer, startIndex, rawEndBoundary, 0, count);
+
+			multipart.RawEndBoundary = rawEndBoundary;
 		}
 
 		/// <summary>
@@ -793,6 +860,8 @@ namespace MimeKit {
 			foreach (var header in headers)
 				parsed.Add (header);
 
+			parsed.HasBodySeparator = hasBodySeparator;
+
 			return parsed;
 		}
 
@@ -827,6 +896,8 @@ namespace MimeKit {
 			var parsed = new HeaderList (Options);
 			foreach (var header in headers)
 				parsed.Add (header);
+
+			parsed.HasBodySeparator = hasBodySeparator;
 
 			return parsed;
 		}

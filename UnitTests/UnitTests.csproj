@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>10</LangVersion>
+    <LangVersion>12</LangVersion>
     <AssemblyName>UnitTests</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>Full</DebugType>
@@ -29,24 +29,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AltCover" Version="8.9.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+    <PackageReference Include="AltCover" Version="9.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="nunit" Version="4.2.1" />
-    <PackageReference Include="NUnit.Analyzers" Version="4.3.0">
+    <PackageReference Include="nunit" Version="4.3.2" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NUnit.ConsoleRunner" Version="3.18.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0">
+    <PackageReference Include="NUnit.ConsoleRunner" Version="3.20.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
-    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.118" GeneratePathProperty="true" Condition=" $(TargetFramework.StartsWith('net4')) ">
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetFramework" Version="1.0.119" GeneratePathProperty="true" Condition=" $(TargetFramework.StartsWith('net4')) ">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.118" GeneratePathProperty="true" Condition=" !$(TargetFramework.StartsWith('net4')) ">
+    <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.119" GeneratePathProperty="true" Condition=" !$(TargetFramework.StartsWith('net4')) ">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />

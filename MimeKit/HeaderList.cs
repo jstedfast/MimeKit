@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -58,6 +58,7 @@ namespace MimeKit {
 		{
 			table = new Dictionary<string, Header> (MimeUtils.OrdinalIgnoreCase);
 			headers = new List<Header> ();
+			HasBodySeparator = true;
 			Options = options;
 		}
 
@@ -69,6 +70,17 @@ namespace MimeKit {
 		/// </remarks>
 		public HeaderList () : this (ParserOptions.Default.Clone ())
 		{
+		}
+
+		/// <summary>
+		/// Get or set whether or not the header list has a body separator.
+		/// </summary>
+		/// <remarks>
+		/// Get or set whether or not the header list has a body separator.
+		/// </remarks>
+		/// <value><see langword="true"/> if the header list has a body separator; otherwise, <see langword="false"/>.</value>
+		internal bool HasBodySeparator {
+			get; set;
 		}
 
 		/// <summary>
@@ -163,8 +175,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the header list contains the specified header.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested header exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the requested header exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -183,8 +195,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the header list contains the specified header.
 		/// </remarks>
-		/// <returns><value>true</value> if the requested header exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the requested header exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="field"/> is <see langword="null"/>.
@@ -399,8 +411,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
-		/// <returns><value>true</value> if the first occurrence of the specified
-		/// header was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the first occurrence of the specified
+		/// header was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is is not a valid <see cref="HeaderId"/>.
@@ -422,8 +434,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
-		/// <returns><value>true</value> if the first occurrence of the specified
-		/// header was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the first occurrence of the specified
+		/// header was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="field"/> is <see langword="null"/>.
@@ -457,6 +469,8 @@ namespace MimeKit {
 			if (!table.Remove (id.ToHeaderName ()))
 				return;
 
+			HasBodySeparator = true;
+
 			for (int i = headers.Count - 1; i >= 0; i--) {
 				if (headers[i].Id != id)
 					continue;
@@ -485,6 +499,8 @@ namespace MimeKit {
 
 			if (!table.Remove (field))
 				return;
+
+			HasBodySeparator = true;
 
 			for (int i = headers.Count - 1; i >= 0; i--) {
 				if (!headers[i].Field.Equals (field, StringComparison.OrdinalIgnoreCase))
@@ -707,6 +723,9 @@ namespace MimeKit {
 				filtered.Flush (cancellationToken);
 			}
 
+			if (!HasBodySeparator)
+				return;
+
 			if (stream is ICancellableStream cancellable) {
 				cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 			} else {
@@ -760,6 +779,9 @@ namespace MimeKit {
 
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 			}
+
+			if (!HasBodySeparator)
+				return;
 
 			await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 		}
@@ -828,7 +850,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="HeaderList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -853,6 +875,7 @@ namespace MimeKit {
 
 			header.Changed += HeaderChanged;
 			headers.Add (header);
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
@@ -868,6 +891,7 @@ namespace MimeKit {
 			foreach (var header in headers)
 				header.Changed -= HeaderChanged;
 
+			HasBodySeparator = true;
 			headers.Clear ();
 			table.Clear ();
 
@@ -880,8 +904,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the header list contains the specified header.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified header is contained;
-		/// otherwise, <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified header is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <see langword="null"/>.
@@ -920,8 +944,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified header from the list if it exists.
 		/// </remarks>
-		/// <returns><c>true</c> if the specified header was removed;
-		/// otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified header was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="header">The header.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="header"/> is <see langword="null"/>.
@@ -951,6 +975,7 @@ namespace MimeKit {
 			}
 
 			headers.RemoveAt (index);
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Removed);
 
@@ -996,6 +1021,8 @@ namespace MimeKit {
 
 			table[header.Field] = header;
 			headers[i] = header;
+
+			HasBodySeparator = true;
 
 			OnChanged (first, HeaderListChangedAction.Removed);
 			OnChanged (header, HeaderListChangedAction.Added);
@@ -1058,6 +1085,7 @@ namespace MimeKit {
 
 			headers.Insert (index, header);
 			header.Changed += HeaderChanged;
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Added);
 		}
@@ -1094,6 +1122,7 @@ namespace MimeKit {
 			}
 
 			headers.RemoveAt (index);
+			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Removed);
 		}
@@ -1164,6 +1193,7 @@ namespace MimeKit {
 				}
 
 				headers[index] = value;
+				HasBodySeparator = true;
 
 				if (header.Field.Equals (value.Field, StringComparison.OrdinalIgnoreCase)) {
 					OnChanged (value, HeaderListChangedAction.Changed);

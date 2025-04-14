@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -111,7 +111,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Indicates whether the certificate is trusted.
 		/// </remarks>
-		/// <value><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the certificate is trusted; otherwise, <see langword="false" />.</value>
 		public bool IsTrusted { get; set; }
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets whether the certificate is an anchor.
 		/// </remarks>
-		/// <value><c>true</c> if the certificate is an anchor; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the certificate is an anchor; otherwise, <see langword="false" />.</value>
 		public bool IsAnchor { get { return Certificate.IsSelfSigned (); } }
 
 		/// <summary>
@@ -202,7 +202,25 @@ namespace MimeKit.Cryptography {
 		/// Gets the subject email address.
 		/// </remarks>
 		/// <value>The subject email address.</value>
-		public string SubjectEmail { get { return Certificate.GetSubjectEmailAddress (); } }
+		public string SubjectEmail { get { return Certificate.GetSubjectEmailAddress (true).ToLowerInvariant (); } }
+
+		/// <summary>
+		/// Gets the subject DNS names.
+		/// </summary>
+		/// <remarks>
+		/// Gets the subject DNS names.
+		/// </remarks>
+		/// <value>The subject DNS names.</value>
+		public string[] SubjectDnsNames {
+			get {
+				var domains = Certificate.GetSubjectDnsNames (true);
+
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = domains[i].ToLowerInvariant ();
+
+				return domains;
+			}
+		}
 
 		/// <summary>
 		/// Gets the fingerprint of the certificate.

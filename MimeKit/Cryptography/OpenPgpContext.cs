@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -340,7 +340,7 @@ namespace MimeKit.Cryptography {
 		/// fetch keys as needed from the keyserver when verifying signatures.</para>
 		/// <note type="note">Requires a valid <see cref="KeyServer"/> to be set.</note>
 		/// </remarks>
-		/// <value><c>true</c> if unknown PGP keys should automatically be retrieved; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if unknown PGP keys should automatically be retrieved; otherwise, <see langword="false" />.</value>
 		public bool AutoKeyRetrieve {
 			get; set;
 		}
@@ -389,7 +389,7 @@ namespace MimeKit.Cryptography {
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
 		/// or multipart/encrypted part is supported by the supplied cryptography context.
 		/// </remarks>
-		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
+		/// <returns><see langword="true" /> if the protocol is supported; otherwise, <see langword="false" /></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="protocol"/> is <see langword="null"/>.
@@ -522,7 +522,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="key">The public key.</param>
 		/// <param name="mailbox">The mailbox address.</param>
-		/// <returns><c>true</c> if the key is a match for the specified mailbox; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the key is a match for the specified mailbox; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -571,7 +571,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="key">The secret key.</param>
 		/// <param name="mailbox">The mailbox address.</param>
-		/// <returns><c>true</c> if the key is a match for the specified mailbox; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the key is a match for the specified mailbox; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -615,7 +615,7 @@ namespace MimeKit.Cryptography {
 		/// Checks if a public key is expired.
 		/// </remarks>
 		/// <param name="key">The public key.</param>
-		/// <returns><c>true</c> if the public key is expired; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the public key is expired; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="key"/> is <see langword="null"/>.
 		/// </exception>
@@ -639,7 +639,7 @@ namespace MimeKit.Cryptography {
 		/// Retrieves the public keyring, using the preferred key server, automatically importing it afterward.
 		/// </summary>
 		/// <param name="keyId">The identifier of the key to be retrieved.</param>
-		/// <param name="doAsync"><c>true</c> if this operation should be done asynchronously; otherwise, <c>false</c>.</param>
+		/// <param name="doAsync"><see langword="true" /> if this operation should be done asynchronously; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public key ring.</returns>
 		async Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
@@ -2786,7 +2786,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keys">The public keys to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2822,7 +2822,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="keys">The public keys to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2857,7 +2857,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keys">The public keyring bundle to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2899,7 +2899,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="keys">The public keyring bundle to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2942,7 +2942,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>
@@ -2972,7 +2972,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -78,7 +78,7 @@ namespace MimeKit.Encodings {
 		/// Creates a new yEnc decoder.
 		/// </remarks>
 		/// <param name="payloadOnly">
-		/// If <c>true</c>, decoding begins immediately rather than after finding an =ybegin line.
+		/// If <see langword="true" />, decoding begins immediately rather than after finding an =ybegin line.
 		/// </param>
 		public YDecoder (bool payloadOnly)
 		{

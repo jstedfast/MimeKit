@@ -3,16 +3,16 @@
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
     <AssemblyTitle>MimeKit Lite</AssemblyTitle>
-    <VersionPrefix>4.7.1</VersionPrefix>
+    <VersionPrefix>4.11.0</VersionPrefix>
     <LangVersion>12</LangVersion>
     <Authors>Jeffrey Stedfast</Authors>
     <_LegacyFrameworks>net462;net47</_LegacyFrameworks>
     <_LegacyFrameworks Condition=" Exists('C:\Windows') ">$(_LegacyFrameworks);net48</_LegacyFrameworks>
-    <TargetFrameworks>$(_LegacyFrameworks);netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>$(_LegacyFrameworks);netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MimeKitLite</AssemblyName>
     <PackageId>MimeKitLite</PackageId>
-    <PackageTags>mime;mbox;mail;email;parser;tnef;net462;net47;net48;net6.0;net8.0;netstandard;netstandard2.0</PackageTags>
+    <PackageTags>mime;mbox;mail;email;parser;tnef;net462;net47;net48;net8.0;netstandard;netstandard2.0</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -48,22 +48,21 @@
   </PropertyGroup>
 
   <!-- Enable serializable support for net4.x and net6.0 -->
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('net6')) ">
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
     <DefineConstants>$(DefineConstants);SERIALIZABLE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+  </PropertyGroup>
+
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) ">
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2.')) ">
-    <PackageReference Include="System.Buffers" Version="4.5.1" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Buffers" Version="4.6.0" />
+    <PackageReference Include="System.Memory" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>

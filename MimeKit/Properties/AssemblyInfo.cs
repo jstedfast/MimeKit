@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("MimeKit")]
-[assembly: AssemblyCopyright ("Copyright © 2013-2024 .NET Foundation and Contributors")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2025 .NET Foundation and Contributors")]
 [assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
 
@@ -78,6 +78,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("4.7.1.0")]
-[assembly: AssemblyFileVersion ("4.7.1.0")]
-[assembly: AssemblyVersion ("4.7.0.0")]
+[assembly: AssemblyInformationalVersion ("4.11.0.0")]
+[assembly: AssemblyFileVersion ("4.11.0.0")]
+[assembly: AssemblyVersion ("4.11.0.0")]

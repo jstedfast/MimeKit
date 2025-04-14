@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -218,7 +218,16 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
 			var options = FormatOptions.Default.Clone ();
-			foreach (HeaderId id in Enum.GetValues (typeof (HeaderId))) {
+
+#if NET8_0_OR_GREATER
+			var ids = Enum.GetValuesAsUnderlyingType<HeaderId> ();
+#else
+			var ids = Enum.GetValues (typeof (HeaderId));
+#endif
+
+			for (int i = 0; i < ids.Length; i++) {
+				var id = (HeaderId) ids.GetValue (i);
+
 				switch (id) {
 				case HeaderId.Subject:
 				case HeaderId.MessageId:
@@ -423,7 +432,7 @@ namespace MimeKit {
 			if (partials is null)
 				throw new ArgumentNullException (nameof (partials));
 
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.
+			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			var parts = partials.ToList ();
 
 			if (parts.Count == 0)
@@ -491,7 +500,7 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeMessage Join (MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.
+			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			return Join (ParserOptions.Default, message, partials);
 		}
 	}

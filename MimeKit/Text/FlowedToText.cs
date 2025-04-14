@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -78,10 +78,10 @@ namespace MimeKit.Text {
 		/// <para>Gets or sets whether the trailing space on a wrapped line should be deleted.</para>
 		/// <para>The flowed text format defines a Content-Type parameter called "delsp" which can
 		/// have a value of "yes" or "no". If the parameter exists and the value is "yes", then
-		/// <see cref="DeleteSpace"/> should be set to <c>true</c>, otherwise <see cref="DeleteSpace"/>
-		/// should be set to <c>false</c>.</para>
+		/// <see cref="DeleteSpace"/> should be set to <see langword="true" />, otherwise <see cref="DeleteSpace"/>
+		/// should be set to <see langword="false" />.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the trailing space on a wrapped line should be deleted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the trailing space on a wrapped line should be deleted; otherwise, <see langword="false" />.</value>
 		public bool DeleteSpace {
 			get; set;
 		}
@@ -169,6 +169,13 @@ namespace MimeKit.Text {
 					// Note: lines ending with a space mean that the next line is a continuation
 					para.Length--;
 				}
+			}
+
+			// Flush any remaining paragraph text.
+			if (para.Length > 0) {
+				if (paraQuoteDepth > 0)
+					writer.Write (new string ('>', paraQuoteDepth) + " ");
+				writer.Write (para);
 			}
 
 			if (!string.IsNullOrEmpty (Footer))

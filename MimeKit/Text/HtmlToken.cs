@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -104,7 +104,7 @@ namespace MimeKit.Text {
 		/// Creates a new <see cref="HtmlCommentToken"/>.
 		/// </remarks>
 		/// <param name="comment">The comment text.</param>
-		/// <param name="bogus"><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</param>
+		/// <param name="bogus"><see langword="true" /> if the comment is bogus; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="comment"/> is <see langword="null"/>.
 		/// </exception>
@@ -134,7 +134,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets whether the comment is a bogus comment.
 		/// </remarks>
-		/// <value><c>true</c> if the comment is bogus; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the comment is bogus; otherwise, <see langword="false" />.</value>
 		public bool IsBogusComment {
 			get; private set;
 		}
@@ -372,7 +372,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="name">The name of the tag.</param>
 		/// <param name="attributes">The attributes.</param>
-		/// <param name="isEmptyElement"><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</param>
+		/// <param name="isEmptyElement"><see langword="true" /> if the tag is an empty element; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="name"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -398,7 +398,7 @@ namespace MimeKit.Text {
 		/// Creates a new <see cref="HtmlTagToken"/>.
 		/// </remarks>
 		/// <param name="name">The name of the tag.</param>
-		/// <param name="isEndTag"><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</param>
+		/// <param name="isEndTag"><see langword="true" /> if the tag is an end tag; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
@@ -445,7 +445,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets whether the tag is an empty element.
 		/// </remarks>
-		/// <value><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the tag is an empty element; otherwise, <see langword="false" />.</value>
 		public bool IsEmptyElement {
 			get; internal set;
 		}
@@ -456,7 +456,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets whether the tag is an end tag.
 		/// </remarks>
-		/// <value><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the tag is an end tag; otherwise, <see langword="false" />.</value>
 		public bool IsEndTag {
 			get; private set;
 		}
@@ -537,7 +537,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets whether quirks-mode should be forced.
 		/// </remarks>
-		/// <value><c>true</c> if quirks-mode should be forced; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if quirks-mode should be forced; otherwise, <see langword="false" />.</value>
 		public bool ForceQuirksMode {
 			get; set;
 		}

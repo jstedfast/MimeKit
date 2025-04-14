@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -71,10 +71,10 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Compares the input strings for equality.
 		/// </remarks>
-		/// <returns><c>true</c>if <paramref name="x"/> and <paramref name="y"/> refer to the same object,
+		/// <returns><see langword="true" />if <paramref name="x"/> and <paramref name="y"/> refer to the same object,
 		/// or <paramref name="x"/> and <paramref name="y"/> are equal,
 		/// or <paramref name="x"/> and <paramref name="y"/> are <see langword="null"/>;
-		/// otherwise, <c>false</c>.</returns>
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="x">A string to compare to <paramref name="y"/>.</param>
 		/// <param name="y">A string to compare to <paramref name="x"/>.</param>
 		public bool Equals (string x, string y)

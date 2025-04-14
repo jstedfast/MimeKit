@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeParser ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "disposition-notification.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "disposition-notification.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -69,7 +69,7 @@ namespace UnitTests {
 		public void TestSerializedContent ()
 		{
 			const string expected = "Reporting-UA: joes-pc.cs.example.com; Foomail 97.1\nOriginal-Recipient: rfc822;Joe_Recipient@example.com\nFinal-Recipient: rfc822;Joe_Recipient@example.com\nOriginal-Message-ID: <199509192301.23456@example.org>\nDisposition: manual-action/MDN-sent-manually; displayed\n\n";
-			var mdn = new MessageDispositionNotification ();
+			using var mdn = new MessageDispositionNotification ();
 
 			mdn.Fields.Add ("Reporting-UA", "joes-pc.cs.example.com; Foomail 97.1");
 			mdn.Fields.Add ("Original-Recipient", "rfc822;Joe_Recipient@example.com");

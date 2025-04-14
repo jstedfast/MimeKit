@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.7.1</version>
+    <version>4.11.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,16 +26,18 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Don't override the parameter encoding with UTF-8 if format.International is true. (issue #1041)
-* Added support for addresses like "webmaster\@custom-host.com@mail-host.com". (issue #1043)
-* Improved Content-Type and Content-Disposition parameter serialization in a few cases.
-* Added tests for HeaderList.set_Item[int index] and fixed a bug that was exposed.
-* Fixed ContentDisposition.Size parsing to use InvariantCulture.
-* Fixed parser logic for determining if a message/rfc822 part is encoded. (issue #1049)
+* Fixed logic for validating HTML Tag and Attribute names. (issue #1136)
+* Minor performance improvements to MimeParser, ExperimentalMimeParser, and MimeReader.
+* Obsoleted MimeReader.OnMultipartBoundary() and OnMultipartEndBoundary(), replacing them with OnMultipartBoundaryBegin/Read/End() and OnMultipartEndBoundaryBegin/Read/End(). This now allows ExperimentalMimeParser to track trailing whitespace on boundary lines, resulting in improved re-serialization of parsed messages.
+* Fixed serialization of message/rfc822 parts without a message.
+* Fixed serialization of messages that did not have a blank line between the headers and body (only when parsed using the ExperimentalMimeParser).
+* Improved Date header parser for JST and KST timezones.
+* Improved Date header parser to handle AM/PM and leap seconds.
+* Improved address parser to handle unbalanced ')' (rfc7103)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime mbox mail email parser tnef net462 net47 net48 net6.0 net8.0 netstandard netstandard2.0 netstandard2.1</tags>
+    <tags>mime mbox mail email parser tnef</tags>
     <readme>docs\README.md</readme>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
@@ -50,35 +52,25 @@
     </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="System.Memory" version="4.5.5" />
+        <dependency id="System.Buffers" version="4.6.0" />
+        <dependency id="System.Memory" version="4.6.0" />
       </group>
       <group targetFramework="net47">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="System.Memory" version="4.5.5" />
+        <dependency id="System.Buffers" version="4.6.0" />
+        <dependency id="System.Memory" version="4.6.0" />
       </group>
       <group targetFramework="net48">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="System.Memory" version="4.5.5" />
+        <dependency id="System.Buffers" version="4.6.0" />
+        <dependency id="System.Memory" version="4.6.0" />
       </group>
-      <group targetFramework="net6.0" />
       <group targetFramework="net8.0" />
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Reflection.TypeExtensions" version="4.7.0" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="System.Memory" version="4.5.5" />
+        <dependency id="System.Buffers" version="4.6.0" />
+        <dependency id="System.Memory" version="4.6.0" />
       </group>
       <group targetFramework="netstandard2.1">
-        <dependency id="System.Runtime.CompilerServices.Unsafe" version="6.0.0" />
-        <dependency id="System.Reflection.TypeExtensions" version="4.7.0" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
-        <dependency id="System.Buffers" version="4.5.1" />
-        <dependency id="System.Memory" version="4.5.5" />
       </group>
     </dependencies>
   </metadata>
@@ -96,19 +88,12 @@
     <file src="..\MimeKit\bin\Release\net462\MimeKitLite.dll" target="lib\net462\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net462\MimeKitLite.pdb" target="lib\net462\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net462\MimeKitLite.xml" target="lib\net462\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKitLite.dll.config" target="lib\net462\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll" target="lib\net47\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.pdb" target="lib\net47\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net47\MimeKitLite.xml" target="lib\net47\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKitLite.dll.config" target="lib\net47\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll" target="lib\net48\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.pdb" target="lib\net48\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net48\MimeKitLite.xml" target="lib\net48\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKitLite.dll.config" target="lib\net48\MimeKitLite.dll.config" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.dll" target="lib\net6.0\MimeKitLite.dll" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.pdb" target="lib\net6.0\MimeKitLite.pdb" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.xml" target="lib\net6.0\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\net6.0\MimeKitLite.dll.config" target="lib\net6.0\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKitLite.dll" target="lib\net8.0\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKitLite.pdb" target="lib\net8.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKitLite.xml" target="lib\net8.0\MimeKitLite.xml" />

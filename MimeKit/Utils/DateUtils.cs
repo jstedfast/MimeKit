@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -136,6 +136,8 @@ namespace MimeKit.Utils {
 				{ "T",     -700 }, { "U",     -800 }, { "V",     -900 },
 				{ "W",    -1000 }, { "X",    -1100 }, { "Y",    -1200 },
 				{ "Z",        0 },
+				// Additional timezone mappings
+				{ "JST",    900 }, { "KST",    900 },
 			};
 
 			datetok = new DateTokenFlags[256];
@@ -268,10 +270,37 @@ namespace MimeKit.Utils {
 			if (index >= endIndex || text[index++] != (byte) ':')
 				return true;
 
-			if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out second) || second > 59)
+			if (!ParseUtils.TryParseInt32 (text, ref index, endIndex, out second) || second > 60)
 				return false;
 
+			if (hour == 23 && minute == 59 && second == 60) {
+				// Ignore leap seconds - DateTime does not handle them.
+				second = 59;
+			} else if (second == 60) {
+				return false;
+			}
+
 			return index == endIndex;
+		}
+
+		static bool IsAmOrPm (in DateToken token, byte[] text, ref int hour)
+		{
+			// If this is an AM or PM token, the second character is *always* an 'M' or 'm'
+			if (token.IsAlphaZone && token.Length == 2 && (text[token.Start + 1] == (byte) 'M' || text[token.Start + 1] == (byte) 'm')) {
+				if (text[token.Start] == (byte) 'A' || text[token.Start] == (byte) 'a') {
+					if (hour == 12)
+						hour = 0;
+					return true;
+				}
+
+				if (text[token.Start] == (byte) 'P' || text[token.Start] == (byte) 'p') {
+					if (hour < 12)
+						hour += 12;
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		static bool TryGetTimeZone (in DateToken token, byte[] text, out int tzone)
@@ -390,6 +419,9 @@ namespace MimeKit.Utils {
 			if (!TryGetTimeOfDay (tokens[n++], text, out int hour, out int minute, out int second))
 				return false;
 
+			if (IsAmOrPm (tokens[n], text, ref hour))
+				n++;
+
 			if (!TryGetTimeZone (tokens[n], text, out int tzone))
 				tzone = 0;
 
@@ -414,10 +446,10 @@ namespace MimeKit.Utils {
 			bool numericMonth = false;
 			bool haveWeekday = false;
 			bool haveTime = false;
+			bool haveAmPm = false;
 			TimeSpan offset;
 
 			for (int i = 0; i < tokens.Count; i++) {
-
 				if (!haveWeekday && TryGetWeekday (tokens[i], text, out _)) {
 					haveWeekday = true;
 					continue;
@@ -435,6 +467,11 @@ namespace MimeKit.Utils {
 
 				if (!haveTime && TryGetTimeOfDay (tokens[i], text, out hour, out minute, out second)) {
 					haveTime = true;
+					continue;
+				}
+
+				if (haveTime && tzone is null && !haveAmPm && IsAmOrPm (tokens[i], text, ref hour)) {
+					haveAmPm = true;
 					continue;
 				}
 
@@ -520,7 +557,7 @@ namespace MimeKit.Utils {
 		/// Parses an rfc822 date and time from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -562,7 +599,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses an rfc822 date and time from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="date">The parsed date.</param>
@@ -589,7 +626,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses an rfc822 date and time from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -609,7 +646,7 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses an rfc822 date and time from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the date was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
 		/// <exception cref="System.ArgumentNullException">

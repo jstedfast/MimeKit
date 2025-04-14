@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -693,12 +693,19 @@ namespace MimeKit.Text {
 
 		static HtmlAttributeIdExtensions ()
 		{
-			var values = (HtmlAttributeId[]) Enum.GetValues (typeof (HtmlAttributeId));
+#if NET8_0_OR_GREATER
+			var values = Enum.GetValuesAsUnderlyingType<HtmlAttributeId> ();
+#else
+			var values = Enum.GetValues (typeof (HtmlAttributeId));
+#endif
 
 			IdMapping = new Dictionary<string, HtmlAttributeId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
-			for (int i = 1; i < values.Length; i++)
-				IdMapping.Add (values[i].ToAttributeName (), values[i]);
+			for (int i = 1; i < values.Length; i++) {
+				var value = (HtmlAttributeId) values.GetValue (i);
+
+				IdMapping.Add (AttributeNames[i - 1], value);
+			}
 		}
 
 		/// <summary>

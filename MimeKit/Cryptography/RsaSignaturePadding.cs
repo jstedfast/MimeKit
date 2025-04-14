@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -75,8 +75,8 @@ namespace MimeKit.Cryptography {
 		/// Compares two RSA Signature paddings to determine if they are identical or not.
 		/// </remarks>
 		/// <param name="other">The <see cref="RsaSignaturePadding"/> to compare with the current <see cref="RsaSignaturePadding"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="RsaSignaturePadding"/> is equal to the current
-		/// <see cref="RsaSignaturePadding"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="RsaSignaturePadding"/> is equal to the current
+		/// <see cref="RsaSignaturePadding"/>; otherwise, <see langword="false" />.</returns>
 		public bool Equals (RsaSignaturePadding other)
 		{
 			if (other is null)
@@ -93,7 +93,7 @@ namespace MimeKit.Cryptography {
 		/// the current instance is a reference type or a value type.
 		/// </remarks>
 		/// <param name="obj">The object to compare with the current object.</param>
-		/// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (object obj)
 		{
 			return Equals (obj as RsaSignaturePadding);
@@ -133,7 +133,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="left">The first object to compare.</param>
 		/// <param name="right">The second object to compare.</param>
-		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if <paramref name="left"/> and <paramref name="right"/> are equal; otherwise, <see langword="false" />.</returns>
 		public static bool operator == (RsaSignaturePadding left, RsaSignaturePadding right)
 		{
 			if (left is null)
@@ -150,7 +150,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="left">The first object to compare.</param>
 		/// <param name="right">The second object to compare.</param>
-		/// <returns><c>true</c> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if <paramref name="left"/> and <paramref name="right"/> are unequal; otherwise, <see langword="false" />.</returns>
 		public static bool operator != (RsaSignaturePadding left, RsaSignaturePadding right)
 		{
 			return !(left == right);

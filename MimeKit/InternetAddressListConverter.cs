@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -58,19 +58,61 @@ namespace MimeKit {
 			TypeDescriptor.AddAttributes (typeof (InternetAddressList), new TypeConverterAttribute (typeof (InternetAddressListConverter)));
 		}
 
-		/// <inheritdoc/>
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InternetAddressListConverter"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="InternetAddressListConverter"/>.
+		/// </remarks>
+		public InternetAddressListConverter ()
+		{
+		}
+
+		/// <summary>
+		/// Returns whether this converter can convert an object of the given type to the type of this converter, using the specified context.
+		/// </summary>
+		/// <remarks>
+		/// Returns whether this converter can convert an object of the given type to the type of this converter, using the specified context.
+		/// </remarks>
+		/// <returns><see langword="true"/> if this converter can perform the conversion; otherwise, <see langword="false"/>.</returns>
+		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
+		/// <param name="sourceType">A <see cref="Type"/> that represents the type you want to convert from.</param>
 		public override bool CanConvertFrom (ITypeDescriptorContext context, Type sourceType)
 		{
 			return sourceType == typeof (string) || base.CanConvertFrom (context, sourceType);
 		}
 
-		/// <inheritdoc/>
+		/// <summary>
+		/// Returns whether this converter can convert the object to the specified type, using the specified context.
+		/// </summary>
+		/// <remarks>
+		/// <para>Use the <paramref name="context"/> parameter to extract additional information about the environment
+		/// from which this converter is invoked. This parameter can be <see langword="null"/>, so always check it. Also,
+		/// properties on the context object can return <see langword="null"/>.</para>
+		/// <para>If <paramref name="destinationType"/> is a string, the default implementation of <see cref="CanConvertTo"/>
+		/// always returns <see langword="true"/>.</para>
+		/// </remarks>
+		/// <returns><see langword="true"/> if this converter can perform the conversion; otherwise, <see langword="false"/>.</returns>
+		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
+		/// <param name="destinationType">A <see cref="Type"/> that represents the type you want to convert to.</param>
 		public override bool CanConvertTo (ITypeDescriptorContext context, Type destinationType)
 		{
 			return destinationType == typeof (string) || base.CanConvertTo (context, destinationType);
 		}
 
-		/// <inheritdoc/>
+		/// <summary>
+		/// Converts the given object to the type of this converter, using the specified context and culture information.
+		/// </summary>
+		/// <remarks>
+		/// Converts the given object to the type of this converter, using the specified context and culture information.
+		/// </remarks>
+		/// <returns>An <see cref="Object"/> that represents the converted value.</returns>
+		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
+		/// <param name="culture">The <see cref="CultureInfo"/> to use as the current culture.</param>
+		/// <param name="value">The <see cref="Object"/> to convert.</param>
+		/// <exception cref="NotSupportedException">
+		/// The conversion cannot be performed.
+		/// </exception>
 		public override object ConvertFrom (ITypeDescriptorContext context, CultureInfo culture, object value)
 		{
 			if (value is string text)
@@ -79,7 +121,23 @@ namespace MimeKit {
 			return base.ConvertFrom (context, culture, value);
 		}
 
-		/// <inheritdoc/>
+		/// <summary>
+		/// Converts the given value object to the specified type, using the specified context and culture information.
+		/// </summary>
+		/// <remarks>
+		/// Converts the given value object to the specified type, using the specified context and culture information.
+		/// </remarks>
+		/// <returns>An <see cref="Object"/> that represents the converted value.</returns>
+		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
+		/// <param name="culture">A <see cref="CultureInfo"/>. If <see langword="null"/>, the current culture is assumed.</param>
+		/// <param name="value">The <see cref="Object"/> to convert.</param>
+		/// <param name="destinationType">The <see cref="Type"/> to convert the value to.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="destinationType"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="NotSupportedException">
+		/// The conversion cannot be performed.
+		/// </exception>
 		public override object ConvertTo (ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
 		{
 			if (destinationType == typeof (string) && value is InternetAddressList list)
@@ -88,7 +146,21 @@ namespace MimeKit {
 			return base.ConvertTo (context, culture, value, destinationType);
 		}
 
-		/// <inheritdoc/>
+		/// <summary>
+		/// Returns whether the given value object is valid for this type and for the specified context.
+		/// </summary>
+		/// <remarks>
+		/// <para>Use the <paramref name="context"/> parameter to extract additional information about the environment from which
+		/// this converter is invoked. This parameter can be <see langword="null"/>, so always check it. Also, properties on the
+		/// context object can return <see langword="null"/>.</para>
+		/// <para>Starting in .NET Framework 4, the <see cref="IsValid"/> method catches exceptions from the <see cref="CanConvertFrom"/>
+		/// and <see cref="ConvertFrom"/> methods. If the input value type causes <see cref="CanConvertFrom"/> to return <see langword="false"/>,
+		/// or if the input value causes <see cref="ConvertFrom"/> to raise an exception, the <see cref="IsValid"/> method returns
+		/// <see langword="false"/>.</para>
+		/// </remarks>
+		/// <returns><see langword="true"/> if the specified value is valid for this object; otherwise, <see langword="false"/>.</returns>
+		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
+		/// <param name="value">The <see cref="Object"/> to test for validity.</param>
 		public override bool IsValid (ITypeDescriptorContext context, object value)
 		{
 			if (value is string text)

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -204,8 +204,8 @@ namespace MimeKit {
 		/// Compares two internet addresses to determine if they are identical or not.
 		/// </remarks>
 		/// <param name="other">The <see cref="InternetAddress"/> to compare with the current <see cref="InternetAddress"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="InternetAddress"/> is equal to the current
-		/// <see cref="InternetAddress"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="InternetAddress"/> is equal to the current
+		/// <see cref="InternetAddress"/>; otherwise, <see langword="false" />.</returns>
 		public abstract bool Equals (InternetAddress other);
 
 		#endregion
@@ -218,7 +218,7 @@ namespace MimeKit {
 		/// the current instance is a reference type or a value type.
 		/// </remarks>
 		/// <param name="obj">The object to compare with the current object.</param>
-		/// <returns><c>true</c> if the specified object is equal to the current object; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (object obj)
 		{
 			return Equals (obj as InternetAddress);
@@ -252,14 +252,14 @@ namespace MimeKit {
 		/// Serialize an <see cref="InternetAddress"/> to a string, optionally encoding it for transport.
 		/// </summary>
 		/// <remarks>
-		/// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
+		/// <para>If the <paramref name="encode"/> parameter is <see langword="true" />, then this method will return
 		/// an encoded version of the internet address according to the rules described in rfc2047.</para>
-		/// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
+		/// <para>However, if the <paramref name="encode"/> parameter is <see langword="false" />, then this method will
 		/// return a string suitable only for display purposes.</para>
 		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
 		/// <param name="options">The formatting options.</param>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the <see cref="InternetAddress"/> will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="options"/> is <see langword="null"/>.
 		/// </exception>
@@ -269,13 +269,13 @@ namespace MimeKit {
 		/// Serialize an <see cref="InternetAddress"/> to a string, optionally encoding it for transport.
 		/// </summary>
 		/// <remarks>
-		/// <para>If the <paramref name="encode"/> parameter is <c>true</c>, then this method will return
+		/// <para>If the <paramref name="encode"/> parameter is <see langword="true" />, then this method will return
 		/// an encoded version of the internet address according to the rules described in rfc2047.</para>
-		/// <para>However, if the <paramref name="encode"/> parameter is <c>false</c>, then this method will
+		/// <para>However, if the <paramref name="encode"/> parameter is <see langword="false" />, then this method will
 		/// return a string suitable only for display purposes.</para>
 		/// </remarks>
 		/// <returns>A string representing the <see cref="InternetAddress"/>.</returns>
-		/// <param name="encode">If set to <c>true</c>, the <see cref="InternetAddress"/> will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the <see cref="InternetAddress"/> will be encoded.</param>
 		public string ToString (bool encode)
 		{
 			return ToString (FormatOptions.Default, encode);
@@ -615,6 +615,8 @@ namespace MimeKit {
 			int words = 0;
 
 			while (index < endIndex) {
+				bool quoted = text[index] == (byte) '"';
+
 				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (!ParseUtils.SkipWord (text, ref index, endIndex, throwOnError))
 						break;
@@ -659,7 +661,7 @@ namespace MimeKit {
 				words++;
 
 				// Note: some clients don't quote commas in the name
-				if (index < endIndex && text[index] == ',' && words > minWordCount) {
+				if (index < endIndex && text[index] == ',' && !quoted && words > minWordCount) {
 					index++;
 
 					length = index - startIndex;
@@ -894,7 +896,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the buffer contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -939,7 +941,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the buffer contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
@@ -963,7 +965,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the buffer contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
@@ -1001,7 +1003,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the buffer contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="address">The parsed address.</param>
@@ -1023,7 +1025,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the buffer contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="address">The parsed address.</param>
@@ -1057,7 +1059,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the buffer contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="address">The parsed address.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1075,7 +1077,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the text contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="address">The parsed address.</param>
@@ -1108,7 +1110,7 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/> or <see cref="GroupAddress"/>. If the text contains
 		/// more data, then parsing will fail.
 		/// </remarks>
-		/// <returns><c>true</c>, if the address was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="address">The parsed address.</param>
 		/// <exception cref="System.ArgumentNullException">

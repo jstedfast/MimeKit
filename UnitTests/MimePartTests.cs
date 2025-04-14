@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,9 @@
 // THE SOFTWARE.
 //
 
+using System.IO;
 using System.Text;
+using System.Buffers;
 
 using MimeKit;
 using MimeKit.Utils;
@@ -523,8 +525,8 @@ namespace UnitTests {
 			}
 		}
 
-		[TestCase ("content", TestName = "TestWriteToNoNewLine")]
-		[TestCase ("content\r\n", TestName = "TestWriteToNewLine")]
+		[TestCase ("content", TestName = "TestWriteTo_NoNewLine")]
+		[TestCase ("content\r\n", TestName = "TestWriteTo_NewLine")]
 		public void TestWriteTo (string text)
 		{
 			var builder = new BodyBuilder ();
@@ -532,7 +534,7 @@ namespace UnitTests {
 			builder.Attachments.Add ("filename", new MemoryStream (Encoding.UTF8.GetBytes (text)));
 			builder.TextBody = "This is the text body.";
 
-			var body = builder.ToMessageBody ();
+			using var body = builder.ToMessageBody ();
 
 			using (var stream = new MemoryStream ()) {
 				var options = FormatOptions.Default.Clone ();
@@ -541,7 +543,7 @@ namespace UnitTests {
 				body.WriteTo (options, stream);
 				stream.Position = 0;
 
-				var multipart = (Multipart) MimeEntity.Load (stream);
+				using var multipart = (Multipart) MimeEntity.Load (stream);
 				using (var input = ((MimePart) multipart[1]).Content.Open ()) {
 					var buffer = new byte[1024];
 					int n;
@@ -555,8 +557,8 @@ namespace UnitTests {
 			}
 		}
 
-		[TestCase ("content", TestName = "TestWriteToNoNewLine")]
-		[TestCase ("content\r\n", TestName = "TestWriteToNewLine")]
+		[TestCase ("content", TestName = "TestWriteToAsync_NoNewLine")]
+		[TestCase ("content\r\n", TestName = "TestWriteToAsync_NewLine")]
 		public async Task TestWriteToAsync (string text)
 		{
 			var builder = new BodyBuilder ();
@@ -564,7 +566,7 @@ namespace UnitTests {
 			builder.Attachments.Add ("filename", new MemoryStream (Encoding.UTF8.GetBytes (text)));
 			builder.TextBody = "This is the text body.";
 
-			var body = builder.ToMessageBody ();
+			using var body = builder.ToMessageBody ();
 
 			using (var stream = new MemoryStream ()) {
 				var options = FormatOptions.Default.Clone ();
@@ -573,7 +575,7 @@ namespace UnitTests {
 				await body.WriteToAsync (options, stream);
 				stream.Position = 0;
 
-				var multipart = (Multipart) await MimeEntity.LoadAsync (stream);
+				using var multipart = (Multipart) await MimeEntity.LoadAsync (stream);
 				using (var input = ((MimePart) multipart[1]).Content.Open ()) {
 					var buffer = new byte[1024];
 					int n;
@@ -584,6 +586,62 @@ namespace UnitTests {
 
 					Assert.That (content, Is.EqualTo (text));
 				}
+			}
+		}
+
+		[TestCase ("content", TestName = "TestWriteToFile_NoNewLine")]
+		[TestCase ("content\r\n", TestName = "TestWriteToFile_NewLine")]
+		public void TestWriteToFile (string text)
+		{
+			var fileName = Path.GetTempFileName ();
+			using var body = new TextPart ("plain") {
+				Text = text
+			};
+
+			try {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				body.WriteTo (options, fileName);
+
+				using (var loaded = (TextPart) MimeEntity.Load (fileName))
+					Assert.That (loaded.Text, Is.EqualTo (text));
+
+				options.NewLineFormat = NewLineFormat.Unix;
+				body.WriteTo (options, fileName);
+
+				using (var loaded = (TextPart) MimeEntity.Load (fileName))
+					Assert.That (loaded.Text, Is.EqualTo (text));
+			} finally {
+				File.Delete (fileName);
+			}
+		}
+
+		[TestCase ("content", TestName = "TestWriteToFileAsync_NoNewLine")]
+		[TestCase ("content\r\n", TestName = "TestWriteToFileAsync_NewLine")]
+		public async Task TestWriteToFileAsync (string text)
+		{
+			var fileName = Path.GetTempFileName ();
+			using var body = new TextPart ("plain") {
+				Text = text
+			};
+
+			try {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
+
+				await body.WriteToAsync (options, fileName);
+
+				using (var loaded = (TextPart) await MimeEntity.LoadAsync (fileName))
+					Assert.That (loaded.Text, Is.EqualTo (text));
+
+				options.NewLineFormat = NewLineFormat.Unix;
+				await body.WriteToAsync (options, fileName);
+
+				using (var loaded = (TextPart) await MimeEntity.LoadAsync (fileName))
+					Assert.That (loaded.Text, Is.EqualTo (text));
+			} finally {
+				File.Delete (fileName);
 			}
 		}
 

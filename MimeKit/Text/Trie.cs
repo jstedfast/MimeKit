@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.
 		/// </remarks>
-		/// <param name="ignoreCase"><c>true</c> if searching should ignore case; otherwise, <c>false</c>.</param>
+		/// <param name="ignoreCase"><see langword="true" /> if searching should ignore case; otherwise, <see langword="false" />.</param>
 		public Trie (bool ignoreCase)
 		{
 			failStates = new List<TrieState> ();

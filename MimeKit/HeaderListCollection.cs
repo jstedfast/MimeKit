@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="HeaderListCollection"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -154,8 +154,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the collection contains the specified group of headers.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified group of headers is contained;
-		/// otherwise, <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified group of headers is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="group">The group of headers.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="group"/> is <see langword="null"/>.
@@ -194,8 +194,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified header group from the collection, if it exists.
 		/// </remarks>
-		/// <returns><c>true</c> if the specified header group was removed;
-		/// otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified header group was removed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="group">The group of headers.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="group"/> is <see langword="null"/>.

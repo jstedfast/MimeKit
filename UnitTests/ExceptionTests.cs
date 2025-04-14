@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 // THE SOFTWARE.
 //
 
-#if NET6_0
+#if NETFRAMEWORK
 
 #pragma warning disable SYSLIB0011
 
@@ -41,91 +41,107 @@ namespace UnitTests {
 		[Test]
 		public void TestParseException ()
 		{
-			var expected = new ParseException ("Message", 17, 22);
+			try {
+				var expected = new ParseException ("Message", 17, 22);
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (ParseException) formatter.Deserialize (stream);
-				Assert.That (ex.TokenIndex, Is.EqualTo (expected.TokenIndex), "Unexpected TokenIndex.");
-				Assert.That (ex.ErrorIndex, Is.EqualTo (expected.ErrorIndex), "Unexpected ErrorIndex.");
+					var ex = (ParseException) formatter.Deserialize (stream);
+					Assert.That (ex.TokenIndex, Is.EqualTo (expected.TokenIndex), "Unexpected TokenIndex.");
+					Assert.That (ex.ErrorIndex, Is.EqualTo (expected.ErrorIndex), "Unexpected ErrorIndex.");
+				}
+			} catch (NotSupportedException) {
+				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");
 			}
 		}
 
 		[Test]
 		public void TestCertificateNotFoundException ()
 		{
-			var expected = new CertificateNotFoundException (new MailboxAddress ("Unit Tests", "example@mimekit.net"), "Message");
+			try {
+				var expected = new CertificateNotFoundException (new MailboxAddress ("Unit Tests", "example@mimekit.net"), "Message");
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (CertificateNotFoundException) formatter.Deserialize (stream);
-				Assert.That (ex.Mailbox, Is.EqualTo (expected.Mailbox), "Unexpected Mailbox.");
+					var ex = (CertificateNotFoundException) formatter.Deserialize (stream);
+					Assert.That (ex.Mailbox, Is.EqualTo (expected.Mailbox), "Unexpected Mailbox.");
+				}
+			} catch (NotSupportedException) {
+				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");
 			}
 		}
 
 		[Test]
 		public void TestDigitalSignatureVerifyException ()
 		{
-			var expected = new DigitalSignatureVerifyException (0xdeadbeef, "Message", new Exception ("InnerException"));
+			try {
+				var expected = new DigitalSignatureVerifyException (0xdeadbeef, "Message", new Exception ("InnerException"));
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
-				Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
-			}
+					var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+					Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+				}
 
-			expected = new DigitalSignatureVerifyException ("Message", new Exception ("InnerException"));
+				expected = new DigitalSignatureVerifyException ("Message", new Exception ("InnerException"));
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
-				Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
-			}
+					var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+					Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+				}
 
-			expected = new DigitalSignatureVerifyException (0xdeadbeef, "Message");
+				expected = new DigitalSignatureVerifyException (0xdeadbeef, "Message");
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
-				Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
-			}
+					var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+					Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+				}
 
-			expected = new DigitalSignatureVerifyException ("Message");
+				expected = new DigitalSignatureVerifyException ("Message");
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
-				Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+					var ex = (DigitalSignatureVerifyException) formatter.Deserialize (stream);
+					Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+				}
+			} catch (NotSupportedException) {
+				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");
 			}
 		}
 
 		static void TestPrivateKeyNotFoundException (PrivateKeyNotFoundException expected)
 		{
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+			try {
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (PrivateKeyNotFoundException) formatter.Deserialize (stream);
-				Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+					var ex = (PrivateKeyNotFoundException) formatter.Deserialize (stream);
+					Assert.That (ex.KeyId, Is.EqualTo (expected.KeyId), "Unexpected KeyId.");
+				}
+			} catch (NotSupportedException) {
+				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");
 			}
 		}
 
@@ -143,41 +159,49 @@ namespace UnitTests {
 		[Test]
 		public void TestPublicKeyNotFoundException ()
 		{
-			var expected = new PublicKeyNotFoundException (new MailboxAddress ("Unit Tests", "example@mimekit.net"), "Message");
+			try {
+				var expected = new PublicKeyNotFoundException (new MailboxAddress ("Unit Tests", "example@mimekit.net"), "Message");
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (PublicKeyNotFoundException) formatter.Deserialize (stream);
-				Assert.That (ex.Mailbox, Is.EqualTo (expected.Mailbox), "Unexpected Mailbox.");
+					var ex = (PublicKeyNotFoundException) formatter.Deserialize (stream);
+					Assert.That (ex.Mailbox, Is.EqualTo (expected.Mailbox), "Unexpected Mailbox.");
+				}
+			} catch (NotSupportedException) {
+				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");
 			}
 		}
 
 		[Test]
 		public void TestTnefException ()
 		{
-			var expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message", new Exception ("InnerException"));
+			try {
+				var expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message", new Exception ("InnerException"));
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (TnefException) formatter.Deserialize (stream);
-				Assert.That (ex.Error, Is.EqualTo (expected.Error), "Unexpected Error.");
-			}
+					var ex = (TnefException) formatter.Deserialize (stream);
+					Assert.That (ex.Error, Is.EqualTo (expected.Error), "Unexpected Error.");
+				}
 
-			expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message");
+				expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message");
 
-			using (var stream = new MemoryStream ()) {
-				var formatter = new BinaryFormatter ();
-				formatter.Serialize (stream, expected);
-				stream.Position = 0;
+				using (var stream = new MemoryStream ()) {
+					var formatter = new BinaryFormatter ();
+					formatter.Serialize (stream, expected);
+					stream.Position = 0;
 
-				var ex = (TnefException) formatter.Deserialize (stream);
-				Assert.That (ex.Error, Is.EqualTo (expected.Error), "Unexpected Error.");
+					var ex = (TnefException) formatter.Deserialize (stream);
+					Assert.That (ex.Error, Is.EqualTo (expected.Error), "Unexpected Error.");
+				}
+			} catch (NotSupportedException) {
+				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");
 			}
 		}
 	}
@@ -185,4 +209,4 @@ namespace UnitTests {
 
 #pragma warning restore SYSLIB0011
 
-#endif // NET6_0
+#endif // NETFRAMEWORK || NET6_0

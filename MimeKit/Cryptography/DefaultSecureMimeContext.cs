@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Pkcs;
@@ -95,6 +96,9 @@ namespace MimeKit.Cryptography {
 			DefaultDatabasePath = Path.Combine (path, "smime.db");
 		}
 
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		static void CheckIsAvailable ()
 		{
 			if (!SqliteCertificateDatabase.IsAvailable)
@@ -128,6 +132,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string fileName, string password) : this (fileName, password, new SecureRandom ())
 		{
 		}
@@ -162,6 +169,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string fileName, string password, SecureRandom random) : base (random)
 		{
 			if (fileName == null)
@@ -205,6 +215,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the database at the default location.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string password) : this (DefaultDatabasePath, password)
 		{
 		}
@@ -232,6 +245,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the database at the default location.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext (string password, SecureRandom random) : this (DefaultDatabasePath, password, random)
 		{
 		}
@@ -252,6 +268,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the database at the default location.
 		/// </exception>
+#if NET8_0_OR_GREATER
+		[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 		public DefaultSecureMimeContext () : this (DefaultDatabasePath, "no.secret")
 		{
 		}
@@ -297,7 +316,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether as particular mailbocx address can be used for signing.
 		/// </remarks>
-		/// <returns><c>true</c> if the mailbox address can be used for signing; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the mailbox address can be used for signing; otherwise, <see langword="false" />.</returns>
 		/// <param name="signer">The signer.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -327,7 +346,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Checks whether the cryptography context can be used to encrypt to a particular recipient.
 		/// </remarks>
-		/// <returns><c>true</c> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the cryptography context can be used to encrypt to the designated recipient; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -390,11 +409,13 @@ namespace MimeKit.Cryptography {
 		protected override ISet<TrustAnchor> GetTrustedAnchors ()
 		{
 			var anchors = new HashSet<TrustAnchor> ();
-			var selector = new X509CertStoreSelector ();
 			var keyUsage = new bool[9];
 
 			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
-			selector.KeyUsage = keyUsage;
+
+			var selector = new X509CertStoreSelector {
+				KeyUsage = keyUsage
+			};
 
 			foreach (var record in dbase.Find (selector, true, X509CertificateRecordFields.Certificate))
 				anchors.Add (new TrustAnchor (record.Certificate, null));
@@ -413,20 +434,21 @@ namespace MimeKit.Cryptography {
 		/// <returns>The intermediate certificates.</returns>
 		protected override IStore<X509Certificate> GetIntermediateCertificates ()
 		{
-			//var intermediates = new X509CertificateStore ();
-			//var selector = new X509CertStoreSelector ();
-			//var keyUsage = new bool[9];
+			var intermediates = new X509CertificateStore ();
+			var keyUsage = new bool[9];
 
-			//keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
-			//selector.KeyUsage = keyUsage;
+			keyUsage[(int) X509KeyUsageBits.KeyCertSign] = true;
 
-			//foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
-			//	if (!record.Certificate.IsSelfSigned ())
-			//		intermediates.Add (record.Certificate);
-			//}
+			var selector = new X509CertStoreSelector {
+				KeyUsage = keyUsage
+			};
 
-			//return intermediates;
-			return dbase;
+			foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
+				if (!record.Certificate.IsSelfSigned ())
+					intermediates.Add (record.Certificate);
+			}
+
+			return intermediates;
 		}
 
 		/// <summary>
@@ -461,6 +483,16 @@ namespace MimeKit.Cryptography {
 			return nextUpdate;
 		}
 
+		static CmsRecipient CreateCmsRecipient (X509CertificateRecord record)
+		{
+			var recipient = new CmsRecipient (record.Certificate);
+
+			if (record.Algorithms != null)
+				recipient.EncryptionAlgorithms = record.Algorithms;
+
+			return recipient;
+		}
+
 		/// <summary>
 		/// Gets the <see cref="CmsRecipient"/> for the specified mailbox.
 		/// </summary>
@@ -478,19 +510,34 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
+			X509CertificateRecord domain = null;
+
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
 					continue;
 
-				var recipient = new CmsRecipient (record.Certificate);
+				if (record.SubjectDnsNames.Length > 0) {
+					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
+					domain ??= record;
+					continue;
+				}
 
-				if (record.Algorithms != null)
-					recipient.EncryptionAlgorithms = record.Algorithms;
-
-				return recipient;
+				return CreateCmsRecipient (record);
 			}
 
+			if (domain != null)
+				return CreateCmsRecipient (domain);
+
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
+		}
+
+		CmsSigner CreateCmsSigner (X509CertificateRecord record, DigestAlgorithm digestAlgo)
+		{
+			var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey) {
+				DigestAlgorithm = digestAlgo
+			};
+
+			return signer;
 		}
 
 		/// <summary>
@@ -511,25 +558,31 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			AsymmetricKeyParameter privateKey = null;
-			X509Certificate certificate = null;
+			X509CertificateRecord domain = null;
+			X509CertificateRecord signer = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & DigitalSignatureKeyUsageFlags) == 0)
 					continue;
 
-				certificate = record.Certificate;
-				privateKey = record.PrivateKey;
+				if (record.Certificate == null || record.PrivateKey == null)
+					continue;
+
+				if (record.SubjectDnsNames.Length > 0) {
+					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
+					domain ??= record;
+					continue;
+				}
+
+				signer = record;
 				break;
 			}
 
-			if (certificate != null && privateKey != null) {
-				var signer = new CmsSigner (BuildCertificateChain (certificate), privateKey) {
-					DigestAlgorithm = digestAlgo
-				};
+			// fall back to a domain-wide signing certificate if an explicit signer was not found
+			signer ??= domain;
 
-				return signer;
-			}
+			if (signer != null)
+				return CreateCmsSigner (signer, digestAlgo);
 
 			throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 		}
@@ -788,12 +841,12 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Imports the certificate.</para>
-		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <c>true</c>,
+		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <see langword="true" />,
 		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
 		/// specified trust.</para>
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificate is trusted; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -828,13 +881,13 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Asynchronously imports the certificate.</para>
-		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <c>true</c>,
+		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <see langword="true" />,
 		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
 		/// specified trust.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="certificate">The certificate.</param>
-		/// <param name="trusted"><c>true</c> if the certificate is trusted; otherwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificate is trusted; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -856,7 +909,7 @@ namespace MimeKit.Cryptography {
 		/// Imports the certificate(s).
 		/// </remarks>
 		/// <param name="stream">The raw certificate(s).</param>
-		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificates are trusted; othewrwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -885,7 +938,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="stream">The raw certificate(s).</param>
-		/// <param name="trusted"><c>true</c> if the certificates are trusted; othewrwise, <c>false</c>.</param>
+		/// <param name="trusted"><see langword="true" /> if the certificates are trusted; othewrwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -908,8 +961,8 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="DefaultSecureMimeContext"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			dbase.Dispose ();

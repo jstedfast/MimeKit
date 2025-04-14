@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Collections;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -66,6 +68,7 @@ namespace MimeKit {
 	public class Multipart : MimeEntity, IMultipart
 	{
 		readonly List<MimeEntity> children;
+		internal List<byte[]> rawBoundaries;
 		string preamble, epilogue;
 
 		/// <summary>
@@ -80,7 +83,13 @@ namespace MimeKit {
 		/// </exception>
 		public Multipart (MimeEntityConstructorArgs args) : base (args)
 		{
+			ContentType.Parameters.BoundaryChanged += BoundaryChanged;
+			rawBoundaries = new List<byte[]> ();
 			children = new List<MimeEntity> ();
+
+			// Since this .ctor only ever gets called by the parser, we default the end boundary to an empty
+			// byte[] and wait for the parser to set the real end boundary marker when it encounters it.
+			RawEndBoundary = Array.Empty<byte> ();
 		}
 
 		/// <summary>
@@ -131,7 +140,6 @@ namespace MimeKit {
 		{
 			ContentType.Boundary = GenerateBoundary ();
 			children = new List<MimeEntity> ();
-			WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -150,7 +158,7 @@ namespace MimeKit {
 		}
 
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		static string GenerateBoundary ()
 		{
@@ -246,9 +254,11 @@ namespace MimeKit {
 					RawPreamble = null;
 					preamble = null;
 				}
-
-				WriteEndBoundary = true;
 			}
+		}
+
+		internal byte[] RawEndBoundary {
+			get; set;
 		}
 
 		internal byte[] RawEpilogue {
@@ -293,6 +303,10 @@ namespace MimeKit {
 					return;
 
 				if (value != null) {
+					// if we are setting an epilogue and the RawEndBoundary is empty, then reset it back to the default
+					if (RawEndBoundary != null && RawEndBoundary.Length == 0)
+						RawEndBoundary = null;
+
 					var folded = FoldPreambleOrEpilogue (FormatOptions.Default, value, true);
 					RawEpilogue = Encoding.UTF8.GetBytes (folded);
 					epilogue = null;
@@ -300,8 +314,6 @@ namespace MimeKit {
 					RawEpilogue = null;
 					epilogue = null;
 				}
-
-				WriteEndBoundary = true;
 			}
 		}
 
@@ -311,9 +323,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets whether the end boundary should be written.
 		/// </remarks>
-		/// <value><c>true</c> if the end boundary should be written; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the end boundary should be written; otherwise, <see langword="false" />.</value>
 		internal bool WriteEndBoundary {
-			get; set;
+			get { return RawEndBoundary == null || RawEndBoundary.Length > 0; }
 		}
 
 		/// <summary>
@@ -352,7 +364,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="format">The preferred text format.</param>
 		/// <param name="body">The MIME part containing the message body in the preferred text format.</param>
-		/// <returns><c>true</c> if the body part is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the body part is found; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
@@ -511,7 +523,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -537,16 +549,16 @@ namespace MimeKit {
 			if (RawPreamble != null && RawPreamble.Length > 0)
 				WriteBytes (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken);
 
-			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
+			var defaultBoundary = Encoding.ASCII.GetBytes ("--" + Boundary + options.NewLine);
 
 			if (stream is ICancellableStream cancellable) {
 				for (int i = 0; i < children.Count; i++) {
+					var boundary = rawBoundaries?[i] ?? defaultBoundary;
 					var rfc822 = children[i] as MessagePart;
 					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
-					cancellable.Write (boundary, 0, boundary.Length - 2, cancellationToken);
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
 					if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
@@ -555,28 +567,34 @@ namespace MimeKit {
 					}
 
 					if ((part != null && part.Content is null) ||
+						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
 					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
 
-				if (!WriteEndBoundary)
-					return;
+				if (RawEndBoundary != null) {
+					if (RawEndBoundary.Length == 0)
+						return;
 
-				cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
+					cancellable.Write (RawEndBoundary, 0, RawEndBoundary.Length, cancellationToken);
+				} else {
+					var endBoundary = string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty);
+					var boundary = Encoding.ASCII.GetBytes (endBoundary);
 
-				if (RawEpilogue is null)
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
+				}
 			} else {
 				for (int i = 0; i < children.Count; i++) {
+					var boundary = rawBoundaries?[i] ?? defaultBoundary;
 					var rfc822 = children[i] as MessagePart;
 					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
 					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (boundary, 0, boundary.Length - 2);
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					stream.Write (boundary, 0, boundary.Length);
+
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
 					if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
@@ -585,6 +603,7 @@ namespace MimeKit {
 					}
 
 					if ((part != null && part.Content is null) ||
+						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
 						(multi != null && !multi.WriteEndBoundary))
 						continue;
 
@@ -592,15 +611,18 @@ namespace MimeKit {
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
-				if (!WriteEndBoundary)
-					return;
-
 				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (boundary, 0, boundary.Length);
 
-				if (RawEpilogue is null) {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (RawEndBoundary != null) {
+					if (RawEndBoundary.Length == 0)
+						return;
+
+					stream.Write (RawEndBoundary, 0, RawEndBoundary.Length);
+				} else {
+					var endBoundary = string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty);
+					var boundary = Encoding.ASCII.GetBytes (endBoundary);
+
+					stream.Write (boundary, 0, boundary.Length);
 				}
 			}
 
@@ -617,7 +639,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -643,15 +665,15 @@ namespace MimeKit {
 			if (RawPreamble != null && RawPreamble.Length > 0)
 				await WriteBytesAsync (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken).ConfigureAwait (false);
 
-			var boundary = Encoding.ASCII.GetBytes ("--" + Boundary + "--");
+			var defaultBoundary = Encoding.ASCII.GetBytes ("--" + Boundary + options.NewLine);
 
 			for (int i = 0; i < children.Count; i++) {
+				var boundary = rawBoundaries?[i] ?? defaultBoundary;
 				var rfc822 = children[i] as MessagePart;
 				var multi = children[i] as Multipart;
 				var part = children[i] as MimePart;
 
-				await stream.WriteAsync (boundary, 0, boundary.Length - 2, cancellationToken).ConfigureAwait (false);
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				await stream.WriteAsync (boundary, 0, boundary.Length, cancellationToken).ConfigureAwait (false);
 				await children[i].WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
 
 				if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
@@ -660,19 +682,24 @@ namespace MimeKit {
 				}
 
 				if ((part != null && part.Content is null) ||
-				    (multi != null && !multi.WriteEndBoundary))
+					(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
+					(multi != null && !multi.WriteEndBoundary))
 					continue;
 
 				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 			}
 
-			if (!WriteEndBoundary)
-				return;
+			if (RawEndBoundary != null) {
+				if (RawEndBoundary.Length == 0)
+					return;
 
-			await stream.WriteAsync (boundary, 0, boundary.Length, cancellationToken).ConfigureAwait (false);
+				await stream.WriteAsync (RawEndBoundary, 0, RawEndBoundary.Length, cancellationToken).ConfigureAwait (false);
+			} else {
+				var endBoundary = string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty);
+				var boundary = Encoding.ASCII.GetBytes (endBoundary);
 
-			if (RawEpilogue is null)
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				await stream.WriteAsync (boundary, 0, boundary.Length, cancellationToken).ConfigureAwait (false);
+			}
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
 				await WriteBytesAsync (options, stream, RawEpilogue, EnsureNewLine, cancellationToken).ConfigureAwait (false);
@@ -697,7 +724,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="Multipart"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -706,11 +733,13 @@ namespace MimeKit {
 		/// Add an entity to the multipart.
 		/// </summary>
 		/// <remarks>
-		/// Adds an entity to the multipart without changing the WriteEndBoundary state.
+		/// Adds an entity and its boundary marker to the multipart.
 		/// </remarks>
 		/// <param name="entity">The MIME entity to add.</param>
-		internal void InternalAdd (MimeEntity entity)
+		/// <param name="boundary">The boundary marker preceeding the entity.</param>
+		internal void AddInternal (MimeEntity entity, byte[] boundary)
 		{
+			rawBoundaries.Add (boundary);
 			children.Add (entity);
 		}
 
@@ -734,7 +763,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			WriteEndBoundary = true;
+			rawBoundaries?.Add (null);
 			children.Add (entity);
 		}
 
@@ -758,7 +787,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all the entities within the multipart, optionally disposing them in the process.
 		/// </remarks>
-		/// <param name="dispose"><c>true</c> if all the child entities of the multipart should be disposed; otherwise, <c>false</c>.</param>
+		/// <param name="dispose"><see langword="true" /> if all the child entities of the multipart should be disposed; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
@@ -771,7 +800,8 @@ namespace MimeKit {
 					children[i].Dispose ();
 			}
 
-			WriteEndBoundary = true;
+			RawEndBoundary = null;
+			rawBoundaries = null;
 			children.Clear ();
 		}
 
@@ -781,8 +811,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the multipart contains the specified entity.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified entity exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified entity exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="entity">The entity to check for.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <see langword="null"/>.
@@ -821,6 +851,7 @@ namespace MimeKit {
 		public void CopyTo (MimeEntity[] array, int arrayIndex)
 		{
 			CheckDisposed ();
+
 			children.CopyTo (array, arrayIndex);
 		}
 
@@ -830,7 +861,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified entity if it exists within the multipart.
 		/// </remarks>
-		/// <returns><value>true</value> if the part was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the part was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="entity">The MIME entity to remove.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="entity"/> is <see langword="null"/>.
@@ -845,10 +876,13 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			if (!children.Remove (entity))
+			int index = children.IndexOf (entity);
+
+			if (index == -1)
 				return false;
 
-			WriteEndBoundary = true;
+			rawBoundaries?.RemoveAt (index);
+			children.RemoveAt (index);
 
 			return true;
 		}
@@ -908,8 +942,8 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
+			rawBoundaries?.Insert (index, null);
 			children.Insert (index, entity);
-			WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -929,8 +963,9 @@ namespace MimeKit {
 		public void RemoveAt (int index)
 		{
 			CheckDisposed ();
+
+			rawBoundaries?.RemoveAt (index);
 			children.RemoveAt (index);
-			WriteEndBoundary = true;
 		}
 
 		/// <summary>
@@ -963,7 +998,6 @@ namespace MimeKit {
 
 				CheckDisposed ();
 
-				WriteEndBoundary = true;
 				children[index] = value;
 			}
 		}
@@ -985,6 +1019,7 @@ namespace MimeKit {
 		public IEnumerator<MimeEntity> GetEnumerator ()
 		{
 			CheckDisposed ();
+
 			return children.GetEnumerator ();
 		}
 
@@ -1005,10 +1040,20 @@ namespace MimeKit {
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			CheckDisposed ();
+
 			return children.GetEnumerator ();
 		}
 
 		#endregion
+
+		void BoundaryChanged (object sender, EventArgs args)
+		{
+			// If/when the boundary changes, it is no longer necessary to maintain the raw (parsed) boundary
+			// markers for each child part. Instead, we will generate them in WriteTo/Async().
+			ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
+			RawEndBoundary = null;
+			rawBoundaries = null;
+		}
 
 		/// <summary>
 		/// Release the unmanaged resources used by the <see cref="Multipart"/> and
@@ -1018,11 +1063,18 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="Multipart"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing) {
+				if (rawBoundaries != null) {
+					// Note: this event is only connected if the Multipart was parsed by a MimeParser,
+					// in which case, `boundaries` will not be null.
+					ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
+					rawBoundaries = null;
+				}
+
 				for (int i = 0; i < children.Count; i++)
 					children[i].Dispose ();
 			}

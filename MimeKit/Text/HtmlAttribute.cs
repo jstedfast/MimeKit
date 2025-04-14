@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -80,7 +80,7 @@ namespace MimeKit.Text {
 			if (name.Length == 0)
 				throw new ArgumentException ("The attribute name cannot be empty.", nameof (name));
 
-			if (!HtmlUtils.IsValidTokenName (name))
+			if (!HtmlUtils.IsValidAttributeName (name))
 				throw new ArgumentException ("Invalid attribute name.", nameof (name));
 
 			Value = value;

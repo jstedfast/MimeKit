@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -114,6 +114,7 @@ namespace MimeKit {
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
+			currentBoundary = null;
 			ResetRawHeaderData ();
 			headers.Clear ();
 
@@ -283,7 +284,7 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			if (bounds.Count > 0) {
+			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
@@ -330,7 +331,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true, depth);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, depth);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -424,7 +425,7 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = options.CreateEntity (type, headers, false, depth);
+				var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, depth);
 				var entityArgs = new MimeEntityEndEventArgs (entity, multipart) {
 					HeadersEndOffset = headerBlockEnd,
 					BeginOffset = headerBlockBegin,
@@ -481,8 +482,11 @@ namespace MimeKit {
 				//OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
-				multipart.WriteEndBoundary = true;
 				await SkipLineAsync (false, cancellationToken).ConfigureAwait (false);
+
+				// FIXME: we should save the raw end boundary marker in case it contains trailing whitespace
+				multipart.RawEndBoundary = null;
+
 				PopBoundary ();
 
 				//OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
@@ -497,19 +501,8 @@ namespace MimeKit {
 			endOffset = GetEndOffset (inputIndex);
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
-			multipart.WriteEndBoundary = false;
-
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
-
-			unsafe {
-				fixed (byte* inbuf = input) {
-					if (boundary == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
-						boundary = BoundaryType.ImmediateEndBoundary;
-					else if (boundary == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
-						boundary = BoundaryType.ImmediateBoundary;
-				}
-			}
 		}
 
 		/// <summary>
@@ -583,7 +576,7 @@ namespace MimeKit {
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all the headers.
-			var entity = options.CreateEntity (type, headers, false, 0);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -683,7 +676,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true, 0);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -102,6 +102,7 @@ namespace MimeKit {
 				Headers.Add (header);
 			}
 
+			Headers.HasBodySeparator = args.HasBodySeparator;
 			ContentType.Changed += ContentTypeChanged;
 			Headers.Changed += HeadersChanged;
 		}
@@ -178,7 +179,7 @@ namespace MimeKit {
 		/// Initializes the appropriate property based on the type of the object.
 		/// </remarks>
 		/// <param name="obj">The object.</param>
-		/// <returns><c>true</c> if the object was recognized and used; <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the object was recognized and used; otherwise, <see langword="false" />.</returns>
 		protected bool TryInit (object obj)
 		{
 			// The base MimeEntity class only knows about Headers.
@@ -442,10 +443,10 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// If the Content-Disposition header is set and has a value of <c>"attachment"</c>,
-		/// then this property returns <c>true</c>. Otherwise, it is assumed that the
+		/// then this property returns <see langword="true" />. Otherwise, it is assumed that the
 		/// <see cref="MimePart"/> is not meant to be treated as an attachment.
 		/// </remarks>
-		/// <value><c>true</c> if this <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this <see cref="MimePart"/> is an attachment; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
@@ -552,7 +553,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -592,7 +593,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -690,7 +691,7 @@ namespace MimeKit {
 		/// Writes the entity to the output stream.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -717,7 +718,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -795,7 +796,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -847,7 +848,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -980,7 +981,7 @@ namespace MimeKit {
 		/// Writes the entity to the specified file using the default formatting options.
 		/// </remarks>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <see langword="null"/>.
@@ -1020,7 +1021,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="fileName">The file.</param>
-		/// <param name="contentOnly"><c>true</c> if only the content should be written; otherwise, <c>false</c>.</param>
+		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="fileName"/> is <see langword="null"/>.
@@ -1284,10 +1285,14 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
+			if (disposing) {
+				ContentType.Changed -= ContentTypeChanged;
+				Headers.Changed -= HeadersChanged;
+			}
 		}
 
 		/// <summary>
@@ -1299,8 +1304,11 @@ namespace MimeKit {
 		/// the garbage collector can reclaim the memory that the <see cref="MimeEntity"/> was occupying.</remarks>
 		public void Dispose ()
 		{
-			Dispose (true);
-			IsDisposed = true;
+			if (!IsDisposed) {
+				Dispose (true);
+				IsDisposed = true;
+			}
+
 			GC.SuppressFinalize (this);
 		}
 
@@ -1312,7 +1320,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
@@ -1321,7 +1329,7 @@ namespace MimeKit {
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -1356,7 +1364,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
@@ -1365,7 +1373,7 @@ namespace MimeKit {
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -1460,7 +1468,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
@@ -1468,7 +1476,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -1493,7 +1501,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -1501,7 +1509,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.

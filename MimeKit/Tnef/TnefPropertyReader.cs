@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the current property is a computed property.
 		/// </remarks>
-		/// <value><c>true</c> if the current property is a computed property; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the current property is a computed property; otherwise, <see langword="false" />.</value>
 		public bool IsComputedProperty {
 			get { throw new NotImplementedException (); }
 		}
@@ -75,7 +75,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the current property is an embedded TNEF message.
 		/// </remarks>
-		/// <value><c>true</c> if the current property is an embedded TNEF message; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the current property is an embedded TNEF message; otherwise, <see langword="false" />.</value>
 		public bool IsEmbeddedMessage {
 			get { return propertyTag.Id == TnefPropertyId.AttachData && AttachMethod == TnefAttachMethod.EmbeddedMessage; }
 		}
@@ -87,7 +87,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the current property has a large value.
 		/// </remarks>
-		/// <value><c>true</c> if the current property has a large value; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the current property has a large value; otherwise, <see langword="false" />.</value>
 		public bool IsLargeValue {
 			get { throw new NotImplementedException (); }
 		}
@@ -99,7 +99,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the current property has multiple values.
 		/// </remarks>
-		/// <value><c>true</c> if the current property has multiple values; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the current property has multiple values; otherwise, <see langword="false" />.</value>
 		public bool IsMultiValuedProperty {
 			get { return propertyTag.IsMultiValued; }
 		}
@@ -110,7 +110,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the current property is a named property.
 		/// </remarks>
-		/// <value><c>true</c> if the current property is a named property; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the current property is a named property; otherwise, <see langword="false" />.</value>
 		public bool IsNamedProperty {
 			get { return propertyTag.IsNamed; }
 		}
@@ -121,7 +121,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets a value indicating whether the current property contains object values.
 		/// </remarks>
-		/// <value><c>true</c> if the current property contains object values; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the current property contains object values; otherwise, <see langword="false" />.</value>
 		public bool IsObjectProperty {
 			get { return propertyTag.ValueTnefType == TnefPropertyType.Object; }
 		}
@@ -401,7 +401,7 @@ namespace MimeKit.Tnef {
 				// remaining bytes are padding
 				int padding = 4 - (length % 4);
 
-				reader.Seek (reader.StreamOffset + padding);
+				reader.Skip (padding);
 			}
 
 			return bytes;
@@ -521,7 +521,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Advances to the next MAPI property.
 		/// </remarks>
-		/// <returns><c>true</c> if there is another property available to be read; otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if there is another property available to be read; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="TnefException">
 		/// The TNEF data is corrupt or invalid.
 		/// </exception>
@@ -569,7 +569,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Advances to the next table row of properties.
 		/// </remarks>
-		/// <returns><c>true</c> if there is another row available to be read; otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if there is another row available to be read; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="TnefException">
 		/// The TNEF data is corrupt or invalid.
 		/// </exception>
@@ -599,7 +599,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Advances to the next value in the TNEF stream.
 		/// </remarks>
-		/// <returns><c>true</c> if there is another value available to be read; otherwise <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if there is another value available to be read; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="TnefException">
 		/// The TNEF data is corrupt or invalid.
 		/// </exception>
@@ -610,7 +610,7 @@ namespace MimeKit.Tnef {
 
 			int offset = RawValueStreamOffset + RawValueLength;
 
-			if (reader.StreamOffset < offset && !reader.Seek (offset))
+			if (reader.StreamOffset < offset && !reader.Skip (offset - reader.StreamOffset))
 				return false;
 
 			try {
@@ -1506,8 +1506,8 @@ namespace MimeKit.Tnef {
 		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyReader"/>.
 		/// </remarks>
 		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefPropertyReader"/>.</param>
-		/// <returns><c>true</c> if the specified <see cref="System.Object"/> is equal to the current
-		/// <see cref="TnefPropertyReader"/>; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="TnefPropertyReader"/>; otherwise, <see langword="false" />.</returns>
 		public override bool Equals (object obj)
 		{
 			return obj is TnefPropertyReader prop && prop.reader == reader;
