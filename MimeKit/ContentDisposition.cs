@@ -24,11 +24,14 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.Text;
 using System.Globalization;
 
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -119,6 +122,8 @@ namespace MimeKit {
 		/// </exception>
 		public string Disposition {
 			get { return disposition; }
+
+			[MemberNotNull (nameof (disposition))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -166,6 +171,8 @@ namespace MimeKit {
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
+
+			[MemberNotNull (nameof (parameters))]
 			private set {
 				if (parameters != null)
 					parameters.Changed -= OnParametersChanged;
@@ -430,9 +437,9 @@ namespace MimeKit {
 			return ToString (false);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
-		void OnParametersChanged (object sender, EventArgs e)
+		void OnParametersChanged (object? sender, EventArgs e)
 		{
 			OnChanged ();
 		}
@@ -442,7 +449,7 @@ namespace MimeKit {
 			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentDisposition disposition)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			string type;
 			int atom;
@@ -547,7 +554,7 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
@@ -575,7 +582,7 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
+		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out disposition);
 		}
@@ -599,7 +606,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
@@ -624,7 +631,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, out ContentDisposition disposition)
+		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out disposition);
 		}
@@ -644,7 +651,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
@@ -665,7 +672,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, out ContentDisposition disposition)
+		public static bool TryParse (byte[] buffer, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, out disposition);
 		}
@@ -685,7 +692,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions options, string text, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, text);
 
@@ -707,7 +714,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, out ContentDisposition disposition)
+		public static bool TryParse (string text, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, text, out disposition);
 		}
@@ -744,7 +751,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, startIndex + length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
@@ -802,7 +809,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
@@ -853,7 +860,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
@@ -901,7 +908,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
