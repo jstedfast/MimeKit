@@ -24,11 +24,14 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -40,7 +43,7 @@ namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		static string DefaultHostName = null;
+		static string? DefaultHostName = null;
 		static readonly char[] UnquoteChars = new[] { '\r', '\n', '\t', '\\', '"' };
 
 		/// <summary>
@@ -288,7 +291,7 @@ namespace MimeKit.Utils {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out Version version)
+		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out Version? version)
 		{
 			ParseUtils.ValidateArguments (buffer, startIndex, length);
 
@@ -339,7 +342,7 @@ namespace MimeKit.Utils {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, out Version version)
+		public static bool TryParse (string text, [NotNullWhen (true)] out Version? version)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));

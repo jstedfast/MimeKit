@@ -193,7 +193,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The name of the file.</value>
-		public string FileName {
+		public string? FileName {
 			get { return Parameters["filename"]; }
 			set {
 				if (value != null)
@@ -449,7 +449,7 @@ namespace MimeKit {
 			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen(true)] out ContentDisposition? disposition)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			string type;
 			int atom;
@@ -554,7 +554,7 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
@@ -582,7 +582,7 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out disposition);
 		}
@@ -606,7 +606,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
@@ -631,7 +631,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out disposition);
 		}
@@ -651,7 +651,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
@@ -672,7 +672,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, out disposition);
 		}
@@ -692,7 +692,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (ParserOptions options, string text, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			ParseUtils.ValidateArguments (options, text);
 
@@ -714,7 +714,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, [NotNullWhen(true)] out ContentDisposition? disposition)
+		public static bool TryParse (string text, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, text, out disposition);
 		}

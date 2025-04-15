@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.Text;
 using System.Collections;
@@ -31,6 +33,7 @@ using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -41,7 +44,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class DomainList : IList<string>
 	{
-		readonly static byte[] DomainSentinels = new [] { (byte) ',', (byte) ':' };
+		readonly static byte[] DomainSentinels = new[] { (byte) ',', (byte) ':' };
 		IList<string> domains;
 
 		/// <summary>
@@ -376,7 +379,7 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
 		void OnChanged ()
 		{
@@ -399,7 +402,7 @@ namespace MimeKit {
 		/// <param name="throwOnError">A flag indicating whether an
 		/// exception should be thrown on error.</param>
 		/// <param name="route">The parsed DomainList.</param>
-		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, out DomainList route)
+		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out DomainList? route)
 		{
 			var domains = new List<string> ();
 			int startIndex = index;
@@ -456,7 +459,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, out DomainList route)
+		public static bool TryParse (string text, [NotNullWhen (true)] out DomainList? route)
 		{
 			int index = 0;
 

@@ -24,11 +24,14 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.Text;
 using System.Globalization;
 
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -135,6 +138,8 @@ namespace MimeKit {
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
+
+			[MemberNotNull (nameof (parameters))]
 			internal set {
 				if (parameters != null)
 					parameters.Changed -= OnParametersChanged;
@@ -152,7 +157,7 @@ namespace MimeKit {
 		/// parser a unique string that should be considered the boundary marker for each sub-part.
 		/// </remarks>
 		/// <value>The boundary.</value>
-		public string Boundary {
+		public string? Boundary {
 			get { return Parameters["boundary"]; }
 			set {
 				if (value != null)
@@ -170,7 +175,7 @@ namespace MimeKit {
 		/// so that the receiving client can properly render the text.
 		/// </remarks>
 		/// <value>The charset.</value>
-		public string Charset {
+		public string? Charset {
 			get { return Parameters["charset"]; }
 			set {
 				if (value != null)
@@ -188,7 +193,7 @@ namespace MimeKit {
 		/// so that the receiving client can properly render the text.
 		/// </remarks>
 		/// <value>The charset encoding.</value>
-		public Encoding CharsetEncoding {
+		public Encoding? CharsetEncoding {
 			get {
 				var charset = Charset;
 
@@ -214,7 +219,7 @@ namespace MimeKit {
 		/// entities and will either have a value of <c>"fixed"</c> or <c>"flowed"</c>.
 		/// </remarks>
 		/// <value>The charset.</value>
-		public string Format {
+		public string? Format {
 			get { return Parameters["format"]; }
 			set {
 				if (value != null)
@@ -245,7 +250,7 @@ namespace MimeKit {
 		/// content to the user.
 		/// </remarks>
 		/// <value>The name.</value>
-		public string Name {
+		public string? Name {
 			get { return Parameters["name"]; }
 			set {
 				if (value != null)
@@ -407,9 +412,9 @@ namespace MimeKit {
 			return ToString (false);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
-		void OnParametersChanged (object sender, EventArgs e)
+		void OnParametersChanged (object? sender, EventArgs e)
 		{
 			OnChanged ();
 		}
@@ -439,7 +444,7 @@ namespace MimeKit {
 			return index > startIndex;
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentType contentType)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ContentType? contentType)
 		{
 			string type, subtype;
 			int start;
@@ -538,7 +543,7 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentType type)
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out ContentType? type)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
 
@@ -566,7 +571,7 @@ namespace MimeKit {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentType type)
+		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out type);
 		}
@@ -590,7 +595,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentType type)
+		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out ContentType? type)
 		{
 			ParseUtils.ValidateArguments (options, buffer, startIndex);
 
@@ -615,7 +620,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, out ContentType type)
+		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out type);
 		}
@@ -635,7 +640,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentType type)
+		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out ContentType? type)
 		{
 			ParseUtils.ValidateArguments (options, buffer);
 
@@ -656,7 +661,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (byte[] buffer, out ContentType type)
+		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, buffer, out type);
 		}
@@ -676,7 +681,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, out ContentType type)
+		public static bool TryParse (ParserOptions options, string text, [NotNullWhen (true)] out ContentType? type)
 		{
 			ParseUtils.ValidateArguments (options, text);
 
@@ -698,7 +703,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, out ContentType type)
+		public static bool TryParse (string text, [NotNullWhen (true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, text, out type);
 		}
@@ -735,7 +740,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, startIndex + length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
@@ -793,7 +798,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
@@ -844,7 +849,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
@@ -892,7 +897,7 @@ namespace MimeKit {
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
