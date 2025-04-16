@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -38,7 +40,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class InternetAddressConverter : TypeConverter
 	{
-		static ParserOptions Options;
+		static ParserOptions? Options;
 
 		/// <summary>
 		/// Register the type converter so that it's available through <see cref="TypeDescriptor.GetConverter(object)"/>.
@@ -50,7 +52,7 @@ namespace MimeKit {
 		/// <exception cref="InvalidOperationException">
 		/// The Register method was called more than once.
 		/// </exception>
-		public static void Register (ParserOptions options = null)
+		public static void Register (ParserOptions? options = null)
 		{
 			if (Interlocked.Exchange (ref Options, options ?? ParserOptions.Default) != null)
 				throw new InvalidOperationException ($"The {typeof (InternetAddressConverter)}.{nameof (Register)} method must be called only once.");
@@ -77,7 +79,7 @@ namespace MimeKit {
 		/// <returns><see langword="true"/> if this converter can perform the conversion; otherwise, <see langword="false"/>.</returns>
 		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
 		/// <param name="sourceType">A <see cref="Type"/> that represents the type you want to convert from.</param>
-		public override bool CanConvertFrom (ITypeDescriptorContext context, Type sourceType)
+		public override bool CanConvertFrom (ITypeDescriptorContext? context, Type sourceType)
 		{
 			return sourceType == typeof (string) || base.CanConvertFrom (context, sourceType);
 		}
@@ -95,7 +97,7 @@ namespace MimeKit {
 		/// <returns><see langword="true"/> if this converter can perform the conversion; otherwise, <see langword="false"/>.</returns>
 		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
 		/// <param name="destinationType">A <see cref="Type"/> that represents the type you want to convert to.</param>
-		public override bool CanConvertTo (ITypeDescriptorContext context, Type destinationType)
+		public override bool CanConvertTo (ITypeDescriptorContext? context, Type? destinationType)
 		{
 			return destinationType == typeof (string) || base.CanConvertTo (context, destinationType);
 		}
@@ -113,7 +115,7 @@ namespace MimeKit {
 		/// <exception cref="NotSupportedException">
 		/// The conversion cannot be performed.
 		/// </exception>
-		public override object ConvertFrom (ITypeDescriptorContext context, CultureInfo culture, object value)
+		public override object? ConvertFrom (ITypeDescriptorContext? context, CultureInfo? culture, object value)
 		{
 			if (value is string text)
 				return InternetAddress.Parse (Options ?? ParserOptions.Default, text);
@@ -138,7 +140,7 @@ namespace MimeKit {
 		/// <exception cref="NotSupportedException">
 		/// The conversion cannot be performed.
 		/// </exception>
-		public override object ConvertTo (ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+		public override object? ConvertTo (ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
 		{
 			if (destinationType == typeof (string) && value is InternetAddress address)
 				return address.ToString ();
@@ -161,7 +163,7 @@ namespace MimeKit {
 		/// <returns><see langword="true"/> if the specified value is valid for this object; otherwise, <see langword="false"/>.</returns>
 		/// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
 		/// <param name="value">The <see cref="Object"/> to test for validity.</param>
-		public override bool IsValid (ITypeDescriptorContext context, object value)
+		public override bool IsValid (ITypeDescriptorContext? context, object? value)
 		{
 			if (value is string text)
 				return InternetAddress.TryParse (Options ?? ParserOptions.Default, text, out _);

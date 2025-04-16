@@ -24,7 +24,10 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -45,7 +48,7 @@ namespace MimeKit {
 	/// </example>
 	public class MessageDeliveryStatus : MimePart, IMessageDeliveryStatus
 	{
-		HeaderListCollection groups;
+		HeaderListCollection? groups;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessageDeliveryStatus"/> class.
@@ -116,6 +119,7 @@ namespace MimeKit {
 			}
 		}
 
+		[MemberNotNull (nameof (groups))]
 		void ParseStatusGroups ()
 		{
 			groups = new HeaderListCollection ();
@@ -170,13 +174,13 @@ namespace MimeKit {
 			}
 		}
 
-		void OnGroupsChanged (object sender, EventArgs e)
+		void OnGroupsChanged (object? sender, EventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
 			try {
-				for (int i = 0; i < groups.Count; i++)
+				for (int i = 0; i < groups!.Count; i++) // groups cannot be null if an event handler is registered to its Changed event 
 					groups[i].WriteTo (options, stream);
 
 				stream.Position = 0;
