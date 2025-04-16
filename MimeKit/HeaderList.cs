@@ -613,6 +613,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
+		[DisallowNull]
 		public string? this [HeaderId id] {
 			get {
 				if (id == HeaderId.Unknown)
@@ -653,6 +654,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
+		[DisallowNull]
 		public string? this [string field] {
 			get {
 				if (field is null)

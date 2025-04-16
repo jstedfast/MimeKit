@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -130,7 +132,7 @@ namespace MimeKit.Text {
 		/// filtering of HTML tags and content.
 		/// </remarks>
 		/// <value>The html tag callback.</value>
-		public HtmlTagCallback HtmlTagCallback {
+		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
 		}
 
@@ -357,7 +359,7 @@ namespace MimeKit.Text {
 				var para = new StringBuilder ();
 				int currentQuoteDepth = 0;
 				int paraQuoteDepth = -1;
-				string line;
+				string? line;
 
 				while ((line = reader.ReadLine ()) != null) {
 					// unquote the line

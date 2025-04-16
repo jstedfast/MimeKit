@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -34,6 +36,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -68,8 +71,8 @@ namespace MimeKit {
 	public class Multipart : MimeEntity, IMultipart
 	{
 		readonly List<MimeEntity> children;
-		internal List<byte[]> rawBoundaries;
-		string preamble, epilogue;
+		internal List<byte[]?>? rawBoundaries;
+		string? preamble, epilogue;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Multipart"/> class.
@@ -84,7 +87,7 @@ namespace MimeKit {
 		public Multipart (MimeEntityConstructorArgs args) : base (args)
 		{
 			ContentType.Parameters.BoundaryChanged += BoundaryChanged;
-			rawBoundaries = new List<byte[]> ();
+			rawBoundaries = new List<byte[]?> ();
 			children = new List<MimeEntity> ();
 
 			// Since this .ctor only ever gets called by the parser, we default the end boundary to an empty
@@ -213,7 +216,7 @@ namespace MimeKit {
 			}
 		}
 
-		internal byte[] RawPreamble {
+		internal byte[]? RawPreamble {
 			get; set;
 		}
 
@@ -231,7 +234,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
-		public string Preamble {
+		public string? Preamble {
 			get {
 				CheckDisposed ();
 
@@ -257,11 +260,11 @@ namespace MimeKit {
 			}
 		}
 
-		internal byte[] RawEndBoundary {
+		internal byte[]? RawEndBoundary {
 			get; set;
 		}
 
-		internal byte[] RawEpilogue {
+		internal byte[]? RawEpilogue {
 			get; set;
 		}
 
@@ -277,7 +280,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
-		public string Epilogue {
+		public string? Epilogue {
 			get {
 				CheckDisposed ();
 
@@ -368,7 +371,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
-		public virtual bool TryGetValue (TextFormat format, out TextPart body)
+		public virtual bool TryGetValue (TextFormat format, [NotNullWhen (true)] out TextPart? body)
 		{
 			CheckDisposed ();
 
@@ -737,7 +740,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="entity">The MIME entity to add.</param>
 		/// <param name="boundary">The boundary marker preceeding the entity.</param>
-		internal void AddInternal (MimeEntity entity, byte[] boundary)
+		internal void AddInternal (MimeEntity entity, byte[]? boundary)
 		{
 			rawBoundaries.Add (boundary);
 			children.Add (entity);
@@ -1046,7 +1049,7 @@ namespace MimeKit {
 
 		#endregion
 
-		void BoundaryChanged (object sender, EventArgs args)
+		void BoundaryChanged (object? sender, EventArgs args)
 		{
 			// If/when the boundary changes, it is no longer necessary to maintain the raw (parsed) boundary
 			// markers for each child part. Instead, we will generate them in WriteTo/Async().

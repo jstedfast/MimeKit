@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -177,7 +178,7 @@ namespace MimeKit.Tnef {
 			//	}
 			//}
 
-			public bool TryGetMailboxAddress (out MailboxAddress mailbox)
+			public bool TryGetMailboxAddress ([NotNullWhen (true)] out MailboxAddress? mailbox)
 			{
 				string addr;
 
@@ -262,9 +263,9 @@ namespace MimeKit.Tnef {
 			var prop = reader.TnefPropertyReader;
 			var recipient = new EmailAddress ();
 			var sender = new EmailAddress ();
-			string normalizedSubject = null;
-			string subjectPrefix = null;
-			MailboxAddress mailbox;
+			string? normalizedSubject = null;
+			string? subjectPrefix = null;
+			MailboxAddress? mailbox;
 			var msgid = false;
 
 			while (prop.ReadNextProperty ()) {
@@ -494,11 +495,11 @@ namespace MimeKit.Tnef {
 			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
-			MimePart attachment = null;
+			MimePart? attachment = null;
 			TnefAttachFlags flags;
 			bool dispose = false;
 			string[] mimeType;
-			byte[] attachData;
+			byte[]? attachData;
 			string text;
 
 			try {
@@ -545,7 +546,7 @@ namespace MimeKit.Tnef {
 								break;
 							case TnefPropertyId.AttachDisposition:
 								text = prop.ReadValueAsString ();
-								if (ContentDisposition.TryParse (text, out ContentDisposition disposition))
+								if (ContentDisposition.TryParse (text, out ContentDisposition? disposition))
 									attachment.ContentDisposition = disposition;
 								break;
 							case TnefPropertyId.AttachData:
@@ -654,7 +655,7 @@ namespace MimeKit.Tnef {
 		{
 			var message = new MimeMessage ();
 			var alternatives = new MultipartAlternative ();
-			MimeEntity body = null;
+			MimeEntity? body = null;
 
 			try {
 				message.Headers.Remove (HeaderId.Date);

@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -50,7 +52,7 @@ namespace MimeKit {
 	/// </example>
 	public class MimePart : MimeEntity, IMimePart
 	{
-		static readonly string[] ContentTransferEncodings = {
+		static readonly string?[] ContentTransferEncodings = {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
 		const int DefaultMaxLineLength = 78;
@@ -58,8 +60,8 @@ namespace MimeKit {
 		int encoderMaxLineLength = DefaultMaxLineLength;
 		ContentEncoding encoding;
 		//string[] languages;
-		string description;
-		string md5sum;
+		string? description;
+		string? md5sum;
 		int? duration;
 
 		/// <summary>
@@ -105,7 +107,7 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			IMimeContent content = null;
+			IMimeContent? content = null;
 
 			foreach (object obj in args) {
 				if (obj is null || TryInit (obj))
@@ -215,7 +217,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public string ContentDescription {
+		public string? ContentDescription {
 			get {
 				CheckDisposed ();
 
@@ -308,7 +310,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public string ContentMd5 {
+		public string? ContentMd5 {
 			get {
 				CheckDisposed ();
 
@@ -412,9 +414,9 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public string FileName {
+		public string? FileName {
 			get {
-				string filename = null;
+				string? filename = null;
 
 				if (ContentDisposition != null)
 					filename = ContentDisposition.FileName;
@@ -445,7 +447,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The MIME content.</value>
-		public IMimeContent Content {
+		public IMimeContent? Content {
 			get; set;
 		}
 

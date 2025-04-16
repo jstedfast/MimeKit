@@ -24,12 +24,15 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
@@ -70,12 +73,12 @@ namespace MimeKit {
 		int headerCount;
 
 		// boundary state
-		Boundary boundaries;
-		Boundary currentBoundary;
+		Boundary? boundaries;
+		Boundary? currentBoundary;
 		BoundaryType boundary;
 
 		ContentEncoding? currentEncoding;
-		ContentType currentContentType;
+		ContentType? currentContentType;
 		long? currentContentLength;
 
 		MimeParserState state;
@@ -145,6 +148,8 @@ namespace MimeKit {
 			get {
 				return options;
 			}
+
+			[MemberNotNull (nameof (options))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -190,6 +195,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
+		[MemberNotNull (nameof (this.stream))]
 		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
 			if (stream is null)
@@ -2086,7 +2092,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		ContentType GetContentType (ContentType parent)
+		ContentType GetContentType (ContentType? parent)
 		{
 			if (currentContentType != null)
 				return currentContentType;

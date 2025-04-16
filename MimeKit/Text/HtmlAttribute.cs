@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 
 namespace MimeKit.Text {
@@ -51,7 +53,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid value.
 		/// </exception>
-		public HtmlAttribute (HtmlAttributeId id, string value)
+		public HtmlAttribute (HtmlAttributeId id, string? value)
 		{
 			if (id == HtmlAttributeId.Unknown)
 				throw new ArgumentOutOfRangeException (nameof (id));
@@ -72,7 +74,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
-		public HtmlAttribute (string name, string value)
+		public HtmlAttribute (string name, string? value)
 		{
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
@@ -135,7 +137,7 @@ namespace MimeKit.Text {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <value>The value of the attribute.</value>
-		public string Value {
+		public string? Value {
 			get; internal set;
 		}
 	}

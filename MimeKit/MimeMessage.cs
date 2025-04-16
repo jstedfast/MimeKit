@@ -776,6 +776,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
+		[DisallowNull]
 		public string? Subject {
 			get { return Headers["Subject"]; }
 			set {
@@ -942,6 +943,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
+		[DisallowNull]
 		public string? MessageId {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.MessageId) == 0) {
@@ -992,6 +994,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
+		[DisallowNull]
 		public string? ResentMessageId {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) == 0) {
@@ -1037,6 +1040,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
+		[DisallowNull]
 		public Version? MimeVersion {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.MimeVersion) == 0) {

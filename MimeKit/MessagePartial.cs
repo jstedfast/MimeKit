@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Linq;
@@ -226,7 +228,7 @@ namespace MimeKit {
 #endif
 
 			for (int i = 0; i < ids.Length; i++) {
-				var id = (HeaderId) ids.GetValue (i);
+				var id = (HeaderId) ids.GetValue (i)!; // Enum.GetValues* does not return null values
 
 				switch (id) {
 				case HeaderId.Subject:

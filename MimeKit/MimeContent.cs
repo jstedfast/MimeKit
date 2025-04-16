@@ -24,11 +24,14 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -94,6 +97,7 @@ namespace MimeKit {
 			Dispose (false);
 		}
 
+		[MemberNotNull (nameof (Stream))]
 		void CheckDisposed ()
 		{
 			if (Stream is null)
@@ -133,7 +137,7 @@ namespace MimeKit {
 		/// Gets the content stream.
 		/// </remarks>
 		/// <value>The stream.</value>
-		public Stream Stream {
+		public Stream? Stream {
 			get; private set;
 		}
 

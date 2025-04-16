@@ -37,13 +37,13 @@ namespace MimeKit.Text {
 	class Trie
 	{
 		class TrieState {
-			public TrieState Next;
-			public TrieState Fail;
-			public TrieMatch Match;
-			public string Pattern;
+			public TrieState? Next;
+			public TrieState? Fail;
+			public TrieMatch? Match;
+			public string? Pattern;
 			public int Depth;
 
-			public TrieState (TrieState fail)
+			public TrieState (TrieState? fail)
 			{
 				Fail = fail;
 			}
@@ -61,7 +61,7 @@ namespace MimeKit.Text {
 			}
 		}
 
-		readonly List<TrieState> failStates;
+		readonly List<TrieState?> failStates;
 		readonly TrieState root;
 		readonly bool icase;
 
@@ -160,8 +160,8 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void Add (string pattern)
 		{
-			TrieState state = root;
-			TrieMatch match;
+			TrieState? state = root;
+			TrieMatch? match;
 			int depth = 0;
 			char c;
 
@@ -194,8 +194,8 @@ namespace MimeKit.Text {
 					match = state.Match;
 					while (match != null) {
 						TrieState matchedState = match.State;
-						TrieState failState = state.Fail;
-						TrieMatch nextMatch = null;
+						TrieState? failState = state.Fail;
+						TrieMatch? nextMatch = null;
 
 						c = match.Value;
 
@@ -259,13 +259,13 @@ namespace MimeKit.Text {
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
 		/// a valid range in the <paramref name="text"/> string.
 		/// </exception>
-		public int Search (char[] text, int startIndex, int count, out string pattern)
+		public int Search (char[] text, int startIndex, int count, out string? pattern)
 		{
 			ValidateArguments (text, startIndex, count);
 
 			int endIndex = Math.Min (text.Length, startIndex + count);
-			TrieState state = root;
-			TrieMatch match = null;
+			TrieState? state = root;
+			TrieMatch? match = null;
 			int matched = 0;
 			int offset = -1;
 			char c;
@@ -322,7 +322,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public int Search (char[] text, int startIndex, out string pattern)
+		public int Search (char[] text, int startIndex, out string? pattern)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));
@@ -342,7 +342,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public int Search (char[] text, out string pattern)
+		public int Search (char[] text, out string? pattern)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));

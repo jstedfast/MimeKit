@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -57,10 +59,10 @@ namespace MimeKit {
 		byte[] preHeaderBuffer;
 		int preHeaderLength;
 
-		byte[] rawBoundary;
+		byte[]? rawBoundary;
 
 		// MimePart content and Multipart preamble/epilogue state
-		Stream content;
+		Stream? content;
 
 		bool parsingMessageHeaders;
 		bool hasBodySeparator;

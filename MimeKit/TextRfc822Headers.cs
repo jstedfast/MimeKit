@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 
 namespace MimeKit {
@@ -66,7 +68,7 @@ namespace MimeKit {
 		/// </exception>
 		public TextRfc822Headers (params object[] args) : this ()
 		{
-			MimeMessage message = null;
+			MimeMessage? message = null;
 
 			foreach (object obj in args) {
 				if (obj is null || TryInit (obj))

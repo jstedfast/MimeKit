@@ -24,9 +24,12 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Utils;
 
@@ -1043,7 +1046,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mimeType"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryGetExtension (string mimeType, out string extension)
+		public static bool TryGetExtension (string mimeType, [NotNullWhen (true)] out string? extension)
 		{
 			if (mimeType is null)
 				throw new ArgumentNullException (nameof (mimeType));

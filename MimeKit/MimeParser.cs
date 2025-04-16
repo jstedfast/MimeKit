@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -32,6 +34,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -142,8 +145,8 @@ namespace MimeKit {
 		int headerIndex;
 
 		// boundary state
-		Boundary boundaries;
-		Boundary currentBoundary;
+		Boundary? boundaries;
+		Boundary? currentBoundary;
 		BoundaryType boundary;
 
 		readonly List<Header> headers = new List<Header> ();
@@ -281,6 +284,8 @@ namespace MimeKit {
 			get {
 				return options;
 			}
+
+			[MemberNotNull (nameof (options))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -1189,7 +1194,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		ContentType GetContentType (ContentType parent)
+		ContentType GetContentType (ContentType? parent)
 		{
 			for (int i = 0; i < headers.Count; i++) {
 				if (!headers[i].Field.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))

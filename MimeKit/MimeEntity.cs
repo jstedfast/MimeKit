@@ -1195,7 +1195,10 @@ namespace MimeKit {
 
 		void SerializeContentDisposition ()
 		{
-			var text = disposition.Encode (FormatOptions.Default, Encoding.UTF8);
+			// disposition cannot be null if an event handler is registered to its Changed event
+			// or when it was set to a non-null value in it the ContentDisposition setter.
+
+			var text = disposition!.Encode (FormatOptions.Default, Encoding.UTF8);
 			var raw = Encoding.UTF8.GetBytes (text);
 
 			SetHeader ("Content-Disposition", raw);

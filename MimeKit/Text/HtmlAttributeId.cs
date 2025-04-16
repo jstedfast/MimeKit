@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 
@@ -702,7 +704,7 @@ namespace MimeKit.Text {
 			IdMapping = new Dictionary<string, HtmlAttributeId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
 			for (int i = 1; i < values.Length; i++) {
-				var value = (HtmlAttributeId) values.GetValue (i);
+				var value = (HtmlAttributeId) values.GetValue (i)!; // Enum.GetValues* does not return null values
 
 				IdMapping.Add (AttributeNames[i - 1], value);
 			}
