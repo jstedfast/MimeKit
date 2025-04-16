@@ -180,7 +180,7 @@ namespace MimeKit {
 			var options = FormatOptions.Default;
 
 			try {
-				for (int i = 0; i < groups!.Count; i++) // groups cannot be null if an event handler is registered to its Changed event 
+				for (int i = 0; i < groups!.Count; i++) // groups cannot be null if an event handler is registered to its Changed event
 					groups[i].WriteTo (options, stream);
 
 				stream.Position = 0;

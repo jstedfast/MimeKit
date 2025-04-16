@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 
 using MimeKit.IO;
@@ -40,7 +42,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class MessageDispositionNotification : MimePart, IMessageDispositionNotification
 	{
-		HeaderList fields;
+		HeaderList? fields;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessageDispositionNotification"/> class.
@@ -102,12 +104,12 @@ namespace MimeKit {
 			}
 		}
 
-		void OnFieldsChanged (object sender, HeaderListChangedEventArgs e)
+		void OnFieldsChanged (object? sender, HeaderListChangedEventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-			fields.WriteTo (options, stream);
+			fields!.WriteTo (options, stream); // fields cannot be null if an event handler is registered to its Changed event
 			stream.Position = 0;
 
 			Content = new MimeContent (stream);

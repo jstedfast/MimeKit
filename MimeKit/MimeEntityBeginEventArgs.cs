@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 
 namespace MimeKit {
@@ -94,7 +96,7 @@ namespace MimeKit {
 		/// Gets the parent <see cref="Multipart"/> if this entity is a child.
 		/// </remarks>
 		/// <value>The parent <see cref="Multipart"/>.</value>
-		public Multipart Parent { get; }
+		public Multipart? Parent { get; }
 
 		/// <summary>
 		/// Get or set the stream offset that marks the beginning of the entity.

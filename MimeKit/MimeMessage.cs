@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -31,6 +33,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 #if ENABLE_SNM
 using System.Net.Mail;
@@ -94,14 +97,14 @@ namespace MimeKit {
 		internal readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		LazyLoadedFields lazyLoaded;
-		MailboxAddress resentSender;
+		MailboxAddress? resentSender;
 		DateTimeOffset resentDate;
-		string resentMessageId;
-		MailboxAddress sender;
+		string? resentMessageId;
+		MailboxAddress? sender;
 		DateTimeOffset date;
-		string messageId;
-		string inreplyto;
-		Version version;
+		string? messageId;
+		string? inreplyto;
+		Version? version;
 
 		// Note: this .ctor is used only by the MimeParser and MimeMessage.CreateFromMailMessage()
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
@@ -172,7 +175,7 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			MimeEntity body = null;
+			MimeEntity? body = null;
 
 			foreach (var obj in args) {
 				if (obj is null)
@@ -321,7 +324,7 @@ namespace MimeKit {
 		/// so that the message/rfc822 part can be reserialized back to its original form.
 		/// </remarks>
 		/// <value>The mbox marker.</value>
-		internal byte[] MboxMarker {
+		internal byte[]? MboxMarker {
 			get; set;
 		}
 
@@ -517,7 +520,7 @@ namespace MimeKit {
 		/// Otherwise, both fields SHOULD appear.</para>
 		/// </remarks>
 		/// <value>The address in the Sender header, if available.</value>
-		public MailboxAddress Sender {
+		public MailboxAddress? Sender {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.Sender) == 0) {
 					if (Headers.TryGetHeader (HeaderId.Sender, out var header)) {
@@ -566,7 +569,7 @@ namespace MimeKit {
 		/// the message was sent by someone on behalf of someone else.
 		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
-		public MailboxAddress ResentSender {
+		public MailboxAddress? ResentSender {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.ResentSender) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ResentSender, out var header)) {
@@ -773,7 +776,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public string Subject {
+		public string? Subject {
 			get { return Headers["Subject"]; }
 			set {
 				if (value is null)
@@ -885,7 +888,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		public string InReplyTo {
+		public string? InReplyTo {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.InReplyTo) == 0) {
 					if (Headers.TryGetHeader (HeaderId.InReplyTo, out var header)) {
@@ -939,7 +942,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		public string MessageId {
+		public string? MessageId {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.MessageId) == 0) {
 					if (Headers.TryGetHeader (HeaderId.MessageId, out var header)) {
@@ -989,7 +992,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		public string ResentMessageId {
+		public string? ResentMessageId {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ResentMessageId, out var header)) {
@@ -1034,7 +1037,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public Version MimeVersion {
+		public Version? MimeVersion {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.MimeVersion) == 0) {
 					if (Headers.TryGetHeader (HeaderId.MimeVersion, out var header)) {
@@ -1072,7 +1075,7 @@ namespace MimeKit {
 		/// <see cref="BodyBuilder"/> class.</para>
 		/// </remarks>
 		/// <value>The body of the message.</value>
-		public MimeEntity Body {
+		public MimeEntity? Body {
 			get; set;
 		}
 
@@ -1084,7 +1087,7 @@ namespace MimeKit {
 		/// search order) which is not an attachment.</para>
 		/// </remarks>
 		/// <value>The text body if it exists; otherwise, <see langword="null"/>.</value>
-		public string TextBody {
+		public string? TextBody {
 			get { return GetTextBody (TextFormat.Plain); }
 		}
 
@@ -1095,7 +1098,7 @@ namespace MimeKit {
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
 		/// </remarks>
 		/// <value>The html body if it exists; otherwise, <see langword="null"/>.</value>
-		public string HtmlBody {
+		public string? HtmlBody {
 			get { return GetTextBody (TextFormat.Html); }
 		}
 
@@ -1107,7 +1110,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
-		public string GetTextBody (TextFormat format)
+		public string? GetTextBody (TextFormat format)
 		{
 			if (Body is Multipart multipart) {
 				if (multipart.TryGetValue (format, out var body))
@@ -1119,7 +1122,7 @@ namespace MimeKit {
 			return null;
 		}
 
-		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity entity)
+		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity? entity)
 		{
 			if (entity is null)
 				yield break;
@@ -1166,7 +1169,7 @@ namespace MimeKit {
 			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
 		}
 
-		static void AddMailboxes (List<MailboxAddress> recipients, HashSet<string> unique, IEnumerable<MailboxAddress> mailboxes)
+		static void AddMailboxes (List<MailboxAddress> recipients, HashSet<string>? unique, IEnumerable<MailboxAddress> mailboxes)
 		{
 			foreach (var mailbox in mailboxes) {
 				if (unique is null || unique.Add (mailbox.Address))
@@ -1176,7 +1179,7 @@ namespace MimeKit {
 
 		IList<MailboxAddress> GetMailboxes (bool includeSenders, bool onlyUnique)
 		{
-			HashSet<string> unique = onlyUnique ? new HashSet<string> (MimeUtils.OrdinalIgnoreCase) : null;
+			HashSet<string>? unique = onlyUnique ? new HashSet<string> (MimeUtils.OrdinalIgnoreCase) : null;
 			var recipients = new List<MailboxAddress> ();
 
 			if (ResentSender != null || ResentFrom.Count > 0) {
@@ -1752,7 +1755,7 @@ namespace MimeKit {
 			return WriteToAsync (FormatOptions.Default, fileName, cancellationToken);
 		}
 
-		MailboxAddress GetMessageSigner ()
+		MailboxAddress? GetMessageSigner ()
 		{
 			if (ResentSender != null)
 				return ResentSender;
@@ -2404,7 +2407,7 @@ namespace MimeKit {
 			ReplaceHeader (id, field, raw);
 		}
 
-		void InternetAddressListChanged (object addrlist, EventArgs e)
+		void InternetAddressListChanged (object? addrlist, EventArgs e)
 		{
 			var list = (InternetAddressList) addrlist;
 
@@ -2416,7 +2419,7 @@ namespace MimeKit {
 			}
 		}
 
-		void ReferencesChanged (object o, EventArgs e)
+		void ReferencesChanged (object? o, EventArgs e)
 		{
 			if (references.Count > 0) {
 				var builder = new ValueStringBuilder (128);
@@ -2480,7 +2483,7 @@ namespace MimeKit {
 			}
 		}
 
-		void HeadersChanged (object o, HeaderListChangedEventArgs e)
+		void HeadersChanged (object? o, HeaderListChangedEventArgs e)
 		{
 			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header.Id, out var list)) {
 				var bit = GetAddressListLazyLoadField (e.Header.Id);
@@ -3151,7 +3154,7 @@ namespace MimeKit {
 			alternative.Add (related);
 		}
 
-		static MimeEntity AddAlternateViews (MimeEntity body, AlternateViewCollection alternateViews)
+		static MimeEntity AddAlternateViews (MimeEntity? body, AlternateViewCollection alternateViews)
 		{
 			var alternative = new MultipartAlternative ();
 
@@ -3197,7 +3200,7 @@ namespace MimeKit {
 			}
 
 			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
-			MimeEntity body = null;
+			MimeEntity? body = null;
 
 			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
 			// then the following MailMessage properties will have been merged into the Headers, so
@@ -3293,7 +3296,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
 		/// <param name="message">The message.</param>
-		public static explicit operator MimeMessage (MailMessage message)
+		[return: NotNullIfNotNull (nameof (message))]
+		public static explicit operator MimeMessage? (MailMessage? message)
 		{
 			return message != null ? CreateFromMailMessage (message) : null;
 		}

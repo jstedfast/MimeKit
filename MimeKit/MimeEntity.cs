@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Text;
@@ -70,10 +72,10 @@ namespace MimeKit {
 		internal bool EnsureNewLine;
 		internal bool IsDisposed;
 
-		ContentDisposition disposition;
-		string contentId;
-		Uri location;
-		Uri baseUri;
+		ContentDisposition? disposition;
+		string? contentId;
+		Uri? location;
+		Uri? baseUri;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeEntity"/> class
@@ -222,7 +224,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public ContentDisposition ContentDisposition {
+		public ContentDisposition? ContentDisposition {
 			get {
 				CheckDisposed ();
 
@@ -286,7 +288,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public Uri ContentBase {
+		public Uri? ContentBase {
 			get {
 				CheckDisposed ();
 
@@ -340,7 +342,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public Uri ContentLocation {
+		public Uri? ContentLocation {
 			get {
 				CheckDisposed ();
 
@@ -395,7 +397,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public string ContentId {
+		public string? ContentId {
 			get {
 				CheckDisposed ();
 
@@ -1207,12 +1209,12 @@ namespace MimeKit {
 			SetHeader ("Content-Type", raw);
 		}
 
-		void ContentDispositionChanged (object sender, EventArgs e)
+		void ContentDispositionChanged (object? sender, EventArgs e)
 		{
 			SerializeContentDisposition ();
 		}
 
-		void ContentTypeChanged (object sender, EventArgs e)
+		void ContentTypeChanged (object? sender, EventArgs e)
 		{
 			SerializeContentType ();
 		}
@@ -1270,7 +1272,7 @@ namespace MimeKit {
 			}
 		}
 
-		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		void HeadersChanged (object? sender, HeaderListChangedEventArgs e)
 		{
 			OnHeadersChanged (e.Action, e.Header);
 		}

@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System.Collections.Generic;
 
 namespace MimeKit {
