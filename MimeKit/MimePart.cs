@@ -238,7 +238,7 @@ namespace MimeKit {
 
 				description = value?.Trim ();
 
-				if (value != null) {
+				if (description != null) {
 					SetHeader ("Content-Description", description);
 				} else {
 					RemoveHeader ("Content-Description");
@@ -331,7 +331,7 @@ namespace MimeKit {
 
 				md5sum = value?.Trim ();
 
-				if (value != null) {
+				if (md5sum != null) {
 					SetHeader ("Content-Md5", md5sum);
 				} else {
 					RemoveHeader ("Content-Md5");

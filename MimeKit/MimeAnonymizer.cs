@@ -656,7 +656,7 @@ namespace MimeKit {
 				message.MimeVersion = new Version (1, 0);
 
 			if (message.Body != null) {
-				AnonymizeHeaders (options, message.MergeHeaders (), stream);
+				AnonymizeHeaders (options, MimeMessage.MergeHeaders (message.Headers, message.Body), stream);
 
 				if (message.compliance == RfcComplianceMode.Strict || message.Body.Headers.HasBodySeparator)
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
@@ -711,7 +711,7 @@ namespace MimeKit {
 			return marker;
 		}
 
-		static void AnonymizeBytes (FormatOptions options, Stream stream, byte[] rawValue, bool ensureNewLine)
+		static void AnonymizeBytes (FormatOptions options, Stream stream, byte[]? rawValue, bool ensureNewLine)
 		{
 			if (rawValue == null || rawValue.Length == 0)
 				return;

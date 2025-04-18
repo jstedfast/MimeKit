@@ -1341,7 +1341,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
-					foreach (var header in MergeHeaders ()) {
+					foreach (var header in MergeHeaders (Headers, Body)) {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
@@ -1417,7 +1417,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
-					foreach (var header in MergeHeaders ()) {
+					foreach (var header in MergeHeaders (Headers, Body)) {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
@@ -2318,13 +2318,13 @@ namespace MimeKit {
 		}
 #endif // ENABLE_CRYPTO
 
-		internal IEnumerable<Header> MergeHeaders ()
+		internal static IEnumerable<Header> MergeHeaders (HeaderList headers, MimeEntity body)
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 
 			// write all the prepended message headers first
-			while (mesgIndex < Headers.Count) {
-				var mesgHeader = Headers[mesgIndex];
+			while (mesgIndex < headers.Count) {
+				var mesgHeader = headers[mesgIndex];
 				if (mesgHeader.Offset.HasValue)
 					break;
 
@@ -2333,12 +2333,12 @@ namespace MimeKit {
 			}
 
 			// now merge the message and body headers as they appeared in the raw message
-			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
-				var bodyHeader = Body.Headers[bodyIndex];
+			while (mesgIndex < headers.Count && bodyIndex < body.Headers.Count) {
+				var bodyHeader = body.Headers[bodyIndex];
 				if (!bodyHeader.Offset.HasValue)
 					break;
 
-				var mesgHeader = Headers[mesgIndex];
+				var mesgHeader = headers[mesgIndex];
 
 				if (mesgHeader.Offset.HasValue && mesgHeader.Offset < bodyHeader.Offset) {
 					yield return mesgHeader;
@@ -2351,11 +2351,11 @@ namespace MimeKit {
 				}
 			}
 
-			while (mesgIndex < Headers.Count)
-				yield return Headers[mesgIndex++];
+			while (mesgIndex < headers.Count)
+				yield return headers[mesgIndex++];
 
-			while (bodyIndex < Body.Headers.Count)
-				yield return Body.Headers[bodyIndex++];
+			while (bodyIndex < body.Headers.Count)
+				yield return body.Headers[bodyIndex++];
 		}
 
 		void RemoveHeader (HeaderId id)
@@ -3109,8 +3109,8 @@ namespace MimeKit {
 				part = new MimePart (contentType);
 
 			if (item is Attachment attachment) {
-				var value = attachment.ContentDisposition.ToString ();
-				if (ContentDisposition.TryParse (value, out var disposition))
+				var value = attachment.ContentDisposition?.ToString ();
+				if (value != null && ContentDisposition.TryParse (value, out var disposition))
 					part.ContentDisposition = disposition;
 			}
 
@@ -3199,8 +3199,14 @@ namespace MimeKit {
 
 			var headers = new List<Header> ();
 			foreach (var field in message.Headers.AllKeys) {
-				foreach (var value in message.Headers.GetValues (field))
-					headers.Add (new Header (headerEncoding, field, value));
+				if (field != null) {
+					var values = message.Headers.GetValues (field);
+					if (values != null) {
+						foreach (var value in values) {
+							headers.Add (new Header (headerEncoding, field, value));
+						}
+					}
+				}
 			}
 
 			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
