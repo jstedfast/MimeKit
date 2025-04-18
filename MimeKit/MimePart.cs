@@ -839,7 +839,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
-		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
+		protected override void OnHeadersChanged (HeaderListChangedAction action, Header? header)
 		{
 			base.OnHeadersChanged (action, header);
 
@@ -847,7 +847,7 @@ namespace MimeKit {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
-				switch (header.Id) {
+				switch (header!.Id) { // MimeEntity.OnHeaderChanged ensures that header is not null if action != Cleared
 				case HeaderId.ContentTransferEncoding:
 					LazyLoaded &= ~LazyLoadedFields.ContentTransferEncoding;
 					encoding = ContentEncoding.Default;

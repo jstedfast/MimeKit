@@ -27,6 +27,7 @@
 #nullable enable
 
 using System;
+using System.Diagnostics;
 
 namespace MimeKit {
 	/// <summary>
@@ -61,6 +62,8 @@ namespace MimeKit {
 	{
 		internal HeaderListChangedEventArgs (Header? header, HeaderListChangedAction action)
 		{
+			Debug.Assert (header != null || action == HeaderListChangedAction.Cleared, "Header cannot be null unless the action is Cleared.");
+
 			Header = header;
 			Action = action;
 		}

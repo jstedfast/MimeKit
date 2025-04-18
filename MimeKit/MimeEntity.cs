@@ -1234,12 +1234,14 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
-		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
+		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header? header)
 		{
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
+				if (header == null)
+					throw new ArgumentNullException (nameof (header), $"{nameof (header)} must not be null when {nameof(HeaderListChangedAction)} is not {nameof(HeaderListChangedAction.Cleared)}.");
 				switch (header.Id) {
 				case HeaderId.ContentDisposition:
 					if (disposition != null)

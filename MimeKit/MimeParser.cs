@@ -55,7 +55,7 @@ namespace MimeKit {
 	{
 		public static readonly byte[] MboxFrom = "From "u8.ToArray();
 
-		public Boundary Next { get; set; }
+		public Boundary? Next { get; set; }
 
 		public byte[] Marker { get; private set; }
 		public int FinalLength { get { return Marker.Length; } }
@@ -63,7 +63,7 @@ namespace MimeKit {
 		public int MaxLength { get; private set; }
 		public bool IsMboxMarker { get { return Marker == MboxFrom; } }
 
-		public Boundary (string boundary, Boundary parent)
+		public Boundary (string boundary, Boundary? parent)
 		{
 			Marker = Encoding.UTF8.GetBytes ("--" + boundary + "--");
 			Length = Marker.Length - 2;
@@ -76,17 +76,19 @@ namespace MimeKit {
 			}
 		}
 
-		Boundary ()
+		Boundary (byte[] marker, int maxLength, int length)
 		{
+			Marker = marker;
+			MaxLength = maxLength;
+			Length = length;
 		}
 
 		public static Boundary CreateMboxBoundary ()
 		{
-			return new Boundary {
-				Marker = MboxFrom,
-				MaxLength = 5,
-				Length = 5
-			};
+			return new Boundary (
+				marker: MboxFrom,
+				maxLength: 5,
+				length: 5);
 		}
 
 #if DEBUG_PARSER
@@ -131,7 +133,7 @@ namespace MimeKit {
 		int inputEnd = ReadAheadSize;
 
 		// mbox From-line state
-		byte[] mboxMarkerBuffer;
+		byte[]? mboxMarkerBuffer;
 		long mboxMarkerOffset;
 		int mboxMarkerLength;
 
@@ -430,6 +432,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
+		[MemberNotNull (nameof (this.stream))]
 		public void SetStream (Stream stream, MimeFormat format, bool persistent)
 		{
 			if (stream is null)

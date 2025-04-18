@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Threading;
@@ -70,7 +72,7 @@ namespace MimeKit {
 		/// Gets the content stream.
 		/// </remarks>
 		/// <value>The stream.</value>
-		Stream Stream { get; }
+		Stream? Stream { get; }
 
 		/// <summary>
 		/// Open the decoded content stream.

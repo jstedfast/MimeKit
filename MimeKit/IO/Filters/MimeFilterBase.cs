@@ -36,9 +36,9 @@ namespace MimeKit.IO.Filters {
     public abstract class MimeFilterBase : IMimeFilter
     {
 		int preloadLength;
-		byte[] preload;
-		byte[] output;
-		byte[] inbuf;
+		byte[]? preload;
+		byte[]? output;
+		byte[]? inbuf;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeFilterBase"/> class.
@@ -57,7 +57,7 @@ namespace MimeKit.IO.Filters {
 		/// Gets the output buffer.
 		/// </remarks>
 		/// <value>The output buffer.</value>
-		protected byte[] OutputBuffer {
+		protected byte[]? OutputBuffer {
 			get { return output; }
 		}
 
@@ -97,7 +97,7 @@ namespace MimeKit.IO.Filters {
 			}
 
 			// Copy our preload data into our internal input buffer
-			Buffer.BlockCopy (preload, 0, inbuf, 0, preloadLength);
+			Buffer.BlockCopy (preload!, 0, inbuf, 0, preloadLength); // preload is not null when preloadLength > 0
 
 			// Copy our input to the end of our internal input buffer
 			Buffer.BlockCopy (input, startIndex, inbuf, preloadLength, length);

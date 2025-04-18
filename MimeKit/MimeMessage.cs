@@ -2489,7 +2489,7 @@ namespace MimeKit {
 
 		void HeadersChanged (object? o, HeaderListChangedEventArgs e)
 		{
-			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header.Id, out var list)) {
+			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header!.Id, out var list)) { // e.Header is not null if e.Action != Cleared
 				var bit = GetAddressListLazyLoadField (e.Header.Id);
 
 				if ((lazyLoaded & bit) != 0) {
@@ -2516,7 +2516,7 @@ namespace MimeKit {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
-				switch (e.Header.Id) {
+				switch (e.Header!.Id) { // e.Header is not null if e.Action != Cleared
 				case HeaderId.ResentSender:
 					lazyLoaded &= ~LazyLoadedFields.ResentSender;
 					resentSender = null;

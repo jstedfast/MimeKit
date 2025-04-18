@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#nullable enable
+
 using System.Threading;
 
 namespace MimeKit {

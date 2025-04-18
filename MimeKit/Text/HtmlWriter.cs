@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -40,7 +41,7 @@ namespace MimeKit.Text {
 	/// </example>
 	public class HtmlWriter : IDisposable
 	{
-		TextWriter html;
+		TextWriter? html;
 		bool empty;
 
 		/// <summary>
@@ -98,6 +99,7 @@ namespace MimeKit.Text {
 			Dispose (false);
 		}
 
+		[MemberNotNull (nameof (html))]
 		void CheckDisposed ()
 		{
 			if (html is null)

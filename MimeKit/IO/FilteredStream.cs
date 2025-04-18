@@ -52,8 +52,8 @@ namespace MimeKit.IO {
 		IOOperation lastOp = IOOperation.Write;
 		int filteredLength;
 		int filteredIndex;
-		byte[] filtered;
-		byte[] readbuf;
+		byte[]? filtered;
+		byte[]? readbuf;
 		bool disposed;
 		bool flushed;
 
