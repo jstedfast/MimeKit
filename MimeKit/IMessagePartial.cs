@@ -43,7 +43,7 @@ namespace MimeKit {
 		/// The "id" parameter is a unique identifier used to match the parts together.
 		/// </remarks>
 		/// <value>The identifier.</value>
-		string Id {
+		string? Id {
 			get;
 		}
 

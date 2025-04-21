@@ -2411,10 +2411,8 @@ namespace MimeKit {
 			ReplaceHeader (id, field, raw);
 		}
 
-		void InternetAddressListChanged (object? addrlist, EventArgs e)
+		void InternetAddressListChanged (InternetAddressList list, EventArgs e)
 		{
-			var list = (InternetAddressList) addrlist;
-
 			foreach (var id in StandardAddressHeaders) {
 				if (addresses[id] == list) {
 					SerializeAddressList (id, list);

@@ -140,7 +140,7 @@ namespace MimeKit {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Stream? content = copyStream ? new MemoryBlockStream () : null;
+			Stream? copiedContent = copyStream ? new MemoryBlockStream () : null;
 
 			try {
 				if (attachment.ContentType.IsMimeType ("text", "*")) {
@@ -153,7 +153,7 @@ namespace MimeKit {
 						while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
 							cancellationToken.ThrowIfCancellationRequested ();
 							filter.Filter (buf, 0, nread, out index, out length);
-							content?.Write (buf, 0, nread);
+							copiedContent?.Write (buf, 0, nread);
 						}
 
 						filter.Flush (buf, 0, 0, out index, out length);
@@ -165,18 +165,18 @@ namespace MimeKit {
 				} else {
 					attachment.ContentTransferEncoding = ContentEncoding.Base64;
 
-					if (copyStream)
-						stream.CopyTo (content!, 4096);
+					if (copiedContent != null)
+						stream.CopyTo (copiedContent, 4096);
 				}
 
-				if (copyStream)
-					content!.Position = 0;
+				if (copiedContent != null)
+					copiedContent.Position = 0;
 				else
 					stream.Position = 0;
 
-				attachment.Content = new MimeContent (copyStream ? content : stream);
+				attachment.Content = new MimeContent (copiedContent ?? stream);
 			} catch {
-				content?.Dispose ();
+				copiedContent?.Dispose ();
 				throw;
 			}
 		}
@@ -185,7 +185,7 @@ namespace MimeKit {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Stream? content = copyStream ? new MemoryBlockStream () : null;
+			Stream? copiedContent = copyStream ? new MemoryBlockStream () : null;
 
 			try {
 				if (attachment.ContentType.IsMimeType ("text", "*")) {
@@ -198,7 +198,7 @@ namespace MimeKit {
 						while ((nread = await stream.ReadAsync (buf, 0, BufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
 							cancellationToken.ThrowIfCancellationRequested ();
 							filter.Filter (buf, 0, nread, out index, out length);
-							content?.Write (buf, 0, nread);
+							copiedContent?.Write (buf, 0, nread);
 						}
 
 						filter.Flush (buf, 0, 0, out index, out length);
@@ -210,18 +210,18 @@ namespace MimeKit {
 				} else {
 					attachment.ContentTransferEncoding = ContentEncoding.Base64;
 
-					if (copyStream)
-						await stream.CopyToAsync (content!, 4096, cancellationToken).ConfigureAwait (false);
+					if (copiedContent != null)
+						await stream.CopyToAsync (copiedContent, 4096, cancellationToken).ConfigureAwait (false);
 				}
 
-				if (copyStream)
-					content!.Position = 0;
+				if (copiedContent != null)
+					copiedContent.Position = 0;
 				else
 					stream.Position = 0;
 
-				attachment.Content = new MimeContent (copyStream ? content : stream);
+				attachment.Content = new MimeContent (copiedContent ?? stream);
 			} catch {
-				content?.Dispose ();
+				copiedContent?.Dispose ();
 				throw;
 			}
 		}

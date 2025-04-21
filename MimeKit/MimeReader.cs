@@ -801,7 +801,7 @@ namespace MimeKit {
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		[Obsolete ("Use OnMultipartBoundaryEnd instead.")]
-		protected virtual void OnMultipartBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected virtual void OnMultipartBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
@@ -931,7 +931,7 @@ namespace MimeKit {
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		[Obsolete ("Use OnMultipartEndBoundaryEnd instead.")]
-		protected virtual void OnMultipartEndBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected virtual void OnMultipartEndBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
@@ -2027,7 +2027,7 @@ namespace MimeKit {
 			return false;
 		}
 
-		unsafe bool SkipBoundaryMarker (byte* inbuf, string boundary, bool endBoundary, CancellationToken cancellationToken)
+		unsafe bool SkipBoundaryMarker (byte* inbuf, string? boundary, bool endBoundary, CancellationToken cancellationToken)
 		{
 			long beginOffset = GetOffset (inputIndex);
 			int beginLineNumber = lineNumber;

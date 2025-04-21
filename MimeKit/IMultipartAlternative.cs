@@ -49,7 +49,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartAlternative"/> has been disposed.
 		/// </exception>
-		string TextBody {
+		string? TextBody {
 			get;
 		}
 
@@ -63,7 +63,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartAlternative"/> has been disposed.
 		/// </exception>
-		string HtmlBody {
+		string? HtmlBody {
 			get;
 		}
 
@@ -78,6 +78,6 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartAlternative"/> has been disposed.
 		/// </exception>
-		string GetTextBody (TextFormat format);
+		string? GetTextBody (TextFormat format);
 	}
 }

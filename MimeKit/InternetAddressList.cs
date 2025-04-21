@@ -577,7 +577,7 @@ namespace MimeKit {
 			return ToString (FormatOptions.Default, false);
 		}
 
-		internal event EventHandler? Changed;
+		internal event EventHandler<InternetAddressList, EventArgs>? Changed;
 
 		void OnChanged ()
 		{

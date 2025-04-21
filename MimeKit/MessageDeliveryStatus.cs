@@ -109,7 +109,7 @@ namespace MimeKit {
 						Content = new MimeContent (new MemoryBlockStream ());
 						groups = new HeaderListCollection ();
 					} else {
-						ParseStatusGroups ();
+						ParseStatusGroups (Content);
 					}
 
 					groups.Changed += OnGroupsChanged;
@@ -120,12 +120,12 @@ namespace MimeKit {
 		}
 
 		[MemberNotNull (nameof (groups))]
-		void ParseStatusGroups ()
+		void ParseStatusGroups (IMimeContent content)
 		{
 			groups = new HeaderListCollection ();
 
 			try {
-				using (var stream = Content.Open ()) {
+				using (var stream = content.Open ()) {
 					var parser = new MimeParser (stream, MimeFormat.Entity);
 					var encoding = ContentEncoding.Default;
 
@@ -157,8 +157,8 @@ namespace MimeKit {
 					if (encoding != ContentEncoding.Default) {
 						// This means that the remainder of the Status Groups have been encoded, so we'll need to decode
 						// the rest of the content stream in order to parse them.
-						using (var content = parser.ReadToEos ()) {
-							using (var filtered = new FilteredStream (content)) {
+						using (var remainingContent = parser.ReadToEos ()) {
+							using (var filtered = new FilteredStream (remainingContent)) {
 								filtered.Add (DecoderFilter.Create (encoding));
 								parser.SetStream (filtered, MimeFormat.Entity);
 

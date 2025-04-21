@@ -81,7 +81,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipart"/> has been disposed.
 		/// </exception>
-		string Preamble {
+		string? Preamble {
 			get; set;
 		}
 
@@ -97,7 +97,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipart"/> has been disposed.
 		/// </exception>
-		string Epilogue {
+		string? Epilogue {
 			get; set;
 		}
 	}

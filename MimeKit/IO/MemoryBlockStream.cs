@@ -55,7 +55,7 @@ namespace MimeKit.IO {
 
 		readonly List<byte[]> blocks = new List<byte[]> ();
 		readonly BufferPool pool;
-		Task<int> lastReadTask;
+		Task<int>? lastReadTask;
 		long position, length;
 		bool disposed;
 
@@ -559,7 +559,6 @@ namespace MimeKit.IO {
 			if (disposing && !disposed) {
 				for (int i = 0; i < blocks.Count; i++) {
 					pool.Return (blocks[i]);
-					blocks[i] = null;
 				}
 
 				blocks.Clear ();

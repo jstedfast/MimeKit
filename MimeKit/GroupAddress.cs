@@ -242,7 +242,7 @@ namespace MimeKit {
 
 		#endregion
 
-		void MembersChanged (object? sender, EventArgs e)
+		void MembersChanged (InternetAddressList sender, EventArgs e)
 		{
 			OnChanged ();
 		}

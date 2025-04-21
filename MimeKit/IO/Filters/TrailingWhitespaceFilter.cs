@@ -67,7 +67,7 @@ namespace MimeKit.IO.Filters {
 					count++;
 				} else {
 					if (lwsp.Count > 0) {
-						lwsp.CopyTo (OutputBuffer, count);
+						lwsp.CopyTo (output, count);
 						outputIndex += lwsp.Count;
 						count += lwsp.Count;
 						lwsp.Clear ();

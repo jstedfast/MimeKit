@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.IO.Filters {
 	/// <summary>
@@ -37,7 +38,6 @@ namespace MimeKit.IO.Filters {
     {
 		int preloadLength;
 		byte[]? preload;
-		byte[]? output;
 		byte[]? inbuf;
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <value>The output buffer.</value>
 		protected byte[]? OutputBuffer {
-			get { return output; }
+			get; private set;
 		}
 
 		/// <summary>
@@ -219,17 +219,22 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		/// <param name="size">The minimum size needed.</param>
 		/// <param name="keep">If set to <see langword="true" />, the current output should be preserved.</param>
+		/// 
+		[MemberNotNull (nameof (OutputBuffer))]
 		protected void EnsureOutputSize (int size, bool keep)
 		{
-			int outputSize = output != null ? output.Length : -1;
+			int outputSize = OutputBuffer != null ? OutputBuffer.Length : -1;
 
-			if (outputSize >= size)
+			if (outputSize >= size && OutputBuffer != null)
 				return;
 
-			if (keep && output != null)
+			if (keep && OutputBuffer != null) {
+				byte[] output = OutputBuffer;
 				Array.Resize<byte> (ref output, GetIdealBufferSize (size));
-			else
-				output = new byte[GetIdealBufferSize (size)];
+				OutputBuffer = output;
+			} else {
+				OutputBuffer = new byte[GetIdealBufferSize (size)];
+			}
 		}
 	}
 }

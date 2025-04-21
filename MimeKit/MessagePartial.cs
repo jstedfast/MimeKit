@@ -111,7 +111,7 @@ namespace MimeKit {
 		/// The "id" parameter is a unique identifier used to match the parts together.
 		/// </remarks>
 		/// <value>The identifier.</value>
-		public string Id {
+		public string? Id {
 			get { return ContentType.Parameters["id"]; }
 		}
 
@@ -423,7 +423,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more <paramref name="partials"/> has a missing number parameter in the Content-Type header.</para>
 		/// </exception>
-		public static MimeMessage Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
+		public static MimeMessage? Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -442,14 +442,14 @@ namespace MimeKit {
 
 			parts.Sort (PartialCompare);
 
-			if (!parts[parts.Count - 1].Total.HasValue)
+			int? lastTotal = parts[parts.Count - 1].Total;
+			if (!lastTotal.HasValue)
 				throw new ArgumentException ("The last partial does not have a Total.", nameof (partials));
 
-			int total = parts[parts.Count - 1].Total.Value;
-			if (parts.Count != total)
+			if (parts.Count != lastTotal.Value)
 				throw new ArgumentException ("The number of partials provided does not match the expected count.", nameof (partials));
 
-			string id = parts[0].Id;
+			string? id = parts[0].Id;
 
 			using (var chained = new ChainedStream ()) {
 				// chain all the partial content streams...
@@ -500,7 +500,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more <paramref name="partials"/> has a missing number parameter in the Content-Type header.</para>
 		/// </exception>
-		public static MimeMessage Join (MimeMessage message, IEnumerable<MessagePartial> partials)
+		public static MimeMessage? Join (MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
 			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			return Join (ParserOptions.Default, message, partials);
