@@ -70,6 +70,23 @@ namespace UnitTests.IO {
 		}
 
 		[Test]
+		public void TestObjectDisposedExceptions ()
+		{
+			var block = new MemoryBlockStream ();
+			block.Dispose ();
+
+			Assert.Throws<ObjectDisposedException> (() => block.Read (buf, 0, buf.Length));
+			Assert.ThrowsAsync<ObjectDisposedException> (() => block.ReadAsync (buf, 0, buf.Length));
+			Assert.Throws<ObjectDisposedException> (() => block.Write (buf, 0, buf.Length));
+			Assert.ThrowsAsync<ObjectDisposedException> (() => block.WriteAsync (buf, 0, buf.Length));
+			Assert.Throws<ObjectDisposedException> (() => block.Seek (0, SeekOrigin.Begin));
+			Assert.Throws<ObjectDisposedException> (() => block.SetLength (0));
+			Assert.Throws<ObjectDisposedException> (block.Flush);
+			Assert.ThrowsAsync<ObjectDisposedException> (block.FlushAsync);
+			Assert.Throws<ObjectDisposedException> (() => block.ToArray ());
+		}
+
+		[Test]
 		public void TestCanReadWriteSeek ()
 		{
 			var buffer = new byte[1024];
