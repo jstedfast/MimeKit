@@ -54,10 +54,10 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.Parse (buffer, -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.Parse (buffer, 0, -1));
 
-			Assert.Throws<ArgumentNullException> (() => AuthenticationResults.TryParse (null, out authres));
-			Assert.Throws<ArgumentNullException> (() => AuthenticationResults.TryParse (null, 0, 0, out authres));
-			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.TryParse (buffer, -1, 0, out authres));
-			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.TryParse (buffer, 0, -1, out authres));
+			Assert.That (AuthenticationResults.TryParse (null, out authres), Is.False);
+			Assert.That (AuthenticationResults.TryParse (null, 0, 0, out authres), Is.False);
+			Assert.That (AuthenticationResults.TryParse (buffer, -1, 0, out authres), Is.False);
+			Assert.That (AuthenticationResults.TryParse (buffer, 0, -1, out authres), Is.False);
 		}
 
 		[Test]

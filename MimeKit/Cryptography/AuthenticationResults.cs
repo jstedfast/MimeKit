@@ -821,16 +821,12 @@ namespace MimeKit.Cryptography {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="authres">The parsed authentication results.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out AuthenticationResults authres)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+				authres = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -846,13 +842,12 @@ namespace MimeKit.Cryptography {
 		/// <returns><see langword="true" /> if the authentication results were successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="authres">The parsed authentication results.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
 		public static bool TryParse (byte[] buffer, out AuthenticationResults authres)
 		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
+			if (buffer is null) {
+				authres = null;
+				return false;
+			}
 
 			int index = 0;
 

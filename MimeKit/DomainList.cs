@@ -453,17 +453,15 @@ namespace MimeKit {
 		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="route">The parsed DomainList.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
 		public static bool TryParse (string text, out DomainList route)
 		{
-			int index = 0;
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				route = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
 
 			return TryParse (buffer, ref index, buffer.Length, false, out route);
 		}

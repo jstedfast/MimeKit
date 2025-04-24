@@ -31,6 +31,84 @@ using System.Globalization;
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
+		public static bool TryValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
+		{
+			if (options is null)
+				return false;
+
+			if (buffer is null)
+				return false;
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				return false;
+
+			if (length < 0 || length > (buffer.Length - startIndex))
+				return false;
+
+			return true;
+		}
+
+		public static bool TryValidateArguments (ParserOptions options, byte[] buffer, int startIndex)
+		{
+			if (options is null)
+				return false;
+
+			if (buffer is null)
+				return false;
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				return false;
+
+			return true;
+		}
+
+		public static bool TryValidateArguments (ParserOptions options, byte[] buffer)
+		{
+			if (options is null)
+				return false;
+
+			if (buffer is null)
+				return false;
+
+			return true;
+		}
+
+		public static bool TryValidateArguments (ParserOptions options, string text)
+		{
+			if (options is null)
+				return false;
+
+			if (text is null)
+				return false;
+
+			return true;
+		}
+
+		public static bool TryValidateArguments (byte[] buffer, int startIndex, int length)
+		{
+			if (buffer is null)
+				return false;
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				return false;
+
+			if (length < 0 || length > (buffer.Length - startIndex))
+				return false;
+
+			return true;
+		}
+
+		public static bool TryValidateArguments (byte[] buffer, int startIndex)
+		{
+			if (buffer is null)
+				return false;
+
+			if (startIndex < 0 || startIndex > buffer.Length)
+				return false;
+
+			return true;
+		}
+
 		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
 			if (options is null)
