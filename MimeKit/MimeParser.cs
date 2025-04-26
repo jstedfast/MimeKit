@@ -1317,15 +1317,13 @@ namespace MimeKit {
 			return boundaries != null ? boundaries.MaxLength + 2 : 0;
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
+		unsafe bool ScanContent (byte* inbuf, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
-
-			if (midline && length == nleft)
-				boundary = BoundaryType.Eos;
+			bool midline = false;
 
 			*inend = (byte) '\n';
 
@@ -1388,19 +1386,22 @@ namespace MimeKit {
 					// didn't find the end of the line...
 					midline = true;
 
-					if (boundary == BoundaryType.None) {
-						// not enough to tell if we found a boundary
+					if (eos) {
+						// Only consume this (incomplete) line of data if it doesn't match a boundary marker...
+						if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+							break;
+					} else {
+						// Don't consume the incomplete line. Refill the buffer and try again.
 						break;
 					}
-
-					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
-						break;
 				}
 
 				startIndex += length;
 			}
 
 			inputIndex = startIndex;
+
+			return midline;
 		}
 
 		class ScanContentResult
@@ -1424,13 +1425,13 @@ namespace MimeKit {
 
 		unsafe ScanContentResult ScanContent (byte* inbuf, Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
-			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
+			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			var formats = new bool[2];
 			bool midline = false;
-			int nleft;
 
 			do {
-				nleft = inputEnd - inputIndex;
+				int atleast = midline ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
+
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
 					boundary = BoundaryType.Eos;
 					break;
@@ -1438,7 +1439,7 @@ namespace MimeKit {
 
 				int contentIndex = inputIndex;
 
-				ScanContent (inbuf, ref nleft, ref midline, ref formats);
+				midline = ScanContent (inbuf, ref formats);
 
 				if (contentIndex < inputIndex)
 					content.Write (input, contentIndex, inputIndex - contentIndex);
