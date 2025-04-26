@@ -6316,5 +6316,115 @@ ABC
 				Assert.That (lines, Is.EqualTo (0), "Line count");
 			}
 		}
+
+		internal static MemoryStream CreateIssue991Mbox (out long[] expectedOffsets)
+		{
+			const string template = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: {0}
+Message-Id: <1234567890.{1}@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+";
+			const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			var mboxMarker = Encoding.ASCII.GetBytes ("From -\n");
+			var memory = new MemoryStream ();
+
+			expectedOffsets = new long[2];
+
+			// Write the first message
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+
+			var headers = string.Format (template, "This message contains long lines that will cause ScanContent() to require a buffer refill", 0);
+			var headerBuffer = Encoding.ASCII.GetBytes (headers);
+			memory.Write (headerBuffer, 0, headerBuffer.Length);
+
+			int index = 0;
+
+			while (memory.Length <= 4096) {
+				char c = Alphabet[index % Alphabet.Length];
+				for (int i = 0; i < 255 && memory.Length < 4096; i++)
+					memory.WriteByte ((byte) c);
+
+				if (memory.Length < 4096) {
+					memory.WriteByte ((byte) '\n');
+				} else {
+					// fake mbox marker that is midline
+					memory.Write (mboxMarker, 0, mboxMarker.Length);
+				}
+
+				index++;
+			}
+
+			memory.WriteByte ((byte) '\n');
+
+			expectedOffsets[0] = memory.Length;
+
+			// Write the second message
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+
+			headers = string.Format (template, "This message contains long lines that will cause ScanContent() to require a buffer refill", 1);
+			headerBuffer = Encoding.ASCII.GetBytes (headers);
+			memory.Write (headerBuffer, 0, headerBuffer.Length);
+
+			while (memory.Length <= 8192) {
+				char c = Alphabet[index % Alphabet.Length];
+				for (int i = 0; i < 255 && memory.Length < 8192; i++)
+					memory.WriteByte ((byte) c);
+
+				if (memory.Length < 8192) {
+					memory.WriteByte ((byte) '\n');
+				} else {
+					// fake mbox marker that is midline
+					memory.Write (mboxMarker, 0, mboxMarker.Length);
+				}
+
+				index++;
+			}
+
+			memory.WriteByte ((byte) '\n');
+
+			expectedOffsets[1] = memory.Length;
+
+			// reset the stream for parsing
+			memory.Position = 0;
+
+			return memory;
+		}
+
+		[Test]
+		public void TestIssue991 ()
+		{
+			using (var memory = CreateIssue991Mbox (out var expectedOffsets)) {
+				var parser = new ExperimentalMimeParser (memory, MimeFormat.Mbox);
+				int i = 0;
+
+				while (!parser.IsEndOfStream) {
+					using var message = parser.ParseMessage ();
+
+					Assert.That (parser.Position, Is.EqualTo (expectedOffsets[i]), "The parser did not stop at the end of the first message.");
+					Assert.That (message.MessageId, Is.EqualTo ($"1234567890.{i}@example.org"));
+					i++;
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestIssue991Async ()
+		{
+			using (var memory = CreateIssue991Mbox (out var expectedOffsets)) {
+				var parser = new ExperimentalMimeParser (memory, MimeFormat.Mbox);
+				int i = 0;
+
+				while (!parser.IsEndOfStream) {
+					using var message = await parser.ParseMessageAsync ();
+
+					Assert.That (parser.Position, Is.EqualTo (expectedOffsets[i]), "The parser did not stop at the end of the first message.");
+					Assert.That (message.MessageId, Is.EqualTo ($"1234567890.{i}@example.org"));
+					i++;
+				}
+			}
+		}
 	}
 }
