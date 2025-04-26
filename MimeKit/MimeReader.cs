@@ -1796,7 +1796,9 @@ namespace MimeKit {
 			if (inputEnd - inputIndex < need)
 				return false;
 
-			if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (inptr)) {
+			long curOffset = contentEnd > 0 ? GetOffset (inputIndex) : contentEnd;
+
+			if (format == MimeFormat.Mbox && curOffset >= contentEnd && IsMboxMarker (inptr)) {
 				state = MimeParserState.Complete;
 				return true;
 			}
