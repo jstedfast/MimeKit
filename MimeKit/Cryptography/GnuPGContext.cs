@@ -809,7 +809,6 @@ namespace MimeKit.Cryptography {
 			var signatureGenerator = new PgpSignatureGenerator (secretKey.PublicKey.Algorithm, GetHashAlgorithm (digestAlgo));
 
 			signatureGenerator.InitSign ((int) certification, privateKey);
-			signatureGenerator.GenerateOnePassVersion (false);
 
 			var subpacketGenerator = new PgpSignatureSubpacketGenerator ();
 			var subpacketVector = subpacketGenerator.Generate ();
