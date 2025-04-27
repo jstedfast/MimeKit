@@ -53,7 +53,6 @@ namespace MimeKit {
 
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
 		static ReadOnlySpan<byte> MboxFromMarker => "From "u8;
-		static ReadOnlySpan<byte> DashDash => "--"u8;
 		const int SmtpMaxLineLength = 1000;
 
 		const int HeaderBufferGrowSize = 64;
@@ -2198,9 +2197,9 @@ namespace MimeKit {
 			if (boundaries != null) {
 				var currentBoundary = boundaries;
 
-				if (!currentBoundary.IsMboxMarker && *start == DashDash[0]) {
+				if (!currentBoundary.IsMboxMarker && *start == (byte) '-') {
 					// TODO: We could potentially improve this logic by checking against the list of boundaries
-					return length < 2 || *(start + 1) == DashDash[1];
+					return length < 2 || *(start + 1) == (byte) '-';
 				}
 
 				if (format == MimeFormat.Mbox && *start == MboxFromMarker[0]) {
