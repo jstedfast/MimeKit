@@ -6247,5 +6247,39 @@ ABC
 				}
 			}
 		}
+
+		[Test]
+		public void TestMboxWithLinesExceedingMaxSmtpLineLength ()
+		{
+			using (var memory = ExperimentalMimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
+				var parser = new MimeParser (memory, MimeFormat.Mbox);
+				int i = 0;
+
+				while (!parser.IsEndOfStream) {
+					using var message = parser.ParseMessage ();
+
+					Assert.That (parser.Position, Is.EqualTo (expectedOffsets[i]), "The parser did not stop at the end of the first message.");
+					Assert.That (message.MessageId, Is.EqualTo ($"1234567890.{i}@example.org"));
+					i++;
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestMboxWithLinesExceedingMaxSmtpLineLengthAsync ()
+		{
+			using (var memory = ExperimentalMimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
+				var parser = new MimeParser (memory, MimeFormat.Mbox);
+				int i = 0;
+
+				while (!parser.IsEndOfStream) {
+					using var message = await parser.ParseMessageAsync ();
+
+					Assert.That (parser.Position, Is.EqualTo (expectedOffsets[i]), "The parser did not stop at the end of the first message.");
+					Assert.That (message.MessageId, Is.EqualTo ($"1234567890.{i}@example.org"));
+					i++;
+				}
+			}
+		}
 	}
 }

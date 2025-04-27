@@ -206,10 +206,11 @@ namespace MimeKit {
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			var formats = new bool[2];
+			bool incomplete = false;
 			bool midline = false;
 
 			do {
-				int atleast = midline ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
+				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
 				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
 					boundary = BoundaryType.Eos;
@@ -220,7 +221,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						midline = ScanContent (inbuf, ref formats);
+						incomplete = ScanContent (inbuf, ref midline, ref formats);
 					}
 				}
 
