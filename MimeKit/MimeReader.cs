@@ -2200,12 +2200,7 @@ namespace MimeKit {
 
 				if (!currentBoundary.IsMboxMarker && *start == DashDash[0]) {
 					// TODO: We could potentially improve this logic by checking against the list of boundaries
-					int n = Math.Min (length, 2);
-
-					var span = new ReadOnlySpan<byte> (input, startIndex, n);
-
-					if (span.SequenceEqual (DashDash.Slice (0, n)))
-						return true;
+					return length < 2 || *(start + 1) == DashDash[1];
 				}
 
 				if (format == MimeFormat.Mbox && *start == MboxFromMarker[0]) {
