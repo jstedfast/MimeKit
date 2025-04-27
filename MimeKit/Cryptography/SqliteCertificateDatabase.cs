@@ -151,7 +151,7 @@ namespace MimeKit.Cryptography {
 		static bool VerifySQLiteAssemblyIsUsable ()
 		{
 			// Make sure that the runtime can load the native sqlite3 library.
-			var fileName = Path.GetTempFileName ();
+			var fileName = Path.GetRandomFileName () + ".sqlite";
 
 			try {
 				var connection = CreateConnection (fileName);
