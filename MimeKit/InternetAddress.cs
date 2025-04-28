@@ -594,7 +594,6 @@ namespace MimeKit {
 		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, out InternetAddress address)
 		{
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
-			int minWordCount = options.AllowUnquotedCommasInAddresses ? 0 : 1;
 
 			address = null;
 
@@ -661,7 +660,7 @@ namespace MimeKit {
 				words++;
 
 				// Note: some clients don't quote commas in the name
-				if (index < endIndex && text[index] == ',' && !quoted && words > minWordCount) {
+				if (options.AllowUnquotedCommasInAddresses && index < endIndex && text[index] == ',' && !quoted) {
 					index++;
 
 					length = index - startIndex;
