@@ -882,7 +882,7 @@ namespace MimeKit.Text {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			if (disposing && !leaveOpen)
+			if (disposing && !disposed && !leaveOpen)
 				html.Dispose ();
 
 			disposed = true;
