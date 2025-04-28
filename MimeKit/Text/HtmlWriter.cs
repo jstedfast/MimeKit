@@ -40,23 +40,28 @@ namespace MimeKit.Text {
 	/// </example>
 	public class HtmlWriter : IDisposable
 	{
-		TextWriter html;
+		readonly TextWriter html;
+		readonly bool leaveOpen;
+		bool disposed;
 		bool empty;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlWriter"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="HtmlWriter"/>.
+		/// <para>Initializes a new instance of the <see cref="HtmlWriter"/> class for the specified stream
+		/// by using the specified encoding and optionally leaves the stream open.</para>
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
 		/// <param name="encoding">The encoding to use for the output.</param>
+		/// <param name="leaveOpen"><see langword="true"/> if the <paramref name="stream"/> should be left open
+		/// when this <see cref="HtmlWriter"/> is disposed; otherwise, <see langword="false"/>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="encoding"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public HtmlWriter (Stream stream, Encoding encoding)
+		public HtmlWriter (Stream stream, Encoding encoding, bool leaveOpen = false)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
@@ -64,25 +69,30 @@ namespace MimeKit.Text {
 			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			html = new StreamWriter (stream, encoding, 4096);
+			html = new StreamWriter (stream, encoding, 4096, leaveOpen);
+			this.leaveOpen = false;
 		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlWriter"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="HtmlWriter"/>.
+		/// <para>Initializes a new instance of the <see cref="HtmlWriter"/> class using the specified
+		/// text writer, optionally leaving the text writer open.</para>
 		/// </remarks>
 		/// <param name="output">The output text writer.</param>
+		/// <param name="leaveOpen"><see langword="true"/> if the <paramref name="output"/> should be left open
+		/// when this <see cref="HtmlWriter"/> is disposed; otherwise, <see langword="false"/>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="output"/> is <see langword="null"/>.
 		/// </exception>
-		public HtmlWriter (TextWriter output)
+		public HtmlWriter (TextWriter output, bool leaveOpen = false)
 		{
 			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
 			html = output;
+			this.leaveOpen = leaveOpen;
 		}
 
 		/// <summary>
@@ -100,7 +110,7 @@ namespace MimeKit.Text {
 
 		void CheckDisposed ()
 		{
-			if (html is null)
+			if (disposed)
 				throw new ObjectDisposedException ("HtmlWriter");
 		}
 
@@ -872,8 +882,10 @@ namespace MimeKit.Text {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			if (disposing)
-				html = null;
+			if (disposing && !leaveOpen)
+				html.Dispose ();
+
+			disposed = true;
 		}
 
 		/// <summary>

@@ -261,7 +261,7 @@ namespace MimeKit.Text {
 				}
 			}
 
-			using (var htmlWriter = new HtmlWriter (writer)) {
+			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
