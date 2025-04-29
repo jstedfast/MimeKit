@@ -564,23 +564,12 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, out DateTimeOffset date)
 		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
+			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+				date = DateTimeOffset.MinValue;
+				return false;
+			}
 
 			var tokens = TokenizeDate (buffer, startIndex, length);
 
@@ -590,7 +579,7 @@ namespace MimeKit.Utils {
 			if (TryParseUnknownDateFormat (tokens, buffer, out date))
 				return true;
 
-			date = new DateTimeOffset ();
+			date = DateTimeOffset.MinValue;
 
 			return false;
 		}
@@ -605,19 +594,12 @@ namespace MimeKit.Utils {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is not within the range of the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, out DateTimeOffset date)
+		public static bool TryParse (byte[]? buffer, int startIndex, out DateTimeOffset date)
 		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
+			if (!ParseUtils.TryValidateArguments (buffer, startIndex)) {
+				date = DateTimeOffset.MinValue;
+				return false;
+			}
 
 			return TryParse (buffer, startIndex, buffer.Length - startIndex, out date);
 		}
@@ -631,13 +613,12 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, out DateTimeOffset date)
+		public static bool TryParse (byte[]? buffer, out DateTimeOffset date)
 		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
+			if (buffer is null) {
+				date = DateTimeOffset.MinValue;
+				return false;
+			}
 
 			return TryParse (buffer, 0, buffer.Length, out date);
 		}
@@ -651,13 +632,12 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out DateTimeOffset date)
+		public static bool TryParse (string? text, out DateTimeOffset date)
 		{
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				date = DateTimeOffset.MinValue;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 

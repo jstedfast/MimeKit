@@ -58,7 +58,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
-		public GroupAddress (Encoding encoding, string name, IEnumerable<InternetAddress> addresses) : base (encoding, name)
+		public GroupAddress (Encoding encoding, string? name, IEnumerable<InternetAddress> addresses) : base (encoding, name)
 		{
 			Members = new InternetAddressList (addresses);
 			Members.Changed += MembersChanged;
@@ -72,7 +72,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
-		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
+		public GroupAddress (string? name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
 		{
 		}
 
@@ -88,7 +88,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
-		public GroupAddress (Encoding encoding, string name) : base (encoding, name)
+		public GroupAddress (Encoding encoding, string? name) : base (encoding, name)
 		{
 			Members = new InternetAddressList ();
 			Members.Changed += MembersChanged;
@@ -101,7 +101,7 @@ namespace MimeKit {
 		/// Creates a new <see cref="GroupAddress"/> with the specified name.
 		/// </remarks>
 		/// <param name="name">The name of the group.</param>
-		public GroupAddress (string name) : this (Encoding.UTF8, name)
+		public GroupAddress (string? name) : this (Encoding.UTF8, name)
 		{
 		}
 
@@ -277,18 +277,12 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out GroupAddress? group)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex, length)) {
+				group = null;
+				return false;
+			}
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -316,14 +310,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out group);
 		}
@@ -340,17 +327,12 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out GroupAddress? group)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex)) {
+				group = null;
+				return false;
+			}
 
 			int endIndex = buffer.Length;
 			int index = startIndex;
@@ -377,13 +359,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen(true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out group);
 		}
@@ -399,14 +375,12 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out GroupAddress? group)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			if (!ParseUtils.TryValidateArguments (options, buffer)) {
+				group = null;
+				return false;
+			}
 
 			int endIndex = buffer.Length;
 			int index = 0;
@@ -432,10 +406,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen(true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, buffer, out group);
 		}
@@ -451,16 +422,12 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out GroupAddress? group)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (!ParseUtils.TryValidateArguments (options, text)) {
+				group = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
@@ -487,10 +454,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="group">The parsed group address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, [NotNullWhen (true)] out GroupAddress? group)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, text, out group);
 		}
@@ -700,11 +664,7 @@ namespace MimeKit {
 		/// </exception>
 		public static new GroupAddress Parse (ParserOptions options, string text)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;

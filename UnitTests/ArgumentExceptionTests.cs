@@ -115,7 +115,7 @@ namespace UnitTests {
 			var buffer = new byte[1024];
 
 			foreach (var method in type.GetMethods (BindingFlags.Public | BindingFlags.Static)) {
-				if (method.Name != "Parse" && method.Name != "TryParse")
+				if (method.Name != "Parse")
 					continue;
 
 				var parameters = method.GetParameters ();
@@ -228,6 +228,108 @@ namespace UnitTests {
 
 			AssertParseArguments (typeof (DateUtils));
 			AssertParseArguments (typeof (MimeUtils));
+		}
+
+		static void AssertTryParseArguments (Type type)
+		{
+			const string text = "this is a dummy text buffer";
+			var options = ParserOptions.Default;
+			var buffer = new byte[1024];
+
+			foreach (var method in type.GetMethods (BindingFlags.Public | BindingFlags.Static)) {
+				if (method.Name != "TryParse")
+					continue;
+
+				var parameters = method.GetParameters ();
+				var args = new object[parameters.Length];
+				int bufferIndex = 0;
+				bool retval;
+				int idx = 0;
+				int length;
+
+				if (parameters[idx].ParameterType == typeof (ParserOptions))
+					args[idx++] = null;
+
+				// this is either a byte[] or string buffer
+				bufferIndex = idx;
+				if (parameters[idx].ParameterType == typeof (byte[])) {
+					length = buffer.Length;
+					args[idx++] = buffer;
+				} else {
+					length = text.Length;
+					args[idx++] = text;
+				}
+
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
+					// startIndex
+					args[idx++] = 0;
+				}
+
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
+					// length
+					args[idx++] = length;
+				}
+
+				if (bufferIndex == 1) {
+					retval = (bool) method.Invoke (null, args);
+					Assert.That (retval, Is.False, $"{type.Name}.{method.Name} did not return false when options was null.");
+					args[0] = options;
+				}
+
+				var buf = args[bufferIndex];
+				args[bufferIndex] = null;
+				retval = (bool) method.Invoke (null, args);
+				Assert.That (retval, Is.False, $"{type.Name}.{method.Name} did not return false when {parameters[bufferIndex].Name} was null.");
+				args[bufferIndex] = buf;
+
+				idx = bufferIndex + 1;
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
+					// startIndex
+					args[idx] = -1;
+
+					retval = (bool) method.Invoke (null, args);
+					Assert.That (retval, Is.False, $"{type.Name}.{method.Name} did not return false when {parameters[idx].Name} was -1.");
+
+					args[idx] = length + 1;
+
+					retval = (bool) method.Invoke (null, args);
+					Assert.That (retval, Is.False, $"{type.Name}.{method.Name} did not return false when {parameters[idx].Name} was > length.");
+
+					args[idx++] = 0;
+				}
+
+				if (idx < parameters.Length && parameters[idx].ParameterType == typeof (int)) {
+					// length
+					args[idx] = -1;
+
+					retval = (bool) method.Invoke (null, args);
+					Assert.That (retval, Is.False, $"{type.Name}.{method.Name} did not return false when {parameters[idx].Name} was -1.");
+
+					args[idx] = length + 1;
+
+					retval = (bool) method.Invoke (null, args);
+					Assert.That (retval, Is.False, $"{type.Name}.{method.Name} did not return false when {parameters[idx].Name} was > length.");
+
+					idx++;
+				}
+			}
+		}
+
+		[Test]
+		public void TestTryParseArguments ()
+		{
+			AssertTryParseArguments (typeof (GroupAddress));
+			AssertTryParseArguments (typeof (MailboxAddress));
+			AssertTryParseArguments (typeof (InternetAddress));
+			AssertTryParseArguments (typeof (InternetAddressList));
+
+			AssertTryParseArguments (typeof (ContentDisposition));
+			AssertTryParseArguments (typeof (ContentType));
+			AssertTryParseArguments (typeof (DomainList));
+			AssertTryParseArguments (typeof (Header));
+
+			AssertTryParseArguments (typeof (DateUtils));
+			AssertTryParseArguments (typeof (MimeUtils));
 		}
 
 		[Test]

@@ -284,16 +284,12 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <param name="version">The parsed version.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out Version? version)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out Version? version)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+				version = null;
+				return false;
+			}
 
 			var values = new List<int> ();
 			int endIndex = startIndex + length;
@@ -339,13 +335,12 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the version was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, [NotNullWhen (true)] out Version? version)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out Version? version)
 		{
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				version = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
@@ -366,13 +361,12 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the encoding was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="encoding">The parsed encoding.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out ContentEncoding encoding)
+		public static bool TryParse (string? text, out ContentEncoding encoding)
 		{
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				encoding = ContentEncoding.Default;
+				return false;
+			}
 
 			int i = 0;
 

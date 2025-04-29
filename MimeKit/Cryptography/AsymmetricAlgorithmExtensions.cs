@@ -40,6 +40,9 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
+		const int MinDsaKeySize = 2048;
+		const int MinRsaKeySize = 2048;
+
 		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter? key)
 		{
 			var dp = dsa.ExportParameters (!publicOnly);
@@ -254,7 +257,7 @@ namespace MimeKit.Cryptography {
 				parameters.Y = key.Parameters.G.ModPow (key.X, key.Parameters.P).ToByteArrayUnsigned ();
 			}
 
-			var dsa = new DSACryptoServiceProvider ();
+			var dsa = new DSACryptoServiceProvider (MinDsaKeySize);
 
 			dsa.ImportParameters (parameters);
 
@@ -266,7 +269,7 @@ namespace MimeKit.Cryptography {
 			var parameters = GetDSAParameters (key); // GetDSAParameters sets P, Q, and G 
 			parameters.Y = GetPaddedByteArray (key.Y, parameters.P!.Length);
 
-			var dsa = new DSACryptoServiceProvider ();
+			var dsa = new DSACryptoServiceProvider (MinDsaKeySize);
 
 			dsa.ImportParameters (parameters);
 
@@ -287,7 +290,7 @@ namespace MimeKit.Cryptography {
 			parameters.DP = GetPaddedByteArray (key.DP, parameters.P.Length);
 			parameters.DQ = GetPaddedByteArray (key.DQ, parameters.Q.Length);
 
-			var rsa = new RSACryptoServiceProvider ();
+			var rsa = new RSACryptoServiceProvider (MinRsaKeySize);
 
 			rsa.ImportParameters (parameters);
 
@@ -301,7 +304,7 @@ namespace MimeKit.Cryptography {
 				Modulus = key.Modulus.ToByteArrayUnsigned ()
 			};
 
-			var rsa = new RSACryptoServiceProvider ();
+			var rsa = new RSACryptoServiceProvider (MinRsaKeySize);
 
 			rsa.ImportParameters (parameters);
 

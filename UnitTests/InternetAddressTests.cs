@@ -393,6 +393,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxStrictDisallowUnquotedCommasInName ()
+		{
+			const string input = "Cut the fat, today <5aOJlOFqZs@eachuniverse.host>";
+			var options = new ParserOptions {
+				AddressParserComplianceMode = RfcComplianceMode.Strict,
+				AllowAddressesWithoutDomain = false,
+				AllowUnquotedCommasInAddresses = false,
+				Rfc2047ComplianceMode = RfcComplianceMode.Strict
+			};
+
+			Assert.That (InternetAddressList.TryParse (options, input, out _), Is.False);
+		}
+
+		[Test]
 		public void TestParseMailboxWithOpenAngleSpace ()
 		{
 			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";

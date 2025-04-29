@@ -79,8 +79,13 @@ namespace MimeKit.IO {
 		/// Copies all the stream data into a newly allocated byte array.
 		/// </remarks>
 		/// <returns>The array.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
 		public byte[] ToArray ()
 		{
+			CheckDisposed ();
+
 			var array = new byte[length];
 			int need = (int) length;
 			int arrayIndex = 0;

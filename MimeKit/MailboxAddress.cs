@@ -577,18 +577,12 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex, length)) {
+				mailbox = null;
+				return false;
+			}
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -616,14 +610,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out mailbox);
 		}
@@ -640,17 +627,12 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex)) {
+				mailbox = null;
+				return false;
+			}
 
 			int endIndex = buffer.Length;
 			int index = startIndex;
@@ -677,13 +659,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out mailbox);
 		}
@@ -699,14 +675,12 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			if (!ParseUtils.TryValidateArguments (options, buffer)) {
+				mailbox = null;
+				return false;
+			}
 
 			int endIndex = buffer.Length;
 			int index = 0;
@@ -732,10 +706,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, buffer, out mailbox);
 		}
@@ -751,16 +722,12 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out MailboxAddress? mailbox)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (!ParseUtils.TryValidateArguments (options, text)) {
+				mailbox = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;
@@ -790,7 +757,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, [NotNullWhen (true)] out MailboxAddress? mailbox)
+		public static bool TryParse (string? text, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
@@ -1000,11 +967,7 @@ namespace MimeKit {
 		/// </exception>
 		public static new MailboxAddress Parse (ParserOptions options, string text)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			ParseUtils.ValidateArguments (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;

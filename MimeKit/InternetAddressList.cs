@@ -678,18 +678,12 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex, length)) {
+				addresses = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -715,14 +709,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out addresses);
 		}
@@ -738,17 +725,12 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex)) {
+				addresses = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -772,13 +754,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out addresses);
 		}
@@ -793,14 +769,12 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			if (!ParseUtils.TryValidateArguments (options, buffer)) {
+				addresses = null;
+				return false;
+			}
 
 			int index = 0;
 
@@ -823,10 +797,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
 			return TryParse (ParserOptions.Default, buffer, out addresses);
 		}
@@ -841,14 +812,12 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			if (!ParseUtils.TryValidateArguments (options, text)) {
+				addresses = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
@@ -872,10 +841,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address list was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="addresses">The parsed addresses.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, [NotNullWhen (true)] out InternetAddressList? addresses)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out InternetAddressList? addresses)
 		{
 			return TryParse (ParserOptions.Default, text, out addresses);
 		}

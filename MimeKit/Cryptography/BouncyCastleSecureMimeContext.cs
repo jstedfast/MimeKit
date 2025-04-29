@@ -676,6 +676,9 @@ namespace MimeKit.Cryptography {
 
 		X509Certificate GetCertificate (IStore<X509Certificate> store, SignerID signer)
 		{
+			if (signer.Certificate != null)
+				return signer.Certificate;
+
 			var matches = store.EnumerateMatches (signer);
 
 			foreach (X509Certificate certificate in matches)
@@ -733,14 +736,12 @@ namespace MimeKit.Cryptography {
 			return chain;
 		}
 
-		PkixCertPath BuildCertPath (ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
+		PkixCertPath BuildCertPath (ISelector<X509Certificate> selector, ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
 		{
-			var selector = new X509CertStoreSelector {
-				Certificate = certificate
-			};
-
 			var intermediates = new X509CertificateStore ();
-			intermediates.Add (certificate);
+
+			if (certificate != null)
+				intermediates.Add (certificate);
 
 			foreach (X509Certificate cert in certificates.EnumerateMatches (null))
 				intermediates.Add (cert);
@@ -1149,7 +1150,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				try {
-					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signature.CreationDate);
+					signature.Chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate);
 				} catch (Exception ex) {
 					signature.ChainException = ex;
 				}
@@ -1207,7 +1208,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				try {
-					signature.Chain = BuildCertPath (anchors, certificates, crls, certificate, signature.CreationDate);
+					signature.Chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate);
 				} catch (Exception ex) {
 					signature.ChainException = ex;
 				}

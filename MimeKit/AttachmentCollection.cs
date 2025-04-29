@@ -176,6 +176,7 @@ namespace MimeKit {
 
 				attachment.Content = new MimeContent (copiedContent ?? stream);
 			} catch {
+				attachment.Dispose ();
 				copiedContent?.Dispose ();
 				throw;
 			}
@@ -221,6 +222,7 @@ namespace MimeKit {
 
 				attachment.Content = new MimeContent (copiedContent ?? stream);
 			} catch {
+				attachment.Dispose ();
 				copiedContent?.Dispose ();
 				throw;
 			}

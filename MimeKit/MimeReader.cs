@@ -55,6 +55,8 @@ namespace MimeKit {
 		}
 
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
+		static ReadOnlySpan<byte> MboxFromMarker => "From "u8;
+		const int SmtpMaxLineLength = 1000;
 
 		const int HeaderBufferGrowSize = 64;
 		const int ReadAheadSize = 128;
@@ -1802,7 +1804,9 @@ namespace MimeKit {
 			if (inputEnd - inputIndex < need)
 				return false;
 
-			if (format == MimeFormat.Mbox && inputIndex >= contentEnd && IsMboxMarker (inptr)) {
+			long curOffset = contentEnd > 0 ? GetOffset (inputIndex) : contentEnd;
+
+			if (format == MimeFormat.Mbox && curOffset >= contentEnd && IsMboxMarker (inptr)) {
 				state = MimeParserState.Complete;
 				return true;
 			}
@@ -2103,6 +2107,7 @@ namespace MimeKit {
 			return new ContentType ("message", "rfc822");
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe bool IsPossibleBoundary (byte* text, int length)
 		{
 			if (length < 2)
@@ -2193,6 +2198,31 @@ namespace MimeKit {
 			return BoundaryType.None;
 		}
 
+		unsafe bool IsPartialBoundary (int startIndex, byte* start, int length)
+		{
+			if (boundaries != null) {
+				var currentBoundary = boundaries;
+
+				if (!currentBoundary.IsMboxMarker && *start == (byte) '-') {
+					// TODO: We could potentially improve this logic by checking against the list of boundaries
+					return length < 2 || *(start + 1) == (byte) '-';
+				}
+
+				if (format == MimeFormat.Mbox && *start == MboxFromMarker[0]) {
+					// now it is time to check the mbox From-marker
+					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
+					int n = Math.Min (length, MboxFromMarker.Length);
+
+					var span = new ReadOnlySpan<byte> (input, startIndex, n);
+
+					if (curOffset >= contentEnd && span.SequenceEqual (MboxFromMarker.Slice (0, n)))
+						return true;
+				}
+			}
+
+			return false;
+		}
+
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		int GetMaxBoundaryLength ()
 		{
@@ -2221,15 +2251,13 @@ namespace MimeKit {
 			return contentType.IsMimeType ("text", "rfc822-headers");
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
+		unsafe bool ScanContent (byte* inbuf, ref bool midline, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
-
-			if (midline && length == nleft)
-				boundary = BoundaryType.Eos;
+			bool incomplete = false;
 
 			*inend = (byte) '\n';
 
@@ -2274,7 +2302,7 @@ namespace MimeKit {
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
-					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+					if (!midline && (boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
 						break;
 
 					if (length > 0 && *(inptr - 1) == (byte) '\r')
@@ -2282,27 +2310,47 @@ namespace MimeKit {
 					else
 						formats[(int) NewLineFormat.Unix] = true;
 
+					midline = false;
 					length++;
 					inptr++;
 
 					IncrementLineNumber ((int) (inptr - inbuf));
 				} else {
 					// didn't find the end of the line...
-					midline = true;
+					if (eos) {
+						// Only consume this (incomplete) line of data if it *doesn't* match a boundary marker.
+						if (!midline && (boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+							break;
 
-					if (boundary == BoundaryType.None) {
-						// not enough to tell if we found a boundary
+						incomplete = false;
+						midline = false;
+					} else if (length >= SmtpMaxLineLength) {
+						// This line exceeds the maximum allowed length for SMTP. It should be safe to assume that
+						// this line does not contain a (valid) MIME (or mbox) boundary. Consume the (incomplete)
+						// line data and update our midline state so that we don't do any boundary checks in our
+						// next pass until we have found the start of the next line.
+						midline = true;
+					} else if (!midline && IsPartialBoundary (startIndex, start, length)) {
+						// We have an incomplete line that looks like a partial boundary marker.
+						// Refill the buffer and try again.
+						incomplete = true;
 						break;
+					} else {
+						// It is not possible for this line to be a boundary marker. Consume the (incomplete) line
+						// data. We'll finish processing it in our next pass.
+						midline = true;
 					}
 
-					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
-						break;
+					startIndex += length;
+					break;
 				}
 
 				startIndex += length;
 			}
 
 			inputIndex = startIndex;
+
+			return incomplete;
 		}
 
 		class ScanContentResult
@@ -2337,14 +2385,15 @@ namespace MimeKit {
 
 		unsafe ScanContentResult ScanContent (ScanContentType type, byte* inbuf, long beginOffset, int beginLineNumber, bool trimNewLine, CancellationToken cancellationToken)
 		{
-			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
+			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			var formats = new bool[2];
 			int contentLength = 0;
+			bool incomplete = false;
 			bool midline = false;
-			int nleft;
 
 			do {
-				nleft = inputEnd - inputIndex;
+				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
+
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
 					boundary = BoundaryType.Eos;
 					break;
@@ -2352,7 +2401,7 @@ namespace MimeKit {
 
 				int contentIndex = inputIndex;
 
-				ScanContent (inbuf, ref nleft, ref midline, ref formats);
+				incomplete = ScanContent (inbuf, ref midline, ref formats);
 
 				if (contentIndex < inputIndex) {
 					switch (type) {

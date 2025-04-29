@@ -614,8 +614,8 @@ namespace MimeKit {
 			case HeaderId.ArcMessageSignature:
 			case HeaderId.ArcSeal:
 			case HeaderId.DkimSignature:
-				// TODO: do we need to anonymize these?
-				return rawValue;
+				// TODO: should we have custom logic for anonymizing these?
+				return AnonymizeUnstructuredHeaderValue (rawValue);
 			case HeaderId.ContentTransferEncoding:
 			case HeaderId.MimeVersion:
 			case HeaderId.Date:
