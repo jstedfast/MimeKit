@@ -34,6 +34,8 @@ using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Security;
 
+using MimeKit.Utils;
+
 #if __MOBILE__
 using Mono.Data.Sqlite;
 #else
@@ -63,40 +65,50 @@ namespace MimeKit.Cryptography {
 			public Assembly Assembly { get; private set; }
 
 			public PropertyInfo ConnectionStringProperty { get; private set; }
-			public PropertyInfo DateTimeFormatProperty { get; private set; }
+			public PropertyInfo? DateTimeFormatProperty { get; private set; }
 			public PropertyInfo DataSourceProperty { get; private set; }
+
+			SQLiteAssembly (Type connectionStringBuilderType, Type connectionType, Assembly assembly, PropertyInfo connectionStringProperty, PropertyInfo? dateTimeFormatProperty, PropertyInfo dataSourceProperty)
+			{
+				ConnectionStringBuilderType = connectionStringBuilderType;
+				ConnectionType = connectionType;
+				Assembly = assembly;
+				ConnectionStringProperty = connectionStringProperty;
+				DateTimeFormatProperty = dateTimeFormatProperty;
+				DataSourceProperty = dataSourceProperty;
+			}
 
 #if NET8_0_OR_GREATER
 			[RequiresUnreferencedCode ("Uses Reflection to load SQLite classes dynamically from the specified assembly.")]
 #endif
-			public static SQLiteAssembly Load (string assemblyName)
+			public static SQLiteAssembly? Load (string assemblyName)
 			{
 				try {
 					int dot = assemblyName.LastIndexOf ('.');
 					var prefix = assemblyName.Substring (dot + 1);
 
 					var assembly = Assembly.Load (new AssemblyName (assemblyName));
-					var builderType = assembly.GetType (assemblyName + "." + prefix + "ConnectionStringBuilder");
-					var connectionType = assembly.GetType (assemblyName + "." + prefix + "Connection");
-					var connectionString = builderType.GetProperty ("ConnectionString");
+					var builderType = assembly.GetRequiredType (assemblyName + "." + prefix + "ConnectionStringBuilder");
+					var connectionType = assembly.GetRequiredType (assemblyName + "." + prefix + "Connection");
+					var connectionString = builderType.GetRequiredProperty ("ConnectionString");
 					var dateTimeFormat = builderType.GetProperty ("DateTimeFormat");
-					var dataSource = builderType.GetProperty ("DataSource");
+					var dataSource = builderType.GetRequiredProperty ("DataSource");
 
-					return new SQLiteAssembly {
-						Assembly = assembly,
-						ConnectionType = connectionType,
-						ConnectionStringBuilderType = builderType,
-						ConnectionStringProperty = connectionString,
-						DateTimeFormatProperty = dateTimeFormat,
-						DataSourceProperty = dataSource
-					};
+					return new SQLiteAssembly (
+						assembly: assembly,
+						connectionType: connectionType,
+						connectionStringBuilderType: builderType,
+						connectionStringProperty: connectionString,
+						dateTimeFormatProperty: dateTimeFormat,
+						dataSourceProperty: dataSource
+					);
 				} catch {
 					return null;
 				}
 			}
 		}
 
-		static readonly SQLiteAssembly sqliteAssembly;
+		static readonly SQLiteAssembly? sqliteAssembly;
 #endif
 
 		// At class initialization we try to use reflection to load the
@@ -171,6 +183,9 @@ namespace MimeKit.Cryptography {
 
 		internal static DbConnection CreateConnection (string fileName)
 		{
+			if (sqliteAssembly == null)
+				throw new NotSupportedException ($"{nameof(SqliteCertificateDatabase)} is not available on this platform.");
+
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
@@ -196,9 +211,10 @@ namespace MimeKit.Cryptography {
 			sqliteAssembly.DataSourceProperty.SetValue (builder, fileName, null);
 			sqliteAssembly.DateTimeFormatProperty?.SetValue (builder, 0, null);
 
-			var connectionString = (string) sqliteAssembly.ConnectionStringProperty.GetValue (builder, null);
+			var connectionString = (string?) sqliteAssembly.ConnectionStringProperty.GetValue (builder, null);
 
-			return (DbConnection) Activator.CreateInstance (sqliteAssembly.ConnectionType, new [] { connectionString });
+			// CreateInstance only returns null for Nullable<T> types
+			return (DbConnection) Activator.CreateInstance (sqliteAssembly.ConnectionType, new [] { connectionString })!;
 #else
 			var builder = new SqliteConnectionStringBuilder ();
 			builder.DateTimeFormat = SQLiteDateFormats.Ticks;

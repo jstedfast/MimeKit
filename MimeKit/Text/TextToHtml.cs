@@ -109,7 +109,7 @@ namespace MimeKit.Text {
 		/// filtering of HTML tags and content.
 		/// </remarks>
 		/// <value>The html tag callback.</value>
-		public HtmlTagCallback HtmlTagCallback {
+		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
 		}
 

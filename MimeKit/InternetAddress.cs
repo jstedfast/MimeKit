@@ -54,7 +54,7 @@ namespace MimeKit {
 	{
 		const string AtomSpecials = "()<>@,;:\\\".[]";
 		Encoding encoding;
-		string name;
+		string? name;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="InternetAddress"/> class.
@@ -67,7 +67,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
-		protected InternetAddress (Encoding encoding, string name)
+		protected InternetAddress (Encoding encoding, string? name)
 		{
 			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
@@ -113,7 +113,7 @@ namespace MimeKit {
 		/// <para><c>undisclosed-recipients: Alice &lt;alice@wonderland.com&gt;, Bob &lt;bob@the-builder.com&gt;;</c></para>
 		/// </remarks>
 		/// <value>The name of the address.</value>
-		public string Name {
+		public string? Name {
 			get { return name; }
 			set {
 				if (value == name)

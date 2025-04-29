@@ -104,10 +104,10 @@ namespace MimeKit.Cryptography {
 
 		static string[] GetSubjectAlternativeNames (X509Certificate2 certificate, int tagNo)
 		{
-			X509Extension alt = null;
+			X509Extension? alt = null;
 
 			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == X509Extensions.SubjectAlternativeName.Id) {
+				if (extension.Oid?.Value == X509Extensions.SubjectAlternativeName.Id) {
 					alt = extension;
 					break;
 				}
@@ -169,7 +169,7 @@ namespace MimeKit.Cryptography {
 			return domains;
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
+		static EncryptionAlgorithm[]? DecodeEncryptionAlgorithms (byte[] rawData)
 		{
 			using (var memory = new MemoryStream (rawData, false)) {
 				using (var asn1 = new Asn1InputStream (memory)) {
@@ -210,7 +210,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
+				if (extension.Oid?.Value == "1.2.840.113549.1.9.15") {
 					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
 
 					if (algorithms != null)
@@ -234,13 +234,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
-		public static AsymmetricKeyParameter GetPrivateKeyAsAsymmetricKeyParameter (this X509Certificate2 certificate)
+		public static AsymmetricKeyParameter? GetPrivateKeyAsAsymmetricKeyParameter (this X509Certificate2 certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
 #if NET6_0_OR_GREATER
-			AsymmetricAlgorithm privateKey = null;
+			AsymmetricAlgorithm? privateKey = null;
 
 			if (certificate.HasPrivateKey) {
 				switch (GetPublicKeyAlgorithm (certificate)) {

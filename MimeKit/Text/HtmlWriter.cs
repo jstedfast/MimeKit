@@ -41,7 +41,7 @@ namespace MimeKit.Text {
 	/// </example>
 	public class HtmlWriter : IDisposable
 	{
-		TextWriter? html;
+		TextWriter html;
 		bool empty;
 
 		/// <summary>

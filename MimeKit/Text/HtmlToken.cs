@@ -494,9 +494,10 @@ namespace MimeKit.Text {
 			for (int i = 0; i < Attributes.Count; i++) {
 				output.Write (' ');
 				output.Write (Attributes[i].Name);
-				if (Attributes[i].Value != null) {
+				var value = Attributes[i].Value;
+				if (value != null) {
 					output.Write ('=');
-					HtmlUtils.HtmlAttributeEncode (output, Attributes[i].Value);
+					HtmlUtils.HtmlAttributeEncode (output, value);
 				}
 			}
 			if (IsEmptyElement)
@@ -513,8 +514,8 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public class HtmlDocTypeToken : HtmlToken
 	{
-		string publicIdentifier;
-		string systemIdentifier;
+		string? publicIdentifier;
+		string? systemIdentifier;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlDocTypeToken"/> class.
@@ -549,7 +550,7 @@ namespace MimeKit.Text {
 		/// Gets or sets the DOCTYPE name.
 		/// </remarks>
 		/// <value>The name.</value>
-		public string Name {
+		public string? Name {
 			get; set;
 		}
 
@@ -560,7 +561,7 @@ namespace MimeKit.Text {
 		/// Gets or sets the public identifier.
 		/// </remarks>
 		/// <value>The public identifier.</value>
-		public string PublicIdentifier {
+		public string? PublicIdentifier {
 			get { return publicIdentifier; }
 			set {
 				publicIdentifier = value;
@@ -581,7 +582,7 @@ namespace MimeKit.Text {
 		/// Gets the public keyword that was used.
 		/// </remarks>
 		/// <value>The public keyword or <see langword="null"/> if it wasn't used.</value>
-		public string PublicKeyword {
+		public string? PublicKeyword {
 			get; internal set;
 		}
 
@@ -592,7 +593,7 @@ namespace MimeKit.Text {
 		/// Gets or sets the system identifier.
 		/// </remarks>
 		/// <value>The system identifier.</value>
-		public string SystemIdentifier {
+		public string? SystemIdentifier {
 			get { return systemIdentifier; }
 			set {
 				systemIdentifier = value;
@@ -612,7 +613,7 @@ namespace MimeKit.Text {
 		/// Gets the system keyword that was used.
 		/// </remarks>
 		/// <value>The system keyword or <see langword="null"/> if it wasn't used.</value>
-		public string SystemKeyword {
+		public string? SystemKeyword {
 			get; internal set;
 		}
 

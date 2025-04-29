@@ -141,7 +141,7 @@ namespace MimeKit.Text {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <value>The html tag callback.</value>
-		public HtmlTagCallback HtmlTagCallback {
+		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
 		}
 
@@ -214,7 +214,7 @@ namespace MimeKit.Text {
 			return false;
 		}
 
-		static HtmlToHtmlTagContext Pop (IList<HtmlToHtmlTagContext> stack, string name)
+		static HtmlToHtmlTagContext? Pop (IList<HtmlToHtmlTagContext> stack, string name)
 		{
 			for (int i = stack.Count; i > 0; i--) {
 				if (stack[i - 1].TagName.Equals (name, StringComparison.OrdinalIgnoreCase)) {
@@ -267,7 +267,7 @@ namespace MimeKit.Text {
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false
 				};
-				HtmlToHtmlTagContext ctx;
+				HtmlToHtmlTagContext? ctx;
 
 				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {

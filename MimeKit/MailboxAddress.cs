@@ -68,7 +68,7 @@ namespace MimeKit {
 			IdnMapping = new Punycode ();
 		}
 
-		internal MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address, int at) : base (encoding, name)
+		internal MailboxAddress (Encoding encoding, string? name, IEnumerable<string> route, string address, int at) : base (encoding, name)
 		{
 			Route = new DomainList (route);
 			Route.Changed += RouteChanged;
@@ -77,7 +77,7 @@ namespace MimeKit {
 			this.at = at;
 		}
 
-		internal MailboxAddress (Encoding encoding, string name, string address, int at) : base (encoding, name)
+		internal MailboxAddress (Encoding encoding, string? name, string address, int at) : base (encoding, name)
 		{
 			Route = new DomainList ();
 			Route.Changed += RouteChanged;
@@ -107,7 +107,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address) : base (encoding, name)
+		public MailboxAddress (Encoding encoding, string? name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
 			if (address is null)
 				throw new ArgumentNullException (nameof (address));
@@ -134,7 +134,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (string name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
+		public MailboxAddress (string? name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
 		{
 		}
 
@@ -156,7 +156,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (Encoding encoding, string name, string address) : base (encoding, name)
+		public MailboxAddress (Encoding encoding, string? name, string address) : base (encoding, name)
 		{
 			if (address is null)
 				throw new ArgumentNullException (nameof (address));
@@ -180,7 +180,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
+		public MailboxAddress (string? name, string address) : this (Encoding.UTF8, name, address)
 		{
 		}
 

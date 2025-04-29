@@ -95,7 +95,7 @@ namespace MimeKit.Text {
 				return false;
 			}
 
-			if (!patterns.TryGetValue (pattern, out var url)) {
+			if (!patterns.TryGetValue (pattern!, out var url)) { // pattern is not null when Trie.Search != -1
 				match = null;
 				return false;
 			}
