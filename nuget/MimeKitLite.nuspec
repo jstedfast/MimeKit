@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.11.0</version>
+    <version>4.12.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -22,14 +22,15 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed logic for validating HTML Tag and Attribute names. (issue #1136)
-* Minor performance improvements to MimeParser, ExperimentalMimeParser, and MimeReader.
-* Obsoleted MimeReader.OnMultipartBoundary() and OnMultipartEndBoundary(), replacing them with OnMultipartBoundaryBegin/Read/End() and OnMultipartEndBoundaryBegin/Read/End(). This now allows ExperimentalMimeParser to track trailing whitespace on boundary lines, resulting in improved re-serialization of parsed messages.
-* Fixed serialization of message/rfc822 parts without a message.
-* Fixed serialization of messages that did not have a blank line between the headers and body (only when parsed using the ExperimentalMimeParser).
-* Improved Date header parser for JST and KST timezones.
-* Improved Date header parser to handle AM/PM and leap seconds.
-* Improved address parser to handle unbalanced ')' (rfc7103)
+* Removed CTRL characters from the list of allowed domain characters.
+* Fixed a bug in the address list parser in Strict mode that allowed 2 addresses to be separated by whitespace instead of requiring a comma.
+* Added a new MimeAnonymizer class that can be used to anonymize MimeMessages by x-ing out non-syntactically relevant information.
+* Fixed TryParse methods to not throw ArgumentExceptions. (issue #1158)
+* Fixed a bug in MimeReader that used the buffer offset instead of the stream offset to check if the stream position was beyond the byte offset specified by a Content-Length header when parsing UNIX mbox files.
+* Fixed a long-standing bug in MimeParser (which also existed in MimeReader) where it would encounter a buffering bug when parsing some Mbox files (typically multi-gigabyte). (issue #991)
+* Fixed AttachmentCollection.Add/AddAsync methods to dispose the MimePart it is creating if loading content fails from the stream fails.
+* Added leaveOpen parameters for HtmlWriter .ctors. (issue #1159)
+* Fixed parsing when ParserOptions.AllowUnquotedCommasInAddresses = false. This used to incorrectly allow unquoted commas in address Display Names if the comma followed at least 2 words.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
