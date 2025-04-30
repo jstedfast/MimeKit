@@ -61,8 +61,8 @@ namespace MimeKit.IO {
 		/// Initialize a new instance of the <see cref="FilteredStream"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a filtered stream using the specified source stream.
-		/// The source stream will be left open when this <see cref="FilteredStream"/> is disposed.
+		/// <para>Creates a filtered stream using the specified source stream.</para>
+		/// <para>The source stream will be left open when this <see cref="FilteredStream"/> is disposed.</para>
 		/// </remarks>
 		/// <param name="source">The underlying stream to filter.</param>
 		/// <exception cref="System.ArgumentNullException">
