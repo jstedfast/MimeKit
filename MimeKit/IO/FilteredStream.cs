@@ -62,6 +62,7 @@ namespace MimeKit.IO {
 		/// </summary>
 		/// <remarks>
 		/// Creates a filtered stream using the specified source stream.
+		/// The source stream will be left open when this <see cref="FilteredStream"/> is disposed.
 		/// </remarks>
 		/// <param name="source">The underlying stream to filter.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -103,6 +104,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public void Add (IMimeFilter filter)
 		{
+			CheckDisposed ();
+
 			if (filter is null)
 				throw new ArgumentNullException (nameof (filter));
 
@@ -123,6 +126,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public bool Contains (IMimeFilter filter)
 		{
+			CheckDisposed ();
+
 			if (filter is null)
 				throw new ArgumentNullException (nameof (filter));
 
@@ -142,6 +147,8 @@ namespace MimeKit.IO {
 		/// </exception>
 		public bool Remove (IMimeFilter filter)
 		{
+			CheckDisposed ();
+
 			if (filter is null)
 				throw new ArgumentNullException (nameof (filter));
 
