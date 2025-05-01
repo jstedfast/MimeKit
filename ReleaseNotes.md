@@ -1,5 +1,28 @@
 # Release Notes
 
+## MimeKit 4.12.0 (2025-04-28)
+
+* Removed CTRL characters from the list of allowed domain characters.
+* Fixed a bug in the address list parser in Strict mode that allowed 2 addresses to be
+  separated by whitespace instead of requiring a comma.
+* Added a new MimeAnonymizer class that can be used to anonymize MimeMessages by
+  x-ing out non-syntactically relevant information.
+* Fixed TryParse methods to not throw ArgumentExceptions.
+  (issue [#1158](https://github.com/jstedfast/MimeKit/discussions/1158))
+* Fixed a bug in MimeReader that used the buffer offset instead of the stream offset
+  to check if the stream position was beyond the byte offset specified by a
+  Content-Length header when parsing UNIX mbox files.
+* Fixed a long-standing bug in MimeParser (which also existed in MimeReader) where
+  it would encounter a buffering bug when parsing some Mbox files (typically
+  multi-gigabyte). (issue [#991](https://github.com/jstedfast/MimeKit/discussions/991))
+* Fixed AttachmentCollection.Add/AddAsync methods to dispose the MimePart it is creating
+  if loading content fails from the stream fails.
+* Added leaveOpen parameters for HtmlWriter .ctors.
+  (issue [#1159](https://github.com/jstedfast/MimeKit/discussions/1159))
+* Fixed parsing when ParserOptions.AllowUnquotedCommasInAddresses = false. This used to
+  incorrectly allow unquoted commas in address Display Names if the comma followed at least
+  2 words.
+
 ## MimeKit 4.11.0 (2025-03-08)
 
 * Fixed logic for validating HTML Tag and Attribute names.
