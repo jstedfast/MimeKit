@@ -435,7 +435,7 @@ namespace MimeKit {
 			Value,
 		}
 
-		static bool IsSafeParameterName (ref ByteArrayBuilder name)
+		static bool IsSafeParameterName (ByteArrayBuilder name)
 		{
 			return name.Equals (BoundaryParameter, StringComparison.OrdinalIgnoreCase) ||
 				name.Equals (CharsetParameter, StringComparison.OrdinalIgnoreCase) ||
@@ -445,8 +445,8 @@ namespace MimeKit {
 
 		static void AnonymizeParameterList (byte[] rawValue, byte[] anonymized, int startIndex)
 		{
+			using var name = new ByteArrayBuilder (16);
 			var state = ParameterState.Semicolon;
-			var name = new ByteArrayBuilder (16);
 			int index = startIndex;
 			var escaped = false;
 			var quoted = false;
@@ -474,7 +474,7 @@ namespace MimeKit {
 				case ParameterState.Name:
 					if (rawValue[index] == (byte) '=') {
 						anonymized[index] = rawValue[index];
-						safe = IsSafeParameterName (ref name);
+						safe = IsSafeParameterName (name);
 						state = ParameterState.Value;
 					} else if (rawValue[index] == (byte) ';') {
 						// shouldn't happen...
@@ -492,7 +492,7 @@ namespace MimeKit {
 				case ParameterState.NameStar:
 					if (rawValue[index] == (byte) '=') {
 						anonymized[index] = rawValue[index];
-						safe = IsSafeParameterName (ref name);
+						safe = IsSafeParameterName (name);
 						state = ParameterState.Value;
 					} else if (rawValue[index] == (byte) ';') {
 						// parameter seems to be incomplete?
