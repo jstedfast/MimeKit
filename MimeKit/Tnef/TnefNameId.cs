@@ -36,7 +36,7 @@ namespace MimeKit.Tnef {
 	public readonly struct TnefNameId : IEquatable<TnefNameId>
 	{
 		readonly TnefNameIdKind kind;
-		readonly string name;
+		readonly string? name;
 		readonly Guid guid;
 		readonly int id;
 
@@ -65,7 +65,7 @@ namespace MimeKit.Tnef {
 		/// If the <see cref="Kind"/> is <see cref="TnefNameIdKind.Name"/>, then this property will be available.
 		/// </remarks>
 		/// <value>The name.</value>
-		public string Name => name;
+		public string? Name => name;
 
 		/// <summary>
 		/// Get the identifier, if available.
@@ -118,7 +118,7 @@ namespace MimeKit.Tnef {
 		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
 		{
-			int hash = kind == TnefNameIdKind.Id ? id : name.GetHashCode ();
+			int hash = kind == TnefNameIdKind.Id ? id : name!.GetHashCode (); // if kind is not Id, name is not null
 
 			return kind.GetHashCode () ^ guid.GetHashCode () ^ hash;
 		}
@@ -132,7 +132,7 @@ namespace MimeKit.Tnef {
 		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefNameId"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="System.Object"/> is equal to the current
 		/// <see cref="TnefNameId"/>; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			return obj is TnefNameId other && Equals (other);
 		}

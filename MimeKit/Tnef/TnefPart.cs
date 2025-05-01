@@ -112,11 +112,11 @@ namespace MimeKit.Tnef {
 
 			// Note: The RecipientTable uses rows of properties...
 			while (prop.ReadNextRow ()) {
-				string transmitableDisplayName = null;
-				string recipientDisplayName = null;
+				string? transmitableDisplayName = null;
+				string? recipientDisplayName = null;
 				string displayName = string.Empty;
-				InternetAddressList list = null;
-				string addr = null;
+				InternetAddressList? list = null;
+				string? addr = null;
 
 				while (prop.ReadNextProperty ()) {
 					switch (prop.PropertyTag.Id) {
@@ -160,10 +160,11 @@ namespace MimeKit.Tnef {
 		class EmailAddress
 		{
 			public string AddrType = "SMTP";
-			public string SearchKey;
-			public string Name;
-			public string Addr;
+			public string? SearchKey;
+			public string? Name;
+			public string? Addr;
 
+			[MemberNotNullWhen (true, nameof (SearchKey))]
 			bool CanUseSearchKey {
 				get {
 					return SearchKey != null && SearchKey.Equals ("SMTP", StringComparison.OrdinalIgnoreCase) &&
@@ -180,7 +181,7 @@ namespace MimeKit.Tnef {
 
 			public bool TryGetMailboxAddress ([NotNullWhen (true)] out MailboxAddress? mailbox)
 			{
-				string addr;
+				string? addr;
 
 				if (string.IsNullOrEmpty (Addr) && CanUseSearchKey)
 					addr = SearchKey.Substring (AddrType.Length + 1);
@@ -224,8 +225,8 @@ namespace MimeKit.Tnef {
 						if (tag.Id != HtmlTagId.Meta || tag.IsEndTag)
 							continue;
 
-						string httpEquiv = null;
-						string content = null;
+						string? httpEquiv = null;
+						string? content = null;
 
 						for (int i = 0; i < tag.Attributes.Count; i++) {
 							switch (tag.Attributes[i].Id) {
@@ -511,8 +512,8 @@ namespace MimeKit.Tnef {
 					case TnefAttributeTag.AttachRenderData:
 						attachMethod = TnefAttachMethod.ByValue;
 						if (dispose)
-							attachment.Dispose ();
-						attachment = new MimePart ();
+							attachment!.Dispose ();
+						attachment = new MimePart (); // attachment is not null when dispose is true
 						dispose = true;
 						break;
 					case TnefAttributeTag.Attachment:
@@ -541,7 +542,7 @@ namespace MimeKit.Tnef {
 								var buffer = CharsetUtils.UTF8.GetBytes (text);
 								int index = 0;
 
-								if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+								if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 									attachment.ContentId = msgid;
 								break;
 							case TnefPropertyId.AttachDisposition:
@@ -647,7 +648,7 @@ namespace MimeKit.Tnef {
 				} while (reader.ReadNextAttribute ());
 			} finally {
 				if (dispose)
-					attachment.Dispose ();
+					attachment!.Dispose (); // attachment is not null when dispose is true
 			}
 		}
 

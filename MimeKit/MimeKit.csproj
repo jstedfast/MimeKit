@@ -55,7 +55,7 @@
   
   <!-- Disable nullable warnings below netcoreapp3.0 and netstandard2.1 -->
   <PropertyGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' And '$(TargetFramework)' != 'net6.0' And '$(TargetFramework)' != 'net8.0' ">
-    <NoWarn>CS8602;CS8604</NoWarn>
+    <NoWarn>CS8601;CS8602;CS8604</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>

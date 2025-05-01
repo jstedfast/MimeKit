@@ -797,12 +797,8 @@ namespace MimeKit.IO {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
-			if (disposing) {
-				if (filters != null) {
-					filters.Clear ();
-					filters = null;
-				}
-
+			if (disposing && !disposed) {
+				filters.Clear ();
 				readbuf = null;
 			}
 
