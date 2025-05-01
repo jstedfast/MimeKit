@@ -25,6 +25,7 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -63,7 +64,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		string Boundary {
+		[DisallowNull]
+		string? Boundary {
 			get; set;
 		}
 

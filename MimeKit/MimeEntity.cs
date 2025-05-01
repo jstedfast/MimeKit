@@ -405,7 +405,7 @@ namespace MimeKit {
 					if (Headers.TryGetHeader (HeaderId.ContentId, out var header)) {
 						int index = 0;
 
-						if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string msgid))
+						if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string? msgid))
 							contentId = msgid;
 					}
 
@@ -430,7 +430,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string id))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? id))
 					throw new ArgumentException ("Invalid Content-Id format.", nameof (value));
 
 				LazyLoaded |= LazyLoadedFields.ContentId;

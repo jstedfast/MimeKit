@@ -688,11 +688,9 @@ namespace MimeKit {
 
 		internal event EventHandler? Changed;
 
-		void OnParamChanged (object? sender, EventArgs args)
+		void OnParamChanged (Parameter sender, EventArgs args)
 		{
-			var param = (Parameter) sender;
-
-			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
+			if (sender.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
 				OnBoundaryChanged ();
 
 			OnChanged ();

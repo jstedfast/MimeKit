@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Text;
 using MimeKit.Utils;
@@ -95,7 +96,7 @@ namespace MimeKit {
 			var start = ContentType.Parameters["start"];
 
 			if (start != null) {
-				string contentId;
+				string? contentId;
 
 				if ((contentId = MimeUtils.EnumerateReferences (start).FirstOrDefault ()) is null)
 					contentId = start;
@@ -141,7 +142,8 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartRelated"/> has been disposed.
 		/// </exception>
-		public MimeEntity Root {
+		[DisallowNull]
+		public MimeEntity? Root {
 			get {
 				CheckDisposed ();
 
@@ -227,7 +229,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
-		public override bool TryGetValue (TextFormat format, out TextPart body)
+		public override bool TryGetValue (TextFormat format, [NotNullWhen (true)] out TextPart? body)
 		{
 			CheckDisposed ();
 
@@ -351,7 +353,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartRelated"/> has been disposed.
 		/// </exception>
-		public Stream Open (Uri uri, out string mimeType, out string charset)
+		public Stream Open (Uri uri, out string mimeType, out string? charset)
 		{
 			if (uri is null)
 				throw new ArgumentNullException (nameof (uri));

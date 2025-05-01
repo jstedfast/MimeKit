@@ -189,7 +189,7 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string msgid))
+					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string? msgid))
 						yield return msgid;
 				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
@@ -239,14 +239,14 @@ namespace MimeKit.Utils {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static string ParseMessageId (byte[] buffer, int startIndex, int length)
+		public static string? ParseMessageId (byte[] buffer, int startIndex, int length)
 		{
 			ParseUtils.ValidateArguments (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
 
-			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string msgid);
+			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string? msgid);
 
 			return msgid;
 		}
@@ -262,7 +262,7 @@ namespace MimeKit.Utils {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static string ParseMessageId (string text)
+		public static string? ParseMessageId (string text)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));

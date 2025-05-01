@@ -757,7 +757,7 @@ namespace MimeKit {
 		{
 			var buffer = Encoding.UTF8.GetBytes (value);
 
-			if (!AuthenticationResults.TryParse (buffer, out AuthenticationResults authres))
+			if (!AuthenticationResults.TryParse (buffer, out AuthenticationResults? authres))
 				return EncodeUnstructuredHeader (options, format, encoding, field, value);
 
 			var encoded = new StringBuilder ();

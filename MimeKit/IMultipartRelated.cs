@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -61,7 +62,8 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartRelated"/> has been disposed.
 		/// </exception>
-		MimeEntity Root {
+		[DisallowNull]
+		MimeEntity? Root {
 			get; set;
 		}
 
@@ -125,7 +127,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartRelated"/> has been disposed.
 		/// </exception>
-		Stream Open (Uri uri, out string mimeType, out string charset);
+		Stream Open (Uri uri, out string mimeType, out string? charset);
 
 		/// <summary>
 		/// Open a stream for reading the decoded content of the MIME part specified by the provided URI.

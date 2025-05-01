@@ -917,7 +917,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.InReplyTo;
@@ -968,7 +968,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.MessageId;
@@ -1019,7 +1019,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.ResentMessageId;

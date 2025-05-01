@@ -191,6 +191,7 @@ namespace MimeKit {
 		/// Gets or sets the parameter value character encoding.
 		/// </remarks>
 		/// <value>The character encoding.</value>
+		[AllowNull]
 		public Encoding Encoding {
 			get { return encoding ?? CharsetUtils.UTF8; }
 			set {
@@ -770,7 +771,7 @@ namespace MimeKit {
 			return Name + "=" + MimeUtils.Quote (Value);
 		}
 
-		internal event EventHandler? Changed;
+		internal event EventHandler<Parameter, EventArgs>? Changed;
 
 		void OnChanged ()
 		{

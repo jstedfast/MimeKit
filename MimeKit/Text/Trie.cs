@@ -50,14 +50,16 @@ namespace MimeKit.Text {
 		}
 
 		class TrieMatch {
-			public TrieMatch Next;
+			public TrieMatch? Next;
 			public TrieState State;
 
 			public char Value { get; private set; }
 
-			public TrieMatch (char value)
+			public TrieMatch (char value, TrieMatch? next, TrieState state)
 			{
 				Value = value;
+				Next = next;
+				State = state;
 			}
 		}
 
@@ -74,7 +76,7 @@ namespace MimeKit.Text {
 		/// <param name="ignoreCase"><see langword="true" /> if searching should ignore case; otherwise, <see langword="false" />.</param>
 		public Trie (bool ignoreCase)
 		{
-			failStates = new List<TrieState> ();
+			failStates = new List<TrieState?> ();
 			root = new TrieState (null);
 			icase = ignoreCase;
 		}
@@ -101,7 +103,7 @@ namespace MimeKit.Text {
 				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
-		static TrieMatch FindMatch (TrieState state, char value)
+		static TrieMatch? FindMatch (TrieState state, char value)
 		{
 			var match = state.Match;
 
@@ -114,11 +116,7 @@ namespace MimeKit.Text {
 		TrieState Insert (TrieState state, int depth, char value)
 		{
 			var inserted = new TrieState (root);
-			var match = new TrieMatch (value) {
-				Next = state.Match,
-				State = inserted
-			};
-
+			var match = new TrieMatch (value, next: state.Match, state: inserted);
 			state.Match = match;
 
 			if (failStates.Count < depth + 1)
@@ -203,7 +201,7 @@ namespace MimeKit.Text {
 							failState = failState.Fail;
 
 						if (failState != null) {
-							matchedState.Fail = nextMatch.State;
+							matchedState.Fail = nextMatch!.State; // nextMatch is not null when the while loop exits with failState != null
 							if (matchedState.Fail.Depth > matchedState.Depth)
 								matchedState.Depth = matchedState.Fail.Depth;
 						} else {

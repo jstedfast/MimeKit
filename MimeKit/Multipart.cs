@@ -203,7 +203,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public string Boundary {
+		[DisallowNull]
+		public string? Boundary {
 			get { return ContentType.Boundary; }
 			set {
 				if (value is null)
