@@ -2865,7 +2865,6 @@ namespace MimeKit {
 		/// <remarks>
 		/// Reads a message from the stream.
 		/// </remarks>
-		/// <returns>The parsed message.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
