@@ -301,8 +301,7 @@ namespace MimeKit {
 
 						*inend = (byte) '\n';
 
-						while (*inptr != (byte) '\n')
-							inptr++;
+						inptr = EndOfLine (inptr, inend + 1);
 
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will

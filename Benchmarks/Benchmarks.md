@@ -18,26 +18,27 @@ Intel Core i7-9700 CPU 3.00GHz, 1 CPU, 8 logical and 8 physical cores
 
 ### MimeParser
 
-| Method                                             | Mean         | Error      | StdDev     |
-|--------------------------------------------------- |-------------:|-----------:|-----------:|
-| MimeParser_StarTrekMessage                         |    90.435 us |  0.7455 us |  0.6973 us |
-| MimeParser_StarTrekMessagePersistent               |    81.716 us |  0.5504 us |  0.4596 us |
-| MimeParser_ContentLengthMbox                       |   773.167 us |  9.6001 us |  8.0165 us |
-| MimeParser_ContentLengthMboxPersistent             |   712.220 us |  5.6727 us |  4.7370 us |
-| MimeParser_JwzMbox                                 | 6,837.832 us | 67.6953 us | 60.0101 us |
-| MimeParser_JwzMboxPersistent                       | 6,115.685 us | 31.6801 us | 24.7338 us |
-| MimeParser_HeaderStressTest                        |    19.415 us |  0.2653 us |  0.2352 us |
-| ExperimentalMimeParser_StarTrekMessage             |    69.727 us |  0.5362 us |  0.4753 us |
-| ExperimentalMimeParser_StarTrekMessagePersistent   |    58.905 us |  0.6591 us |  0.5503 us |
-| ExperimentalMimeParser_ContentLengthMbox           |   608.324 us |  8.1063 us |  7.5826 us |
-| ExperimentalMimeParser_ContentLengthMboxPersistent |   524.317 us |  7.7340 us |  6.4582 us |
-| ExperimentalMimeParser_JwzMbox                     | 5,265.384 us | 56.6687 us | 50.2353 us |
-| ExperimentalMimeParser_JwzMboxPersistent           | 4,474.884 us | 89.2177 us | 87.6238 us |
-| ExperimentalMimeParser_HeaderStressTest            |    11.653 us |  0.1319 us |  0.1169 us |
-| MimeReader_StarTrekMessage                         |    48.659 us |  0.2957 us |  0.2469 us |
-| MimeReader_ContentLengthMbox                       |   353.706 us |  6.8101 us |  6.3702 us |
-| MimeReader_JwzMbox                                 | 3,398.939 us | 32.1085 us | 28.4634 us |
-| MimeReader_HeaderStressTest                        |     6.625 us |  0.0616 us |  0.0481 us |
+| Method                                             | Mean         | Error      | StdDev      |
+|--------------------------------------------------- |-------------:|-----------:|------------:|
+| MimeParser_StarTrekMessage                         |    71.731 us |  0.3290 us |   0.2747 us |
+| MimeParser_StarTrekMessagePersistent               |    60.809 us |  0.8136 us |   0.7213 us |
+| MimeParser_ContentLengthMbox                       |   621.492 us |  3.7083 us |   2.8952 us |
+| MimeParser_ContentLengthMboxPersistent             |   551.683 us | 10.7364 us |  10.5446 us |
+| MimeParser_JwzMbox                                 | 5,238.200 us | 67.6061 us |  63.2388 us |
+| MimeParser_JwzMboxPersistent                       | 4,612.795 us | 91.5963 us | 119.1010 us |
+| MimeParser_HeaderStressTest                        |    15.356 us |  0.0761 us |   0.0635 us |
+
+| ExperimentalMimeParser_StarTrekMessage             |    70.105 us |  1.1094 us |   0.9834 us |
+| ExperimentalMimeParser_StarTrekMessagePersistent   |    57.515 us |  0.6193 us |   0.5490 us |
+| ExperimentalMimeParser_ContentLengthMbox           |   622.374 us | 11.9024 us |  14.6173 us |
+| ExperimentalMimeParser_ContentLengthMboxPersistent |   534.965 us |  4.6371 us |   4.1107 us |
+| ExperimentalMimeParser_JwzMbox                     | 5,030.161 us | 63.8917 us |  56.6384 us |
+| ExperimentalMimeParser_JwzMboxPersistent           | 4,557.651 us | 40.6831 us |  33.9722 us |
+| ExperimentalMimeParser_HeaderStressTest            |    12.365 us |  0.2359 us |   0.2091 us |
+| MimeReader_StarTrekMessage                         |    47.750 us |  0.2926 us |   0.2444 us |
+| MimeReader_ContentLengthMbox                       |   353.960 us |  2.9889 us |   2.7958 us |
+| MimeReader_JwzMbox                                 | 3,209.473 us | 26.7118 us |  22.3056 us |
+| MimeReader_HeaderStressTest                        |     6.901 us |  0.1346 us |   0.1259 us |
 
 ### BestEncodingFilter
 

@@ -725,6 +725,52 @@ namespace MimeKit {
 			return true;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static unsafe byte* EndOfLine (byte* inptr, byte* inend)
+		{
+#if NETCOREAPP
+			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
+
+			return inptr += span.IndexOf ((byte) '\n');
+#else
+			// scan for a linefeed character until we are 4-byte aligned.
+			switch (((long) inptr) & 0x03) {
+			case 1:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 2;
+			case 2:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 3;
+			case 3:
+				if (*inptr != (byte) '\n')
+					inptr++;
+				break;
+			}
+
+			if (*inptr != (byte) '\n') {
+				// -funroll-loops, yippee ki-yay.
+				do {
+					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
+					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+
+					if (mask != 0)
+						break;
+
+					inptr += 4;
+				} while (true);
+
+				while (*inptr != (byte) '\n')
+					inptr++;
+			}
+
+			return inptr;
+#endif
+		}
+
 		unsafe void StepByteOrderMark (byte* inbuf, ref int bomIndex)
 		{
 			byte* inptr = inbuf + inputIndex;
@@ -787,8 +833,7 @@ namespace MimeKit {
 				byte* start = inptr;
 
 				// scan for the end of the line
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// we don't have enough input data
@@ -994,8 +1039,7 @@ namespace MimeKit {
 
 				scanningFieldName = false;
 
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// we didn't manage to slurp up a full line, save what we have and refill our input buffer
@@ -1133,8 +1177,7 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
-			while (*inptr != (byte) '\n')
-				inptr++;
+			inptr = EndOfLine (inptr, inend + 1);
 
 			if (inptr < inend) {
 				inputIndex = (int) (inptr - inbuf);
@@ -1357,41 +1400,7 @@ namespace MimeKit {
 			while (inptr < inend) {
 				byte* start = inptr;
 
-				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-				// so we can safely use the startIndex instead of `((long) inptr) & 3` to determine the alignment.
-				switch (startIndex & 3) {
-				case 1:
-					if (*inptr == (byte) '\n')
-						break;
-					inptr++;
-					goto case 2;
-				case 2:
-					if (*inptr == (byte) '\n')
-						break;
-					inptr++;
-					goto case 3;
-				case 3:
-					if (*inptr != (byte) '\n')
-						inptr++;
-					break;
-				}
-
-				if (*inptr != (byte) '\n') {
-					// -funroll-loops, yippee ki-yay.
-					do {
-						uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
-						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-
-						if (mask != 0)
-							break;
-
-						inptr += 4;
-					} while (true);
-
-					while (*inptr != (byte) '\n')
-						inptr++;
-				}
-
+				inptr = EndOfLine (inptr, inend + 1);
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
@@ -1560,8 +1569,7 @@ namespace MimeKit {
 
 				*inend = (byte) '\n';
 
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
