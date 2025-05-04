@@ -1407,6 +1407,52 @@ namespace MimeKit {
 			return true;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static unsafe byte* EndOfLine (byte* inptr, byte* inend)
+		{
+#if NETCOREAPP
+			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
+
+			return inptr += span.IndexOf ((byte) '\n');
+#else
+			// scan for a linefeed character until we are 4-byte aligned.
+			switch (((long) inptr) & 0x03) {
+			case 1:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 2;
+			case 2:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 3;
+			case 3:
+				if (*inptr != (byte) '\n')
+					inptr++;
+				break;
+			}
+
+			if (*inptr != (byte) '\n') {
+				// -funroll-loops, yippee ki-yay.
+				do {
+					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
+					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+
+					if (mask != 0)
+						break;
+
+					inptr += 4;
+				} while (true);
+
+				while (*inptr != (byte) '\n')
+					inptr++;
+			}
+
+			return inptr;
+#endif
+		}
+
 		unsafe bool StepByteOrderMark (byte* inbuf, ref int bomIndex)
 		{
 			byte* inptr = inbuf + inputIndex;
@@ -1457,52 +1503,6 @@ namespace MimeKit {
 			fixed (byte* buf = text) {
 				return IsMboxMarker (buf, allowMunged);
 			}
-		}
-
-		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static unsafe byte* EndOfLine (byte* inptr, byte* inend)
-		{
-#if NETCOREAPP
-			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
-
-			return inptr += span.IndexOf ((byte) '\n');
-#else
-			// scan for a linefeed character until we are 4-byte aligned.
-			switch (((long) inptr) & 0x03) {
-			case 1:
-				if (*inptr == (byte) '\n')
-					break;
-				inptr++;
-				goto case 2;
-			case 2:
-				if (*inptr == (byte) '\n')
-					break;
-				inptr++;
-				goto case 3;
-			case 3:
-				if (*inptr != (byte) '\n')
-					inptr++;
-				break;
-			}
-
-			if (*inptr != (byte) '\n') {
-				// -funroll-loops, yippee ki-yay.
-				do {
-					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
-					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-
-					if (mask != 0)
-						break;
-
-					inptr += 4;
-				} while (true);
-
-				while (*inptr != (byte) '\n')
-					inptr++;
-			}
-
-			return inptr;
-#endif
 		}
 
 		unsafe bool StepMboxMarkerStart (byte* inbuf, ref bool midline)
