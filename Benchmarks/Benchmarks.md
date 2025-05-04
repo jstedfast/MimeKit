@@ -18,26 +18,26 @@ Intel Core i7-9700 CPU 3.00GHz, 1 CPU, 8 logical and 8 physical cores
 
 ### MimeParser
 
-| Method                                             | Mean          | Error       | StdDev      |
-|--------------------------------------------------- |--------------:|------------:|------------:|
-| MimeParser_StarTrekMessage                         |    269.321 us |   5.3183 us |   8.4355 us |
-| MimeParser_StarTrekMessagePersistent               |    246.636 us |   4.7926 us |   5.5192 us |
-| MimeParser_ContentLengthMbox                       |  1,377.439 us |  17.4600 us |  15.4778 us |
-| MimeParser_ContentLengthMboxPersistent             |  1,249.829 us |  12.7459 us |  11.9225 us |
-| MimeParser_JwzMbox                                 | 14,267.191 us | 274.8707 us | 269.9597 us |
-| MimeParser_JwzMboxPersistent                       | 12,674.922 us | 113.3533 us |  94.6551 us |
-| MimeParser_HeaderStressTest                        |     21.527 us |   0.1436 us |   0.1121 us |
-| ExperimentalMimeParser_StarTrekMessage             |    253.124 us |   4.2137 us |   3.9415 us |
-| ExperimentalMimeParser_StarTrekMessagePersistent   |    239.576 us |   3.6207 us |   3.3868 us |
-| ExperimentalMimeParser_ContentLengthMbox           |  1,325.283 us |   9.0779 us |   8.4914 us |
-| ExperimentalMimeParser_ContentLengthMboxPersistent |  1,176.737 us |  22.4083 us |  29.1371 us |
-| ExperimentalMimeParser_JwzMbox                     | 13,602.926 us | 235.3053 us | 220.1048 us |
-| ExperimentalMimeParser_JwzMboxPersistent           | 12,184.423 us |  96.3543 us |  90.1299 us |
-| ExperimentalMimeParser_HeaderStressTest            |     13.083 us |   0.0830 us |   0.0735 us |
-| MimeReader_StarTrekMessage                         |    223.907 us |   3.1057 us |   2.9051 us |
-| MimeReader_ContentLengthMbox                       |    980.042 us |  12.7192 us |  10.6211 us |
-| MimeReader_JwzMbox                                 | 11,136.306 us | 204.2014 us | 170.5174 us |
-| MimeReader_HeaderStressTest                        |      8.395 us |   0.0931 us |   0.0871 us |
+| Method                                             | Mean         | Error       | StdDev      |
+|--------------------------------------------------- |-------------:|------------:|------------:|
+| MimeParser_StarTrekMessage                         |   107.756 us |   2.1442 us |   5.9058 us |
+| MimeParser_StarTrekMessagePersistent               |    83.645 us |   0.7263 us |   0.6439 us |
+| MimeParser_ContentLengthMbox                       |   797.602 us |   7.2364 us |   6.4148 us |
+| MimeParser_ContentLengthMboxPersistent             |   715.624 us |   5.7660 us |   5.1115 us |
+| MimeParser_JwzMbox                                 | 6,917.998 us |  70.9975 us |  66.4111 us |
+| MimeParser_JwzMboxPersistent                       | 6,196.110 us | 123.8234 us | 161.0054 us |
+| MimeParser_HeaderStressTest                        |    20.632 us |   0.2864 us |   0.2539 us |
+| ExperimentalMimeParser_StarTrekMessage             |    99.692 us |   0.5002 us |   0.4177 us |
+| ExperimentalMimeParser_StarTrekMessagePersistent   |    90.032 us |   1.4249 us |   1.3329 us |
+| ExperimentalMimeParser_ContentLengthMbox           |   787.329 us |   8.0334 us |   7.1214 us |
+| ExperimentalMimeParser_ContentLengthMboxPersistent |   688.084 us |   5.1357 us |   4.5527 us |
+| ExperimentalMimeParser_JwzMbox                     | 6,907.650 us |  69.6696 us |  65.1690 us |
+| ExperimentalMimeParser_JwzMboxPersistent           | 6,434.393 us | 126.1687 us | 192.6729 us |
+| ExperimentalMimeParser_HeaderStressTest            |    13.071 us |   0.2190 us |   0.1941 us |
+| MimeReader_StarTrekMessage                         |    79.039 us |   0.6652 us |   0.5193 us |
+| MimeReader_ContentLengthMbox                       |   506.600 us |   2.4274 us |   2.0270 us |
+| MimeReader_JwzMbox                                 | 4,986.448 us |  30.5282 us |  27.0625 us |
+| MimeReader_HeaderStressTest                        |     8.118 us |   0.0573 us |   0.0478 us |
 
 ### BestEncodingFilter
 

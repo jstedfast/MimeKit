@@ -109,13 +109,15 @@ header parser.
 
 ";
 		static readonly byte[] MessageHeaderStressTestData = Encoding.ASCII.GetBytes (MessageHeaderStressTest);
+		static readonly byte[] StarTrekData = File.ReadAllBytes (Path.Combine (MessagesDataDir, "startrek.eml"));
+		static readonly byte[] ContentLengthMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "content-length.mbox.txt"));
+		static readonly byte[] JwzMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "jwz.mbox.txt"));
 
 		#region MimeParser
 
-		static void MimeParserSingleMessage (string fileName, bool persistent = false)
+		static void MimeParserSingleMessage (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
 			var message = parser.ParseMessage ();
 			message.Dispose ();
@@ -124,20 +126,18 @@ header parser.
 		[Benchmark]
 		public void MimeParser_StarTrekMessage ()
 		{
-			MimeParserSingleMessage ("startrek.eml");
+			MimeParserSingleMessage (StarTrekData);
 		}
 
 		[Benchmark]
 		public void MimeParser_StarTrekMessagePersistent ()
 		{
-			MimeParserSingleMessage ("startrek.eml", true);
+			MimeParserSingleMessage (StarTrekData, true);
 		}
 
-		static void MimeParserMboxFile (string fileName, bool persistent = false)
+		static void MimeParserMboxFile (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MboxDataDir, fileName);
-
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
@@ -149,25 +149,25 @@ header parser.
 		[Benchmark]
 		public void MimeParser_ContentLengthMbox ()
 		{
-			MimeParserMboxFile ("content-length.mbox.txt");
+			MimeParserMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
 		public void MimeParser_ContentLengthMboxPersistent ()
 		{
-			MimeParserMboxFile ("content-length.mbox.txt", true);
+			MimeParserMboxFile (ContentLengthMboxData, true);
 		}
 
 		[Benchmark]
 		public void MimeParser_JwzMbox ()
 		{
-			MimeParserMboxFile ("jwz.mbox.txt");
+			MimeParserMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
 		public void MimeParser_JwzMboxPersistent ()
 		{
-			MimeParserMboxFile ("jwz.mbox.txt", true);
+			MimeParserMboxFile (JwzMboxData, true);
 		}
 
 		[Benchmark]
@@ -183,10 +183,9 @@ header parser.
 
 		#region ExperimentalMimeParser
 
-		static void ExperimentalMimeParserSingleMessage (string fileName, bool persistent = false)
+		static void ExperimentalMimeParserSingleMessage (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
 			var message = parser.ParseMessage ();
 			message.Dispose ();
@@ -195,19 +194,18 @@ header parser.
 		[Benchmark]
 		public void ExperimentalMimeParser_StarTrekMessage ()
 		{
-			ExperimentalMimeParserSingleMessage ("startrek.eml");
+			ExperimentalMimeParserSingleMessage (StarTrekData);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_StarTrekMessagePersistent ()
 		{
-			ExperimentalMimeParserSingleMessage ("startrek.eml", true);
+			ExperimentalMimeParserSingleMessage (StarTrekData, true);
 		}
 
-		static void ExperimentalMimeParserMboxFile (string fileName, bool persistent = false)
+		static void ExperimentalMimeParserMboxFile (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MboxDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
@@ -219,25 +217,25 @@ header parser.
 		[Benchmark]
 		public void ExperimentalMimeParser_ContentLengthMbox ()
 		{
-			ExperimentalMimeParserMboxFile ("content-length.mbox.txt");
+			ExperimentalMimeParserMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_ContentLengthMboxPersistent ()
 		{
-			ExperimentalMimeParserMboxFile ("content-length.mbox.txt", true);
+			ExperimentalMimeParserMboxFile (ContentLengthMboxData, true);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_JwzMbox ()
 		{
-			ExperimentalMimeParserMboxFile ("jwz.mbox.txt");
+			ExperimentalMimeParserMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_JwzMboxPersistent ()
 		{
-			ExperimentalMimeParserMboxFile ("jwz.mbox.txt", true);
+			ExperimentalMimeParserMboxFile (JwzMboxData, true);
 		}
 
 		[Benchmark]
@@ -253,10 +251,9 @@ header parser.
 
 		#region MimeReader
 
-		static void MimeReaderSingleMessage (string fileName)
+		static void MimeReaderSingleMessage (byte[] data)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var reader = new MimeReader (stream, MimeFormat.Entity);
 			reader.ReadMessage ();
 		}
@@ -264,13 +261,12 @@ header parser.
 		[Benchmark]
 		public void MimeReader_StarTrekMessage ()
 		{
-			MimeReaderSingleMessage ("startrek.eml");
+			MimeReaderSingleMessage (StarTrekData);
 		}
 
-		static void MimeReaderMboxFile (string fileName)
+		static void MimeReaderMboxFile (byte[] data)
 		{
-			var path = Path.Combine (MboxDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var reader = new MimeReader (stream, MimeFormat.Mbox);
 
 			while (!reader.IsEndOfStream) {
@@ -281,13 +277,13 @@ header parser.
 		[Benchmark]
 		public void MimeReader_ContentLengthMbox ()
 		{
-			MimeReaderMboxFile ("content-length.mbox.txt");
+			MimeReaderMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
 		public void MimeReader_JwzMbox ()
 		{
-			MimeReaderMboxFile ("jwz.mbox.txt");
+			MimeReaderMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
