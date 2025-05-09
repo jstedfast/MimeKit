@@ -73,11 +73,11 @@ namespace MimeKit.IO.Filters {
 			int index = 0;
 
 			if (midline) {
-				// in our last pass, we ended midline...
+				// in our last pass, we ended mid-line - look for the end of that line in our current block of input
 				int next = span.IndexOf ((byte) '\n');
 
 				if (next < 0) {
-					// there was no '\n' in the slice, so we're done scanning for mbox From markers
+					// there was no '\n' in the input - advance to the end of the input
 					index = length;
 				} else {
 					// we are no longer in the middle of a line...
