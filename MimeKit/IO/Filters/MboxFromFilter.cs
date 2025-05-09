@@ -38,7 +38,7 @@ namespace MimeKit.IO.Filters {
 	/// </remarks>
 	public class MboxFromFilter : MimeFilterBase
 	{
-		static ReadOnlySpan<byte> From => "From "u8;
+		static ReadOnlySpan<byte> MboxFromMarker => "From "u8;
 		bool midline;
 
 		/// <summary>
@@ -49,16 +49,6 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		public MboxFromFilter ()
 		{
-		}
-
-		static bool StartsWithFrom (byte[] input, int startIndex, int endIndex)
-		{
-			for (int i = 0, index = startIndex; i < From.Length && index < endIndex; i++, index++) {
-				if (input[index] != From[i])
-					return false;
-			}
-
-			return true;
 		}
 
 		/// <summary>
@@ -77,72 +67,106 @@ namespace MimeKit.IO.Filters {
 		/// <param name="flush">If set to <see langword="true" />, all internally buffered data should be flushed to the output buffer.</param>
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
+			var span = new ReadOnlySpan<byte> (input, startIndex, length);
 			var fromOffsets = new List<int> ();
-			int endIndex = startIndex + length;
-			int index = startIndex;
-			int left;
+			int endIndex = length;
+			int index = 0;
 
-			while (index < endIndex) {
-				byte c = 0;
+			if (midline) {
+				// in our last pass, we ended midline...
+				int next = span.IndexOf ((byte) '\n');
 
-				if (midline) {
-					while (index < endIndex) {
-						c = input[index++];
-						if (c == (byte) '\n')
-							break;
-					}
-				}
-
-				if (c == (byte) '\n' || !midline) {
-					if ((left = endIndex - index) > 0) {
-						midline = true;
-
-						if (left < 5) {
-							if (StartsWithFrom (input, index, endIndex)) {
-								SaveRemainingInput (input, index, left);
-								endIndex = index;
-								midline = false;
-								break;
-							}
-						} else {
-							if (StartsWithFrom (input, index, endIndex)) {
-								fromOffsets.Add (index);
-								index += 5;
-							}
-						}
-					} else {
-						midline = false;
-					}
+				if (next < 0) {
+					// there was no '\n' in the slice, so we're done scanning for mbox From markers
+					index = length;
+				} else {
+					// we are no longer in the middle of a line...
+					index = next + 1;
+					midline = false;
 				}
 			}
 
+			while (index < length) {
+				// Note: if we are inside this loop, then midline is false.
+				var slice = span.Slice (index);
+				int next = slice.IndexOf ((byte) '\n');
+
+				if (next >= 0) {
+					// we've got a complete line of input...
+					if (next >= MboxFromMarker.Length) {
+						if (slice.StartsWith (MboxFromMarker)) {
+							// record our match...
+							fromOffsets.Add (index);
+						}
+					}
+				} else {
+					// we've got an incomplete line of input...
+					if (slice.Length >= MboxFromMarker.Length) {
+						if (slice.StartsWith (MboxFromMarker)) {
+							// record our match...
+							fromOffsets.Add (index);
+						}
+					} else {
+						if (!flush && slice.SequenceEqual (MboxFromMarker.Slice (0, slice.Length))) {
+							// this line *might* start with "From ", but we ran out of data...
+							SaveRemainingInput (input, startIndex + index, slice.Length);
+
+							// mark the end of our "consumed" input at 'index' so that we don't
+							// copy this remaining data into the output buffer
+							endIndex = index;
+							break;
+						}
+					}
+
+					midline = true;
+					break;
+				}
+
+				// advance to the beginning of the next line...
+				index += next + 1;
+			}
+
 			if (fromOffsets.Count > 0) {
-				int need = (endIndex - startIndex) + fromOffsets.Count;
+				int need = endIndex + fromOffsets.Count;
 
 				EnsureOutputSize (need, false);
 				outputLength = 0;
 				outputIndex = 0;
+				index = 0;
 
-				index = startIndex;
+				var output = OutputBuffer.AsSpan (0, need);
+				ReadOnlySpan<byte> src;
+				Span<byte> dest;
+
 				foreach (var offset in fromOffsets) {
 					if (index < offset) {
-						Buffer.BlockCopy (input, index, OutputBuffer, outputLength, offset - index);
-						outputLength += offset - index;
+						src = span.Slice (index, offset - index);
+						dest = output.Slice (outputLength, src.Length);
+
+						src.CopyTo (dest);
+
+						outputLength += src.Length;
 						index = offset;
 					}
 
 					// munge the beginning of the "From "-line.
-					OutputBuffer[outputLength++] = (byte) '>';
+					output[outputLength++] = (byte) '>';
 				}
 
-				Buffer.BlockCopy (input, index, OutputBuffer, outputLength, endIndex - index);
-				outputLength += endIndex - index;
+				// copy the remaining chunk of input (minus any bytes we may have saved for the next pass)
+				src = span.Slice (index, endIndex - index);
+				dest = output.Slice (outputLength, src.Length);
+
+				src.CopyTo (dest);
+
+				outputLength += src.Length;
 
 				return OutputBuffer;
 			}
 
-			outputLength = endIndex - startIndex;
-			outputIndex = 0;
+			outputIndex = startIndex;
+			outputLength = endIndex;
+
 			return input;
 		}
 
