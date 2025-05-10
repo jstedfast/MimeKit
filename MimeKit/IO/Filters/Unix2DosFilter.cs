@@ -50,22 +50,61 @@ namespace MimeKit.IO.Filters {
 			this.ensureNewLine = ensureNewLine;
 		}
 
-		int Filter (ReadOnlySpan<byte> input, byte[] output, bool flush)
+		int Filter (ReadOnlySpan<byte> input, Span<byte> output, bool flush)
 		{
 			int outputIndex = 0;
+			int inputIndex = 0;
 
-			foreach (var c in input) {
-				if (c == (byte) '\r') {
-					output[outputIndex++] = c;
-				} else if (c == (byte) '\n') {
-					if (pc != (byte) '\r')
-						output[outputIndex++] = (byte) '\r';
-					output[outputIndex++] = c;
-				} else {
-					output[outputIndex++] = c;
+			while (inputIndex < input.Length) {
+				var src = input.Slice (inputIndex);
+				int length = src.IndexOf ((byte) '\n');
+				Span<byte> dest;
+
+				if (length < 0) {
+					// End-of-line was not found. Copy the remaining data.
+					dest = output.Slice (outputIndex, src.Length);
+					src.CopyTo (dest);
+					outputIndex += src.Length;
+
+					// save the last byte copied to the output buffer
+					pc = src[src.Length - 1];
+					break;
 				}
 
-				pc = c;
+				if (length > 0) {
+					if (src[length - 1] == (byte) '\r') {
+						// this line is already in DOS format - just copy it wholesale
+						dest = output.Slice (outputIndex, length + 1);
+						src = src.Slice (0, length + 1);
+						src.CopyTo (dest);
+
+						outputIndex += length + 1;
+					} else {
+						// this line is in UNIX format and needs to be converted - copy everything up to the '\n'
+						dest = output.Slice (outputIndex, length);
+						src = src.Slice (0, length);
+						src.CopyTo (dest);
+
+						outputIndex += length;
+
+						// ...then manually append the CRLF sequence
+						output[outputIndex++] = (byte) '\r';
+						output[outputIndex++] = (byte) '\n';
+					}
+				} else {
+					// zero-length line (or the previous pass ended just before the '\n')
+					if (pc == (byte) '\r') {
+						// this line is already is DOS format
+						output[outputIndex++] = (byte) '\n';
+					} else {
+						// this line is in UNIX format and needs to be converted
+						output[outputIndex++] = (byte) '\r';
+						output[outputIndex++] = (byte) '\n';
+					}
+				}
+
+				inputIndex += length + 1;
+				pc = (byte) '\n';
 			}
 
 			if (flush && ensureNewLine && pc != (byte) '\n') {
