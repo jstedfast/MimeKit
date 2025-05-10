@@ -33,53 +33,55 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class Unix2DosFilterBenchmarks : IDisposable
+	public class Unix2DosFilterBenchmarks
 	{
 		static readonly string TextDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "text");
-		readonly Stream LoremIpsumDos, LoremIpsumUnix;
+		static readonly byte[] LoremIpsumDos, LoremIpsumUnix, PathologicalDos, PathologicalUnix;
 
-		public Unix2DosFilterBenchmarks ()
+		static Unix2DosFilterBenchmarks ()
 		{
 			var path = Path.Combine (TextDataDir, "lorem-ipsum.txt");
 			using var stream = File.OpenRead (path);
 
-			LoremIpsumDos = new MemoryStream ();
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (new Unix2DosFilter ());
+					stream.CopyTo (filtered);
+					filtered.Flush ();
 
-			using (var filtered = new FilteredStream (LoremIpsumDos)) {
-				filtered.Add (new Unix2DosFilter ());
-				stream.CopyTo (filtered);
-				filtered.Flush ();
+					LoremIpsumDos = memory.ToArray ();
+				}
 			}
 
-			LoremIpsumDos.Position = 0;
 			stream.Position = 0;
 
-			LoremIpsumUnix = new MemoryStream ();
+			using (var memory = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (memory)) {
+					filtered.Add (new Unix2DosFilter ());
+					stream.CopyTo (filtered);
+					filtered.Flush ();
 
-			using (var filtered = new FilteredStream (LoremIpsumUnix)) {
-				filtered.Add (new Unix2DosFilter ());
-				stream.CopyTo (filtered);
-				filtered.Flush ();
+					LoremIpsumUnix = memory.ToArray ();
+				}
 			}
 
-			LoremIpsumUnix.Position = 0;
-			stream.Position = 0;
+			PathologicalDos = new byte[2048];
+			for (int i = 0; i < PathologicalDos.Length; ) {
+				PathologicalDos[i++] = (byte) '\r';
+				PathologicalDos[i++] = (byte) '\n';
+			}
+
+			PathologicalUnix = new byte[1024];
+			PathologicalUnix.AsSpan ().Fill ((byte) '\n');
 		}
 
-		public void Dispose ()
+		static void FilterInputStream (byte[] data, IMimeFilter filter)
 		{
-			LoremIpsumDos.Dispose ();
-			LoremIpsumUnix.Dispose ();
-			GC.SuppressFinalize (this);
-		}
-
-		static void FilterInputStream (Stream input, IMimeFilter filter)
-		{
+			using var input = new MemoryStream (data, false);
 			using var output = new MeasuringStream ();
 			using var filtered = new FilteredStream (output);
 
 			filtered.Add (filter);
-			input.Position = 0;
 			input.CopyTo (filtered);
 			filtered.Flush ();
 		}
@@ -97,6 +99,18 @@ namespace Benchmarks.IO.Filters {
 		}
 
 		[Benchmark]
+		public void Dos2Unix_PathologicalDos ()
+		{
+			FilterInputStream (PathologicalDos, new Dos2UnixFilter ());
+		}
+
+		[Benchmark]
+		public void Dos2Unix_PathologicalUnix ()
+		{
+			FilterInputStream (PathologicalUnix, new Dos2UnixFilter ());
+		}
+
+		[Benchmark]
 		public void Unix2Dos_LoremIpsumDos ()
 		{
 			FilterInputStream (LoremIpsumDos, new Unix2DosFilter ());
@@ -106,6 +120,18 @@ namespace Benchmarks.IO.Filters {
 		public void Unix2Dos_LoremIpsumUnix ()
 		{
 			FilterInputStream (LoremIpsumUnix, new Unix2DosFilter ());
+		}
+
+		[Benchmark]
+		public void Unix2Dos_PathologicalDos ()
+		{
+			FilterInputStream (PathologicalDos, new Unix2DosFilter ());
+		}
+
+		[Benchmark]
+		public void Unix2Dos_PathologicalUnix ()
+		{
+			FilterInputStream (PathologicalUnix, new Unix2DosFilter ());
 		}
 	}
 }
