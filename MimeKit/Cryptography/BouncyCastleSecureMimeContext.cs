@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,6 +51,7 @@ using Org.BouncyCastle.X509.Store;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities.Collections;
+using Org.BouncyCastle.X509.Extension;
 
 using AttributeTable = Org.BouncyCastle.Asn1.Cms.AttributeTable;
 using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
@@ -305,11 +305,7 @@ namespace MimeKit.Cryptography {
 			byte[] subjectKeyId = null;
 
 			if (signer.SignerIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-				var subjectKeyIdentifier = signer.Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
-				if (subjectKeyIdentifier != null) {
-					var id = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
-					subjectKeyId = id.GetOctets ();
-				}
+				subjectKeyId = X509ExtensionUtilities.GetSubjectKeyIdentifier (signer.Certificate)?.GetKeyIdentifier ();
 			}
 
 			if (signer.PrivateKey is RsaKeyParameters && signer.RsaSignaturePadding == RsaSignaturePadding.Pss) {
@@ -989,14 +985,12 @@ namespace MimeKit.Cryptography {
 
 		static IEnumerable<string> EnumerateCrlDistributionPointUrls (X509Certificate certificate)
 		{
-			Asn1OctetString cdp;
+			Asn1OctetString cdp = certificate.GetExtensionValue (X509Extensions.CrlDistributionPoints);
 
-			if ((cdp = certificate.GetExtensionValue (X509Extensions.CrlDistributionPoints)) == null)
+			if (cdp == null)
 				yield break;
 
-			var asn1 = Asn1Object.FromByteArray (cdp.GetOctets ());
-			var crlDistributionPoint = CrlDistPoint.GetInstance (asn1);
-			var points = crlDistributionPoint.GetDistributionPoints ();
+			var points = CrlDistPoint.GetInstance (cdp.GetOctets ()).GetDistributionPoints ();
 
 			for (int i = 0; i < points.Length; i++) {
 				var generalNames = GeneralNames.GetInstance (points[i].DistributionPointName.Name).GetNames ();
@@ -1447,7 +1441,7 @@ namespace MimeKit.Cryptography {
 				RecipientIdentifier recipientIdentifier;
 
 				if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-					var subjectKeyIdentifier = (Asn1OctetString) recipient.Certificate.GetExtensionParsedValue (X509Extensions.SubjectKeyIdentifier);
+					var subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
 					recipientIdentifier = new RecipientIdentifier (subjectKeyIdentifier);
 				} else {
 					var issuerAndSerial = new IssuerAndSerialNumber (certificate.Issuer, certificate.SerialNumber.Value);
@@ -1469,12 +1463,13 @@ namespace MimeKit.Cryptography {
 
 			// TODO: better handle algorithm selection.
 			if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-				var subjectKeyIdentifier = (Asn1OctetString) recipient.Certificate.GetExtensionParsedValue (X509Extensions.SubjectKeyIdentifier);
+				// TODO Null check subjectKeyIdentifier?
+				var subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
 				cms.AddKeyAgreementRecipient (
 					CmsEnvelopedGenerator.ECDHSha1Kdf,
 					keyPair.Private,
 					keyPair.Public,
-					subjectKeyIdentifier.GetOctets (),
+					subjectKeyIdentifier.GetKeyIdentifier (),
 					publicKey,
 					CmsEnvelopedGenerator.Aes128Wrap
 				);

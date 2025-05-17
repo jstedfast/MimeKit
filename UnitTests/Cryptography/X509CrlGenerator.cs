@@ -48,7 +48,9 @@ namespace UnitTests.Cryptography {
 			crlGenerator.SetThisUpdate (thisUpdate);
 			crlGenerator.SetNextUpdate (nextUpdate);
 
-			crlGenerator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure (authority.GetPublicKey ()));
+			var authorityKeyIdentifier = X509ExtensionUtilities.CreateAuthorityKeyIdentifier (authority.GetPublicKey ());
+			crlGenerator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, authorityKeyIdentifier);
+
 			crlGenerator.AddExtension (X509Extensions.CrlNumber, false, new CrlNumber (CrlNumberValue));
 			CrlNumberValue = CrlNumberValue.Add (BigInteger.One);
 
