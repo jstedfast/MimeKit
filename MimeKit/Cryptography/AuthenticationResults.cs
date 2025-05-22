@@ -28,6 +28,7 @@ using System;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Utils;
 
@@ -76,7 +77,7 @@ namespace MimeKit.Cryptography {
 		/// as defined in <a href="https://tools.ietf.org/html/rfc7601">rfc7601</a>.</para>
 		/// </remarks>
 		/// <value>The authserv-id token.</value>
-		public string AuthenticationServiceIdentifier {
+		public string? AuthenticationServiceIdentifier {
 			get; private set;
 		}
 
@@ -308,7 +309,7 @@ namespace MimeKit.Cryptography {
 			bool quoted;
 
 			while (index < endIndex) {
-				string srvid = null;
+				string? srvid = null;
 
 			method_token:
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -670,10 +671,10 @@ namespace MimeKit.Cryptography {
 			return true;
 		}
 
-		static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, out AuthenticationResults authres)
+		static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out AuthenticationResults? authres)
 		{
 			int? instance = null;
-			string srvid = null;
+			string? srvid = null;
 			string value;
 
 			authres = null;
@@ -821,7 +822,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="authres">The parsed authentication results.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out AuthenticationResults authres)
+		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen(true)] out AuthenticationResults? authres)
 		{
 			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
 				authres = null;
@@ -842,7 +843,7 @@ namespace MimeKit.Cryptography {
 		/// <returns><see langword="true" /> if the authentication results were successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="authres">The parsed authentication results.</param>
-		public static bool TryParse (byte[] buffer, out AuthenticationResults authres)
+		public static bool TryParse (byte[] buffer, [NotNullWhen(true)] out AuthenticationResults? authres)
 		{
 			if (buffer is null) {
 				authres = null;
@@ -881,9 +882,9 @@ namespace MimeKit.Cryptography {
 
 			int index = startIndex;
 
-			TryParse (buffer, ref index, startIndex + length, true, out AuthenticationResults authres);
+			TryParse (buffer, ref index, startIndex + length, true, out AuthenticationResults? authres);
 
-			return authres;
+			return authres!; // TryParse with throwOnError = true
 		}
 
 		/// <summary>
@@ -907,9 +908,9 @@ namespace MimeKit.Cryptography {
 
 			int index = 0;
 
-			TryParse (buffer, ref index, buffer.Length, true, out AuthenticationResults authres);
+			TryParse (buffer, ref index, buffer.Length, true, out AuthenticationResults? authres);
 
-			return authres;
+			return authres!; // TryParse with throwOnError = true
 		}
 	}
 
@@ -973,7 +974,7 @@ namespace MimeKit.Cryptography {
 		/// authentication service identifier for each method.</para>
 		/// </remarks>
 		/// <value>The authserv-id token.</value>
-		public string Office365AuthenticationServiceIdentifier {
+		public string? Office365AuthenticationServiceIdentifier {
 			get; internal set;
 		}
 
@@ -1006,7 +1007,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the authentication method results.
 		/// </remarks>
 		/// <value>The authentication method results.</value>
-		public string Result {
+		public string? Result {
 			get; internal set;
 		}
 
@@ -1017,7 +1018,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the comment regarding the authentication method result.
 		/// </remarks>
 		/// <value>The comment regarding the authentication method result.</value>
-		public string ResultComment {
+		public string? ResultComment {
 			get; set;
 		}
 
@@ -1028,7 +1029,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the action taken for the authentication method result.
 		/// </remarks>
 		/// <value>The action taken for the authentication method result.</value>
-		public string Action {
+		public string? Action {
 			get; internal set;
 		}
 
@@ -1039,7 +1040,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the reason for the authentication method result.
 		/// </remarks>
 		/// <value>The reason for the authentication method result.</value>
-		public string Reason {
+		public string? Reason {
 			get; set;
 		}
 
