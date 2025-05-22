@@ -54,7 +54,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The matching record if found; otherwise <see langword="null"/>.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The desired fields.</param>
-		X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields);
+		X509CertificateRecord? Find (X509Certificate certificate, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Finds the certificates matching the specified selector.
@@ -156,7 +156,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The matching record if found; otherwise <see langword="null"/>.</returns>
 		/// <param name="crl">The certificate revocation list.</param>
 		/// <param name="fields">The desired fields.</param>
-		X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields);
+		X509CrlRecord? Find (X509Crl crl, X509CrlRecordFields fields);
 
 		/// <summary>
 		/// Add the specified CRL record.

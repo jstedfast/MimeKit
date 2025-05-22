@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the email address of the owner of the certificate.
 		/// </remarks>
 		/// <value>The email address.</value>
-		string Email { get; }
+		string? Email { get; }
 
 		/// <summary>
 		/// Gets the name of the owner of the certificate.
@@ -87,6 +87,6 @@ namespace MimeKit.Cryptography {
 		/// Gets the name of the owner of the certificate.
 		/// </remarks>
 		/// <value>The name of the owner.</value>
-		string Name { get; }
+		string? Name { get; }
 	}
 }

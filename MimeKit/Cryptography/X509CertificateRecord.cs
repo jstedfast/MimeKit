@@ -184,7 +184,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate's subject key identifier.
 		/// </remarks>
 		/// <value>The certificate's subject key identifier.</value>
-		public byte[] SubjectKeyIdentifier {
+		public byte[]? SubjectKeyIdentifier {
 			get {
 				var subjectKeyIdentifier = Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
 
@@ -238,7 +238,7 @@ namespace MimeKit.Cryptography {
 		/// Gets or sets the encryption algorithm capabilities.
 		/// </remarks>
 		/// <value>The encryption algorithms.</value>
-		public EncryptionAlgorithm[] Algorithms { get; set; }
+		public EncryptionAlgorithm[]? Algorithms { get; set; }
 
 		/// <summary>
 		/// Gets or sets the date when the algorithms were last updated.
@@ -265,7 +265,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the private key.
 		/// </remarks>
 		/// <value>The private key.</value>
-		public AsymmetricKeyParameter PrivateKey { get; set; }
+		public AsymmetricKeyParameter? PrivateKey { get; set; }
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
