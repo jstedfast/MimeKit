@@ -271,7 +271,7 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var keyUsage = certificate.GetKeyUsageFlags ();
-				if (keyUsage != 0 && (keyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
+				if (!CanEncrypt (keyUsage))
 					continue;
 
 				if (secure != null) {
@@ -347,7 +347,7 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var keyUsage = certificate.GetKeyUsageFlags ();
-				if (keyUsage != 0 && (keyUsage & DigitalSignatureKeyUsageFlags) == 0)
+				if (!CanSign (keyUsage))
 					continue;
 
 				var fingerprint = certificate.GetFingerprint ();

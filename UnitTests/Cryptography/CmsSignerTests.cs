@@ -95,9 +95,9 @@ namespace UnitTests.Cryptography {
 					if (!key.Key.IsPrivate || chain.Length == 0)
 						continue;
 
-					var flags = chain[0].Certificate.GetKeyUsageFlags ();
+					var keyUsage = chain[0].Certificate.GetKeyUsageFlags ();
 
-					if (flags != X509KeyUsageFlags.None && (flags & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+					if (!BouncyCastleSecureMimeContext.CanSign (keyUsage))
 						continue;
 
 					certificates = new List<X509Certificate> {

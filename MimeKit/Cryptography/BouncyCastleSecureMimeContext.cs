@@ -140,6 +140,16 @@ namespace MimeKit.Cryptography {
 			get { return SharedHttpClient; }
 		}
 
+		internal static bool CanSign (X509KeyUsageFlags keyUsage)
+		{
+			return keyUsage == 0 || (keyUsage & X509KeyUsageFlags.DigitalSignature) != 0;
+		}
+
+		internal static bool CanEncrypt (X509KeyUsageFlags keyUsage)
+		{
+			return keyUsage == 0 || (keyUsage & X509KeyUsageFlags.KeyEncipherment) != 0;
+		}
+
 		/// <summary>
 		/// Get the X.509 certificate matching the specified selector.
 		/// </summary>

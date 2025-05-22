@@ -331,7 +331,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (signer));
 
 			foreach (var record in dbase.Find (signer, DateTime.UtcNow, true, CmsSignerFields)) {
-				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & SecureMimeContext.DigitalSignatureKeyUsageFlags) == 0)
+				if (!CanSign (record.KeyUsage))
 					continue;
 
 				return true;
@@ -361,7 +361,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
-				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
+				if (!CanEncrypt (record.KeyUsage))
 					continue;
 
 				return true;
@@ -513,7 +513,7 @@ namespace MimeKit.Cryptography {
 			X509CertificateRecord domain = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
-				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.KeyEncipherment) == 0)
+				if (!CanEncrypt (record.KeyUsage))
 					continue;
 
 				if (record.SubjectDnsNames.Length > 0) {
@@ -562,7 +562,7 @@ namespace MimeKit.Cryptography {
 			X509CertificateRecord signer = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
-				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & DigitalSignatureKeyUsageFlags) == 0)
+				if (!CanSign (record.KeyUsage))
 					continue;
 
 				if (record.Certificate == null || record.PrivateKey == null)
