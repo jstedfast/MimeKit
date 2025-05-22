@@ -147,7 +147,7 @@ namespace MimeKit.Cryptography {
 
 		internal static bool CanEncrypt (X509KeyUsageFlags keyUsage)
 		{
-			return keyUsage == 0 || (keyUsage & X509KeyUsageFlags.KeyEncipherment) != 0;
+			return true;
 		}
 
 		/// <summary>
