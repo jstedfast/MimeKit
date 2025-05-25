@@ -1744,7 +1744,7 @@ namespace MimeKit {
 		/// <param name="header">The parsed header.</param>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out Header header)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
 				header = null;
 				return false;
 			}
@@ -1786,7 +1786,7 @@ namespace MimeKit {
 		/// <param name="header">The parsed header.</param>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out Header header)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex)) {
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
 				header = null;
 				return false;
 			}
@@ -1856,7 +1856,7 @@ namespace MimeKit {
 		/// <param name="header">The parsed header.</param>
 		public static bool TryParse (ParserOptions options, string text, out Header header)
 		{
-			if (!ParseUtils.TryValidateArguments (options, text)) {
+			if (!ArgumentValidator.TryValidate (options, text)) {
 				header = null;
 				return false;
 			}

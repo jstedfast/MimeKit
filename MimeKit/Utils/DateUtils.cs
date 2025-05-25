@@ -564,7 +564,7 @@ namespace MimeKit.Utils {
 		/// <param name="date">The parsed date.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
 		{
-			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
 				date = DateTimeOffset.MinValue;
 				return false;
 			}
@@ -594,7 +594,7 @@ namespace MimeKit.Utils {
 		/// <param name="date">The parsed date.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, out DateTimeOffset date)
 		{
-			if (!ParseUtils.TryValidateArguments (buffer, startIndex)) {
+			if (!ArgumentValidator.TryValidate (buffer, startIndex)) {
 				date = DateTimeOffset.MinValue;
 				return false;
 			}

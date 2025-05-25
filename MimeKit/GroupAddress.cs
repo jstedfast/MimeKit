@@ -276,7 +276,7 @@ namespace MimeKit {
 		/// <param name="group">The parsed group address.</param>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out GroupAddress group)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
 				group = null;
 				return false;
 			}
@@ -326,7 +326,7 @@ namespace MimeKit {
 		/// <param name="group">The parsed group address.</param>
 		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out GroupAddress group)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex)) {
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
 				group = null;
 				return false;
 			}
@@ -374,7 +374,7 @@ namespace MimeKit {
 		/// <param name="group">The parsed group address.</param>
 		public static bool TryParse (ParserOptions options, byte[] buffer, out GroupAddress group)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer)) {
+			if (!ArgumentValidator.TryValidate (options, buffer)) {
 				group = null;
 				return false;
 			}
@@ -421,7 +421,7 @@ namespace MimeKit {
 		/// <param name="group">The parsed group address.</param>
 		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
 		{
-			if (!ParseUtils.TryValidateArguments (options, text)) {
+			if (!ArgumentValidator.TryValidate (options, text)) {
 				group = null;
 				return false;
 			}
@@ -482,7 +482,7 @@ namespace MimeKit {
 		/// </exception>
 		public static new GroupAddress Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			ArgumentValidator.Validate (options, buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -547,7 +547,7 @@ namespace MimeKit {
 		/// </exception>
 		public static new GroupAddress Parse (ParserOptions options, byte[] buffer, int startIndex)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			ArgumentValidator.Validate (options, buffer, startIndex);
 
 			int endIndex = buffer.Length;
 			int index = startIndex;
@@ -606,7 +606,7 @@ namespace MimeKit {
 		/// </exception>
 		public static new GroupAddress Parse (ParserOptions options, byte[] buffer)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			ArgumentValidator.Validate (options, buffer);
 
 			int endIndex = buffer.Length;
 			int index = 0;
@@ -661,7 +661,7 @@ namespace MimeKit {
 		/// </exception>
 		public static new GroupAddress Parse (ParserOptions options, string text)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			ArgumentValidator.Validate (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;

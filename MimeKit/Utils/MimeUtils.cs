@@ -173,7 +173,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -238,7 +238,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string ParseMessageId (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -283,7 +283,7 @@ namespace MimeKit.Utils {
 		/// <param name="version">The parsed version.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, out Version version)
 		{
-			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
 				version = null;
 				return false;
 			}
