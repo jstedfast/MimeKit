@@ -29,6 +29,8 @@ using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	public partial class MimeReader
 	{
@@ -128,6 +130,7 @@ namespace MimeKit {
 
 		async Task StepHeadersAsync (CancellationToken cancellationToken)
 		{
+			var options = GetHeaderDetectionOptions (complianceStatus);
 			int headersBeginLineNumber = lineNumber;
 			var eof = false;
 
@@ -158,7 +161,7 @@ namespace MimeKit {
 					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
 				if (left == 0) {
-					// Note: The only way to get here is if this is the first-pass throgh this loop and we're at EOF, so headerCount should ALWAYS be 0.
+					// Note: The only way to get here is if this is the first-pass through this loop and we're at EOF, so headerCount should ALWAYS be 0.
 
 					if (toplevel && headerCount == 0) {
 						// EOF has been reached before any headers have been parsed for Parse[Headers,Entity,Message]Async.
@@ -167,6 +170,7 @@ namespace MimeKit {
 					}
 
 					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
+					complianceStatus |= MimeComplianceStatus.MissingBodySeparator;
 					state = MimeParserState.Content;
 					break;
 				}
@@ -216,8 +220,10 @@ namespace MimeKit {
 						} while (true);
 
 						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
-						if (state == MimeParserState.Boundary)
+						if (state == MimeParserState.Boundary) {
+							complianceStatus |= MimeComplianceStatus.MissingBodySeparator;
 							break;
+						}
 
 						// Fall through and act as if we're consuming a header.
 					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
@@ -240,13 +246,17 @@ namespace MimeKit {
 						// 1. Complete: This means that we've found an actual mbox marker
 						// 2. Error: Invalid *first* header and it was not a valid mbox marker
 						// 3. MessageHeaders or Headers: let it fall through and treat it as an invalid headers
-						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers)
+						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers) {
+							complianceStatus |= MimeComplianceStatus.MissingBodySeparator;
 							break;
+						}
 
 						// Fall through and act as if we're consuming a header.
 					} else {
 						// Fall through and act as if we're consuming a header.
 					}
+
+					complianceStatus |= MimeComplianceStatus.InvalidHeader;
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
@@ -265,12 +275,16 @@ namespace MimeKit {
 				do {
 					unsafe {
 						fixed (byte* inbuf = input) {
-							if (StepHeaderValue (inbuf, ref midline))
+							if (StepHeaderValue (inbuf, ref options, ref midline))
 								break;
 						}
 					}
 
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
+						if (midline)
+							complianceStatus |= MimeComplianceStatus.IncompleteHeader;
+						else
+							complianceStatus |= MimeComplianceStatus.MissingBodySeparator;
 						state = MimeParserState.Content;
 						eof = true;
 						break;
@@ -362,7 +376,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, CancellationToken cancellationToken)
+		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, DetectionOptions options, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			var formats = new bool[2];
@@ -382,7 +396,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						incomplete = ScanContent (inbuf, ref midline, ref formats);
+						incomplete = ScanContent (inbuf, ref options, ref midline, ref formats);
 					}
 				}
 
@@ -424,11 +438,12 @@ namespace MimeKit {
 
 		async Task<int> ConstructMimePartAsync (CancellationToken cancellationToken)
 		{
+			var options = GetContentDetectionOptions (currentEncoding);
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			await OnMimePartContentBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-			var result = await ScanContentAsync (ScanContentType.MimeContent, beginOffset, beginLineNumber, true, cancellationToken).ConfigureAwait (false);
+			var result = await ScanContentAsync (ScanContentType.MimeContent, beginOffset, beginLineNumber, true, options, cancellationToken).ConfigureAwait (false);
 			await OnMimePartContentEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, result.Format, cancellationToken).ConfigureAwait (false);
 
 			return result.Lines;
@@ -447,15 +462,30 @@ namespace MimeKit {
 					return 0;
 				}
 
+				// Check to see if this first line is a boundary marker.
 				unsafe {
 					fixed (byte* inbuf = input) {
+						var options = GetContentDetectionOptions (currentEncoding);
 						byte* start = inbuf + inputIndex;
 						byte* inend = inbuf + inputEnd;
-						byte* inptr = start;
+						byte* inptr;
 
 						*inend = (byte) '\n';
 
-						inptr = EndOfLine (inptr, inend + 1);
+						if (options != DetectionOptions.None) {
+							inptr = ParseUtils.EndOfLine (start, inend + 1, options, out var detected);
+
+							if ((detected & DetectionResults.Detected8Bit) != 0)
+								complianceStatus |= MimeComplianceStatus.Unexpected8BitBytesInBody;
+
+							if ((detected & DetectionResults.DetectedNulls) != 0)
+								complianceStatus |= MimeComplianceStatus.UnexpectedNullBytesInBody;
+						} else {
+							inptr = ParseUtils.EndOfLine (start, inend + 1);
+						}
+
+						if (inptr == start || inptr[-1] != (byte) '\r')
+							complianceStatus |= MimeComplianceStatus.BareLinefeedInBody;
 
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
@@ -479,18 +509,21 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			if (depth + 1 < options.MaxMimeDepth && IsMultipart (type)) {
+			entityType = GetEntityType (type, currentEncoding, depth, ref complianceStatus);
+
+			switch (entityType) {
+			case MimeEntityType.Multipart:
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.Multipart;
-			} else if (depth + 1 < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
+				break;
+			case MimeEntityType.MessagePart:
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.MessagePart;
-			} else {
+				break;
+			default:
 				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.MimePart;
+				break;
 			}
 
 			var endOffset = GetEndOffset (inputIndex);
@@ -513,23 +546,23 @@ namespace MimeKit {
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
-		async Task MultipartScanPreambleAsync (CancellationToken cancellationToken)
+		async Task MultipartScanPreambleAsync (DetectionOptions options, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			await OnMultipartPreambleBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-			var result = await ScanContentAsync (ScanContentType.MultipartPreamble, beginOffset, beginLineNumber, false, cancellationToken).ConfigureAwait (false);
+			var result = await ScanContentAsync (ScanContentType.MultipartPreamble, beginOffset, beginLineNumber, false, options, cancellationToken).ConfigureAwait (false);
 			await OnMultipartPreambleEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task MultipartScanEpilogueAsync (CancellationToken cancellationToken)
+		async Task MultipartScanEpilogueAsync (DetectionOptions options, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			await OnMultipartEpilogueBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-			var result = await ScanContentAsync (ScanContentType.MultipartEpilogue, beginOffset, beginLineNumber, true, cancellationToken).ConfigureAwait (false);
+			var result = await ScanContentAsync (ScanContentType.MultipartEpilogue, beginOffset, beginLineNumber, true, options, cancellationToken).ConfigureAwait (false);
 			await OnMultipartEpilogueEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -554,18 +587,21 @@ namespace MimeKit {
 				MimeEntityType entityType;
 				int lines;
 
-				if (depth + 1 < options.MaxMimeDepth && IsMultipart (type)) {
+				entityType = GetEntityType (type, currentEncoding, depth, ref complianceStatus);
+
+				switch (entityType) {
+				case MimeEntityType.Multipart:
 					await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 					lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
-					entityType = MimeEntityType.Multipart;
-				} else if (depth + 1 < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
+					break;
+				case MimeEntityType.MessagePart:
 					await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 					lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
-					entityType = MimeEntityType.MessagePart;
-				} else {
+					break;
+				default:
 					await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 					lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-					entityType = MimeEntityType.MimePart;
+					break;
 				}
 
 				var endOffset = GetEndOffset (inputIndex);
@@ -587,18 +623,17 @@ namespace MimeKit {
 
 		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
 		{
+			var options = GetContentDetectionOptions (currentEncoding);
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
 			var beginLineNumber = lineNumber;
 			long endOffset;
 
 			if (marker is null) {
-#if DEBUG
-				Debug.WriteLine ("Multipart without a boundary encountered!");
-#endif
+				complianceStatus |= MimeComplianceStatus.MissingMultipartBoundaryParameter;
 
 				// Note: this will scan all content into the preamble...
-				await MultipartScanPreambleAsync (cancellationToken).ConfigureAwait (false);
+				await MultipartScanPreambleAsync (options, cancellationToken).ConfigureAwait (false);
 
 				endOffset = GetEndOffset (inputIndex);
 
@@ -607,7 +642,7 @@ namespace MimeKit {
 
 			PushBoundary (marker);
 
-			await MultipartScanPreambleAsync (cancellationToken).ConfigureAwait (false);
+			await MultipartScanPreambleAsync (options, cancellationToken).ConfigureAwait (false);
 			if (boundary == BoundaryType.ImmediateBoundary)
 				await MultipartScanSubpartsAsync (contentType, depth, cancellationToken).ConfigureAwait (false);
 
@@ -617,7 +652,7 @@ namespace MimeKit {
 
 				PopBoundary ();
 
-				await MultipartScanEpilogueAsync (cancellationToken).ConfigureAwait (false);
+				await MultipartScanEpilogueAsync (options, cancellationToken).ConfigureAwait (false);
 
 				endOffset = GetEndOffset (inputIndex);
 
@@ -625,6 +660,8 @@ namespace MimeKit {
 			}
 
 			// We either found the end of the stream or we found a parent's boundary
+			complianceStatus |= MimeComplianceStatus.MissingMultipartBoundary;
+
 			PopBoundary ();
 
 			endOffset = GetEndOffset (inputIndex);
@@ -651,6 +688,7 @@ namespace MimeKit {
 		/// </exception>
 		public async Task ReadHeadersAsync (CancellationToken cancellationToken = default)
 		{
+			complianceStatus = MimeComplianceStatus.Compliant;
 			state = MimeParserState.Headers;
 			toplevel = true;
 
@@ -681,6 +719,7 @@ namespace MimeKit {
 		{
 			var beginLineNumber = lineNumber;
 
+			complianceStatus = MimeComplianceStatus.Compliant;
 			state = MimeParserState.Headers;
 			toplevel = true;
 
@@ -698,18 +737,21 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			if (IsMultipart (type)) {
+			entityType = GetEntityType (type, currentEncoding, 0, ref complianceStatus);
+
+			switch (entityType) {
+			case MimeEntityType.Multipart:
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMultipartAsync (type, 0, cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.Multipart;
-			} else if (IsMessagePart (type, currentEncoding)) {
+				break;
+			case MimeEntityType.MessagePart:
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMessagePartAsync (0, cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.MessagePart;
-			} else {
+				break;
+			default:
 				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.MimePart;
+				break;
 			}
 
 			var endOffset = GetEndOffset (inputIndex);
@@ -749,6 +791,8 @@ namespace MimeKit {
 		/// </exception>
 		public async Task ReadMessageAsync (CancellationToken cancellationToken = default)
 		{
+			complianceStatus = MimeComplianceStatus.Compliant;
+
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
 				switch (await StepAsync (cancellationToken).ConfigureAwait (false)) {
@@ -784,18 +828,21 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			if (IsMultipart (type)) {
+			entityType = GetEntityType (type, currentEncoding, 0, ref complianceStatus);
+
+			switch (entityType) {
+			case MimeEntityType.Multipart:
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMultipartAsync (type, 0, cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.Multipart;
-			} else if (IsMessagePart (type, currentEncoding)) {
+				break;
+			case MimeEntityType.MessagePart:
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMessagePartAsync (0, cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.MessagePart;
-			} else {
+				break;
+			default:
 				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-				entityType = MimeEntityType.MimePart;
+				break;
 			}
 
 			var endOffset = GetEndOffset (inputIndex);
