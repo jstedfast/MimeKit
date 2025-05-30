@@ -29,11 +29,14 @@ using System.Text;
 using Newtonsoft.Json;
 
 using MimeKit;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 
 namespace UnitTests {
 	[TestFixture]
 	public class MimeReaderTests
 	{
+		static readonly string ComplianceDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "compliance");
 		//static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
 		static FormatOptions UnixFormatOptions;
@@ -412,14 +415,14 @@ namespace UnitTests {
 		[Test]
 		public void TestLineCountSingleLine ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
-This is a single line of text";
+This is a single line of text".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
@@ -429,20 +432,21 @@ This is a single line of text";
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public async Task TestLineCountSingleLineAsync ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
-This is a single line of text";
+This is a single line of text".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
@@ -452,13 +456,14 @@ This is a single line of text";
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public void TestLineCountSingleLineCRLF ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
@@ -466,7 +471,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
 This is a single line of text
-";
+".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
@@ -476,13 +481,14 @@ This is a single line of text
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public async Task TestLineCountSingleLineCRLFAsync ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
@@ -490,7 +496,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
 This is a single line of text
-";
+".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
@@ -500,13 +506,14 @@ This is a single line of text
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public void TestLineCountSingleLineInMultipart ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
@@ -523,7 +530,7 @@ Content-DIsposition: attachment; filename=""attachment.dat""
 
 ABC
 --boundary-marker--
-";
+".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
@@ -533,13 +540,14 @@ ABC
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public async Task TestLineCountSingleLineInMultipartAsync ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
@@ -556,7 +564,7 @@ Content-DIsposition: attachment; filename=""attachment.dat""
 
 ABC
 --boundary-marker--
-";
+".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
@@ -566,13 +574,14 @@ ABC
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public void TestLineCountOneLineOfTextFollowedByBlankLineInMultipart ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
@@ -586,27 +595,28 @@ This is a single line of text followed by a blank line
 
 --boundary-marker
 Content-Type: application/octet-stream; name=""attachment.dat""
-Content-DIsposition: attachment; filename=""attachment.dat""
+Content-Disposition: attachment; filename=""attachment.dat""
 
 ABC
 --boundary-marker--
-";
+".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var parser = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
 
-				parser.ReadMessage ();
+				reader.ReadMessage ();
 
-				var lines = parser.Offsets[0].Body.Children[0].Lines;
+				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
 		[Test]
 		public async Task TestLineCountOneLineOfTextFollowedByBlankLineInMultipartAsync ()
 		{
-			const string text = @"From: mimekit@example.org
+			string text = @"From: mimekit@example.org
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
@@ -620,20 +630,21 @@ This is a single line of text followed by a blank line
 
 --boundary-marker
 Content-Type: application/octet-stream; name=""attachment.dat""
-Content-DIsposition: attachment; filename=""attachment.dat""
+Content-Disposition: attachment; filename=""attachment.dat""
 
 ABC
 --boundary-marker--
-";
+".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var parser = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
 
-				await parser.ReadMessageAsync ();
+				await reader.ReadMessageAsync ();
 
-				var lines = parser.Offsets[0].Body.Children[0].Lines;
+				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.Compliant), "ComplianceStatus");
 			}
 		}
 
@@ -650,6 +661,7 @@ ABC
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.IncompleteHeader), "ComplianceStatus");
 			}
 		}
 
@@ -666,6 +678,7 @@ ABC
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.IncompleteHeader), "ComplianceStatus");
 			}
 		}
 
@@ -682,6 +695,7 @@ ABC
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.MissingBodySeparator), "ComplianceStatus");
 			}
 		}
 
@@ -698,7 +712,646 @@ ABC
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (MimeComplianceStatus.MissingBodySeparator), "ComplianceStatus");
 			}
+		}
+
+		class MimeComplianceIssue
+		{
+			public readonly MimeComplianceStatus Issue;
+			public readonly int LineNumber;
+			public readonly int Column;
+			public long UnixOffset;
+			public long DosOffset;
+
+			public MimeComplianceIssue (MimeComplianceStatus issue, int lineNumber, int column)
+			{
+				Issue = issue;
+				LineNumber = lineNumber;
+				Column = column;
+			}
+		}
+
+		static byte[] ReadAllBytes (string path)
+		{
+			using (var stream = File.OpenRead (path)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Dos2UnixFilter ());
+
+					using (var memory = new MemoryStream ()) {
+						filtered.CopyTo (memory);
+						return memory.ToArray ();
+					}
+				}
+			}
+		}
+
+		static void UpdateStreamOffsets (string path, MimeComplianceIssue[] issues, out MimeComplianceStatus bareLineFeeds)
+		{
+			byte[] rawData = ReadAllBytes (path);
+			long unixOffset = 0;
+			long dosOffset = 0;
+			int lineNumber = 1;
+			int column = 1;
+
+			bareLineFeeds = MimeComplianceStatus.Compliant;
+
+			for (int i = 0; i < rawData.Length; i++) {
+				if (rawData[i] == (byte) '\n') {
+					bareLineFeeds |= MimeComplianceStatus.BareLinefeedInHeader;
+
+					if (column == 1) {
+						// We've reached the end of the headers (blank line).
+						bareLineFeeds |= MimeComplianceStatus.BareLinefeedInBody;
+					}
+
+					dosOffset += 2;
+					unixOffset++;
+					lineNumber++;
+					column = 1;
+				} else {
+					unixOffset++;
+					dosOffset++;
+					column++;
+				}
+
+				foreach (var issue in issues) {
+					if (issue.LineNumber == lineNumber && issue.Column == column) {
+						issue.UnixOffset = unixOffset;
+						issue.DosOffset = dosOffset;
+					}
+				}
+			}
+		}
+
+		static void AssertMimeComplianceIssues (string fileName, MimeComplianceIssue[] issues)
+		{
+			var path = Path.Combine (ComplianceDataDir, fileName);
+			var expected = MimeComplianceStatus.Compliant;
+
+			UpdateStreamOffsets (path, issues, out var bareLineFeeds);
+
+			foreach (var issue in issues)
+				expected |= issue.Issue;
+
+			using (var stream = File.OpenRead (path)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Dos2UnixFilter ());
+
+					var reader = new MimeReader (filtered);
+
+					reader.ReadMessage ();
+
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (expected | bareLineFeeds), "ComplianceStatus for Unix format");
+				}
+			}
+
+			using (var stream = File.OpenRead (path)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Unix2DosFilter ());
+
+					var reader = new MimeReader (filtered);
+
+					reader.ReadMessage ();
+
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (expected), "ComplianceStatus for DOS format");
+				}
+			}
+		}
+
+		static async Task AssertMimeComplianceIssuesAsync (string fileName, MimeComplianceIssue[] issues)
+		{
+			var path = Path.Combine (ComplianceDataDir, fileName);
+			var expected = MimeComplianceStatus.Compliant;
+
+			UpdateStreamOffsets (path, issues, out var bareLineFeeds);
+
+			foreach (var issue in issues)
+				expected |= issue.Issue;
+
+			using (var stream = File.OpenRead (path)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Dos2UnixFilter ());
+
+					var reader = new MimeReader (filtered);
+
+					reader.ReadMessage ();
+
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (expected | bareLineFeeds), "ComplianceStatus for Unix format");
+				}
+			}
+
+			using (var stream = File.OpenRead (path)) {
+				using (var filtered = new FilteredStream (stream)) {
+					filtered.Add (new Unix2DosFilter ());
+
+					var reader = new MimeReader (filtered);
+
+					await reader.ReadMessageAsync ();
+
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (expected), "ComplianceStatus for DOS format");
+				}
+			}
+		}
+
+		[Test]
+		public void TestMimeComplianceInvalidHeaderFieldNameWithSpace ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidHeader, 7, 1),
+			};
+
+			AssertMimeComplianceIssues ("invalid-header-field-with-space.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidHeaderFieldNameWithSpaceAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidHeader, 7, 1),
+			};
+
+			return AssertMimeComplianceIssuesAsync ("invalid-header-field-with-space.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceIncompleteHeader ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.IncompleteHeader, 6, 1)
+			};
+
+			AssertMimeComplianceIssues ("incomplete-header.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceIncompleteHeaderAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.IncompleteHeader, 6, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("incomplete-header.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceInvalidContentTransferEncodingBasic ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentTransferEncoding, 7, 1)
+			};
+
+			AssertMimeComplianceIssues ("invalid-content-transfer-encoding-basic.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidContentTransferEncodingBasicAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentTransferEncoding, 7, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("invalid-content-transfer-encoding-basic.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceInvalidContentTransferEncodingMultipart ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentTransferEncoding, 10, 1)
+			};
+
+			AssertMimeComplianceIssues ("invalid-content-transfer-encoding-multipart.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidContentTransferEncodingMultipartAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentTransferEncoding, 10, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("invalid-content-transfer-encoding-multipart.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceInvalidContentTransferEncodingRfc822 ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentTransferEncoding, 7, 1)
+			};
+
+			AssertMimeComplianceIssues ("invalid-content-transfer-encoding-rfc822.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidContentTransferEncodingRfc822Async ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentTransferEncoding, 7, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("invalid-content-transfer-encoding-rfc822.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceInvalidContentType ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentType, 6, 1)
+			};
+
+			AssertMimeComplianceIssues ("invalid-content-type.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidContentTypeAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidContentType, 6, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("invalid-content-type.eml", issues);
+		}
+
+#if CAN_DETECT_MIME_VERSION_ISSUES
+		[Test]
+		public void TestMimeComplianceInvalidMimeVersion ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a test message
+Message-Id: <123@example.org>
+MIME-Version: 1.x
+Content-Type: text/plain; charset=us-ascii
+
+This is the message body.
+";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidMimeVersion, 5, 1)
+			};
+
+			AssertMimeComplianceIssues (text, issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidMimeVersionAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a test message
+Message-Id: <123@example.org>
+MIME-Version: 1.x
+Content-Type: text/plain; charset=us-ascii
+
+This is the message body.
+";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidMimeVersion, 5, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync (text, issues);
+		}
+
+				[Test]
+		public void TestMimeComplianceMissingMimeVersion ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a test message
+Message-Id: <123@example.org>
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is the message body.
+--boundary-marker
+Content-Type: message/rfc822
+Content-Disposition: attachment; filename=""message1.eml""
+
+From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is the first inner test message
+Message-Id: <123@example.org>
+Content-Type: text/plain; charset=us-ascii
+
+This is the first inner message body.
+--boundary-marker
+Content-Type: message/rfc822
+Content-Disposition: attachment; filename=""message2.eml""
+
+From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is the second inner test message
+Message-Id: <123@example.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is the second inner message body.
+--boundary-marker--
+";
+			var issues = new MimeComplianceIssue[] {
+				// FIXME: MissingMimeVersion issues are reported with the offset/lineNumber of the start of the message. Should it use a different offset/lineNumber?
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 1, 1),
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 15, 1)
+			};
+
+			AssertMimeComplianceIssues (text, issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMissingMimeVersionAsync ()
+		{
+			const string text = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is a test message
+Message-Id: <123@example.org>
+Content-Type: multipart/mixed; boundary=""boundary-marker""
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+
+This is the message body.
+--boundary-marker
+Content-Type: message/rfc822
+Content-Disposition: attachment; filename=""message1.eml""
+
+From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is the first inner test message
+Message-Id: <123@example.org>
+Content-Type: text/plain; charset=us-ascii
+
+This is the first inner message body.
+--boundary-marker
+Content-Type: message/rfc822
+Content-Disposition: attachment; filename=""message2.eml""
+
+From: mimekit@example.org
+To: mimekit@example.org
+Subject: This is the second inner test message
+Message-Id: <123@example.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+This is the second inner message body.
+--boundary-marker--
+";
+			var issues = new MimeComplianceIssue[] {
+				// FIXME: MissingMimeVersion issues are reported with the offset/lineNumber of the start of the message. Should it use a different offset/lineNumber?
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 1, 1),
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 15, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync (text, issues);
+		}
+#endif
+
+		[Test]
+		public void TestMimeComplianceInvalidWrapping ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidWrapping, 7, 1),
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidWrapping, 10, 1)
+			};
+
+			AssertMimeComplianceIssues ("invalid-wrapping.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceInvalidWrappingAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidWrapping, 7, 1),
+				new MimeComplianceIssue (MimeComplianceStatus.InvalidWrapping, 10, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("invalid-wrapping.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingBodySeparator ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				// FIXME: should this technically be raised on line 7?
+				new MimeComplianceIssue (MimeComplianceStatus.MissingBodySeparator, 6, 1),
+			};
+
+			AssertMimeComplianceIssues ("missing-body-separator.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMissingBodySeparatorAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				// FIXME: should this technically be raised on line 7?
+				new MimeComplianceIssue (MimeComplianceStatus.MissingBodySeparator, 6, 1),
+			};
+
+			return AssertMimeComplianceIssuesAsync ("missing-body-separator.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingMultipartBoundaryParameter ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMultipartBoundaryParameter, 6, 1)
+			};
+
+			AssertMimeComplianceIssues ("missing-multipart-boundary-parameter.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMissingMultipartBoundaryParameterAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMultipartBoundaryParameter, 6, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("missing-multipart-boundary-parameter.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingMultipartBoundary ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMultipartBoundary, 18, 1)
+			};
+
+			AssertMimeComplianceIssues ("missing-multipart-boundary.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMissingMultipartBoundaryAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMultipartBoundary, 18, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("missing-multipart-boundary.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingMultipartEndBoundary ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMultipartBoundary, 18, 1)
+			};
+
+			AssertMimeComplianceIssues ("missing-multipart-end-boundary.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMissingMultipartEndBoundaryAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MissingMultipartBoundary, 18, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("missing-multipart-end-boundary.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceMultipleContentTransferEncodings ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MultipleContentTransferEncodings, 8, 1)
+			};
+
+			AssertMimeComplianceIssues ("multiple-content-transfer-encodings.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMultipleContentTransferEncodingsAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MultipleContentTransferEncodings, 8, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("multiple-content-transfer-encodings.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceMultipleContentTypes ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MultipleContentTypes, 7, 1)
+			};
+
+			AssertMimeComplianceIssues ("multiple-content-types.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceMultipleContentTypesAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.MultipleContentTypes, 7, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("multiple-content-types.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceUnexpected8BitBytesInBody ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 24, 1)
+			};
+
+			AssertMimeComplianceIssues ("unexpected-8bit-bytes-in-body.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpected8BitBytesInBodyAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 24, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("unexpected-8bit-bytes-in-body.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceUnexpected8BitBytesInPreamble ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 21, 1)
+			};
+
+			AssertMimeComplianceIssues ("unexpected-8bit-bytes-in-preamble.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpected8BitBytesInPreambleAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 11, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("unexpected-8bit-bytes-in-preamble.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceUnexpected8BitBytesInEpilogue ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 28, 1)
+			};
+
+			AssertMimeComplianceIssues ("unexpected-8bit-bytes-in-epilogue.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpected8BitBytesInEpilogueAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 28, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("unexpected-8bit-bytes-in-epilogue.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceUnexpectedNullBytesInHeaders ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.UnexpectedNullBytesInHeader, 5, 1)
+			};
+
+			AssertMimeComplianceIssues ("unexpected-null-bytes-in-headers.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpectedNullBytesInHeadersAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.UnexpectedNullBytesInHeader, 5, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("unexpected-null-bytes-in-headers.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceUnexpectedNullBytesInBody ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 17, 1),
+				new MimeComplianceIssue (MimeComplianceStatus.UnexpectedNullBytesInBody, 17, 1)
+			};
+
+			AssertMimeComplianceIssues ("unexpected-null-bytes-in-body.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpectedNullBytesInBodyAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceStatus.Unexpected8BitBytesInBody, 17, 1),
+				new MimeComplianceIssue (MimeComplianceStatus.UnexpectedNullBytesInBody, 17, 1)
+			};
+
+			return AssertMimeComplianceIssuesAsync ("unexpected-null-bytes-in-body.eml", issues);
 		}
 	}
 }
