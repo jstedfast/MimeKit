@@ -1,0 +1,17 @@
+From: unit-tests@mimekit.net
+To: unit-tests@mimekit.net
+Subject: This is a test message
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_003F_01CE98CE.6E826F90"
+
+--boundary-marker
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+This is the message body
+--boundary-marker
+Content-Type: application/octet-stream; name="attachment.dat"
+Content-Transfer-Encoding: base64
+
+<base64 content>
