@@ -28,10 +28,63 @@ using System;
 using System.Text;
 using System.Globalization;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public static unsafe byte* EndOfLine (byte* inptr, byte* inend)
+		{
+#if NET6_0_OR_GREATER
+			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
+
+			return inptr += span.IndexOf ((byte) '\n');
+#else
+			// scan for a linefeed character until we are 4-byte aligned.
+			switch (((long) inptr) & 0x03) {
+			case 1:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 2;
+			case 2:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 3;
+			case 3:
+				if (*inptr != (byte) '\n')
+					inptr++;
+				break;
+			}
+
+			if (*inptr != (byte) '\n') {
+				// -funroll-loops, yippee ki-yay.
+				do {
+					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
+					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+
+					if (mask != 0)
+						break;
+
+					inptr += 4;
+				} while (true);
+
+				while (*inptr != (byte) '\n')
+					inptr++;
+			}
+
+			return inptr;
+#endif
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public static unsafe byte* EndOfLine (byte* inptr, byte* inend, DetectionOptions options, out DetectionResults detected)
+		{
+			return inptr += Memory.IndexOf (inptr, (int) (inend - inptr), (byte) '\n', options, out detected);
+		}
+
 		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
 		{
 			int startIndex = index;
