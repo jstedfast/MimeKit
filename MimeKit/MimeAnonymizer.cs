@@ -56,6 +56,33 @@ namespace MimeKit {
 		static ReadOnlySpan<byte> FormatParameter => "format"u8;
 		static ReadOnlySpan<byte> Whitespace => " \t\r\n"u8;
 
+		readonly HashSet<string> preserveHeaders;
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeAnonymizer"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeAnonymizer"/>.
+		/// </remarks>
+		public MimeAnonymizer ()
+		{
+			preserveHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		}
+
+		/// <summary>
+		/// Get the set of headers that this anonymizer is configured to preserve.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the set of headers that this anonymizer is configured to preserve.</para>
+		/// <para>Headers can be added or removed from this set in order to influence the output of the anonymizer.</para>
+		/// <note type="note">This set of headers to preserve also applies to the status headers in the content of
+		/// message/delivery-status parts as well.</note>
+		/// </remarks>
+		/// <value>The set of headers that the anonymizer is configured to preserve.</value>
+		public HashSet<string> PreserveHeaders {
+			get { return preserveHeaders; }
+		}
+
 		/// <summary>
 		/// Anonymize a <see cref="MimeMessage"/>.
 		/// </summary>
@@ -578,6 +605,11 @@ namespace MimeKit {
 		{
 			var rawValue = header.GetRawValue (options);
 
+			if (preserveHeaders.Contains (header.Field)) {
+				// don't anonymize this header
+				return rawValue;
+			}
+
 			switch (header.Id) {
 			case HeaderId.DispositionNotificationTo:
 			case HeaderId.ResentReplyTo:
@@ -630,9 +662,6 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					if (options.HiddenHeaders.Contains (header.Id))
-						continue;
-
 					if (header.IsInvalid) {
 						AnonymizeBytes (options, stream, header.RawField, false);
 					} else {

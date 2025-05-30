@@ -478,5 +478,48 @@ xxxx xx xx xxxxxxx xxxxxxxxx
 
 			Assert.That (anonymized, Is.EqualTo (expected), "Anonymized data does not match expected data.");
 		}
+
+		[Test]
+		public void TestPreserveHeaders ()
+		{
+			string expected = @"Received: from unit-tests.mimekit.net by localhost via SMTP;
+	Sun, 6 Nov 2025 13:22:23 -0400
+From: ""xxxxxxxxxxxxxxxxxxx"" <xxxxxxxxxx@xxxxxxx.xxx>
+Date: Sun, 06 Apr 2025 13:22:18 -0400
+Subject: xxxx xx x xxxx xxxxxxx
+Message-Id: <id.2@mimekit.net>
+To: ""xxxxxxxxxxxxxxxxxxx"" <xxxxxxxxxx@xxxxxxx.xxx>
+References: <xx.x@xxxxxxx.xxx>
+In-Reply-To: <xx.x@xxxxxxx.xxx>
+
+";
+
+			using var message = new MimeMessage ();
+			message.From.Add (new MailboxAddress ("LastName, FirstName", "unit-tests@mimekit.net"));
+			message.To.Add (new MailboxAddress ("LastName, FirstName", "unit-tests@mimekit.net"));
+			message.Date = new DateTimeOffset (2025, 4, 6, 13, 22, 18, TimeSpan.FromHours (-4));
+			message.Subject = "This is a test subject";
+			message.References.Add ("id.1@mimekit.net");
+			message.InReplyTo = "id.1@mimekit.net";
+			message.MessageId = "id.2@mimekit.net";
+
+			message.Headers.Insert (0, "Received", "from unit-tests.mimekit.net by localhost via SMTP; Sun, 6 Nov 2025 13:22:23 -0400");
+
+			var anonymizer = new MimeAnonymizer ();
+			string anonymized;
+
+			// preserve some headers
+			anonymizer.PreserveHeaders.Add ("received");
+			anonymizer.PreserveHeaders.Add ("message-id");
+
+			using (var memory = new MemoryStream ()) {
+				anonymizer.Anonymize (message, memory);
+
+				var buffer = memory.GetBuffer ();
+				anonymized = Encoding.UTF8.GetString (buffer, 0, (int) memory.Length).ReplaceLineEndings ();
+			}
+
+			Assert.That (anonymized, Is.EqualTo (expected), "Anonymized data does not match expected data.");
+		}
 	}
 }
