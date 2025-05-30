@@ -1,0 +1,10 @@
+From: unit-tests@mimekit.net
+To: unit-tests@mimekit.net
+Subject: This is a test message
+Message-Id: <123@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+
+This is the message body
