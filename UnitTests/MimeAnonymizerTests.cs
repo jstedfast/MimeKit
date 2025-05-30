@@ -327,6 +327,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestAnonymizeMessageDispositionNotification ()
+		{
+			AssertAnonymizeMessage ("disposition-notification.txt");
+		}
+
+		[Test]
 		public void TestAnonymizeGeneratedMessage ()
 		{
 			string expected = @"Received: from xxxxxxxxxx.xxxxxxx.xxx by xxxxxxxxx via xxxx;

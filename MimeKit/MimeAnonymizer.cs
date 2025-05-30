@@ -763,6 +763,17 @@ namespace MimeKit {
 			}
 		}
 
+		static bool TryGetNotificationFields (MessageDispositionNotification mdn, out HeaderList fields)
+		{
+			try {
+				fields = mdn.Fields;
+				return true;
+			} catch {
+				fields = null;
+				return false;
+			}
+		}
+
 		void AnonymizeEntity (FormatOptions options, MimeEntity entity, Stream stream, bool contentOnly)
 		{
 			if (!contentOnly) {
@@ -823,6 +834,8 @@ namespace MimeKit {
 					if (i + 1 < statusGroups.Count)
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
+			} else if (entity is MessageDispositionNotification mdn && TryGetNotificationFields (mdn, out var fields)) {
+				AnonymizeHeaders (options, fields, stream);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new AnonymizeFilter ());
