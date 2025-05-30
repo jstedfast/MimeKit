@@ -321,6 +321,12 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestAnonymizeMessageDeliveryStatus ()
+		{
+			AssertAnonymizeMessage ("delivery-status.txt");
+		}
+
+		[Test]
 		public void TestAnonymizeGeneratedMessage ()
 		{
 			string expected = @"Received: from xxxxxxxxxx.xxxxxxx.xxx by xxxxxxxxx via xxxx;

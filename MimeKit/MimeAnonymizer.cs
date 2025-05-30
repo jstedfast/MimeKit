@@ -752,6 +752,17 @@ namespace MimeKit {
 			}
 		}
 
+		static bool TryGetStatusGroups (MessageDeliveryStatus mds, out HeaderListCollection statusGroups)
+		{
+			try {
+				statusGroups = mds.StatusGroups;
+				return true;
+			} catch {
+				statusGroups = null;
+				return false;
+			}
+		}
+
 		void AnonymizeEntity (FormatOptions options, MimeEntity entity, Stream stream, bool contentOnly)
 		{
 			if (!contentOnly) {
@@ -803,6 +814,15 @@ namespace MimeKit {
 				}
 
 				AnonymizeBytes (options, stream, multipart.RawEpilogue, multipart.EnsureNewLine);
+			} else if (entity is MessageDeliveryStatus mds && TryGetStatusGroups (mds, out var statusGroups)) {
+				for (int i = 0; i < statusGroups.Count; i++) {
+					var statusGroup = statusGroups[i];
+
+					AnonymizeHeaders (options, statusGroup, stream);
+
+					if (i + 1 < statusGroups.Count)
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
 			} else {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new AnonymizeFilter ());
