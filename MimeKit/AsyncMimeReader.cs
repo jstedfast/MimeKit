@@ -63,11 +63,7 @@ namespace MimeKit {
 					return false;
 				}
 
-				unsafe {
-					fixed (byte* inbuf = input) {
-						complete = StepByteOrderMark (inbuf, ref bomIndex);
-					}
-				}
+				complete = StepByteOrderMark (ref bomIndex);
 			} while (!complete && inputIndex == inputEnd);
 
 			return complete;
@@ -89,11 +85,7 @@ namespace MimeKit {
 					return;
 				}
 
-				unsafe {
-					fixed (byte* inbuf = input) {
-						complete = StepMboxMarkerStart (inbuf, ref midline);
-					}
-				}
+				complete = StepMboxMarkerStart (ref midline);
 			} while (!complete);
 
 			var mboxMarkerOffset = GetOffset (inputIndex);
@@ -109,13 +101,8 @@ namespace MimeKit {
 				}
 
 				int startIndex = inputIndex;
-				int count;
 
-				unsafe {
-					fixed (byte* inbuf = input) {
-						complete = StepMboxMarker (inbuf, out count);
-					}
-				}
+				complete = StepMboxMarker (out int count);
 
 				// TODO: Remove beginOffset and lineNumber arguments from OnMboxMarkerReadAsync() in v5.0
 				await OnMboxMarkerReadAsync (input, startIndex, count, mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken).ConfigureAwait (false);
@@ -179,14 +166,7 @@ namespace MimeKit {
 				}
 
 				// Scan ahead a bit to see if this looks like an invalid header.
-				do {
-					unsafe {
-						fixed (byte* inbuf = input) {
-							if (TryDetectInvalidHeader (inbuf, out invalid, out fieldNameLength, out headerFieldLength))
-								break;
-						}
-					}
-
+				while (!TryDetectInvalidHeader (out invalid, out fieldNameLength, out headerFieldLength)) {
 					int atleast = (inputEnd - inputIndex) + 1;
 
 					if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast) {
@@ -194,26 +174,19 @@ namespace MimeKit {
 						invalid = true;
 						break;
 					}
-				} while (true);
+				}
 
 				if (invalid) {
 					// Figure out why this is an invalid header.
 
 					if (input[inputIndex] == (byte) '-') {
 						// Check for a boundary marker. If the message is properly formatted, this will NEVER happen.
-						do {
-							unsafe {
-								fixed (byte* inbuf = input) {
-									if (TryCheckBoundaryWithinHeaderBlock (inbuf))
-										break;
-								}
-							}
-
+						while (!TryCheckBoundaryWithinHeaderBlock ()) {
 							int atleast = (inputEnd - inputIndex) + 1;
 
 							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
-						} while (true);
+						}
 
 						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
 						if (state == MimeParserState.Boundary)
@@ -222,19 +195,12 @@ namespace MimeKit {
 						// Fall through and act as if we're consuming a header.
 					} else if (input[inputIndex] == (byte) 'F' || input[inputIndex] == (byte) '>') {
 						// Check for an mbox-style From-line. Again, if the message is properly formatted and not truncated, this will NEVER happen.
-						do {
-							unsafe {
-								fixed (byte* inbuf = input) {
-									if (TryCheckMboxMarkerWithinHeaderBlock (inbuf))
-										break;
-								}
-							}
-
+						while (!TryCheckMboxMarkerWithinHeaderBlock ()) {
 							int atleast = (inputEnd - inputIndex) + 1;
 
 							if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast)
 								break;
-						} while (true);
+						}
 
 						// state will be one of the following values:
 						// 1. Complete: This means that we've found an actual mbox marker
@@ -262,20 +228,13 @@ namespace MimeKit {
 				bool midline = true;
 
 				// Consume the header value.
-				do {
-					unsafe {
-						fixed (byte* inbuf = input) {
-							if (StepHeaderValue (inbuf, ref midline))
-								break;
-						}
-					}
-
+				while (!StepHeaderValue (ref midline)) {
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
 						state = MimeParserState.Content;
 						eof = true;
 						break;
 					}
-				} while (true);
+				}
 
 				if (toplevel && headerCount == 0 && invalid && !IsMboxMarker (headerBuffer)) {
 					state = MimeParserState.Error;
@@ -297,19 +256,13 @@ namespace MimeKit {
 			long beginOffset = GetOffset (inputIndex);
 			int beginLineNumber = lineNumber;
 			int startIndex = inputIndex;
-			bool result;
 
 			if (endBoundary)
 				await OnMultipartEndBoundaryBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			else
 				await OnMultipartBoundaryBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			unsafe {
-				fixed (byte* inbuf = input) {
-					result = SkipBoundaryMarkerInternal (inbuf, endBoundary);
-				}
-			}
-
+			var result = SkipBoundaryMarkerInternal (endBoundary);
 			int count = inputIndex - startIndex;
 
 			if (endBoundary)
@@ -380,11 +333,7 @@ namespace MimeKit {
 
 				int contentIndex = inputIndex;
 
-				unsafe {
-					fixed (byte* inbuf = input) {
-						incomplete = ScanContent (inbuf, ref midline, ref formats);
-					}
-				}
+				incomplete = ScanContent (ref midline, ref formats);
 
 				if (contentIndex < inputIndex) {
 					switch (type) {
@@ -447,23 +396,11 @@ namespace MimeKit {
 					return 0;
 				}
 
-				unsafe {
-					fixed (byte* inbuf = input) {
-						byte* start = inbuf + inputIndex;
-						byte* inend = inbuf + inputEnd;
-						byte* inptr = start;
-
-						*inend = (byte) '\n';
-
-						inptr = EndOfLine (inptr, inend + 1);
-
-						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
-						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
-						// *never* be an Mbox "From " marker in Entity mode.
-						if ((boundary = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
-							return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
-					}
-				}
+				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
+				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
+				// *never* be an Mbox "From " marker in Entity mode.
+				if ((boundary = CheckBoundary ()) != BoundaryType.None)
+					return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
 			}
 
 			// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
