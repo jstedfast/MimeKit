@@ -1992,7 +1992,7 @@ namespace MimeKit {
 						return;
 					}
 
-					// Fall through and act is if we're consuming a header.
+					// Fall through and act as if we're consuming a header.
 				} else {
 					// Consume the header field name.
 					StepHeaderField (headerFieldLength);
