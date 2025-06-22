@@ -430,7 +430,7 @@ xxxx
 			multipart.Add (new TextPart ("plain") {
 				FileName = "lorem-ipsum.txt",
 				ContentTransferEncoding = ContentEncoding.Base64,
-				Text = File.ReadAllText (Path.Combine (TextDataDir, "lorem-ipsum.txt")),
+				Text = File.ReadAllText (Path.Combine (TextDataDir, "lorem-ipsum.txt")).ReplaceLineEndings (),
 			});
 
 			message.Body = multipart;
