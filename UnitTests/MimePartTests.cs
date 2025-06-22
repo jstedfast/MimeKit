@@ -604,14 +604,17 @@ namespace UnitTests {
 
 				body.WriteTo (options, fileName);
 
-				using (var loaded = (TextPart) MimeEntity.Load (fileName))
-					Assert.That (loaded.Text, Is.EqualTo (text));
+				var textData = File.ReadAllText (fileName, Encoding.UTF8);
+				var snippet = textData.Substring (textData.Length - text.Length);
+				Assert.That (snippet, Is.EqualTo (text), "NewLineFormat.Dos");
 
 				options.NewLineFormat = NewLineFormat.Unix;
 				body.WriteTo (options, fileName);
 
-				using (var loaded = (TextPart) MimeEntity.Load (fileName))
-					Assert.That (loaded.Text, Is.EqualTo (text));
+				var expected = text.Replace ("\r\n", "\n");
+				textData = File.ReadAllText (fileName, Encoding.UTF8);
+				snippet = textData.Substring (textData.Length - expected.Length);
+				Assert.That (snippet, Is.EqualTo (expected), "NewLineFormat.Unix");
 			} finally {
 				File.Delete (fileName);
 			}
@@ -632,14 +635,17 @@ namespace UnitTests {
 
 				await body.WriteToAsync (options, fileName);
 
-				using (var loaded = (TextPart) await MimeEntity.LoadAsync (fileName))
-					Assert.That (loaded.Text, Is.EqualTo (text));
+				var textData = File.ReadAllText (fileName, Encoding.UTF8);
+				var snippet = textData.Substring (textData.Length - text.Length);
+				Assert.That (snippet, Is.EqualTo (text), "NewLineFormat.Dos");
 
 				options.NewLineFormat = NewLineFormat.Unix;
 				await body.WriteToAsync (options, fileName);
 
-				using (var loaded = (TextPart) await MimeEntity.LoadAsync (fileName))
-					Assert.That (loaded.Text, Is.EqualTo (text));
+				var expected = text.Replace ("\r\n", "\n");
+				textData = File.ReadAllText (fileName, Encoding.UTF8);
+				snippet = textData.Substring (textData.Length - expected.Length);
+				Assert.That (snippet, Is.EqualTo (expected), "NewLineFormat.Unix");
 			} finally {
 				File.Delete (fileName);
 			}
