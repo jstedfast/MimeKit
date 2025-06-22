@@ -294,7 +294,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the public key algorithm for the certificate.
 		/// </summary>
 		/// <remarks>
-		/// Gets the public key algorithm for the ceretificate.
+		/// Gets the public key algorithm for the certificate.
 		/// </remarks>
 		/// <returns>The public key algorithm.</returns>
 		/// <param name="certificate">The certificate.</param>
