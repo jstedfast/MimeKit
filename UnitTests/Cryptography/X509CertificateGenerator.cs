@@ -453,7 +453,8 @@ namespace UnitTests.Cryptography {
 			generator.SetSubjectDN (subject);
 			generator.SetIssuerDN (issuer);
 
-			generator.AddExtension (X509Extensions.SubjectKeyIdentifier, false, new SubjectKeyIdentifierStructure (key.Public));
+			var subjectKeyIdentifier = X509ExtensionUtilities.CreateSubjectKeyIdentifier (key.Public);
+			generator.AddExtension (X509Extensions.SubjectKeyIdentifier, false, subjectKeyIdentifier);
 
 			if (certificateOptions.SubjectAlternativeNames != null) {
 				var altNames = new GeneralNames (certificateOptions.SubjectAlternativeNames.ToArray ());
@@ -474,8 +475,10 @@ namespace UnitTests.Cryptography {
 				generator.AddExtension (X509Extensions.CrlDistributionPoints, false, crlDistPoint);
 			}
 
-			if (issuerCertificate != null)
-				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure (issuerCertificate));
+			if (issuerCertificate != null) {
+				var authorityKeyIdentifier = X509ExtensionUtilities.CreateAuthorityKeyIdentifier (issuerCertificate);
+				generator.AddExtension (X509Extensions.AuthorityKeyIdentifier, false, authorityKeyIdentifier);
+			}
 
 			if (!string.IsNullOrEmpty (options.BasicConstraints)) {
 				var basicConstraints = options.BasicConstraints.Split (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
