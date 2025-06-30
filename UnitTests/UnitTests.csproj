@@ -34,7 +34,7 @@
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="nunit" Version="4.3.2" />
-    <PackageReference Include="NUnit.Analyzers" Version="4.8.1">
+    <PackageReference Include="NUnit.Analyzers" Version="4.9.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -50,7 +50,7 @@
     <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.119" GeneratePathProperty="true" Condition=" !$(TargetFramework.StartsWith('net4')) ">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
