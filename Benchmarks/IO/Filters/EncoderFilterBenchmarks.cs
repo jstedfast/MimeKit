@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers.Text;
 
 using MimeKit.IO;
 using MimeKit.Encodings;
@@ -75,6 +76,16 @@ namespace Benchmarks.IO.Filters {
 		public void Base64Encoder ()
 		{
 			FilterInputStream (BinaryData, new Base64Encoder ());
+		}
+
+		[Benchmark]
+		public void Base64EncodeToUtf8 ()
+		{
+			var bytes = ((MemoryStream) BinaryData).ToArray ();
+			var maxLength = Base64.GetMaxEncodedToUtf8Length (bytes.Length);
+			var encoded = new byte[maxLength];
+
+			Base64.EncodeToUtf8 (bytes, encoded, out _, out int nwritten, true);
 		}
 
 		[Benchmark]

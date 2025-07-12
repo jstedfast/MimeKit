@@ -176,7 +176,7 @@ namespace MimeKit.Utils {
 				}
 
 				if (token.IsEncoded) {
-					// Save encoded-word state so that we can treat consecutive encoded-word payloads with idential
+					// Save encoded-word state so that we can treat consecutive encoded-word payloads with identical
 					// charsets & encodings as one continuous block, thus allowing us to handle cases where a
 					// hex-encoded triplet of a quoted-printable encoded payload is split between 2 or more
 					// encoded-word tokens.
@@ -1070,9 +1070,11 @@ namespace MimeKit.Utils {
 			}
 
 			if (CharsetRequiresBase64 (charset) || GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
-				encoder = new Base64Encoder (true);
+				// TODO: Make BEncoder an internal static class. We don't need to keep state and we'd save ourselves a memory allocation.
+				encoder = new BEncoder ();
 				encoding = 'b';
 			} else {
+				// TODO: Make QEncoder an internal static class. We don't need to keep state and we'd save ourselves a memory allocation.
 				encoder = new QEncoder (mode);
 				encoding = 'q';
 			}
