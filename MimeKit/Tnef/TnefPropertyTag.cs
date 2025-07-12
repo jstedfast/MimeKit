@@ -5731,17 +5731,18 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Return a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.
+		/// Return a new <see cref="TnefPropertyTag"/> where <see cref="TnefPropertyType.String8"/> has been changed to <see cref="TnefPropertyType.Unicode"/>.
 		/// </summary>
 		/// <remarks>
-		/// Returns a new <see cref="TnefPropertyTag"/> where the type has been changed to <see cref="TnefPropertyType.Unicode"/>.
+		/// Returns a new <see cref="TnefPropertyTag"/> where <see cref="TnefPropertyType.String8"/> has been changed to <see cref="TnefPropertyType.Unicode"/>.
 		/// </remarks>
 		/// <returns>The unicode equivalent of the property tag.</returns>
 		public TnefPropertyTag ToUnicode ()
 		{
-			var unicode = (TnefPropertyType) ((((short) type) & MultiValuedFlag) | ((short) TnefPropertyType.Unicode));
+			if (ValueTnefType == TnefPropertyType.String8)
+				return new TnefPropertyTag (id, IsMultiValued ? TnefPropertyType.Unicode | TnefPropertyType.MultiValued : TnefPropertyType.Unicode);
 
-			return new TnefPropertyTag (id, unicode);
+			return this;
 		}
 
 		/// <summary>
