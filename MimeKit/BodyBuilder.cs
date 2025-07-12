@@ -24,6 +24,9 @@
 // THE SOFTWARE.
 //
 
+using System;
+using System.Text;
+
 namespace MimeKit {
 	/// <summary>
 	/// A message body builder.
@@ -36,6 +39,8 @@ namespace MimeKit {
 	/// </example>
 	public class BodyBuilder
 	{
+		Encoding bodyEncoding;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="BodyBuilder"/> class.
 		/// </summary>
@@ -49,6 +54,7 @@ namespace MimeKit {
 		{
 			LinkedResources = new AttachmentCollection (true);
 			Attachments = new AttachmentCollection ();
+			bodyEncoding = Encoding.UTF8;
 		}
 
 		/// <summary>
@@ -108,6 +114,29 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get or set the character encoding to be used for the message body.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the character encoding to be used for the body content.</para>
+		/// <para>The value specified for the <see cref="BodyEncoding"/> property sets the <c>charset</c>
+		/// parameter in the <c>Content-Type</c> headers for the <see cref="TextBody"/> and <see cref="HtmlBody"/>.
+		/// The default charset is "utf-8".</para>
+		/// </remarks>
+		/// <value>The character encoding.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
+		/// </exception>
+		public Encoding BodyEncoding {
+			get { return bodyEncoding; }
+			set {
+				if (value is null)
+					throw new ArgumentNullException (nameof (value));
+
+				bodyEncoding = value;
+			}
+		}
+
+		/// <summary>
 		/// Construct the message body based on the text-based bodies, the linked resources, and the attachments.
 		/// </summary>
 		/// <remarks>
@@ -125,9 +154,8 @@ namespace MimeKit {
 			MimeEntity body = null;
 
 			if (TextBody != null) {
-				var text = new TextPart ("plain") {
-					Text = TextBody
-				};
+				var text = new TextPart ("plain");
+				text.SetText (bodyEncoding, TextBody);
 
 				if (HtmlBody != null) {
 					alternative = new MultipartAlternative {
@@ -140,10 +168,10 @@ namespace MimeKit {
 			}
 
 			if (HtmlBody != null) {
-				var text = new TextPart ("html") {
-					Text = HtmlBody
-				};
+				var text = new TextPart ("html");
 				MimeEntity html;
+
+				text.SetText (bodyEncoding, HtmlBody);
 
 				if (LinkedResources.Count > 0) {
 					var related = new MultipartRelated {
@@ -179,7 +207,13 @@ namespace MimeKit {
 				body = mixed;
 			}
 
-			return body ?? new TextPart ("plain") { Text = string.Empty };
+			if (body is null) {
+				var text = new TextPart ("plain");
+				text.SetText (bodyEncoding, string.Empty);
+				body = text;
+			}
+
+			return body;
 		}
 	}
 }
