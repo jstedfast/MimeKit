@@ -73,7 +73,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_AB_SEARCH_PATH.
 		/// </remarks>
-		public static readonly TnefPropertyTag AbSearchPath = new TnefPropertyTag (TnefPropertyId.AbSearchPath, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag AbSearchPath = new TnefPropertyTag (TnefPropertyId.AbSearchPath, TnefPropertyType.Binary, true);
 
 		/// <summary>
 		/// The MAPI property PR_AB_SEARCH_PATH_UPDATE.
@@ -345,7 +345,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_ATTACH_FLAGS.
 		/// </remarks>
-		public static readonly TnefPropertyTag AttachFlags = new TnefPropertyTag (TnefPropertyId.AttachFlags, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag AttachFlags = new TnefPropertyTag (TnefPropertyId.AttachFlags, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_ATTACH_LONG_FILENAME.
@@ -433,7 +433,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_ATTACH_MIME_SEQUENCE.
 		/// </remarks>
-		public static readonly TnefPropertyTag AttachMimeSequence = new TnefPropertyTag (TnefPropertyId.AttachMimeSequence, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag AttachMimeSequence = new TnefPropertyTag (TnefPropertyId.AttachMimeSequence, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_ATTACH_MIME_TAG.
@@ -457,7 +457,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_ATTACH_NETSCAPE_MAC_INFO.
 		/// </remarks>
-		public static readonly TnefPropertyTag AttachNetscapeMacInfo = new TnefPropertyTag (TnefPropertyId.AttachNetscapeMacInfo, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag AttachNetscapeMacInfo = new TnefPropertyTag (TnefPropertyId.AttachNetscapeMacInfo, TnefPropertyType.Binary);
 
 		/// <summary>
 		/// The MAPI property PR_ATTACH_NUM.
@@ -561,7 +561,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_AUTORESPONSE_SUPPRESS.
 		/// </remarks>
-		public static readonly TnefPropertyTag AutoResponseSuppress = new TnefPropertyTag (TnefPropertyId.AutoResponseSuppress, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag AutoResponseSuppress = new TnefPropertyTag (TnefPropertyId.AutoResponseSuppress, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_BEEPER_TELEPHONE_NUMBER.
@@ -953,7 +953,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_CONTACT_EMAIL_ADDRESSES.
 		/// </remarks>
-		public static readonly TnefPropertyTag ContactEmailAddressesA = new TnefPropertyTag (TnefPropertyId.ContactEmailAddresses, TnefPropertyType.String8);
+		public static readonly TnefPropertyTag ContactEmailAddressesA = new TnefPropertyTag (TnefPropertyId.ContactEmailAddresses, TnefPropertyType.String8, true);
 
 		/// <summary>
 		/// The MAPI property PR_CONTACT_EMAIL_ADDRESSES.
@@ -961,7 +961,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_CONTACT_EMAIL_ADDRESSES.
 		/// </remarks>
-		public static readonly TnefPropertyTag ContactEmailAddressesW = new TnefPropertyTag (TnefPropertyId.ContactEmailAddresses, TnefPropertyType.Unicode);
+		public static readonly TnefPropertyTag ContactEmailAddressesW = new TnefPropertyTag (TnefPropertyId.ContactEmailAddresses, TnefPropertyType.Unicode, true);
 
 		/// <summary>
 		/// The MAPI property PR_CONTACT_ENTRYIDS.
@@ -1593,7 +1593,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_EXPAND_BEGIN_TIME.
 		/// </remarks>
-		public static readonly TnefPropertyTag ExpandBeginTime = new TnefPropertyTag (TnefPropertyId.ExpandBeginTime, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag ExpandBeginTime = new TnefPropertyTag (TnefPropertyId.ExpandBeginTime, TnefPropertyType.SysTime);
 
 		/// <summary>
 		/// The MAPI property PR_EXPANDED_BEGIN_TIME.
@@ -1601,7 +1601,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_EXPANDED_BEGIN_TIME.
 		/// </remarks>
-		public static readonly TnefPropertyTag ExpandedBeginTime = new TnefPropertyTag (TnefPropertyId.ExpandedBeginTime, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag ExpandedBeginTime = new TnefPropertyTag (TnefPropertyId.ExpandedBeginTime, TnefPropertyType.SysTime);
 
 		/// <summary>
 		/// The MAPI property PR_EXPANDED_END_TIME.
@@ -1609,7 +1609,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_EXPANDED_END_TIME.
 		/// </remarks>
-		public static readonly TnefPropertyTag ExpandedEndTime = new TnefPropertyTag (TnefPropertyId.ExpandedEndTime, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag ExpandedEndTime = new TnefPropertyTag (TnefPropertyId.ExpandedEndTime, TnefPropertyType.SysTime);
 
 		/// <summary>
 		/// The MAPI property PR_EXPAND_END_TIME.
@@ -1617,7 +1617,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_EXPAND_END_TIME.
 		/// </remarks>
-		public static readonly TnefPropertyTag ExpandEndTime = new TnefPropertyTag (TnefPropertyId.ExpandEndTime, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag ExpandEndTime = new TnefPropertyTag (TnefPropertyId.ExpandEndTime, TnefPropertyType.SysTime);
 
 		/// <summary>
 		/// The MAPI property PR_EXPIRY_TIME.
@@ -2121,7 +2121,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The Internet mail override charset.
 		/// </remarks>
-		public static readonly TnefPropertyTag INetMailOverrideCharset = new TnefPropertyTag (TnefPropertyId.INetMailOverrideCharset, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag INetMailOverrideCharset = new TnefPropertyTag (TnefPropertyId.INetMailOverrideCharset, TnefPropertyType.Unicode);
 
 		/// <summary>
 		/// The Internet mail override format.
@@ -2129,7 +2129,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The Internet mail override format.
 		/// </remarks>
-		public static readonly TnefPropertyTag INetMailOverrideFormat = new TnefPropertyTag (TnefPropertyId.INetMailOverrideFormat, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag INetMailOverrideFormat = new TnefPropertyTag (TnefPropertyId.INetMailOverrideFormat, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_INITIAL_DETAILS_PANE.
@@ -2603,7 +2603,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public static readonly TnefPropertyTag LocalityW = new TnefPropertyTag (TnefPropertyId.Locality, TnefPropertyType.Unicode);
 
-		//public static readonly TnefPropertyTag LocallyDelivered = new TnefPropertyTag (TnefPropertyId.LocallyDelivered, TnefPropertyType.Unspecified);
+		//public static readonly TnefPropertyTag LocallyDelivered = new TnefPropertyTag (TnefPropertyId.LocallyDelivered, TnefPropertyType.Unspecified); Boolean??
 
 		/// <summary>
 		/// The MAPI property PR_LOCATION.
@@ -2627,7 +2627,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_BRANCH_ID.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockBranchId = new TnefPropertyTag (TnefPropertyId.LockBranchId, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockBranchId = new TnefPropertyTag (TnefPropertyId.LockBranchId, TnefPropertyType.I8);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_DEPTH.
@@ -2635,7 +2635,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_DEPTH.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockDepth = new TnefPropertyTag (TnefPropertyId.LockDepth, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockDepth = new TnefPropertyTag (TnefPropertyId.LockDepth, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_ENLISTMENT_CONTEXT.
@@ -2643,7 +2643,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_ENLISTMENT_CONTEXT.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockEnlistmentContext = new TnefPropertyTag (TnefPropertyId.LockEnlistmentContext, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockEnlistmentContext = new TnefPropertyTag (TnefPropertyId.LockEnlistmentContext, TnefPropertyType.Binary);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_EXPIRY_TIME.
@@ -2651,7 +2651,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_EXPIRY_TIME.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockExpiryTime = new TnefPropertyTag (TnefPropertyId.LockExpiryTime, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockExpiryTime = new TnefPropertyTag (TnefPropertyId.LockExpiryTime, TnefPropertyType.SysTime);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_PERSISTENT.
@@ -2659,7 +2659,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_PERSISTENT.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockPersistent = new TnefPropertyTag (TnefPropertyId.LockPersistent, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockPersistent = new TnefPropertyTag (TnefPropertyId.LockPersistent, TnefPropertyType.Boolean);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_RESOURCE_DID.
@@ -2667,7 +2667,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_RESOURCE_DID.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockResourceDid = new TnefPropertyTag (TnefPropertyId.LockResourceDid, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockResourceDid = new TnefPropertyTag (TnefPropertyId.LockResourceDid, TnefPropertyType.I8);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_RESOURCE_FID.
@@ -2675,7 +2675,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_RESOURCE_FID.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockResourceFid = new TnefPropertyTag (TnefPropertyId.LockResourceFid, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockResourceFid = new TnefPropertyTag (TnefPropertyId.LockResourceFid, TnefPropertyType.I8);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_RESOURCE_MID.
@@ -2683,7 +2683,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_RESOURCE_MID.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockResourceMid = new TnefPropertyTag (TnefPropertyId.LockResourceMid, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockResourceMid = new TnefPropertyTag (TnefPropertyId.LockResourceMid, TnefPropertyType.I8);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_SCOPE.
@@ -2691,7 +2691,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_SCOPE.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockScope = new TnefPropertyTag (TnefPropertyId.LockScope, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockScope = new TnefPropertyTag (TnefPropertyId.LockScope, TnefPropertyType.I2);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_TIMEOUT.
@@ -2699,7 +2699,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_TIMEOUT.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockTimeout = new TnefPropertyTag (TnefPropertyId.LockTimeout, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockTimeout = new TnefPropertyTag (TnefPropertyId.LockTimeout, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_LOCK_TYPE.
@@ -2707,7 +2707,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_LOCK_TYPE.
 		/// </remarks>
-		public static readonly TnefPropertyTag LockType = new TnefPropertyTag (TnefPropertyId.LockType, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag LockType = new TnefPropertyTag (TnefPropertyId.LockType, TnefPropertyType.I2);
 
 		/// <summary>
 		/// The MAPI property PR_MAIL_PERMISSION.
@@ -2971,7 +2971,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_NDR_STATUS_CODE.
 		/// </remarks>
-		public static readonly TnefPropertyTag NdrStatusCode = new TnefPropertyTag (TnefPropertyId.NdrStatusCode, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag NdrStatusCode = new TnefPropertyTag (TnefPropertyId.NdrStatusCode, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_NEWSGROUP_NAME.
@@ -3059,7 +3059,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_NT_SECURITY_DESCRIPTOR.
 		/// </remarks>
-		public static readonly TnefPropertyTag NtSecurityDescriptor = new TnefPropertyTag (TnefPropertyId.NtSecurityDescriptor, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag NtSecurityDescriptor = new TnefPropertyTag (TnefPropertyId.NtSecurityDescriptor, TnefPropertyType.Binary);
 
 		/// <summary>
 		/// The MAPI property PR_NULL.
@@ -3139,7 +3139,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_OOF_REPLY_TYPE.
 		/// </remarks>
-		public static readonly TnefPropertyTag OofReplyType = new TnefPropertyTag (TnefPropertyId.OofReplyType, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag OofReplyType = new TnefPropertyTag (TnefPropertyId.OofReplyType, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_ORGANIZATIONAL_ID_NUMBER.
@@ -3163,7 +3163,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_ORIG_ENTRYID.
 		/// </remarks>
-		public static readonly TnefPropertyTag OrigEntryId = new TnefPropertyTag (TnefPropertyId.OrigEntryId, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag OrigEntryId = new TnefPropertyTag (TnefPropertyId.OrigEntryId, TnefPropertyType.Binary);
 
 		/// <summary>
 		/// The MAPI property PR_ORIGINAL_AUTHOR_ADDRTYPE.
@@ -4157,12 +4157,20 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag ProviderUid = new TnefPropertyTag (TnefPropertyId.ProviderUid, TnefPropertyType.Binary);
 
 		/// <summary>
-		/// The MAPI property PR_PUID.
+		/// The MAPI property PR_PUID_A.
 		/// </summary>
 		/// <remarks>
-		/// The MAPI property PR_PUID.
+		/// The MAPI property PR_PUID_A.
 		/// </remarks>
-		public static readonly TnefPropertyTag Puid = new TnefPropertyTag (TnefPropertyId.Puid, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag PuidA = new TnefPropertyTag (TnefPropertyId.Puid, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_PUID_W.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_PUID_W.
+		/// </remarks>
+		public static readonly TnefPropertyTag PuidW = new TnefPropertyTag (TnefPropertyId.Puid, TnefPropertyType.Unicode);
 
 		/// <summary>
 		/// The MAPI property PR_RADIO_TELEPHONE_NUMBER.
@@ -4874,7 +4882,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_SEND_RECALL_REPORT.
 		/// </remarks>
-		public static readonly TnefPropertyTag SendRecallReport = new TnefPropertyTag (TnefPropertyId.SendRecallReport, TnefPropertyType.Unspecified);
+		public static readonly TnefPropertyTag SendRecallReport = new TnefPropertyTag (TnefPropertyId.SendRecallReport, TnefPropertyType.Boolean);
 
 		/// <summary>
 		/// The MAPI property PR_SEND_RICH_INFO.
@@ -4970,7 +4978,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_SERVICE_DELETE_FILES.
 		/// </remarks>
-		public static readonly TnefPropertyTag ServiceDeleteFilesA = new TnefPropertyTag (TnefPropertyId.ServiceDeleteFiles, TnefPropertyType.String8);
+		public static readonly TnefPropertyTag ServiceDeleteFilesA = new TnefPropertyTag (TnefPropertyId.ServiceDeleteFiles, TnefPropertyType.String8, true);
 
 		/// <summary>
 		/// The MAPI property PR_SERVICE_DELETE_FILES.
@@ -4978,7 +4986,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_SERVICE_DELETE_FILES.
 		/// </remarks>
-		public static readonly TnefPropertyTag ServiceDeleteFilesW = new TnefPropertyTag (TnefPropertyId.ServiceDeleteFiles, TnefPropertyType.Unicode);
+		public static readonly TnefPropertyTag ServiceDeleteFilesW = new TnefPropertyTag (TnefPropertyId.ServiceDeleteFiles, TnefPropertyType.Unicode, true);
 
 		/// <summary>
 		/// The MAPI property PR_SERVICE_DLL_NAME.
@@ -5042,7 +5050,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_SERVICE_SUPPORT_FILES.
 		/// </remarks>
-		public static readonly TnefPropertyTag ServiceSupportFilesA = new TnefPropertyTag (TnefPropertyId.ServiceSupportFiles, TnefPropertyType.String8);
+		public static readonly TnefPropertyTag ServiceSupportFilesA = new TnefPropertyTag (TnefPropertyId.ServiceSupportFiles, TnefPropertyType.String8, true);
 
 		/// <summary>
 		/// The MAPI property PR_SERVICE_SUPPORT_FILES.
@@ -5050,7 +5058,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_SERVICE_SUPPORT_FILES.
 		/// </remarks>
-		public static readonly TnefPropertyTag ServiceSupportFilesW = new TnefPropertyTag (TnefPropertyId.ServiceSupportFiles, TnefPropertyType.Unicode);
+		public static readonly TnefPropertyTag ServiceSupportFilesW = new TnefPropertyTag (TnefPropertyId.ServiceSupportFiles, TnefPropertyType.Unicode, true);
 
 		/// <summary>
 		/// The MAPI property PR_SERVICE_UID.
@@ -5466,7 +5474,7 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The MAPI property PR_USER_X509_CERTIFICATE.
 		/// </remarks>
-		public static readonly TnefPropertyTag UserX509Certificate = new TnefPropertyTag (TnefPropertyId.UserX509Certificate, TnefPropertyType.Binary);
+		public static readonly TnefPropertyTag UserX509Certificate = new TnefPropertyTag (TnefPropertyId.UserX509Certificate, TnefPropertyType.Binary, true);
 
 		/// <summary>
 		/// The MAPI property PR_VALID_FOLDER_MASK.
@@ -5573,17 +5581,12 @@ namespace MimeKit.Tnef {
 		public bool IsTnefTypeValid {
 			get {
 				switch (ValueTnefType) {
-				case TnefPropertyType.Unspecified:
-				case TnefPropertyType.Null:
 				case TnefPropertyType.I2:
 				case TnefPropertyType.Long:
 				case TnefPropertyType.R4:
 				case TnefPropertyType.Double:
 				case TnefPropertyType.Currency:
 				case TnefPropertyType.AppTime:
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Boolean:
-				case TnefPropertyType.Object:
 				case TnefPropertyType.I8:
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Unicode:
@@ -5591,6 +5594,12 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.ClassId:
 				case TnefPropertyType.Binary:
 					return true;
+				case TnefPropertyType.Boolean:
+				case TnefPropertyType.Object:
+					return !IsMultiValued;
+				case TnefPropertyType.Unspecified:
+				case TnefPropertyType.Null:
+				case TnefPropertyType.Error:
 				default:
 					return false;
 				}
