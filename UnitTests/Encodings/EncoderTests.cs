@@ -772,12 +772,12 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestClone ()
 		{
-			CloneAndAssert (new Base64Encoder (true, 76));
-			CloneAndAssert (new Base64Encoder (false, 76));
+			CloneAndAssert (new BEncoder ());
+			CloneAndAssert (new Base64Encoder (76));
 			CloneAndAssert (new HexEncoder ());
 			CloneAndAssert (new QEncoder (QEncodeMode.Text));
 			CloneAndAssert (new QEncoder (QEncodeMode.Phrase));
-			CloneAndAssert (new QuotedPrintableEncoder ());
+			CloneAndAssert (new QuotedPrintableEncoder (76));
 			CloneAndAssert (new UUEncoder ());
 			CloneAndAssert (new YEncoder (76));
 			
@@ -822,8 +822,8 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestReset ()
 		{
-			ResetAndAssert (new Base64Encoder (true, 76));
-			ResetAndAssert (new Base64Encoder (false, 76));
+			ResetAndAssert (new BEncoder ());
+			ResetAndAssert (new Base64Encoder (76));
 			ResetAndAssert (new HexEncoder ());
 			ResetAndAssert (new QEncoder (QEncodeMode.Text));
 			ResetAndAssert (new QEncoder (QEncodeMode.Phrase));
