@@ -144,6 +144,7 @@ namespace MimeKit.Encodings {
 		}
 
 #if NET6_0_OR_GREATER
+		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe int HwAccelEncode (byte* input, int length, byte* output)
 		{
@@ -175,39 +176,86 @@ namespace MimeKit.Encodings {
 
 			int remainingInput = (int) (inend - inptr);
 
-			while (inptr < inend - 2) {
+			// prevent the while-loop from processing incomplete triplets
+			inend -= 2;
+
+			while (inptr < inend) {
 				int remainingLineInput = Math.Min (remainingInput, (quartetsPerLine - quartets) * 3);
 				byte* lineEnd = inptr + remainingLineInput;
-				byte* maxOffset;
+				int nread;
 
-				// Avx512 processes 48 bytes at a time, but requires at least 64 bytes of input to avoid segfaulting.
-				if (Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported && remainingLineInput >= 64) {
-					maxOffset = (lineEnd - 48) < (inend - 64) ? (lineEnd - 48) : (inend - 64);
-					remainingLineInput -= Avx512Encode (ref inptr, ref outptr, maxOffset, ref quartets);
-				}
+				// Note: The standard MIME base64-encoded line length is 76 characters which means that the maximum number
+				// of input characters that can be processed per line is 57 characters (3 bytes per quartet).
+				//
+				// Given that, here's what we would expect for various hardware configurations:
+				//
+				// Intel/AMD x86/64 CPUs:
+				// - AVX512 supported:
+				//   - Encodes the first 48 bytes using Avx512Encode() which performs a single loop.
+				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
+				// - AVX2 supported:
+				//   - Encodes the first 48 bytes using Avx2Encode() which performs 2 loops.
+				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
+				// - SSSE3 supported:
+				//   - Encodes the first 48 bytes using Vector128Encode() which performs 4 loops.
+				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
+				// - No SIMD support:
+				//   - Encodes all 57 bytes using the "slow" loop that processes 3 input bytes per loop for 19 loops.
+				//
+				// ARM64 CPUs:
+				// - AdvSIMD supported (>= 48 remaining input bytes):
+				//   - Encodes the first 48 bytes using AdvSimdEncode() which performs a single loop.
+				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
+				// - AdvSIMD supported (>= 12 remaining input bytes):
+				//   - Encodes the first 12, 24, or 36 bytes using Vector128Encode() which performs 1, 2, or 3 loops.
+				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
 
+				if (Ssse3.IsSupported) {
+					// Hardware accelerated Intel/AMD code-path...
+					if (Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported && remainingLineInput >= 48 && remainingInput >= 64) {
+						// Avx512Encode processes 48 bytes at a time, but requires at least 64 bytes of input to avoid segfaulting.
+						nread = Avx512Encode (ref inptr, ref outptr, lineEnd - 48, ref quartets);
+						remainingLineInput -= nread;
+						remainingInput -= nread;
+					}
+
+					if (Avx2.IsSupported && remainingLineInput >= 48 && remainingInput >= 56) {
+						// Avx2Encode processes 24 bytes at a time, but requires at least 32 bytes of input to avoid segfaulting.
+						// Note: This is not worth doing for anything less than at least 2 passes.
+						nread = Avx2Encode (ref inptr, ref outptr, lineEnd - 24, ref quartets);
+						remainingLineInput -= nread;
+						remainingInput -= nread;
+					}
+
+					if (remainingLineInput >= 12 && remainingInput >= 16) {
+						// Vector128Encode (requires SSSE3) processes 12 bytes at a time, but requires at least 16 bytes of input to avoid segfaulting.
+						nread = Vector128Encode (ref inptr, ref outptr, lineEnd - 12, ref quartets);
+						remainingLineInput -= nread;
+						remainingInput -= nread;
+					}
+				} else if (AdvSimd.Arm64.IsSupported) {
+					// Hardware accelerated ARM64 code-path...
 #if NET9_0_OR_GREATER
-				// AdvSIMD processes exactly 48 bytes at a time (3x 16-byte chunks).
-				if (AdvSimd.Arm64.IsSupported && remainingLineInput >= 48) {
-					maxOffset = lineEnd - 48;
-					remainingLineInput -= AdvSimdEncode (ref inptr, ref outptr, maxOffset, ref quartets);
-				}
+					if (remainingLineInput >= 48) {
+						// AdvSimdEncode processes exactly 48 bytes at a time (3x 16-byte chunks).
+						nread = AdvSimdEncode (ref inptr, ref outptr, lineEnd - 48, ref quartets);
+						remainingLineInput -= nread;
+						remainingInput -= nread;
+					}
 #endif
 
-				// Avx2 processes 24 bytes at a time, but requires at least 32 bytes of input to avoid segfaulting.
-				// Note: This is not worth doing for anything less than at least 2 passes.
-				if (Avx2.IsSupported && remainingLineInput >= 56) {
-					maxOffset = (lineEnd - 24) < (inend - 32) ? (lineEnd - 24) : (inend - 32);
-					remainingLineInput -= Avx2Encode (ref inptr, ref outptr, maxOffset, ref quartets);
+					if (BitConverter.IsLittleEndian && remainingLineInput >= 12 && remainingInput >= 16) {
+						// Vector128Encode (requires AdvSIMD) processes 12 bytes at a time, but requires at least 16 bytes of input to avoid segfaulting.
+						nread = Vector128Encode (ref inptr, ref outptr, lineEnd - 12, ref quartets);
+						remainingLineInput -= nread;
+						remainingInput -= nread;
+					}
 				}
 
-				// SSSE3 processes 12 bytes at a time, but requires at least 16 bytes of input to avoid segfaulting.
-				if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && BitConverter.IsLittleEndian && remainingLineInput >= 16) {
-					maxOffset = (lineEnd - 12) < (inend - 16) ? (lineEnd - 12) : (inend - 16);
-					remainingLineInput -= Vector128Encode (ref inptr, ref outptr, maxOffset, ref quartets);
-				}
+				// prevent the while-loop from reading beyond the end of the line
+				lineEnd -= 2;
 
-				while (remainingLineInput >= 3) {
+				while (inptr < lineEnd) {
 					c1 = *inptr++;
 					c2 = *inptr++;
 					c3 = *inptr++;
@@ -217,7 +265,7 @@ namespace MimeKit.Encodings {
 					*outptr++ = base64_alphabet[(c2 >> 4) | ((c1 & 0x3) << 4)];
 					*outptr++ = base64_alphabet[((c2 & 0x0f) << 2) | (c3 >> 6)];
 					*outptr++ = base64_alphabet[c3 & 0x3f];
-					remainingLineInput -= 3;
+					remainingInput -= 3;
 					quartets++;
 				}
 
@@ -226,8 +274,6 @@ namespace MimeKit.Encodings {
 					*outptr++ = (byte) '\n';
 					quartets = 0;
 				}
-
-				remainingInput = (int) (inend - inptr);
 			}
 
 			if (remainingInput > 0) {
@@ -778,7 +824,7 @@ namespace MimeKit.Encodings {
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
 #if NET6_0_OR_GREATER
-					if ((Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported) || Avx2.IsSupported || Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) {
+					if (Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) {
 						// If we have hardware acceleration, use it.
 						return HwAccelEncode (inptr + startIndex, length, outptr);
 					} else {
@@ -797,7 +843,7 @@ namespace MimeKit.Encodings {
 
 			if (length > 0) {
 #if NET6_0_OR_GREATER
-				if ((Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported) || Avx2.IsSupported || Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) {
+				if (Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) {
 					// If we have hardware acceleration, use it.
 					outptr += HwAccelEncode (input, length, output);
 				} else {
