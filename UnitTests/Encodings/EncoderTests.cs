@@ -127,7 +127,7 @@ namespace UnitTests.Encodings {
 			Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (0));
 		}
 
-		static void TestEncoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize)
+		static void TestEncoder (IMimeEncoder encoder, byte[] rawData, string encodedFile, int bufferSize)
 		{
 			int n;
 
@@ -141,13 +141,13 @@ namespace UnitTests.Encodings {
 				}
 
 				using (var encoded = new MemoryStream ()) {
-					if (encoding == ContentEncoding.UUEncode) {
+					if (encoder.Encoding == ContentEncoding.UUEncode) {
 						var begin = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\n");
 						encoded.Write (begin, 0, begin.Length);
 					}
 
 					using (var filtered = new FilteredStream (encoded)) {
-						filtered.Add (EncoderFilter.Create (encoding));
+						filtered.Add (new EncoderFilter (encoder));
 
 						using (var memory = new MemoryStream (rawData, false)) {
 							var buffer = new byte[bufferSize];
@@ -159,7 +159,7 @@ namespace UnitTests.Encodings {
 						filtered.Flush ();
 					}
 
-					if (encoding == ContentEncoding.UUEncode) {
+					if (encoder.Encoding == ContentEncoding.UUEncode) {
 						var end = Encoding.ASCII.GetBytes ("end\n");
 						encoded.Write (end, 0, end.Length);
 					}
@@ -247,7 +247,16 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestBase64Encode (int bufferSize)
 		{
-			TestEncoder (ContentEncoding.Base64, photo, "photo.b64", bufferSize);
+			TestEncoder (new Base64Encoder (), photo, "photo.b64", bufferSize);
+		}
+
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestBase64EncodeDisableHwAccel (int bufferSize)
+		{
+			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = false }, photo, "photo.b64", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -265,7 +274,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUEncode (int bufferSize)
 		{
-			TestEncoder (ContentEncoding.UUEncode, photo, "photo.uu", bufferSize);
+			TestEncoder (new UUEncoder (), photo, "photo.uu", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -329,7 +338,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestQuotedPrintableEncodeDos (int bufferSize)
 		{
-			TestEncoder (ContentEncoding.QuotedPrintable, wikipedia_dos, "wikipedia.qp", bufferSize);
+			TestEncoder (new QuotedPrintableEncoder (), wikipedia_dos, "wikipedia.qp", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -338,7 +347,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestQuotedPrintableEncodeUnix (int bufferSize)
 		{
-			TestEncoder (ContentEncoding.QuotedPrintable, wikipedia_unix, "wikipedia.qp", bufferSize);
+			TestEncoder (new QuotedPrintableEncoder (), wikipedia_unix, "wikipedia.qp", bufferSize);
 		}
 
 		[TestCase (4096)]

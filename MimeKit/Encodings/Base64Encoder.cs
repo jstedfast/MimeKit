@@ -79,6 +79,10 @@ namespace MimeKit.Encodings {
 			maxLineLength = Math.Min (maxLineLength, 76);
 
 			quartetsPerLine = maxLineLength / 4;
+
+#if NET6_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
+#endif
 		}
 
 		/// <summary>
@@ -91,12 +95,28 @@ namespace MimeKit.Encodings {
 		public IMimeEncoder Clone ()
 		{
 			return new Base64Encoder (quartetsPerLine * 4) {
+#if NET6_0_OR_GREATER
+				EnableHardwareAcceleration = EnableHardwareAcceleration,
+#endif
 				quartets = quartets,
 				saved1 = saved1,
 				saved2 = saved2,
 				saved = saved
 			};
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Get or set whether the <see cref="Base64Encoder"/> should use hardware acceleration when available.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets whether the <see cref="Base64Encoder"/> should use hardware acceleration when available.
+		/// </remarks>
+		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
+		public bool EnableHardwareAcceleration {
+			get; set;
+		}
+#endif
 
 		/// <summary>
 		/// Get the encoding.
@@ -824,7 +844,7 @@ namespace MimeKit.Encodings {
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
 #if NET6_0_OR_GREATER
-					if (Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) {
+					if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && EnableHardwareAcceleration) {
 						// If we have hardware acceleration, use it.
 						return HwAccelEncode (inptr + startIndex, length, outptr);
 					} else {
@@ -843,14 +863,14 @@ namespace MimeKit.Encodings {
 
 			if (length > 0) {
 #if NET6_0_OR_GREATER
-				if (Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) {
+				if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && EnableHardwareAcceleration) {
 					// If we have hardware acceleration, use it.
-					outptr += HwAccelEncode (input, length, output);
+					outptr += HwAccelEncode (input, length, outptr);
 				} else {
-					outptr += Encode (input, length, output);
+					outptr += Encode (input, length, outptr);
 				}
 #else
-				outptr += Encode (input, length, output);
+				outptr += Encode (input, length, outptr);
 #endif
 			}
 
@@ -866,12 +886,13 @@ namespace MimeKit.Encodings {
 					*outptr++ = (byte) '=';
 				*outptr++ = (byte) '=';
 				quartets++;
+				saved = 0;
 			}
 
-			if (quartets > 0)
+			if (quartets > 0) {
 				*outptr++ = (byte) '\n';
-
-			Reset ();
+				quartets = 0;
+			}
 
 			return (int) (outptr - output);
 		}
