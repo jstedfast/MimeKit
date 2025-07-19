@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Buffers.Text;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Encodings;
@@ -35,81 +36,97 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class EncoderFilterBenchmarks : IDisposable
+	public class EncoderFilterBenchmarks
 	{
-		static readonly string EncoderDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
-		readonly Stream BinaryData, TextData;
+		readonly byte[] BinaryData, TextData;
 
 		public EncoderFilterBenchmarks ()
 		{
-			var path = Path.Combine (EncoderDataDir, "wikipedia.txt");
-			var data = File.ReadAllBytes (path);
+			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
+			var path = Path.Combine (dataDir, "wikipedia.txt");
+			TextData = File.ReadAllBytes (path);
 
-			TextData = new MemoryStream (data, false);
-
-			path = Path.Combine (EncoderDataDir, "photo.jpg");
-			data = File.ReadAllBytes (path);
-
-			BinaryData = new MemoryStream (data, false);
+			path = Path.Combine (dataDir, "photo.jpg");
+			BinaryData = File.ReadAllBytes (path);
 		}
 
-		public void Dispose ()
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void EncodeStream (byte[] data, IMimeEncoder encoder)
 		{
-			BinaryData.Dispose ();
-			TextData.Dispose ();
-
-			GC.SuppressFinalize (this);
-		}
-
-		static void FilterInputStream (Stream input, IMimeEncoder encoder)
-		{
+			using var input = new MemoryStream (data, false);
 			using var output = new MeasuringStream ();
 			using var filtered = new FilteredStream (output);
 
 			filtered.Add (new EncoderFilter (encoder));
-			input.Position = 0;
-			input.CopyTo (filtered);
+			input.CopyTo (filtered, 4096);
 			filtered.Flush ();
 		}
 
-		[Benchmark]
-		public void Base64Encoder ()
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void Encode (byte[] data, IMimeEncoder encoder)
 		{
-			FilterInputStream (BinaryData, new Base64Encoder ());
+			var maxLength = encoder.EstimateOutputLength (data.Length);
+			var output = new byte[maxLength];
+
+			encoder.Flush (data, 0, data.Length, output);
+		}
+
+		[Benchmark]
+		public void HwAccelBase64EncodeStream ()
+		{
+			EncodeStream (BinaryData, new Base64Encoder ());
+		}
+
+		[Benchmark]
+		public void Base64EncodeStream ()
+		{
+			EncodeStream (BinaryData, new Base64Encoder () { EnableHardwareAcceleration = false });
+		}
+
+		[Benchmark]
+		public void HwAccelBase64Encode ()
+		{
+			Encode (BinaryData, new Base64Encoder ());
+		}
+
+		[Benchmark]
+		public void Base64Encode ()
+		{
+			Encode (BinaryData, new Base64Encoder () { EnableHardwareAcceleration = false });
 		}
 
 		[Benchmark]
 		public void Base64EncodeToUtf8 ()
 		{
-			var bytes = ((MemoryStream) BinaryData).ToArray ();
-			var maxLength = Base64.GetMaxEncodedToUtf8Length (bytes.Length);
-			var encoded = new byte[maxLength];
+			// Note: This benchmark serves as a baseline for optimal performance of a base64 encoder.
+			var maxLength = Base64.GetMaxEncodedToUtf8Length (BinaryData.Length);
+			var output = new byte[maxLength];
 
-			Base64.EncodeToUtf8 (bytes, encoded, out _, out int nwritten, true);
+			Base64.EncodeToUtf8 (BinaryData, output, out _, out _, true);
 		}
 
 		[Benchmark]
-		public void HexEncoder ()
+		public void HexEncodeStream ()
 		{
-			FilterInputStream (BinaryData, new HexEncoder ());
+			EncodeStream (BinaryData, new HexEncoder ());
 		}
 
 		[Benchmark]
-		public void QEncoder ()
+		public void QEncodeStream ()
 		{
-			FilterInputStream (TextData, new QEncoder (QEncodeMode.Text));
+			EncodeStream (TextData, new QEncoder (QEncodeMode.Text));
 		}
 
 		[Benchmark]
-		public void QuotedPrintableEncoder ()
+		public void QuotedPrintableEncodeStream ()
 		{
-			FilterInputStream (TextData, new QuotedPrintableEncoder ());
+			EncodeStream (TextData, new QuotedPrintableEncoder ());
 		}
 
 		[Benchmark]
-		public void UUEncoder ()
+		public void UUEncodeStream ()
 		{
-			FilterInputStream (BinaryData, new UUEncoder ());
+			EncodeStream (BinaryData, new UUEncoder ());
 		}
 	}
 }
