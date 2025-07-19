@@ -40,6 +40,9 @@ namespace Benchmarks.IO.Filters {
 	{
 		readonly byte[] BinaryData, TextData;
 
+		[Params (76, 80)]
+		public int MaxLineLength;
+
 		public EncoderFilterBenchmarks ()
 		{
 			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
@@ -72,30 +75,6 @@ namespace Benchmarks.IO.Filters {
 		}
 
 		[Benchmark]
-		public void HwAccelBase64EncodeStream ()
-		{
-			EncodeStream (BinaryData, new Base64Encoder ());
-		}
-
-		[Benchmark]
-		public void Base64EncodeStream ()
-		{
-			EncodeStream (BinaryData, new Base64Encoder () { EnableHardwareAcceleration = false });
-		}
-
-		[Benchmark]
-		public void HwAccelBase64Encode ()
-		{
-			Encode (BinaryData, new Base64Encoder ());
-		}
-
-		[Benchmark]
-		public void Base64Encode ()
-		{
-			Encode (BinaryData, new Base64Encoder () { EnableHardwareAcceleration = false });
-		}
-
-		[Benchmark]
 		public void Base64EncodeToUtf8 ()
 		{
 			// Note: This benchmark serves as a baseline for optimal performance of a base64 encoder.
@@ -103,6 +82,30 @@ namespace Benchmarks.IO.Filters {
 			var output = new byte[maxLength];
 
 			Base64.EncodeToUtf8 (BinaryData, output, out _, out _, true);
+		}
+
+		[Benchmark]
+		public void Base64EncodeStream ()
+		{
+			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength) { EnableHardwareAcceleration = false });
+		}
+
+		[Benchmark]
+		public void HwAccelBase64EncodeStream ()
+		{
+			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength));
+		}
+
+		[Benchmark]
+		public void Base64Encode ()
+		{
+			Encode (BinaryData, new Base64Encoder (MaxLineLength) { EnableHardwareAcceleration = false });
+		}
+
+		[Benchmark]
+		public void HwAccelBase64Encode ()
+		{
+			Encode (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 
 		[Benchmark]

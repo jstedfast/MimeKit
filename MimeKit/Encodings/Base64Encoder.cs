@@ -75,13 +75,12 @@ namespace MimeKit.Encodings {
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
-			// The base64 specification in rfc2045 require a maximum line length of 76.
-			maxLineLength = Math.Min (maxLineLength, 76);
-
 			quartetsPerLine = maxLineLength / 4;
 
-#if NET6_0_OR_GREATER
+#if NET9_0_OR_GREATER
 			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
+#elif NET6_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
 #endif
 		}
 
@@ -423,7 +422,6 @@ namespace MimeKit.Encodings {
 			Vector256<short> shiftBB = Vector256.Create (0x01000010).AsInt16 ();
 			Vector256<byte> const51 = Vector256.Create ((byte) 51);
 			Vector256<sbyte> const25 = Vector256.Create ((sbyte) 25);
-
 			byte* outptr = output;
 			byte* inptr = input;
 
@@ -635,7 +633,6 @@ namespace MimeKit.Encodings {
 			Vector128<byte> const51 = Vector128.Create ((byte) 51);
 			Vector128<sbyte> const25 = Vector128.Create ((sbyte) 25);
 			Vector128<byte> mask8F = Vector128.Create ((byte) 0x8F);
-
 			byte* outptr = output;
 			byte* inptr = input;
 
