@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Encodings;
@@ -34,65 +35,78 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class DecoderFilterBenchmarks : IDisposable
+	public class DecoderFilterBenchmarks
 	{
-		static readonly string EncoderDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
-		readonly Stream QuotedPrintableData, Base64Data, UUEncodedData;
+		readonly byte[] QuotedPrintableData, Base64Data, UUEncodedData;
 
 		public DecoderFilterBenchmarks ()
 		{
-			var path = Path.Combine (EncoderDataDir, "wikipedia.qp");
-			var data = File.ReadAllBytes (path);
+			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
+			var path = Path.Combine (dataDir, "wikipedia.qp");
+			QuotedPrintableData = File.ReadAllBytes (path);
 
-			QuotedPrintableData = new MemoryStream (data, false);
+			path = Path.Combine (dataDir, "photo.b64");
+			Base64Data = File.ReadAllBytes (path);
 
-			path = Path.Combine (EncoderDataDir, "photo.b64");
-			data = File.ReadAllBytes (path);
-
-			Base64Data = new MemoryStream (data, false);
-
-			path = Path.Combine (EncoderDataDir, "photo.uu");
-			data = File.ReadAllBytes (path);
-
-			UUEncodedData = new MemoryStream (data, false);
+			path = Path.Combine (dataDir, "photo.uu");
+			UUEncodedData = File.ReadAllBytes (path);
 		}
 
-		public void Dispose ()
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void Decode (byte[] data, IMimeDecoder decoder)
 		{
-			QuotedPrintableData.Dispose ();
-			UUEncodedData.Dispose ();
-			Base64Data.Dispose ();
+			var maxLength = decoder.EstimateOutputLength (data.Length);
+			var output = new byte[maxLength];
 
-			GC.SuppressFinalize (this);
+			decoder.Decode (data, 0, data.Length, output);
 		}
 
-		static void FilterInputStream (Stream input, IMimeDecoder decoder)
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void DecodeStream (byte[] data, IMimeDecoder decoder)
 		{
+			using var input = new MemoryStream (data, false);
 			using var output = new MeasuringStream ();
 			using var filtered = new FilteredStream (output);
 
 			filtered.Add (new DecoderFilter (decoder));
-			input.Position = 0;
 			input.CopyTo (filtered);
 			filtered.Flush ();
 		}
 
 		[Benchmark]
-		public void Base64Decoder ()
+		public void Base64Decode ()
 		{
-			FilterInputStream (Base64Data, new Base64Decoder ());
+			Decode (Base64Data, new Base64Decoder ());
 		}
 
 		[Benchmark]
-		public void QuotedPrintableDecoder ()
+		public void Base64DecodeStream ()
 		{
-			FilterInputStream (QuotedPrintableData, new QuotedPrintableDecoder ());
+			DecodeStream (Base64Data, new Base64Decoder ());
 		}
 
 		[Benchmark]
-		public void UUDecoder ()
+		public void QuotedPrintableDecode ()
 		{
-			FilterInputStream (UUEncodedData, new UUDecoder ());
+			Decode (QuotedPrintableData, new QuotedPrintableDecoder ());
+		}
+
+		[Benchmark]
+		public void QuotedPrintableDecodeStream ()
+		{
+			DecodeStream (QuotedPrintableData, new QuotedPrintableDecoder ());
+		}
+
+		[Benchmark]
+		public void UUDecode ()
+		{
+			Decode (UUEncodedData, new UUDecoder ());
+		}
+
+		[Benchmark]
+		public void UUDecodeStream ()
+		{
+			DecodeStream (UUEncodedData, new UUDecoder ());
 		}
 	}
 }
