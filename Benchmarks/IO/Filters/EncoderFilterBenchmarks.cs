@@ -43,10 +43,10 @@ namespace Benchmarks.IO.Filters {
 		public EncoderFilterBenchmarks ()
 		{
 			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
-			var path = Path.Combine (dataDir, "encoders", "wikipedia.txt");
+			var path = Path.Combine (dataDir, "wikipedia.txt");
 			TextData = File.ReadAllBytes (path);
 
-			path = Path.Combine (dataDir, "encoders", "photo.jpg");
+			path = Path.Combine (dataDir, "photo.jpg");
 			BinaryData = File.ReadAllBytes (path);
 		}
 
@@ -58,7 +58,7 @@ namespace Benchmarks.IO.Filters {
 			using var filtered = new FilteredStream (output);
 
 			filtered.Add (new EncoderFilter (encoder));
-			input.CopyTo (filtered);
+			input.CopyTo (filtered, 4096);
 			filtered.Flush ();
 		}
 

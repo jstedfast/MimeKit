@@ -69,7 +69,7 @@ namespace Benchmarks.IO.Filters {
 			using var filtered = new FilteredStream (output);
 
 			filtered.Add (new DecoderFilter (decoder));
-			input.CopyTo (filtered);
+			input.CopyTo (filtered, 4096);
 			filtered.Flush ();
 		}
 
