@@ -50,7 +50,7 @@
     <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.119" GeneratePathProperty="true" Condition=" !$(TargetFramework.StartsWith('net4')) ">
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,8 +72,8 @@
   </ItemGroup>
 
   <Target Name="CopyMySQLiteInteropFiles" AfterTargets="Build">
-    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" Condition=" $(TargetFramework.StartsWith('net4')) " />
-    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(Filename)%(Extension)')" Condition=" !$(TargetFramework.StartsWith('net4')) " />
+    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -&gt; '$(OutDir)%(RecursiveDir)%(Filename)%(Extension)')" Condition=" $(TargetFramework.StartsWith('net4')) " />
+    <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -&gt; '$(OutDir)%(Filename)%(Extension)')" Condition=" !$(TargetFramework.StartsWith('net4')) " />
   </Target>
 
 </Project>
