@@ -35,7 +35,6 @@ using MD5 = System.Security.Cryptography.MD5;
 
 using MimeKit.IO;
 using MimeKit.Utils;
-using MimeKit.Encodings;
 using MimeKit.IO.Filters;
 
 namespace MimeKit {
@@ -583,11 +582,7 @@ namespace MimeKit {
 						checksum = md5.ComputeHash (filtered);
 				}
 
-				var base64 = new Base64Encoder (true);
-				var digest = new byte[base64.EstimateOutputLength (checksum.Length)];
-				int n = base64.Flush (checksum, 0, checksum.Length, digest);
-
-				return Encoding.ASCII.GetString (digest, 0, n);
+				return Convert.ToBase64String (checksum, 0, checksum.Length);
 			}
 		}
 

@@ -35,6 +35,10 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
 
+#if NET5_0_OR_GREATER
+using System.Buffers.Text;
+#endif
+
 using MimeKit.IO;
 using MimeKit.Text;
 using MimeKit.Utils;
@@ -165,28 +169,29 @@ namespace MimeKit {
 #if NET5_0_OR_GREATER
 			Span<byte> buffer = stackalloc byte[24];
 			Span<byte> digest = stackalloc byte[16];
-			Span<char> ascii  = stackalloc char[26];
+			Span<char> boundary  = stackalloc char[26];
 
 			RandomNumberGenerator.Fill (digest);
 
-			System.Buffers.Text.Base64.EncodeToUtf8 (digest, buffer, out _, out int length);
+			Base64.EncodeToUtf8 (digest, buffer, out _, out int length);
 
-			ascii[0] = '=';
-			ascii[1] = '-';
-			Encoding.ASCII.GetChars (buffer.Slice (0, length), ascii.Slice (2, length));
+			boundary[0] = '=';
+			boundary[1] = '-';
+			Encoding.ASCII.GetChars (buffer.Slice (0, length), boundary.Slice (2, length));
 
-			return new string (ascii.Slice (0, length + 2));
+			return new string (boundary.Slice (0, length + 2));
 #else
-			var base64 = new Base64Encoder (true);
 			var digest = new byte[16];
-			var buf = new byte[24];
+			var boundary = new char[26];
 			int length;
 
 			MimeUtils.GetRandomBytes (digest);
 
-			length = base64.Flush (digest, 0, digest.Length, buf);
+			boundary[0] = '=';
+			boundary[1] = '-';
+			length = Convert.ToBase64CharArray (digest, 0, digest.Length, boundary, 2);
 
-			return "=-" + Encoding.ASCII.GetString (buf, 0, length);
+			return new string (boundary, 0, length + 2);
 #endif
 		}
 
