@@ -176,13 +176,13 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		static void TestDecoder (ContentEncoding encoding, byte[] rawData, string encodedFile, int bufferSize, bool unix = false)
+		static void TestDecoder (IMimeDecoder decoder, byte[] rawData, string encodedFile, int bufferSize, bool unix = false)
 		{
 			int n;
 
 			using (var decoded = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (decoded)) {
-					filtered.Add (DecoderFilter.Create (encoding));
+					filtered.Add (new DecoderFilter (decoder));
 
 					if (unix)
 						filtered.Add (new Dos2UnixFilter ());
@@ -207,10 +207,11 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		[Test]
-		public void TestBase64DecodePatterns ()
+		[TestCase (true)]
+		[TestCase (false)]
+		public void TestBase64DecodePatterns (bool enableHwAccel)
 		{
-			var decoder = new Base64Decoder ();
+			var decoder = new Base64Decoder () { EnableHardwareAcceleration = enableHwAccel };
 			var output = new byte[4096];
 
 			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Base64));
@@ -241,31 +242,46 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		[TestCase (4096)]
-		[TestCase (1024)]
-		[TestCase (16)]
-		[TestCase (1)]
-		public void TestBase64Encode (int bufferSize)
+		[TestCase (true)]
+		[TestCase (false)]
+		public void TestBase64DecodeTwoBlocks (bool enableHwAccel)
 		{
-			TestEncoder (new Base64Encoder (), photo, "photo.b64", bufferSize);
+			const string input = "VGhpcyBpcyB0aGUgcGF5bG9hZCBvZiB0aGUgZmlyc3QgYmFzZTY0LWVuY29kZWQgYmxvY2sgb2Yg\r\ndGV4dC4=\r\nQW5kIHRoaXMgaXMgdGhlIHBheWxvYWQgb2YgdGhlIHNlY29uZCBiYXNlNjQtZW5jb2RlZCBibG9j\r\nayBvZiB0ZXh0Lg==\r\n";
+			const string expected = "This is the payload of the first base64-encoded block of text.And this is the payload of the second base64-encoded block of text.";
+			var data = Encoding.ASCII.GetBytes (input);
+			var decoder = new Base64Decoder () { EnableHardwareAcceleration = enableHwAccel };
+			var output = new byte[decoder.EstimateOutputLength (data.Length)];
+
+			int n = decoder.Decode (data, 0, data.Length, output);
+			var actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo (expected), "Failed to decode two blocks of base64-encoded text.");
 		}
 
-		[TestCase (4096)]
-		[TestCase (1024)]
-		[TestCase (16)]
-		[TestCase (1)]
-		public void TestBase64EncodeDisableHwAccel (int bufferSize)
+		[TestCase (true, 4096)]
+		[TestCase (false, 4096)]
+		[TestCase (true, 1024)]
+		[TestCase (false, 1024)]
+		[TestCase (true, 16)]
+		[TestCase (false, 16)]
+		[TestCase (true, 1)]
+		[TestCase (false, 1)]
+		public void TestBase64Encode (bool enableHwAccel, int bufferSize)
 		{
-			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = false }, photo, "photo.b64", bufferSize);
+			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, photo, "photo.b64", bufferSize);
 		}
 
-		[TestCase (4096)]
-		[TestCase (1024)]
-		[TestCase (16)]
-		[TestCase (1)]
-		public void TestBase64Decode (int bufferSize)
+		[TestCase (true, 4096)]
+		[TestCase (false, 4096)]
+		[TestCase (true, 1024)]
+		[TestCase (false, 1024)]
+		[TestCase (true, 16)]
+		[TestCase (false, 16)]
+		[TestCase (true, 1)]
+		[TestCase (false, 1)]
+		public void TestBase64Decode (bool enableHwAccel, int bufferSize)
 		{
-			TestDecoder (ContentEncoding.Base64, photo, "photo.b64", bufferSize);
+			TestDecoder (new Base64Decoder () { EnableHardwareAcceleration = enableHwAccel }, photo, "photo.b64", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -283,7 +299,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUDecode (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.UUEncode, photo, "photo.uu", bufferSize);
+			TestDecoder (new UUDecoder (), photo, "photo.uu", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -292,7 +308,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUDecodeBeginStateChanges (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.UUEncode, photo, "photo.uu-states", bufferSize);
+			TestDecoder (new UUDecoder (), photo, "photo.uu-states", bufferSize);
 		}
 
 		static readonly string[] qpEncodedPatterns = {
@@ -356,7 +372,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestQuotedPrintableDecode (int bufferSize)
 		{
-			TestDecoder (ContentEncoding.QuotedPrintable, wikipedia_unix, "wikipedia.qp", bufferSize, true);
+			TestDecoder (new QuotedPrintableDecoder (), wikipedia_unix, "wikipedia.qp", bufferSize, true);
 		}
 
 		[Test]

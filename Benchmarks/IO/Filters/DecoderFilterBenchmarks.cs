@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
@@ -74,13 +75,35 @@ namespace Benchmarks.IO.Filters {
 		}
 
 		[Benchmark]
+		public void Base64DecodeFromUtf8 ()
+		{
+			// Note: This benchmark serves as a baseline for optimal performance of a base64 decoder.
+			var maxLength = Base64.GetMaxDecodedFromUtf8Length (Base64Data.Length);
+			var output = new byte[maxLength];
+
+			Base64.DecodeFromUtf8 (Base64Data, output, out _, out _, true);
+		}
+
+		[Benchmark]
 		public void Base64Decode ()
+		{
+			Decode (Base64Data, new Base64Decoder () { EnableHardwareAcceleration = false });
+		}
+
+		[Benchmark]
+		public void HwAccelBase64Decode ()
 		{
 			Decode (Base64Data, new Base64Decoder ());
 		}
 
 		[Benchmark]
 		public void Base64DecodeStream ()
+		{
+			DecodeStream (Base64Data, new Base64Decoder () { EnableHardwareAcceleration = false });
+		}
+
+		[Benchmark]
+		public void HwAccelBase64DecodeStream ()
 		{
 			DecodeStream (Base64Data, new Base64Decoder ());
 		}
