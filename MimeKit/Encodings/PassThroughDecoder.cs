@@ -152,11 +152,17 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
+#if NET6_0_OR_GREATER
+			input.AsSpan (startIndex, length).CopyTo (output.AsSpan ());
+
+			return length;
+#else
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
 					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
+#endif
 		}
 
 		/// <summary>
