@@ -130,7 +130,11 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
+#if NET6_0_OR_GREATER
+			input.AsSpan (startIndex, length).CopyTo (output.AsSpan ());
+#else
 			Buffer.BlockCopy (input, startIndex, output, 0, length);
+#endif
 
 			return length;
 		}
