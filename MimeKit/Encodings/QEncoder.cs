@@ -200,8 +200,6 @@ namespace MimeKit.Encodings {
 			if (length > 0)
 				outptr += Encode (input, length, output);
 
-			Reset ();
-
 			return (int) (outptr - output);
 		}
 
