@@ -106,9 +106,6 @@ namespace MimeKit.Encodings {
 
 		static unsafe int Encode (byte* input, int length, byte* output)
 		{
-			if (length == 0)
-				return 0;
-
 			byte* inend = input + length;
 			byte* outptr = output;
 			byte* inptr = input;
