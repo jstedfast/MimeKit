@@ -1,5 +1,5 @@
 ﻿//
-// BEncoder.cs
+// Rfc2047Base64Encoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -31,49 +31,41 @@ using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 #endif
 
-namespace MimeKit.Encodings {
+using MimeKit.Encodings;
+
+namespace MimeKit.Utils {
 	/// <summary>
-	/// Incrementally encodes content using a variation of the base64 encoding
-	/// that is specifically meant to be used for rfc2047 encoded-word tokens.
+	/// A base64 encoder that is specifically meant to be used for rfc2047 encoded-word tokens.
 	/// </summary>
 	/// <remarks>
-	/// The B-Encoding is an encoding often used in MIME to encode textual content outside
+	/// The rfc2047 "B" encoding is an encoding often used in MIME to encode textual content outside
 	/// the ASCII range within an rfc2047 encoded-word token in order to ensure that
 	/// the text remains intact when sent via 7bit transports such as SMTP.
 	/// </remarks>
-	internal class BEncoder : IMimeEncoder
+	class Rfc2047Base64Encoder : IRfc2047Encoder
 	{
 		/// <summary>
-		/// Initialize a new instance of the <see cref="BEncoder"/> class.
+		/// Initialize a new instance of the <see cref="Rfc2047Base64Encoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new rfc2047 base64 encoder.
 		/// </remarks>
-		public BEncoder ()
+		public Rfc2047Base64Encoder ()
 		{
 		}
 
 		/// <summary>
-		/// Clone the <see cref="BEncoder"/> with its current state.
+		/// Get the rfc2047 encoding method.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="BEncoder"/> with exactly the same state as the current encoder.
+		/// <para>Gets the rfc2047 encoding method.</para>
+		/// <para>Rfc2047 encoded-word tokens support two methods of encoding: base64 and quoted-printable.
+		/// These encoding methods are represented by <c>b</c> (or <c>B</c>) and <c>q</c> (or <c>Q</c>),
+		/// respectively.</para>
 		/// </remarks>
-		/// <returns>A new <see cref="BEncoder"/> with identical state.</returns>
-		public IMimeEncoder Clone ()
-		{
-			return new BEncoder ();
-		}
-
-		/// <summary>
-		/// Get the encoding.
-		/// </summary>
-		/// <remarks>
-		/// Gets the encoding that the encoder supports.
-		/// </remarks>
-		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.Base64; }
+		/// <value>The character representing the rfc2047 encoding.</value>
+		public char Encoding {
+			get { return 'b'; }
 		}
 
 		/// <summary>
@@ -195,41 +187,6 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-			throw new NotImplementedException ();
-		}
-
-		/// <summary>
-		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
-		/// </summary>
-		/// <remarks>
-		/// <para>Encodes the specified input into the output buffer, flushing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all the
-		/// encoded input. For estimating the size needed for the output buffer,
-		/// see <see cref="EstimateOutputLength"/>.</para>
-		/// </remarks>
-		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <param name="output">The output buffer.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="input"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
-		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.</para>
-		/// </exception>
-		public int Flush (byte[] input, int startIndex, int length, byte[] output)
-		{
-			ValidateArguments (input, startIndex, length, output);
-
 #if NET6_0_OR_GREATER
 			Base64.EncodeToUtf8 (input.AsSpan (startIndex, length), output.AsSpan (), out _, out int outputLength, true);
 
@@ -241,16 +198,6 @@ namespace MimeKit.Encodings {
 				}
 			}
 #endif
-		}
-
-		/// <summary>
-		/// Reset the encoder.
-		/// </summary>
-		/// <remarks>
-		/// Resets the state of the encoder.
-		/// </remarks>
-		public void Reset ()
-		{
 		}
 	}
 }

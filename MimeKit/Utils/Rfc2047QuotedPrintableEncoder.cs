@@ -1,5 +1,5 @@
 ﻿//
-// QEncoder.cs
+// Rfc2047QuotedPrintableEncoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,78 +24,51 @@
 // THE SOFTWARE.
 //
 
+
 using System;
 
-using MimeKit.Utils;
+using MimeKit.Encodings;
 
-namespace MimeKit.Encodings {
+namespace MimeKit.Utils {
 	/// <summary>
-	/// Q-Encoding mode.
-	/// </summary>
-	/// <remarks>
-	/// The encoding mode for the 'Q' encoding used in rfc2047.
-	/// </remarks>
-	public enum QEncodeMode : byte {
-		/// <summary>
-		/// A mode for encoding phrases, as defined by rfc822.
-		/// </summary>
-		Phrase,
-
-		/// <summary>
-		/// A mode for encoding text.
-		/// </summary>
-		Text
-	}
-
-	/// <summary>
-	/// Incrementally encodes content using a variation of the quoted-printable encoding
+	/// Encodes content using a variation of the quoted-printable encoding
 	/// that is specifically meant to be used for rfc2047 encoded-word tokens.
 	/// </summary>
 	/// <remarks>
-	/// The Q-Encoding is an encoding often used in MIME to encode textual content outside
-	/// the ASCII range within an rfc2047 encoded-word token in order to ensure that
+	/// The rfc2047 "Q" encoding is an encoding often used in MIME to encode textual content
+	/// outside the ASCII range within an rfc2047 encoded-word token in order to ensure that
 	/// the text remains intact when sent via 7bit transports such as SMTP.
 	/// </remarks>
-	[Obsolete ("This class will being going away in a future version of MimeKit.")]
-	public class QEncoder : IMimeEncoder
+	class Rfc2047QuotedPrintableEncoder : IRfc2047Encoder
 	{
 		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
 
 		readonly CharType mask;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="QEncoder"/> class.
+		/// Initialize a new instance of the <see cref="Rfc2047QuotedPrintableEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new rfc2047 quoted-printable encoder.
 		/// </remarks>
 		/// <param name="mode">The rfc2047 encoding mode.</param>
-		public QEncoder (QEncodeMode mode)
+		public Rfc2047QuotedPrintableEncoder (QEncodeMode mode)
 		{
 			mask = mode == QEncodeMode.Phrase ? CharType.IsEncodedPhraseSafe : CharType.IsEncodedWordSafe;
 		}
 
 		/// <summary>
-		/// Clone the <see cref="QEncoder"/> with its current state.
+		/// Get the rfc2047 encoding method.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="QEncoder"/> with exactly the same state as the current encoder.
+		/// <para>Gets the rfc2047 encoding method.</para>
+		/// <para>Rfc2047 encoded-word tokens support two methods of encoding: base64 and quoted-printable.
+		/// These encoding methods are represented by <c>b</c> (or <c>B</c>) and <c>q</c> (or <c>Q</c>),
+		/// respectively.</para>
 		/// </remarks>
-		/// <returns>A new <see cref="QEncoder"/> with identical state.</returns>
-		public IMimeEncoder Clone ()
-		{
-			return new QEncoder (mask == CharType.IsEncodedPhraseSafe ? QEncodeMode.Phrase : QEncodeMode.Text);
-		}
-
-		/// <summary>
-		/// Get the encoding.
-		/// </summary>
-		/// <remarks>
-		/// Gets the encoding that the encoder supports.
-		/// </remarks>
-		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.QuotedPrintable; }
+		/// <value>The character representing the rfc2047 encoding.</value>
+		public char Encoding {
+			get { return 'q'; }
 		}
 
 		/// <summary>
@@ -189,65 +162,6 @@ namespace MimeKit.Encodings {
 					return Encode (inptr + startIndex, length, outptr);
 				}
 			}
-		}
-
-		unsafe int Flush (byte* input, int length, byte* output)
-		{
-			byte* outptr = output;
-
-			if (length > 0)
-				outptr += Encode (input, length, output);
-
-			return (int) (outptr - output);
-		}
-
-		/// <summary>
-		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
-		/// </summary>
-		/// <remarks>
-		/// <para>Encodes the specified input into the output buffer, flushing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all the
-		/// encoded input. For estimating the size needed for the output buffer,
-		/// see <see cref="EstimateOutputLength"/>.</para>
-		/// </remarks>
-		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <param name="output">The output buffer.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="input"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
-		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.</para>
-		/// </exception>
-		public int Flush (byte[] input, int startIndex, int length, byte[] output)
-		{
-			ValidateArguments (input, startIndex, length, output);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Flush (inptr + startIndex, length, outptr);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Reset the encoder.
-		/// </summary>
-		/// <remarks>
-		/// Resets the state of the encoder.
-		/// </remarks>
-		public void Reset ()
-		{
 		}
 	}
 }

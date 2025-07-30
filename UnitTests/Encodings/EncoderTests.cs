@@ -873,7 +873,6 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestClone ()
 		{
-			CloneAndAssert (new BEncoder ());
 			CloneAndAssert (new Base64Encoder (76));
 			CloneAndAssert (new HexEncoder ());
 			CloneAndAssert (new QEncoder (QEncodeMode.Text));
@@ -923,7 +922,6 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestReset ()
 		{
-			ResetAndAssert (new BEncoder ());
 			ResetAndAssert (new Base64Encoder (76));
 			ResetAndAssert (new HexEncoder ());
 			ResetAndAssert (new QEncoder (QEncodeMode.Text));

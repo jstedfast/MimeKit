@@ -41,6 +41,10 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class Rfc2047
 	{
+		static readonly IRfc2047Encoder QuotedPrintablePhraseEncoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Phrase);
+		static readonly IRfc2047Encoder QuotedPrintableTextEncoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Text);
+		static readonly IRfc2047Encoder Base64Encoder = new Rfc2047Base64Encoder ();
+
 		readonly struct Token
 		{
 			const char SevenBit = '7';
@@ -1055,9 +1059,8 @@ namespace MimeKit.Utils {
 		{
 			int startLength = builder.Length;
 			var chars = new char[length];
-			IMimeEncoder encoder;
+			IRfc2047Encoder encoder;
 			byte[] word, encoded;
-			char encoding;
 			int len;
 
 			text.CopyTo (startIndex, chars, 0, length);
@@ -1070,22 +1073,20 @@ namespace MimeKit.Utils {
 			}
 
 			if (CharsetRequiresBase64 (charset) || GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
-				// TODO: Make BEncoder an internal static class. We don't need to keep state and we'd save ourselves a memory allocation.
-				encoder = new BEncoder ();
-				encoding = 'b';
+				encoder = Rfc2047.Base64Encoder;
+			} else if (mode == QEncodeMode.Phrase) {
+				encoder = Rfc2047.QuotedPrintablePhraseEncoder;
 			} else {
-				// TODO: Make QEncoder an internal static class. We don't need to keep state and we'd save ourselves a memory allocation.
-				encoder = new QEncoder (mode);
-				encoding = 'q';
+				encoder = Rfc2047.QuotedPrintableTextEncoder;
 			}
 
 			encoded = ArrayPool<byte>.Shared.Rent (encoder.EstimateOutputLength (len));
-			len = encoder.Flush (word, 0, len, encoded);
+			len = encoder.Encode (word, 0, len, encoded);
 
 			builder.Append ("=?");
 			builder.Append (CharsetUtils.GetMimeCharset (charset));
 			builder.Append ('?');
-			builder.Append (encoding);
+			builder.Append (encoder.Encoding);
 			builder.Append ('?');
 
 			for (int i = 0; i < len; i++)
