@@ -43,6 +43,76 @@ namespace UnitTests.Encodings {
 			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (59));
 		}
 
+		static void TestYEncode (string fileName, byte[] content, int contentLength, uint crc32, MemoryStream expectedOutput)
+		{
+			using (var encoded = new MemoryStream ()) {
+				var ybegin = Encoding.ASCII.GetBytes ($"-- \n=ybegin line=128 size={contentLength} name={fileName} \n");
+				var yend = Encoding.ASCII.GetBytes ($"=yend size={contentLength} crc32={crc32:x8} \n");
+				var yenc = new YEncoder ();
+
+				encoded.Write (ybegin, 0, ybegin.Length);
+
+				using (var filtered = new FilteredStream (encoded)) {
+					filtered.Add (new EncoderFilter (yenc));
+
+					using (var stream = new MemoryStream (content, false))
+						stream.CopyTo (filtered, 4096);
+
+					filtered.Flush ();
+				}
+
+				encoded.Write (yend, 0, yend.Length);
+
+				Assert.That (yenc.Checksum ^ 0xffffffff, Is.EqualTo (crc32), "The encoded checksum does not match.");
+
+				var latin1 = Encoding.GetEncoding ("iso-8859-1");
+				var buf = expectedOutput.GetBuffer ();
+
+				var expected = latin1.GetString (buf, 0, (int) expectedOutput.Length);
+
+				buf = encoded.GetBuffer ();
+
+				var actual = latin1.GetString (buf, 0, (int) encoded.Length);
+
+				Assert.That (actual, Is.EqualTo (expected), "Encoded value does not match original.");
+			}
+		}
+
+		static void TestYEncodeFlush (string fileName, byte[] content, int contentLength, uint crc32, MemoryStream expectedOutput)
+		{
+			var ybegin = Encoding.ASCII.GetBytes ($"-- \n=ybegin line=128 size={contentLength} name={fileName} \n");
+			var yend = Encoding.ASCII.GetBytes ($"=yend size={contentLength} crc32={crc32:x8} \n");
+			var yenc = new YEncoder ();
+
+			int needed = yenc.EstimateOutputLength (contentLength) + ybegin.Length + yend.Length;
+			byte[] encoded = new byte[needed];
+
+			int encodedLength = yenc.Flush (content, 0, content.Length, encoded);
+
+			if (ybegin.Length > 0) {
+				// shift the encoded data to the right to make room for the "begin" line
+				Buffer.BlockCopy (encoded, 0, encoded, ybegin.Length, encodedLength);
+				Buffer.BlockCopy (ybegin, 0, encoded, 0, ybegin.Length);
+				encodedLength += ybegin.Length;
+			}
+
+			if (yend.Length > 0) {
+				// append the "end" line to the end of the encoded data
+				Buffer.BlockCopy (yend, 0, encoded, encodedLength, yend.Length);
+				encodedLength += yend.Length;
+			}
+
+			Assert.That (yenc.Checksum ^ 0xffffffff, Is.EqualTo (crc32), "The encoded checksum does not match.");
+
+			var latin1 = Encoding.GetEncoding ("iso-8859-1");
+			var buf = expectedOutput.GetBuffer ();
+
+			var expected = latin1.GetString (buf, 0, (int) expectedOutput.Length);
+			var actual = latin1.GetString (buf, 0, encodedLength);
+
+			Assert.That (actual, Is.EqualTo (expected), "Encoded value does not match original.");
+		}
+
 		[Test]
 		public void TestYDecodeSimpleMessage ()
 		{
@@ -64,44 +134,21 @@ namespace UnitTests.Encodings {
 					Assert.That (decoded.Length, Is.EqualTo (584), "The decoded size does not match.");
 					Assert.That (ydec.Checksum ^ 0xffffffff, Is.EqualTo (0xded29f4f), "The decoded checksum does not match.");
 
-					// now re-encode it
-					using (var encoded = new MemoryStream ()) {
-						var ybegin = Encoding.ASCII.GetBytes ("-- \n=ybegin line=128 size=584 name=testfile.txt \n");
-						var yend = Encoding.ASCII.GetBytes ("=yend size=584 crc32=ded29f4f \n");
-						var yenc = new YEncoder ();
+					using (var original = new MemoryStream ()) {
+						using (var filtered = new FilteredStream (original)) {
+							filtered.Add (new Dos2UnixFilter ());
 
-						encoded.Write (ybegin, 0, ybegin.Length);
-
-						using (var filtered = new FilteredStream (encoded)) {
-							filtered.Add (new EncoderFilter (yenc));
-
-							decoded.CopyTo (filtered, 4096);
+							((MimePart) message.Body).Content.WriteTo (filtered);
 							filtered.Flush ();
 						}
 
-						encoded.Write (yend, 0, yend.Length);
+						original.Position = 0;
 
-						Assert.That (yenc.Checksum ^ 0xffffffff, Is.EqualTo (0xded29f4f), "The encoded checksum does not match.");
+						TestYEncode ("testfile.txt", decoded.GetBuffer (), (int) decoded.Length, 0xded29f4f, original);
 
-						using (var original = new MemoryStream ()) {
-							using (var filtered = new FilteredStream (original)) {
-								filtered.Add (new Dos2UnixFilter ());
+						original.Position = 0;
 
-								((MimePart) message.Body).Content.WriteTo (filtered);
-								filtered.Flush ();
-							}
-
-							var latin1 = Encoding.GetEncoding ("iso-8859-1");
-							var buf = original.GetBuffer ();
-
-							var expected = latin1.GetString (buf, 0, (int) original.Length);
-
-							buf = encoded.GetBuffer ();
-
-							var actual = latin1.GetString (buf, 0, (int) encoded.Length);
-
-							Assert.That (actual, Is.EqualTo (expected), "Encoded value does not match original.");
-						}
+						TestYEncodeFlush ("testfile.txt", decoded.GetBuffer (), (int) decoded.Length, 0xded29f4f, original);
 					}
 				}
 			}

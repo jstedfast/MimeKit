@@ -127,7 +127,7 @@ namespace UnitTests.Encodings {
 			Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (0));
 		}
 
-		static void TestEncoder (IMimeEncoder encoder, byte[] rawData, string encodedFile, int bufferSize)
+		static void TestEncoder (IMimeEncoder encoder, string fileName, byte[] rawData, string encodedFile, int bufferSize)
 		{
 			int n;
 
@@ -142,7 +142,7 @@ namespace UnitTests.Encodings {
 
 				using (var encoded = new MemoryStream ()) {
 					if (encoder.Encoding == ContentEncoding.UUEncode) {
-						var begin = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\n");
+						var begin = Encoding.ASCII.GetBytes ($"begin 644 {fileName}\n");
 						encoded.Write (begin, 0, begin.Length);
 					}
 
@@ -164,15 +164,65 @@ namespace UnitTests.Encodings {
 						encoded.Write (end, 0, end.Length);
 					}
 
-					var buf0 = original.GetBuffer ();
-					var buf1 = encoded.GetBuffer ();
-					n = (int) original.Length;
+					var expectedLength = (int) original.Length;
+					var expected = original.GetBuffer ();
+					var actual = encoded.GetBuffer ();
 
-					Assert.That (encoded.Length, Is.EqualTo (original.Length), "Encoded length is incorrect.");
+					Assert.That (encoded.Length, Is.EqualTo (expectedLength), "Encoded length is incorrect.");
 
-					for (int i = 0; i < n; i++)
-						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
+					for (int i = 0; i < expectedLength; i++)
+						Assert.That (actual[i], Is.EqualTo (expected[i]), $"The byte at offset {i} does not match.");
 				}
+			}
+		}
+
+		static void TestEncoderFlush (IMimeEncoder encoder, string fileName, byte[] rawData, string encodedFile)
+		{
+			using (var original = new MemoryStream ()) {
+				using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
+					using (var filtered = new FilteredStream (original)) {
+						filtered.Add (new Dos2UnixFilter ());
+						file.CopyTo (filtered, 4096);
+						filtered.Flush ();
+					}
+				}
+
+				int outputLength = encoder.EstimateOutputLength (rawData.Length);
+				byte[] encoded, begin, end;
+
+				if (encoder.Encoding == ContentEncoding.UUEncode) {
+					begin = Encoding.ASCII.GetBytes ($"begin 644 {fileName}\n");
+					end = Encoding.ASCII.GetBytes ("end\n");
+					outputLength += begin.Length + end.Length;
+				} else {
+					begin = Array.Empty<byte> ();
+					end = Array.Empty<byte> ();
+				}
+
+				encoded = new byte[outputLength];
+
+				int encodedLength = encoder.Flush (rawData, 0, rawData.Length, encoded);
+
+				if (begin.Length > 0) {
+					// shift the encoded data to the right to make room for the "begin" line
+					Buffer.BlockCopy (encoded, 0, encoded, begin.Length, encodedLength);
+					Buffer.BlockCopy (begin, 0, encoded, 0, begin.Length);
+					encodedLength += begin.Length;
+				}
+
+				if (end.Length > 0) {
+					// append the "end" line to the end of the encoded data
+					Buffer.BlockCopy (end, 0, encoded, encodedLength, end.Length);
+					encodedLength += end.Length;
+				}
+
+				int expectedLength = (int) original.Length;
+				var expected = original.GetBuffer ();
+
+				Assert.That (encodedLength, Is.EqualTo (expectedLength), "Encoded length is incorrect.");
+
+				for (int i = 0; i < expectedLength; i++)
+					Assert.That (encoded[i], Is.EqualTo (expected[i]), $"The byte at offset {i} does not match.");
 			}
 		}
 
@@ -268,7 +318,14 @@ namespace UnitTests.Encodings {
 		[TestCase (false, 1)]
 		public void TestBase64Encode (bool enableHwAccel, int bufferSize)
 		{
-			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, photo, "photo.b64", bufferSize);
+			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, "photo.jpg", photo, "photo.b64", bufferSize);
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestBase64EncodeFlush (bool enableHwAccel)
+		{
+			TestEncoderFlush (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, "photo.jpg", photo, "photo.b64");
 		}
 
 		[TestCase (true, 4096)]
@@ -290,7 +347,13 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestUUEncode (int bufferSize)
 		{
-			TestEncoder (new UUEncoder (), photo, "photo.uu", bufferSize);
+			TestEncoder (new UUEncoder (), "photo.jpg", photo, "photo.uu", bufferSize);
+		}
+
+		[Test]
+		public void TestUUEncodeFlush ()
+		{
+			TestEncoderFlush (new UUEncoder (), "photo.jpg", photo, "photo.uu");
 		}
 
 		[TestCase (4096)]
@@ -354,7 +417,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestQuotedPrintableEncodeDos (int bufferSize)
 		{
-			TestEncoder (new QuotedPrintableEncoder (), wikipedia_dos, "wikipedia.qp", bufferSize);
+			TestEncoder (new QuotedPrintableEncoder (), "wikipedia.txt", wikipedia_dos, "wikipedia.qp", bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -363,7 +426,7 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestQuotedPrintableEncodeUnix (int bufferSize)
 		{
-			TestEncoder (new QuotedPrintableEncoder (), wikipedia_unix, "wikipedia.qp", bufferSize);
+			TestEncoder (new QuotedPrintableEncoder (), "wikipedia.txt", wikipedia_unix, "wikipedia.qp", bufferSize);
 		}
 
 		[TestCase (4096)]
