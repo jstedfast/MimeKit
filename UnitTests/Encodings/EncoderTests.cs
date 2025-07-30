@@ -582,6 +582,19 @@ namespace UnitTests.Encodings {
 			for (int i = 0; i < n; i++)
 				Assert.That (output[i], Is.EqualTo (input[i]));
 
+			decoder.Reset ();
+
+			unsafe {
+				fixed (byte* inbuf = input, outbuf = output) {
+					n = decoder.Decode (inbuf, input.Length, outbuf);
+
+					Assert.That (n, Is.EqualTo (input.Length));
+
+					for (int i = 0; i < n; i++)
+						Assert.That (output[i], Is.EqualTo (input[i]));
+				}
+			}
+
 			decoder.Clone ().Reset ();
 		}
 
