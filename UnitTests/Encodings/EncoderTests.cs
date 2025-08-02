@@ -592,11 +592,20 @@ namespace UnitTests.Encodings {
 
 			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
+			// First, test the Encode() method works as expected.
 			var buf = encoding.GetBytes (input);
-			int n = encoder.Flush (buf, 0, buf.Length, output);
+			int n = encoder.Encode (buf, 0, buf.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
-			Assert.That (actual, Is.EqualTo (expected));
+			Assert.That (actual, Is.EqualTo (expected), "Encode");
+
+			encoder.Reset ();
+
+			// Second, test that the Flush() method, when passed the full input, produces the same output.
+			n = encoder.Flush (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo (expected), "Flush");
 		}
 
 		[Test]
@@ -612,11 +621,20 @@ namespace UnitTests.Encodings {
 
 			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 
+			// First, test the Encode() method works as expected.
 			var buf = encoding.GetBytes (input);
-			int n = encoder.Flush (buf, 0, buf.Length, output);
+			int n = encoder.Encode (buf, 0, buf.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
-			Assert.That (actual, Is.EqualTo (expected));
+			Assert.That (actual, Is.EqualTo (expected), "Encode");
+
+			encoder.Reset ();
+
+			// Second, test that the Flush() method, when passed the full input, produces the same output.
+			n = encoder.Flush (buf, 0, buf.Length, output);
+			actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo (expected), "Flush");
 		}
 
 		[Test]
@@ -625,7 +643,9 @@ namespace UnitTests.Encodings {
 			const string input = "This should decode: (%ED%E5%EC%F9 %EF%E1 %E9%EC%E8%F4%F0) while %X1%S1%Z1 should not";
 			const string expected = "This should decode: (םולש ןב ילטפנ) while %X1%S1%Z1 should not";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
+#pragma warning disable CS0618 // Type or member is obsolete
 			var decoder = new HexDecoder ();
+#pragma warning restore CS0618 // Type or member is obsolete
 			var output = new byte[1024];
 
 			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
@@ -924,7 +944,9 @@ namespace UnitTests.Encodings {
 			CloneAndAssert (new YEncoder (76));
 			
 			CloneAndAssert (new Base64Decoder ());
+#pragma warning disable CS0618 // Type or member is obsolete
 			CloneAndAssert (new HexDecoder ());
+#pragma warning restore CS0618 // Type or member is obsolete
 			CloneAndAssert (new QuotedPrintableDecoder (true));
 			CloneAndAssert (new QuotedPrintableDecoder (false));
 			CloneAndAssert (new UUDecoder (true));
@@ -975,7 +997,9 @@ namespace UnitTests.Encodings {
 			ResetAndAssert (new YEncoder (76));
 			
 			ResetAndAssert (new Base64Decoder ());
+#pragma warning disable CS0618 // Type or member is obsolete
 			ResetAndAssert (new HexDecoder ());
+#pragma warning restore CS0618 // Type or member is obsolete
 			ResetAndAssert (new QuotedPrintableDecoder (true));
 			ResetAndAssert (new QuotedPrintableDecoder (false));
 			ResetAndAssert (new UUDecoder (true));
