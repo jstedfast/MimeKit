@@ -1,5 +1,5 @@
 ﻿//
-// Rfc2047Base64EncoderTests.cs
+// Base64EncoderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,23 +24,59 @@
 // THE SOFTWARE.
 //
 
-using MimeKit.Utils;
+using MimeKit;
+using MimeKit.Encodings;
 
-namespace UnitTests.Utils {
+namespace UnitTests.Encodings {
 	[TestFixture]
-	public class Rfc2047Base64EncoderTests
+	public class Base64EncoderTests : MimeEncoderTestsBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var encoder = new Rfc2047Base64Encoder ();
-			var output = Array.Empty<byte> ();
+			Assert.Throws<ArgumentOutOfRangeException> (() => new Base64Encoder (0));
 
-			Assert.Throws<ArgumentNullException> (() => encoder.Encode (null, 0, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (Array.Empty<byte> (), -1, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (new byte[1], 0, 10, output));
-			Assert.Throws<ArgumentNullException> (() => encoder.Encode (new byte[1], 0, 1, null));
-			Assert.Throws<ArgumentException> (() => encoder.Encode (new byte[1], 0, 1, output));
+			AssertArgumentExceptions (new Base64Encoder ());
+		}
+
+		[Test]
+		public void TestEncoding ()
+		{
+			var encoder = new Base64Encoder ();
+
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.Base64));
+		}
+
+		[Test]
+		public void TestClone ()
+		{
+			CloneAndAssert (new Base64Encoder ());
+		}
+
+		[Test]
+		public void TestReset ()
+		{
+			ResetAndAssert (new Base64Encoder ());
+		}
+
+		[TestCase (true, 4096)]
+		[TestCase (false, 4096)]
+		[TestCase (true, 1024)]
+		[TestCase (false, 1024)]
+		[TestCase (true, 16)]
+		[TestCase (false, 16)]
+		[TestCase (true, 1)]
+		[TestCase (false, 1)]
+		public void TestEncode (bool enableHwAccel, int bufferSize)
+		{
+			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, "photo.jpg", photo, "photo.b64", bufferSize);
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestFlush (bool enableHwAccel)
+		{
+			TestEncoderFlush (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, "photo.jpg", photo, "photo.b64");
 		}
 	}
 }

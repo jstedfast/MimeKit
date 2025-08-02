@@ -1,5 +1,5 @@
 ﻿//
-// Rfc2047QuotedPrintableEncoderTests.cs
+// Rfc2047Base64EncoderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,19 +24,16 @@
 // THE SOFTWARE.
 //
 
-using System.Text;
-
 using MimeKit.Encodings;
-using MimeKit.Utils;
 
-namespace UnitTests.Utils {
+namespace UnitTests.Encodings {
 	[TestFixture]
-	public class Rfc2047QuotedPrintableEncoderTests
+	public class Rfc2047Base64EncoderTests
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var encoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Text);
+			var encoder = new Rfc2047Base64Encoder ();
 			var output = Array.Empty<byte> ();
 
 			Assert.Throws<ArgumentNullException> (() => encoder.Encode (null, 0, 0, output));
@@ -44,42 +41,6 @@ namespace UnitTests.Utils {
 			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.Encode (new byte[1], 0, 10, output));
 			Assert.Throws<ArgumentNullException> (() => encoder.Encode (new byte[1], 0, 1, null));
 			Assert.Throws<ArgumentException> (() => encoder.Encode (new byte[1], 0, 1, output));
-		}
-
-		[Test]
-		public void TestEncodeText ()
-		{
-			const string expected = "_=09=0D=0AABCabc123!=40#$%^&*=28=29=5F+`-=3D=5B=5D\\{}|=3B=3A'=22=2C=2E=2F=3C=3E=3F";
-			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
-			var encoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Text);
-			var encoding = Encoding.GetEncoding ("iso-8859-8");
-			var output = new byte[256];
-
-			Assert.That (encoder.Encoding, Is.EqualTo ('q'));
-
-			var buf = encoding.GetBytes (input);
-			int n = encoder.Encode (buf, 0, buf.Length, output);
-			var actual = Encoding.ASCII.GetString (output, 0, n);
-
-			Assert.That (actual, Is.EqualTo (expected));
-		}
-
-		[Test]
-		public void TestEncodePhrase ()
-		{
-			const string expected = "_=09=0D=0AABCabc123!=40=23=24=25=5E=26*=28=29=5F+=60-=3D=5B=5D=5C=7B=7D=7C=3B=3A=27=22=2C=2E/=3C=3E=3F";
-			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
-			var encoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Phrase);
-			var encoding = Encoding.GetEncoding ("iso-8859-8");
-			var output = new byte[256];
-
-			Assert.That (encoder.Encoding, Is.EqualTo ('q'));
-
-			var buf = encoding.GetBytes (input);
-			int n = encoder.Encode (buf, 0, buf.Length, output);
-			var actual = Encoding.ASCII.GetString (output, 0, n);
-
-			Assert.That (actual, Is.EqualTo (expected));
 		}
 	}
 }

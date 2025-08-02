@@ -37,22 +37,6 @@ namespace UnitTests.Encodings {
 	{
 		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "yenc");
 
-		[Test]
-		public void TestArgumentExceptions ()
-		{
-			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (59));
-		}
-
-		[Test]
-		public void TestContentEncoding ()
-		{
-			var yenc = new YEncoder ();
-			var ydec = new YDecoder ();
-
-			Assert.That (yenc.Encoding, Is.EqualTo (ContentEncoding.Default), "YEncoder: The encoding does not match.");
-			Assert.That (ydec.Encoding, Is.EqualTo (ContentEncoding.Default), "YDecoder: The encoding does not match.");
-		}
-
 		static void TestYEncode (string fileName, byte[] content, int contentLength, uint crc32, MemoryStream expectedOutput)
 		{
 			using (var encoded = new MemoryStream ()) {
