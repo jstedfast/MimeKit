@@ -580,6 +580,42 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
+		public void TestQEncoderText ()
+		{
+			const string expected = "_=09=0D=0AABCabc123!=40#$%^&*=28=29=5F+`-=3D=5B=5D\\{}|=3B=3A'=22=2C=2E=2F=3C=3E=3F";
+			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
+			var encoding = Encoding.GetEncoding ("iso-8859-8");
+			var encoder = new QEncoder (QEncodeMode.Text);
+			var output = new byte[256];
+
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
+
+			var buf = encoding.GetBytes (input);
+			int n = encoder.Flush (buf, 0, buf.Length, output);
+			var actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestQEncoderPhrase ()
+		{
+			const string expected = "_=09=0D=0AABCabc123!=40=23=24=25=5E=26*=28=29=5F+=60-=3D=5B=5D=5C=7B=7D=7C=3B=3A=27=22=2C=2E/=3C=3E=3F";
+			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
+			var encoding = Encoding.GetEncoding ("iso-8859-8");
+			var encoder = new QEncoder (QEncodeMode.Phrase);
+			var output = new byte[256];
+
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
+
+			var buf = encoding.GetBytes (input);
+			int n = encoder.Flush (buf, 0, buf.Length, output);
+			var actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestHexDecoder ()
 		{
 			const string input = "This should decode: (%ED%E5%EC%F9 %EF%E1 %E9%EC%E8%F4%F0) while %X1%S1%Z1 should not";

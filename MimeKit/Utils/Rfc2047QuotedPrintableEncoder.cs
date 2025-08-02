@@ -113,7 +113,7 @@ namespace MimeKit.Utils {
 
 				if (c == ' ') {
 					*outptr++ = (byte) '_';
-				} else if (c != '_' && c.IsType (mask)) {
+				} else if (c.IsType (mask)) {
 					*outptr++ = c;
 				} else {
 					*outptr++ = (byte) '=';
