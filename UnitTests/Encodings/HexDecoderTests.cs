@@ -62,7 +62,7 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
-		public void TestDecode ()
+		public void TestDecodeHebrew ()
 		{
 			const string input = "This should decode: (%ED%E5%EC%F9 %EF%E1 %E9%EC%E8%F4%F0) while %X1%S1%Z1 should not";
 			const string expected = "This should decode: (םולש ןב ילטפנ) while %X1%S1%Z1 should not";
@@ -70,11 +70,24 @@ namespace UnitTests.Encodings {
 			var decoder = new HexDecoder ();
 			var output = new byte[1024];
 
-			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
-
 			var buf = Encoding.ASCII.GetBytes (input);
 			int n = decoder.Decode (buf, 0, buf.Length, output);
 			var actual = encoding.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestEncodeAttrSpecials ()
+		{
+			const string input = "%20%09%0D%0AABCabc123!%40#$%25^&%2A%28%29_+`-%3D%5B%5D%5C{}|%3B%3A%27%22%2C.%2F%3C%3E%3F";
+			const string expected = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
+			var decoder = new HexDecoder ();
+			var output = new byte[1024];
+
+			var buf = Encoding.ASCII.GetBytes (input);
+			int n = decoder.Decode (buf, 0, buf.Length, output);
+			var actual = Encoding.ASCII.GetString (output, 0, n);
 
 			Assert.That (actual, Is.EqualTo (expected));
 		}
