@@ -1,5 +1,5 @@
 ﻿//
-// Rfc2047Base64Encoder.cs
+// Rfc2047QuotedPrintableEncoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,34 +24,38 @@
 // THE SOFTWARE.
 //
 
+
 using System;
-#if NET6_0_OR_GREATER
-using System.Buffers.Text;
-#else
 using System.Runtime.CompilerServices;
-#endif
 
-using MimeKit.Encodings;
+using MimeKit.Utils;
 
-namespace MimeKit.Utils {
+namespace MimeKit.Encodings {
 	/// <summary>
-	/// A base64 encoder that is specifically meant to be used for rfc2047 encoded-word tokens.
+	/// Encodes content using a variation of the quoted-printable encoding
+	/// that is specifically meant to be used for rfc2047 encoded-word tokens.
 	/// </summary>
 	/// <remarks>
-	/// The rfc2047 "B" encoding is an encoding often used in MIME to encode textual content outside
-	/// the ASCII range within an rfc2047 encoded-word token in order to ensure that
+	/// The rfc2047 "Q" encoding is an encoding often used in MIME to encode textual content
+	/// outside the ASCII range within an rfc2047 encoded-word token in order to ensure that
 	/// the text remains intact when sent via 7bit transports such as SMTP.
 	/// </remarks>
-	class Rfc2047Base64Encoder : IRfc2047Encoder
+	class Rfc2047QuotedPrintableEncoder : IRfc2047Encoder
 	{
+		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
+
+		readonly CharType mask;
+
 		/// <summary>
-		/// Initialize a new instance of the <see cref="Rfc2047Base64Encoder"/> class.
+		/// Initialize a new instance of the <see cref="Rfc2047QuotedPrintableEncoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new rfc2047 base64 encoder.
+		/// Creates a new rfc2047 quoted-printable encoder.
 		/// </remarks>
-		public Rfc2047Base64Encoder ()
+		/// <param name="mode">The rfc2047 encoding mode.</param>
+		public Rfc2047QuotedPrintableEncoder (QEncodeMode mode)
 		{
+			mask = mode == QEncodeMode.Phrase ? CharType.IsEncodedPhraseSafe : CharType.IsEncodedWordSafe;
 		}
 
 		/// <summary>
@@ -65,7 +69,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <value>The character representing the rfc2047 encoding.</value>
 		public char Encoding {
-			get { return 'b'; }
+			get { return 'q'; }
 		}
 
 		/// <summary>
@@ -78,7 +82,7 @@ namespace MimeKit.Utils {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return ((inputLength + 2) / 3) * 4;
+			return inputLength * 3;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -99,61 +103,29 @@ namespace MimeKit.Utils {
 				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", nameof (output));
 		}
 
-#if !NET6_0_OR_GREATER // aka NETFRAMEWORK || NETSTANDARD
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe int Encode (byte* input, int length, byte* output)
 		{
-			int remaining = length;
+			byte* inend = input + length;
 			byte* outptr = output;
 			byte* inptr = input;
-			int c1, c2, c3;
 
-			if (length > 2) {
-				byte* inend = inptr + length - 2;
+			while (inptr < inend) {
+				byte c = *inptr++;
 
-				c1 = *inptr++;
-				c2 = *inptr++;
-				c3 = *inptr++;
-
-				do {
-					// encode our triplet into a quartet
-					*outptr++ = Base64Encoder.base64_alphabet[c1 >> 2];
-					*outptr++ = Base64Encoder.base64_alphabet[(c2 >> 4) | ((c1 & 0x3) << 4)];
-					*outptr++ = Base64Encoder.base64_alphabet[((c2 & 0x0f) << 2) | (c3 >> 6)];
-					*outptr++ = Base64Encoder.base64_alphabet[c3 & 0x3f];
-
-					if (inptr >= inend)
-						break;
-
-					c1 = *inptr++;
-					c2 = *inptr++;
-					c3 = *inptr++;
-				} while (true);
-
-				remaining = 2 - (int) (inptr - inend);
-			}
-
-			if (remaining == 2) {
-				c1 = *inptr++;
-				c2 = *inptr++;
-
-				*outptr++ = Base64Encoder.base64_alphabet[c1 >> 2];
-				*outptr++ = Base64Encoder.base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
-				*outptr++ = Base64Encoder.base64_alphabet[(c2 & 0x0f) << 2];
-				*outptr++ = (byte) '=';
-			} else if (remaining == 1) {
-				c1 = *inptr++;
-				c2 = 0;
-
-				*outptr++ = Base64Encoder.base64_alphabet[c1 >> 2];
-				*outptr++ = Base64Encoder.base64_alphabet[c2 >> 4 | ((c1 & 0x3) << 4)];
-				*outptr++ = (byte) '=';
-				*outptr++ = (byte) '=';
+				if (c == ' ') {
+					*outptr++ = (byte) '_';
+				} else if (c.IsType (mask)) {
+					*outptr++ = c;
+				} else {
+					*outptr++ = (byte) '=';
+					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
+					*outptr++ = hex_alphabet[c & 0x0f];
+				}
 			}
 
 			return (int) (outptr - output);
 		}
-#endif
 
 		/// <summary>
 		/// Encode the specified input into the output buffer.
@@ -187,17 +159,11 @@ namespace MimeKit.Utils {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
-#if NET6_0_OR_GREATER
-			Base64.EncodeToUtf8 (input.AsSpan (startIndex, length), output.AsSpan (), out _, out int outputLength, true);
-
-			return outputLength;
-#else
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
 					return Encode (inptr + startIndex, length, outptr);
 				}
 			}
-#endif
 		}
 	}
 }

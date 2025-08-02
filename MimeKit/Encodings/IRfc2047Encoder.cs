@@ -1,5 +1,5 @@
 ﻿//
-// Rfc2047QuotedPrintableEncoder.cs
+// IRfc2047Encoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,39 +24,17 @@
 // THE SOFTWARE.
 //
 
-
-using System;
-
-using MimeKit.Encodings;
-
-namespace MimeKit.Utils {
+namespace MimeKit.Encodings {
 	/// <summary>
-	/// Encodes content using a variation of the quoted-printable encoding
-	/// that is specifically meant to be used for rfc2047 encoded-word tokens.
+	/// An interface for encoding word tokens according to RFC 2047.
 	/// </summary>
 	/// <remarks>
-	/// The rfc2047 "Q" encoding is an encoding often used in MIME to encode textual content
-	/// outside the ASCII range within an rfc2047 encoded-word token in order to ensure that
-	/// the text remains intact when sent via 7bit transports such as SMTP.
+	/// <para>Rfc2047 encoded-word tokens support two methods of encoding: base64 and quoted-printable.
+	/// These encoding methods are represented by <c>b</c> (or <c>B</c>) and <c>q</c> (or <c>Q</c>),
+	/// respectively.</para>
 	/// </remarks>
-	class Rfc2047QuotedPrintableEncoder : IRfc2047Encoder
+	interface IRfc2047Encoder
 	{
-		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
-
-		readonly CharType mask;
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="Rfc2047QuotedPrintableEncoder"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new rfc2047 quoted-printable encoder.
-		/// </remarks>
-		/// <param name="mode">The rfc2047 encoding mode.</param>
-		public Rfc2047QuotedPrintableEncoder (QEncodeMode mode)
-		{
-			mask = mode == QEncodeMode.Phrase ? CharType.IsEncodedPhraseSafe : CharType.IsEncodedWordSafe;
-		}
-
 		/// <summary>
 		/// Get the rfc2047 encoding method.
 		/// </summary>
@@ -67,9 +45,7 @@ namespace MimeKit.Utils {
 		/// respectively.</para>
 		/// </remarks>
 		/// <value>The character representing the rfc2047 encoding.</value>
-		public char Encoding {
-			get { return 'q'; }
-		}
+		char Encoding { get; }
 
 		/// <summary>
 		/// Estimate the length of the output.
@@ -79,51 +55,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
-		public int EstimateOutputLength (int inputLength)
-		{
-			return inputLength * 3;
-		}
-
-		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
-		{
-			if (input is null)
-				throw new ArgumentNullException (nameof (input));
-
-			if (startIndex < 0 || startIndex > input.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (input.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
-
-			if (output is null)
-				throw new ArgumentNullException (nameof (output));
-
-			if (output.Length < EstimateOutputLength (length))
-				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", nameof (output));
-		}
-
-		unsafe int Encode (byte* input, int length, byte* output)
-		{
-			byte* inend = input + length;
-			byte* outptr = output;
-			byte* inptr = input;
-
-			while (inptr < inend) {
-				byte c = *inptr++;
-
-				if (c == ' ') {
-					*outptr++ = (byte) '_';
-				} else if (c.IsType (mask)) {
-					*outptr++ = c;
-				} else {
-					*outptr++ = (byte) '=';
-					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
-					*outptr++ = hex_alphabet[c & 0x0f];
-				}
-			}
-
-			return (int) (outptr - output);
-		}
+		int EstimateOutputLength (int inputLength);
 
 		/// <summary>
 		/// Encode the specified input into the output buffer.
@@ -153,15 +85,6 @@ namespace MimeKit.Utils {
 		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
 		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
-		public int Encode (byte[] input, int startIndex, int length, byte[] output)
-		{
-			ValidateArguments (input, startIndex, length, output);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Encode (inptr + startIndex, length, outptr);
-				}
-			}
-		}
+		int Encode (byte[] input, int startIndex, int length, byte[] output);
 	}
 }
