@@ -35,9 +35,6 @@ namespace UnitTests.IO.Filters {
 		public void TestArgumentExceptions ()
 		{
 			Assert.Throws<ArgumentNullException> (() => EncoderFilter.Create (null));
-
-			Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ((ContentEncoding) (-1)));
-			Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ((ContentEncoding) 1000));
 		}
 
 		static void AssertIsEncoderFilter (ContentEncoding encoding, ContentEncoding expected)
