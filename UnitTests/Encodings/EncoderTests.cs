@@ -585,7 +585,9 @@ namespace UnitTests.Encodings {
 			const string expected = "_=09=0D=0AABCabc123!=40#$%^&*=28=29=5F+`-=3D=5B=5D\\{}|=3B=3A'=22=2C=2E=2F=3C=3E=3F";
 			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
+#pragma warning disable CS0618 // Type or member is obsolete
 			var encoder = new QEncoder (QEncodeMode.Text);
+#pragma warning restore CS0618 // Type or member is obsolete
 			var output = new byte[256];
 
 			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
@@ -603,7 +605,9 @@ namespace UnitTests.Encodings {
 			const string expected = "_=09=0D=0AABCabc123!=40=23=24=25=5E=26*=28=29=5F+=60-=3D=5B=5D=5C=7B=7D=7C=3B=3A=27=22=2C=2E/=3C=3E=3F";
 			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
+#pragma warning disable CS0618 // Type or member is obsolete
 			var encoder = new QEncoder (QEncodeMode.Phrase);
+#pragma warning restore CS0618 // Type or member is obsolete
 			var output = new byte[256];
 
 			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
@@ -910,9 +914,11 @@ namespace UnitTests.Encodings {
 		public void TestClone ()
 		{
 			CloneAndAssert (new Base64Encoder (76));
+#pragma warning disable CS0618 // Type or member is obsolete
 			CloneAndAssert (new HexEncoder ());
 			CloneAndAssert (new QEncoder (QEncodeMode.Text));
 			CloneAndAssert (new QEncoder (QEncodeMode.Phrase));
+#pragma warning restore CS0618 // Type or member is obsolete
 			CloneAndAssert (new QuotedPrintableEncoder (76));
 			CloneAndAssert (new UUEncoder ());
 			CloneAndAssert (new YEncoder (76));
@@ -959,9 +965,11 @@ namespace UnitTests.Encodings {
 		public void TestReset ()
 		{
 			ResetAndAssert (new Base64Encoder (76));
+#pragma warning disable CS0618 // Type or member is obsolete
 			ResetAndAssert (new HexEncoder ());
 			ResetAndAssert (new QEncoder (QEncodeMode.Text));
 			ResetAndAssert (new QEncoder (QEncodeMode.Phrase));
+#pragma warning restore CS0618 // Type or member is obsolete
 			ResetAndAssert (new QuotedPrintableEncoder ());
 			ResetAndAssert (new UUEncoder ());
 			ResetAndAssert (new YEncoder (76));
