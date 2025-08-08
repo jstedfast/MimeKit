@@ -2674,7 +2674,7 @@ namespace MimeKit {
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse headers.");
 
-			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
+			state = eos && inputIndex == inputEnd ? MimeParserState.Eos : MimeParserState.Complete;
 		}
 
 		/// <summary>
