@@ -25,6 +25,15 @@
 //
 
 using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+
+#if NET6_0_OR_GREATER
+using System.Buffers.Text;
+using System.Runtime.Intrinsics.X86;
+using System.Runtime.Intrinsics.Arm;
+#endif
 
 namespace MimeKit.Encodings {
 	/// <summary>
@@ -37,7 +46,7 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class Base64Decoder : IMimeDecoder
 	{
-		static ReadOnlySpan<byte> base64_rank => new byte[256] {
+		internal static ReadOnlySpan<byte> base64_rank => new byte[256] {
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 			255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
 			255,255,255,255,255,255,255,255,255,255,255, 62,255,255,255, 63,
@@ -68,6 +77,11 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public Base64Decoder ()
 		{
+#if NET9_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
+#elif NET6_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
+#endif
 		}
 
 		/// <summary>
@@ -80,11 +94,27 @@ namespace MimeKit.Encodings {
 		public IMimeDecoder Clone ()
 		{
 			return new Base64Decoder {
+#if NET6_0_OR_GREATER
+				EnableHardwareAcceleration = EnableHardwareAcceleration,
+#endif
 				previous = previous,
 				saved = saved,
 				bytes = bytes
 			};
 		}
+
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Get or set whether the <see cref="Base64Decoder"/> should use hardware acceleration when available.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets whether the <see cref="Base64Decoder"/> should use hardware acceleration when available.
+		/// </remarks>
+		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
+		public bool EnableHardwareAcceleration {
+			get; set;
+		}
+#endif
 
 		/// <summary>
 		/// Get the encoding.
@@ -107,8 +137,8 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			// may require up to 3 padding bytes
-			return inputLength + 3;
+			// decoding base64 converts 4 bytes of input into 3 bytes of output
+			return ((inputLength / 4) * 3) + 3;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -129,29 +159,19 @@ namespace MimeKit.Encodings {
 				throw new ArgumentException ("The output buffer is not large enough to contain the decoded input.", nameof (output));
 		}
 
-		/// <summary>
-		/// Decode the specified input into the output buffer.
-		/// </summary>
-		/// <remarks>
-		/// <para>Decodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all the
-		/// decoded input. For estimating the size needed for the output buffer,
-		/// see <see cref="EstimateOutputLength"/>.</para>
-		/// </remarks>
-		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name="input">A pointer to the beginning of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		public unsafe int Decode (byte* input, int length, byte* output)
+#if NET6_0_OR_GREATER
+		[SkipLocalsInit]
+#endif
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe int Decode (ref byte table, byte* input, byte* inend, byte* output)
 		{
-			byte* inend = input + length;
 			byte* outptr = output;
 			byte* inptr = input;
-			byte c;
 
 			// decode every quartet into a triplet
 			while (inptr < inend) {
-				byte rank = base64_rank[(c = *inptr++)];
+				byte c = *inptr++;
+				byte rank = Unsafe.Add (ref table, c);
 
 				if (rank != 0xFF) {
 					previous = (previous << 8) | c;
@@ -175,6 +195,92 @@ namespace MimeKit.Encodings {
 
 			return (int) (outptr - output);
 		}
+
+		/// <summary>
+		/// Decode the specified input into the output buffer.
+		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the specified input into the output buffer.</para>
+		/// <para>The output buffer should be large enough to hold all the
+		/// decoded input. For estimating the size needed for the output buffer,
+		/// see <see cref="EstimateOutputLength"/>.</para>
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">A pointer to the beginning of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">A pointer to the beginning of the output buffer.</param>
+		public unsafe int Decode (byte* input, int length, byte* output)
+		{
+			ref byte table = ref MemoryMarshal.GetReference (base64_rank);
+
+			return Decode (ref table, input, input + length, output);
+		}
+
+#if NET6_0_OR_GREATER
+		[SkipLocalsInit]
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe int HwAccelDecode (byte* input, int length, byte* output, int outputLength)
+		{
+			ref byte table = ref MemoryMarshal.GetReference (base64_rank);
+			int remainingInput, remainingOutput;
+			byte* inend = input + length;
+			byte* outptr = output;
+			byte* inptr = input;
+
+			if (bytes > 0) {
+				// Flush out any partially read data from a previous iteration.
+				while (inptr < inend && bytes < 4) {
+					byte c = *inptr++;
+					byte rank = Unsafe.Add (ref table, c);
+
+					if (rank != 0xFF) {
+						previous = (previous << 8) | c;
+						saved = (saved << 6) | rank;
+						bytes++;
+					}
+				}
+
+				if (bytes < 4) {
+					// Not enough bytes to decode anything...
+					return 0;
+				}
+
+				if ((previous & 0xFF0000) != ((byte) '=') << 16) {
+					*outptr++ = (byte) ((saved >> 16) & 0xFF);
+					if ((previous & 0xFF00) != ((byte) '=') << 8) {
+						*outptr++ = (byte) ((saved >> 8) & 0xFF);
+						if ((previous & 0xFF) != (byte) '=')
+							*outptr++ = (byte) (saved & 0xFF);
+					}
+				}
+
+				remainingOutput = outputLength - (int) (outptr - output);
+				remainingInput = (int) (inend - inptr);
+				saved = 0;
+				bytes = 0;
+			} else {
+				// No previous data, so we can just start decoding.
+				remainingOutput = outputLength;
+				remainingInput = length;
+			}
+
+			var utf8 = new ReadOnlySpan<byte> (inptr, remainingInput);
+			var decoded = new Span<byte> (outptr, remainingOutput);
+
+			var status = Base64.DecodeFromUtf8 (utf8, decoded, out int bytesRead, out int bytesWritten, false);
+			outptr += bytesWritten;
+			inptr += bytesRead;
+
+			if (inptr < inend) {
+				// Note: There are 2 scenarios where we might end up here:
+				// 1. Base64.DecodeFromUtf8() will only consume/decode complete quartets so if we have < 4 bytes remaining, we will end up here.
+				// 2. Base64.DecodeFromUtf8() encountered invalid bytes (OperationStatus.InvalidData), so fall back to decoding manually.
+				outptr += Decode (ref table, inptr, inend, outptr);
+			}
+
+			return (int) (outptr - output);
+		}
+#endif
 
 		/// <summary>
 		/// Decode the specified input into the output buffer.
@@ -210,7 +316,15 @@ namespace MimeKit.Encodings {
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
+#if NET6_0_OR_GREATER
+					if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && EnableHardwareAcceleration) {
+						return HwAccelDecode (inptr + startIndex, length, outptr, output.Length);
+					} else {
+						return Decode (inptr + startIndex, length, outptr);
+					}
+#else
 					return Decode (inptr + startIndex, length, outptr);
+#endif
 				}
 			}
 		}

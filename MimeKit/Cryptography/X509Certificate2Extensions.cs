@@ -25,15 +25,14 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Security;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
@@ -64,14 +63,11 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			var rawData = certificate.GetRawCertData ();
-			var parser = new X509CertificateParser ();
-			var cert = parser.ReadCertificate (rawData);
-
-			if (cert == null)
+			try {
+				return DotNetUtilities.FromX509Certificate (certificate);
+			} catch {
 				throw new ArgumentException ("Cannot convert X509Certificate2 to a BouncyCastle X509Certificate.", nameof (certificate));
-
-			return cert;
+			}
 		}
 
 		/// <summary>
@@ -116,25 +112,23 @@ namespace MimeKit.Cryptography {
 			if (alt == null)
 				return Array.Empty<string> ();
 
-			using (var memory = new MemoryStream (alt.RawData, false)) {
-				var seq = Asn1Sequence.GetInstance (Asn1Object.FromByteArray (alt.RawData));
-				var names = new string[seq.Count];
-				int count = 0;
+			var seq = Asn1Sequence.GetInstance (alt.RawData);
+			var names = new string[seq.Count];
+			int count = 0;
 
-				foreach (Asn1Encodable encodable in seq) {
-					var name = GeneralName.GetInstance (encodable);
-					if (name.TagNo == tagNo)
-						names[count++] = ((IAsn1String) name.Name).GetString ();
-				}
-
-				if (count == 0)
-					return Array.Empty<string> ();
-
-				if (count < names.Length)
-					Array.Resize (ref names, count);
-
-				return names;
+			foreach (Asn1Encodable encodable in seq) {
+				var name = GeneralName.GetInstance (encodable);
+				if (name.TagNo == tagNo)
+					names[count++] = ((IAsn1String) name.Name).GetString ();
 			}
+
+			if (count == 0)
+				return Array.Empty<string> ();
+
+			if (count < names.Length)
+				Array.Resize (ref names, count);
+
+			return names;
 		}
 
 		/// <summary>
@@ -171,23 +165,22 @@ namespace MimeKit.Cryptography {
 
 		static EncryptionAlgorithm[]? DecodeEncryptionAlgorithms (byte[] rawData)
 		{
-			using (var memory = new MemoryStream (rawData, false)) {
-				using (var asn1 = new Asn1InputStream (memory)) {
-					if (asn1.ReadObject () is not Asn1Sequence sequence)
-						return null;
-
-					var algorithms = new List<EncryptionAlgorithm> ();
-
-					for (int i = 0; i < sequence.Count; i++) {
-						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
-
-						if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm))
-							algorithms.Add (algorithm);
-					}
-
-					return algorithms.ToArray ();
-				}
+			AlgorithmIdentifier[] capabilities;
+			try {
+				// TODO Ideally would use SmimeCapabilities (containing SmimeCapability)
+				capabilities = Asn1Sequence.GetInstance (rawData).MapElements (AlgorithmIdentifier.GetInstance);
+			} catch {
+				return null;
 			}
+
+			var algorithms = new List<EncryptionAlgorithm> ();
+
+			foreach (AlgorithmIdentifier capability in capabilities) {
+				if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (capability, out var algorithm))
+					algorithms.Add (algorithm);
+			}
+
+			return algorithms.ToArray ();
 		}
 
 		/// <summary>
@@ -210,6 +203,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			foreach (var extension in certificate.Extensions) {
+				// PkcsObjectIdentifiers.Pkcs9AtSmimeCapabilities
 				if (extension.Oid?.Value == "1.2.840.113549.1.9.15") {
 					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
 

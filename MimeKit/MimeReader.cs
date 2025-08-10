@@ -1413,6 +1413,52 @@ namespace MimeKit {
 			return true;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static unsafe byte* EndOfLine (byte* inptr, byte* inend)
+		{
+#if NETCOREAPP
+			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
+
+			return inptr += span.IndexOf ((byte) '\n');
+#else
+			// scan for a linefeed character until we are 4-byte aligned.
+			switch (((long) inptr) & 0x03) {
+			case 1:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 2;
+			case 2:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 3;
+			case 3:
+				if (*inptr != (byte) '\n')
+					inptr++;
+				break;
+			}
+
+			if (*inptr != (byte) '\n') {
+				// -funroll-loops, yippee ki-yay.
+				do {
+					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
+					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+
+					if (mask != 0)
+						break;
+
+					inptr += 4;
+				} while (true);
+
+				while (*inptr != (byte) '\n')
+					inptr++;
+			}
+
+			return inptr;
+#endif
+		}
+
 		unsafe bool StepByteOrderMark (byte* inbuf, ref int bomIndex)
 		{
 			byte* inptr = inbuf + inputIndex;
@@ -1474,9 +1520,7 @@ namespace MimeKit {
 
 			if (midline) {
 				// we're in the middle of a line, so we need to scan for the end of the line
-				// TODO: unroll this loop?
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// we don't have enough input data
@@ -1498,9 +1542,7 @@ namespace MimeKit {
 				}
 
 				// scan for the end of the line
-				// TODO: unroll this loop?
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// we don't have enough data to check for a From line
@@ -1528,9 +1570,7 @@ namespace MimeKit {
 			*inend = (byte) '\n';
 
 			// scan for the end of the line
-			// TODO: unroll this loop?
-			while (*inptr != (byte) '\n')
-				inptr++;
+			inptr = EndOfLine (inptr, inend + 1);
 
 			count = (int) (inptr - start);
 
@@ -1717,9 +1757,7 @@ namespace MimeKit {
 			*inend = (byte) '\n';
 
 			while (inptr < inend && (midline || IsBlank (*inptr))) {
-				// TODO: unroll this loop?
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// We've reached the end of the input buffer, and we are currently in the middle of a line.
@@ -1781,9 +1819,7 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
-			// TODO: unroll this loop?
-			while (*inptr != (byte) '\n')
-				inptr++;
+			inptr = EndOfLine (inptr, inend + 1);
 
 			if (inptr == inend)
 				return false;
@@ -1962,7 +1998,7 @@ namespace MimeKit {
 						return;
 					}
 
-					// Fall through and act is if we're consuming a header.
+					// Fall through and act as if we're consuming a header.
 				} else {
 					// Consume the header field name.
 					StepHeaderField (headerFieldLength);
@@ -2010,8 +2046,7 @@ namespace MimeKit {
 				inptr += currentBoundary.Length;
 
 			// skip over any trailing whitespace
-			while (*inptr != (byte) '\n')
-				inptr++;
+			inptr = EndOfLine (inptr, inend + 1);
 
 			if (inptr < inend) {
 				inputIndex = (int) (inptr - inbuf);
@@ -2264,41 +2299,7 @@ namespace MimeKit {
 			while (inptr < inend) {
 				byte* start = inptr;
 
-				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-				// so we can safely use the startIndex instead of `((long) inptr) & 3` to determine the alignment.
-				switch (startIndex & 3) {
-				case 1:
-					if (*inptr == (byte) '\n')
-						break;
-					inptr++;
-					goto case 2;
-				case 2:
-					if (*inptr == (byte) '\n')
-						break;
-					inptr++;
-					goto case 3;
-				case 3:
-					if (*inptr != (byte) '\n')
-						inptr++;
-					break;
-				}
-
-				if (*inptr != (byte) '\n') {
-					// -funroll-loops, yippee ki-yay.
-					do {
-						uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
-						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-
-						if (mask != 0)
-							break;
-
-						inptr += 4;
-					} while (true);
-
-					while (*inptr != (byte) '\n')
-						inptr++;
-				}
-
+				inptr = EndOfLine (inptr, inend + 1);
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
@@ -2470,9 +2471,7 @@ namespace MimeKit {
 
 				*inend = (byte) '\n';
 
-				// TODO: unroll this loop?
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
@@ -2681,7 +2680,7 @@ namespace MimeKit {
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse headers.");
 
-			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
+			state = eos && inputIndex == inputEnd ? MimeParserState.Eos : MimeParserState.Complete;
 		}
 
 		/// <summary>
@@ -2871,7 +2870,6 @@ namespace MimeKit {
 		/// <remarks>
 		/// Reads a message from the stream.
 		/// </remarks>
-		/// <returns>The parsed message.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.

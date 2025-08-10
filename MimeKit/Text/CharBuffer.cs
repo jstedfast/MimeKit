@@ -28,7 +28,7 @@ using System;
 using System.Runtime.CompilerServices;
 
 namespace MimeKit.Text {
-	class CharBuffer
+	sealed class CharBuffer
 	{
 		char[] buffer;
 

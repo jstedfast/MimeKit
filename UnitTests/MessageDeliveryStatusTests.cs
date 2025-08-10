@@ -66,6 +66,32 @@ namespace UnitTests {
 			Assert.That (groups[1]["Diagnostic-Code"], Is.EqualTo ("X-LOCAL; 500 (err.nosuchuser)"));
 		}
 
+		[Test]
+		public void TestStatusGroups2 ()
+		{
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status2.txt"));
+
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
+
+			var report = (MultipartReport) message.Body;
+
+			Assert.That (report[0], Is.InstanceOf<TextPart> (), "Expected first part to be a text/plain.");
+			Assert.That (report[1], Is.InstanceOf<MessageDeliveryStatus> (), "Expected second part to be a message/delivery-status.");
+			Assert.That (report[2], Is.InstanceOf<MessagePart> (), "Expected second part to be a message/rfc822.");
+
+			var delivery = (MessageDeliveryStatus) report[1];
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups, Is.Not.Null, "Did not expect null status groups.");
+			Assert.That (groups.Count, Is.EqualTo (2), "Expected 2 groups of headers.");
+
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; smtp-out.dis-hosting.net"));
+
+			Assert.That (groups[1]["Action"], Is.EqualTo ("failed"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822;source@domain.com"));
+			Assert.That (groups[1]["Status"], Is.EqualTo ("5.0.0"));
+		}
+
 		// This tests issue #250
 		[Test]
 		public void TestStatusGroupsNoBlankLine ()

@@ -35,6 +35,8 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class PassThroughDecoder : IMimeDecoder
 	{
+		readonly ContentEncoding encoding;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="PassThroughDecoder"/> class.
 		/// </summary>
@@ -44,7 +46,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public PassThroughDecoder (ContentEncoding encoding)
 		{
-			Encoding = encoding;
+			this.encoding = encoding;
 		}
 
 		/// <summary>
@@ -67,7 +69,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
-			get; private set;
+			get { return encoding; }
 		}
 
 		/// <summary>
@@ -152,11 +154,17 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (input, startIndex, length, output);
 
+#if NET6_0_OR_GREATER
+			input.AsSpan (startIndex, length).CopyTo (output.AsSpan ());
+
+			return length;
+#else
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
 					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
+#endif
 		}
 
 		/// <summary>

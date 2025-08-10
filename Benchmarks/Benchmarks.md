@@ -18,26 +18,27 @@ Intel Core i7-9700 CPU 3.00GHz, 1 CPU, 8 logical and 8 physical cores
 
 ### MimeParser
 
-| Method                                             | Mean          | Error       | StdDev      |
-|--------------------------------------------------- |--------------:|------------:|------------:|
-| MimeParser_StarTrekMessage                         |    269.321 us |   5.3183 us |   8.4355 us |
-| MimeParser_StarTrekMessagePersistent               |    246.636 us |   4.7926 us |   5.5192 us |
-| MimeParser_ContentLengthMbox                       |  1,377.439 us |  17.4600 us |  15.4778 us |
-| MimeParser_ContentLengthMboxPersistent             |  1,249.829 us |  12.7459 us |  11.9225 us |
-| MimeParser_JwzMbox                                 | 14,267.191 us | 274.8707 us | 269.9597 us |
-| MimeParser_JwzMboxPersistent                       | 12,674.922 us | 113.3533 us |  94.6551 us |
-| MimeParser_HeaderStressTest                        |     21.527 us |   0.1436 us |   0.1121 us |
-| ExperimentalMimeParser_StarTrekMessage             |    253.124 us |   4.2137 us |   3.9415 us |
-| ExperimentalMimeParser_StarTrekMessagePersistent   |    239.576 us |   3.6207 us |   3.3868 us |
-| ExperimentalMimeParser_ContentLengthMbox           |  1,325.283 us |   9.0779 us |   8.4914 us |
-| ExperimentalMimeParser_ContentLengthMboxPersistent |  1,176.737 us |  22.4083 us |  29.1371 us |
-| ExperimentalMimeParser_JwzMbox                     | 13,602.926 us | 235.3053 us | 220.1048 us |
-| ExperimentalMimeParser_JwzMboxPersistent           | 12,184.423 us |  96.3543 us |  90.1299 us |
-| ExperimentalMimeParser_HeaderStressTest            |     13.083 us |   0.0830 us |   0.0735 us |
-| MimeReader_StarTrekMessage                         |    223.907 us |   3.1057 us |   2.9051 us |
-| MimeReader_ContentLengthMbox                       |    980.042 us |  12.7192 us |  10.6211 us |
-| MimeReader_JwzMbox                                 | 11,136.306 us | 204.2014 us | 170.5174 us |
-| MimeReader_HeaderStressTest                        |      8.395 us |   0.0931 us |   0.0871 us |
+| Method                                             | Mean         | Error      | StdDev      |
+|--------------------------------------------------- |-------------:|-----------:|------------:|
+| MimeParser_StarTrekMessage                         |    71.731 us |  0.3290 us |   0.2747 us |
+| MimeParser_StarTrekMessagePersistent               |    60.809 us |  0.8136 us |   0.7213 us |
+| MimeParser_ContentLengthMbox                       |   621.492 us |  3.7083 us |   2.8952 us |
+| MimeParser_ContentLengthMboxPersistent             |   551.683 us | 10.7364 us |  10.5446 us |
+| MimeParser_JwzMbox                                 | 5,238.200 us | 67.6061 us |  63.2388 us |
+| MimeParser_JwzMboxPersistent                       | 4,612.795 us | 91.5963 us | 119.1010 us |
+| MimeParser_HeaderStressTest                        |    15.356 us |  0.0761 us |   0.0635 us |
+
+| ExperimentalMimeParser_StarTrekMessage             |    70.105 us |  1.1094 us |   0.9834 us |
+| ExperimentalMimeParser_StarTrekMessagePersistent   |    57.515 us |  0.6193 us |   0.5490 us |
+| ExperimentalMimeParser_ContentLengthMbox           |   622.374 us | 11.9024 us |  14.6173 us |
+| ExperimentalMimeParser_ContentLengthMboxPersistent |   534.965 us |  4.6371 us |   4.1107 us |
+| ExperimentalMimeParser_JwzMbox                     | 5,030.161 us | 63.8917 us |  56.6384 us |
+| ExperimentalMimeParser_JwzMboxPersistent           | 4,557.651 us | 40.6831 us |  33.9722 us |
+| ExperimentalMimeParser_HeaderStressTest            |    12.365 us |  0.2359 us |   0.2091 us |
+| MimeReader_StarTrekMessage                         |    47.750 us |  0.2926 us |   0.2444 us |
+| MimeReader_ContentLengthMbox                       |   353.960 us |  2.9889 us |   2.7958 us |
+| MimeReader_JwzMbox                                 | 3,209.473 us | 26.7118 us |  22.3056 us |
+| MimeReader_HeaderStressTest                        |     6.901 us |  0.1346 us |   0.1259 us |
 
 ### BestEncodingFilter
 

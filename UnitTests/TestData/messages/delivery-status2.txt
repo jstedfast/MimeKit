@@ -1,0 +1,57 @@
+Return-Path: <>
+Delivered-To: delivery@domain.fr
+Content-Type: multipart/report; report-type=delivery-status; boundary=1693976473-eximdsn-1701494602
+Subject: Mail delivery failed: returning message to sender
+
+--1693976473-eximdsn-1701494602
+Content-type: text/plain; charset=us-ascii
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  source@domain.com
+    Unknown user
+
+--1693976473-eximdsn-1701494602
+Content-type: message/delivery-status
+
+Reporting-MTA: dns; smtp-out.dis-hosting.net
+
+Action: failed
+Final-Recipient: rfc822;source@domain.com
+Status: 5.0.0
+
+--1693976473-eximdsn-1701494602
+Content-type: message/rfc822
+
+Return-path: <delivery@domain.fr>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="=-iWPtdQHtSjT1IRqQrHYSXQ=="
+Received-SPF: 
+
+--=-iWPtdQHtSjT1IRqQrHYSXQ==
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+TEXTE
+
+
+--=-iWPtdQHtSjT1IRqQrHYSXQ==
+Content-Type: text/html; charset=utf-8
+Content-Id: <1DQ418BYWKU4.24XDT2YZ1B0B3@daikoz.com>
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+    ...
+</body>
+</html>
+
+--=-iWPtdQHtSjT1IRqQrHYSXQ==--
+
+--1693976473-eximdsn-1701494602--

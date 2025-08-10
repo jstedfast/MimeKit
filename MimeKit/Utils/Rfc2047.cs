@@ -43,6 +43,10 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class Rfc2047
 	{
+		static readonly IRfc2047Encoder QuotedPrintablePhraseEncoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Phrase);
+		static readonly IRfc2047Encoder QuotedPrintableTextEncoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Text);
+		static readonly IRfc2047Encoder Base64Encoder = new Rfc2047Base64Encoder ();
+
 		readonly struct Token
 		{
 			const char SevenBit = '7';
@@ -178,7 +182,7 @@ namespace MimeKit.Utils {
 				}
 
 				if (token.IsEncoded) {
-					// Save encoded-word state so that we can treat consecutive encoded-word payloads with idential
+					// Save encoded-word state so that we can treat consecutive encoded-word payloads with identical
 					// charsets & encodings as one continuous block, thus allowing us to handle cases where a
 					// hex-encoded triplet of a quoted-printable encoded payload is split between 2 or more
 					// encoded-word tokens.
@@ -1058,9 +1062,8 @@ namespace MimeKit.Utils {
 		{
 			int startLength = builder.Length;
 			var chars = new char[length];
-			IMimeEncoder encoder;
+			IRfc2047Encoder encoder;
 			byte[] word, encoded;
-			char encoding;
 			int len;
 
 			text.CopyTo (startIndex, chars, 0, length);
@@ -1073,20 +1076,20 @@ namespace MimeKit.Utils {
 			}
 
 			if (CharsetRequiresBase64 (charset) || GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
-				encoder = new Base64Encoder (true);
-				encoding = 'b';
+				encoder = Rfc2047.Base64Encoder;
+			} else if (mode == QEncodeMode.Phrase) {
+				encoder = Rfc2047.QuotedPrintablePhraseEncoder;
 			} else {
-				encoder = new QEncoder (mode);
-				encoding = 'q';
+				encoder = Rfc2047.QuotedPrintableTextEncoder;
 			}
 
 			encoded = ArrayPool<byte>.Shared.Rent (encoder.EstimateOutputLength (len));
-			len = encoder.Flush (word, 0, len, encoded);
+			len = encoder.Encode (word, 0, len, encoded);
 
 			builder.Append ("=?");
 			builder.Append (CharsetUtils.GetMimeCharset (charset));
 			builder.Append ('?');
-			builder.Append (encoding);
+			builder.Append (encoder.Encoding);
 			builder.Append ('?');
 
 			for (int i = 0; i < len; i++)

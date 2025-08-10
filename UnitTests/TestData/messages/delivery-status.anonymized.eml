@@ -1,0 +1,51 @@
+Received: from xxxxxxx.xxxx.xxx (xxxxxxx.xxxx.xxx [xxx.xx.xx.x]) by xxxxxx.xxxxxxxx.xxx (x.x.xxx.x.x) with xxxx id xxxxxxxx for <xxx@xxxxxx.xxxx.xxx>; Mon, 29 Jul 1996 02:26:08 -0700 (PDT)
+Received: from xx.xxxxxxxx.xxx (xx.xxxxxxxx.xxx.xxxx.xxx [xxx.xx.xxx.xx]) by xxxxxxx.xxxx.xxx (x.x.xxx.x.x) with xxxxx id xxxxxxxx for <xxx@xxxxxxxx.xxx>; Mon, 29 Jul 1996 02:24:55 -0700
+Received: from xxx (xxx.xxxxxxx.xxx [xxx.xxx.x.xx]) by xx.xxxxxxxx.xxx (x.x.xxx.x.x) with xxxxx id xxxxxxxx for <xxx@xxxxxxxx.xxx>; Mon, 29 Jul 1996 02:24:05 -0700 (PDT)
+Received: by xxx.xxxxxxx.xxx id <xxxxxxxxxxxx>; Mon, 29 Jul 1996 02:21:58 -0700
+From: xxx xxxx xxxxxx <xxxxxxxxxx@xxx.xxxxxxx.xxx>
+Subject: xxxxx xxxxxxxx xxxxx
+Cc: xxx xxxxxxxxxx <xxxxxxxxxx@xxx.xxxxxxx.xxx>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=xxxxxxxxxxxxxxx; boundary="A41C7.838631588=_/mm1"
+Precedence: xxxx
+Message-Id: <xxxxxxx.xxxxxxxxxxxxxx.xxxxxxxxxxxxxxxx@xxx.xxxxxxx.xxx>
+To: xxxxxxxxxxxxxxxxxxx:; (xx xxxxxxxxx xx xxxxx)
+Date: Mon, 29 Jul 1996 02:13:08 -0700
+X-UIDL: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+X-Mozilla-Status: xxxx
+Content-Length: xxxx
+
+xxxxxxxxxx xxxx xxxx xxxxxxx xxxxxx xxx xxxxxxxxx xxxxxxx
+
+xxxxxx xxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+--A41C7.838631588=_/mm1
+Content-Type: message/delivery-status
+
+Reporting-MTA: xxxx xxx
+Arrival-Date: xxxx xx xxx xxxx xxxxxxxx xxxxx
+
+Final-Recipient: xxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Action: xxxxxx
+Diagnostic-Code: xxxxxxxx xxx xxxxxxxxxxxxxxxx
+
+--A41C7.838631588=_/mm1
+Content-Type: message/rfc822
+
+Received: from xxxxxx.xxxxxxxx.xxx ([xxx.xx.xxx.xx]) by xxx.xxxxxxx.xxx with xxxxx id <xxxxxxxxxxxx>; Mon, 29 Jul 1996 02:12:50 -0700
+Received: from xxxxxxx (xxxxxxx.xxxx.xxx [xxx.xxx.xxx.xx]) by xxxxxx.xxxxxxxx.xxx (x.x.xxx.x.x) with xxxx id xxxxxxxx for <xxxxxxxxxxxxxxxxxx@xxxxxx.xxx>; Mon, 29 Jul 1996 02:04:53 -0700 (PDT)
+Sender: xxx@xxxxxxxx.xxx
+Message-ID: <xxxxxxxx.xxxx@xxxxxxxx.xxx>
+Date: Mon, 29 Jul 1996 02:04:52 -0700
+From: xxxxx xxxxxxxx <xxx@xxxxxxxx.xxx>
+Organization: xxxxxxxx xxxxxxxxxxxxxx xxxxxxxxxxxx xxxxxxx xxxxxxxx
+X-Mailer: xxxxxxx xxxxx xxxxx xx xxxx xxx xxxxx
+MIME-Version: 1.0
+To: xxxxxxxxxxxxxxxxxx@xxxxxx.xxx
+Subject: xxxxxxxxxxx
+References: <xxxxxxx.xxxxxxxxxxxxxx.xxxxxxxxxxxxxxxx@xxx.xxxxxxx.xxx>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+xxxxxxxxxxx
+--A41C7.838631588=_/mm1--

@@ -26,6 +26,8 @@
 
 using System;
 using System.IO;
+using System.Buffers.Text;
+using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Encodings;
@@ -34,65 +36,100 @@ using MimeKit.IO.Filters;
 using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks.IO.Filters {
-	public class DecoderFilterBenchmarks : IDisposable
+	public class DecoderFilterBenchmarks
 	{
-		static readonly string EncoderDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
-		readonly Stream QuotedPrintableData, Base64Data, UUEncodedData;
+		readonly byte[] QuotedPrintableData, Base64Data, UUEncodedData;
 
 		public DecoderFilterBenchmarks ()
 		{
-			var path = Path.Combine (EncoderDataDir, "wikipedia.qp");
-			var data = File.ReadAllBytes (path);
+			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
+			var path = Path.Combine (dataDir, "wikipedia.qp");
+			QuotedPrintableData = File.ReadAllBytes (path);
 
-			QuotedPrintableData = new MemoryStream (data, false);
+			path = Path.Combine (dataDir, "photo.b64");
+			Base64Data = File.ReadAllBytes (path);
 
-			path = Path.Combine (EncoderDataDir, "photo.b64");
-			data = File.ReadAllBytes (path);
-
-			Base64Data = new MemoryStream (data, false);
-
-			path = Path.Combine (EncoderDataDir, "photo.uu");
-			data = File.ReadAllBytes (path);
-
-			UUEncodedData = new MemoryStream (data, false);
+			path = Path.Combine (dataDir, "photo.uu");
+			UUEncodedData = File.ReadAllBytes (path);
 		}
 
-		public void Dispose ()
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void Decode (byte[] data, IMimeDecoder decoder)
 		{
-			QuotedPrintableData.Dispose ();
-			UUEncodedData.Dispose ();
-			Base64Data.Dispose ();
+			var maxLength = decoder.EstimateOutputLength (data.Length);
+			var output = new byte[maxLength];
 
-			GC.SuppressFinalize (this);
+			decoder.Decode (data, 0, data.Length, output);
 		}
 
-		static void FilterInputStream (Stream input, IMimeDecoder decoder)
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void DecodeStream (byte[] data, IMimeDecoder decoder)
 		{
+			using var input = new MemoryStream (data, false);
 			using var output = new MeasuringStream ();
 			using var filtered = new FilteredStream (output);
 
 			filtered.Add (new DecoderFilter (decoder));
-			input.Position = 0;
-			input.CopyTo (filtered);
+			input.CopyTo (filtered, 4096);
 			filtered.Flush ();
 		}
 
 		[Benchmark]
-		public void Base64Decoder ()
+		public void Base64DecodeFromUtf8 ()
 		{
-			FilterInputStream (Base64Data, new Base64Decoder ());
+			// Note: This benchmark serves as a baseline for optimal performance of a base64 decoder.
+			var maxLength = Base64.GetMaxDecodedFromUtf8Length (Base64Data.Length);
+			var output = new byte[maxLength];
+
+			Base64.DecodeFromUtf8 (Base64Data, output, out _, out _, true);
 		}
 
 		[Benchmark]
-		public void QuotedPrintableDecoder ()
+		public void Base64Decode ()
 		{
-			FilterInputStream (QuotedPrintableData, new QuotedPrintableDecoder ());
+			Decode (Base64Data, new Base64Decoder () { EnableHardwareAcceleration = false });
 		}
 
 		[Benchmark]
-		public void UUDecoder ()
+		public void HwAccelBase64Decode ()
 		{
-			FilterInputStream (UUEncodedData, new UUDecoder ());
+			Decode (Base64Data, new Base64Decoder ());
+		}
+
+		[Benchmark]
+		public void Base64DecodeStream ()
+		{
+			DecodeStream (Base64Data, new Base64Decoder () { EnableHardwareAcceleration = false });
+		}
+
+		[Benchmark]
+		public void HwAccelBase64DecodeStream ()
+		{
+			DecodeStream (Base64Data, new Base64Decoder ());
+		}
+
+		[Benchmark]
+		public void QuotedPrintableDecode ()
+		{
+			Decode (QuotedPrintableData, new QuotedPrintableDecoder ());
+		}
+
+		[Benchmark]
+		public void QuotedPrintableDecodeStream ()
+		{
+			DecodeStream (QuotedPrintableData, new QuotedPrintableDecoder ());
+		}
+
+		[Benchmark]
+		public void UUDecode ()
+		{
+			Decode (UUEncodedData, new UUDecoder ());
+		}
+
+		[Benchmark]
+		public void UUDecodeStream ()
+		{
+			DecodeStream (UUEncodedData, new UUDecoder ());
 		}
 	}
 }

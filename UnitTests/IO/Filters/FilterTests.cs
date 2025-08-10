@@ -81,6 +81,55 @@ namespace UnitTests.IO.Filters {
 			}
 		}
 
+		[TestCase (1)]
+		[TestCase (8)]
+		[TestCase (64)]
+		[TestCase (1024)]
+		public void TestArmoredFromFilterFromRussiaWithLove (int bufferSize)
+		{
+			const string FromRussiaWithLove = "From Russia with love is one of my favorite James Bond files.\n";
+			const int iterations = 1000;
+
+			var inputBuilder = new StringBuilder (FromRussiaWithLove.Length * iterations);
+			var outputBuilder = new StringBuilder ((FromRussiaWithLove.Length + 1) * iterations);
+
+			for (int i = 0; i < iterations; i++) {
+				inputBuilder.Append (FromRussiaWithLove);
+				outputBuilder.Append ("=46");
+				outputBuilder.Append (FromRussiaWithLove, 1, FromRussiaWithLove.Length - 1);
+			}
+
+			string expected = outputBuilder.ToString ();
+			string input = inputBuilder.ToString ();
+
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					var filter = new ArmoredFromFilter ();
+
+					filtered.Add (filter);
+
+					using (var inputStream = new MemoryStream (Encoding.ASCII.GetBytes (input), false)) {
+						var buffer = new byte[bufferSize];
+						int nread;
+
+						do {
+							nread = inputStream.Read (buffer, 0, buffer.Length);
+							if (nread == 0)
+								break;
+
+							filtered.Write (buffer, 0, nread);
+						} while (true);
+
+						filtered.Flush ();
+					}
+				}
+
+				var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+
+				Assert.That (actual, Is.EqualTo (expected), "From armoring failed when end boundary falls in the middle of From.");
+			}
+		}
+
 		[Test]
 		public void TestMboxFromFilter ()
 		{
@@ -109,6 +158,55 @@ namespace UnitTests.IO.Filters {
 
 					Assert.That (actual, Is.EqualTo (expected), "From armoring failed when end boundary falls in the middle of From.");
 				}
+			}
+		}
+
+		[TestCase (1)]
+		[TestCase (8)]
+		[TestCase (64)]
+		[TestCase (1024)]
+		public void TestMboxFromFilterFromRussiaWithLove (int bufferSize)
+		{
+			const string FromRussiaWithLove = "From Russia with love is one of my favorite James Bond files.\n";
+			const int iterations = 1000;
+
+			var inputBuilder = new StringBuilder (FromRussiaWithLove.Length * iterations);
+			var outputBuilder = new StringBuilder ((FromRussiaWithLove.Length + 1) * iterations);
+
+			for (int i = 0; i < iterations; i++) {
+				inputBuilder.Append (FromRussiaWithLove);
+				outputBuilder.Append ('>');
+				outputBuilder.Append (FromRussiaWithLove);
+			}
+
+			string expected = outputBuilder.ToString ();
+			string input = inputBuilder.ToString ();
+
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					var filter = new MboxFromFilter ();
+
+					filtered.Add (filter);
+
+					using (var inputStream = new MemoryStream (Encoding.ASCII.GetBytes (input), false)) {
+						var buffer = new byte[bufferSize];
+						int nread;
+
+						do {
+							nread = inputStream.Read (buffer, 0, buffer.Length);
+							if (nread == 0)
+								break;
+
+							filtered.Write (buffer, 0, nread);
+						} while (true);
+
+						filtered.Flush ();
+					}
+				}
+
+				var actual = Encoding.UTF8.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+
+				Assert.That (actual, Is.EqualTo (expected), "From armoring failed when end boundary falls in the middle of From.");
 			}
 		}
 

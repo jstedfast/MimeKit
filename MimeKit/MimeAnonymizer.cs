@@ -58,6 +58,33 @@ namespace MimeKit {
 		static ReadOnlySpan<byte> FormatParameter => "format"u8;
 		static ReadOnlySpan<byte> Whitespace => " \t\r\n"u8;
 
+		readonly HashSet<string> preserveHeaders;
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeAnonymizer"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeAnonymizer"/>.
+		/// </remarks>
+		public MimeAnonymizer ()
+		{
+			preserveHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		}
+
+		/// <summary>
+		/// Get the set of headers that this anonymizer is configured to preserve.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the set of headers that this anonymizer is configured to preserve.</para>
+		/// <para>Headers can be added or removed from this set in order to influence the output of the anonymizer.</para>
+		/// <note type="note">This set of headers to preserve also applies to the status headers in the content of
+		/// message/delivery-status parts as well.</note>
+		/// </remarks>
+		/// <value>The set of headers that the anonymizer is configured to preserve.</value>
+		public HashSet<string> PreserveHeaders {
+			get { return preserveHeaders; }
+		}
+
 		/// <summary>
 		/// Anonymize a <see cref="MimeMessage"/>.
 		/// </summary>
@@ -437,7 +464,7 @@ namespace MimeKit {
 			Value,
 		}
 
-		static bool IsSafeParameterName (ref ByteArrayBuilder name)
+		static bool IsSafeParameterName (ByteArrayBuilder name)
 		{
 			return name.Equals (BoundaryParameter, StringComparison.OrdinalIgnoreCase) ||
 				name.Equals (CharsetParameter, StringComparison.OrdinalIgnoreCase) ||
@@ -447,8 +474,8 @@ namespace MimeKit {
 
 		static void AnonymizeParameterList (byte[] rawValue, byte[] anonymized, int startIndex)
 		{
+			using var name = new ByteArrayBuilder (16);
 			var state = ParameterState.Semicolon;
-			var name = new ByteArrayBuilder (16);
 			int index = startIndex;
 			var escaped = false;
 			var quoted = false;
@@ -476,7 +503,7 @@ namespace MimeKit {
 				case ParameterState.Name:
 					if (rawValue[index] == (byte) '=') {
 						anonymized[index] = rawValue[index];
-						safe = IsSafeParameterName (ref name);
+						safe = IsSafeParameterName (name);
 						state = ParameterState.Value;
 					} else if (rawValue[index] == (byte) ';') {
 						// shouldn't happen...
@@ -494,7 +521,7 @@ namespace MimeKit {
 				case ParameterState.NameStar:
 					if (rawValue[index] == (byte) '=') {
 						anonymized[index] = rawValue[index];
-						safe = IsSafeParameterName (ref name);
+						safe = IsSafeParameterName (name);
 						state = ParameterState.Value;
 					} else if (rawValue[index] == (byte) ';') {
 						// parameter seems to be incomplete?
@@ -580,6 +607,11 @@ namespace MimeKit {
 		{
 			var rawValue = header.GetRawValue (options);
 
+			if (preserveHeaders.Contains (header.Field)) {
+				// don't anonymize this header
+				return rawValue;
+			}
+
 			switch (header.Id) {
 			case HeaderId.DispositionNotificationTo:
 			case HeaderId.ResentReplyTo:
@@ -632,9 +664,6 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					if (options.HiddenHeaders.Contains (header.Id))
-						continue;
-
 					if (header.IsInvalid) {
 						AnonymizeBytes (options, stream, header.RawField, false);
 					} else {
@@ -725,6 +754,28 @@ namespace MimeKit {
 			}
 		}
 
+		static bool TryGetStatusGroups (MessageDeliveryStatus mds, out HeaderListCollection statusGroups)
+		{
+			try {
+				statusGroups = mds.StatusGroups;
+				return true;
+			} catch {
+				statusGroups = null;
+				return false;
+			}
+		}
+
+		static bool TryGetNotificationFields (MessageDispositionNotification mdn, out HeaderList fields)
+		{
+			try {
+				fields = mdn.Fields;
+				return true;
+			} catch {
+				fields = null;
+				return false;
+			}
+		}
+
 		void AnonymizeEntity (FormatOptions options, MimeEntity entity, Stream stream, bool contentOnly)
 		{
 			if (!contentOnly) {
@@ -776,6 +827,17 @@ namespace MimeKit {
 				}
 
 				AnonymizeBytes (options, stream, multipart.RawEpilogue, multipart.EnsureNewLine);
+			} else if (entity is MessageDeliveryStatus mds && TryGetStatusGroups (mds, out var statusGroups)) {
+				for (int i = 0; i < statusGroups.Count; i++) {
+					var statusGroup = statusGroups[i];
+
+					AnonymizeHeaders (options, statusGroup, stream);
+
+					if (i + 1 < statusGroups.Count)
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
+			} else if (entity is MessageDispositionNotification mdn && TryGetNotificationFields (mdn, out var fields)) {
+				AnonymizeHeaders (options, fields, stream);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new AnonymizeFilter ());

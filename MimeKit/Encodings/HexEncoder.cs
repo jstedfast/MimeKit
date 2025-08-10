@@ -36,6 +36,7 @@ namespace MimeKit.Encodings {
 	/// This is mostly meant for decoding parameter values encoded using
 	/// the rules specified by rfc2184 and rfc2231.
 	/// </remarks>
+	[Obsolete ("This class will being going away in a future version of MimeKit.")]
 	public class HexEncoder : IMimeEncoder
 	{
 		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
@@ -106,9 +107,6 @@ namespace MimeKit.Encodings {
 
 		static unsafe int Encode (byte* input, int length, byte* output)
 		{
-			if (length == 0)
-				return 0;
-
 			byte* inend = input + length;
 			byte* outptr = output;
 			byte* inptr = input;
@@ -171,7 +169,7 @@ namespace MimeKit.Encodings {
 		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
 		/// <remarks>
-		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+		/// <para>Encodes the specified input into the output buffer, flushing any internal state as well.</para>
 		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>

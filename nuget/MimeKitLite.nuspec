@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.12.0</version>
+    <version>4.13.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -22,15 +22,13 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Removed CTRL characters from the list of allowed domain characters.
-* Fixed a bug in the address list parser in Strict mode that allowed 2 addresses to be separated by whitespace instead of requiring a comma.
-* Added a new MimeAnonymizer class that can be used to anonymize MimeMessages by x-ing out non-syntactically relevant information.
-* Fixed TryParse methods to not throw ArgumentExceptions. (issue #1158)
-* Fixed a bug in MimeReader that used the buffer offset instead of the stream offset to check if the stream position was beyond the byte offset specified by a Content-Length header when parsing UNIX mbox files.
-* Fixed a long-standing bug in MimeParser (which also existed in MimeReader) where it would encounter a buffering bug when parsing some Mbox files (typically multi-gigabyte). (issue #991)
-* Fixed AttachmentCollection.Add/AddAsync methods to dispose the MimePart it is creating if loading content fails from the stream fails.
-* Added leaveOpen parameters for HtmlWriter .ctors. (issue #1159)
-* Fixed parsing when ParserOptions.AllowUnquotedCommasInAddresses = false. This used to incorrectly allow unquoted commas in address Display Names if the comma followed at least 2 words.
+* Fixed a memory leak in MimeAnonymizer and MimeUtils.Unquote() which gets used by the address parser. (issue #1161)
+* Optimized MimeReader and MimeParser to use Span&lt;T&gt;.IndexOf() on .NET Core which can improve performance by 20-30% when parsing MemoryStreams or 5-10% when parsing FileStreams.
+* Optimized the MboxFromFilter and ArmoredFromFilter by using Span&lt;T&gt;.IndexOf().
+* Fixed S/MIME logic to allow certificates without the KeyEncipherment key usage for encryption. (issue #1165)
+* Added MimeAnonymizer.PreserveHeaders as a way of preventing anonymization for specific headers.
+* Added message/deliver-status and message/disposition-notification support to MimeAnonymizer.
+* Slightly optimized the Unix2DosFilter.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

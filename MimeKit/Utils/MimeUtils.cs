@@ -176,7 +176,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -241,7 +241,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static string? ParseMessageId (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -286,7 +286,7 @@ namespace MimeKit.Utils {
 		/// <param name="version">The parsed version.</param>
 		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out Version? version)
 		{
-			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
 				version = null;
 				return false;
 			}
@@ -575,7 +575,7 @@ namespace MimeKit.Utils {
 
 		internal static byte[] Unquote (byte[] text, int startIndex, int length, bool convertTabsToSpaces = false)
 		{
-			var builder = new ByteArrayBuilder (length);
+			using var builder = new ByteArrayBuilder (length);
 			bool escaped = false;
 			bool quoted = false;
 

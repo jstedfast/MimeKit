@@ -54,7 +54,9 @@ namespace MimeKit.IO.Filters {
 		{
 			int outputIndex = 0;
 
-			foreach (var c in input) {
+			for (int i = 0; i < input.Length; i++) {
+				byte c = input[i];
+
 				if (c == (byte) '\n') {
 					output[outputIndex++] = c;
 				} else {

@@ -1,5 +1,21 @@
 # Release Notes
 
+## MimeKit 4.13.0 (2025-06-25)
+
+* Fixed a memory leak in MimeAnonymizer and MimeUtils.Unquote() which gets used by the
+  address parser. (issue [#1161](https://github.com/jstedfast/MimeKit/discussions/1161))
+* Optimized MimeReader and MimeParser to use Span&lt;T&gt;.IndexOf() on .NET Core which
+  can improve performance by 20-30% when parsing MemoryStreams or 5-10% when parsing
+  FileStreams.
+* Optimized the MboxFromFilter and ArmoredFromFilter by using Span&lt;T&gt;.IndexOf().
+* Fixed S/MIME logic to allow certificates without the KeyEncipherment key usage for
+  encryption. (issue [#1165](https://github.com/jstedfast/MimeKit/discussions/1165))
+* Added MimeAnonymizer.PreserveHeaders as a way of preventing anonymization for
+  specific headers.
+* Added message/deliver-status and message/disposition-notification support to
+  MimeAnonymizer.
+* Slightly optimized the Unix2DosFilter.
+
 ## MimeKit 4.12.0 (2025-04-28)
 
 * Removed CTRL characters from the list of allowed domain characters.

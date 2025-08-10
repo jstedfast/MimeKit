@@ -255,7 +255,7 @@ namespace MimeKit {
 						return;
 					}
 
-					// Fall through and act is if we're consuming a header.
+					// Fall through and act as if we're consuming a header.
 				} else {
 					// Consume the header field name.
 					StepHeaderField (headerFieldLength);
@@ -457,8 +457,7 @@ namespace MimeKit {
 
 						*inend = (byte) '\n';
 
-						while (*inptr != (byte) '\n')
-							inptr++;
+						inptr = EndOfLine (inptr, inend + 1);
 
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
@@ -660,7 +659,7 @@ namespace MimeKit {
 			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse headers.");
 
-			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
+			state = eos && inputIndex == inputEnd ? MimeParserState.Eos : MimeParserState.Complete;
 		}
 
 		/// <summary>

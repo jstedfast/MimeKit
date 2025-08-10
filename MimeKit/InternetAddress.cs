@@ -906,7 +906,7 @@ namespace MimeKit {
 		/// <param name="address">The parsed address.</param>
 		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out InternetAddress? address)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
 				address = null;
 				return false;
 			}
@@ -961,7 +961,7 @@ namespace MimeKit {
 		/// <param name="address">The parsed address.</param>
 		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out InternetAddress? address)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer, startIndex)) {
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
 				address = null;
 				return false;
 			}
@@ -1009,7 +1009,7 @@ namespace MimeKit {
 		/// <param name="address">The parsed address.</param>
 		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out InternetAddress? address)
 		{
-			if (!ParseUtils.TryValidateArguments (options, buffer)) {
+			if (!ArgumentValidator.TryValidate (options, buffer)) {
 				address = null;
 				return false;
 			}
@@ -1056,7 +1056,7 @@ namespace MimeKit {
 		/// <param name="address">The parsed address.</param>
 		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out InternetAddress? address)
 		{
-			if (!ParseUtils.TryValidateArguments (options, text)) {
+			if (!ArgumentValidator.TryValidate (options, text)) {
 				address = null;
 				return false;
 			}
@@ -1117,7 +1117,7 @@ namespace MimeKit {
 		/// </exception>
 		public static InternetAddress Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			ArgumentValidator.Validate (options, buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -1182,7 +1182,7 @@ namespace MimeKit {
 		/// </exception>
 		public static InternetAddress Parse (ParserOptions options, byte[] buffer, int startIndex)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			ArgumentValidator.Validate (options, buffer, startIndex);
 
 			int endIndex = buffer.Length;
 			int index = startIndex;
@@ -1241,7 +1241,7 @@ namespace MimeKit {
 		/// </exception>
 		public static InternetAddress Parse (ParserOptions options, byte[] buffer)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			ArgumentValidator.Validate (options, buffer);
 
 			int endIndex = buffer.Length;
 			int index = 0;
@@ -1296,7 +1296,7 @@ namespace MimeKit {
 		/// </exception>
 		public static InternetAddress Parse (ParserOptions options, string text)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			ArgumentValidator.Validate (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int endIndex = buffer.Length;

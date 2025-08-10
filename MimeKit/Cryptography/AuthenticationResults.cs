@@ -824,7 +824,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="authres">The parsed authentication results.</param>
 		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen(true)] out AuthenticationResults? authres)
 		{
-			if (!ParseUtils.TryValidateArguments (buffer, startIndex, length)) {
+			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
 				authres = null;
 				return false;
 			}
@@ -878,7 +878,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static AuthenticationResults Parse (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int index = startIndex;
 

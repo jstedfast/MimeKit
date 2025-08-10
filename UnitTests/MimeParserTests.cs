@@ -4965,7 +4965,7 @@ This is some raw data.
 		[Test]
 		public void TestMimePartContentWithMixedLineEndings ()
 		{
-			string text = "From: mimekit@example.com\r\nTo: mimekit@example.com\r\nSubject: content with mixed line endings\r\nDate: Sat, Dec 21 2024 09:12:42 -0500\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nThis is a normal line of text.\r\nThis line ends with a bare LF.\nAnd this line endds with CRLF.\r\n";
+			string text = "From: mimekit@example.com\r\nTo: mimekit@example.com\r\nSubject: content with mixed line endings\r\nDate: Sat, Dec 21 2024 09:12:42 -0500\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nThis is a normal line of text.\r\nThis line ends with a bare LF.\nAnd this line ends with CRLF.\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
@@ -4976,7 +4976,7 @@ This is some raw data.
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
-				Assert.That (body.Text, Is.EqualTo ("This is a normal line of text.\r\nThis line ends with a bare LF.\r\nAnd this line endds with CRLF.\r\n"));
+				Assert.That (body.Text, Is.EqualTo ("This is a normal line of text.\r\nThis line ends with a bare LF.\r\nAnd this line ends with CRLF.\r\n".ReplaceLineEndings ()));
 				Assert.That (body.Content.NewLineFormat, Is.EqualTo (NewLineFormat.Mixed));
 			}
 		}
@@ -4984,7 +4984,7 @@ This is some raw data.
 		[Test]
 		public async Task TestMimePartContentWithMixedLineEndingsAsync ()
 		{
-			string text = "From: mimekit@example.com\r\nTo: mimekit@example.com\r\nSubject: content with mixed line endings\r\nDate: Sat, Dec 21 2024 09:12:42 -0500\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nThis is a normal line of text.\r\nThis line ends with a bare LF.\nAnd this line endds with CRLF.\r\n";
+			string text = "From: mimekit@example.com\r\nTo: mimekit@example.com\r\nSubject: content with mixed line endings\r\nDate: Sat, Dec 21 2024 09:12:42 -0500\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nThis is a normal line of text.\r\nThis line ends with a bare LF.\nAnd this line ends with CRLF.\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
@@ -4995,7 +4995,7 @@ This is some raw data.
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
-				Assert.That (body.Text, Is.EqualTo ("This is a normal line of text.\r\nThis line ends with a bare LF.\r\nAnd this line endds with CRLF.\r\n"));
+				Assert.That (body.Text, Is.EqualTo ("This is a normal line of text.\r\nThis line ends with a bare LF.\r\nAnd this line ends with CRLF.\r\n".ReplaceLineEndings ()));
 				Assert.That (body.Content.NewLineFormat, Is.EqualTo (NewLineFormat.Mixed));
 			}
 		}

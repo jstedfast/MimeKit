@@ -122,8 +122,14 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDSACryptoServiceProvider ()
 		{
+#if !MONO
 			using (var dsa = new DSACryptoServiceProvider (1024))
 				AssertDSA (dsa);
+#else
+			// System.Security.Cryptography.CryptographicException: Specified key is not a valid size for this algorithm.
+			// DSACryptoServiceProvider.set_KeySize = 1024;
+			Assert.Ignore ("Mono does not support 1024-bit key sizes for DSACryptoServiceProvider");
+#endif
 		}
 
 		[Test]
