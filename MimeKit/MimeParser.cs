@@ -524,7 +524,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeMessageBeginEventArgs> MimeMessageBegin;
+		public event EventHandler<MimeMessageBeginEventArgs>? MimeMessageBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeMessage"/>.
@@ -547,7 +547,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeMessageEndEventArgs> MimeMessageEnd;
+		public event EventHandler<MimeMessageEndEventArgs>? MimeMessageEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeMessage"/>.
@@ -570,7 +570,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeEntityBeginEventArgs> MimeEntityBegin;
+		public event EventHandler<MimeEntityBeginEventArgs>? MimeEntityBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeEntity"/>.
@@ -593,7 +593,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeEntityEndEventArgs> MimeEntityEnd;
+		public event EventHandler<MimeEntityEndEventArgs>? MimeEntityEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeEntity"/>.

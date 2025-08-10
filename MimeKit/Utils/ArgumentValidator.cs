@@ -25,11 +25,12 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	static class ArgumentValidator
 	{
-		public static bool TryValidate (ParserOptions options, byte[] buffer, int startIndex, int length)
+		public static bool TryValidate ([NotNullWhen (true)] ParserOptions? options, [NotNullWhen (true)] byte[]? buffer, int startIndex, int length)
 		{
 			if (options is null)
 				return false;
@@ -46,7 +47,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryValidate (ParserOptions options, byte[] buffer, int startIndex)
+		public static bool TryValidate ([NotNullWhen (true)] ParserOptions? options, [NotNullWhen (true)] byte[]? buffer, int startIndex)
 		{
 			if (options is null)
 				return false;
@@ -60,7 +61,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryValidate (ParserOptions options, byte[] buffer)
+		public static bool TryValidate ([NotNullWhen (true)] ParserOptions? options, [NotNullWhen (true)] byte[]? buffer)
 		{
 			if (options is null)
 				return false;
@@ -71,7 +72,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryValidate (ParserOptions options, string text)
+		public static bool TryValidate ([NotNullWhen(true)] ParserOptions? options, [NotNullWhen (true)] string? text)
 		{
 			if (options is null)
 				return false;
@@ -82,7 +83,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryValidate (byte[] buffer, int startIndex, int length)
+		public static bool TryValidate ([NotNullWhen(true)] byte[]? buffer, int startIndex, int length)
 		{
 			if (buffer is null)
 				return false;
@@ -96,7 +97,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryValidate (byte[] buffer, int startIndex)
+		public static bool TryValidate ([NotNullWhen(true)] byte[]? buffer, int startIndex)
 		{
 			if (buffer is null)
 				return false;
@@ -107,7 +108,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static void Validate (ParserOptions options, byte[] buffer, int startIndex, int length)
+		public static void Validate ([NotNull] ParserOptions? options, [NotNull] byte[]? buffer, int startIndex, int length)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -122,7 +123,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentOutOfRangeException (nameof (length));
 		}
 
-		public static void Validate (ParserOptions options, byte[] buffer, int startIndex)
+		public static void Validate ([NotNull] ParserOptions? options, [NotNull] byte[]? buffer, int startIndex)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -134,7 +135,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentOutOfRangeException (nameof (startIndex));
 		}
 
-		public static void Validate (ParserOptions options, byte[] buffer)
+		public static void Validate ([NotNull] ParserOptions? options, [NotNull] byte[]? buffer)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -143,7 +144,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException (nameof (buffer));
 		}
 
-		public static void Validate (ParserOptions options, string text)
+		public static void Validate ([NotNull] ParserOptions? options, [NotNull] string? text)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -152,7 +153,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentNullException (nameof (text));
 		}
 
-		public static void Validate (byte[] buffer, int startIndex, int length)
+		public static void Validate ([NotNull] byte[]? buffer, int startIndex, int length)
 		{
 			if (buffer is null)
 				throw new ArgumentNullException (nameof (buffer));
