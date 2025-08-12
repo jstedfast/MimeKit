@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,8 @@ using Org.BouncyCastle.Crypto.Parameters;
 namespace MimeKit.Cryptography {
 	class Ed25519DigestSigner : ISigner
 	{
-		Ed25519PrivateKeyParameters privateKey;
-		Ed25519PublicKeyParameters publicKey;
+		Ed25519PrivateKeyParameters? privateKey;
+		Ed25519PublicKeyParameters? publicKey;
 		readonly IDigest digest;
 
 		public Ed25519DigestSigner (IDigest digest)
@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 
 		public bool VerifySignature (byte[] signature)
 		{
-			if (privateKey != null)
+			if (publicKey == null || privateKey != null)
 				throw new InvalidOperationException ("Ed25519DigestSigner not initialised for verification");
 
 			if (Ed25519.SignatureSize != signature.Length)

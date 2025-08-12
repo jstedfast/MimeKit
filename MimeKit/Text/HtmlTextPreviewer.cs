@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -146,7 +146,7 @@ namespace MimeKit.Text {
 			return lastIndex >= 0 && stack[lastIndex].SuppressInnerContent;
 		}
 
-		static HtmlTagContext GetListItemContext (IList<HtmlTagContext> stack)
+		static HtmlTagContext? GetListItemContext (IList<HtmlTagContext> stack)
 		{
 			for (int i = stack.Count; i > 0; i--) {
 				var ctx = stack[i - 1];
@@ -179,8 +179,8 @@ namespace MimeKit.Text {
 			var stack = new List<HtmlTagContext> ();
 			var prefix = string.Empty;
 			int previewLength = 0;
-			HtmlTagContext ctx;
-			HtmlAttribute attr;
+			HtmlTagContext? ctx;
+			HtmlAttribute? attr;
 			bool body = false;
 			bool full = false;
 			bool lwsp = true;

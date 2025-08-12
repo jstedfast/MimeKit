@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -174,7 +174,7 @@ namespace MimeKit.Cryptography {
 
 		internal static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
 		{
-			AsymmetricKeyParameter key = null;
+			AsymmetricKeyParameter? key = null;
 
 			using (var reader = new StreamReader (stream)) {
 				var pem = new PemReader (reader);

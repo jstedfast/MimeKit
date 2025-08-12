@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the encoding of the input is detected from the byte order mark or
 		/// determined by the <see cref="InputEncoding"/> property.
 		/// </remarks>
-		/// <value><c>true</c> if detect encoding from byte order mark; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if detect encoding from byte order mark; otherwise, <see langword="false" />.</value>
 		public bool DetectEncodingFromByteOrderMark {
 			get; set;
 		}
@@ -202,7 +202,7 @@ namespace MimeKit.Text {
 		/// <para>The footer must be set before conversion begins.</para>
 		/// </remarks>
 		/// <value>The footer.</value>
-		public string Footer {
+		public string? Footer {
 			get; set;
 		}
 
@@ -214,7 +214,7 @@ namespace MimeKit.Text {
 		/// <para>The header must be set before conversion begins.</para>
 		/// </remarks>
 		/// <value>The header.</value>
-		public string Header {
+		public string? Header {
 			get; set;
 		}
 

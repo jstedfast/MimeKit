@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -54,8 +54,11 @@ namespace MimeKit.Cryptography {
 	public abstract class SecureMimeContext : CryptographyContext, ISecureMimeContext
 	{
 		static readonly string[] ProtocolSubtypes = { "pkcs7-signature", "pkcs7-mime", "pkcs7-keys", "x-pkcs7-signature", "x-pkcs7-mime", "x-pkcs7-keys" };
-		internal const X509KeyUsageFlags DigitalSignatureKeyUsageFlags = X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation;
+#if NET8_0_OR_GREATER
+		internal static readonly int EncryptionAlgorithmCount = Enum.GetValuesAsUnderlyingType<EncryptionAlgorithm> ().Length;
+#else
 		internal static readonly int EncryptionAlgorithmCount = Enum.GetValues (typeof (EncryptionAlgorithm)).Length;
+#endif
 		internal static readonly DerObjectIdentifier Blowfish = new DerObjectIdentifier ("1.3.6.1.4.1.3029.1.2");
 		internal static readonly DerObjectIdentifier Twofish = new DerObjectIdentifier ("1.3.6.1.4.1.25258.3.3");
 
@@ -156,7 +159,7 @@ namespace MimeKit.Cryptography {
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
 		/// or multipart/encrypted part is supported by the supplied cryptography context.
 		/// </remarks>
-		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
+		/// <returns><see langword="true" /> if the protocol is supported; otherwise, <see langword="false" /></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="protocol"/> is <see langword="null"/>.
@@ -321,7 +324,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		internal static bool TryGetDigestAlgorithm (string id, out DigestAlgorithm algorithm)
+		internal static bool TryGetDigestAlgorithm (string? id, out DigestAlgorithm algorithm)
 		{
 			if (id == CmsSignedGenerator.DigestSha1) {
 				algorithm = DigestAlgorithm.Sha1;

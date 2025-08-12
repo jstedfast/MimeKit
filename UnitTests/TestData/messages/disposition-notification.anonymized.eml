@@ -1,0 +1,43 @@
+Date: Wed, 20 Sep 1995 00:19:00 (EDT) -0400
+From: xxx xxxxxxxxx <xxxxxxxxxxxxx@xxxxxxx.xxx>
+Message-Id: <xxxxxxxxxxxx.xxxxx@xxxxxxx.xxx>
+Subject: xxxxxxxxxxx xxxxxxxxxxxx
+To: xxxx xxxxxx <xxxxxxxxxxx@xxxxxxx.xxx>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=xxxxxxxxxxxxxxxxxxxxxxxx;
+ boundary="RAA14128.773615765/example.com"
+
+--RAA14128.773615765/example.com
+
+xxx xxxxxxx xxxx xx xxxx xxx xx xx xxxxxxxx xxxxx xxxxx xx xxx
+xxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxx xxxx xxxxxxx xxxxxx xxxxx xx
+xxxxxxx xxx xxxx xxxxxxxxxx  xxxx xx xx xxxxxxxxx xxxx xxx xxxxxxx
+xxx xxxx xxxx xx xxxxxxxxxxx
+
+--RAA14128.773615765/example.com
+content-type: message/disposition-notification
+
+Reporting-UA: xxxxxxxxxxxxxxxxxxxxxxx xxxxxxx xxxx
+Original-Recipient: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Final-Recipient: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Original-Message-ID: <xxxxxxxxxxxx.xxxxx@xxxxxxx.xxx>
+Disposition: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxx
+
+--RAA14128.773615765/example.com
+content-type: message/rfc822
+
+Date: Tue, 19 Sep 1995 13:30:00 (EDT) -0400
+From: xxxx xxxxxx <xxxxxxxxxxx@xxxxxxx.xxx>
+Message-Id: <xxxxxxxxxxxx.xxxxx@xxxxxxx.xxx>
+Subject: xxxxx xxxxx xx xxxxxx
+To: xxx xxxxxxxxx <xxxxxxxxxxxxx@xxxxxxx.xxx>
+MIME-Version: 1.0
+Content-Type: text/plain
+
+xxx xxxx
+
+xxxx xx x xxxx xxxxxxx xxx xxx xxxxx xxxxx xx xxx xxxxxxxxxxxxxxxx xxxxx
+
+x xxxx
+
+--RAA14128.773615765/example.com--

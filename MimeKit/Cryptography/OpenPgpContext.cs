@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
@@ -84,7 +85,7 @@ namespace MimeKit.Cryptography {
 
 		EncryptionAlgorithm defaultAlgorithm;
 		HttpClient client;
-		Uri keyServer;
+		Uri? keyServer;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
@@ -137,7 +138,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		protected abstract PgpPublicKeyRing GetPublicKeyRing (long keyId, CancellationToken cancellationToken);
+		protected abstract PgpPublicKeyRing? GetPublicKeyRing (long keyId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Asynchronously get the public keyring that contains the specified key asynchronously.
@@ -155,7 +156,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		protected abstract Task<PgpPublicKeyRing> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken);
+		protected abstract Task<PgpPublicKeyRing?> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the secret key for a specified key identifier.
@@ -298,6 +299,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		[MemberNotNullWhen (true, nameof (keyServer))]
 		bool IsValidKeyServer {
 			get {
 				if (keyServer == null)
@@ -322,7 +324,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is not an absolute URI.
 		/// </exception>
-		public Uri KeyServer {
+		public Uri? KeyServer {
 			get { return keyServer; }
 			set {
 				if (value != null && !value.IsAbsoluteUri)
@@ -340,7 +342,7 @@ namespace MimeKit.Cryptography {
 		/// fetch keys as needed from the keyserver when verifying signatures.</para>
 		/// <note type="note">Requires a valid <see cref="KeyServer"/> to be set.</note>
 		/// </remarks>
-		/// <value><c>true</c> if unknown PGP keys should automatically be retrieved; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if unknown PGP keys should automatically be retrieved; otherwise, <see langword="false" />.</value>
 		public bool AutoKeyRetrieve {
 			get; set;
 		}
@@ -389,7 +391,7 @@ namespace MimeKit.Cryptography {
 		/// Used in order to make sure that the protocol parameter value specified in either a multipart/signed
 		/// or multipart/encrypted part is supported by the supplied cryptography context.
 		/// </remarks>
-		/// <returns><c>true</c> if the protocol is supported; otherwise <c>false</c></returns>
+		/// <returns><see langword="true" /> if the protocol is supported; otherwise, <see langword="false" /></returns>
 		/// <param name="protocol">The protocol.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="protocol"/> is <see langword="null"/>.
@@ -522,7 +524,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="key">The public key.</param>
 		/// <param name="mailbox">The mailbox address.</param>
-		/// <returns><c>true</c> if the key is a match for the specified mailbox; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the key is a match for the specified mailbox; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -571,7 +573,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="key">The secret key.</param>
 		/// <param name="mailbox">The mailbox address.</param>
-		/// <returns><c>true</c> if the key is a match for the specified mailbox; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the key is a match for the specified mailbox; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -615,7 +617,7 @@ namespace MimeKit.Cryptography {
 		/// Checks if a public key is expired.
 		/// </remarks>
 		/// <param name="key">The public key.</param>
-		/// <returns><c>true</c> if the public key is expired; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the public key is expired; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="key"/> is <see langword="null"/>.
 		/// </exception>
@@ -639,10 +641,10 @@ namespace MimeKit.Cryptography {
 		/// Retrieves the public keyring, using the preferred key server, automatically importing it afterward.
 		/// </summary>
 		/// <param name="keyId">The identifier of the key to be retrieved.</param>
-		/// <param name="doAsync"><c>true</c> if this operation should be done asynchronously; otherwise, <c>false</c>.</param>
+		/// <param name="doAsync"><see langword="true" /> if this operation should be done asynchronously; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public key ring.</returns>
-		async Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
+		async Task<PgpPublicKeyRing?> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (!IsValidKeyServer)
 				return null;
@@ -717,7 +719,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keyId">The identifier of the public key to be retrieved.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public key ring.</returns>
-		protected PgpPublicKeyRing RetrievePublicKeyRing (long keyId, CancellationToken cancellationToken)
+		protected PgpPublicKeyRing? RetrievePublicKeyRing (long keyId, CancellationToken cancellationToken)
 		{
 			return RetrievePublicKeyRingAsync (keyId, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -735,7 +737,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="keyId">The identifier of the public key to be retrieved.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns>The public key ring.</returns>
-		protected Task<PgpPublicKeyRing> RetrievePublicKeyRingAsync (long keyId, CancellationToken cancellationToken)
+		protected Task<PgpPublicKeyRing?> RetrievePublicKeyRingAsync (long keyId, CancellationToken cancellationToken)
 		{
 			return RetrievePublicKeyRingAsync (keyId, true, cancellationToken);
 		}
@@ -1113,7 +1115,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static bool TryGetPublicKey (PgpPublicKeyRing keyring, long keyId, out PgpPublicKey pubkey)
+		static bool TryGetPublicKey ([NotNullWhen (true)] PgpPublicKeyRing? keyring, long keyId, [NotNullWhen (true)] out PgpPublicKey? pubkey)
 		{
 			if (keyring != null) {
 				foreach (PgpPublicKey key in keyring.GetPublicKeys ()) {
@@ -1135,7 +1137,7 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < signatureList.Count; i++) {
 				long keyId = signatureList[i].KeyId;
-				PgpPublicKeyRing keyring;
+				PgpPublicKeyRing? keyring;
 
 				if (doAsync)
 					keyring = await GetPublicKeyRingAsync (keyId, cancellationToken).ConfigureAwait (false);
@@ -2195,7 +2197,7 @@ namespace MimeKit.Cryptography {
 			return SignAndEncryptAsync (signer, digestAlgo, defaultAlgorithm, recipients, content, cancellationToken);
 		}
 
-		async Task<DigitalSignatureCollection> DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
+		async Task<DigitalSignatureCollection?> DecryptToAsync (Stream encryptedData, Stream decryptedData, bool doAsync, CancellationToken cancellationToken)
 		{
 			if (encryptedData == null)
 				throw new ArgumentNullException (nameof (encryptedData));
@@ -2211,15 +2213,13 @@ namespace MimeKit.Cryptography {
 					// probably a PgpMarker...
 					obj = factory.NextPgpObject ();
 
-					list = obj as PgpEncryptedDataList;
-
-					if (list == null)
+					list = obj as PgpEncryptedDataList ??
 						throw new PgpException ("Unexpected OpenPGP packet.");
 				}
 
-				PgpPublicKeyEncryptedData encrypted = null;
-				PrivateKeyNotFoundException pkex = null;
-				PgpSecretKey secret = null;
+				PgpPublicKeyEncryptedData? encrypted = null;
+				PrivateKeyNotFoundException? pkex = null;
+				PgpSecretKey? secret = null;
 
 				foreach (PgpEncryptedData data in list.GetEncryptedDataObjects ()) {
 					if ((encrypted = data as PgpPublicKeyEncryptedData) == null)
@@ -2243,11 +2243,11 @@ namespace MimeKit.Cryptography {
 					throw pkex;
 				}
 
-				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (secret)));
-				List<IDigitalSignature> onepassList = null;
-				DigitalSignatureCollection signatures;
-				PgpSignatureList signatureList = null;
-				PgpCompressedData compressed = null;
+				factory = new PgpObjectFactory (encrypted!.GetDataStream (GetPrivateKey (secret))); // encrypted is not null when secret is not null
+				List<IDigitalSignature>? onepassList = null;
+				DigitalSignatureCollection? signatures;
+				PgpSignatureList? signatureList = null;
+				PgpCompressedData? compressed = null;
 				var position = decryptedData.Position;
 				long nwritten = 0;
 
@@ -2267,7 +2267,7 @@ namespace MimeKit.Cryptography {
 
 							for (int i = 0; i < onepasses.Count; i++) {
 								var onepass = onepasses[i];
-								PgpPublicKeyRing keyring;
+								PgpPublicKeyRing? keyring;
 
 								if (doAsync)
 									keyring = await GetPublicKeyRingAsync (onepass.KeyId, cancellationToken).ConfigureAwait (false);
@@ -2381,7 +2381,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public DigitalSignatureCollection DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
+		public DigitalSignatureCollection? DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
 			return DecryptToAsync (encryptedData, decryptedData, false, cancellationToken).GetAwaiter ().GetResult ();
 		}
@@ -2418,7 +2418,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public Task<DigitalSignatureCollection> DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
+		public Task<DigitalSignatureCollection?> DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default)
 		{
 			return DecryptToAsync (encryptedData, decryptedData, true, cancellationToken);
 		}
@@ -2450,7 +2450,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
 		/// An OpenPGP error occurred.
 		/// </exception>
-		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
+		public MimeEntity Decrypt (Stream encryptedData, out DigitalSignatureCollection? signatures, CancellationToken cancellationToken = default)
 		{
 			using (var decryptedData = new MemoryBlockStream ()) {
 				signatures = DecryptTo (encryptedData, decryptedData, cancellationToken);
@@ -2786,7 +2786,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keys">The public keys to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2822,7 +2822,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="keys">The public keys to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2857,7 +2857,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="keys">The public keyring bundle to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2899,7 +2899,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="keys">The public keyring bundle to export.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="keys"/> is <see langword="null"/>.</para>
@@ -2942,7 +2942,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>
@@ -2972,7 +2972,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="mailboxes">The mailboxes.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="armor"><c>true</c> if the output should be armored; otherwise, <c>false</c>.</param>
+		/// <param name="armor"><see langword="true" /> if the output should be armored; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="mailboxes"/> is <see langword="null"/>.</para>

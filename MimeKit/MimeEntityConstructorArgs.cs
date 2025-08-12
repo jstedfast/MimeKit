@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,12 @@ namespace MimeKit {
 		internal readonly ParserOptions ParserOptions;
 		internal readonly IEnumerable<Header> Headers;
 		internal readonly ContentType ContentType;
+		internal readonly bool HasBodySeparator;
 		internal readonly bool IsTopLevel;
 
-		internal MimeEntityConstructorArgs (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool toplevel)
+		internal MimeEntityConstructorArgs (ParserOptions options, ContentType ctype, IEnumerable<Header> headers, bool hasBodySeparator, bool toplevel)
 		{
+			HasBodySeparator = hasBodySeparator;
 			ParserOptions = options;
 			IsTopLevel = toplevel;
 			ContentType = ctype;

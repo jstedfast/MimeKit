@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Text;
 
@@ -97,7 +98,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
-		public string TextBody {
+		public string? TextBody {
 			get { return GetTextBody (TextFormat.Plain); }
 		}
 
@@ -111,7 +112,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
-		public string HtmlBody {
+		public string? HtmlBody {
 			get { return GetTextBody (TextFormat.Html); }
 		}
 
@@ -148,7 +149,7 @@ namespace MimeKit {
 			if (text.IsFlowed) {
 				var converter = new FlowedToText ();
 
-				if (text.ContentType.Parameters.TryGetValue ("delsp", out string delsp))
+				if (text.ContentType.Parameters.TryGetValue ("delsp", out string? delsp))
 					converter.DeleteSpace = string.Equals (delsp, "yes", StringComparison.OrdinalIgnoreCase);
 
 				return converter.Convert (text.Text);
@@ -168,7 +169,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
-		public string GetTextBody (TextFormat format)
+		public string? GetTextBody (TextFormat format)
 		{
 			if (TryGetValue (format, out var body))
 				return GetText (body);
@@ -184,11 +185,11 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="format">The preferred text format.</param>
 		/// <param name="body">The MIME part containing the message body in the preferred text format.</param>
-		/// <returns><c>true</c> if the body part is found; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the body part is found; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
-		public override bool TryGetValue (TextFormat format, out TextPart body)
+		public override bool TryGetValue (TextFormat format, [NotNullWhen (true)] out TextPart? body)
 		{
 			CheckDisposed ();
 

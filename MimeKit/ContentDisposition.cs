@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ using System.Text;
 using System.Globalization;
 
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -119,6 +120,8 @@ namespace MimeKit {
 		/// </exception>
 		public string Disposition {
 			get { return disposition; }
+
+			[MemberNotNull (nameof (disposition))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -145,7 +148,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A convenience property to determine if the entity should be considered an attachment or not.
 		/// </remarks>
-		/// <value><c>true</c> if the <see cref="MimePart"/> is an attachment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the <see cref="MimePart"/> is an attachment; otherwise, <see langword="false" />.</value>
 		public bool IsAttachment {
 			get { return disposition.Equals (Attachment, StringComparison.OrdinalIgnoreCase); }
 			set { disposition = value ? Attachment : Inline; }
@@ -166,6 +169,8 @@ namespace MimeKit {
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
+
+			[MemberNotNull (nameof (parameters))]
 			private set {
 				if (parameters != null)
 					parameters.Changed -= OnParametersChanged;
@@ -186,7 +191,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The name of the file.</value>
-		public string FileName {
+		public string? FileName {
 			get { return Parameters["filename"]; }
 			set {
 				if (value != null)
@@ -356,7 +361,7 @@ namespace MimeKit {
 		/// <returns>The serialized string.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
-		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the parameter values will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -394,7 +399,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
-		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the parameter values will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="charset"/> is <see langword="null"/>.
 		/// </exception>
@@ -411,7 +416,7 @@ namespace MimeKit {
 		/// optionally encoding the parameters as they would be encoded for transport.
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
-		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the parameter values will be encoded.</param>
 		public string ToString (bool encode)
 		{
 			return ToString (FormatOptions.Default, Encoding.UTF8, encode);
@@ -430,9 +435,9 @@ namespace MimeKit {
 			return ToString (false);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
-		void OnParametersChanged (object sender, EventArgs e)
+		void OnParametersChanged (object? sender, EventArgs e)
 		{
 			OnChanged ();
 		}
@@ -442,7 +447,7 @@ namespace MimeKit {
 			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentDisposition disposition)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ContentDisposition? disposition)
 		{
 			string type;
 			int atom;
@@ -532,24 +537,18 @@ namespace MimeKit {
 		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
+				disposition = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -563,19 +562,12 @@ namespace MimeKit {
 		/// Parses a Content-Disposition value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentDisposition disposition)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out disposition);
 		}
@@ -586,22 +578,17 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
+				disposition = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -614,17 +601,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, out ContentDisposition disposition)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out disposition);
 		}
@@ -635,18 +616,16 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			if (!ArgumentValidator.TryValidate (options, buffer)) {
+				disposition = null;
+				return false;
+			}
 
 			int index = 0;
 
@@ -659,13 +638,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, out ContentDisposition disposition)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, buffer, out disposition);
 		}
@@ -676,18 +652,16 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied text.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, out ContentDisposition disposition)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			if (!ArgumentValidator.TryValidate (options, text)) {
+				disposition = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
@@ -701,13 +675,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Disposition value from the supplied text.
 		/// </remarks>
-		/// <returns><c>true</c> if the disposition was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the disposition was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="disposition">The parsed disposition.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out ContentDisposition disposition)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out ContentDisposition? disposition)
 		{
 			return TryParse (ParserOptions.Default, text, out disposition);
 		}
@@ -738,13 +709,13 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentDisposition Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			ArgumentValidator.Validate (options, buffer, startIndex, length);
 
 			int index = startIndex;
 
 			TryParse (options, buffer, ref index, startIndex + length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
@@ -796,13 +767,13 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentDisposition Parse (ParserOptions options, byte[] buffer, int startIndex)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			ArgumentValidator.Validate (options, buffer, startIndex);
 
 			int index = startIndex;
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
@@ -847,13 +818,13 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentDisposition Parse (ParserOptions options, byte[] buffer)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			ArgumentValidator.Validate (options, buffer);
 
 			int index = 0;
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>
@@ -894,14 +865,14 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentDisposition Parse (ParserOptions options, string text)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			ArgumentValidator.Validate (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var disposition);
 
-			return disposition;
+			return disposition!; // we throw on error
 		}
 
 		/// <summary>

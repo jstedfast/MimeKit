@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid value.
 		/// </exception>
-		public HtmlAttribute (HtmlAttributeId id, string value)
+		public HtmlAttribute (HtmlAttributeId id, string? value)
 		{
 			if (id == HtmlAttributeId.Unknown)
 				throw new ArgumentOutOfRangeException (nameof (id));
@@ -72,7 +72,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
-		public HtmlAttribute (string name, string value)
+		public HtmlAttribute (string name, string? value)
 		{
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
@@ -80,7 +80,7 @@ namespace MimeKit.Text {
 			if (name.Length == 0)
 				throw new ArgumentException ("The attribute name cannot be empty.", nameof (name));
 
-			if (!HtmlUtils.IsValidTokenName (name))
+			if (!HtmlUtils.IsValidAttributeName (name))
 				throw new ArgumentException ("Invalid attribute name.", nameof (name));
 
 			Value = value;
@@ -135,7 +135,7 @@ namespace MimeKit.Text {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <value>The value of the attribute.</value>
-		public string Value {
+		public string? Value {
 			get; internal set;
 		}
 	}

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ namespace UnitTests {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var mds = new MessageDeliveryStatus ();
+			using var mds = new MessageDeliveryStatus ();
 
 			Assert.Throws<ArgumentNullException> (() => mds.Accept (null));
 		}
@@ -44,7 +44,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroups ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -66,11 +66,37 @@ namespace UnitTests {
 			Assert.That (groups[1]["Diagnostic-Code"], Is.EqualTo ("X-LOCAL; 500 (err.nosuchuser)"));
 		}
 
+		[Test]
+		public void TestStatusGroups2 ()
+		{
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status2.txt"));
+
+			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
+
+			var report = (MultipartReport) message.Body;
+
+			Assert.That (report[0], Is.InstanceOf<TextPart> (), "Expected first part to be a text/plain.");
+			Assert.That (report[1], Is.InstanceOf<MessageDeliveryStatus> (), "Expected second part to be a message/delivery-status.");
+			Assert.That (report[2], Is.InstanceOf<MessagePart> (), "Expected second part to be a message/rfc822.");
+
+			var delivery = (MessageDeliveryStatus) report[1];
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups, Is.Not.Null, "Did not expect null status groups.");
+			Assert.That (groups.Count, Is.EqualTo (2), "Expected 2 groups of headers.");
+
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; smtp-out.dis-hosting.net"));
+
+			Assert.That (groups[1]["Action"], Is.EqualTo ("failed"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822;source@domain.com"));
+			Assert.That (groups[1]["Status"], Is.EqualTo ("5.0.0"));
+		}
+
 		// This tests issue #250
 		[Test]
 		public void TestStatusGroupsNoBlankLine ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -96,7 +122,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsWithContent ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -132,7 +158,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsMultipleBlankLines ()
 		{
-			var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -158,7 +184,7 @@ namespace UnitTests {
 		public void TestSerializedContent ()
 		{
 			const string expected = "Reporting-MTA: dns; mm1\nArrival-Date: Mon, 29 Jul 1996 02:12:50 -0700\n\nFinal-Recipient: RFC822; newsletter-request@imusic.com\nAction: failed\nDiagnostic-Code: X-LOCAL; 500 (err.nosuchuser)\n\n";
-			var mds = new MessageDeliveryStatus ();
+			using var mds = new MessageDeliveryStatus ();
 			var recipient = new HeaderList ();
 			var status = new HeaderList {
 				{ "Reporting-MTA", "dns; mm1" },

@@ -1,5 +1,108 @@
 # Release Notes
 
+## MimeKit 4.13.0 (2025-06-25)
+
+* Fixed a memory leak in MimeAnonymizer and MimeUtils.Unquote() which gets used by the
+  address parser. (issue [#1161](https://github.com/jstedfast/MimeKit/discussions/1161))
+* Optimized MimeReader and MimeParser to use Span&lt;T&gt;.IndexOf() on .NET Core which
+  can improve performance by 20-30% when parsing MemoryStreams or 5-10% when parsing
+  FileStreams.
+* Optimized the MboxFromFilter and ArmoredFromFilter by using Span&lt;T&gt;.IndexOf().
+* Fixed S/MIME logic to allow certificates without the KeyEncipherment key usage for
+  encryption. (issue [#1165](https://github.com/jstedfast/MimeKit/discussions/1165))
+* Added MimeAnonymizer.PreserveHeaders as a way of preventing anonymization for
+  specific headers.
+* Added message/deliver-status and message/disposition-notification support to
+  MimeAnonymizer.
+* Slightly optimized the Unix2DosFilter.
+
+## MimeKit 4.12.0 (2025-04-28)
+
+* Removed CTRL characters from the list of allowed domain characters.
+* Fixed a bug in the address list parser in Strict mode that allowed 2 addresses to be
+  separated by whitespace instead of requiring a comma.
+* Added a new MimeAnonymizer class that can be used to anonymize MimeMessages by
+  x-ing out non-syntactically relevant information.
+* Fixed TryParse methods to not throw ArgumentExceptions.
+  (issue [#1158](https://github.com/jstedfast/MimeKit/discussions/1158))
+* Fixed a bug in MimeReader that used the buffer offset instead of the stream offset
+  to check if the stream position was beyond the byte offset specified by a
+  Content-Length header when parsing UNIX mbox files.
+* Fixed a long-standing bug in MimeParser (which also existed in MimeReader) where
+  it would encounter a buffering bug when parsing some Mbox files (typically
+  multi-gigabyte). (issue [#991](https://github.com/jstedfast/MimeKit/discussions/991))
+* Fixed AttachmentCollection.Add/AddAsync methods to dispose the MimePart it is creating
+  if loading content fails from the stream fails.
+* Added leaveOpen parameters for HtmlWriter .ctors.
+  (issue [#1159](https://github.com/jstedfast/MimeKit/discussions/1159))
+* Fixed parsing when ParserOptions.AllowUnquotedCommasInAddresses = false. This used to
+  incorrectly allow unquoted commas in address Display Names if the comma followed at least
+  2 words.
+
+## MimeKit 4.11.0 (2025-03-08)
+
+* Fixed logic for validating HTML Tag and Attribute names.
+  (issue [#1136](https://github.com/jstedfast/MimeKit/discussions/1136))
+* Minor performance improvements to MimeParser, ExperimentalMimeParser, and MimeReader.
+* Obsoleted MimeReader.OnMultipartBoundary() and OnMultipartEndBoundary(), replacing them
+  with OnMultipartBoundaryBegin/Read/End() and OnMultipartEndBoundaryBegin/Read/End().
+  This now allows ExperimentalMimeParser to track trailing whitespace on boundary lines,
+  resulting in improved re-serialization of parsed messages.
+* Fixed serialization of message/rfc822 parts without a message.
+* Fixed serialization of messages that did not have a blank line between the headers and body
+  (only when parsed using the ExperimentalMimeParser).
+* When using DbTransactions, set the transaction on the DbCommands.
+  (issue [#1142](https://github.com/jstedfast/MimeKit/issues/1142))
+* Improved Date header parser for JST and KST timezones.
+* Improved Date header parser to handle AM/PM and leap seconds.
+* Improved address parser to handle unbalanced ')' (rfc7103)
+
+## MimeKit 4.10.0 (2025-01-26)
+
+* Fixed logic for converting BouncyCastle DSA keys to System.Security equivalents.
+* Fixed BouncyCastleSecureMimeContext to respect the CheckCertificateRevocation property when
+  encrypting to recipeints and when verifying signatures.
+* Marked IX509CertificateDatabase.Update(X509CrlRecord) as obsolete.
+* Fixed TemporarySecureMimeContext.Import(X509Crl) to not import duplicates.
+* Added new MimeMessage .ctor that takes IEnumerable&lt;Header&gt;.
+* Fixed MimeReader to better handle garbage at the start of an mbox.
+* Fixed MimeReader/ExperimentalMimeParser to handle really long mbox markers by introducing
+  2 new methods: OnMboxMarkerBegin() and OnMboxMarkerEnd().
+* Improved MimeReader header parsing (mostly just state tracking improvements) which
+  allows it to throw the appropriate exception if EOS is reached before parsing any
+  headers.
+* Make sure to flush any remaining text in the FlowedToText and FlowedToHtml converters
+  (issue [#1130](https://github.com/jstedfast/MimeKit/issues/1130))
+* Fixed Header folding/encoding logic for Original-Message-ID by making it follow the same
+  rules as Message-ID/Content-ID/etc.
+  (issue [#1133](https://github.com/jstedfast/MimeKit/issues/1133))
+
+## MimeKit 4.9.0 (2024-12-09)
+
+* Started adding some DynamicallyAccessedMembers attributes for AOT compatibility.
+* Refactored some code for AOT Compatibility (MimeKitLite is now 100% AOT Compatible but MimeKit still has
+  issues related to SQLite database loading for the S/MIME certificate database).
+  (MailKit issue [#10844](https://github.com/jstedfast/MailKit/issues/1844))
+* Fixed TextPreviewer to use an encoding with an empty string fallback to prevent '?' characters from
+  being appended to the generated preview string if the byte sequence was truncated.
+* Improved performance of InternetAddressList.Parse()/TryParse().
+* Improved InternetAddressList parser performance for malformed addresses that only contain
+  display-name strings separated by commas.
+  (issue [#1106](https://github.com/jstedfast/MimeKit/issues/1106))
+* Exposed BouncyCastleCertificateExtensions.IsSelfSigned(), GetKeyUsageFlags() and IsDelta() as new public APIs.
+* Exposed X509KeyUsageBits enum as public.
+* Added support for domain-bound S/MIME certificates. (issue [#1113](https://github.com/jstedfast/MimeKit/issues/1113))
+* Dropped support for net6.0 in the nuget packages (Microsoft support ended Nov 12, 2024).
+* Removed explicit dependency on System.Runtime.CompilerServices.Unsafe.
+* Bumped System.Security.Cryptography.Pkcs dependency to v8.0.1.
+* Bumped BouncyCastle.Cryptography dependency to v2.5.0.
+* Bumped System.Buffers dependency to v4.6.0.
+* Bumped System.Memory dependency to v4.6.0.
+
+## MimeKit 4.8.0 (2024-09-29)
+
+* Added TypeConverters for InternetAddress and InternetAddressList.
+
 ## MimeKit 4.7.1 (2024-07-11)
 
 * Bumped System.Formats.Asn1 to v8.0.1 to fix a denial of service security issue.

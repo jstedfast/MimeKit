@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,8 @@
 // THE SOFTWARE.
 //
 
-#nullable enable
-
 using System;
+using System.Diagnostics;
 
 namespace MimeKit {
 	/// <summary>
@@ -61,6 +60,8 @@ namespace MimeKit {
 	{
 		internal HeaderListChangedEventArgs (Header? header, HeaderListChangedAction action)
 		{
+			Debug.Assert (header != null || action == HeaderListChangedAction.Cleared, "Header cannot be null unless the action is Cleared.");
+
 			Header = header;
 			Action = action;
 		}

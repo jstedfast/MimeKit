@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -109,7 +109,7 @@ namespace MimeKit {
 		/// The "id" parameter is a unique identifier used to match the parts together.
 		/// </remarks>
 		/// <value>The identifier.</value>
-		public string Id {
+		public string? Id {
 			get { return ContentType.Parameters["id"]; }
 		}
 
@@ -218,7 +218,16 @@ namespace MimeKit {
 				throw new ArgumentOutOfRangeException (nameof (maxSize));
 
 			var options = FormatOptions.Default.Clone ();
-			foreach (HeaderId id in Enum.GetValues (typeof (HeaderId))) {
+
+#if NET8_0_OR_GREATER
+			var ids = Enum.GetValuesAsUnderlyingType<HeaderId> ();
+#else
+			var ids = Enum.GetValues (typeof (HeaderId));
+#endif
+
+			for (int i = 0; i < ids.Length; i++) {
+				var id = (HeaderId) ids.GetValue (i)!; // Enum.GetValues* does not return null values
+
 				switch (id) {
 				case HeaderId.Subject:
 				case HeaderId.MessageId:
@@ -412,7 +421,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more <paramref name="partials"/> has a missing number parameter in the Content-Type header.</para>
 		/// </exception>
-		public static MimeMessage Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
+		public static MimeMessage? Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -423,7 +432,7 @@ namespace MimeKit {
 			if (partials is null)
 				throw new ArgumentNullException (nameof (partials));
 
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.
+			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			var parts = partials.ToList ();
 
 			if (parts.Count == 0)
@@ -431,14 +440,14 @@ namespace MimeKit {
 
 			parts.Sort (PartialCompare);
 
-			if (!parts[parts.Count - 1].Total.HasValue)
+			int? lastTotal = parts[parts.Count - 1].Total;
+			if (!lastTotal.HasValue)
 				throw new ArgumentException ("The last partial does not have a Total.", nameof (partials));
 
-			int total = parts[parts.Count - 1].Total.Value;
-			if (parts.Count != total)
+			if (parts.Count != lastTotal.Value)
 				throw new ArgumentException ("The number of partials provided does not match the expected count.", nameof (partials));
 
-			string id = parts[0].Id;
+			string? id = parts[0].Id;
 
 			using (var chained = new ChainedStream ()) {
 				// chain all the partial content streams...
@@ -489,9 +498,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more <paramref name="partials"/> has a missing number parameter in the Content-Type header.</para>
 		/// </exception>
-		public static MimeMessage Join (MimeMessage message, IEnumerable<MessagePartial> partials)
+		public static MimeMessage? Join (MimeMessage message, IEnumerable<MessagePartial> partials)
 		{
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v4.0.
+			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			return Join (ParserOptions.Default, message, partials);
 		}
 	}

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ namespace MimeKit.IO {
 
 		readonly List<byte[]> blocks = new List<byte[]> ();
 		readonly BufferPool pool;
-		Task<int> lastReadTask;
+		Task<int>? lastReadTask;
 		long position, length;
 		bool disposed;
 
@@ -79,8 +79,13 @@ namespace MimeKit.IO {
 		/// Copies all the stream data into a newly allocated byte array.
 		/// </remarks>
 		/// <returns>The array.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
+		/// </exception>
 		public byte[] ToArray ()
 		{
+			CheckDisposed ();
+
 			var array = new byte[length];
 			int need = (int) length;
 			int arrayIndex = 0;
@@ -113,7 +118,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> is always readable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</value>
 		public override bool CanRead {
 			get { return true; }
 		}
@@ -124,7 +129,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> is always writable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</value>
 		public override bool CanWrite {
 			get { return true; }
 		}
@@ -135,7 +140,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> is always seekable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</value>
 		public override bool CanSeek {
 			get { return true; }
 		}
@@ -146,7 +151,7 @@ namespace MimeKit.IO {
 		/// <remarks>
 		/// The <see cref="MemoryBlockStream"/> does not support timing out.
 		/// </remarks>
-		/// <value><c>true</c> if reading and writing to the stream can time out; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if reading and writing to the stream can time out; otherwise, <see langword="false" />.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}
@@ -552,14 +557,13 @@ namespace MimeKit.IO {
 		/// Releases the unmanaged resources used by the <see cref="MemoryBlockStream"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !disposed) {
 				for (int i = 0; i < blocks.Count; i++) {
 					pool.Return (blocks[i]);
-					blocks[i] = null;
 				}
 
 				blocks.Clear ();

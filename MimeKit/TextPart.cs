@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -96,8 +97,8 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (args));
 
 			// Default to UTF8 if not given.
-			Encoding encoding = null;
-			string text = null;
+			Encoding? encoding = null;
+			string? text = null;
 
 			foreach (object obj in args) {
 				if (obj is null || TryInit (obj))
@@ -220,7 +221,7 @@ namespace MimeKit {
 
 				if (ContentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
 					if (ContentType.MediaSubtype.Equals ("plain")) {
-						if (ContentType.Parameters.TryGetValue ("format", out string format)) {
+						if (ContentType.Parameters.TryGetValue ("format", out string? format)) {
 							format = format.Trim ();
 
 							if (format.Equals ("flowed", StringComparison.OrdinalIgnoreCase))
@@ -250,7 +251,7 @@ namespace MimeKit {
 		/// Checks whether the text part's Content-Type is <c>text/enriched</c> or its
 		/// predecessor, <c>text/richtext</c> (not to be confused with <c>text/rtf</c>).
 		/// </remarks>
-		/// <value><c>true</c> if the text is enriched; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is enriched; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
@@ -272,13 +273,13 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the text is flowed; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is flowed; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
 		public bool IsFlowed {
 			get {
-				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out string format))
+				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out string? format))
 					return false;
 
 				format = format.Trim ();
@@ -296,7 +297,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is html; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
@@ -314,7 +315,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Checks whether the text part's Content-Type is <c>text/plain</c>.
 		/// </remarks>
-		/// <value><c>true</c> if the text is html; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is html; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
@@ -332,7 +333,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Checks whether the text part's Content-Type is <c>text/rtf</c>.
 		/// </remarks>
-		/// <value><c>true</c> if the text is RTF; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the text is RTF; otherwise, <see langword="false" />.</value>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
@@ -404,7 +405,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the text is in the specified format.
 		/// </remarks>
-		/// <returns><c>true</c> if the text is in the specified format; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the text is in the specified format; otherwise, <see langword="false" />.</returns>
 		/// <param name="format">The text format.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
@@ -429,7 +430,7 @@ namespace MimeKit {
 			Stop
 		}
 
-		static bool TryDetectHtmlEncoding (TextReader reader, out Encoding encoding, out TextEncodingConfidence confidence)
+		static bool TryDetectHtmlEncoding (TextReader reader, [NotNullWhen (true)] out Encoding? encoding, out TextEncodingConfidence confidence)
 		{
 			var tokenizer = new HtmlTokenizer (reader);
 			var state = HtmlTagState.None;
@@ -463,7 +464,7 @@ namespace MimeKit {
 						var attributes = new HashSet<HtmlAttributeId> ();
 						bool? need_pragma = null;
 						var got_pragma = false;
-						string charset = null;
+						string? charset = null;
 
 						foreach (var attribute in tag.Attributes) {
 							if (attribute.Value is null || !attributes.Add (attribute.Id))
@@ -521,11 +522,11 @@ namespace MimeKit {
 			return false;
 		}
 
-		bool TryDetectHtmlEncoding (out Encoding encoding, out TextEncodingConfidence confidence)
+		static bool TryDetectHtmlEncoding (IMimeContent content, [NotNullWhen (true)] out Encoding? encoding, out TextEncodingConfidence confidence)
 		{
-			using (var content = Content.Open ()) {
+			using (var contentStream = content.Open ()) {
 				// limit processing to first 1024 bytes as per https://html.spec.whatwg.org/multipage/parsing.html#the-input-byte-stream
-				using (var bounded = new BoundStream (content, 0, 1024, true)) {
+				using (var bounded = new BoundStream (contentStream, 0, 1024, true)) {
 					using (var reader = new StreamReader (bounded, CharsetUtils.Latin1, false, 1024, true))
 						return TryDetectHtmlEncoding (reader, out encoding, out confidence);
 				}
@@ -549,13 +550,13 @@ namespace MimeKit {
 		/// <paramref name="encoding"/> is set to the encoding for the specified charset and <paramref name="confidence"/> is
 		/// set to <see cref="TextEncodingConfidence.Tentative"/>.</para>
 		/// </remarks>
-		/// <returns><c>true</c> if an encoding was detected; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if an encoding was detected; otherwise, <see langword="false" />.</returns>
 		/// <param name="encoding">The detected encoding; otherwise, <see langword="null"/>.</param>
 		/// <param name="confidence">The confidence in the detected encoding being correct.</param>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
-		public bool TryDetectEncoding (out Encoding encoding, out TextEncodingConfidence confidence)
+		public bool TryDetectEncoding ([NotNullWhen (true)] out Encoding? encoding, out TextEncodingConfidence confidence)
 		{
 			CheckDisposed ();
 
@@ -580,7 +581,7 @@ namespace MimeKit {
 			}
 
 			if (IsHtml)
-				return TryDetectHtmlEncoding (out encoding, out confidence);
+				return TryDetectHtmlEncoding (Content, out encoding, out confidence);
 
 			confidence = TextEncodingConfidence.Undefined;
 			encoding = null;
@@ -606,7 +607,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TextPart"/> has been disposed.
 		/// </exception>
-		public string GetText (out Encoding encoding)
+		public string GetText ([NotNull] out Encoding? encoding)
 		{
 			CheckDisposed ();
 

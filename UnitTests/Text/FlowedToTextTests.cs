@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -137,6 +137,26 @@ namespace UnitTests.Text {
 				">>>>> styles, of late." + Environment.NewLine +
 				">>>>>> Any complaints?" + Environment.NewLine;
 			var converter = new FlowedToText { Header = null, Footer = null };
+			var result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		// Tests fix for issue #1130
+		[Test]
+		public void TestFlowedTextEndingWithSpace ()
+		{
+			string expected = "We should have access, and apparently did a few months ago, but now there isa \"You do not currently have access to this content.\" at the bottom of therecord" + Environment.NewLine +
+				Environment.NewLine +
+				"The URL in question URL:" + Environment.NewLine +
+				"https://example.com/";
+			string text = "We should have access, and apparently did a few months ago, but now there is " + Environment.NewLine +
+				"a \"You do not currently have access to this content.\" at the bottom of the " + Environment.NewLine +
+				"record" + Environment.NewLine +
+				Environment.NewLine +
+				"The URL in question URL:" + Environment.NewLine +
+				"https://example.com/ ";
+			var converter = new FlowedToText { DeleteSpace = true };
 			var result = converter.Convert (text);
 
 			Assert.That (result, Is.EqualTo (expected));

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Text {
 	class UrlMatch
@@ -83,7 +84,7 @@ namespace MimeKit.Text {
 			trie.Add (pattern.Pattern);
 		}
 
-		public bool Scan (char[] text, int startIndex, int count, out UrlMatch match)
+		public bool Scan (char[] text, int startIndex, int count, [NotNullWhen (true)] out UrlMatch? match)
 		{
 			GetIndexDelegate getStartIndex, getEndIndex;
 			int endIndex = startIndex + count;
@@ -94,7 +95,7 @@ namespace MimeKit.Text {
 				return false;
 			}
 
-			if (!patterns.TryGetValue (pattern, out var url)) {
+			if (!patterns.TryGetValue (pattern!, out var url)) { // pattern is not null when Trie.Search != -1
 				match = null;
 				return false;
 			}

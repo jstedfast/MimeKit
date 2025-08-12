@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -40,7 +41,7 @@ namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		static string DefaultHostName = null;
+		static string? DefaultHostName = null;
 		static readonly char[] UnquoteChars = new[] { '\r', '\n', '\t', '\\', '"' };
 
 		/// <summary>
@@ -173,7 +174,7 @@ namespace MimeKit.Utils {
 		/// </exception>
 		public static IEnumerable<string> EnumerateReferences (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
@@ -186,7 +187,7 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string msgid))
+					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string? msgid))
 						yield return msgid;
 				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
@@ -236,14 +237,14 @@ namespace MimeKit.Utils {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static string ParseMessageId (byte[] buffer, int startIndex, int length)
+		public static string? ParseMessageId (byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
 
-			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string msgid);
+			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string? msgid);
 
 			return msgid;
 		}
@@ -259,7 +260,7 @@ namespace MimeKit.Utils {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static string ParseMessageId (string text)
+		public static string? ParseMessageId (string text)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));
@@ -276,21 +277,17 @@ namespace MimeKit.Utils {
 		/// Parses a MIME version string from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the version was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The raw byte buffer to parse.</param>
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <param name="version">The parsed version.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out Version version)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out Version? version)
 		{
-			ParseUtils.ValidateArguments (buffer, startIndex, length);
+			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
+				version = null;
+				return false;
+			}
 
 			var values = new List<int> ();
 			int endIndex = startIndex + length;
@@ -333,16 +330,15 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses a MIME version string from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the version was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the version was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out Version version)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out Version? version)
 		{
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				version = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
@@ -360,16 +356,15 @@ namespace MimeKit.Utils {
 		/// <remarks>
 		/// Parses a Content-Transfer-Encoding header value.
 		/// </remarks>
-		/// <returns><c>true</c>, if the encoding was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the encoding was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="encoding">The parsed encoding.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out ContentEncoding encoding)
+		public static bool TryParse (string? text, out ContentEncoding encoding)
 		{
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				encoding = ContentEncoding.Default;
+				return false;
+			}
 
 			int i = 0;
 
@@ -525,7 +520,7 @@ namespace MimeKit.Utils {
 		/// </remarks>
 		/// <returns>The unquoted text.</returns>
 		/// <param name="text">The text to unquote.</param>
-		/// <param name="convertTabsToSpaces"><c>true</c> if tab characters should be converted to a space; otherwise, <c>false</c>.</param>
+		/// <param name="convertTabsToSpaces"><see langword="true" /> if tab characters should be converted to a space; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
@@ -578,7 +573,7 @@ namespace MimeKit.Utils {
 
 		internal static byte[] Unquote (byte[] text, int startIndex, int length, bool convertTabsToSpaces = false)
 		{
-			var builder = new ByteArrayBuilder (length);
+			using var builder = new ByteArrayBuilder (length);
 			bool escaped = false;
 			bool quoted = false;
 

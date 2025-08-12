@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 using MimeKit.Encodings;
@@ -41,7 +42,7 @@ namespace MimeKit {
 	public class Parameter
 	{
 		ParameterEncodingMethod encodingMethod;
-		Encoding encoding;
+		Encoding? encoding;
 		bool alwaysQuote;
 		string text;
 
@@ -188,6 +189,7 @@ namespace MimeKit {
 		/// Gets or sets the parameter value character encoding.
 		/// </remarks>
 		/// <value>The character encoding.</value>
+		[AllowNull]
 		public Encoding Encoding {
 			get { return encoding ?? CharsetUtils.UTF8; }
 			set {
@@ -249,7 +251,7 @@ namespace MimeKit {
 		/// adhere to the MIME specifications, this property can be used to force MimeKit to quote parameter values that would normally
 		/// not require quoting.</para>
 		/// </remarks>
-		/// <value><c>true</c> if the parameter value should always be quoted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the parameter value should always be quoted; otherwise, <see langword="false" />.</value>
 		public bool AlwaysQuote {
 			get { return alwaysQuote; }
 			set {
@@ -273,6 +275,8 @@ namespace MimeKit {
 		/// </exception>
 		public string Value {
 			get { return text; }
+
+			[MemberNotNull (nameof (text))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -318,7 +322,7 @@ namespace MimeKit {
 			Rfc2231
 		}
 
-		EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
+		EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string? quoted)
 		{
 			var method = AlwaysQuote || options.AlwaysQuoteParameterValues ? EncodeMethod.Quote : EncodeMethod.None;
 			EncodeMethod encode;
@@ -715,7 +719,7 @@ namespace MimeKit {
 
 		internal void Encode (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
-			switch (GetEncodeMethod (options, Name, Value, out string quoted)) {
+			switch (GetEncodeMethod (options, Name, Value, out string? quoted)) {
 			case EncodeMethod.Rfc2231:
 				EncodeRfc2231 (options, ref builder, ref lineLength, headerEncoding);
 				break;
@@ -725,11 +729,11 @@ namespace MimeKit {
 			case EncodeMethod.None:
 				quoted = Value;
 				goto default;
-			default:
+			default: // EncodeMethod.Quoted
 				builder.Append (';');
 				lineLength++;
 
-				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
+				if (lineLength + 1 + Name.Length + 1 + quoted!.Length >= options.MaxLineLength) { // quoted is not null when GetEncodeMethod returns EncodeMethod.Quoted
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
 					lineLength = 1;
@@ -765,7 +769,7 @@ namespace MimeKit {
 			return Name + "=" + MimeUtils.Quote (Value);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler<Parameter, EventArgs>? Changed;
 
 		void OnChanged ()
 		{

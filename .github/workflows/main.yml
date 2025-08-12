@@ -1,4 +1,4 @@
-name: MimeKit CI/CD Pipeline
+name: Build
 
 on: [push, pull_request, workflow_dispatch]
 
@@ -16,73 +16,25 @@ jobs:
       SOLUTION_PATH: MimeKit.sln
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
-      GITHUB_RUN_NUMBER: ${{ github.run_number }}
+      GENERATE_CODE_COVERAGE: ${{ matrix.os == 'windows-latest' && matrix.build-configuration == 'Debug' }}
+      MONO_RUNTIME: ${{ matrix.os != 'windows-latest' }}
+      PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.os == 'windows-latest' && matrix.build-configuration == 'Release' }}
+
     steps:
       - name: Setup/Install the .NET 8 SDK
         id: install-netsdk
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Configure build options
-        id: configure
-        shell: pwsh
-        run: |
-          $IS_DEBUG = 'false'
-          $IS_RELEASE = 'false'
-          $IS_PUSH_TO_MASTER = 'false'
-          $IS_NOT_PR = 'true'
-          $IS_GITHUB_RELEASE = 'false'
-          $IS_WINDOWS = 'false'
-          $IS_UBUNTU = 'false'
-          $GENERATE_CODE_COVERAGE = 'no'
-
-          if ( $env:BUILD_CONFIGURATION -ceq 'Debug' ) {
-            $IS_DEBUG = 'true'
-          }
-          if ( $env:BUILD_CONFIGURATION -ceq 'Release' ) {
-            $IS_RELEASE = 'true'
-          }
-          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') ) {
-            $IS_PUSH_TO_MASTER = 'true'
-          }
-          if ( $env:GITHUB_EVENT_NAME -ceq 'pull_request' ) {
-            $IS_NOT_PR = 'false'
-          }
-          if ( ($env:GITHUB_EVENT_NAME -ceq 'push') -and ($env:GITHUB_REF -ceq 'refs/heads/master') -and ($env:BUILD_CONFIGURATION -ceq 'Release') -and ($env:OS -ceq 'windows-latest') ) {
-            $IS_GITHUB_RELEASE = 'true'
-          }
-          if ( $env:OS -ceq 'windows-latest' ) {
-            $IS_WINDOWS = 'true'
-          }
-          if ( $env:OS -ceq 'ubuntu-latest' ) {
-            $IS_UBUNTU = 'true'
-          }
-          if ( $IS_WINDOWS -ceq 'true' -and $IS_DEBUG -ceq 'true' ) {
-            $GENERATE_CODE_COVERAGE = 'yes'
-          }
-
-          echo "::set-output name=is_debug::$(echo $IS_DEBUG)"
-          echo "::set-output name=is_release::$(echo $IS_RELEASE)"
-          echo "::set-output name=is_push_to_master::$(echo $IS_PUSH_TO_MASTER)"
-          echo "::set-output name=is_not_pr::$(echo $IS_NOT_PR)"
-          echo "::set-output name=is_github_release::$(echo $IS_GITHUB_RELEASE)"
-          echo "::set-output name=is_windows::$(echo $IS_WINDOWS)"
-          echo "::set-output name=is_ubuntu::$(echo $IS_UBUNTU)"
-          echo "::set-output name=generate_code_coverage::$(echo $GENERATE_CODE_COVERAGE)"
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_REF: ${{ github.ref }}
-          OS: ${{ matrix.os }}
-
-      - if: steps.configure.outputs.is_windows == 'true'
+      - if: runner.os == 'Windows'
         name: Setup MSBuild
         id: setup_msbuild
-        uses: microsoft/setup-msbuild@v1.3.1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Checkout repository
         id: checkout_repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
@@ -94,20 +46,22 @@ jobs:
         run: |
           $xml = [xml](gc MimeKit/MimeKit.csproj)
           $SEMANTIC_VERSION_NUMBER = $xml.Project.PropertyGroup.VersionPrefix
-          echo "::set-output name=version_num::$(echo $SEMANTIC_VERSION_NUMBER[0].Trim())"
-          echo "::set-output name=version_tag::$(echo v"$SEMANTIC_VERSION_NUMBER[0].Trim()")"
+          $VERSION_NUM = $SEMANTIC_VERSION_NUMBER[0].Trim()
+          Write-Host "version_num=${VERSION_NUM}"
+          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version_num=${VERSION_NUM}$([Environment]::NewLine)")
 
-      - if: steps.configure.outputs.is_github_release == 'true'
+      - if: ${{ env.PUBLISH == 'true' }}
         name: Get latest tag
         id: get_latest_tag
         shell: pwsh
         run: |
           $LATEST_TAG = git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags "https://github.com/$env:GIT_URL.git" '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3
-          echo "::set-output name=tag::$(echo $LATEST_TAG)"
+          Write-Host "tag=$LATEST_TAG"
+          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "tag=${LATEST_TAG}$([Environment]::NewLine)")
         env:
           GIT_URL: ${{ github.repository }}
 
-      - if: steps.configure.outputs.is_github_release == 'true' && steps.semantic_version.outputs.version_tag != steps.get_latest_tag.outputs.tag
+      - if: ${{ env.PUBLISH == 'true' && steps.semantic_version.outputs.version_num != steps.get_latest_tag.outputs.tag }}
         name: Add new tag to repo
         id: add_new_tag_to_repo
         continue-on-error: true
@@ -121,12 +75,6 @@ jobs:
           GIT_USER_NAME: ${{ github.event.head_commit.author.username }}
           GIT_USER_EMAIL: ${{ github.event.head_commit.author.email }}
           NEW_VERSION_NUM: ${{ steps.semantic_version.outputs.version_num }}
-
-      - name: Run NuGet restore
-        id: run_nuget_restore
-        shell: pwsh
-        run: |
-          nuget restore $env:SOLUTION_PATH
 
       - name: Run .NET restore
         shell: pwsh
@@ -143,32 +91,26 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          dotnet msbuild $env:SOLUTION_PATH -property:Platform=$env:BUILD_PLATFORM -property:Configuration=$env:BUILD_CONFIGURATION -property:MonoRuntime=$env:IS_UBUNTU
-        env:
-          IS_UBUNTU: ${{ steps.configure.outputs.is_ubuntu }}
+          dotnet msbuild $env:SOLUTION_PATH -property:Platform=$env:BUILD_PLATFORM -property:Configuration=$env:BUILD_CONFIGURATION -property:MonoRuntime=$env:MONO_RUNTIME
 
       - name: Run unit tests
         id: run_unit_tests
         continue-on-error: true
         shell: pwsh
         run: |
-          & ./scripts/test.ps1 -Configuration:$env:BUILD_CONFIGURATION -GenerateCodeCoverage:$env:GENERATE_CODE_COVERAGE
-        env:
-          BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
-          GENERATE_CODE_COVERAGE: ${{ steps.configure.outputs.generate_code_coverage }}
+          & ./scripts/test.ps1 -Configuration "$env:BUILD_CONFIGURATION" -GenerateCodeCoverage "$env:GENERATE_CODE_COVERAGE"
 
       - name: Upload unit test results
         id: upload_test_results
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}-${{ matrix.os }}-${{ matrix.build-configuration }}-TestResults.xml
+          name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}-${{ matrix.os }}-${{ matrix.build-configuration }}-TestResults.xml
           path: TestResult.xml
 
-      - if: steps.configure.outputs.generate_code_coverage == 'yes'
+      - if: ${{ env.GENERATE_CODE_COVERAGE == 'true' }}
         name: Upload code coverage data to coveralls.io
         id: upload_to_coveralls
-        shell: pwsh
         run: |
           & ./scripts/coveralls.ps1
         env:
@@ -178,36 +120,34 @@ jobs:
           GIT_ACTOR: ${{ github.event.head_commit.author.username }}
           GIT_ACTOR_EMAIL: ${{ github.event.head_commit.author.email }}
           GIT_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          COVERALLS_JOB_ID: ${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}
+          COVERALLS_JOB_ID: ${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}
 
-      - if: steps.configure.outputs.is_github_release == 'true'
+      - if: ${{ env.PUBLISH == 'true' }}
         name: Create NuGet package
         id: create_nuget_package
         shell: pwsh
         run: |
-          nuget pack nuget/MimeKit.nuspec `
-          -Version "$env:LATEST_VERSION.$env:GITHUB_RUN_NUMBER"
+          nuget pack nuget/MimeKit.nuspec -Version "$env:LATEST_VERSION.$env:BUILD_NUMBER"
         env:
           LATEST_VERSION: ${{ steps.semantic_version.outputs.version_num }}
+          BUILD_NUMBER: ${{ github.run_number }}
 
-      - if: steps.configure.outputs.is_github_release == 'true'
+      - if: ${{ env.PUBLISH == 'true' }}
         name: Push NuGet package to MyGet
         id: push_nuget_package
         shell: pwsh
         run: |
-          nuget push $env:NUGET_PKG_PATH `
-          -ApiKey $env:MYGET_API_KEY `
-          -Source https://www.myget.org/F/mimekit/api/v3/index.json
+          nuget push $env:NUGET_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
-          NUGET_PKG_PATH: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
+          NUGET_PKG_PATH: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
-      - if: steps.configure.outputs.is_github_release == 'true'
+      - if: ${{ env.PUBLISH == 'true' }}
         name: Upload NuGet package as artifact
         id: upload_nuget_package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
-          path: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ env.GITHUB_RUN_NUMBER }}.nupkg
+          name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          path: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)

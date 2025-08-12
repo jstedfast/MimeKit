@@ -66,6 +66,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [1927](https://tools.ietf.org/html/rfc1927): Suggested Additional MIME Types for Associating Documents
 * [2369](https://tools.ietf.org/html/rfc2369): The Use of URLs as Meta-Syntax for Core Mail List Commands and their Transport through Message Header Fields
 * [2388](https://tools.ietf.org/html/rfc2388): Returning Values from Forms: multipart/form-data
+* [2919](https://tools.ietf.org/html/rfc2919): List-Id: A Structured Field and Namespace for the Identification of Mailing Lists
 * [4134](https://tools.ietf.org/html/rfc4134): Examples of S/MIME Messages
 * [6577](https://tools.ietf.org/html/rfc6577): Authentication-Results Registration Update for Sender Policy Framework (SPF) Results
 * [7103](https://tools.ietf.org/html/rfc7103): Advice for Safe Handling of Malformed Messages

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -91,7 +91,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the converter should remove HTML comments from the output.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should remove comments; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should remove comments; otherwise, <see langword="false" />.</value>
 		public bool FilterComments {
 			get; set;
 		}
@@ -102,7 +102,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether executable scripts should be stripped from the output.
 		/// </remarks>
-		/// <value><c>true</c> if executable scripts should be filtered; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if executable scripts should be filtered; otherwise, <see langword="false" />.</value>
 		public bool FilterHtml {
 			get; set;
 		}
@@ -141,7 +141,7 @@ namespace MimeKit.Text {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <value>The html tag callback.</value>
-		public HtmlTagCallback HtmlTagCallback {
+		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
 		}
 
@@ -154,7 +154,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the converter should collapse white space,
 		/// balance tags, and fix other problems in the source HTML.
 		/// </remarks>
-		/// <value><c>true</c> if the output html should be normalized; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the output html should be normalized; otherwise, <see langword="false" />.</value>
 		public bool NormalizeHtml {
 			get; set;
 		}
@@ -167,7 +167,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the converter should only output an HTML fragment.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
 			get; set;
 		}
@@ -214,7 +214,7 @@ namespace MimeKit.Text {
 			return false;
 		}
 
-		static HtmlToHtmlTagContext Pop (IList<HtmlToHtmlTagContext> stack, string name)
+		static HtmlToHtmlTagContext? Pop (IList<HtmlToHtmlTagContext> stack, string name)
 		{
 			for (int i = stack.Count; i > 0; i--) {
 				if (stack[i - 1].TagName.Equals (name, StringComparison.OrdinalIgnoreCase)) {
@@ -261,13 +261,13 @@ namespace MimeKit.Text {
 				}
 			}
 
-			using (var htmlWriter = new HtmlWriter (writer)) {
+			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false
 				};
-				HtmlToHtmlTagContext ctx;
+				HtmlToHtmlTagContext? ctx;
 
 				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {

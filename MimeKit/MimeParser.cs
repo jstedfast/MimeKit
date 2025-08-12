@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,8 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -46,34 +48,45 @@ namespace MimeKit {
 		ParentEndBoundary,
 	}
 
+	[DebuggerDisplay ("{System.Text.Encoding.ASCII.GetString (Marker)}")]
 	class Boundary
 	{
 		public static readonly byte[] MboxFrom = "From "u8.ToArray();
+
+		public Boundary? Next { get; set; }
 
 		public byte[] Marker { get; private set; }
 		public int FinalLength { get { return Marker.Length; } }
 		public int Length { get; private set; }
 		public int MaxLength { get; private set; }
+		public bool IsMboxMarker { get { return Marker == MboxFrom; } }
 
-		public Boundary (string boundary, int currentMaxLength)
+		public Boundary (string boundary, Boundary? parent)
 		{
 			Marker = Encoding.UTF8.GetBytes ("--" + boundary + "--");
 			Length = Marker.Length - 2;
+			Next = parent;
 
-			MaxLength = Math.Max (currentMaxLength, Marker.Length);
+			if (parent != null) {
+				MaxLength = Math.Max (parent.MaxLength, Marker.Length);
+			} else {
+				MaxLength = Marker.Length;
+			}
 		}
 
-		Boundary ()
+		Boundary (byte[] marker, int maxLength, int length)
 		{
+			Marker = marker;
+			MaxLength = maxLength;
+			Length = length;
 		}
 
 		public static Boundary CreateMboxBoundary ()
 		{
-			return new Boundary {
-				Marker = MboxFrom,
-				MaxLength = 5,
-				Length = 5
-			};
+			return new Boundary (
+				marker: MboxFrom,
+				maxLength: 5,
+				length: 5);
 		}
 
 #if DEBUG_PARSER
@@ -107,6 +120,8 @@ namespace MimeKit {
 	public partial class MimeParser : IMimeParser, IEnumerable<MimeMessage>
 	{
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
+		static ReadOnlySpan<byte> MboxFromMarker => "From "u8;
+		const int SmtpMaxLineLength = 1000;
 		const int ReadAheadSize = 128;
 		const int BlockSize = 4096;
 		const int PadSize = 4;
@@ -118,7 +133,7 @@ namespace MimeKit {
 		int inputEnd = ReadAheadSize;
 
 		// mbox From-line state
-		byte[] mboxMarkerBuffer;
+		byte[]? mboxMarkerBuffer;
 		long mboxMarkerOffset;
 		int mboxMarkerLength;
 
@@ -131,11 +146,13 @@ namespace MimeKit {
 		long headerOffset;
 		int headerIndex;
 
-		readonly List<Boundary> bounds = new List<Boundary> ();
-		readonly List<Header> headers = new List<Header> ();
-
-		MimeParserState state;
+		// boundary state
+		Boundary? boundaries;
+		Boundary? currentBoundary;
 		BoundaryType boundary;
+
+		readonly List<Header> headers = new List<Header> ();
+		MimeParserState state;
 		MimeFormat format;
 		bool persistent;
 		bool toplevel;
@@ -158,7 +175,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -171,7 +188,7 @@ namespace MimeKit {
 		/// </example>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -184,7 +201,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -193,7 +210,7 @@ namespace MimeKit {
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -206,7 +223,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -216,7 +233,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -231,7 +248,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -242,7 +259,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -269,6 +286,8 @@ namespace MimeKit {
 			get {
 				return options;
 			}
+
+			[MemberNotNull (nameof (options))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -289,8 +308,8 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
-		/// <value><c>true</c> if this parser has reached the end of the input stream;
-		/// otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this parser has reached the end of the input stream;
+		/// otherwise, <see langword="false" />.</value>
 		public bool IsEndOfStream {
 			get { return state == MimeParserState.Eos; }
 		}
@@ -339,7 +358,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -350,7 +369,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -372,7 +391,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -382,7 +401,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -399,7 +418,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -409,10 +428,11 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
+		[MemberNotNull (nameof (this.stream))]
 		public void SetStream (Stream stream, MimeFormat format, bool persistent)
 		{
 			if (stream is null)
@@ -442,15 +462,16 @@ namespace MimeKit {
 			toplevel = false;
 			eos = false;
 
-			bounds.Clear ();
 			if (format == MimeFormat.Mbox) {
-				bounds.Add (Boundary.CreateMboxBoundary ());
-
 				mboxMarkerBuffer ??= new byte[ReadAheadSize];
+				boundaries = Boundary.CreateMboxBoundary ();
+			} else {
+				boundaries = null;
 			}
 
 			state = MimeParserState.Initialized;
 			boundary = BoundaryType.None;
+			currentBoundary = null;
 		}
 
 		/// <summary>
@@ -474,7 +495,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -483,7 +504,7 @@ namespace MimeKit {
 		/// for <see cref="MimeContent"/> to read the content.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
@@ -501,7 +522,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeMessageBeginEventArgs> MimeMessageBegin;
+		public event EventHandler<MimeMessageBeginEventArgs>? MimeMessageBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeMessage"/>.
@@ -524,7 +545,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeMessageEndEventArgs> MimeMessageEnd;
+		public event EventHandler<MimeMessageEndEventArgs>? MimeMessageEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeMessage"/>.
@@ -547,7 +568,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeEntityBeginEventArgs> MimeEntityBegin;
+		public event EventHandler<MimeEntityBeginEventArgs>? MimeEntityBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeEntity"/>.
@@ -570,7 +591,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeEntityEndEventArgs> MimeEntityEnd;
+		public event EventHandler<MimeEntityEndEventArgs>? MimeEntityEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeEntity"/>.
@@ -665,11 +686,9 @@ namespace MimeKit {
 			return inputEnd - inputIndex;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		long GetOffset (int index)
 		{
-			if (position == -1)
-				return -1;
-
 			return position - (inputEnd - index);
 		}
 
@@ -710,6 +729,52 @@ namespace MimeKit {
 			}
 
 			return true;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static unsafe byte* EndOfLine (byte* inptr, byte* inend)
+		{
+#if NETCOREAPP
+			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
+
+			return inptr += span.IndexOf ((byte) '\n');
+#else
+			// scan for a linefeed character until we are 4-byte aligned.
+			switch (((long) inptr) & 0x03) {
+			case 1:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 2;
+			case 2:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 3;
+			case 3:
+				if (*inptr != (byte) '\n')
+					inptr++;
+				break;
+			}
+
+			if (*inptr != (byte) '\n') {
+				// -funroll-loops, yippee ki-yay.
+				do {
+					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
+					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+
+					if (mask != 0)
+						break;
+
+					inptr += 4;
+				} while (true);
+
+				while (*inptr != (byte) '\n')
+					inptr++;
+			}
+
+			return inptr;
+#endif
 		}
 
 		unsafe void StepByteOrderMark (byte* inbuf, ref int bomIndex)
@@ -774,8 +839,7 @@ namespace MimeKit {
 				byte* start = inptr;
 
 				// scan for the end of the line
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// we don't have enough input data
@@ -870,16 +934,19 @@ namespace MimeKit {
 			}
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsControl (byte c)
 		{
 			return c.IsCtrl ();
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static bool IsBlank (byte c)
 		{
 			return c.IsBlank ();
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static unsafe bool IsEoln (byte* text)
 		{
 			if (*text == (byte) '\r')
@@ -978,8 +1045,7 @@ namespace MimeKit {
 
 				scanningFieldName = false;
 
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				if (inptr == inend) {
 					// we didn't manage to slurp up a full line, save what we have and refill our input buffer
@@ -1065,6 +1131,7 @@ namespace MimeKit {
 
 			headerBlockBegin = GetOffset (inputIndex);
 			boundary = BoundaryType.None;
+			currentBoundary = null;
 			ResetRawHeaderData ();
 			headers.Clear ();
 
@@ -1116,8 +1183,7 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
-			while (*inptr != (byte) '\n')
-				inptr++;
+			inptr = EndOfLine (inptr, inend + 1);
 
 			if (inptr < inend) {
 				inputIndex = (int) (inptr - inbuf);
@@ -1174,7 +1240,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		ContentType GetContentType (ContentType parent)
+		ContentType GetContentType (ContentType? parent)
 		{
 			for (int i = 0; i < headers.Count; i++) {
 				if (!headers[i].Field.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
@@ -1220,30 +1286,29 @@ namespace MimeKit {
 			return false;
 		}
 
-		static unsafe bool IsBoundary (byte* text, int length, byte[] boundary, int boundaryLength)
+		static unsafe bool IsBoundary (byte* text, int length, Boundary boundary, out bool final)
 		{
-			if (boundaryLength > length)
-				return false;
+			final = false;
 
-			fixed (byte* boundaryptr = boundary) {
-				// make sure that the text matches the boundary
-				if (!CStringsEqual (text, boundaryptr, boundaryLength))
+			if (boundary.IsMboxMarker) {
+				// for mbox markers, we only care about the first 5 characters
+				if (length < boundary.Length)
 					return false;
 
-				// if this is an mbox marker, we're done
-				if (IsMboxMarker (text))
-					return true;
+				length = boundary.Length;
+			} else {
+				// if the length isn't exactly equal to either the normal or final boundary lengths,
+				// then this clearly isn't a match
+				if (boundary.Length != length && boundary.FinalLength != length)
+					return false;
+			}
 
-				// the boundary may optionally be followed by lwsp
-				byte* inptr = text + boundaryLength;
-				byte* inend = text + length;
+			fixed (byte* boundaryptr = boundary.Marker) {
+				// make sure that the text matches the boundary
+				if (!CStringsEqual (text, boundaryptr, length))
+					return false;
 
-				while (inptr < inend) {
-					if (!(*inptr).IsWhitespace ())
-						return false;
-
-					inptr++;
-				}
+				final = length == boundary.FinalLength;
 			}
 
 			return true;
@@ -1251,101 +1316,101 @@ namespace MimeKit {
 
 		unsafe BoundaryType CheckBoundary (int startIndex, byte* start, int length)
 		{
-			int count = bounds.Count;
-
 			if (!IsPossibleBoundary (start, length))
 				return BoundaryType.None;
 
-			if (contentEnd > 0) {
-				// We'll need to special-case checking for the mbox From-marker when respecting Content-Length
-				count--;
-			}
+			if (boundaries != null) {
+				byte* end = start + length;
+				bool final;
 
-			for (int i = 0; i < count; i++) {
-				var boundary = bounds[i];
+				// ignore trailing whitespace characters
+				if (end[-1] == (byte) '\r')
+					end--;
 
-				if (IsBoundary (start, length, boundary.Marker, boundary.FinalLength))
-					return i == 0 ? BoundaryType.ImmediateEndBoundary : BoundaryType.ParentEndBoundary;
+				while (end > start && end[-1].IsWhitespace ())
+					end--;
 
-				if (IsBoundary (start, length, boundary.Marker, boundary.Length))
-					return i == 0 ? BoundaryType.ImmediateBoundary : BoundaryType.ParentBoundary;
-			}
+				int matchLength = (int) (end - start);
 
-			if (contentEnd > 0) {
-				// now it is time to check the mbox From-marker for the Content-Length case
-				long curOffset = GetOffset (startIndex);
-				var boundary = bounds[count];
+				currentBoundary = boundaries;
 
-				if (curOffset >= contentEnd && IsBoundary (start, length, boundary.Marker, boundary.Length))
-					return BoundaryType.ImmediateEndBoundary;
+				if (!currentBoundary.IsMboxMarker) {
+					// check immediate boundary
+					if (IsBoundary (start, matchLength, currentBoundary, out final))
+						return final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
+
+					currentBoundary = currentBoundary.Next;
+
+					// check parent boundaries
+					while (currentBoundary != null && !currentBoundary.IsMboxMarker) {
+						if (IsBoundary (start, matchLength, currentBoundary, out final))
+							return final ? BoundaryType.ParentEndBoundary : BoundaryType.ParentBoundary;
+
+						currentBoundary = currentBoundary.Next;
+					}
+				}
+
+				if (currentBoundary != null) {
+					// now it is time to check the mbox From-marker
+					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
+
+					if (curOffset >= contentEnd && IsBoundary (start, matchLength, currentBoundary, out final))
+						return BoundaryType.ParentEndBoundary;
+				}
 			}
 
 			return BoundaryType.None;
 		}
 
-		unsafe bool FoundImmediateBoundary (byte* inbuf, bool final)
+		unsafe bool IsPartialBoundary (int startIndex, byte* start, int length)
 		{
-			int boundaryLength = final ? bounds[0].FinalLength : bounds[0].Length;
-			byte* start = inbuf + inputIndex;
-			byte* inend = inbuf + inputEnd;
-			byte* inptr = start;
+			if (boundaries != null) {
+				var currentBoundary = boundaries;
 
-			*inend = (byte) '\n';
+				if (!currentBoundary.IsMboxMarker && *start == (byte) '-') {
+					// TODO: We could potentially improve this logic by checking against the list of boundaries
+					return length < 2 || *(start + 1) == (byte) '-';
+				}
 
-			while (*inptr != (byte) '\n')
-				inptr++;
+				if (format == MimeFormat.Mbox && *start == MboxFromMarker[0]) {
+					// now it is time to check the mbox From-marker
+					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
+					int n = Math.Min (length, MboxFromMarker.Length);
 
-			return IsBoundary (start, (int) (inptr - start), bounds[0].Marker, boundaryLength);
+					var span = new ReadOnlySpan<byte> (input, startIndex, n);
+
+					if (curOffset >= contentEnd && span.SequenceEqual (MboxFromMarker.Slice (0, n)))
+						return true;
+				}
+			}
+
+			return false;
 		}
 
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		int GetMaxBoundaryLength ()
 		{
-			return bounds.Count > 0 ? bounds[0].MaxLength + 2 : 0;
+			return boundaries != null ? boundaries.MaxLength + 2 : 0;
 		}
 
-		unsafe void ScanContent (byte* inbuf, ref int nleft, ref bool midline, ref bool[] formats)
+		unsafe bool ScanContent (byte* inbuf, ref bool midline, ref bool[] formats)
 		{
 			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
-
-			if (midline && length == nleft)
-				boundary = BoundaryType.Eos;
+			bool incomplete = false;
 
 			*inend = (byte) '\n';
 
 			while (inptr < inend) {
-				// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-				int alignment = (startIndex + 3) & ~3;
-				byte* aligned = inbuf + alignment;
 				byte* start = inptr;
-				byte c = *aligned;
-				uint mask;
 
-				*aligned = (byte) '\n';
-				while (*inptr != (byte) '\n')
-					inptr++;
-				*aligned = c;
-
-				if (inptr == aligned && c != (byte) '\n') {
-					// -funroll-loops, yippee ki-yay.
-					uint* dword = (uint*) inptr;
-
-					do {
-						mask = *dword++ ^ 0x0A0A0A0A;
-						mask = ((mask - 0x01010101) & (~mask & 0x80808080));
-					} while (mask == 0);
-
-					inptr = (byte*) (dword - 1);
-					while (*inptr != (byte) '\n')
-						inptr++;
-				}
-
+				inptr = EndOfLine (inptr, inend + 1);
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
-					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+					if (!midline && (boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
 						break;
 
 					if (length > 0 && *(inptr - 1) == (byte) '\r')
@@ -1353,6 +1418,7 @@ namespace MimeKit {
 					else
 						formats[(int) NewLineFormat.Unix] = true;
 
+					midline = false;
 					lineNumber++;
 					length++;
 					inptr++;
@@ -1361,21 +1427,40 @@ namespace MimeKit {
 					lineBeginOffset = GetOffset ((int) (inptr - inbuf));
 				} else {
 					// didn't find the end of the line...
-					midline = true;
+					if (eos) {
+						// Only consume this (incomplete) line of data if it *doesn't* match a boundary marker.
+						if (!midline && (boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+							break;
 
-					if (boundary == BoundaryType.None) {
-						// not enough to tell if we found a boundary
+						incomplete = false;
+						midline = false;
+					} else if (length >= SmtpMaxLineLength) {
+						// This line exceeds the maximum allowed length for SMTP. It should be safe to assume that
+						// this line does not contain a (valid) MIME (or mbox) boundary. Consume the (incomplete)
+						// line data and update our midline state so that we don't do any boundary checks in our
+						// next pass until we have found the start of the next line.
+						midline = true;
+					} else if (!midline && IsPartialBoundary (startIndex, start, length)) {
+						// We have an incomplete line that looks like a partial boundary marker.
+						// Refill the buffer and try again.
+						incomplete = true;
 						break;
+					} else {
+						// It is not possible for this line to be a boundary marker. Consume the (incomplete) line
+						// data. We'll finish processing it in our next pass.
+						midline = true;
 					}
 
-					if ((boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
-						break;
+					startIndex += length;
+					break;
 				}
 
 				startIndex += length;
 			}
 
 			inputIndex = startIndex;
+
+			return incomplete;
 		}
 
 		class ScanContentResult
@@ -1399,13 +1484,14 @@ namespace MimeKit {
 
 		unsafe ScanContentResult ScanContent (byte* inbuf, Stream content, bool trimNewLine, CancellationToken cancellationToken)
 		{
-			int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
+			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			var formats = new bool[2];
+			bool incomplete = false;
 			bool midline = false;
-			int nleft;
 
 			do {
-				nleft = inputEnd - inputIndex;
+				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
+
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
 					boundary = BoundaryType.Eos;
 					break;
@@ -1413,7 +1499,7 @@ namespace MimeKit {
 
 				int contentIndex = inputIndex;
 
-				ScanContent (inbuf, ref nleft, ref midline, ref formats);
+				incomplete = ScanContent (inbuf, ref midline, ref formats);
 
 				if (contentIndex < inputIndex)
 					content.Write (input, contentIndex, inputIndex - contentIndex);
@@ -1475,7 +1561,7 @@ namespace MimeKit {
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
-			if (bounds.Count > 0) {
+			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
@@ -1489,8 +1575,7 @@ namespace MimeKit {
 
 				*inend = (byte) '\n';
 
-				while (*inptr != (byte) '\n')
-					inptr++;
+				inptr = EndOfLine (inptr, inend + 1);
 
 				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
@@ -1518,7 +1603,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true, depth);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, depth);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -1612,7 +1697,7 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = options.CreateEntity (type, headers, false, depth);
+				var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, depth);
 				var entityArgs = new MimeEntityEndEventArgs (entity, multipart) {
 					HeadersEndOffset = headerBlockEnd,
 					BeginOffset = headerBlockBegin,
@@ -1641,15 +1726,28 @@ namespace MimeKit {
 
 		void PushBoundary (string boundary)
 		{
-			if (bounds.Count > 0)
-				bounds.Insert (0, new Boundary (boundary, bounds[0].MaxLength));
-			else
-				bounds.Add (new Boundary (boundary, 0));
+			boundaries = new Boundary (boundary, boundaries);
 		}
 
 		void PopBoundary ()
 		{
-			bounds.RemoveAt (0);
+			boundaries = boundaries.Next;
+
+			switch (boundary) {
+			case BoundaryType.ParentEndBoundary:
+				if (currentBoundary == boundaries)
+					boundary = BoundaryType.ImmediateEndBoundary;
+				break;
+			case BoundaryType.ParentBoundary:
+				if (currentBoundary == boundaries)
+					boundary = BoundaryType.ImmediateBoundary;
+				break;
+			case BoundaryType.ImmediateEndBoundary:
+			case BoundaryType.ImmediateBoundary:
+				boundary = BoundaryType.None;
+				currentBoundary = null;
+				break;
+			}
 		}
 
 		unsafe void ConstructMultipart (Multipart multipart, MimeEntityEndEventArgs args, byte* inbuf, int depth, CancellationToken cancellationToken)
@@ -1682,8 +1780,11 @@ namespace MimeKit {
 				//OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
-				multipart.WriteEndBoundary = true;
 				SkipLine (inbuf, false, cancellationToken);
+
+				// FIXME: we should save the raw end boundary marker in case it contains trailing whitespace
+				multipart.RawEndBoundary = null;
+
 				PopBoundary ();
 
 				//OnMultipartEndBoundaryEnd (multipart, GetOffset (inputIndex));
@@ -1698,15 +1799,8 @@ namespace MimeKit {
 			endOffset = GetEndOffset (inputIndex);
 			args.Lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
-			multipart.WriteEndBoundary = false;
-
 			// We either found the end of the stream or we found a parent's boundary
 			PopBoundary ();
-
-			if (boundary == BoundaryType.ParentEndBoundary && FoundImmediateBoundary (inbuf, true))
-				boundary = BoundaryType.ImmediateEndBoundary;
-			else if (boundary == BoundaryType.ParentBoundary && FoundImmediateBoundary (inbuf, false))
-				boundary = BoundaryType.ImmediateBoundary;
 		}
 
 		/// <summary>
@@ -1743,7 +1837,7 @@ namespace MimeKit {
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
 				throw new FormatException ("Failed to parse headers.");
 
-			state = eos ? MimeParserState.Eos : MimeParserState.Complete;
+			state = eos && inputIndex == inputEnd ? MimeParserState.Eos : MimeParserState.Complete;
 
 			var parsed = new HeaderList (options);
 			foreach (var header in headers)
@@ -1844,7 +1938,7 @@ namespace MimeKit {
 
 			// Note: we pass 'false' as the 'toplevel' argument here because
 			// we want the entity to consume all the headers.
-			var entity = options.CreateEntity (type, headers, false, 0);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -1952,7 +2046,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, true, 0);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, 0);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,

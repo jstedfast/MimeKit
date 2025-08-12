@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
@@ -38,26 +39,34 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class OpenPgpDigitalSignature : IDigitalSignature
 	{
-		DigitalSignatureVerifyException vex;
+		DigitalSignatureVerifyException? vex;
 		bool? valid;
 
-		internal OpenPgpDigitalSignature (PgpPublicKeyRing keyring, PgpPublicKey pubkey, PgpOnePassSignature signature)
+		internal OpenPgpDigitalSignature (PgpPublicKeyRing? keyring, PgpPublicKey? pubkey, PgpOnePassSignature signature)
 		{
-			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (keyring, pubkey) : null;
+			if (pubkey != null) {
+				Debug.Assert (keyring != null, "keyring must not be null if pubkey is not null");
+				SignerCertificate = new OpenPgpDigitalCertificate (keyring, pubkey);
+			}
+
 			OnePassSignature = signature;
 		}
 
-		internal OpenPgpDigitalSignature (PgpPublicKeyRing keyring, PgpPublicKey pubkey, PgpSignature signature)
+		internal OpenPgpDigitalSignature (PgpPublicKeyRing? keyring, PgpPublicKey? pubkey, PgpSignature signature)
 		{
-			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (keyring, pubkey) : null;
+			if (pubkey != null) {
+				Debug.Assert (keyring != null, "keyring must not be null if pubkey is not null");
+				SignerCertificate = new OpenPgpDigitalCertificate (keyring, pubkey);
+			}
+
 			Signature = signature;
 		}
 
-		internal PgpOnePassSignature OnePassSignature {
+		internal PgpOnePassSignature? OnePassSignature {
 			get; private set;
 		}
 
-		internal PgpSignature Signature {
+		internal PgpSignature? Signature {
 			get; set;
 		}
 
@@ -70,7 +79,7 @@ namespace MimeKit.Cryptography {
 		/// Gets certificate used by the signer.
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
-		public IDigitalCertificate SignerCertificate {
+		public IDigitalCertificate? SignerCertificate {
 			get; private set;
 		}
 
@@ -113,7 +122,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Verifies the digital signature.
 		/// </remarks>
-		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>
@@ -135,7 +144,7 @@ namespace MimeKit.Cryptography {
 				if (OnePassSignature != null)
 					valid = OnePassSignature.Verify (Signature);
 				else
-					valid = Signature.Verify ();
+					valid = Signature!.Verify (); // Either OnePassSignature or Signature must be non-null
 				return valid.Value;
 			} catch (Exception ex) {
 				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);
@@ -151,7 +160,7 @@ namespace MimeKit.Cryptography {
 		/// Verifies the digital signature.
 		/// </remarks>
 		/// <param name="verifySignatureOnly">This option is ignored for OpenPGP digital signatures.</param>
-		/// <returns><c>true</c> if the signature is valid; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the signature is valid; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="DigitalSignatureVerifyException">
 		/// An error verifying the signature has occurred.
 		/// </exception>

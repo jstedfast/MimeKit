@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -73,7 +73,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the end tag should be deleted.
 		/// </remarks>
-		/// <value><c>true</c> if the end tag should be deleted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the end tag should be deleted; otherwise, <see langword="false" />.</value>
 		public bool DeleteEndTag {
 			get; set;
 		}
@@ -84,7 +84,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the tag should be deleted.
 		/// </remarks>
-		/// <value><c>true</c> if the tag should be deleted; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the tag should be deleted; otherwise, <see langword="false" />.</value>
 		public bool DeleteTag {
 			get; set;
 		}
@@ -98,7 +98,7 @@ namespace MimeKit.Text {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the callback should be invoked for end tag; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the callback should be invoked for end tag; otherwise, <see langword="false" />.</value>
 		public bool InvokeCallbackForEndTag {
 			get; set;
 		}
@@ -112,7 +112,7 @@ namespace MimeKit.Text {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the tag is an empty element; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the tag is an empty element; otherwise, <see langword="false" />.</value>
 		public abstract bool IsEmptyElementTag {
 			get;
 		}
@@ -126,7 +126,7 @@ namespace MimeKit.Text {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
-		/// <value><c>true</c> if the tag is an end tag; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the tag is an end tag; otherwise, <see langword="false" />.</value>
 		public abstract bool IsEndTag {
 			get;
 		}
@@ -137,7 +137,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets or sets whether the inner content of the tag should be suppressed.
 		/// </remarks>
-		/// <value><c>true</c> if the inner content should be suppressed; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the inner content should be suppressed; otherwise, <see langword="false" />.</value>
 		public bool SuppressInnerContent {
 			get; set;
 		}
@@ -195,7 +195,7 @@ namespace MimeKit.Text {
 		/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
 		/// </example>
 		/// <param name="htmlWriter">The HTML writer.</param>
-		/// <param name="writeAttributes"><c>true</c> if the <see cref="Attributes"/> should also be written; otherwise, <c>false</c>.</param>
+		/// <param name="writeAttributes"><see langword="true" /> if the <see cref="Attributes"/> should also be written; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="htmlWriter"/> is <see langword="null"/>.
 		/// </exception>

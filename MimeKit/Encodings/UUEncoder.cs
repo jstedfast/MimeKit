@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -324,7 +324,7 @@ namespace MimeKit.Encodings {
 		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
 		/// </summary>
 		/// <remarks>
-		/// <para>Encodes the specified input into the output buffer, flusing any internal state as well.</para>
+		/// <para>Encodes the specified input into the output buffer, flushing any internal state as well.</para>
 		/// <para>The output buffer should be large enough to hold all the
 		/// encoded input. For estimating the size needed for the output buffer,
 		/// see <see cref="EstimateOutputLength"/>.</para>

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Text;
 
@@ -113,7 +114,7 @@ namespace MimeKit {
 		/// the message was sent by someone on behalf of someone else.
 		/// </remarks>
 		/// <value>The address in the Sender header.</value>
-		MailboxAddress Sender {
+		MailboxAddress? Sender {
 			get; set;
 		}
 
@@ -125,7 +126,7 @@ namespace MimeKit {
 		/// the message was sent by someone on behalf of someone else.
 		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
-		MailboxAddress ResentSender {
+		MailboxAddress? ResentSender {
 			get; set;
 		}
 
@@ -277,7 +278,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		string Subject {
+		[DisallowNull]
+		string? Subject {
 			get; set;
 		}
 
@@ -328,7 +330,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		string InReplyTo {
+		string? InReplyTo {
 			get; set;
 		}
 
@@ -348,7 +350,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		string MessageId {
+		[DisallowNull]
+		string? MessageId {
 			get; set;
 		}
 
@@ -368,7 +371,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		string ResentMessageId {
+		[DisallowNull]
+		string? ResentMessageId {
 			get; set;
 		}
 
@@ -383,7 +387,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		Version MimeVersion {
+		[DisallowNull]
+		Version? MimeVersion {
 			get; set;
 		}
 
@@ -398,7 +403,7 @@ namespace MimeKit {
 		/// <see cref="BodyBuilder"/> class.</para>
 		/// </remarks>
 		/// <value>The body of the message.</value>
-		MimeEntity Body {
+		MimeEntity? Body {
 			get; set;
 		}
 
@@ -410,7 +415,7 @@ namespace MimeKit {
 		/// search order) which is not an attachment.</para>
 		/// </remarks>
 		/// <value>The text body if it exists; otherwise, <see langword="null"/>.</value>
-		string TextBody {
+		string? TextBody {
 			get;
 		}
 
@@ -421,7 +426,7 @@ namespace MimeKit {
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
 		/// </remarks>
 		/// <value>The html body if it exists; otherwise, <see langword="null"/>.</value>
-		string HtmlBody {
+		string? HtmlBody {
 			get;
 		}
 
@@ -433,7 +438,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
-		string GetTextBody (TextFormat format);
+		string? GetTextBody (TextFormat format);
 
 		/// <summary>
 		/// Get the body parts of the message.
@@ -500,7 +505,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -524,7 +529,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -591,7 +596,7 @@ namespace MimeKit {
 		/// Writes the message to the output stream using the default formatting options.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -612,7 +617,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.

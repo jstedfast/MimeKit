@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -390,6 +390,20 @@ namespace UnitTests {
 			} catch (Exception ex) {
 				Assert.Fail ($"Should not have thrown {ex.GetType ().Name}");
 			}
+		}
+
+		[Test]
+		public void TestParseMailboxStrictDisallowUnquotedCommasInName ()
+		{
+			const string input = "Cut the fat, today <5aOJlOFqZs@eachuniverse.host>";
+			var options = new ParserOptions {
+				AddressParserComplianceMode = RfcComplianceMode.Strict,
+				AllowAddressesWithoutDomain = false,
+				AllowUnquotedCommasInAddresses = false,
+				Rfc2047ComplianceMode = RfcComplianceMode.Strict
+			};
+
+			Assert.That (InternetAddressList.TryParse (options, input, out _), Is.False);
 		}
 
 		[Test]

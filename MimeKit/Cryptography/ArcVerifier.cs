@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -300,13 +300,13 @@ namespace MimeKit.Cryptography {
 
 	class ArcHeaderSet
 	{
-		public Header ArcAuthenticationResult { get; private set; }
+		public Header? ArcAuthenticationResult { get; private set; }
 
-		public Dictionary<string, string> ArcMessageSignatureParameters { get; private set; }
-		public Header ArcMessageSignature { get; private set; }
+		public Dictionary<string, string>? ArcMessageSignatureParameters { get; private set; }
+		public Header? ArcMessageSignature { get; private set; }
 
-		public Dictionary<string, string> ArcSealParameters { get; private set; }
-		public Header ArcSeal { get; private set; }
+		public Dictionary<string, string>? ArcSealParameters { get; private set; }
+		public Header? ArcSeal { get; private set; }
 
 		public bool Add (Header header, Dictionary<string, string> parameters)
 		{
@@ -471,14 +471,14 @@ namespace MimeKit.Cryptography {
 			count = 0;
 
 			for (int i = 0; i < message.Headers.Count; i++) {
-				Dictionary<string, string> parameters = null;
+				Dictionary<string, string>? parameters = null;
 				var header = message.Headers[i];
 				int instance = 0;
-				string value;
+				string? value;
 
 				switch (header.Id) {
 				case HeaderId.ArcAuthenticationResults:
-					if (!AuthenticationResults.TryParse (header.RawValue, out AuthenticationResults authres)) {
+					if (!AuthenticationResults.TryParse (header.RawValue, out AuthenticationResults? authres)) {
 						if (throwOnError)
 							throw new FormatException ("Invalid ARC-Authentication-Results header.");
 
@@ -623,7 +623,7 @@ namespace MimeKit.Cryptography {
 					continue;
 				}
 
-				if (!set.ArcSealParameters.TryGetValue ("cv", out string cv)) {
+				if (!set.ArcSealParameters.TryGetValue ("cv", out string? cv)) {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing chain validation tag in ARC-Seal header for i={0}.", i + 1));
 

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,25 @@ namespace UnitTests.IO {
 	public class FilteredStreamTests
 	{
 		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
+
+		[Test]
+		public void TestObjectDisposedExceptions ()
+		{
+			var filtered = new FilteredStream (new MemoryStream ());
+			filtered.Dispose ();
+
+			byte[] buf = new byte[1024];
+			Assert.Throws<ObjectDisposedException> (() => filtered.Read (buf, 0, buf.Length));
+			Assert.ThrowsAsync<ObjectDisposedException> (() => filtered.ReadAsync (buf, 0, buf.Length));
+			Assert.Throws<ObjectDisposedException> (() => filtered.Write (buf, 0, buf.Length));
+			Assert.ThrowsAsync<ObjectDisposedException> (() => filtered.WriteAsync (buf, 0, buf.Length));
+			Assert.Throws<ObjectDisposedException> (filtered.Flush);
+			Assert.ThrowsAsync<ObjectDisposedException> (filtered.FlushAsync);
+
+			Assert.Throws<ObjectDisposedException> (() => filtered.Add (DecoderFilter.Create (ContentEncoding.Base64)));
+			Assert.Throws<ObjectDisposedException> (() => filtered.Remove (DecoderFilter.Create (ContentEncoding.Base64)));
+			Assert.Throws<ObjectDisposedException> (() => filtered.Contains (DecoderFilter.Create (ContentEncoding.Base64)));
+		}
 
 		[Test]
 		public void TestCanReadWriteSeekTimeout ()

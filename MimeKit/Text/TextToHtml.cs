@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -109,7 +109,7 @@ namespace MimeKit.Text {
 		/// filtering of HTML tags and content.
 		/// </remarks>
 		/// <value>The html tag callback.</value>
-		public HtmlTagCallback HtmlTagCallback {
+		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
 		}
 
@@ -120,7 +120,7 @@ namespace MimeKit.Text {
 		/// Gets or sets whether the converter should only output an entire
 		/// HTML document or just a fragment of the HTML body content.
 		/// </remarks>
-		/// <value><c>true</c> if the converter should only output an HTML fragment; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
 			get; set;
 		}
@@ -277,12 +277,12 @@ namespace MimeKit.Text {
 				}
 			}
 
-			using (var htmlWriter = new HtmlWriter (writer)) {
+			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<TextToHtmlTagContext> ();
 				int currentQuoteDepth = 0;
 				TextToHtmlTagContext ctx;
-				string line;
+				string? line;
 
 				while ((line = reader.ReadLine ()) != null) {
 					line = Unquote (line, out int quoteDepth);

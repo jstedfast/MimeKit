@@ -76,7 +76,7 @@ From -
 From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: [95:taka@fxis.fujix] MIME and Header encoding RFC.
-Date: Sat, 13 Jun 1992 11:23:08 +0000
+Date: Sat, 13 Jun 1992 11:23:08 +0900
 Content-Type: text/plain
 
 From - 
@@ -143,7 +143,7 @@ From -
 From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: transparent.el
-Date: Tue, 16 Jun 1992 17:34:08 +0000
+Date: Tue, 16 Jun 1992 17:34:08 +0900
 Content-Type: text/plain
 
 From - 
@@ -254,7 +254,7 @@ From -
 From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: How to see Japanese characters (Re: malformed message)
-Date: Tue, 09 Jun 1992 03:45:24 +0000
+Date: Tue, 09 Jun 1992 03:45:24 +0900
 Content-Type: multipart/mixed
    Content-Type: text/plain
    Content-Type: image/gif
@@ -447,7 +447,7 @@ From -
 From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: MIME example in VIN
-Date: Sat, 06 Jun 1992 06:21:22 +0000
+Date: Sat, 06 Jun 1992 06:21:22 +0900
 Content-Type: multipart/mixed
    Content-Type: text/richtext
    Content-Type: image/gif
@@ -1214,7 +1214,7 @@ From -
 From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: multi-bytes richtext
-Date: Thu, 18 Jun 1992 20:03:47 +0000
+Date: Thu, 18 Jun 1992 20:03:47 +0900
 Content-Type: multipart/mixed
    Content-Type: text/plain
    Content-Type: image/gif
@@ -1592,7 +1592,7 @@ From -
 From: "Yutaka Sato 佐藤豊" <ysato@etl.go.jp>
 To: nsb@thumper.bellcore.com
 Subject: Re: MIME & int'l mail
-Date: Sat, 13 Jun 1992 08:53:19 +0000
+Date: Sat, 13 Jun 1992 08:53:19 +0900
 Content-Type: multipart/mixed
    Content-Type: text/plain
    Content-Type: image/gif

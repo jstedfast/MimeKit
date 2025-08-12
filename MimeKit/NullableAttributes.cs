@@ -91,7 +91,7 @@ namespace System.Diagnostics.CodeAnalysis {
 
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETSTANDARD2_1
 	[AttributeUsage (AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
-	public sealed class MemberNotNullAttribute : Attribute
+	sealed class MemberNotNullAttribute : Attribute
 	{
 		public MemberNotNullAttribute (string member) => Members = new string[] { member };
 

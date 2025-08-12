@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -61,7 +62,8 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartRelated"/> has been disposed.
 		/// </exception>
-		MimeEntity Root {
+		[DisallowNull]
+		MimeEntity? Root {
 			get; set;
 		}
 
@@ -71,7 +73,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the multipart/related entity contains a part matching the specified URI.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified part exists; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified part exists; otherwise, <see langword="false" />.</returns>
 		/// <param name="uri">The URI of the MIME part.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="uri"/> is <see langword="null"/>.
@@ -125,7 +127,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartRelated"/> has been disposed.
 		/// </exception>
-		Stream Open (Uri uri, out string mimeType, out string charset);
+		Stream Open (Uri uri, out string mimeType, out string? charset);
 
 		/// <summary>
 		/// Open a stream for reading the decoded content of the MIME part specified by the provided URI.

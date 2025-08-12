@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -121,7 +121,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="DkimHashStream"/> is not readable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports reading; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</value>
 		public override bool CanRead {
 			get { return false; }
 		}
@@ -132,7 +132,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="DkimHashStream"/> is always writable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports writing; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</value>
 		public override bool CanWrite {
 			get { return true; }
 		}
@@ -143,7 +143,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// A <see cref="DkimHashStream"/> is not seekable.
 		/// </remarks>
-		/// <value><c>true</c> if the stream supports seeking; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</value>
 		public override bool CanSeek {
 			get { return false; }
 		}
@@ -154,7 +154,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Writing to a <see cref="DkimHashStream"/> cannot timeout.
 		/// </remarks>
-		/// <value><c>true</c> if reading and writing to the stream can time out; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if reading and writing to the stream can time out; otherwise, <see langword="false" />.</value>
 		public override bool CanTimeout {
 			get { return false; }
 		}
@@ -352,8 +352,8 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="DkimHashStream"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
 			if (disposing && !disposed) {

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new quoted-printable decoder.
 		/// </remarks>
-		/// <param name="rfc2047"><c>true</c> if this decoder will be used to decode rfc2047 encoded-word tokens; otherwise, <c>false</c>.</param>
+		/// <param name="rfc2047"><see langword="true" /> if this decoder will be used to decode rfc2047 encoded-word tokens; otherwise, <see langword="false" />.</param>
 		public QuotedPrintableDecoder (bool rfc2047)
 		{
 			this.rfc2047 = rfc2047;

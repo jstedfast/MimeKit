@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Utilities.Collections;
 
 using MimeKit.Cryptography;
 
@@ -43,7 +44,7 @@ namespace UnitTests.Cryptography {
 
 		public SqliteCertificateDatabaseTests ()
 		{
-			var rsa = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral);
+			var rsa = SecureMimeTestsBase.RsaCertificate;
 			dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 
 			if (File.Exists ("sqlite.db"))
@@ -59,6 +60,9 @@ namespace UnitTests.Cryptography {
 				}
 
 				ctx.Import (rsa.FileName, "no.secret");
+
+				foreach (var crl in SecureMimeTestsBase.ObsoleteCrls)
+					ctx.Import (crl);
 			}
 		}
 
@@ -71,7 +75,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestAutoUpgrade ()
+		public void TestAutoUpgradeVersion0 ()
 		{
 			var path = Path.Combine (dataDir, "smimev0.db");
 			const string tmp = "smimev0-tmp.db";
@@ -82,12 +86,12 @@ namespace UnitTests.Cryptography {
 			File.Copy (path, tmp);
 
 			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
-				var root = chain[chain.Length - 1];
-
 				// Verify that we can select the Root Certificate
 				bool trustedAnchor = false;
 				foreach (var record in dbase.Find (null, true, X509CertificateRecordFields.Certificate)) {
-					if (record.Certificate.Equals (root)) {
+					var fingerprint = record.Certificate.GetFingerprint ();
+
+					if (fingerprint == "943471ff1ca3fb2dd843f515df261756cad58673") {
 						trustedAnchor = true;
 						break;
 					}
@@ -97,7 +101,44 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static void AssertFindBy (Org.BouncyCastle.Utilities.Collections.ISelector<X509Certificate> selector, X509Certificate expected)
+		[Test]
+		public void TestAutoUpgradeVersion1 ()
+		{
+			var path = Path.Combine (dataDir, "smimev1.db");
+			const string tmp = "smimev1-tmp.db";
+
+			if (File.Exists (tmp))
+				File.Delete (tmp);
+
+			File.Copy (path, tmp);
+
+			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
+				// Verify that we can select the Root Certificate
+				bool trustedAnchor = false;
+				foreach (var record in dbase.Find (null, true, X509CertificateRecordFields.Certificate)) {
+					var fingerprint = record.Certificate.GetFingerprint ();
+
+					if (fingerprint == "943471ff1ca3fb2dd843f515df261756cad58673") {
+						trustedAnchor = true;
+						break;
+					}
+				}
+
+				Assert.That (trustedAnchor, Is.True, "Did not find the MimeKit UnitTests trusted anchor");
+			}
+		}
+
+		[Test]
+		public void TestEnumerateMatches ()
+		{
+			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+				var certificates = ((IStore<X509Certificate>) dbase).EnumerateMatches (null).ToList ();
+
+				Assert.That (certificates, Has.Count.EqualTo (6), "Did not find the expected # of certificate");
+			}
+		}
+
+		static void AssertFindBy (ISelector<X509Certificate> selector, X509Certificate expected)
 		{
 			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
 				// Verify that we can select the Root Certificate
@@ -158,6 +199,32 @@ namespace UnitTests.Cryptography {
 			};
 
 			AssertFindBy (selector, chain[0]);
+		}
+
+		[Test]
+		public void TestFindPrivateKeys ()
+		{
+			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+				var privateKeys = dbase.FindPrivateKeys (null).ToList ();
+
+				Assert.That (privateKeys, Has.Count.EqualTo (1), "Did not find the expected # of private keys");
+			}
+		}
+
+		[Test]
+		public void TestFindCrl ()
+		{
+			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+				foreach (var crl in SecureMimeTestsBase.ObsoleteCrls) {
+					var record = dbase.Find (crl, X509CrlRecordFields.Id | X509CrlRecordFields.IsDelta | X509CrlRecordFields.IssuerName | X509CrlRecordFields.ThisUpdate | X509CrlRecordFields.NextUpdate | X509CrlRecordFields.Crl);
+
+					Assert.That (record, Is.Not.Null, $"Did not find the expected CRL for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.IsDelta, Is.EqualTo (crl.IsDelta ()), $"IsDelta for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.IssuerName, Is.EqualTo (crl.IssuerDN.ToString ()), $"IssuerName for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.ThisUpdate, Is.EqualTo (crl.ThisUpdate), $"ThisUpdate for {crl.IssuerDN.ToString ()}");
+					Assert.That (record.NextUpdate, Is.EqualTo (crl.NextUpdate), $"NextUpdate for {crl.IssuerDN.ToString ()}");
+				}
+			}
 		}
 	}
 }

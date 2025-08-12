@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(TestFrameworks)'==''">net8.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <DefineConstants Condition=" '$(MonoRuntime)' == 'true' ">$(DefineConstants);MONO</DefineConstants>
     <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>12</LangVersion>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -13,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
   </ItemGroup>
 
   <ItemGroup>

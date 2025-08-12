@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,18 @@
 //
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Security;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+using X509Extension = System.Security.Cryptography.X509Certificates.X509Extension;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -63,14 +63,11 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			var rawData = certificate.GetRawCertData ();
-			var parser = new X509CertificateParser ();
-			var cert = parser.ReadCertificate (rawData);
-
-			if (cert == null)
+			try {
+				return DotNetUtilities.FromX509Certificate (certificate);
+			} catch {
 				throw new ArgumentException ("Cannot convert X509Certificate2 to a BouncyCastle X509Certificate.", nameof (certificate));
-
-			return cert;
+			}
 		}
 
 		/// <summary>
@@ -101,25 +98,89 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
+		static string[] GetSubjectAlternativeNames (X509Certificate2 certificate, int tagNo)
 		{
-			using (var memory = new MemoryStream (rawData, false)) {
-				using (var asn1 = new Asn1InputStream (memory)) {
-					if (asn1.ReadObject () is not Asn1Sequence sequence)
-						return null;
+			X509Extension? alt = null;
 
-					var algorithms = new List<EncryptionAlgorithm> ();
-
-					for (int i = 0; i < sequence.Count; i++) {
-						var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
-
-						if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm))
-							algorithms.Add (algorithm);
-					}
-
-					return algorithms.ToArray ();
+			foreach (var extension in certificate.Extensions) {
+				if (extension.Oid?.Value == X509Extensions.SubjectAlternativeName.Id) {
+					alt = extension;
+					break;
 				}
 			}
+
+			if (alt == null)
+				return Array.Empty<string> ();
+
+			var seq = Asn1Sequence.GetInstance (alt.RawData);
+			var names = new string[seq.Count];
+			int count = 0;
+
+			foreach (Asn1Encodable encodable in seq) {
+				var name = GeneralName.GetInstance (encodable);
+				if (name.TagNo == tagNo)
+					names[count++] = ((IAsn1String) name.Name).GetString ();
+			}
+
+			if (count == 0)
+				return Array.Empty<string> ();
+
+			if (count < names.Length)
+				Array.Resize (ref names, count);
+
+			return names;
+		}
+
+		/// <summary>
+		/// Get the subject domain names of the certificate.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the subject DNS names of the certificate.</para>
+		/// <para>Some S/MIME certificates are domain-bound instead of being bound to a
+		/// particular email address.</para>
+		/// </remarks>
+		/// <returns>The subject DNS names.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="idnEncode">If set to <see langword="true" />, international domain names will be IDN encoded.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="certificate"/> is <see langword="null"/>.
+		/// </exception>
+		public static string[] GetSubjectDnsNames (this X509Certificate2 certificate, bool idnEncode = false)
+		{
+			if (certificate == null)
+				throw new ArgumentNullException (nameof (certificate));
+
+			var domains = GetSubjectAlternativeNames (certificate, GeneralName.DnsName);
+
+			if (idnEncode) {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Encode (domains[i]);
+			} else {
+				for (int i = 0; i < domains.Length; i++)
+					domains[i] = MailboxAddress.IdnMapping.Decode (domains[i]);
+			}
+
+			return domains;
+		}
+
+		static EncryptionAlgorithm[]? DecodeEncryptionAlgorithms (byte[] rawData)
+		{
+			AlgorithmIdentifier[] capabilities;
+			try {
+				// TODO Ideally would use SmimeCapabilities (containing SmimeCapability)
+				capabilities = Asn1Sequence.GetInstance (rawData).MapElements (AlgorithmIdentifier.GetInstance);
+			} catch {
+				return null;
+			}
+
+			var algorithms = new List<EncryptionAlgorithm> ();
+
+			foreach (AlgorithmIdentifier capability in capabilities) {
+				if (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (capability, out var algorithm))
+					algorithms.Add (algorithm);
+			}
+
+			return algorithms.ToArray ();
 		}
 
 		/// <summary>
@@ -142,7 +203,8 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			foreach (var extension in certificate.Extensions) {
-				if (extension.Oid.Value == "1.2.840.113549.1.9.15") {
+				// PkcsObjectIdentifiers.Pkcs9AtSmimeCapabilities
+				if (extension.Oid?.Value == "1.2.840.113549.1.9.15") {
 					var algorithms = DecodeEncryptionAlgorithms (extension.RawData);
 
 					if (algorithms != null)
@@ -166,13 +228,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
-		public static AsymmetricKeyParameter GetPrivateKeyAsAsymmetricKeyParameter (this X509Certificate2 certificate)
+		public static AsymmetricKeyParameter? GetPrivateKeyAsAsymmetricKeyParameter (this X509Certificate2 certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
 #if NET6_0_OR_GREATER
-			AsymmetricAlgorithm privateKey = null;
+			AsymmetricAlgorithm? privateKey = null;
 
 			if (certificate.HasPrivateKey) {
 				switch (GetPublicKeyAlgorithm (certificate)) {

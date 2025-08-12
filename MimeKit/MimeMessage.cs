@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 #if ENABLE_SNM
 using System.Net.Mail;
@@ -91,17 +92,17 @@ namespace MimeKit {
 		MessageImportance importance = MessageImportance.Normal;
 		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
-		readonly RfcComplianceMode compliance;
+		internal readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		LazyLoadedFields lazyLoaded;
-		MailboxAddress resentSender;
+		MailboxAddress? resentSender;
 		DateTimeOffset resentDate;
-		string resentMessageId;
-		MailboxAddress sender;
+		string? resentMessageId;
+		MailboxAddress? sender;
 		DateTimeOffset date;
-		string messageId;
-		string inreplyto;
-		Version version;
+		string? messageId;
+		string? inreplyto;
+		Version? version;
 
 		// Note: this .ctor is used only by the MimeParser and MimeMessage.CreateFromMailMessage()
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
@@ -172,7 +173,7 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			MimeEntity body = null;
+			MimeEntity? body = null;
 
 			foreach (var obj in args) {
 				if (obj is null)
@@ -225,12 +226,59 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
 		/// </summary>
 		/// <remarks>
+		/// Creates a new <see cref="MimeMessage"/>.
+		/// </remarks>
+		/// <param name="headers">A list of initial message headers.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="headers"/> is <see langword="null"/>.
+		/// </exception>
+		public MimeMessage (IEnumerable<Header> headers)
+		{
+			if (headers is null)
+				throw new ArgumentNullException (nameof (headers));
+
+			addresses = new Dictionary<HeaderId, InternetAddressList> ();
+			compliance = RfcComplianceMode.Strict;
+
+			// initialize our address lists
+			foreach (var id in StandardAddressHeaders) {
+				var list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
+				addresses.Add (id, list);
+			}
+
+			references = new MessageIdList ();
+			references.Changed += ReferencesChanged;
+
+			if (headers is HeaderList headerList) {
+				Headers = headerList;
+			} else {
+				Headers = new HeaderList (ParserOptions.Default.Clone ());
+
+				foreach (var header in headers)
+					Headers.Add (header);
+			}
+
+			Headers.Changed += HeadersChanged;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeMessage"/> class.
+		/// </summary>
+		/// <remarks>
 		/// Creates a new MIME message, specifying details at creation time.
 		/// </remarks>
 		/// <param name="from">The list of addresses in the From header.</param>
 		/// <param name="to">The list of addresses in the To header.</param>
 		/// <param name="subject">The subject of the message.</param>
 		/// <param name="body">The body of the message.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="from"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="to"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="subject"/> is <see langword="null"/>.</para>
+		/// </exception>
 		public MimeMessage (IEnumerable<InternetAddress> from, IEnumerable<InternetAddress> to, string subject, MimeEntity body) : this ()
 		{
 			From.AddRange (from);
@@ -274,7 +322,7 @@ namespace MimeKit {
 		/// so that the message/rfc822 part can be reserialized back to its original form.
 		/// </remarks>
 		/// <value>The mbox marker.</value>
-		internal byte[] MboxMarker {
+		internal byte[]? MboxMarker {
 			get; set;
 		}
 
@@ -461,11 +509,16 @@ namespace MimeKit {
 		/// Get or set the address in the Sender header.
 		/// </summary>
 		/// <remarks>
-		/// The sender may differ from the addresses in <see cref="From"/> if
-		/// the message was sent by someone on behalf of someone else.
+		/// <para>The "Sender" field specifies the mailbox of the agent responsible for
+		/// the actual transmission of the message. For example, if a secretary were to send a
+		/// message for another person, the mailbox of the secretary would appear in the
+		/// "Sender" field and the mailbox of the actual author would appear in the "From"
+		/// field. If the originator of the message can be indicated by a single mailbox and
+		/// the author and transmitter are identical, the "Sender" field SHOULD NOT be used.
+		/// Otherwise, both fields SHOULD appear.</para>
 		/// </remarks>
-		/// <value>The address in the Sender header.</value>
-		public MailboxAddress Sender {
+		/// <value>The address in the Sender header, if available.</value>
+		public MailboxAddress? Sender {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.Sender) == 0) {
 					if (Headers.TryGetHeader (HeaderId.Sender, out var header)) {
@@ -514,7 +567,7 @@ namespace MimeKit {
 		/// the message was sent by someone on behalf of someone else.
 		/// </remarks>
 		/// <value>The address in the Resent-Sender header.</value>
-		public MailboxAddress ResentSender {
+		public MailboxAddress? ResentSender {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.ResentSender) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ResentSender, out var header)) {
@@ -721,7 +774,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public string Subject {
+		[DisallowNull]
+		public string? Subject {
 			get { return Headers["Subject"]; }
 			set {
 				if (value is null)
@@ -833,7 +887,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		public string InReplyTo {
+		public string? InReplyTo {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.InReplyTo) == 0) {
 					if (Headers.TryGetHeader (HeaderId.InReplyTo, out var header)) {
@@ -861,7 +915,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.InReplyTo;
@@ -887,7 +941,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		public string MessageId {
+		[DisallowNull]
+		public string? MessageId {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.MessageId) == 0) {
 					if (Headers.TryGetHeader (HeaderId.MessageId, out var header)) {
@@ -911,7 +966,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.MessageId;
@@ -937,7 +992,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
 		/// </exception>
-		public string ResentMessageId {
+		[DisallowNull]
+		public string? ResentMessageId {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ResentMessageId, out var header)) {
@@ -961,7 +1017,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.ResentMessageId;
@@ -982,7 +1038,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public Version MimeVersion {
+		[DisallowNull]
+		public Version? MimeVersion {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.MimeVersion) == 0) {
 					if (Headers.TryGetHeader (HeaderId.MimeVersion, out var header)) {
@@ -1020,7 +1077,7 @@ namespace MimeKit {
 		/// <see cref="BodyBuilder"/> class.</para>
 		/// </remarks>
 		/// <value>The body of the message.</value>
-		public MimeEntity Body {
+		public MimeEntity? Body {
 			get; set;
 		}
 
@@ -1032,7 +1089,7 @@ namespace MimeKit {
 		/// search order) which is not an attachment.</para>
 		/// </remarks>
 		/// <value>The text body if it exists; otherwise, <see langword="null"/>.</value>
-		public string TextBody {
+		public string? TextBody {
 			get { return GetTextBody (TextFormat.Plain); }
 		}
 
@@ -1043,7 +1100,7 @@ namespace MimeKit {
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
 		/// </remarks>
 		/// <value>The html body if it exists; otherwise, <see langword="null"/>.</value>
-		public string HtmlBody {
+		public string? HtmlBody {
 			get { return GetTextBody (TextFormat.Html); }
 		}
 
@@ -1055,7 +1112,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
-		public string GetTextBody (TextFormat format)
+		public string? GetTextBody (TextFormat format)
 		{
 			if (Body is Multipart multipart) {
 				if (multipart.TryGetValue (format, out var body))
@@ -1067,7 +1124,7 @@ namespace MimeKit {
 			return null;
 		}
 
-		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity entity)
+		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity? entity)
 		{
 			if (entity is null)
 				yield break;
@@ -1114,7 +1171,7 @@ namespace MimeKit {
 			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
 		}
 
-		static void AddMailboxes (List<MailboxAddress> recipients, HashSet<string> unique, IEnumerable<MailboxAddress> mailboxes)
+		static void AddMailboxes (List<MailboxAddress> recipients, HashSet<string>? unique, IEnumerable<MailboxAddress> mailboxes)
 		{
 			foreach (var mailbox in mailboxes) {
 				if (unique is null || unique.Add (mailbox.Address))
@@ -1124,7 +1181,7 @@ namespace MimeKit {
 
 		IList<MailboxAddress> GetMailboxes (bool includeSenders, bool onlyUnique)
 		{
-			HashSet<string> unique = onlyUnique ? new HashSet<string> (MimeUtils.OrdinalIgnoreCase) : null;
+			HashSet<string>? unique = onlyUnique ? new HashSet<string> (MimeUtils.OrdinalIgnoreCase) : null;
 			var recipients = new List<MailboxAddress> ();
 
 			if (ResentSender != null || ResentFrom.Count > 0) {
@@ -1167,7 +1224,7 @@ namespace MimeKit {
 		/// <c>Resent-Cc</c> and <c>Resent-Bcc</c> headers will be used. Otherwise, the recipients defined by the <c>To</c>, <c>Cc</c>
 		/// and <c>Bcc</c> headers will be used.</para>
 		/// </remarks>
-		/// <param name="onlyUnique">If <c>true</c>, only mailboxes with a unique address will be included.</param>
+		/// <param name="onlyUnique">If <see langword="true" />, only mailboxes with a unique address will be included.</param>
 		/// <returns>The concatenated list of recipients.</returns>
 		public IList<MailboxAddress> GetRecipients (bool onlyUnique = false)
 		{
@@ -1254,7 +1311,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -1282,7 +1339,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
-					foreach (var header in MergeHeaders ()) {
+					foreach (var header in MergeHeaders (Headers, Body)) {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
@@ -1299,11 +1356,13 @@ namespace MimeKit {
 					filtered.Flush (cancellationToken);
 				}
 
-				if (stream is ICancellableStream cancellable) {
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				} else {
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator) {
+					if (stream is ICancellableStream cancellable) {
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					} else {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
 				}
 
 				if (!headersOnly) {
@@ -1328,7 +1387,7 @@ namespace MimeKit {
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -1356,7 +1415,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
-					foreach (var header in MergeHeaders ()) {
+					foreach (var header in MergeHeaders (Headers, Body)) {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
@@ -1373,7 +1432,8 @@ namespace MimeKit {
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}
 
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator)
+					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 
 				if (!headersOnly) {
 					try {
@@ -1446,7 +1506,7 @@ namespace MimeKit {
 		/// Writes the message to the output stream using the default formatting options.
 		/// </remarks>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -1470,7 +1530,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><c>true</c> if only the headers should be written; otherwise, <c>false</c>.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -1697,7 +1757,7 @@ namespace MimeKit {
 			return WriteToAsync (FormatOptions.Default, fileName, cancellationToken);
 		}
 
-		MailboxAddress GetMessageSigner ()
+		MailboxAddress? GetMessageSigner ()
 		{
 			if (ResentSender != null)
 				return ResentSender;
@@ -2256,13 +2316,13 @@ namespace MimeKit {
 		}
 #endif // ENABLE_CRYPTO
 
-		IEnumerable<Header> MergeHeaders ()
+		internal static IEnumerable<Header> MergeHeaders (HeaderList headers, MimeEntity body)
 		{
 			int mesgIndex = 0, bodyIndex = 0;
 
 			// write all the prepended message headers first
-			while (mesgIndex < Headers.Count) {
-				var mesgHeader = Headers[mesgIndex];
+			while (mesgIndex < headers.Count) {
+				var mesgHeader = headers[mesgIndex];
 				if (mesgHeader.Offset.HasValue)
 					break;
 
@@ -2271,12 +2331,12 @@ namespace MimeKit {
 			}
 
 			// now merge the message and body headers as they appeared in the raw message
-			while (mesgIndex < Headers.Count && bodyIndex < Body.Headers.Count) {
-				var bodyHeader = Body.Headers[bodyIndex];
+			while (mesgIndex < headers.Count && bodyIndex < body.Headers.Count) {
+				var bodyHeader = body.Headers[bodyIndex];
 				if (!bodyHeader.Offset.HasValue)
 					break;
 
-				var mesgHeader = Headers[mesgIndex];
+				var mesgHeader = headers[mesgIndex];
 
 				if (mesgHeader.Offset.HasValue && mesgHeader.Offset < bodyHeader.Offset) {
 					yield return mesgHeader;
@@ -2289,11 +2349,11 @@ namespace MimeKit {
 				}
 			}
 
-			while (mesgIndex < Headers.Count)
-				yield return Headers[mesgIndex++];
+			while (mesgIndex < headers.Count)
+				yield return headers[mesgIndex++];
 
-			while (bodyIndex < Body.Headers.Count)
-				yield return Body.Headers[bodyIndex++];
+			while (bodyIndex < body.Headers.Count)
+				yield return body.Headers[bodyIndex++];
 		}
 
 		void RemoveHeader (HeaderId id)
@@ -2349,10 +2409,8 @@ namespace MimeKit {
 			ReplaceHeader (id, field, raw);
 		}
 
-		void InternetAddressListChanged (object addrlist, EventArgs e)
+		void InternetAddressListChanged (InternetAddressList list, EventArgs e)
 		{
-			var list = (InternetAddressList) addrlist;
-
 			foreach (var id in StandardAddressHeaders) {
 				if (addresses[id] == list) {
 					SerializeAddressList (id, list);
@@ -2361,7 +2419,7 @@ namespace MimeKit {
 			}
 		}
 
-		void ReferencesChanged (object o, EventArgs e)
+		void ReferencesChanged (object? o, EventArgs e)
 		{
 			if (references.Count > 0) {
 				var builder = new ValueStringBuilder (128);
@@ -2425,9 +2483,9 @@ namespace MimeKit {
 			}
 		}
 
-		void HeadersChanged (object o, HeaderListChangedEventArgs e)
+		void HeadersChanged (object? o, HeaderListChangedEventArgs e)
 		{
-			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header.Id, out var list)) {
+			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header!.Id, out var list)) { // e.Header is not null if e.Action != Cleared
 				var bit = GetAddressListLazyLoadField (e.Header.Id);
 
 				if ((lazyLoaded & bit) != 0) {
@@ -2454,7 +2512,7 @@ namespace MimeKit {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
-				switch (e.Header.Id) {
+				switch (e.Header!.Id) { // e.Header is not null if e.Action != Cleared
 				case HeaderId.ResentSender:
 					lazyLoaded &= ~LazyLoadedFields.ResentSender;
 					resentSender = null;
@@ -2544,8 +2602,8 @@ namespace MimeKit {
 		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
 		/// optionally releases the managed resources.
 		/// </remarks>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
-		/// <c>false</c> to release only the unmanaged resources.</param>
+		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
+		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
 			if (disposing && Body != null)
@@ -2573,7 +2631,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2582,7 +2640,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -2617,7 +2675,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2626,7 +2684,7 @@ namespace MimeKit {
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
@@ -2721,7 +2779,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2729,7 +2787,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -2754,7 +2812,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
-		/// <para>If <paramref name="persistent"/> is <c>true</c> and <paramref name="stream"/> is seekable, then
+		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
 		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
 		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
@@ -2762,7 +2820,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
 		/// <param name="stream">The stream.</param>
-		/// <param name="persistent"><c>true</c> if the stream is persistent; otherwise <c>false</c>.</param>
+		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
@@ -3047,8 +3105,8 @@ namespace MimeKit {
 				part = new MimePart (contentType);
 
 			if (item is Attachment attachment) {
-				var value = attachment.ContentDisposition.ToString ();
-				if (ContentDisposition.TryParse (value, out var disposition))
+				var value = attachment.ContentDisposition?.ToString ();
+				if (value != null && ContentDisposition.TryParse (value, out var disposition))
 					part.ContentDisposition = disposition;
 			}
 
@@ -3096,7 +3154,7 @@ namespace MimeKit {
 			alternative.Add (related);
 		}
 
-		static MimeEntity AddAlternateViews (MimeEntity body, AlternateViewCollection alternateViews)
+		static MimeEntity AddAlternateViews (MimeEntity? body, AlternateViewCollection alternateViews)
 		{
 			var alternative = new MultipartAlternative ();
 
@@ -3137,12 +3195,18 @@ namespace MimeKit {
 
 			var headers = new List<Header> ();
 			foreach (var field in message.Headers.AllKeys) {
-				foreach (var value in message.Headers.GetValues (field))
-					headers.Add (new Header (headerEncoding, field, value));
+				if (field != null) {
+					var values = message.Headers.GetValues (field);
+					if (values != null) {
+						foreach (var value in values) {
+							headers.Add (new Header (headerEncoding, field, value));
+						}
+					}
+				}
 			}
 
 			var msg = new MimeMessage (ParserOptions.Default, headers, RfcComplianceMode.Strict);
-			MimeEntity body = null;
+			MimeEntity? body = null;
 
 			// Note: If the user has already sent their MailMessage via System.Net.Mail.SmtpClient,
 			// then the following MailMessage properties will have been merged into the Headers, so
@@ -3238,7 +3302,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The equivalent <see cref="MimeMessage"/>.</returns>
 		/// <param name="message">The message.</param>
-		public static explicit operator MimeMessage (MailMessage message)
+		[return: NotNullIfNotNull (nameof (message))]
+		public static explicit operator MimeMessage? (MailMessage? message)
 		{
 			return message != null ? CreateFromMailMessage (message) : null;
 		}

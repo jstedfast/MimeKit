@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,67 +27,11 @@
 using System;
 using System.Text;
 using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
-		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex, int length)
-		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
-		}
-
-		public static void ValidateArguments (ParserOptions options, byte[] buffer, int startIndex)
-		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-		}
-
-		public static void ValidateArguments (ParserOptions options, byte[] buffer)
-		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-		}
-
-		public static void ValidateArguments (ParserOptions options, string text)
-		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
-		}
-
-		public static void ValidateArguments (byte[] buffer, int startIndex, int length)
-		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (startIndex < 0 || startIndex > buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (buffer.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
-		}
-
 		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
 		{
 			int startIndex = index;
@@ -280,7 +224,7 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, out string dotatom)
+		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, [NotNullWhen (true)] out string? dotatom)
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
@@ -336,13 +280,14 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, out string domain)
+		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out string? domain)
 		{
 			using var token = new ValueStringBuilder (128);
-			token.Append('[');
 			int startIndex = index++;
 
 			domain = null;
+
+			token.Append ('[');
 
 			SkipWhiteSpace (text, ref index, endIndex);
 
@@ -380,7 +325,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, out string domain)
+		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, [NotNullWhen (true)] out string? domain)
 		{
 			if (text[index] == (byte) '[')
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);
@@ -390,7 +335,7 @@ namespace MimeKit.Utils {
 
 		static ReadOnlySpan<byte> GreaterThanOrAt => ">@"u8;
 
-		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
+		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, [NotNullWhen (true)] out string? msgid)
 		{
 			// const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
 			var squareBrackets = false;
@@ -504,7 +449,7 @@ namespace MimeKit.Utils {
 					// Note: some Message-Id's are broken and in the form "<local-part@domain1@domain2>"
 					// https://github.com/jstedfast/MailKit/issues/138
 					do {
-						if (!TryParseDomain (text, ref index, endIndex, GreaterThanOrAt, throwOnError, out string domain))
+						if (!TryParseDomain (text, ref index, endIndex, GreaterThanOrAt, throwOnError, out string? domain))
 							return false;
 
 						if (IsIdnEncoded (domain))

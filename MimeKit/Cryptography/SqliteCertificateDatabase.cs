@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,11 @@ using System.Data;
 using System.Text;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Security;
+
+using MimeKit.Utils;
 
 #if __MOBILE__
 using Mono.Data.Sqlite;
@@ -49,6 +52,9 @@ namespace MimeKit.Cryptography {
 	/// and private keys.</para>
 	/// <para>This particular database uses SQLite to store the data.</para>
 	/// </remarks>
+#if NET8_0_OR_GREATER
+	[RequiresUnreferencedCode ("Uses Reflection to load System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux / macOS.")]
+#endif
 	public class SqliteCertificateDatabase : SqlCertificateDatabase
 	{
 #if !__MOBILE__
@@ -59,37 +65,50 @@ namespace MimeKit.Cryptography {
 			public Assembly Assembly { get; private set; }
 
 			public PropertyInfo ConnectionStringProperty { get; private set; }
-			public PropertyInfo DateTimeFormatProperty { get; private set; }
+			public PropertyInfo? DateTimeFormatProperty { get; private set; }
 			public PropertyInfo DataSourceProperty { get; private set; }
 
-			public static SQLiteAssembly Load (string assemblyName)
+			SQLiteAssembly (Type connectionStringBuilderType, Type connectionType, Assembly assembly, PropertyInfo connectionStringProperty, PropertyInfo? dateTimeFormatProperty, PropertyInfo dataSourceProperty)
+			{
+				ConnectionStringBuilderType = connectionStringBuilderType;
+				ConnectionType = connectionType;
+				Assembly = assembly;
+				ConnectionStringProperty = connectionStringProperty;
+				DateTimeFormatProperty = dateTimeFormatProperty;
+				DataSourceProperty = dataSourceProperty;
+			}
+
+#if NET8_0_OR_GREATER
+			[RequiresUnreferencedCode ("Uses Reflection to load SQLite classes dynamically from the specified assembly.")]
+#endif
+			public static SQLiteAssembly? Load (string assemblyName)
 			{
 				try {
 					int dot = assemblyName.LastIndexOf ('.');
 					var prefix = assemblyName.Substring (dot + 1);
 
 					var assembly = Assembly.Load (new AssemblyName (assemblyName));
-					var builderType = assembly.GetType (assemblyName + "." + prefix + "ConnectionStringBuilder");
-					var connectionType = assembly.GetType (assemblyName + "." + prefix + "Connection");
-					var connectionString = builderType.GetProperty ("ConnectionString");
+					var builderType = assembly.GetRequiredType (assemblyName + "." + prefix + "ConnectionStringBuilder");
+					var connectionType = assembly.GetRequiredType (assemblyName + "." + prefix + "Connection");
+					var connectionString = builderType.GetRequiredProperty ("ConnectionString");
 					var dateTimeFormat = builderType.GetProperty ("DateTimeFormat");
-					var dataSource = builderType.GetProperty ("DataSource");
+					var dataSource = builderType.GetRequiredProperty ("DataSource");
 
-					return new SQLiteAssembly {
-						Assembly = assembly,
-						ConnectionType = connectionType,
-						ConnectionStringBuilderType = builderType,
-						ConnectionStringProperty = connectionString,
-						DateTimeFormatProperty = dateTimeFormat,
-						DataSourceProperty = dataSource
-					};
+					return new SQLiteAssembly (
+						assembly: assembly,
+						connectionType: connectionType,
+						connectionStringBuilderType: builderType,
+						connectionStringProperty: connectionString,
+						dateTimeFormatProperty: dateTimeFormat,
+						dataSourceProperty: dataSource
+					);
 				} catch {
 					return null;
 				}
 			}
 		}
 
-		static readonly SQLiteAssembly sqliteAssembly;
+		static readonly SQLiteAssembly? sqliteAssembly;
 #endif
 
 		// At class initialization we try to use reflection to load the
@@ -144,7 +163,7 @@ namespace MimeKit.Cryptography {
 		static bool VerifySQLiteAssemblyIsUsable ()
 		{
 			// Make sure that the runtime can load the native sqlite3 library.
-			var fileName = Path.GetTempFileName ();
+			var fileName = Path.GetRandomFileName () + ".sqlite";
 
 			try {
 				var connection = CreateConnection (fileName);
@@ -164,6 +183,9 @@ namespace MimeKit.Cryptography {
 
 		internal static DbConnection CreateConnection (string fileName)
 		{
+			if (sqliteAssembly == null)
+				throw new NotSupportedException ($"{nameof(SqliteCertificateDatabase)} is not available on this platform.");
+
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
@@ -189,9 +211,10 @@ namespace MimeKit.Cryptography {
 			sqliteAssembly.DataSourceProperty.SetValue (builder, fileName, null);
 			sqliteAssembly.DateTimeFormatProperty?.SetValue (builder, 0, null);
 
-			var connectionString = (string) sqliteAssembly.ConnectionStringProperty.GetValue (builder, null);
+			var connectionString = (string?) sqliteAssembly.ConnectionStringProperty.GetValue (builder, null);
 
-			return (DbConnection) Activator.CreateInstance (sqliteAssembly.ConnectionType, new [] { connectionString });
+			// CreateInstance only returns null for Nullable<T> types
+			return (DbConnection) Activator.CreateInstance (sqliteAssembly.ConnectionType, new [] { connectionString })!;
 #else
 			var builder = new SqliteConnectionStringBuilder ();
 			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
@@ -314,7 +337,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>The list of columns.</returns>
 		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
 		{
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateCommand ()) {
 				command.CommandText = $"PRAGMA table_info({tableName})";
 				using (var reader = command.ExecuteReader ()) {
 					var columns = new List<DataColumn> ();
@@ -415,7 +438,7 @@ namespace MimeKit.Cryptography {
 
 			statement.Append (')');
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
 				command.ExecuteNonQuery ();
@@ -440,7 +463,7 @@ namespace MimeKit.Cryptography {
 			statement.Append (" ADD COLUMN ");
 			Build (statement, table, column, ref primaryKeys, false);
 
-			using (var command = connection.CreateCommand ()) {
+			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
 				command.ExecuteNonQuery ();

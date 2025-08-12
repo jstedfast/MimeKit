@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class MessageFeedbackReport : MimePart, IMessageFeedbackReport
 	{
-		HeaderList fields;
+		HeaderList? fields;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessageFeedbackReport"/> class.
@@ -100,12 +100,12 @@ namespace MimeKit {
 			}
 		}
 
-		void OnFieldsChanged (object sender, HeaderListChangedEventArgs e)
+		void OnFieldsChanged (object? sender, HeaderListChangedEventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-			fields.WriteTo (options, stream);
+			fields!.WriteTo (options, stream); // fields cannot be null if an event handler is registered to its Changed event
 			stream.Position = 0;
 
 			Content = new MimeContent (stream);

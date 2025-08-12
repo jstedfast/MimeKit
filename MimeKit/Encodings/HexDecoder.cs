@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@ namespace MimeKit.Encodings {
 	/// This is mostly meant for decoding parameter values encoded using
 	/// the rules specified by rfc2184 and rfc2231.
 	/// </remarks>
+	[Obsolete ("This class will being going away in a future version of MimeKit.")]
 	public class HexDecoder : IMimeDecoder
 	{
 		enum HexDecoderState : byte {

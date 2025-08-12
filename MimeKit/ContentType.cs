@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ using System.Text;
 using System.Globalization;
 
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -135,6 +136,8 @@ namespace MimeKit {
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
+
+			[MemberNotNull (nameof (parameters))]
 			internal set {
 				if (parameters != null)
 					parameters.Changed -= OnParametersChanged;
@@ -152,7 +155,7 @@ namespace MimeKit {
 		/// parser a unique string that should be considered the boundary marker for each sub-part.
 		/// </remarks>
 		/// <value>The boundary.</value>
-		public string Boundary {
+		public string? Boundary {
 			get { return Parameters["boundary"]; }
 			set {
 				if (value != null)
@@ -170,7 +173,7 @@ namespace MimeKit {
 		/// so that the receiving client can properly render the text.
 		/// </remarks>
 		/// <value>The charset.</value>
-		public string Charset {
+		public string? Charset {
 			get { return Parameters["charset"]; }
 			set {
 				if (value != null)
@@ -188,7 +191,7 @@ namespace MimeKit {
 		/// so that the receiving client can properly render the text.
 		/// </remarks>
 		/// <value>The charset encoding.</value>
-		public Encoding CharsetEncoding {
+		public Encoding? CharsetEncoding {
 			get {
 				var charset = Charset;
 
@@ -214,7 +217,7 @@ namespace MimeKit {
 		/// entities and will either have a value of <c>"fixed"</c> or <c>"flowed"</c>.
 		/// </remarks>
 		/// <value>The charset.</value>
-		public string Format {
+		public string? Format {
 			get { return Parameters["format"]; }
 			set {
 				if (value != null)
@@ -245,7 +248,7 @@ namespace MimeKit {
 		/// content to the user.
 		/// </remarks>
 		/// <value>The name.</value>
-		public string Name {
+		public string? Name {
 			get { return Parameters["name"]; }
 			set {
 				if (value != null)
@@ -280,7 +283,7 @@ namespace MimeKit {
 		/// If the specified <paramref name="mediaType"/> or <paramref name="mediaSubtype"/>
 		/// are <c>"*"</c>, they match anything.
 		/// </remarks>
-		/// <returns><c>true</c> if the <see cref="ContentType"/> matches the
+		/// <returns><see langword="true" /> if the <see cref="ContentType"/> matches the
 		/// provided media type and subtype.</returns>
 		/// <param name="mediaType">The media type.</param>
 		/// <param name="mediaSubtype">The media subtype.</param>
@@ -331,7 +334,7 @@ namespace MimeKit {
 		/// <returns>The serialized string.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
-		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the parameter values will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
@@ -371,7 +374,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
 		/// <param name="charset">The charset to be used when encoding the parameter values.</param>
-		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the parameter values will be encoded.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="charset"/> is <see langword="null"/>.
 		/// </exception>
@@ -388,7 +391,7 @@ namespace MimeKit {
 		/// the parameters as they would be encoded for transport.
 		/// </remarks>
 		/// <returns>The serialized string.</returns>
-		/// <param name="encode">If set to <c>true</c>, the parameter values will be encoded.</param>
+		/// <param name="encode">If set to <see langword="true" />, the parameter values will be encoded.</param>
 		public string ToString (bool encode)
 		{
 			return ToString (FormatOptions.Default, Encoding.UTF8, encode);
@@ -407,9 +410,9 @@ namespace MimeKit {
 			return ToString (false);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
-		void OnParametersChanged (object sender, EventArgs e)
+		void OnParametersChanged (object? sender, EventArgs e)
 		{
 			OnChanged ();
 		}
@@ -439,7 +442,7 @@ namespace MimeKit {
 			return index > startIndex;
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ContentType contentType)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ContentType? contentType)
 		{
 			string type, subtype;
 			int start;
@@ -523,24 +526,18 @@ namespace MimeKit {
 		/// Parses a Content-Type value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out ContentType type)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out ContentType? type)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
+				type = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -554,19 +551,12 @@ namespace MimeKit {
 		/// Parses a Content-Type value from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out ContentType type)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out type);
 		}
@@ -577,22 +567,17 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out ContentType type)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out ContentType? type)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
+				type = null;
+				return false;
+			}
 
 			int index = startIndex;
 
@@ -605,17 +590,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, out ContentType type)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen(true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out type);
 		}
@@ -626,18 +605,16 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out ContentType type)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out ContentType? type)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			if (!ArgumentValidator.TryValidate (options, buffer)) {
+				type = null;
+				return false;
+			}
 
 			int index = 0;
 
@@ -650,13 +627,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, out ContentType type)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen(true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, buffer, out type);
 		}
@@ -667,18 +641,16 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, out ContentType type)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out ContentType? type)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			if (!ArgumentValidator.TryValidate (options, text)) {
+				type = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
@@ -692,13 +664,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c> if the content type was successfully parsed; otherwise, <c>false</c>.</returns>
+		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="type">The parsed content type.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out ContentType type)
+		public static bool TryParse (string? text, [NotNullWhen (true)] out ContentType? type)
 		{
 			return TryParse (ParserOptions.Default, text, out type);
 		}
@@ -729,13 +698,13 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer, int startIndex, int length)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			ArgumentValidator.Validate (options, buffer, startIndex, length);
 
 			int index = startIndex;
 
 			TryParse (options, buffer, ref index, startIndex + length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
@@ -787,13 +756,13 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer, int startIndex)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			ArgumentValidator.Validate (options, buffer, startIndex);
 
 			int index = startIndex;
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
@@ -838,13 +807,13 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, byte[] buffer)
 		{
-			ParseUtils.ValidateArguments (options, buffer);
+			ArgumentValidator.Validate (options, buffer);
 
 			int index = 0;
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>
@@ -885,14 +854,14 @@ namespace MimeKit {
 		/// </exception>
 		public static ContentType Parse (ParserOptions options, string text)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			ArgumentValidator.Validate (options, text);
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 			int index = 0;
 
 			TryParse (options, buffer, ref index, buffer.Length, true, out var type);
 
-			return type;
+			return type!; // we throw on error
 		}
 
 		/// <summary>

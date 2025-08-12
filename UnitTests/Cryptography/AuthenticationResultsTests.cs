@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -54,10 +54,10 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.Parse (buffer, -1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.Parse (buffer, 0, -1));
 
-			Assert.Throws<ArgumentNullException> (() => AuthenticationResults.TryParse (null, out authres));
-			Assert.Throws<ArgumentNullException> (() => AuthenticationResults.TryParse (null, 0, 0, out authres));
-			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.TryParse (buffer, -1, 0, out authres));
-			Assert.Throws<ArgumentOutOfRangeException> (() => AuthenticationResults.TryParse (buffer, 0, -1, out authres));
+			Assert.That (AuthenticationResults.TryParse (null, out authres), Is.False);
+			Assert.That (AuthenticationResults.TryParse (null, 0, 0, out authres), Is.False);
+			Assert.That (AuthenticationResults.TryParse (buffer, -1, 0, out authres), Is.False);
+			Assert.That (AuthenticationResults.TryParse (buffer, 0, -1, out authres), Is.False);
 		}
 
 		[Test]

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
-		string ContentDescription {
+		string? ContentDescription {
 			get; set;
 		}
 
@@ -85,7 +85,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
-		string ContentMd5 {
+		string? ContentMd5 {
 			get; set;
 		}
 
@@ -128,7 +128,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
-		string FileName {
+		string? FileName {
 			get; set;
 		}
 
@@ -142,7 +142,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The MIME content.</value>
-		IMimeContent Content {
+		IMimeContent? Content {
 			get; set;
 		}
 
@@ -216,10 +216,10 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Computes the MD5 checksum of the MIME content and compares it with the
-		/// value in the Content-MD5 header, returning <c>true</c> if and only if
+		/// value in the Content-MD5 header, returning <see langword="true" /> if and only if
 		/// the values match.
 		/// </remarks>
-		/// <returns><c>true</c>, if content MD5 checksum was verified, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if content MD5 checksum was verified; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>

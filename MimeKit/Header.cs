@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-
-#nullable enable
 
 using System;
 using System.Text;
@@ -312,9 +310,9 @@ namespace MimeKit {
 		/// <param name="field">The raw header field.</param>
 		/// <param name="fieldNameLength">The length of the field name (not including trailing whitespace).</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
+		/// <param name="invalid"><see langword="true" /> if the header field is invalid; otherwise, <see langword="false" />.</param>
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		internal protected Header (ParserOptions options, byte[] field, int fieldNameLength, byte[] value, bool invalid)
 		{
@@ -345,9 +343,9 @@ namespace MimeKit {
 		/// <param name="options">The parser options used.</param>
 		/// <param name="field">The raw header field.</param>
 		/// <param name="value">The raw value of the header.</param>
-		/// <param name="invalid"><c>true</c> if the header field is invalid; otherwise, <c>false</c>.</param>
+		/// <param name="invalid"><see langword="true" /> if the header field is invalid; otherwise, <see langword="false" />.</param>
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		internal protected Header (ParserOptions options, byte[] field, byte[] value, bool invalid)
 		{
@@ -757,7 +755,7 @@ namespace MimeKit {
 		{
 			var buffer = Encoding.UTF8.GetBytes (value);
 
-			if (!AuthenticationResults.TryParse (buffer, out AuthenticationResults authres))
+			if (!AuthenticationResults.TryParse (buffer, out AuthenticationResults? authres))
 				return EncodeUnstructuredHeader (options, format, encoding, field, value);
 
 			var encoded = new StringBuilder ();
@@ -1310,7 +1308,7 @@ namespace MimeKit {
 		/// <para>This method is called by the <a href="Overload_MimeKit_Header_SetValue.htm">SetValue</a>
 		/// methods.</para>
 		/// <para>This method should encode unicode characters according to the rules of rfc2047 (when
-		/// <see cref="FormatOptions.International"/> is <c>false</c>) as well as properly folding the
+		/// <see cref="FormatOptions.International"/> is <see langword="false" />) as well as properly folding the
 		/// value to conform with rfc5322.</para>
 		/// </remarks>
 		/// <param name="format">The formatting options.</param>
@@ -1336,6 +1334,7 @@ namespace MimeKit {
 				return EncodeAddressHeader (Options, format, encoding, Field, value);
 			case HeaderId.Received:
 				return EncodeReceivedHeader (Options, format, encoding, Field, value);
+			case HeaderId.OriginalMessageId:
 			case HeaderId.ResentMessageId:
 			case HeaderId.InReplyTo:
 			case HeaderId.MessageId:
@@ -1389,6 +1388,7 @@ namespace MimeKit {
 				case HeaderId.Received:
 					// Note: Received headers should never be reformatted.
 					return rawValue;
+				case HeaderId.OriginalMessageId:
 				case HeaderId.ResentMessageId:
 				case HeaderId.InReplyTo:
 				case HeaderId.MessageId:
@@ -1610,7 +1610,7 @@ namespace MimeKit {
 		/// <returns>The unfolded header value.</returns>
 		/// <param name="text">The header text.</param>
 #if NET5_0_OR_GREATER
-		[System.Runtime.CompilerServices.SkipLocalsInit]
+		[SkipLocalsInit]
 #endif
 		public static string Unfold (string text)
 		{
@@ -1739,24 +1739,18 @@ namespace MimeKit {
 		/// Parses a header from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out Header? header)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex, length);
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
+				header = null;
+				return false;
+			}
 
 			unsafe {
 				fixed (byte* inptr = buffer) {
@@ -1772,19 +1766,12 @@ namespace MimeKit {
 		/// Parses a header from the supplied buffer starting at the given index
 		/// and spanning across the specified number of bytes.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the byte array.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen(true)] out Header? header)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out header);
 		}
@@ -1795,22 +1782,17 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen(true)] out Header? header)
 		{
-			ParseUtils.ValidateArguments (options, buffer, startIndex);
+			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
+				header = null;
+				return false;
+			}
 
 			int length = buffer.Length - startIndex;
 
@@ -1827,17 +1809,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the supplied buffer starting at the specified index.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> is out of range.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, int startIndex, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen(true)] out Header? header)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out header);
 		}
@@ -1848,16 +1824,11 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="buffer"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, byte[] buffer, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen(true)] out Header? header)
 		{
 			return TryParse (options, buffer, 0, out header);
 		}
@@ -1868,13 +1839,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified buffer.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (byte[] buffer, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen(true)] out Header? header)
 		{
 			return TryParse (ParserOptions.Default, buffer, out header);
 		}
@@ -1885,18 +1853,16 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="text"/> is <see langword="null"/>.</para>
-		/// </exception>
-		public static bool TryParse (ParserOptions options, string text, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen(true)] out Header? header)
 		{
-			ParseUtils.ValidateArguments (options, text);
+			if (!ArgumentValidator.TryValidate (options, text)) {
+				header = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
 
@@ -1913,13 +1879,10 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a header from the specified text.
 		/// </remarks>
-		/// <returns><c>true</c>, if the header was successfully parsed, <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if the header was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="header">The parsed header.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, [NotNullWhen (true)] out Header? header)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out Header? header)
 		{
 			return TryParse (ParserOptions.Default, text, out header);
 		}

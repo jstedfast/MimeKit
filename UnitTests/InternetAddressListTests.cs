@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -829,12 +829,12 @@ namespace UnitTests {
 		[TestCase (RfcComplianceMode.Strict, false)]
 		[TestCase (RfcComplianceMode.Loose, false)]
 		[TestCase (RfcComplianceMode.Looser, true)]
-		public void TestParseMailboxWithEscapedAtSymbol (RfcComplianceMode compliance, bool espected)
+		public void TestParseMailboxWithEscapedAtSymbol (RfcComplianceMode compliance, bool expected)
 		{
 			const string text = "First Last <webmaster\\@custom-domain.com@mail-host.com>";
 			var options = new ParserOptions { AddressParserComplianceMode = compliance };
 
-			if (espected) {
+			if (expected) {
 				Assert.That (InternetAddressList.TryParse (options, text, out var list), Is.True);
 				Assert.That (list.Count, Is.EqualTo (1));
 				Assert.That (list[0], Is.InstanceOf<MailboxAddress> ());
@@ -901,6 +901,31 @@ namespace UnitTests {
 		}
 
 		[Test]
+		[Ignore ("Address parser consumes the entire string as an unterminated comment")]
+		public void TestParseMailboxWithUnbalancedOpenParenthesis ()
+		{
+			const string text = "(Testing <fran@example.com>";
+			const string encoded = "Testing <fran@example.com>";
+			var expected = new InternetAddressList {
+				new MailboxAddress ("Testing", "fran@example.com")
+			};
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithUnbalancedClosedParenthesis ()
+		{
+			const string text = "Testing) <sam@example.com>";
+			const string encoded = "\"Testing)\" <sam@example.com>";
+			var expected = new InternetAddressList {
+				new MailboxAddress ("Testing)", "sam@example.com")
+			};
+
+			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		[Test]
 		public void TestParseMailboxWithUnbalancedQuotes ()
 		{
 			const string text = "\"Joe <joe@example.com>";
@@ -935,6 +960,192 @@ namespace UnitTests {
 			};
 
 			AssertParseAndTryParse (text, encoded, expected);
+		}
+
+		#endregion
+
+		#region Test cases from https://blog.slonser.info/posts/email-attacks/
+
+		[Test]
+		public void TestParseSuspiciousMailbox1 ()
+		{
+			const string suspicious = "<user@[domain.com\r\n <img src=x onerror=alert()>]>";
+			const string encoded = "user@[domain.com<imgsrc=xonerror=alert()>]";
+			var expected = new InternetAddressList {
+				new MailboxAddress (string.Empty, "user@[domain.com<imgsrc=xonerror=alert()>]")
+			};
+
+			AssertParseAndTryParse (suspicious, encoded, expected);
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousMailbox2 (RfcComplianceMode compliance)
+		{
+			const string suspicious = "<user@[domain.com]\x00\r\n]>";
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+
+			Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousMailbox3 (RfcComplianceMode compliance)
+		{
+			const string suspicious = "<user@[::1>\"\\[:<h1>user@gmail.com,русский?]>";
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+
+			Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousMailbox4 (RfcComplianceMode compliance)
+		{
+			const string suspicious = "user@spoofed-domain.com <user@legit-domain.com>";
+			const string encoded = "\"user@spoofed-domain.com\" <user@legit-domain.com>";
+
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+			var expected = new InternetAddressList {
+				new MailboxAddress ("user@spoofed-domain.com", "user@legit-domain.com")
+			};
+
+			if (compliance == RfcComplianceMode.Strict) {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+			} else {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out var list), Is.True);
+				AssertInternetAddressListsEqual (encoded, expected, list);
+			}
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousMailbox5 (RfcComplianceMode compliance)
+		{
+			// Note: This absolutely needs to fail in Strict mode, but we might want to try to "make sense of it" for Loose mode.
+			const string suspicious = "<user@spoofed-domain.com> <user@legit-domain.com>";
+			const string encoded = "user@spoofed-domain.com, user@legit-domain.com";
+
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+			var expected = new InternetAddressList {
+				new MailboxAddress (string.Empty, "user@spoofed-domain.com"),
+				new MailboxAddress (string.Empty, "user@legit-domain.com")
+			};
+
+			if (compliance == RfcComplianceMode.Strict) {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+			} else {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out var list), Is.True);
+				AssertInternetAddressListsEqual (encoded, expected, list);
+			}
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousMailbox6 (RfcComplianceMode compliance)
+		{
+			// Note: This absolutely needs to fail in Strict mode, but we might want to try to "make sense of it" for Loose mode.
+			const string suspicious = "<user@spoofed-domain.com> \"spoofed\" <user@legit-domain.com>";
+			const string encoded = "user@spoofed-domain.com, spoofed <user@legit-domain.com>";
+
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+			var expected = new InternetAddressList {
+				new MailboxAddress (string.Empty, "user@spoofed-domain.com"),
+				new MailboxAddress ("spoofed", "user@legit-domain.com")
+			};
+
+			if (compliance == RfcComplianceMode.Strict) {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+			} else {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out var list), Is.True);
+				AssertInternetAddressListsEqual (encoded, expected, list);
+			}
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousGroup1 (RfcComplianceMode compliance)
+		{
+			// Note: This absolutely needs to fail in Strict mode, but for Loose mode, I'm not sure how we want to treat this.
+			//
+			// Currently, we treat it as a mailbox followed by a group with an empty name that contains the other mailbox:
+			// e.g.: user@spoofed-domain.com, "": user@legit-domain.com;
+			//
+			// Another approach would be to treat the first addr-spec as if it were a group name:
+			// e.g.: "user@spoofed-domain.com": user@legit-domain.com;
+			const string suspicious = "user@spoofed-domain.com: user@legit-domain.com;";
+			const string encoded = "user@spoofed-domain.com, : user@legit-domain.com;";
+
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+			var expected = new InternetAddressList {
+				new MailboxAddress (string.Empty, "user@spoofed-domain.com"),
+				new GroupAddress (string.Empty, new InternetAddress[] {
+					new MailboxAddress (string.Empty, "user@legit-domain.com")
+				})
+			};
+
+			if (compliance == RfcComplianceMode.Strict) {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+			} else {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out var list), Is.True);
+				AssertInternetAddressListsEqual (encoded, expected, list);
+			}
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousGroup2 (RfcComplianceMode compliance)
+		{
+			// Note: This absolutely needs to fail in Strict mode, but for Loose mode, I'm not sure how we want to treat this.
+			//
+			// Currently, we treat it as a mailbox followed by a group with an empty name that contains the other mailbox:
+			// e.g.: <user@spoofed-domain.com>, "": <user@legit-domain.com>;
+			//
+			// Another approach would be to treat the first addr-spec as if it were a group name:
+			// e.g.: "<user@spoofed-domain.com>": <user@legit-domain.com>;
+			const string suspicious = "<user@spoofed-domain.com>: <user@legit-domain.com>;";
+			const string encoded = "user@spoofed-domain.com, : user@legit-domain.com;";
+
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+			var expected = new InternetAddressList {
+				new MailboxAddress (string.Empty, "user@spoofed-domain.com"),
+				new GroupAddress (string.Empty, new InternetAddress[] {
+					new MailboxAddress (string.Empty, "user@legit-domain.com")
+				})
+			};
+
+			if (compliance == RfcComplianceMode.Strict) {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out _), Is.False);
+			} else {
+				Assert.That (InternetAddressList.TryParse (options, suspicious, out var list), Is.True);
+				AssertInternetAddressListsEqual (encoded, expected, list);
+			}
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestParseSuspiciousGroup3 (RfcComplianceMode compliance)
+		{
+			const string suspicious = "\"user@spoofed-domain.com\": user@legit-domain.com;";
+			const string encoded = "\"user@spoofed-domain.com\": user@legit-domain.com;";
+
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+			var expected = new InternetAddressList {
+				new GroupAddress ("user@spoofed-domain.com", new InternetAddress[] {
+					new MailboxAddress (string.Empty, "user@legit-domain.com")
+				})
+			};
+
+			Assert.That (InternetAddressList.TryParse (options, suspicious, out var list), Is.True);
+			AssertInternetAddressListsEqual (encoded, expected, list);
 		}
 
 		#endregion

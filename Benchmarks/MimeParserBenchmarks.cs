@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,12 +33,11 @@ using BenchmarkDotNet.Attributes;
 using MimeKit;
 
 namespace Benchmarks {
-    public class MimeParserBenchmarks
-    {
+	public class MimeParserBenchmarks
+	{
 		static readonly string MessagesDataDir = Path.Combine (BenchmarkHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "mbox");
-		const string MessageHeaderStressTest = @"From - 
-Return-Path: <info@someserver>
+		const string MessageHeaderStressTest = @"Return-Path: <info@someserver>
 Received: from maleman.mcom.com (maleman.mcom.com [198.93.92.3]) by urchin.netscape.com (8.6.12/8.6.9) with ESMTP id EAA18301; Thu, 25 Apr 1996 04:30:51 -0700
 Received: from ns.netscape.com (ns.netscape.com.mcom.com [198.95.251.10]) by maleman.mcom.com (8.6.9/8.6.9) with ESMTP id EAA01168; Thu, 25 Apr 1996 04:29:58 -0700
 Received: from RSA.COM (RSA.COM [192.80.211.33]) by ns.netscape.com (8.7.3/8.7.3) with SMTP id EAA17575; Thu, 25 Apr 1996 04:29:05 -0700 (PDT)
@@ -110,192 +109,165 @@ header parser.
 
 ";
 		static readonly byte[] MessageHeaderStressTestData = Encoding.ASCII.GetBytes (MessageHeaderStressTest);
+		static readonly byte[] StarTrekData = File.ReadAllBytes (Path.Combine (MessagesDataDir, "startrek.eml"));
+		static readonly byte[] ContentLengthMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "content-length.mbox.txt"));
+		static readonly byte[] JwzMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "jwz.mbox.txt"));
 
 		#region MimeParser
 
-		static void MimeParserSingleMessage (string fileName, bool persistent = false)
+		static void MimeParserSingleMessage (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
-
-			for (int i = 0; i < 1000; i++) {
-				parser.ParseMessage ();
-
-				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity, persistent);
-			}
+			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		[Benchmark]
 		public void MimeParser_StarTrekMessage ()
 		{
-			MimeParserSingleMessage ("startrek.eml");
+			MimeParserSingleMessage (StarTrekData);
 		}
 
 		[Benchmark]
 		public void MimeParser_StarTrekMessagePersistent ()
 		{
-			MimeParserSingleMessage ("startrek.eml", true);
+			MimeParserSingleMessage (StarTrekData, true);
 		}
 
-		static void MimeParserMboxFile (string fileName, bool persistent = false)
+		static void MimeParserMboxFile (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MboxDataDir, fileName);
-
-			using var stream = File.OpenRead (path);
-			using var looped = new LoopedInputStream (stream, 10);
-			var parser = new MimeParser (looped, MimeFormat.Mbox, persistent);
+			using var stream = new MemoryStream (data, false);
+			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
+				var message = parser.ParseMessage ();
+				message.Dispose ();
 			}
 		}
 
 		[Benchmark]
 		public void MimeParser_ContentLengthMbox ()
 		{
-			MimeParserMboxFile ("content-length.mbox.txt");
+			MimeParserMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
 		public void MimeParser_ContentLengthMboxPersistent ()
 		{
-			MimeParserMboxFile ("content-length.mbox.txt", true);
+			MimeParserMboxFile (ContentLengthMboxData, true);
 		}
 
 		[Benchmark]
 		public void MimeParser_JwzMbox ()
 		{
-			MimeParserMboxFile ("jwz.mbox.txt");
+			MimeParserMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
 		public void MimeParser_JwzMboxPersistent ()
 		{
-			MimeParserMboxFile ("jwz.mbox.txt", true);
+			MimeParserMboxFile (JwzMboxData, true);
 		}
 
 		[Benchmark]
 		public void MimeParser_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			using var looped = new LoopedInputStream (stream, 1000);
-			var parser = new MimeParser (looped, MimeFormat.Mbox, true);
-
-			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
-			}
+			var parser = new MimeParser (stream, MimeFormat.Entity, true);
+			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		#endregion MimeParser
 
 		#region ExperimentalMimeParser
 
-		static void ExperimentalMimeParserSingleMessage (string fileName, bool persistent = false)
+		static void ExperimentalMimeParserSingleMessage (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
-
-			for (int i = 0; i < 1000; i++) {
-				parser.ParseMessage ();
-
-				stream.Position = 0;
-				parser.SetStream (stream, MimeFormat.Entity, persistent);
-			}
+			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_StarTrekMessage ()
 		{
-			ExperimentalMimeParserSingleMessage ("startrek.eml");
+			ExperimentalMimeParserSingleMessage (StarTrekData);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_StarTrekMessagePersistent ()
 		{
-			ExperimentalMimeParserSingleMessage ("startrek.eml", true);
+			ExperimentalMimeParserSingleMessage (StarTrekData, true);
 		}
 
-		static void ExperimentalMimeParserMboxFile (string fileName, bool persistent = false)
+		static void ExperimentalMimeParserMboxFile (byte[] data, bool persistent = false)
 		{
-			var path = Path.Combine (MboxDataDir, fileName);
-			using var stream = File.OpenRead (path);
-			using var looped = new LoopedInputStream (stream, 10);
-			var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, persistent);
+			using var stream = new MemoryStream (data, false);
+			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
+				var message = parser.ParseMessage ();
+				message.Dispose ();
 			}
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_ContentLengthMbox ()
 		{
-			ExperimentalMimeParserMboxFile ("content-length.mbox.txt");
+			ExperimentalMimeParserMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_ContentLengthMboxPersistent ()
 		{
-			ExperimentalMimeParserMboxFile ("content-length.mbox.txt", true);
+			ExperimentalMimeParserMboxFile (ContentLengthMboxData, true);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_JwzMbox ()
 		{
-			ExperimentalMimeParserMboxFile ("jwz.mbox.txt");
+			ExperimentalMimeParserMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_JwzMboxPersistent ()
 		{
-			ExperimentalMimeParserMboxFile ("jwz.mbox.txt", true);
+			ExperimentalMimeParserMboxFile (JwzMboxData, true);
 		}
 
 		[Benchmark]
 		public void ExperimentalMimeParser_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			using var looped = new LoopedInputStream (stream, 1000);
-			var parser = new ExperimentalMimeParser (looped, MimeFormat.Mbox, true);
-
-			while (!parser.IsEndOfStream) {
-				parser.ParseMessage ();
-			}
+			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, true);
+			var message = parser.ParseMessage ();
+			message.Dispose ();
 		}
 
 		#endregion ExperimentalMimeParser
 
 		#region MimeReader
 
-		static void MimeReaderSingleMessage (string fileName)
+		static void MimeReaderSingleMessage (byte[] data)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
-			using var stream = File.OpenRead (path);
+			using var stream = new MemoryStream (data, false);
 			var reader = new MimeReader (stream, MimeFormat.Entity);
-
-			for (int i = 0; i < 1000; i++) {
-				reader.ReadMessage ();
-
-				stream.Position = 0;
-				reader.SetStream (stream, MimeFormat.Entity);
-			}
+			reader.ReadMessage ();
 		}
 
 		[Benchmark]
 		public void MimeReader_StarTrekMessage ()
 		{
-			MimeReaderSingleMessage ("startrek.eml");
+			MimeReaderSingleMessage (StarTrekData);
 		}
 
-		static void MimeReaderMboxFile (string fileName)
+		static void MimeReaderMboxFile (byte[] data)
 		{
-			var path = Path.Combine (MboxDataDir, fileName);
-			using var stream = File.OpenRead (path);
-			using var looped = new LoopedInputStream (stream, 10);
-			var reader = new MimeReader (looped, MimeFormat.Mbox);
+			using var stream = new MemoryStream (data, false);
+			var reader = new MimeReader (stream, MimeFormat.Mbox);
 
 			while (!reader.IsEndOfStream) {
 				reader.ReadMessage ();
@@ -305,25 +277,22 @@ header parser.
 		[Benchmark]
 		public void MimeReader_ContentLengthMbox ()
 		{
-			MimeReaderMboxFile ("content-length.mbox.txt");
+			MimeReaderMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
 		public void MimeReader_JwzMbox ()
 		{
-			MimeReaderMboxFile ("jwz.mbox.txt");
+			MimeReaderMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
 		public void MimeReader_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			using var looped = new LoopedInputStream (stream, 1000);
-			var reader = new MimeReader (looped, MimeFormat.Mbox);
+			var reader = new MimeReader (stream, MimeFormat.Entity);
 
-			while (!reader.IsEndOfStream) {
-				reader.ReadMessage ();
-			}
+			reader.ReadMessage ();
 		}
 
 		#endregion

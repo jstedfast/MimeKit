@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -57,10 +57,10 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="AttachmentCollection"/>.</para>
-		/// <para>If <paramref name="linkedResources"/> is <c>true</c>, then the attachments
+		/// <para>If <paramref name="linkedResources"/> is <see langword="true" />, then the attachments
 		/// are treated as if they are linked to another <see cref="MimePart"/>.</para>
 		/// </remarks>
-		/// <param name="linkedResources">If set to <c>true</c>; the attachments are treated as linked resources.</param>
+		/// <param name="linkedResources">If set to <see langword="true" />; the attachments are treated as linked resources.</param>
 		public AttachmentCollection (bool linkedResources)
 		{
 			attachments = new List<MimeEntity> ();
@@ -96,7 +96,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="AttachmentCollection"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if the collection is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if the collection is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -138,7 +138,7 @@ namespace MimeKit {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Stream content = copyStream ? new MemoryBlockStream () : null;
+			Stream? copiedContent = copyStream ? new MemoryBlockStream () : null;
 
 			try {
 				if (attachment.ContentType.IsMimeType ("text", "*")) {
@@ -151,7 +151,7 @@ namespace MimeKit {
 						while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
 							cancellationToken.ThrowIfCancellationRequested ();
 							filter.Filter (buf, 0, nread, out index, out length);
-							content?.Write (buf, 0, nread);
+							copiedContent?.Write (buf, 0, nread);
 						}
 
 						filter.Flush (buf, 0, 0, out index, out length);
@@ -163,18 +163,19 @@ namespace MimeKit {
 				} else {
 					attachment.ContentTransferEncoding = ContentEncoding.Base64;
 
-					if (copyStream)
-						stream.CopyTo (content, 4096);
+					if (copiedContent != null)
+						stream.CopyTo (copiedContent, 4096);
 				}
 
-				if (copyStream)
-					content.Position = 0;
+				if (copiedContent != null)
+					copiedContent.Position = 0;
 				else
 					stream.Position = 0;
 
-				attachment.Content = new MimeContent (copyStream ? content : stream);
+				attachment.Content = new MimeContent (copiedContent ?? stream);
 			} catch {
-				content?.Dispose ();
+				attachment.Dispose ();
+				copiedContent?.Dispose ();
 				throw;
 			}
 		}
@@ -183,7 +184,7 @@ namespace MimeKit {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Stream content = copyStream ? new MemoryBlockStream () : null;
+			Stream? copiedContent = copyStream ? new MemoryBlockStream () : null;
 
 			try {
 				if (attachment.ContentType.IsMimeType ("text", "*")) {
@@ -196,7 +197,7 @@ namespace MimeKit {
 						while ((nread = await stream.ReadAsync (buf, 0, BufferLength, cancellationToken).ConfigureAwait (false)) > 0) {
 							cancellationToken.ThrowIfCancellationRequested ();
 							filter.Filter (buf, 0, nread, out index, out length);
-							content?.Write (buf, 0, nread);
+							copiedContent?.Write (buf, 0, nread);
 						}
 
 						filter.Flush (buf, 0, 0, out index, out length);
@@ -208,18 +209,19 @@ namespace MimeKit {
 				} else {
 					attachment.ContentTransferEncoding = ContentEncoding.Base64;
 
-					if (copyStream)
-						await stream.CopyToAsync (content, 4096, cancellationToken).ConfigureAwait (false);
+					if (copiedContent != null)
+						await stream.CopyToAsync (copiedContent, 4096, cancellationToken).ConfigureAwait (false);
 				}
 
-				if (copyStream)
-					content.Position = 0;
+				if (copiedContent != null)
+					copiedContent.Position = 0;
 				else
 					stream.Position = 0;
 
-				attachment.Content = new MimeContent (copyStream ? content : stream);
+				attachment.Content = new MimeContent (copiedContent ?? stream);
 			} catch {
-				content?.Dispose ();
+				attachment.Dispose ();
+				copiedContent?.Dispose ();
 				throw;
 			}
 		}
@@ -241,7 +243,7 @@ namespace MimeKit {
 		MimeEntity CreateAttachment (ContentType contentType, bool autoDetected, string path, Stream stream, bool copyStream, CancellationToken cancellationToken)
 		{
 			var fileName = GetFileName (path);
-			MimeEntity attachment = null;
+			MimeEntity? attachment = null;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
 				long position = stream.CanSeek ? stream.Position : 0;
@@ -292,7 +294,7 @@ namespace MimeKit {
 		async Task<MimeEntity> CreateAttachmentAsync (ContentType contentType, bool autoDetected, string path, Stream stream, bool copyStream, CancellationToken cancellationToken)
 		{
 			var fileName = GetFileName (path);
-			MimeEntity attachment = null;
+			MimeEntity? attachment = null;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
 				long position = stream.CanSeek ? stream.Position : 0;
@@ -848,7 +850,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all attachments from the collection, optionally disposing them in the process.
 		/// </remarks>
-		/// <param name="dispose"><c>true</c> if all the attachments should be disposed; otherwise, <c>false</c>.</param>
+		/// <param name="dispose"><see langword="true" /> if all the attachments should be disposed; otherwise, <see langword="false" />.</param>
 		public void Clear (bool dispose)
 		{
 			if (dispose) {
@@ -865,8 +867,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the collection contains the specified attachment.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified attachment exists;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified attachment exists;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <see langword="null"/>.
@@ -955,7 +957,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the specified attachment.
 		/// </remarks>
-		/// <returns><value>true</value> if the attachment was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the attachment was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="attachment">The attachment.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="attachment"/> is <see langword="null"/>.

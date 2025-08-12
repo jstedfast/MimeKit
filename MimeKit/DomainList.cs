@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ using System.Globalization;
 using System.Collections.Generic;
 
 using MimeKit.Utils;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -41,7 +42,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class DomainList : IList<string>
 	{
-		readonly static byte[] DomainSentinels = new [] { (byte) ',', (byte) ':' };
+		readonly static byte[] DomainSentinels = new[] { (byte) ',', (byte) ':' };
 		IList<string> domains;
 
 		/// <summary>
@@ -210,8 +211,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// Determines whether the domain list contains the specified domain.
 		/// </remarks>
-		/// <returns><value>true</value> if the specified domain is contained;
-		/// otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the specified domain is contained;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <see langword="null"/>.
@@ -250,7 +251,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first instance of the specified domain from the list if it exists.
 		/// </remarks>
-		/// <returns><value>true</value> if the domain was removed; otherwise <value>false</value>.</returns>
+		/// <returns><see langword="true" /> if the domain was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="domain">The domain.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <see langword="null"/>.
@@ -285,7 +286,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// A <see cref="DomainList"/> is never read-only.
 		/// </remarks>
-		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
+		/// <value><see langword="true" /> if this instance is read only; otherwise, <see langword="false" />.</value>
 		public bool IsReadOnly {
 			get { return false; }
 		}
@@ -376,7 +377,7 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
 		void OnChanged ()
 		{
@@ -391,15 +392,15 @@ namespace MimeKit {
 		/// specified index. The index will only be updated if a <see cref="DomainList"/> was
 		/// successfully parsed.
 		/// </remarks>
-		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
-		/// <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if a <see cref="DomainList"/> was successfully parsed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The buffer to parse.</param>
 		/// <param name="index">The index to start parsing.</param>
 		/// <param name="endIndex">An index of the end of the input.</param>
 		/// <param name="throwOnError">A flag indicating whether an
 		/// exception should be thrown on error.</param>
 		/// <param name="route">The parsed DomainList.</param>
-		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, out DomainList route)
+		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out DomainList? route)
 		{
 			var domains = new List<string> ();
 			int startIndex = index;
@@ -449,21 +450,19 @@ namespace MimeKit {
 		/// Attempts to parse a <see cref="DomainList"/> from the supplied text. The index
 		/// will only be updated if a <see cref="DomainList"/> was successfully parsed.
 		/// </remarks>
-		/// <returns><c>true</c> if a <see cref="DomainList"/> was successfully parsed;
-		/// <c>false</c> otherwise.</returns>
+		/// <returns><see langword="true" /> if a <see cref="DomainList"/> was successfully parsed;
+		/// otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="route">The parsed DomainList.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
-		public static bool TryParse (string text, out DomainList route)
+		public static bool TryParse (string? text, [NotNullWhen(true)] out DomainList? route)
 		{
-			int index = 0;
-
-			if (text is null)
-				throw new ArgumentNullException (nameof (text));
+			if (text is null) {
+				route = null;
+				return false;
+			}
 
 			var buffer = Encoding.UTF8.GetBytes (text);
+			int index = 0;
 
 			return TryParse (buffer, ref index, buffer.Length, false, out route);
 		}

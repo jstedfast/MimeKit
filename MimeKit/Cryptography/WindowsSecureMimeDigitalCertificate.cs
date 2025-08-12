@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2024 .NET Foundation and Contributors
+// Copyright (c) 2013-2025 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 		#region IDigitalCertificate implementation
 
 		/// <summary>
-		/// Gets the public key algorithm supported by the certificate.
+		/// Get the public key algorithm supported by the certificate.
 		/// </summary>
 		/// <remarks>
 		/// Gets the public key algorithm supported by the certificate.
@@ -89,7 +89,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the date that the certificate was created.
+		/// Get the date that the certificate was created.
 		/// </summary>
 		/// <remarks>
 		/// Gets the date that the certificate was created.
@@ -100,7 +100,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the expiration date of the certificate.
+		/// Get the expiration date of the certificate.
 		/// </summary>
 		/// <remarks>
 		/// Gets the expiration date of the certificate.
@@ -111,7 +111,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the fingerprint of the certificate.
+		/// Get the fingerprint of the certificate.
 		/// </summary>
 		/// <remarks>
 		/// Gets the fingerprint of the certificate.
@@ -122,7 +122,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the email address of the owner of the certificate.
+		/// Get the email address of the owner of the certificate.
 		/// </summary>
 		/// <remarks>
 		/// Gets the email address of the owner of the certificate.
@@ -133,7 +133,18 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the name of the owner of the certificate.
+		/// Get the DNS names of the owner of the certificate.
+		/// </summary>
+		/// <remarks>
+		/// Gets the DNS names of the owner of the certificate.
+		/// </remarks>
+		/// <value>The DNS name.</value>
+		public string[] DnsNames {
+			get { return Certificate.GetSubjectDnsNames (false); }
+		}
+
+		/// <summary>
+		/// Get the name of the owner of the certificate.
 		/// </summary>
 		/// <remarks>
 		/// Gets the name of the owner of the certificate.
