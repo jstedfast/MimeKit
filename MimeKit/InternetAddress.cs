@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-#nullable enable
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;

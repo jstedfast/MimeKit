@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-#nullable enable
-
 #if ENABLE_CRYPTO
 using MimeKit.Cryptography;
 #endif
