@@ -508,7 +508,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be matched; otherwise, <see langword="false" />.</param>
 		/// <param name="requirePrivateKey"><see langword="true" /> if the certificate must have a private key; otherwise, <see langword="false" />.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected override DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
+		protected override DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate>? selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			var command = CreateCommand ();
 			var query = CreateSelectQuery (fields);
@@ -561,10 +561,10 @@ namespace MimeKit.Cryptography {
 					query = query.Append (CertificateColumnNames.IssuerName).Append (" = @ISSUERNAME");
 				}
 
-				if (match.SerialNumber != null || match.Certificate != null) {
+				var serialNumber = match.SerialNumber ?? match.Certificate?.SerialNumber;
+				if (serialNumber != null) {
 					// Note: GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
 					// queries for ISSUERNAME, SERIALNUMBER, and FINGERPRINT so we'll do the same.
-					var serialNumber = match.SerialNumber ?? match.Certificate.SerialNumber;
 
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");

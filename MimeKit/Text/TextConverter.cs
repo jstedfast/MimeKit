@@ -202,7 +202,7 @@ namespace MimeKit.Text {
 		/// <para>The footer must be set before conversion begins.</para>
 		/// </remarks>
 		/// <value>The footer.</value>
-		public string Footer {
+		public string? Footer {
 			get; set;
 		}
 
@@ -214,7 +214,7 @@ namespace MimeKit.Text {
 		/// <para>The header must be set before conversion begins.</para>
 		/// </remarks>
 		/// <value>The header.</value>
-		public string Header {
+		public string? Header {
 			get; set;
 		}
 

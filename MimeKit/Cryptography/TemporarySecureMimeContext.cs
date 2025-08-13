@@ -139,7 +139,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected override X509Certificate GetCertificate (ISelector<X509Certificate> selector)
+		protected override X509Certificate? GetCertificate (ISelector<X509Certificate> selector)
 		{
 			if (selector == null && certificates.Count > 0)
 				return certificates[0];
@@ -160,7 +160,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected override AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector)
+		protected override AsymmetricKeyParameter? GetPrivateKey (ISelector<X509Certificate> selector)
 		{
 			foreach (var certificate in certificates) {
 				var fingerprint = certificate.GetFingerprint ();
@@ -263,7 +263,7 @@ namespace MimeKit.Cryptography {
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate domainCertificate = null;
+			X509Certificate? domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -333,13 +333,13 @@ namespace MimeKit.Cryptography {
 			return recipient;
 		}
 
-		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter key)
+		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter? key)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate domainCertificate = null;
-			AsymmetricKeyParameter domainKey = null;
+			X509Certificate? domainCertificate = null;
+			AsymmetricKeyParameter? domainKey = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {

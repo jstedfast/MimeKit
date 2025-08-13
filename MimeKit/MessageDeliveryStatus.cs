@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -45,7 +46,7 @@ namespace MimeKit {
 	/// </example>
 	public class MessageDeliveryStatus : MimePart, IMessageDeliveryStatus
 	{
-		HeaderListCollection groups;
+		HeaderListCollection? groups;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessageDeliveryStatus"/> class.
@@ -106,7 +107,7 @@ namespace MimeKit {
 						Content = new MimeContent (new MemoryBlockStream ());
 						groups = new HeaderListCollection ();
 					} else {
-						ParseStatusGroups ();
+						ParseStatusGroups (Content);
 					}
 
 					groups.Changed += OnGroupsChanged;
@@ -116,12 +117,13 @@ namespace MimeKit {
 			}
 		}
 
-		void ParseStatusGroups ()
+		[MemberNotNull (nameof (groups))]
+		void ParseStatusGroups (IMimeContent content)
 		{
 			groups = new HeaderListCollection ();
 
 			try {
-				using (var stream = Content.Open ()) {
+				using (var stream = content.Open ()) {
 					var parser = new MimeParser (stream, MimeFormat.Entity);
 					var encoding = ContentEncoding.Default;
 
@@ -153,8 +155,8 @@ namespace MimeKit {
 					if (encoding != ContentEncoding.Default) {
 						// This means that the remainder of the Status Groups have been encoded, so we'll need to decode
 						// the rest of the content stream in order to parse them.
-						using (var content = parser.ReadToEos ()) {
-							using (var filtered = new FilteredStream (content)) {
+						using (var rawContent = parser.ReadToEos ()) {
+							using (var filtered = new FilteredStream (rawContent)) {
 								filtered.Add (DecoderFilter.Create (encoding));
 								parser.SetStream (filtered, MimeFormat.Entity);
 
@@ -170,13 +172,14 @@ namespace MimeKit {
 			}
 		}
 
-		void OnGroupsChanged (object sender, EventArgs e)
+		void OnGroupsChanged (object? sender, EventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
 			try {
-				for (int i = 0; i < groups.Count; i++)
+				// Note: groups cannot be null if an event handler is registered to its Changed event
+				for (int i = 0; i < groups!.Count; i++)
 					groups[i].WriteTo (options, stream);
 
 				stream.Position = 0;

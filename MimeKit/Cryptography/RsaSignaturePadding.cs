@@ -77,7 +77,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="other">The <see cref="RsaSignaturePadding"/> to compare with the current <see cref="RsaSignaturePadding"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="RsaSignaturePadding"/> is equal to the current
 		/// <see cref="RsaSignaturePadding"/>; otherwise, <see langword="false" />.</returns>
-		public bool Equals (RsaSignaturePadding other)
+		public bool Equals (RsaSignaturePadding? other)
 		{
 			if (other is null)
 				return false;
@@ -94,7 +94,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="obj">The object to compare with the current object.</param>
 		/// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			return Equals (obj as RsaSignaturePadding);
 		}

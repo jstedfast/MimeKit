@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
@@ -41,7 +42,7 @@ namespace MimeKit {
 	public class Parameter
 	{
 		ParameterEncodingMethod encodingMethod;
-		Encoding encoding;
+		Encoding? encoding;
 		bool alwaysQuote;
 		string text;
 
@@ -188,6 +189,7 @@ namespace MimeKit {
 		/// Gets or sets the parameter value character encoding.
 		/// </remarks>
 		/// <value>The character encoding.</value>
+		[AllowNull]
 		public Encoding Encoding {
 			get { return encoding ?? CharsetUtils.UTF8; }
 			set {
@@ -273,6 +275,8 @@ namespace MimeKit {
 		/// </exception>
 		public string Value {
 			get { return text; }
+
+			[MemberNotNull (nameof (text))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -318,7 +322,7 @@ namespace MimeKit {
 			Rfc2231
 		}
 
-		EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string quoted)
+		EncodeMethod GetEncodeMethod (FormatOptions options, string name, string value, out string? quoted)
 		{
 			var method = AlwaysQuote || options.AlwaysQuoteParameterValues ? EncodeMethod.Quote : EncodeMethod.None;
 			EncodeMethod encode;
@@ -715,7 +719,7 @@ namespace MimeKit {
 
 		internal void Encode (FormatOptions options, ref ValueStringBuilder builder, ref int lineLength, Encoding headerEncoding)
 		{
-			switch (GetEncodeMethod (options, Name, Value, out string quoted)) {
+			switch (GetEncodeMethod (options, Name, Value, out string? quoted)) {
 			case EncodeMethod.Rfc2231:
 				EncodeRfc2231 (options, ref builder, ref lineLength, headerEncoding);
 				break;
@@ -725,11 +729,12 @@ namespace MimeKit {
 			case EncodeMethod.None:
 				quoted = Value;
 				goto default;
-			default:
+			default: // EncodeMethod.Quoted
 				builder.Append (';');
 				lineLength++;
 
-				if (lineLength + 1 + Name.Length + 1 + quoted.Length >= options.MaxLineLength) {
+				// Note: quoted is not null when GetEncodeMethod returns EncodeMethod.Quoted
+				if (lineLength + 1 + Name.Length + 1 + quoted!.Length >= options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
 					lineLength = 1;
@@ -765,7 +770,7 @@ namespace MimeKit {
 			return Name + "=" + MimeUtils.Quote (Value);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler<Parameter, EventArgs>? Changed;
 
 		void OnChanged ()
 		{
