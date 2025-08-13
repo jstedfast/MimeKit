@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Utils;
 
@@ -55,7 +56,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
-		public GroupAddress (Encoding encoding, string name, IEnumerable<InternetAddress> addresses) : base (encoding, name)
+		public GroupAddress (Encoding encoding, string? name, IEnumerable<InternetAddress> addresses) : base (encoding, name)
 		{
 			Members = new InternetAddressList (addresses);
 			Members.Changed += MembersChanged;
@@ -69,7 +70,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="name">The name of the group.</param>
 		/// <param name="addresses">A list of addresses.</param>
-		public GroupAddress (string name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
+		public GroupAddress (string? name, IEnumerable<InternetAddress> addresses) : this (Encoding.UTF8, name, addresses)
 		{
 		}
 
@@ -85,7 +86,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
-		public GroupAddress (Encoding encoding, string name) : base (encoding, name)
+		public GroupAddress (Encoding encoding, string? name) : base (encoding, name)
 		{
 			Members = new InternetAddressList ();
 			Members.Changed += MembersChanged;
@@ -98,7 +99,7 @@ namespace MimeKit {
 		/// Creates a new <see cref="GroupAddress"/> with the specified name.
 		/// </remarks>
 		/// <param name="name">The name of the group.</param>
-		public GroupAddress (string name) : this (Encoding.UTF8, name)
+		public GroupAddress (string? name) : this (Encoding.UTF8, name)
 		{
 		}
 
@@ -229,7 +230,7 @@ namespace MimeKit {
 		/// <param name="other">The <see cref="GroupAddress"/> to compare with the current <see cref="GroupAddress"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="GroupAddress"/> is equal to the current
 		/// <see cref="GroupAddress"/>; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (InternetAddress other)
+		public override bool Equals (InternetAddress? other)
 		{
 			if (other is not GroupAddress group)
 				return false;
@@ -239,12 +240,12 @@ namespace MimeKit {
 
 		#endregion
 
-		void MembersChanged (object sender, EventArgs e)
+		void MembersChanged (InternetAddressList sender, EventArgs e)
 		{
 			OnChanged ();
 		}
 
-		static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out GroupAddress group)
+		static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			var flags = AddressParserFlags.AllowGroupAddress;
 
@@ -274,7 +275,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out GroupAddress group)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
 				group = null;
@@ -307,7 +308,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out GroupAddress group)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out group);
 		}
@@ -324,7 +325,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out GroupAddress group)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
 				group = null;
@@ -356,7 +357,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, out GroupAddress group)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out group);
 		}
@@ -372,7 +373,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out GroupAddress group)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer)) {
 				group = null;
@@ -403,7 +404,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (byte[] buffer, out GroupAddress group)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, buffer, out group);
 		}
@@ -419,7 +420,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (ParserOptions options, string text, out GroupAddress group)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			if (!ArgumentValidator.TryValidate (options, text)) {
 				group = null;
@@ -451,7 +452,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="group">The parsed group address.</param>
-		public static bool TryParse (string text, out GroupAddress group)
+		public static bool TryParse (string? text, [NotNullWhen (true)] out GroupAddress? group)
 		{
 			return TryParse (ParserOptions.Default, text, out group);
 		}
@@ -494,7 +495,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return group;
+			return group!;
 		}
 
 		/// <summary>
@@ -559,7 +560,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return group;
+			return group!;
 		}
 
 		/// <summary>
@@ -618,7 +619,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return group;
+			return group!;
 		}
 
 		/// <summary>
@@ -674,7 +675,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return group;
+			return group!;
 		}
 
 		/// <summary>

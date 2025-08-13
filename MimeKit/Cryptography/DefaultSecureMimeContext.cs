@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -380,7 +381,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected override X509Certificate GetCertificate (ISelector<X509Certificate> selector)
+		protected override X509Certificate? GetCertificate (ISelector<X509Certificate> selector)
 		{
 			return dbase.FindCertificates (selector).FirstOrDefault ();
 		}
@@ -393,7 +394,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected override AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector)
+		protected override AsymmetricKeyParameter? GetPrivateKey (ISelector<X509Certificate> selector)
 		{
 			return dbase.FindPrivateKeys (selector).FirstOrDefault ();
 		}
@@ -510,7 +511,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			X509CertificateRecord domain = null;
+			X509CertificateRecord? domain = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, false, CmsRecipientFields)) {
 				if (!CanEncrypt (record.KeyUsage))
@@ -533,6 +534,8 @@ namespace MimeKit.Cryptography {
 
 		CmsSigner CreateCmsSigner (X509CertificateRecord record, DigestAlgorithm digestAlgo)
 		{
+			Debug.Assert (record.PrivateKey != null, "Caller ensures record.PrivateKey is non-null");
+
 			var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey) {
 				DigestAlgorithm = digestAlgo
 			};
@@ -558,8 +561,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			X509CertificateRecord domain = null;
-			X509CertificateRecord signer = null;
+			X509CertificateRecord? domain = null;
+			X509CertificateRecord? signer = null;
 
 			foreach (var record in dbase.Find (mailbox, DateTime.UtcNow, true, CmsSignerFields)) {
 				if (!CanSign (record.KeyUsage))
@@ -598,7 +601,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="timestamp">The timestamp in coordinated universal time (UTC).</param>
 		protected override void UpdateSecureMimeCapabilities (X509Certificate certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			X509CertificateRecord record;
+			X509CertificateRecord? record;
 
 			if ((record = dbase.Find (certificate, AlgorithmFields)) == null) {
 				record = new X509CertificateRecord (certificate) {
@@ -665,7 +668,7 @@ namespace MimeKit.Cryptography {
 
 			if (certificate.HasPrivateKey) {
 				var privateKey = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
-				X509CertificateRecord record;
+				X509CertificateRecord? record;
 
 				if ((record = dbase.Find (cert, ImportPkcs12Fields)) == null) {
 					if (privateKey != null)
@@ -770,7 +773,7 @@ namespace MimeKit.Cryptography {
 			var pkcs12 = new Pkcs12StoreBuilder ().Build ();
 			pkcs12.Load (stream, password.ToCharArray ());
 			var enabledAlgorithms = EnabledEncryptionAlgorithms;
-			X509CertificateRecord record;
+			X509CertificateRecord? record;
 
 			foreach (string alias in pkcs12.Aliases) {
 				if (pkcs12.IsKeyEntry (alias)) {
@@ -859,7 +862,7 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			X509CertificateRecord record;
+			X509CertificateRecord? record;
 
 			if ((record = dbase.Find (certificate, X509CertificateRecordFields.Id | X509CertificateRecordFields.Trusted)) != null) {
 				if (trusted && !record.IsTrusted) {

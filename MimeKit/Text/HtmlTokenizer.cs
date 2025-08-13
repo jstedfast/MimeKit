@@ -27,7 +27,9 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -48,24 +50,24 @@ namespace MimeKit.Text {
 		readonly CharBuffer data = new CharBuffer (2048);
 		readonly CharBuffer name = new CharBuffer (32);
 
-		readonly TextReader textReader;
-		readonly Stream stream;
-		Encoding encoding;
-		Decoder decoder;
+		readonly TextReader? textReader;
+		readonly Stream? stream;
+		Encoding? encoding;
+		Decoder? decoder;
 
-		readonly byte[] input;
+		readonly byte[]? input;
 		int inputEnd;
 
-		char[] buffer;
+		char[]? buffer;
 		int bufferIndex, bufferEnd;
 
 		readonly char[] cdata = new char[3];
 		int cdataIndex;
 
-		HtmlDocTypeToken doctype;
-		HtmlAttribute attribute;
-		string activeTagName;
-		HtmlTagToken tag;
+		HtmlDocTypeToken? doctype;
+		HtmlAttribute? attribute;
+		string? activeTagName;
+		HtmlTagToken? tag;
 		char quote;
 
 		bool detectEncodingFromByteOrderMarks;
@@ -357,7 +359,7 @@ namespace MimeKit.Text {
 			return (char) c;
 		}
 
-		int SkipByteOrderMark (ReadOnlySpan<byte> preamble)
+		static int SkipByteOrderMark (byte[] input, ReadOnlySpan<byte> preamble)
 		{
 			for (int i = 0; i < preamble.Length; i++) {
 				if (input[i] != preamble[i])
@@ -369,6 +371,7 @@ namespace MimeKit.Text {
 
 		int DetectByteOrderMark ()
 		{
+			Debug.Assert (input != null && stream != null && encoding != null, "Caller ensures input, stream, and encoding are not null");
 #if NET6_0_OR_GREATER
 			var preamble = encoding.Preamble;
 #else
@@ -389,11 +392,14 @@ namespace MimeKit.Text {
 				inputEnd += nread;
 			} while (inputEnd < preamble.Length);
 
-			return SkipByteOrderMark (preamble);
+			return SkipByteOrderMark (input, preamble);
 		}
 
+		[MemberNotNull (nameof (decoder), nameof (buffer))]
 		int DetectEncodingFromByteOrderMarks ()
 		{
+			Debug.Assert (input != null && stream != null && encoding != null, "Caller ensures input, stream, and encoding are not null");
+
 			detectEncodingFromByteOrderMarks = false;
 
 			do {
@@ -438,7 +444,7 @@ namespace MimeKit.Text {
 			var preamble = encoding.GetPreamble ();
 #endif
 
-			return SkipByteOrderMark (preamble);
+			return SkipByteOrderMark (input, preamble);
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -446,14 +452,20 @@ namespace MimeKit.Text {
 		{
 			if (bufferIndex == bufferEnd && !eof) {
 				if (stream != null) {
+					Debug.Assert (input != null, "input is not null when stream is not null");
+
 					int inputIndex;
 
-					if (detectEncodingFromByteOrderMarks)
+					if (detectEncodingFromByteOrderMarks) {
 						inputIndex = DetectEncodingFromByteOrderMarks ();
-					else if (detectByteOrderMark)
-						inputIndex = DetectByteOrderMark ();
-					else
-						inputIndex = 0;
+					} else {
+						Debug.Assert (decoder != null && buffer != null, "decoder and buffer are not null when detectEncodingFromByteOrderMarks is false");
+
+						if (detectByteOrderMark)
+							inputIndex = DetectByteOrderMark ();
+						else
+							inputIndex = 0;
+					}
 
 					bufferIndex = 0;
 					bufferEnd = 0;
@@ -470,6 +482,8 @@ namespace MimeKit.Text {
 
 					inputEnd = 0;
 				} else {
+					Debug.Assert (textReader != null && buffer != null, "textReader and buffer are not null when stream is null");
+
 					bufferEnd = textReader.Read (buffer, 0, buffer.Length);
 					bufferIndex = 0;
 				}
@@ -484,6 +498,8 @@ namespace MimeKit.Text {
 			FillBuffer ();
 
 			if (bufferIndex < bufferEnd) {
+				Debug.Assert (buffer != null, "buffer is not null when bufferIndex < bufferEnd");
+
 				c = buffer[bufferIndex];
 				return true;
 			}
@@ -518,6 +534,8 @@ namespace MimeKit.Text {
 			FillBuffer ();
 
 			if (bufferIndex < bufferEnd) {
+				Debug.Assert (buffer != null, "buffer is not null when bufferIndex < bufferEnd");
+
 				c = buffer[bufferIndex++];
 
 				if (c == '\n') {
@@ -549,6 +567,8 @@ namespace MimeKit.Text {
 
 		void EmitTagAttribute ()
 		{
+			Debug.Assert (tag != null, "Caller ensures tag is not null");
+
 			attribute = CreateAttribute (name.ToString ());
 			tag.Attributes.Add (attribute);
 			name.Length = 0;
@@ -569,7 +589,7 @@ namespace MimeKit.Text {
 			return EmitCommentToken (comment.ToString (), bogus);
 		}
 
-		HtmlToken EmitDocType ()
+		HtmlToken? EmitDocType ()
 		{
 			var token = doctype;
 			data.Length = 0;
@@ -577,7 +597,7 @@ namespace MimeKit.Text {
 			return token;
 		}
 
-		HtmlToken EmitDataToken (bool encodeEntities, bool truncated)
+		HtmlToken? EmitDataToken (bool encodeEntities, bool truncated)
 		{
 			if (data.Length == 0)
 				return null;
@@ -594,7 +614,7 @@ namespace MimeKit.Text {
 			return token;
 		}
 
-		HtmlToken EmitCDataToken ()
+		HtmlToken? EmitCDataToken ()
 		{
 			if (data.Length == 0)
 				return null;
@@ -605,7 +625,7 @@ namespace MimeKit.Text {
 			return token;
 		}
 
-		HtmlToken EmitScriptDataToken ()
+		HtmlToken? EmitScriptDataToken ()
 		{
 			if (data.Length == 0)
 				return null;
@@ -618,6 +638,8 @@ namespace MimeKit.Text {
 
 		HtmlToken EmitTagToken ()
 		{
+			Debug.Assert (tag != null, "Caller ensures tag is not null");
+
 			if (!tag.IsEndTag && !tag.IsEmptyElement) {
 				switch (tag.Id) {
 				case HtmlTagId.Style: case HtmlTagId.Xmp: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed: case HtmlTagId.NoFrames:
@@ -667,7 +689,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.69 Tokenizing character references
-		HtmlToken ReadCharacterReference (HtmlTokenizerState next)
+		HtmlToken? ReadCharacterReference (HtmlTokenizerState next)
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -709,7 +731,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
-		HtmlToken ReadGenericRawTextLessThan (HtmlTokenizerState rawText, HtmlTokenizerState rawTextEndTagOpen)
+		HtmlToken? ReadGenericRawTextLessThan (HtmlTokenizerState rawText, HtmlTokenizerState rawTextEndTagOpen)
 		{
 			data.Append ('<');
 
@@ -725,7 +747,7 @@ namespace MimeKit.Text {
 			return null;
 		}
 
-		HtmlToken ReadGenericRawTextEndTagOpen (bool decoded, HtmlTokenizerState rawText, HtmlTokenizerState rawTextEndTagName)
+		HtmlToken? ReadGenericRawTextEndTagOpen (bool decoded, HtmlTokenizerState rawText, HtmlTokenizerState rawTextEndTagName)
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -744,8 +766,10 @@ namespace MimeKit.Text {
 			return null;
 		}
 
-		HtmlToken ReadGenericRawTextEndTagName (bool decoded, HtmlTokenizerState rawText)
+		HtmlToken? ReadGenericRawTextEndTagName (bool decoded, HtmlTokenizerState rawText)
 		{
+			Debug.Assert (activeTagName != null, "Caller ensures activeTagName is not null");
+
 			var current = TokenizerState;
 
 			do {
@@ -800,7 +824,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.1 Data state
-		HtmlToken ReadData ()
+		HtmlToken? ReadData ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -830,13 +854,13 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.2 Character reference in data state
-		HtmlToken ReadCharacterReferenceInData ()
+		HtmlToken? ReadCharacterReferenceInData ()
 		{
 			return ReadCharacterReference (HtmlTokenizerState.Data);
 		}
 
 		// 8.2.4.3 RCDATA state
-		HtmlToken ReadRcData ()
+		HtmlToken? ReadRcData ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -865,13 +889,13 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.4 Character reference in RCDATA state
-		HtmlToken ReadCharacterReferenceInRcData ()
+		HtmlToken? ReadCharacterReferenceInRcData ()
 		{
 			return ReadCharacterReference (HtmlTokenizerState.RcData);
 		}
 
 		// 8.2.4.5 RAWTEXT state
-		HtmlToken ReadRawText ()
+		HtmlToken? ReadRawText ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -893,7 +917,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.6 Script data state
-		HtmlToken ReadScriptData ()
+		HtmlToken? ReadScriptData ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -915,11 +939,13 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.7 PLAINTEXT state
-		HtmlToken ReadPlainText ()
+		HtmlToken? ReadPlainText ()
 		{
+			Debug.Assert (bufferIndex >= bufferEnd || buffer != null, "buffer is not null when bufferIndex < bufferEnd");
+
 			do {
 				while (bufferIndex < bufferEnd) {
-					char c = buffer[bufferIndex++];
+					char c = buffer![bufferIndex++];
 
 					LinePosition++;
 
@@ -945,7 +971,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.8 Tag open state
-		HtmlToken ReadTagOpen ()
+		HtmlToken? ReadTagOpen ()
 		{
 			if (!TryRead (out char c)) {
 				var token = IgnoreTruncatedTags ? null : CreateDataToken ("<");
@@ -984,7 +1010,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.9 End tag open state
-		HtmlToken ReadEndTagOpen ()
+		HtmlToken? ReadEndTagOpen ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1016,7 +1042,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.10 Tag name state
-		HtmlToken ReadTagName ()
+		HtmlToken? ReadTagName ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1055,43 +1081,43 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.11 RCDATA less-than sign state
-		HtmlToken ReadRcDataLessThan ()
+		HtmlToken? ReadRcDataLessThan ()
 		{
 			return ReadGenericRawTextLessThan (HtmlTokenizerState.RcData, HtmlTokenizerState.RcDataEndTagOpen);
 		}
 
 		// 8.2.4.12 RCDATA end tag open state
-		HtmlToken ReadRcDataEndTagOpen ()
+		HtmlToken? ReadRcDataEndTagOpen ()
 		{
 			return ReadGenericRawTextEndTagOpen (DecodeCharacterReferences, HtmlTokenizerState.RcData, HtmlTokenizerState.RcDataEndTagName);
 		}
 
 		// 8.2.4.13 RCDATA end tag name state
-		HtmlToken ReadRcDataEndTagName ()
+		HtmlToken? ReadRcDataEndTagName ()
 		{
 			return ReadGenericRawTextEndTagName (DecodeCharacterReferences, HtmlTokenizerState.RcData);
 		}
 
 		// 8.2.4.14 RAWTEXT less-than sign state
-		HtmlToken ReadRawTextLessThan ()
+		HtmlToken? ReadRawTextLessThan ()
 		{
 			return ReadGenericRawTextLessThan (HtmlTokenizerState.RawText, HtmlTokenizerState.RawTextEndTagOpen);
 		}
 
 		// 8.2.4.15 RAWTEXT end tag open state
-		HtmlToken ReadRawTextEndTagOpen ()
+		HtmlToken? ReadRawTextEndTagOpen ()
 		{
 			return ReadGenericRawTextEndTagOpen (false, HtmlTokenizerState.RawText, HtmlTokenizerState.RawTextEndTagName);
 		}
 
 		// 8.2.4.16 RAWTEXT end tag name state
-		HtmlToken ReadRawTextEndTagName ()
+		HtmlToken? ReadRawTextEndTagName ()
 		{
 			return ReadGenericRawTextEndTagName (false, HtmlTokenizerState.RawText);
 		}
 
 		// 8.2.4.17 Script data less-than sign state
-		HtmlToken ReadScriptDataLessThan ()
+		HtmlToken? ReadScriptDataLessThan ()
 		{
 			data.Append ('<');
 
@@ -1112,7 +1138,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.18 Script data end tag open state
-		HtmlToken ReadScriptDataEndTagOpen ()
+		HtmlToken? ReadScriptDataEndTagOpen ()
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1132,7 +1158,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.19 Script data end tag name state
-		HtmlToken ReadScriptDataEndTagName ()
+		HtmlToken? ReadScriptDataEndTagName ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1186,7 +1212,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.20 Script data escape start state
-		HtmlToken ReadScriptDataEscapeStart ()
+		HtmlToken? ReadScriptDataEscapeStart ()
 		{
 			if (TryPeek (out char c) && c == '-') {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscapeStartDash;
@@ -1200,7 +1226,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.21 Script data escape start dash state
-		HtmlToken ReadScriptDataEscapeStartDash ()
+		HtmlToken? ReadScriptDataEscapeStartDash ()
 		{
 			if (TryPeek (out char c) && c == '-') {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscapedDashDash;
@@ -1214,9 +1240,9 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.22 Script data escaped state
-		HtmlToken ReadScriptDataEscaped ()
+		HtmlToken? ReadScriptDataEscaped ()
 		{
-			HtmlToken token = null;
+			HtmlToken? token = null;
 
 			do {
 				if (!TryRead (out char c)) {
@@ -1244,14 +1270,14 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.23 Script data escaped dash state
-		HtmlToken ReadScriptDataEscapedDash ()
+		HtmlToken? ReadScriptDataEscapedDash ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitScriptDataToken ();
 			}
 
-			HtmlToken token = null;
+			HtmlToken? token = null;
 
 			switch (c) {
 			case '-':
@@ -1273,9 +1299,9 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.24 Script data escaped dash dash state
-		HtmlToken ReadScriptDataEscapedDashDash ()
+		HtmlToken? ReadScriptDataEscapedDashDash ()
 		{
-			HtmlToken token = null;
+			HtmlToken? token = null;
 
 			do {
 				if (!TryRead (out char c)) {
@@ -1307,7 +1333,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.25 Script data escaped less-than sign state
-		HtmlToken ReadScriptDataEscapedLessThan ()
+		HtmlToken? ReadScriptDataEscapedLessThan ()
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
@@ -1332,7 +1358,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.26 Script data escaped end tag open state
-		HtmlToken ReadScriptDataEscapedEndTagOpen ()
+		HtmlToken? ReadScriptDataEscapedEndTagOpen ()
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1352,7 +1378,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.27 Script data escaped end tag name state
-		HtmlToken ReadScriptDataEscapedEndTagName ()
+		HtmlToken? ReadScriptDataEscapedEndTagName ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1406,7 +1432,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.28 Script data double escape start state
-		HtmlToken ReadScriptDataDoubleEscapeStart ()
+		HtmlToken? ReadScriptDataDoubleEscapeStart ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1439,7 +1465,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.29 Script data double escaped state
-		HtmlToken ReadScriptDataDoubleEscaped ()
+		HtmlToken? ReadScriptDataDoubleEscaped ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1466,7 +1492,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.30 Script data double escaped dash state
-		HtmlToken ReadScriptDataDoubleEscapedDash ()
+		HtmlToken? ReadScriptDataDoubleEscapedDash ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1492,7 +1518,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.31 Script data double escaped dash dash state
-		HtmlToken ReadScriptDataDoubleEscapedDashDash ()
+		HtmlToken? ReadScriptDataDoubleEscapedDashDash ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1523,7 +1549,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.32 Script data double escaped less-than sign state
-		HtmlToken ReadScriptDataDoubleEscapedLessThan ()
+		HtmlToken? ReadScriptDataDoubleEscapedLessThan ()
 		{
 			if (TryPeek (out char c) && c == '/') {
 				TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscapeEnd;
@@ -1537,7 +1563,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.33 Script data double escape end state
-		HtmlToken ReadScriptDataDoubleEscapeEnd ()
+		HtmlToken? ReadScriptDataDoubleEscapeEnd ()
 		{
 			do {
 				TryPeek (out char c);
@@ -1568,7 +1594,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.34 Before attribute name state
-		HtmlToken ReadBeforeAttributeName ()
+		HtmlToken? ReadBeforeAttributeName ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1601,7 +1627,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.35 Attribute name state
-		HtmlToken ReadAttributeName ()
+		HtmlToken? ReadAttributeName ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1641,7 +1667,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.36 After attribute name state
-		HtmlToken ReadAfterAttributeName ()
+		HtmlToken? ReadAfterAttributeName ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1677,7 +1703,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.37 Before attribute value state
-		HtmlToken ReadBeforeAttributeValue ()
+		HtmlToken? ReadBeforeAttributeValue ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -1717,8 +1743,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.38 Attribute value (double-quoted) state
-		HtmlToken ReadAttributeValueQuoted ()
+		HtmlToken? ReadAttributeValueQuoted ()
 		{
+			Debug.Assert (attribute != null, "Caller ensures attribute is not null");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1756,8 +1784,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.40 Attribute value (unquoted) state
-		HtmlToken ReadAttributeValueUnquoted ()
+		HtmlToken? ReadAttributeValueUnquoted ()
 		{
+			Debug.Assert (attribute != null, "Caller ensures attribute is not null");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1797,7 +1827,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.41 Character reference in attribute value state
-		HtmlToken ReadCharacterReferenceInAttributeValue ()
+		HtmlToken? ReadCharacterReferenceInAttributeValue ()
 		{
 			char additionalAllowedCharacter = quote == '\0' ? '>' : quote;
 
@@ -1862,9 +1892,9 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.42 After attribute value (quoted) state
-		HtmlToken ReadAfterAttributeValueQuoted ()
+		HtmlToken? ReadAfterAttributeValueQuoted ()
 		{
-			HtmlToken token = null;
+			HtmlToken? token = null;
 
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1895,8 +1925,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.43 Self-closing start tag state
-		HtmlToken ReadSelfClosingStartTag ()
+		HtmlToken? ReadSelfClosingStartTag ()
 		{
+			Debug.Assert (tag != null, "Caller ensures tag is not null");
+
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitDataToken (false, true);
@@ -1938,7 +1970,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.45 Markup declaration open state
-		HtmlToken ReadMarkupDeclarationOpen ()
+		HtmlToken? ReadMarkupDeclarationOpen ()
 		{
 			int count = 0;
 			char c = '\0';
@@ -2040,7 +2072,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.46 Comment start state
-		HtmlToken ReadCommentStart ()
+		HtmlToken? ReadCommentStart ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.Data;
@@ -2067,7 +2099,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.47 Comment start dash state
-		HtmlToken ReadCommentStartDash ()
+		HtmlToken? ReadCommentStartDash ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.Data;
@@ -2094,7 +2126,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.48 Comment state
-		HtmlToken ReadComment ()
+		HtmlToken? ReadComment ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -2117,7 +2149,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.49 Comment end dash state
-		HtmlToken ReadCommentEndDash ()
+		HtmlToken? ReadCommentEndDash ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.Data;
@@ -2141,7 +2173,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.50 Comment end state
-		HtmlToken ReadCommentEnd ()
+		HtmlToken? ReadCommentEnd ()
 		{
 			do {
 				if (!TryRead (out char c)) {
@@ -2172,7 +2204,7 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.51 Comment end bang state
-		HtmlToken ReadCommentEndBang ()
+		HtmlToken? ReadCommentEndBang ()
 		{
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2200,8 +2232,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.52 DOCTYPE state
-		HtmlToken ReadDocType ()
+		HtmlToken? ReadDocType ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is DocType");
+
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype.ForceQuirksMode = true;
@@ -2223,8 +2257,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.53 Before DOCTYPE name state
-		HtmlToken ReadBeforeDocTypeName ()
+		HtmlToken? ReadBeforeDocTypeName ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is BeforeDocTypeName");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2251,8 +2287,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.54 DOCTYPE name state
-		HtmlToken ReadDocTypeName ()
+		HtmlToken? ReadDocTypeName ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is DocTypeName");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2292,8 +2330,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.55 After DOCTYPE name state
-		HtmlToken ReadAfterDocTypeName ()
+		HtmlToken? ReadAfterDocTypeName ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypeName");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2332,8 +2372,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.56 After DOCTYPE public keyword state
-		HtmlToken ReadAfterDocTypePublicKeyword ()
+		HtmlToken? ReadAfterDocTypePublicKeyword ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypePublicKeyword");
+
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype.ForceQuirksMode = true;
@@ -2366,8 +2408,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.57 Before DOCTYPE public identifier state
-		HtmlToken ReadBeforeDocTypePublicIdentifier ()
+		HtmlToken? ReadBeforeDocTypePublicIdentifier ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is BeforeDocTypePublicIdentifier");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2399,8 +2443,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.58 DOCTYPE public identifier (double-quoted) state
-		HtmlToken ReadDocTypePublicIdentifierQuoted ()
+		HtmlToken? ReadDocTypePublicIdentifierQuoted ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is DocTypePublicIdentifierQuoted");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2444,8 +2490,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.60 After DOCTYPE public identifier state
-		HtmlToken ReadAfterDocTypePublicIdentifier ()
+		HtmlToken? ReadAfterDocTypePublicIdentifier ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypePublicIdentifier");
+
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype.ForceQuirksMode = true;
@@ -2477,8 +2525,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.61 Between DOCTYPE public and system identifiers state
-		HtmlToken ReadBetweenDocTypePublicAndSystemIdentifiers ()
+		HtmlToken? ReadBetweenDocTypePublicAndSystemIdentifiers ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is BetweenDocTypePublicAndSystemIdentifiers");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2509,8 +2559,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.62 After DOCTYPE system keyword state
-		HtmlToken ReadAfterDocTypeSystemKeyword ()
+		HtmlToken? ReadAfterDocTypeSystemKeyword ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypeSystemKeyword");
+
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype.ForceQuirksMode = true;
@@ -2543,8 +2595,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.63 Before DOCTYPE system identifier state
-		HtmlToken ReadBeforeDocTypeSystemIdentifier ()
+		HtmlToken? ReadBeforeDocTypeSystemIdentifier ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is BeforeDocTypeSystemIdentifier");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2576,8 +2630,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.64 DOCTYPE system identifier (double-quoted) state
-		HtmlToken ReadDocTypeSystemIdentifierQuoted ()
+		HtmlToken? ReadDocTypeSystemIdentifierQuoted ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is DocTypeSystemIdentifierQuoted");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2621,8 +2677,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.66 After DOCTYPE system identifier state
-		HtmlToken ReadAfterDocTypeSystemIdentifier ()
+		HtmlToken? ReadAfterDocTypeSystemIdentifier ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypeSystemIdentifier");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2647,8 +2705,10 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.67 Bogus DOCTYPE state
-		HtmlToken ReadBogusDocType ()
+		HtmlToken? ReadBogusDocType ()
 		{
+			Debug.Assert (doctype != null, "doctype is not null when state is BogusDocType");
+
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -2667,11 +2727,13 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.68 CDATA section state
-		HtmlToken ReadCDataSection ()
+		HtmlToken? ReadCDataSection ()
 		{
+			Debug.Assert (bufferIndex >= bufferEnd || buffer != null, "buffer is not null when bufferIndex < bufferEnd");
+
 			do {
 				while (bufferIndex < bufferEnd) {
-					char c = buffer[bufferIndex++];
+					char c = buffer![bufferIndex++];
 
 					if (c == '\n') {
 						IncrementLineNumber ();
@@ -2717,7 +2779,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <returns><see langword="true" /> if the next token was read; otherwise, <see langword="false" />.</returns>
 		/// <param name="token">The token that was read.</param>
-		public bool ReadNextToken (out HtmlToken token)
+		public bool ReadNextToken ([NotNullWhen (true)] out HtmlToken? token)
 		{
 			do {
 				switch (TokenizerState) {

@@ -138,7 +138,7 @@ namespace MimeKit {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Stream content = copyStream ? new MemoryBlockStream () : null;
+			Stream? content = copyStream ? new MemoryBlockStream () : null;
 
 			try {
 				if (attachment.ContentType.IsMimeType ("text", "*")) {
@@ -163,16 +163,16 @@ namespace MimeKit {
 				} else {
 					attachment.ContentTransferEncoding = ContentEncoding.Base64;
 
-					if (copyStream)
+					if (content != null)
 						stream.CopyTo (content, 4096);
 				}
 
-				if (copyStream)
+				if (content != null)
 					content.Position = 0;
 				else
 					stream.Position = 0;
 
-				attachment.Content = new MimeContent (copyStream ? content : stream);
+				attachment.Content = new MimeContent (content ?? stream);
 			} catch {
 				attachment.Dispose ();
 				content?.Dispose ();
@@ -184,7 +184,7 @@ namespace MimeKit {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			Stream content = copyStream ? new MemoryBlockStream () : null;
+			Stream? content = copyStream ? new MemoryBlockStream () : null;
 
 			try {
 				if (attachment.ContentType.IsMimeType ("text", "*")) {
@@ -209,16 +209,16 @@ namespace MimeKit {
 				} else {
 					attachment.ContentTransferEncoding = ContentEncoding.Base64;
 
-					if (copyStream)
+					if (content != null)
 						await stream.CopyToAsync (content, 4096, cancellationToken).ConfigureAwait (false);
 				}
 
-				if (copyStream)
+				if (content != null)
 					content.Position = 0;
 				else
 					stream.Position = 0;
 
-				attachment.Content = new MimeContent (copyStream ? content : stream);
+				attachment.Content = new MimeContent (content ?? stream);
 			} catch {
 				attachment.Dispose ();
 				content?.Dispose ();
@@ -243,7 +243,7 @@ namespace MimeKit {
 		MimeEntity CreateAttachment (ContentType contentType, bool autoDetected, string path, Stream stream, bool copyStream, CancellationToken cancellationToken)
 		{
 			var fileName = GetFileName (path);
-			MimeEntity attachment = null;
+			MimeEntity? attachment = null;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
 				long position = stream.CanSeek ? stream.Position : 0;
@@ -294,7 +294,7 @@ namespace MimeKit {
 		async Task<MimeEntity> CreateAttachmentAsync (ContentType contentType, bool autoDetected, string path, Stream stream, bool copyStream, CancellationToken cancellationToken)
 		{
 			var fileName = GetFileName (path);
-			MimeEntity attachment = null;
+			MimeEntity? attachment = null;
 
 			if (contentType.IsMimeType ("message", "rfc822")) {
 				long position = stream.CanSeek ? stream.Position : 0;

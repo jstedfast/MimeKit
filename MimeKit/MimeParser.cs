@@ -32,6 +32,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -52,7 +53,7 @@ namespace MimeKit {
 	{
 		public static readonly byte[] MboxFrom = "From "u8.ToArray();
 
-		public Boundary Next { get; set; }
+		public Boundary? Next { get; set; }
 
 		public byte[] Marker { get; private set; }
 		public int FinalLength { get { return Marker.Length; } }
@@ -60,7 +61,7 @@ namespace MimeKit {
 		public int MaxLength { get; private set; }
 		public bool IsMboxMarker { get { return Marker == MboxFrom; } }
 
-		public Boundary (string boundary, Boundary parent)
+		public Boundary (string boundary, Boundary? parent)
 		{
 			Marker = Encoding.UTF8.GetBytes ("--" + boundary + "--");
 			Length = Marker.Length - 2;
@@ -73,17 +74,16 @@ namespace MimeKit {
 			}
 		}
 
-		Boundary ()
+		Boundary (byte[] marker, int maxLength, int length)
 		{
+			Marker = marker;
+			MaxLength = maxLength;
+			Length = length;
 		}
 
 		public static Boundary CreateMboxBoundary ()
 		{
-			return new Boundary {
-				Marker = MboxFrom,
-				MaxLength = 5,
-				Length = 5
-			};
+			return new Boundary (MboxFrom, 5, 5);
 		}
 
 #if DEBUG_PARSER
@@ -130,7 +130,7 @@ namespace MimeKit {
 		int inputEnd = ReadAheadSize;
 
 		// mbox From-line state
-		byte[] mboxMarkerBuffer;
+		byte[]? mboxMarkerBuffer;
 		long mboxMarkerOffset;
 		int mboxMarkerLength;
 
@@ -144,8 +144,8 @@ namespace MimeKit {
 		int headerIndex;
 
 		// boundary state
-		Boundary boundaries;
-		Boundary currentBoundary;
+		Boundary? boundaries;
+		Boundary? currentBoundary;
 		BoundaryType boundary;
 
 		readonly List<Header> headers = new List<Header> ();
@@ -283,6 +283,8 @@ namespace MimeKit {
 			get {
 				return options;
 			}
+
+			[MemberNotNull (nameof (options))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -350,8 +352,8 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
 		/// <value>The mbox marker.</value>
-		public string MboxMarker {
-			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength) : null; }
+		public string? MboxMarker {
+			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer!, 0, mboxMarkerLength) : null; }
 		}
 
 		/// <summary>
@@ -433,6 +435,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
+		[MemberNotNull (nameof (this.stream))]
 		public void SetStream (Stream stream, MimeFormat format, bool persistent)
 		{
 			if (stream is null)
@@ -522,7 +525,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeMessageBeginEventArgs> MimeMessageBegin;
+		public event EventHandler<MimeMessageBeginEventArgs>? MimeMessageBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeMessage"/>.
@@ -545,7 +548,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeMessageEndEventArgs> MimeMessageEnd;
+		public event EventHandler<MimeMessageEndEventArgs>? MimeMessageEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeMessage"/>.
@@ -568,7 +571,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeEntityBeginEventArgs> MimeEntityBegin;
+		public event EventHandler<MimeEntityBeginEventArgs>? MimeEntityBegin;
 
 		/// <summary>
 		/// Invoked when the parser begins parsing a <see cref="MimeEntity"/>.
@@ -591,7 +594,7 @@ namespace MimeKit {
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="MessageOffsets" />
 		/// </example>
-		public event EventHandler<MimeEntityEndEventArgs> MimeEntityEnd;
+		public event EventHandler<MimeEntityEndEventArgs>? MimeEntityEnd;
 
 		/// <summary>
 		/// Invoked when the parser has completed parsing a <see cref="MimeEntity"/>.
@@ -866,7 +869,7 @@ namespace MimeKit {
 					mboxMarkerOffset = GetOffset (startIndex);
 					mboxMarkerLength = markerLength;
 
-					if (mboxMarkerBuffer.Length < mboxMarkerLength)
+					if (mboxMarkerBuffer!.Length < mboxMarkerLength)
 						Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
 
 					Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, markerLength);
@@ -1246,7 +1249,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		ContentType GetContentType (ContentType parent)
+		ContentType GetContentType (ContentType? parent)
 		{
 			for (int i = 0; i < headers.Count; i++) {
 				if (!headers[i].Field.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
@@ -1737,7 +1740,7 @@ namespace MimeKit {
 
 		void PopBoundary ()
 		{
-			boundaries = boundaries.Next;
+			boundaries = boundaries!.Next;
 
 			switch (boundary) {
 			case BoundaryType.ParentEndBoundary:

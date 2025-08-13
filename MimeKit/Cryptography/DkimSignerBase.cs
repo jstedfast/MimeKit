@@ -332,7 +332,7 @@ namespace MimeKit.Cryptography {
 
 		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
 		{
-			AsymmetricKeyParameter key = null;
+			AsymmetricKeyParameter? key = null;
 
 			using (var reader = new StreamReader (stream)) {
 				var pem = new PemReader (reader);

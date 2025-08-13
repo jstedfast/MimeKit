@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Text;
 
@@ -180,7 +181,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="ITextPart"/> has been disposed.
 		/// </exception>
-		bool TryDetectEncoding (out Encoding encoding, out TextEncodingConfidence confidence);
+		bool TryDetectEncoding ([NotNullWhen (true)] out Encoding? encoding, out TextEncodingConfidence confidence);
 
 		/// <summary>
 		/// Get the decoded text and the encoding used to convert it into unicode.
