@@ -51,7 +51,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
-		string ContentDescription {
+		string? ContentDescription {
 			get; set;
 		}
 
@@ -85,7 +85,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
-		string ContentMd5 {
+		string? ContentMd5 {
 			get; set;
 		}
 
@@ -128,7 +128,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimePart"/> has been disposed.
 		/// </exception>
-		string FileName {
+		string? FileName {
 			get; set;
 		}
 
@@ -142,7 +142,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The MIME content.</value>
-		IMimeContent Content {
+		IMimeContent? Content {
 			get; set;
 		}
 

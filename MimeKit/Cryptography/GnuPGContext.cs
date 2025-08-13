@@ -29,6 +29,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Bcpg;
@@ -208,7 +209,7 @@ namespace MimeKit.Cryptography {
 			get; protected set;
 		}
 
-		bool TryGetPublicKeyRing (long keyId, out PgpPublicKeyRing keyring)
+		bool TryGetPublicKeyRing (long keyId, [NotNullWhen (true)] out PgpPublicKeyRing? keyring)
 		{
 			foreach (PgpPublicKeyRing ring in PublicKeyRingBundle.GetKeyRings ()) {
 				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
@@ -240,7 +241,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled.
 		/// </exception>
-		protected override PgpPublicKeyRing GetPublicKeyRing (long keyId, CancellationToken cancellationToken)
+		protected override PgpPublicKeyRing? GetPublicKeyRing (long keyId, CancellationToken cancellationToken)
 		{
 			if (TryGetPublicKeyRing (keyId, out var keyring))
 				return keyring;
@@ -267,7 +268,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was cancelled.
 		/// </exception>
-		protected override async Task<PgpPublicKeyRing> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken)
+		protected override async Task<PgpPublicKeyRing?> GetPublicKeyRingAsync (long keyId, CancellationToken cancellationToken)
 		{
 			if (TryGetPublicKeyRing (keyId, out var keyring))
 				return keyring;
@@ -750,7 +751,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="expirationDate"/> is not a date in the future.
 		/// </exception>
-		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null, EncryptionAlgorithm algorithm = EncryptionAlgorithm.Aes256, SecureRandom random = null)
+		public void GenerateKeyPair (MailboxAddress mailbox, string password, DateTime? expirationDate = null, EncryptionAlgorithm algorithm = EncryptionAlgorithm.Aes256, SecureRandom? random = null)
 		{
 			var now = DateTime.UtcNow;
 			long expirationTime = 0;
@@ -816,7 +817,7 @@ namespace MimeKit.Cryptography {
 			signatureGenerator.SetHashedSubpackets (subpacketVector);
 
 			var signedKey = PgpPublicKey.AddCertification (publicKey, signatureGenerator.Generate ());
-			PgpPublicKeyRing keyring = null;
+			PgpPublicKeyRing? keyring = null;
 
 			foreach (var ring in EnumeratePublicKeyRings ()) {
 				foreach (PgpPublicKey key in ring.GetPublicKeys ()) {
@@ -895,7 +896,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void UpdateKeyServer (string value)
+		void UpdateKeyServer (string? value)
 		{
 			if (string.IsNullOrEmpty (value)) {
 				KeyServer = null;
@@ -908,7 +909,7 @@ namespace MimeKit.Cryptography {
 			KeyServer = new Uri (value, UriKind.Absolute);
 		}
 
-		void UpdateKeyServerOptions (string value)
+		void UpdateKeyServerOptions (string? value)
 		{
 			if (string.IsNullOrEmpty (value))
 				return;
@@ -923,7 +924,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		static EncryptionAlgorithm[] ParseEncryptionAlgorithms (string value)
+		static EncryptionAlgorithm[] ParseEncryptionAlgorithms (string? value)
 		{
 			var names = value != null ? value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries) : Array.Empty<string> ();
 			var algorithms = new List<EncryptionAlgorithm> ();
@@ -962,7 +963,7 @@ namespace MimeKit.Cryptography {
 		//	return algorithms.ToArray ();
 		//}
 
-		static DigestAlgorithm[] ParseDigestAlgorithms (string value)
+		static DigestAlgorithm[] ParseDigestAlgorithms (string? value)
 		{
 			var names = value != null ? value.Split (Whitespace, StringSplitOptions.RemoveEmptyEntries) : Array.Empty<string> ();
 			var algorithms = new List<DigestAlgorithm> ();
@@ -981,12 +982,12 @@ namespace MimeKit.Cryptography {
 			return algorithms.ToArray ();
 		}
 
-		void UpdatePersonalCipherPreferences (string value)
+		void UpdatePersonalCipherPreferences (string? value)
 		{
 			EncryptionAlgorithmRank = ParseEncryptionAlgorithms (value);
 		}
 
-		void UpdatePersonalDigestPreferences (string value)
+		void UpdatePersonalDigestPreferences (string? value)
 		{
 			DigestAlgorithmRank = ParseDigestAlgorithms (value);
 		}
@@ -997,7 +998,7 @@ namespace MimeKit.Cryptography {
 				return;
 
 			using (var reader = File.OpenText (configFile)) {
-				string line;
+				string? line;
 
 				while ((line = reader.ReadLine ()) != null) {
 					int startIndex = 0;
@@ -1013,7 +1014,7 @@ namespace MimeKit.Cryptography {
 						endIndex++;
 
 					var option = line.Substring (startIndex, endIndex - startIndex);
-					string value;
+					string? value;
 
 					if (endIndex < line.Length)
 						value = line.AsSpan (endIndex + 1).Trim ().ToString ();
