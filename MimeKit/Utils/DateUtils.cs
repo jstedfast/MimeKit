@@ -562,7 +562,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="date">The parsed date.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out DateTimeOffset date)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, out DateTimeOffset date)
 		{
 			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
 				date = DateTimeOffset.MinValue;
@@ -592,7 +592,7 @@ namespace MimeKit.Utils {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="date">The parsed date.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, out DateTimeOffset date)
+		public static bool TryParse (byte[]? buffer, int startIndex, out DateTimeOffset date)
 		{
 			if (!ArgumentValidator.TryValidate (buffer, startIndex)) {
 				date = DateTimeOffset.MinValue;
@@ -611,7 +611,7 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="date">The parsed date.</param>
-		public static bool TryParse (byte[] buffer, out DateTimeOffset date)
+		public static bool TryParse (byte[]? buffer, out DateTimeOffset date)
 		{
 			if (buffer is null) {
 				date = DateTimeOffset.MinValue;
@@ -630,7 +630,7 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the date was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The input text.</param>
 		/// <param name="date">The parsed date.</param>
-		public static bool TryParse (string text, out DateTimeOffset date)
+		public static bool TryParse (string? text, out DateTimeOffset date)
 		{
 			if (text is null) {
 				date = DateTimeOffset.MinValue;

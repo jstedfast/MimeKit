@@ -70,10 +70,10 @@ namespace MimeKit {
 		internal bool EnsureNewLine;
 		internal bool IsDisposed;
 
-		ContentDisposition disposition;
-		string contentId;
-		Uri location;
-		Uri baseUri;
+		ContentDisposition? disposition;
+		string? contentId;
+		Uri? location;
+		Uri? baseUri;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeEntity"/> class
@@ -222,7 +222,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public ContentDisposition ContentDisposition {
+		public ContentDisposition? ContentDisposition {
 			get {
 				CheckDisposed ();
 
@@ -286,7 +286,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public Uri ContentBase {
+		public Uri? ContentBase {
 			get {
 				CheckDisposed ();
 
@@ -340,7 +340,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public Uri ContentLocation {
+		public Uri? ContentLocation {
 			get {
 				CheckDisposed ();
 
@@ -395,7 +395,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
-		public string ContentId {
+		public string? ContentId {
 			get {
 				CheckDisposed ();
 
@@ -403,7 +403,7 @@ namespace MimeKit {
 					if (Headers.TryGetHeader (HeaderId.ContentId, out var header)) {
 						int index = 0;
 
-						if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string msgid))
+						if (ParseUtils.TryParseMsgId (header.RawValue, ref index, header.RawValue.Length, false, false, out string? msgid))
 							contentId = msgid;
 					}
 
@@ -428,7 +428,7 @@ namespace MimeKit {
 				var buffer = Encoding.UTF8.GetBytes (value);
 				int index = 0;
 
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string id))
+				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? id))
 					throw new ArgumentException ("Invalid Content-Id format.", nameof (value));
 
 				LazyLoaded |= LazyLoadedFields.ContentId;
@@ -1193,7 +1193,9 @@ namespace MimeKit {
 
 		void SerializeContentDisposition ()
 		{
-			var text = disposition.Encode (FormatOptions.Default, Encoding.UTF8);
+			// Note: disposition cannot be null if an event handler is registered to its Changed event
+			// or when it was set to a non-null value in it the ContentDisposition setter.
+			var text = disposition!.Encode (FormatOptions.Default, Encoding.UTF8);
 			var raw = Encoding.UTF8.GetBytes (text);
 
 			SetHeader ("Content-Disposition", raw);
@@ -1207,12 +1209,12 @@ namespace MimeKit {
 			SetHeader ("Content-Type", raw);
 		}
 
-		void ContentDispositionChanged (object sender, EventArgs e)
+		void ContentDispositionChanged (object? sender, EventArgs e)
 		{
 			SerializeContentDisposition ();
 		}
 
-		void ContentTypeChanged (object sender, EventArgs e)
+		void ContentTypeChanged (object? sender, EventArgs e)
 		{
 			SerializeContentType ();
 		}
@@ -1229,12 +1231,18 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
-		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header header)
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="header"/> must not be null when <paramref name="action"/> is not <see cref="HeaderListChangedAction.Cleared"/>.
+		/// </exception>
+		protected virtual void OnHeadersChanged (HeaderListChangedAction action, Header? header)
 		{
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
+				if (header == null)
+					throw new ArgumentNullException (nameof (header), $"{nameof (header)} must not be null when {nameof (action)} is not {nameof (HeaderListChangedAction.Cleared)}.");
+
 				switch (header.Id) {
 				case HeaderId.ContentDisposition:
 					if (disposition != null)
@@ -1270,7 +1278,7 @@ namespace MimeKit {
 			}
 		}
 
-		void HeadersChanged (object sender, HeaderListChangedEventArgs e)
+		void HeadersChanged (object? sender, HeaderListChangedEventArgs e)
 		{
 			OnHeadersChanged (e.Action, e.Header);
 		}

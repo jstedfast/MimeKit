@@ -66,7 +66,7 @@ namespace MimeKit.Cryptography {
 		{
 			bool containsFrom = false;
 
-			if (!parameters.TryGetValue ("v", out string v))
+			if (!parameters.TryGetValue ("v", out string? v))
 				throw new FormatException ("Malformed DKIM-Signature header: no version parameter detected.");
 
 			if (v != "1")
@@ -84,7 +84,7 @@ namespace MimeKit.Cryptography {
 			if (!containsFrom)
 				throw new FormatException ("Malformed DKIM-Signature header: From header not signed.");
 
-			if (parameters.TryGetValue ("i", out string id)) {
+			if (parameters.TryGetValue ("i", out string? id)) {
 				int at;
 
 				if ((at = id.LastIndexOf ('@')) == -1)

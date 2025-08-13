@@ -28,6 +28,7 @@ using System;
 using System.Text;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 #if ENABLE_CRYPTO
 using MimeKit.Cryptography;
@@ -35,7 +36,6 @@ using MimeKit.Cryptography;
 
 using MimeKit.Tnef;
 using MimeKit.Utils;
-using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>

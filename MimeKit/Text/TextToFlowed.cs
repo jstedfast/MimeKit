@@ -164,7 +164,7 @@ namespace MimeKit.Text {
 		public override void Convert (TextReader reader, TextWriter writer)
 		{
 			StringBuilder flowed;
-			string line;
+			string? line;
 
 			if (reader is null)
 				throw new ArgumentNullException (nameof (reader));

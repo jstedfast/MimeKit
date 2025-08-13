@@ -236,14 +236,14 @@ namespace MimeKit {
 			return GetEnumerator ();
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
 		void OnChanged ()
 		{
 			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
-		void OnGroupChanged (object sender, HeaderListChangedEventArgs e)
+		void OnGroupChanged (object? sender, HeaderListChangedEventArgs e)
 		{
 			OnChanged ();
 		}

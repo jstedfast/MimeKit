@@ -338,14 +338,14 @@ namespace MimeKit.Tnef {
 			return inputEnd - inputIndex;
 		}
 
-		internal void SetComplianceError (TnefComplianceStatus error, Exception innerException = null)
+		internal void SetComplianceError (TnefComplianceStatus error, Exception? innerException = null)
 		{
 			ComplianceStatus |= error;
 
 			if (ComplianceMode != TnefComplianceMode.Strict)
 				return;
 
-			string message = null;
+			string? message = null;
 
 			switch (error) {
 			case TnefComplianceStatus.AttributeOverflow:        message = "Too many attributes."; break;

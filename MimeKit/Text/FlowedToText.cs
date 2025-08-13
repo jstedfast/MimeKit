@@ -125,7 +125,7 @@ namespace MimeKit.Text {
 		{
 			var para = new StringBuilder ();
 			int paraQuoteDepth = -1;
-			string line;
+			string? line;
 
 			if (reader is null)
 				throw new ArgumentNullException (nameof (reader));

@@ -52,8 +52,8 @@ namespace MimeKit.IO {
 		IOOperation lastOp = IOOperation.Write;
 		int filteredLength;
 		int filteredIndex;
-		byte[] filtered;
-		byte[] readbuf;
+		byte[]? filtered;
+		byte[]? readbuf;
 		bool disposed;
 		bool flushed;
 
@@ -359,7 +359,7 @@ namespace MimeKit.IO {
 			nread = Math.Min (filteredLength, count);
 
 			if (nread > 0) {
-				Buffer.BlockCopy (filtered, filteredIndex, buffer, offset, nread);
+				Buffer.BlockCopy (filtered!, filteredIndex, buffer, offset, nread);
 				filteredLength -= nread;
 				filteredIndex += nread;
 			}
@@ -467,7 +467,7 @@ namespace MimeKit.IO {
 			nread = Math.Min (filteredLength, count);
 
 			if (nread > 0) {
-				Buffer.BlockCopy (filtered, filteredIndex, buffer, offset, nread);
+				Buffer.BlockCopy (filtered!, filteredIndex, buffer, offset, nread);
 				filteredLength -= nread;
 				filteredIndex += nread;
 			}
@@ -683,10 +683,10 @@ namespace MimeKit.IO {
 
 			if (filteredLength > 0) {
 				if (Source is ICancellableStream cancellable) {
-					cancellable.Write (filtered, filteredIndex, filteredLength, cancellationToken);
+					cancellable.Write (filtered!, filteredIndex, filteredLength, cancellationToken);
 				} else {
 					cancellationToken.ThrowIfCancellationRequested ();
-					Source.Write (filtered, filteredIndex, filteredLength);
+					Source.Write (filtered!, filteredIndex, filteredLength);
 				}
 
 				filteredIndex = 0;
@@ -758,7 +758,7 @@ namespace MimeKit.IO {
 			}
 
 			if (filteredLength > 0) {
-				await Source.WriteAsync (filtered, filteredIndex, filteredLength, cancellationToken).ConfigureAwait (false);
+				await Source.WriteAsync (filtered!, filteredIndex, filteredLength, cancellationToken).ConfigureAwait (false);
 
 				filteredIndex = 0;
 				filteredLength = 0;
@@ -797,12 +797,8 @@ namespace MimeKit.IO {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
-			if (disposing) {
-				if (filters != null) {
-					filters.Clear ();
-					filters = null;
-				}
-
+			if (disposing && !disposed) {
+				filters.Clear ();
 				readbuf = null;
 			}
 

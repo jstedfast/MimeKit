@@ -38,7 +38,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class MessageFeedbackReport : MimePart, IMessageFeedbackReport
 	{
-		HeaderList fields;
+		HeaderList? fields;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MessageFeedbackReport"/> class.
@@ -100,12 +100,13 @@ namespace MimeKit {
 			}
 		}
 
-		void OnFieldsChanged (object sender, HeaderListChangedEventArgs e)
+		void OnFieldsChanged (object? sender, HeaderListChangedEventArgs e)
 		{
 			var stream = new MemoryBlockStream ();
 			var options = FormatOptions.Default;
 
-			fields.WriteTo (options, stream);
+			// Note: fields cannot be null if an event handler is registered to its Changed event
+			fields!.WriteTo (options, stream);
 			stream.Position = 0;
 
 			Content = new MimeContent (stream);

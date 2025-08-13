@@ -58,7 +58,7 @@ namespace MimeKit {
 		readonly Stack<MimeNode> stack = new Stack<MimeNode> ();
 		readonly List<int> path = new List<int> ();
 		bool moveFirst = true;
-		MimeEntity current;
+		MimeEntity? current;
 		int index = -1;
 
 		/// <summary>
@@ -128,7 +128,7 @@ namespace MimeKit {
 		/// Either <see cref="MoveNext()"/> has not been called or <see cref="MoveNext()"/>
 		/// has moved beyond the end of the message.
 		/// </exception>
-		public MimeEntity Parent {
+		public MimeEntity? Parent {
 			get {
 				if (current is null)
 					throw new InvalidOperationException ();

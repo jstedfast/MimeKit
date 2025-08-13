@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Text;
@@ -111,11 +112,11 @@ namespace MimeKit.Tnef {
 
 			// Note: The RecipientTable uses rows of properties...
 			while (prop.ReadNextRow ()) {
-				string transmitableDisplayName = null;
-				string recipientDisplayName = null;
+				string? transmitableDisplayName = null;
+				string? recipientDisplayName = null;
 				string displayName = string.Empty;
-				InternetAddressList list = null;
-				string addr = null;
+				InternetAddressList? list = null;
+				string? addr = null;
 
 				while (prop.ReadNextProperty ()) {
 					switch (prop.PropertyTag.Id) {
@@ -159,10 +160,11 @@ namespace MimeKit.Tnef {
 		class EmailAddress
 		{
 			public string AddrType = "SMTP";
-			public string SearchKey;
-			public string Name;
-			public string Addr;
+			public string? SearchKey;
+			public string? Name;
+			public string? Addr;
 
+			[MemberNotNullWhen (true, nameof (SearchKey))]
 			bool CanUseSearchKey {
 				get {
 					return SearchKey != null && SearchKey.Equals ("SMTP", StringComparison.OrdinalIgnoreCase) &&
@@ -177,9 +179,9 @@ namespace MimeKit.Tnef {
 			//	}
 			//}
 
-			public bool TryGetMailboxAddress (out MailboxAddress mailbox)
+			public bool TryGetMailboxAddress ([NotNullWhen (true)] out MailboxAddress? mailbox)
 			{
-				string addr;
+				string? addr;
 
 				if (string.IsNullOrEmpty (Addr) && CanUseSearchKey)
 					addr = SearchKey.Substring (AddrType.Length + 1);
@@ -223,8 +225,8 @@ namespace MimeKit.Tnef {
 						if (tag.Id != HtmlTagId.Meta || tag.IsEndTag)
 							continue;
 
-						string httpEquiv = null;
-						string content = null;
+						string? httpEquiv = null;
+						string? content = null;
 
 						for (int i = 0; i < tag.Attributes.Count; i++) {
 							switch (tag.Attributes[i].Id) {
@@ -262,9 +264,9 @@ namespace MimeKit.Tnef {
 			var prop = reader.TnefPropertyReader;
 			var recipient = new EmailAddress ();
 			var sender = new EmailAddress ();
-			string normalizedSubject = null;
-			string subjectPrefix = null;
-			MailboxAddress mailbox;
+			string? normalizedSubject = null;
+			string? subjectPrefix = null;
+			MailboxAddress? mailbox;
 			var msgid = false;
 
 			while (prop.ReadNextProperty ()) {
@@ -494,11 +496,11 @@ namespace MimeKit.Tnef {
 			var attachMethod = TnefAttachMethod.ByValue;
 			var filter = new BestEncodingFilter ();
 			var prop = reader.TnefPropertyReader;
-			MimePart attachment = null;
+			MimePart? attachment = null;
 			TnefAttachFlags flags;
 			bool dispose = false;
 			string[] mimeType;
-			byte[] attachData;
+			byte[]? attachData;
 			string text;
 
 			try {
@@ -510,7 +512,7 @@ namespace MimeKit.Tnef {
 					case TnefAttributeTag.AttachRenderData:
 						attachMethod = TnefAttachMethod.ByValue;
 						if (dispose)
-							attachment.Dispose ();
+							attachment!.Dispose ();
 						attachment = new MimePart ();
 						dispose = true;
 						break;
@@ -540,12 +542,12 @@ namespace MimeKit.Tnef {
 								var buffer = CharsetUtils.UTF8.GetBytes (text);
 								int index = 0;
 
-								if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string msgid))
+								if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
 									attachment.ContentId = msgid;
 								break;
 							case TnefPropertyId.AttachDisposition:
 								text = prop.ReadValueAsString ();
-								if (ContentDisposition.TryParse (text, out ContentDisposition disposition))
+								if (ContentDisposition.TryParse (text, out ContentDisposition? disposition))
 									attachment.ContentDisposition = disposition;
 								break;
 							case TnefPropertyId.AttachData:
@@ -646,7 +648,7 @@ namespace MimeKit.Tnef {
 				} while (reader.ReadNextAttribute ());
 			} finally {
 				if (dispose)
-					attachment.Dispose ();
+					attachment!.Dispose ();
 			}
 		}
 
@@ -654,7 +656,7 @@ namespace MimeKit.Tnef {
 		{
 			var message = new MimeMessage ();
 			var alternatives = new MultipartAlternative ();
-			MimeEntity body = null;
+			MimeEntity? body = null;
 
 			try {
 				message.Headers.Remove (HeaderId.Date);

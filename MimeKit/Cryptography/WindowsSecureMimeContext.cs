@@ -178,7 +178,7 @@ namespace MimeKit.Cryptography {
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate2 domainCertificate = null;
+			X509Certificate2? domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var storeName in storeNames) {
@@ -334,7 +334,7 @@ namespace MimeKit.Cryptography {
 			var mailboxAddress = mailbox.GetAddress (true);
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate2 domainCertificate = null;
+			X509Certificate2? domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			store.Open (OpenFlags.ReadOnly);

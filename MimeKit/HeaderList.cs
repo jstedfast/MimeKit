@@ -31,6 +31,7 @@ using System.Threading;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -610,7 +611,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public string this [HeaderId id] {
+		[DisallowNull]
+		public string? this [HeaderId id] {
 			get {
 				if (id == HeaderId.Unknown)
 					throw new ArgumentOutOfRangeException (nameof (id));
@@ -650,7 +652,8 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="value"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public string this [string field] {
+		[DisallowNull]
+		public string? this [string field] {
 			get {
 				if (field is null)
 					throw new ArgumentNullException (nameof (field));
@@ -1235,24 +1238,24 @@ namespace MimeKit {
 
 		#endregion
 
-		internal event EventHandler<HeaderListChangedEventArgs> Changed;
+		internal event EventHandler<HeaderListChangedEventArgs>? Changed;
 
-		void HeaderChanged (object sender, EventArgs args)
+		void HeaderChanged (object? sender, EventArgs args)
 		{
-			OnChanged ((Header) sender, HeaderListChangedAction.Changed);
+			OnChanged (sender as Header, HeaderListChangedAction.Changed);
 		}
 
-		void OnChanged (Header header, HeaderListChangedAction action)
+		void OnChanged (Header? header, HeaderListChangedAction action)
 		{
 			Changed?.Invoke (this, new HeaderListChangedEventArgs (header, action));
 		}
 
-		internal bool TryGetHeader (HeaderId id, out Header header)
+		internal bool TryGetHeader (HeaderId id, [NotNullWhen (true)] out Header? header)
 		{
 			return table.TryGetValue (id.ToHeaderName (), out header);
 		}
 
-		internal bool TryGetHeader (string field, out Header header)
+		internal bool TryGetHeader (string field, [NotNullWhen (true)] out Header? header)
 		{
 			return table.TryGetValue (field, out header);
 		}

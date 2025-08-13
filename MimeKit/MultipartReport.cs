@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit {
 	/// <summary>
@@ -120,7 +121,8 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartReport"/> has been disposed.
 		/// </exception>
-		public string ReportType {
+		[DisallowNull]
+		public string? ReportType {
 			get {
 				CheckDisposed ();
 

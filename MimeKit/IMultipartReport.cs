@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace MimeKit {
 	/// <summary>
 	/// An interface for a multipart/report MIME entity.
@@ -57,7 +59,8 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMultipartReport"/> has been disposed.
 		/// </exception>
-		string ReportType {
+		[DisallowNull]
+		string? ReportType {
 			get; set;
 		}
 	}

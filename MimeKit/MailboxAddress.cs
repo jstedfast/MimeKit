@@ -28,6 +28,7 @@ using System;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 #if ENABLE_SNM
 using System.Net.Mail;
@@ -65,7 +66,7 @@ namespace MimeKit {
 			IdnMapping = new Punycode ();
 		}
 
-		internal MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address, int at) : base (encoding, name)
+		internal MailboxAddress (Encoding encoding, string? name, IEnumerable<string> route, string address, int at) : base (encoding, name)
 		{
 			Route = new DomainList (route);
 			Route.Changed += RouteChanged;
@@ -74,7 +75,7 @@ namespace MimeKit {
 			this.at = at;
 		}
 
-		internal MailboxAddress (Encoding encoding, string name, string address, int at) : base (encoding, name)
+		internal MailboxAddress (Encoding encoding, string? name, string address, int at) : base (encoding, name)
 		{
 			Route = new DomainList ();
 			Route.Changed += RouteChanged;
@@ -104,7 +105,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address) : base (encoding, name)
+		public MailboxAddress (Encoding encoding, string? name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
 			if (address is null)
 				throw new ArgumentNullException (nameof (address));
@@ -131,7 +132,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (string name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
+		public MailboxAddress (string? name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
 		{
 		}
 
@@ -153,7 +154,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (Encoding encoding, string name, string address) : base (encoding, name)
+		public MailboxAddress (Encoding encoding, string? name, string address) : base (encoding, name)
 		{
 			if (address is null)
 				throw new ArgumentNullException (nameof (address));
@@ -177,7 +178,7 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
-		public MailboxAddress (string name, string address) : this (Encoding.UTF8, name, address)
+		public MailboxAddress (string? name, string address) : this (Encoding.UTF8, name, address)
 		{
 		}
 
@@ -220,6 +221,8 @@ namespace MimeKit {
 		/// </exception>
 		public string Address {
 			get { return address; }
+
+			[MemberNotNull (nameof (address))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -232,14 +235,14 @@ namespace MimeKit {
 					var buffer = CharsetUtils.UTF8.GetBytes (value);
 					int index = 0;
 
-					TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, compliance, true, out string addrspec, out int atIndex);
+					TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, compliance, true, out string? addrspec, out int atIndex);
 
 					ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, buffer.Length, false);
 
 					if (index != buffer.Length)
 						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) buffer[index], index), index, index);
 
-					address = addrspec;
+					address = addrspec!;
 					at = atIndex;
 				} else {
 					address = string.Empty;
@@ -342,7 +345,7 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string address, out int at))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string? address, out int at))
 				return addrspec;
 
 			return EncodeAddrspec (address, at);
@@ -371,7 +374,7 @@ namespace MimeKit {
 			int index = 0;
 
 			// Note: The parsed address will be IDN-decoded.
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string address, out _))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string? address, out _))
 				return addrspec;
 
 			return address;
@@ -528,7 +531,7 @@ namespace MimeKit {
 		/// <param name="other">The <see cref="MailboxAddress"/> to compare with the current <see cref="MailboxAddress"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="MailboxAddress"/> is equal to the current
 		/// <see cref="MailboxAddress"/>; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (InternetAddress other)
+		public override bool Equals (InternetAddress? other)
 		{
 			return other is MailboxAddress mailbox
 				&& Name == mailbox.Name
@@ -537,12 +540,12 @@ namespace MimeKit {
 
 		#endregion
 
-		void RouteChanged (object sender, EventArgs e)
+		void RouteChanged (object? sender, EventArgs e)
 		{
 			OnChanged ();
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out MailboxAddress mailbox)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			var flags = AddressParserFlags.AllowMailboxAddress;
 
@@ -572,7 +575,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out MailboxAddress mailbox)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
 				mailbox = null;
@@ -605,7 +608,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out MailboxAddress mailbox)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out mailbox);
 		}
@@ -622,7 +625,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out MailboxAddress mailbox)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
 				mailbox = null;
@@ -654,7 +657,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, out MailboxAddress mailbox)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out mailbox);
 		}
@@ -670,7 +673,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out MailboxAddress mailbox)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer)) {
 				mailbox = null;
@@ -701,7 +704,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (byte[] buffer, out MailboxAddress mailbox)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, buffer, out mailbox);
 		}
@@ -717,7 +720,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		public static bool TryParse (ParserOptions options, string text, out MailboxAddress mailbox)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			if (!ArgumentValidator.TryValidate (options, text)) {
 				mailbox = null;
@@ -752,7 +755,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static bool TryParse (string text, out MailboxAddress mailbox)
+		public static bool TryParse (string? text, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
@@ -795,7 +798,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return mailbox;
+			return mailbox!;
 		}
 
 		/// <summary>
@@ -860,7 +863,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return mailbox;
+			return mailbox!;
 		}
 
 		/// <summary>
@@ -919,7 +922,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return mailbox;
+			return mailbox!;
 		}
 
 		/// <summary>
@@ -975,7 +978,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return mailbox;
+			return mailbox!;
 		}
 
 		/// <summary>
@@ -1009,7 +1012,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The equivalent <see cref="System.Net.Mail.MailAddress"/>.</returns>
 		/// <param name="mailbox">The mailbox.</param>
-		public static explicit operator MailAddress (MailboxAddress mailbox)
+		[return: NotNullIfNotNull (nameof (mailbox))]
+		public static explicit operator MailAddress? (MailboxAddress? mailbox)
 		{
 			return mailbox != null ? new MailAddress (mailbox.Address, mailbox.Name, mailbox.Encoding) : null;
 		}
@@ -1024,7 +1028,8 @@ namespace MimeKit {
 		/// </remarks>
 		/// <returns>The equivalent <see cref="MailboxAddress"/>.</returns>
 		/// <param name="address">The mail address.</param>
-		public static explicit operator MailboxAddress (MailAddress address)
+		[return: NotNullIfNotNull (nameof (address))]
+		public static explicit operator MailboxAddress? (MailAddress? address)
 		{
 			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
 		}

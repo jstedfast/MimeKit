@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Text;
 
@@ -97,7 +98,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
-		public string TextBody {
+		public string? TextBody {
 			get { return GetTextBody (TextFormat.Plain); }
 		}
 
@@ -111,7 +112,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
-		public string HtmlBody {
+		public string? HtmlBody {
 			get { return GetTextBody (TextFormat.Html); }
 		}
 
@@ -148,7 +149,7 @@ namespace MimeKit {
 			if (text.IsFlowed) {
 				var converter = new FlowedToText ();
 
-				if (text.ContentType.Parameters.TryGetValue ("delsp", out string delsp))
+				if (text.ContentType.Parameters.TryGetValue ("delsp", out string? delsp))
 					converter.DeleteSpace = string.Equals (delsp, "yes", StringComparison.OrdinalIgnoreCase);
 
 				return converter.Convert (text.Text);
@@ -168,7 +169,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MultipartAlternative"/> has been disposed.
 		/// </exception>
-		public string GetTextBody (TextFormat format)
+		public string? GetTextBody (TextFormat format)
 		{
 			if (TryGetValue (format, out var body))
 				return GetText (body);
@@ -188,7 +189,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="Multipart"/> has been disposed.
 		/// </exception>
-		public override bool TryGetValue (TextFormat format, out TextPart body)
+		public override bool TryGetValue (TextFormat format, [NotNullWhen (true)] out TextPart? body)
 		{
 			CheckDisposed ();
 

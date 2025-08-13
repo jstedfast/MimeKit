@@ -95,7 +95,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
 		/// </example>
 		/// <value>The text body.</value>
-		public string TextBody {
+		public string? TextBody {
 			get; set;
 		}
 
@@ -109,7 +109,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\BodyBuilder.cs" region="Complex" />
 		/// </example>
 		/// <value>The html body.</value>
-		public string HtmlBody {
+		public string? HtmlBody {
 			get; set;
 		}
 
@@ -150,8 +150,8 @@ namespace MimeKit {
 		/// <returns>The message body.</returns>
 		public MimeEntity ToMessageBody ()
 		{
-			MultipartAlternative alternative = null;
-			MimeEntity body = null;
+			MultipartAlternative? alternative = null;
+			MimeEntity? body = null;
 
 			if (TextBody != null) {
 				var text = new TextPart ("plain");

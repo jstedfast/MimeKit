@@ -1,5 +1,5 @@
 ﻿//
-// HeaderListChangedEventArgs.cs
+// EventHandler.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -25,53 +25,7 @@
 //
 
 using System;
-using System.Diagnostics;
 
-namespace MimeKit {
-	/// <summary>
-	/// Header list changed action.
-	/// </summary>
-    /// <remarks>
-    /// Specifies the way that a <see cref="HeaderList"/> was changed.
-    /// </remarks>
-	public enum HeaderListChangedAction {
-		/// <summary>
-		/// A header was added.
-		/// </summary>
-		Added,
-
-		/// <summary>
-		/// A header was changed.
-		/// </summary>
-		Changed,
-
-		/// <summary>
-		/// A header was removed.
-		/// </summary>
-		Removed,
-
-		/// <summary>
-		/// The header list was cleared.
-		/// </summary>
-		Cleared
-	}
-
-	class HeaderListChangedEventArgs : EventArgs
-	{
-		internal HeaderListChangedEventArgs (Header? header, HeaderListChangedAction action)
-		{
-			Debug.Assert (header != null || action == HeaderListChangedAction.Cleared, "Header cannot be null unless the action is Cleared.");
-
-			Header = header;
-			Action = action;
-		}
-
-		public HeaderListChangedAction Action {
-			get; private set;
-		}
-
-		public Header? Header {
-			get; private set;
-		}
-	}
+namespace MimeKit.Utils {
+	delegate void EventHandler<TSender, TEventArgs>(TSender sender, TEventArgs e) where TEventArgs : EventArgs;
 }

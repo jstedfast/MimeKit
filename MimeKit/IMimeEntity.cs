@@ -67,7 +67,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimeEntity"/> has been disposed.
 		/// </exception>
-		ContentDisposition ContentDisposition {
+		ContentDisposition? ContentDisposition {
 			get; set;
 		}
 
@@ -99,7 +99,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimeEntity"/> has been disposed.
 		/// </exception>
-		Uri ContentBase {
+		Uri? ContentBase {
 			get; set;
 		}
 
@@ -119,7 +119,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimeEntity"/> has been disposed.
 		/// </exception>
-		public Uri ContentLocation {
+		public Uri? ContentLocation {
 			get; set;
 		}
 
@@ -141,7 +141,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="IMimeEntity"/> has been disposed.
 		/// </exception>
-		string ContentId {
+		string? ContentId {
 			get; set;
 		}
 

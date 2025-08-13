@@ -45,19 +45,19 @@ namespace MimeKit {
 		readonly Stack<object> stack = new Stack<object> ();
 
 		// Mbox state
-		byte[] mboxMarkerBuffer;
+		byte[]? mboxMarkerBuffer;
 		long mboxMarkerOffset;
 		int mboxMarkerLength;
 
 		// Current MimeMessage/MimeEntity Header state
 		readonly List<Header> headers = new List<Header> ();
-		byte[] preHeaderBuffer;
+		byte[]? preHeaderBuffer;
 		int preHeaderLength;
 
-		byte[] rawBoundary;
+		byte[]? rawBoundary;
 
 		// MimePart content and Multipart preamble/epilogue state
-		Stream content;
+		Stream? content;
 
 		bool parsingMessageHeaders;
 		bool hasBodySeparator;
@@ -192,8 +192,8 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
 		/// <value>The mbox marker.</value>
-		public string MboxMarker {
-			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength) : null; }
+		public string? MboxMarker {
+			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer!, 0, mboxMarkerLength) : null; }
 		}
 
 		void OnSetStream (Stream stream, MimeFormat format, bool persistent)
@@ -245,7 +245,9 @@ namespace MimeKit {
 		/// </exception>
 		public override void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
-			SetStream (stream, format, false);
+			base.SetStream (stream, format);
+
+			OnSetStream (stream, format, false);
 		}
 
 		/// <summary>
@@ -328,7 +330,7 @@ namespace MimeKit {
 		{
 			int needed = mboxMarkerLength + count;
 
-			if (mboxMarkerBuffer.Length < needed)
+			if (mboxMarkerBuffer!.Length < needed)
 				Array.Resize (ref mboxMarkerBuffer, needed);
 
 			Buffer.BlockCopy (buffer, startIndex, mboxMarkerBuffer, mboxMarkerLength, count);
@@ -433,7 +435,7 @@ namespace MimeKit {
 
 			if (preHeaderLength > 0) {
 				message.MboxMarker = new byte[preHeaderLength];
-				Buffer.BlockCopy (preHeaderBuffer, 0, message.MboxMarker, 0, preHeaderLength);
+				Buffer.BlockCopy (preHeaderBuffer!, 0, message.MboxMarker, 0, preHeaderLength);
 			}
 
 			if (stack.Count > 0) {
@@ -514,7 +516,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMimePartContentRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
-			if (!persistent)
+			if (content is not null)
 				content.Write (buffer, startIndex, count);
 		}
 
@@ -542,7 +544,7 @@ namespace MimeKit {
 
 			var part = (MimePart) stack.Peek ();
 
-			if (persistent) {
+			if (content is null /* aka 'persistent' */) {
 				content = new BoundStream (stream, beginOffset, endOffset, true);
 			} else {
 				content.SetLength (endOffset - beginOffset);
@@ -668,7 +670,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMultipartPreambleRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
-			content.Write (buffer, startIndex, count);
+			content!.Write (buffer, startIndex, count);
 		}
 
 		/// <summary>
@@ -687,7 +689,7 @@ namespace MimeKit {
 		{
 			var multipart = (Multipart) stack.Peek ();
 
-			content.SetLength (endOffset - beginOffset);
+			content!.SetLength (endOffset - beginOffset);
 
 			multipart.RawPreamble = ((MemoryStream) content).ToArray ();
 			content.Dispose ();
@@ -773,7 +775,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMultipartEpilogueRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
-			content.Write (buffer, startIndex, count);
+			content!.Write (buffer, startIndex, count);
 		}
 
 		/// <summary>
@@ -792,7 +794,7 @@ namespace MimeKit {
 		{
 			var multipart = (Multipart) stack.Peek ();
 
-			content.SetLength (endOffset - beginOffset);
+			content!.SetLength (endOffset - beginOffset);
 
 			multipart.RawEpilogue = ((MemoryStream) content).ToArray ();
 			content.Dispose ();

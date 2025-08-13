@@ -160,7 +160,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected abstract X509Certificate GetCertificate (ISelector<X509Certificate> selector);
+		protected abstract X509Certificate? GetCertificate (ISelector<X509Certificate> selector);
 
 		/// <summary>
 		/// Get the private key for the certificate matching the specified selector.
@@ -171,7 +171,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise, <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected abstract AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector);
+		protected abstract AsymmetricKeyParameter? GetPrivateKey (ISelector<X509Certificate> selector);
 
 		/// <summary>
 		/// Get the trusted anchors.
@@ -312,7 +312,7 @@ namespace MimeKit.Cryptography {
 			var signedAttributes = AddSecureMimeCapabilities (signer.SignedAttributes);
 			var signedData = new CmsSignedDataStreamGenerator (RandomNumberGenerator);
 			var digestOid = GetDigestOid (signer.DigestAlgorithm);
-			byte[] subjectKeyId = null;
+			byte[]? subjectKeyId = null;
 
 			if (signer.SignerIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
 				subjectKeyId = X509ExtensionUtilities.GetSubjectKeyIdentifier (signer.Certificate)?.GetKeyIdentifier ();
@@ -680,7 +680,7 @@ namespace MimeKit.Cryptography {
 			return await SignAsync (cmsSigner, content, cancellationToken).ConfigureAwait (false);
 		}
 
-		X509Certificate GetCertificate (IStore<X509Certificate> store, SignerID signer)
+		X509Certificate? GetCertificate (IStore<X509Certificate> store, SignerID signer)
 		{
 			if (signer.Certificate != null)
 				return signer.Certificate;
@@ -742,7 +742,7 @@ namespace MimeKit.Cryptography {
 			return chain;
 		}
 
-		PkixCertPath BuildCertPath (ISelector<X509Certificate> selector, ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate certificate, DateTime signingTime)
+		PkixCertPath BuildCertPath (ISelector<X509Certificate> selector, ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate? certificate, DateTime signingTime)
 		{
 			var intermediates = new X509CertificateStore ();
 
@@ -1442,7 +1442,7 @@ namespace MimeKit.Cryptography {
 
 				// Note: If the recipient explicitly opts in to OAEP encryption (even if the underlying certificate is not tagged with an OAEP OID), choose OAEP instead.
 				if (publicKey is RsaKeyParameters && recipient.RsaEncryptionPadding?.Scheme == RsaEncryptionPaddingScheme.Oaep) {
-					keyEncryptionAlgorithm = recipient.RsaEncryptionPadding.GetAlgorithmIdentifier ();
+					keyEncryptionAlgorithm = recipient.RsaEncryptionPadding.GetAlgorithmIdentifier ()!; // GetAlgorithmIdentifier returns a non-null value for OAEP
 				} else {
 					keyEncryptionAlgorithm = publicKeyInfo.Algorithm;
 				}
@@ -1703,7 +1703,7 @@ namespace MimeKit.Cryptography {
 			//
 			// If the content isn't already a memory stream of some sort, we clone it into a memory stream
 			// in order to provide asynchronous reading from the source content stream.
-			MemoryBlockStream memory = null;
+			MemoryBlockStream? memory = null;
 
 			if (!(content is MemoryBlockStream or MemoryStream)) {
 				memory = new MemoryBlockStream ();
@@ -1891,7 +1891,7 @@ namespace MimeKit.Cryptography {
 		CmsTypedStream GetDecryptedContent (CmsEnvelopedDataParser parser)
 		{
 			var recipients = parser.GetRecipientInfos ();
-			AsymmetricKeyParameter key;
+			AsymmetricKeyParameter? key;
 
 			foreach (var recipient in recipients.GetRecipients ()) {
 				if ((key = GetPrivateKey (recipient.RecipientID)) == null)
