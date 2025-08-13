@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -108,6 +109,7 @@ namespace MimeKit.Text {
 			Dispose (false);
 		}
 
+		[MemberNotNull (nameof (html))]
 		void CheckDisposed ()
 		{
 			if (disposed)

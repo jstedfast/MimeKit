@@ -109,7 +109,7 @@ namespace MimeKit.Text {
 		/// filtering of HTML tags and content.
 		/// </remarks>
 		/// <value>The html tag callback.</value>
-		public HtmlTagCallback HtmlTagCallback {
+		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
 		}
 
@@ -282,7 +282,7 @@ namespace MimeKit.Text {
 				var stack = new List<TextToHtmlTagContext> ();
 				int currentQuoteDepth = 0;
 				TextToHtmlTagContext ctx;
-				string line;
+				string? line;
 
 				while ((line = reader.ReadLine ()) != null) {
 					line = Unquote (line, out int quoteDepth);

@@ -60,7 +60,7 @@ namespace MimeKit.Cryptography {
 		const int DefaultMinIterations = 1024;
 		const int DefaultSaltSize = 20;
 
-		DbTransaction activeTransaction;
+		DbTransaction? activeTransaction;
 		DbConnection connection;
 		char[] password;
 
@@ -500,7 +500,7 @@ namespace MimeKit.Cryptography {
 			return encrypted.GetEncoded ();
 		}
 
-		AsymmetricKeyParameter DecryptAsymmetricKeyParameter (byte[] buffer, int length)
+		AsymmetricKeyParameter? DecryptAsymmetricKeyParameter (byte[] buffer, int length)
 		{
 			using (var memory = new MemoryStream (buffer, 0, length, false)) {
 				using (var asn1 = new Asn1InputStream (memory)) {
@@ -529,7 +529,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		AsymmetricKeyParameter DecodePrivateKey (DbDataReader reader, int column, ref byte[] buffer)
+		AsymmetricKeyParameter? DecodePrivateKey (DbDataReader reader, int column, ref byte[] buffer)
 		{
 			if (reader.IsDBNull (column))
 				return null;
@@ -539,12 +539,12 @@ namespace MimeKit.Cryptography {
 			return DecryptAsymmetricKeyParameter (buffer, nread);
 		}
 
-		object EncodePrivateKey (AsymmetricKeyParameter key)
+		object EncodePrivateKey (AsymmetricKeyParameter? key)
 		{
 			return key != null ? (object) EncryptAsymmetricKeyParameter (key) : DBNull.Value;
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (DbDataReader reader, int column)
+		static EncryptionAlgorithm[]? DecodeEncryptionAlgorithms (DbDataReader reader, int column)
 		{
 			if (reader.IsDBNull (column))
 				return null;
@@ -565,7 +565,7 @@ namespace MimeKit.Cryptography {
 			return algorithms.ToArray ();
 		}
 
-		static object EncodeEncryptionAlgorithms (EncryptionAlgorithm[] algorithms)
+		static object EncodeEncryptionAlgorithms (EncryptionAlgorithm[]? algorithms)
 		{
 			if (algorithms == null || algorithms.Length == 0)
 				return DBNull.Value;
@@ -740,7 +740,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be matched; otherwise, <see langword="false" />.</param>
 		/// <param name="requirePrivateKey"><see langword="true" /> if the certificate must have a private key; otherwise, <see langword="false" />.</param>
 		/// <param name="fields">The fields to return.</param>
-		protected abstract DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate> selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
+		protected abstract DbCommand GetSelectCommand (DbConnection connection, ISelector<X509Certificate>? selector, bool trustedAnchorsOnly, bool requirePrivateKey, X509CertificateRecordFields fields);
 
 		/// <summary>
 		/// Gets the column names for the specified fields.
@@ -838,7 +838,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="columnName"/> is not a known column name.
 		/// </exception>
-		protected object GetValue (X509CertificateRecord record, string columnName)
+		protected object? GetValue (X509CertificateRecord record, string columnName)
 		{
 			switch (columnName) {
 			//case CertificateColumnNames.Id: return record.Id;
@@ -947,7 +947,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
-		public X509CertificateRecord Find (X509Certificate certificate, X509CertificateRecordFields fields)
+		public X509CertificateRecord? Find (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -975,7 +975,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to return all certificates.</param>
-		public IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate> selector)
+		public IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate>? selector)
 		{
 			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
@@ -1067,7 +1067,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
 		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
-		public IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate> selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
+		public IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate>? selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
 			using (var command = GetSelectCommand (connection, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
@@ -1189,7 +1189,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <see langword="null"/>.
 		/// </exception>
-		public X509CrlRecord Find (X509Crl crl, X509CrlRecordFields fields)
+		public X509CrlRecord? Find (X509Crl crl, X509CrlRecordFields fields)
 		{
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
