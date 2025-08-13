@@ -444,7 +444,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The MIME content.</value>
-		public IMimeContent Content {
+		public virtual IMimeContent Content {
 			get; set;
 		}
 

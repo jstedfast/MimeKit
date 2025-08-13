@@ -205,6 +205,26 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get or set the MIME content.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the MIME content.
+		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
+		/// </example>
+		/// <value>The MIME content.</value>
+		public override IMimeContent Content {
+			get { return base.Content; }
+			set {
+				if (value != null && value is MimeContent content)
+					content.IsText = true;
+
+				base.Content = value;
+			}
+		}
+
+		/// <summary>
 		/// Get the text format of the content.
 		/// </summary>
 		/// <remarks>

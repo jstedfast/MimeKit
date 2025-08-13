@@ -30,8 +30,10 @@ using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
+using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using MimeKit.Encodings;
 
 namespace MimeKit {
 	/// <summary>
@@ -127,6 +129,17 @@ namespace MimeKit {
 		public NewLineFormat? NewLineFormat { get; set; }
 
 		/// <summary>
+		/// Get or set whether the content is text-based.
+		/// </summary>
+		/// <remarks>
+		/// <para>This property is typically only set by the <see cref="MimeParser"/> as it parses
+		/// the content of a <see cref="MimePart"/> and is only used as a hint when decoding
+		/// quoted-printable as to whether to canonicalize the content stream to DOS format
+		/// before decoding.</para>
+		/// </remarks>
+		internal bool IsText { get; set; }
+
+		/// <summary>
 		/// Get the content stream.
 		/// </summary>
 		/// <remarks>
@@ -135,6 +148,21 @@ namespace MimeKit {
 		/// <value>The stream.</value>
 		public Stream Stream {
 			get; private set;
+		}
+
+		FilteredStream CreateFilteredStream (Stream stream)
+		{
+			var filtered = new FilteredStream (stream);
+			IMimeFilter filter;
+
+			if (!IsText && Encoding == ContentEncoding.QuotedPrintable)
+				filter = new DecoderFilter (new BinaryQuotedPrintableDecoder ());
+			else
+				filter = DecoderFilter.Create (Encoding);
+
+			filtered.Add (filter);
+
+			return filtered;
 		}
 
 		/// <summary>
@@ -154,10 +182,7 @@ namespace MimeKit {
 
 			Stream.Seek (0, SeekOrigin.Begin);
 
-			var filtered = new FilteredStream (Stream);
-			filtered.Add (DecoderFilter.Create (Encoding));
-
-			return filtered;
+			return CreateFilteredStream (Stream);
 		}
 
 		/// <summary>
@@ -320,8 +345,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			using (var filtered = new FilteredStream (stream)) {
-				filtered.Add (DecoderFilter.Create (Encoding));
+			using (var filtered = CreateFilteredStream (stream)) {
 				WriteTo (filtered, cancellationToken);
 				filtered.Flush (cancellationToken);
 			}
@@ -360,8 +384,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
-			using (var filtered = new FilteredStream (stream)) {
-				filtered.Add (DecoderFilter.Create (Encoding));
+			using (var filtered = CreateFilteredStream (stream)) {
 				await WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 			}
