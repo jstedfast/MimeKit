@@ -165,7 +165,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the email address of the owner of the certificate.
 		/// </remarks>
 		/// <value>The email address.</value>
-		public string Email {
+		public string? Email {
 			get; private set;
 		}
 
@@ -176,7 +176,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the name of the owner of the certificate.
 		/// </remarks>
 		/// <value>The name of the owner.</value>
-		public string Name {
+		public string? Name {
 			get; private set;
 		}
 

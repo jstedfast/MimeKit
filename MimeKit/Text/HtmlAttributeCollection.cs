@@ -27,6 +27,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -178,7 +179,7 @@ namespace MimeKit.Text {
 		/// <param name="id">The id of the attribute.</param>
 		/// <param name="attribute">The attribute if found; otherwise, <see langword="null"/>.</param>
 		/// <returns><see langword="true" /> if the desired attribute is found; otherwise, <see langword="false" />.</returns>
-		public bool TryGetValue (HtmlAttributeId id, out HtmlAttribute attribute)
+		public bool TryGetValue (HtmlAttributeId id, [NotNullWhen (true)] out HtmlAttribute? attribute)
 		{
 			int index;
 
@@ -204,7 +205,7 @@ namespace MimeKit.Text {
 		/// <exception cref="ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
-		public bool TryGetValue (string name, out HtmlAttribute attribute)
+		public bool TryGetValue (string name, [NotNullWhen (true)] out HtmlAttribute? attribute)
 		{
 			int index;
 

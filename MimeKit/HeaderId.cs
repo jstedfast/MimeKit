@@ -862,7 +862,7 @@ namespace MimeKit {
 			IdMapping = new Dictionary<string, HeaderId> (values.Length - 1, MimeUtils.OrdinalIgnoreCase);
 
 			for (int i = 0; i < values.Length - 1; i++) {
-				var value = (HeaderId) values.GetValue (i);
+				var value = (HeaderId) values.GetValue (i)!;
 
 				IdMapping.Add (HeaderNames[i], value);
 			}

@@ -72,7 +72,7 @@ namespace MimeKit.Tnef {
 		/// <param name="error">The compliance status error.</param>
 		/// <param name="message">The error message.</param>
 		/// <param name="innerException">The inner exception.</param>
-		public TnefException (TnefComplianceStatus error, string message, Exception innerException) : base (message, innerException)
+		public TnefException (TnefComplianceStatus error, string? message, Exception? innerException) : base (message, innerException)
 		{
 			Error = error;
 		}
@@ -85,7 +85,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <param name="error">The compliance status error.</param>
 		/// <param name="message">The error message.</param>
-		public TnefException (TnefComplianceStatus error, string message) : base (message)
+		public TnefException (TnefComplianceStatus error, string? message) : base (message)
 		{
 			Error = error;
 		}

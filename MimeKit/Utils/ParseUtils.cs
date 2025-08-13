@@ -27,6 +27,7 @@
 using System;
 using System.Text;
 using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	static class ParseUtils
@@ -223,7 +224,7 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, out string dotatom)
+		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, [NotNullWhen (true)] out string? dotatom)
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
@@ -279,7 +280,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, out string domain)
+		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out string? domain)
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index++;
@@ -324,7 +325,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, out string domain)
+		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, [NotNullWhen (true)] out string? domain)
 		{
 			if (text[index] == (byte) '[')
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);
@@ -334,7 +335,7 @@ namespace MimeKit.Utils {
 
 		static ReadOnlySpan<byte> GreaterThanOrAt => ">@"u8;
 
-		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, out string msgid)
+		public static bool TryParseMsgId (byte[] text, ref int index, int endIndex, bool requireAngleAddr, bool throwOnError, [NotNullWhen (true)] out string? msgid)
 		{
 			// const CharType SpaceOrControl = CharType.IsWhitespace | CharType.IsControl;
 			var squareBrackets = false;
@@ -448,7 +449,7 @@ namespace MimeKit.Utils {
 					// Note: some Message-Id's are broken and in the form "<local-part@domain1@domain2>"
 					// https://github.com/jstedfast/MailKit/issues/138
 					do {
-						if (!TryParseDomain (text, ref index, endIndex, GreaterThanOrAt, throwOnError, out string domain))
+						if (!TryParseDomain (text, ref index, endIndex, GreaterThanOrAt, throwOnError, out string? domain))
 							return false;
 
 						if (IsIdnEncoded (domain))

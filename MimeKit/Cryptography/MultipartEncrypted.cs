@@ -2092,7 +2092,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public MimeEntity Decrypt (out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default)
+		public MimeEntity Decrypt (out DigitalSignatureCollection? signatures, CancellationToken cancellationToken = default)
 		{
 			CheckDisposed ();
 

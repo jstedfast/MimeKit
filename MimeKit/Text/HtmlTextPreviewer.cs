@@ -146,7 +146,7 @@ namespace MimeKit.Text {
 			return lastIndex >= 0 && stack[lastIndex].SuppressInnerContent;
 		}
 
-		static HtmlTagContext GetListItemContext (IList<HtmlTagContext> stack)
+		static HtmlTagContext? GetListItemContext (IList<HtmlTagContext> stack)
 		{
 			for (int i = stack.Count; i > 0; i--) {
 				var ctx = stack[i - 1];
@@ -179,8 +179,8 @@ namespace MimeKit.Text {
 			var stack = new List<HtmlTagContext> ();
 			var prefix = string.Empty;
 			int previewLength = 0;
-			HtmlTagContext ctx;
-			HtmlAttribute attr;
+			HtmlTagContext? ctx;
+			HtmlAttribute? attr;
 			bool body = false;
 			bool full = false;
 			bool lwsp = true;

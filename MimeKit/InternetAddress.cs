@@ -28,6 +28,7 @@ using System;
 using System.Text;
 using System.Globalization;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Utils;
 
@@ -51,7 +52,7 @@ namespace MimeKit {
 	{
 		const string AtomSpecials = "()<>@,;:\\\".[]";
 		Encoding encoding;
-		string name;
+		string? name;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="InternetAddress"/> class.
@@ -64,13 +65,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="encoding"/> is <see langword="null"/>.
 		/// </exception>
-		protected InternetAddress (Encoding encoding, string name)
+		protected InternetAddress (Encoding encoding, string? name)
 		{
 			if (encoding is null)
 				throw new ArgumentNullException (nameof (encoding));
 
-			Encoding = encoding;
-			Name = name;
+			this.encoding = encoding;
+			this.name = name;
 		}
 
 		/// <summary>
@@ -110,7 +111,7 @@ namespace MimeKit {
 		/// <para><c>undisclosed-recipients: Alice &lt;alice@wonderland.com&gt;, Bob &lt;bob@the-builder.com&gt;;</c></para>
 		/// </remarks>
 		/// <value>The name of the address.</value>
-		public string Name {
+		public string? Name {
 			get { return name; }
 			set {
 				if (value == name)
@@ -143,7 +144,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="other"/> is <see langword="null"/>.
 		/// </exception>
-		public int CompareTo (InternetAddress other)
+		public int CompareTo (InternetAddress? other)
 		{
 			int rv;
 
@@ -206,7 +207,7 @@ namespace MimeKit {
 		/// <param name="other">The <see cref="InternetAddress"/> to compare with the current <see cref="InternetAddress"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="InternetAddress"/> is equal to the current
 		/// <see cref="InternetAddress"/>; otherwise, <see langword="false" />.</returns>
-		public abstract bool Equals (InternetAddress other);
+		public abstract bool Equals (InternetAddress? other);
 
 		#endregion
 
@@ -219,7 +220,7 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="obj">The object to compare with the current object.</param>
 		/// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			return Equals (obj as InternetAddress);
 		}
@@ -293,7 +294,7 @@ namespace MimeKit {
 			return ToString (FormatOptions.Default, false);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
 		/// <summary>
 		/// Raise the internal changed event used by <see cref="MimeMessage"/> to keep headers in sync.
@@ -306,7 +307,7 @@ namespace MimeKit {
 			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
-		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, RfcComplianceMode compliance, bool skipTrailingCfws, bool throwOnError, out string localpart)
+		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, RfcComplianceMode compliance, bool skipTrailingCfws, bool throwOnError, [NotNullWhen (true)] out string? localpart)
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
@@ -401,7 +402,7 @@ namespace MimeKit {
 
 		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => ",>;"u8;
 
-		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, out string addrspec, out int at)
+		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, [NotNullWhen (true)] out string? addrspec, out int at)
 		{
 			int startIndex = index;
 
@@ -453,10 +454,10 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParseMailbox (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, out InternetAddress address)
+		internal static bool TryParseMailbox (ParserOptions options, byte[] text, int startIndex, ref int index, int endIndex, string name, int codepage, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
-			DomainList route = null;
+			DomainList? route = null;
 
 			address = null;
 
@@ -522,7 +523,7 @@ namespace MimeKit {
 			// in case the mailbox is within a group address.
 			//
 			// Example: <third@example.net, fourth@example.net>
-			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out string addrspec, out int at))
+			if (!TryParseAddrspec (text, ref index, endIndex, CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out string? addrspec, out int at))
 				return false;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
@@ -591,7 +592,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, out InternetAddress address)
+		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
 
@@ -901,7 +902,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, int length, out InternetAddress address)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer, startIndex, length)) {
 				address = null;
@@ -939,7 +940,7 @@ namespace MimeKit {
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The number of bytes in the input buffer to parse.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out InternetAddress address)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, length, out address);
 		}
@@ -956,7 +957,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, int startIndex, out InternetAddress address)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, int startIndex, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer, startIndex)) {
 				address = null;
@@ -988,7 +989,7 @@ namespace MimeKit {
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, out InternetAddress address)
+		public static bool TryParse (byte[]? buffer, int startIndex, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			return TryParse (ParserOptions.Default, buffer, startIndex, out address);
 		}
@@ -1004,7 +1005,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (ParserOptions options, byte[] buffer, out InternetAddress address)
+		public static bool TryParse (ParserOptions? options, byte[]? buffer, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			if (!ArgumentValidator.TryValidate (options, buffer)) {
 				address = null;
@@ -1035,7 +1036,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="buffer">The input buffer.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (byte[] buffer, out InternetAddress address)
+		public static bool TryParse (byte[]? buffer, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			return TryParse (ParserOptions.Default, buffer, out address);
 		}
@@ -1051,7 +1052,7 @@ namespace MimeKit {
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (ParserOptions options, string text, out InternetAddress address)
+		public static bool TryParse (ParserOptions? options, string? text, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			if (!ArgumentValidator.TryValidate (options, text)) {
 				address = null;
@@ -1083,7 +1084,7 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="address">The parsed address.</param>
-		public static bool TryParse (string text, out InternetAddress address)
+		public static bool TryParse (string? text, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			return TryParse (ParserOptions.Default, text, out address);
 		}
@@ -1126,7 +1127,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
 
-			return address;
+			return address!;
 		}
 
 		/// <summary>
@@ -1191,7 +1192,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) buffer[index], index), index, index);
 
-			return address;
+			return address!;
 		}
 
 		/// <summary>
@@ -1250,7 +1251,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) buffer[index], index), index, index);
 
-			return address;
+			return address!;
 		}
 
 		/// <summary>
@@ -1306,7 +1307,7 @@ namespace MimeKit {
 			if (index != endIndex)
 				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) buffer[index], index), index, index);
 
-			return address;
+			return address!;
 		}
 
 		/// <summary>

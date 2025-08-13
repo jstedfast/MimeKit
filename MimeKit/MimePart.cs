@@ -49,7 +49,7 @@ namespace MimeKit {
 	/// </example>
 	public class MimePart : MimeEntity, IMimePart
 	{
-		static readonly string[] ContentTransferEncodings = {
+		static readonly string?[] ContentTransferEncodings = {
 			null, "7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode"
 		};
 		const int DefaultMaxLineLength = 78;
@@ -57,8 +57,8 @@ namespace MimeKit {
 		int encoderMaxLineLength = DefaultMaxLineLength;
 		ContentEncoding encoding;
 		//string[] languages;
-		string description;
-		string md5sum;
+		string? description;
+		string? md5sum;
 		int? duration;
 
 		/// <summary>
@@ -104,7 +104,7 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			IMimeContent content = null;
+			IMimeContent? content = null;
 
 			foreach (object obj in args) {
 				if (obj is null || TryInit (obj))
@@ -214,7 +214,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public string ContentDescription {
+		public string? ContentDescription {
 			get {
 				CheckDisposed ();
 
@@ -235,7 +235,7 @@ namespace MimeKit {
 
 				description = value?.Trim ();
 
-				if (value != null) {
+				if (description != null) {
 					SetHeader ("Content-Description", description);
 				} else {
 					RemoveHeader ("Content-Description");
@@ -307,7 +307,7 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public string ContentMd5 {
+		public string? ContentMd5 {
 			get {
 				CheckDisposed ();
 
@@ -328,7 +328,7 @@ namespace MimeKit {
 
 				md5sum = value?.Trim ();
 
-				if (value != null) {
+				if (md5sum != null) {
 					SetHeader ("Content-Md5", md5sum);
 				} else {
 					RemoveHeader ("Content-Md5");
@@ -411,9 +411,9 @@ namespace MimeKit {
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimePart"/> has been disposed.
 		/// </exception>
-		public string FileName {
+		public string? FileName {
 			get {
-				string filename = null;
+				string? filename = null;
 
 				if (ContentDisposition != null)
 					filename = ContentDisposition.FileName;
@@ -444,7 +444,7 @@ namespace MimeKit {
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
 		/// </example>
 		/// <value>The MIME content.</value>
-		public IMimeContent Content {
+		public IMimeContent? Content {
 			get; set;
 		}
 
@@ -832,15 +832,16 @@ namespace MimeKit {
 		/// </remarks>
 		/// <param name="action">The type of change.</param>
 		/// <param name="header">The header being added, changed or removed.</param>
-		protected override void OnHeadersChanged (HeaderListChangedAction action, Header header)
+		protected override void OnHeadersChanged (HeaderListChangedAction action, Header? header)
 		{
+			// Note: base.OnHeaderChanged() ensures that header is not null if action != Cleared
 			base.OnHeadersChanged (action, header);
 
 			switch (action) {
 			case HeaderListChangedAction.Added:
 			case HeaderListChangedAction.Changed:
 			case HeaderListChangedAction.Removed:
-				switch (header.Id) {
+				switch (header!.Id) {
 				case HeaderId.ContentTransferEncoding:
 					LazyLoaded &= ~LazyLoadedFields.ContentTransferEncoding;
 					encoding = ContentEncoding.Default;

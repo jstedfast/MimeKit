@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	static class CharsetUtils
@@ -552,7 +553,7 @@ namespace MimeKit.Utils {
 
 		internal static char[] ConvertToUnicode (ParserOptions options, int codepage, byte[] input, int startIndex, int length, out int charCount)
 		{
-			Encoding encoding = null;
+			Encoding? encoding = null;
 
 			if (codepage != -1) {
 				try {
@@ -585,7 +586,7 @@ namespace MimeKit.Utils {
 			return new string (ConvertToUnicode (encoding, buffer, startIndex, length, out int count), 0, count);
 		}
 
-		public static bool TryGetBomEncoding (byte[] buffer, int length, out Encoding encoding)
+		public static bool TryGetBomEncoding (byte[] buffer, int length, [NotNullWhen (true)] out Encoding? encoding)
 		{
 			if (length >= 2 && buffer[0] == 0xFF && buffer[1] == 0xFE)
 				encoding = Encoding.Unicode; // UTF-16LE
@@ -599,7 +600,7 @@ namespace MimeKit.Utils {
 			return encoding != null;
 		}
 
-		public static bool TryGetBomEncoding (Stream stream, out Encoding encoding)
+		public static bool TryGetBomEncoding (Stream stream, [NotNullWhen (true)] out Encoding? encoding)
 		{
 			var bom = new byte[3];
 
