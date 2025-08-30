@@ -2487,11 +2487,11 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			if (depth < options.MaxMimeDepth && IsMultipart (type)) {
+			if (depth + 1 < options.MaxMimeDepth && IsMultipart (type)) {
 				OnMultipartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
 				lines = ConstructMultipart (type, inbuf, depth + 1, cancellationToken);
 				entityType = MimeEntityType.Multipart;
-			} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
+			} else if (depth + 1 < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 				OnMessagePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
 				lines = ConstructMessagePart (inbuf, depth + 1, cancellationToken);
 				entityType = MimeEntityType.MessagePart;
@@ -2562,11 +2562,11 @@ namespace MimeKit {
 				MimeEntityType entityType;
 				int lines;
 
-				if (depth < options.MaxMimeDepth && IsMultipart (type)) {
+				if (depth + 1 < options.MaxMimeDepth && IsMultipart (type)) {
 					OnMultipartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
 					lines = ConstructMultipart (type, inbuf, depth + 1, cancellationToken);
 					entityType = MimeEntityType.Multipart;
-				} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
+				} else if (depth + 1 < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 					OnMessagePartBegin (type, currentBeginOffset, beginLineNumber, cancellationToken);
 					lines = ConstructMessagePart (inbuf, depth + 1, cancellationToken);
 					entityType = MimeEntityType.MessagePart;

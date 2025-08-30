@@ -5896,6 +5896,290 @@ This is the message body.
 			}
 		}
 
+		static byte[] GenerateDeeplyNestedRfc822Message (int depth)
+		{
+			var builder = new StringBuilder ();
+			builder.Append ("From: tester1@contoso.com\r\n");
+			builder.Append ("To: tester1@contoso.com\r\n");
+			builder.Append ("Subject: test of a deeply nested multipart message\r\n");
+			builder.Append ($"Date: {DateUtils.FormatDate (DateTimeOffset.Now)}\r\n");
+			builder.Append ($"Message-ID: <{MimeUtils.GenerateMessageId ("contoso.com")}>\r\n");
+			builder.Append ("MIME-Version: 1.0\r\n");
+
+			var now = DateTimeOffset.Now;
+
+			for (int i = 0; i < depth; i++) {
+				builder.Append ($"Content-Type: message/rfc822\r\n");
+				builder.Append ("\r\n");
+				builder.Append ("From: tester1@contoso.com\r\n");
+				builder.Append ("To: tester1@contoso.com\r\n");
+				builder.Append ($"Subject: embedded message {i + 1}\r\n");
+				builder.Append ($"Date: {DateUtils.FormatDate (now.Subtract (TimeSpan.FromHours (1)))}\r\n");
+				builder.Append ($"Message-ID: <{MimeUtils.GenerateMessageId ("contoso.com")}>\r\n");
+				builder.Append ("MIME-Version: 1.0\r\n");
+			}
+
+			builder.Append ("Content-Type: text/plain; charset=\"us-ascii\"\r\n");
+			builder.Append ("Content-Transfer-Encoding: 7bit\r\n");
+			builder.Append ("\r\n");
+			builder.Append ("This is the innermost part of a deeply nested rfc822 message.\r\n");
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
+		}
+
+		[Test]
+		public void TestDeeplyNestedMessageRfc822Parts ()
+		{
+			const int maxDepth = 64;
+
+			var messageData = GenerateDeeplyNestedRfc822Message (maxDepth);
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				using (var iter = new MimeIterator (message)) {
+					string body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is TextPart text) {
+							depth = iter.Depth;
+							body = text.Text;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested rfc822 message.\r\n"), "Message body did not match.");
+				}
+			}
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				// Now try again with a lower MaxMimeDepth and verify that it throws
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth - 1;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				using (var iter = new MimeIterator (message)) {
+					MimePart body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is MimePart part) {
+							depth = iter.Depth;
+							body = part;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth - 1), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body.ContentType.MimeType, Is.EqualTo ("message/rfc822"), "Message body did not match.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestDeeplyNestedMessageRfc822PartsAsync ()
+		{
+			const int maxDepth = 64;
+
+			var messageData = GenerateDeeplyNestedRfc822Message (maxDepth);
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				using (var iter = new MimeIterator (message)) {
+					string body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is TextPart text) {
+							depth = iter.Depth;
+							body = text.Text;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested rfc822 message.\r\n"), "Message body did not match.");
+				}
+			}
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth - 1;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				using (var iter = new MimeIterator (message)) {
+					MimePart body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is MimePart part) {
+							depth = iter.Depth;
+							body = part;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth - 1), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body.ContentType.MimeType, Is.EqualTo ("message/rfc822"), "Message body did not match.");
+				}
+			}
+		}
+
+		static byte[] GenerateDeeplyNestedMultipartMessage (int depth)
+		{
+			var builder = new StringBuilder ();
+			builder.Append ("From: tester1@contoso.com\r\n");
+			builder.Append ("To: tester1@contoso.com\r\n");
+			builder.Append ("Subject: test of a deeply nested multipart message\r\n");
+			builder.Append ($"Date: {DateUtils.FormatDate (DateTimeOffset.Now)}\r\n");
+			builder.Append ($"Message-ID: <{MimeUtils.GenerateMessageId ("contoso.com")}>\r\n");
+			builder.Append ("MIME-Version: 1.0\r\n");
+
+			for (int i = 0; i < depth; i++) {
+				builder.Append ($"Content-Type: multipart/mixed;\r\n\tboundary=\"----=_NextPart_000_{i:04}_01CE98CE.6E826F90\"\r\n");
+				builder.Append ("\r\n");
+				builder.Append ($"------=_NextPart_000_{i:04}_01CE98CE.6E826F90\r\n");
+			}
+
+			builder.Append ("Content-Type: text/plain; charset=\"us-ascii\"\r\n");
+			builder.Append ("Content-Transfer-Encoding: 7bit\r\n");
+			builder.Append ("\r\n");
+			builder.Append ("This is the innermost part of a deeply nested multipart message.\r\n");
+			builder.Append ("\r\n");
+
+			for (int i = depth - 1; i >= 0; i--)
+				builder.Append ($"------=_NextPart_000_{i:04}_01CE98CE.6E826F90--\r\n");
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
+		}
+
+		[Test]
+		public void TestDeeplyNestedMultiparts ()
+		{
+			const int maxDepth = 64;
+
+			var messageData = GenerateDeeplyNestedMultipartMessage (maxDepth);
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				using (var iter = new MimeIterator (message)) {
+					string body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is TextPart text) {
+							depth = iter.Depth;
+							body = text.Text;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested multipart message.\r\n"), "Message body did not match.");
+				}
+			}
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth - 1;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				using (var iter = new MimeIterator (message)) {
+					MimePart body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is MimePart part) {
+							depth = iter.Depth;
+							body = part;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth - 1), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body.ContentType.MimeType, Is.EqualTo ("multipart/mixed"), "Message body did not match.");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestDeeplyNestedMultipartsAsync ()
+		{
+			const int maxDepth = 64;
+
+			var messageData = GenerateDeeplyNestedMultipartMessage (maxDepth);
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				using (var iter = new MimeIterator (message)) {
+					string body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is TextPart text) {
+							depth = iter.Depth;
+							body = text.Text;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested multipart message.\r\n"), "Message body did not match.");
+				}
+			}
+
+			using (var stream = new MemoryStream (messageData, false)) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxDepth - 1;
+
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				using (var iter = new MimeIterator (message)) {
+					MimePart body = null;
+					int depth = -1;
+
+					while (iter.MoveNext ()) {
+						if (iter.Current is MimePart part) {
+							depth = iter.Depth;
+							body = part;
+						}
+					}
+
+					Assert.That (depth, Is.EqualTo (maxDepth - 1), "The maximum depth did not match.");
+					Assert.That (body, Is.Not.Null, "Did not find the message body.");
+					Assert.That (body.ContentType.MimeType, Is.EqualTo ("multipart/mixed"), "Message body did not match.");
+				}
+			}
+		}
+
 		[Test]
 		public void TestIssue358 ()
 		{

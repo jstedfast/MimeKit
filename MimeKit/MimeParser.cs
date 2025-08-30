@@ -1597,7 +1597,7 @@ namespace MimeKit {
 			}
 
 			var type = GetContentType (null);
-			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, depth);
+			var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: true, depth + 1);
 			var entityArgs = new MimeEntityEndEventArgs (entity) {
 				HeadersEndOffset = headerBlockEnd,
 				BeginOffset = headerBlockBegin,
@@ -1691,7 +1691,7 @@ namespace MimeKit {
 				//	return BoundaryType.EndBoundary;
 
 				var type = GetContentType (multipart.ContentType);
-				var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, depth);
+				var entity = options.CreateEntity (type, headers, hasBodySeparator: true, toplevel: false, depth + 1);
 				var entityArgs = new MimeEntityEndEventArgs (entity, multipart) {
 					HeadersEndOffset = headerBlockEnd,
 					BeginOffset = headerBlockBegin,

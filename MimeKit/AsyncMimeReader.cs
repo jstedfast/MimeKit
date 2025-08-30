@@ -479,11 +479,11 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			if (depth < options.MaxMimeDepth && IsMultipart (type)) {
+			if (depth + 1 < options.MaxMimeDepth && IsMultipart (type)) {
 				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.Multipart;
-			} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
+			} else if (depth + 1 < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 				lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
 				entityType = MimeEntityType.MessagePart;
@@ -554,11 +554,11 @@ namespace MimeKit {
 				MimeEntityType entityType;
 				int lines;
 
-				if (depth < options.MaxMimeDepth && IsMultipart (type)) {
+				if (depth + 1 < options.MaxMimeDepth && IsMultipart (type)) {
 					await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 					lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
 					entityType = MimeEntityType.Multipart;
-				} else if (depth < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
+				} else if (depth + 1 < options.MaxMimeDepth && IsMessagePart (type, currentEncoding)) {
 					await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 					lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
 					entityType = MimeEntityType.MessagePart;
