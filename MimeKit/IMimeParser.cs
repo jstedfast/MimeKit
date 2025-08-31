@@ -42,20 +42,32 @@ namespace MimeKit
 		public long Position { get; }
 
 		/// <summary>
-		/// Gets the most recent mbox marker offset.
+		/// Get the mbox marker stream offset for the most recently parsed message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the most recent mbox marker offset.
+		/// <para>Gets the mbox marker stream offset for the most recently parsed message.</para>
+		/// <para>If the <see cref="IMimeParser"/> was not initialized to parse the <see cref="MimeFormat.Mbox"/> format or if
+		/// the most recent call to <see cref="ParseMessage(CancellationToken)"/> or <see cref="ParseMessageAsync(CancellationToken)"/>
+		/// was not successful, then this property will return <c>-1</c>.</para>
 		/// </remarks>
-		/// <value>The mbox marker offset.</value>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
+		/// <value>The mbox marker stream offset.</value>
 		long MboxMarkerOffset { get; }
 
 		/// <summary>
-		/// Gets the most recent mbox marker.
+		/// Get the mbox marker for the most recently parsed message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the most recent mbox marker.
+		/// <para>Gets the mbox marker for the most recently parsed message.</para>
+		/// <para>If the <see cref="IMimeParser"/> was not initialized to parse the <see cref="MimeFormat.Mbox"/> format or if
+		/// the most recent call to <see cref="ParseMessage(CancellationToken)"/> or <see cref="ParseMessageAsync(CancellationToken)"/>
+		/// was not successful, then this property will return <see langword="null"/>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
 		/// <value>The mbox marker.</value>
 		string MboxMarker { get; }
 

@@ -525,6 +525,7 @@ namespace MimeKit {
 		public async Task<HeaderList> ParseHeadersAsync (CancellationToken cancellationToken = default)
 		{
 			state = MimeParserState.Headers;
+			mboxMarkerOffset = -1;
 			toplevel = true;
 
 			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
@@ -567,6 +568,7 @@ namespace MimeKit {
 			var beginLineNumber = lineNumber;
 
 			state = MimeParserState.Headers;
+			mboxMarkerOffset = -1;
 			toplevel = true;
 
 			if (await StepAsync (cancellationToken).ConfigureAwait (false) == MimeParserState.Error)
@@ -627,6 +629,8 @@ namespace MimeKit {
 			// reset.
 			if (persistent && stream.Position != position)
 				stream.Seek (position, SeekOrigin.Begin);
+
+			mboxMarkerOffset = -1;
 
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {

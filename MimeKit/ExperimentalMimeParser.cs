@@ -28,13 +28,10 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Diagnostics;
-using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using MimeKit.IO;
-using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
@@ -162,29 +159,51 @@ namespace MimeKit {
 		/// </exception>
 		public ExperimentalMimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false) : base (options, stream, format)
 		{
-			this.persistent = persistent && stream.CanSeek;
+			OnSetStream (stream, format, persistent);
 		}
 
 		/// <summary>
-		/// Gets the most recent mbox marker offset.
+		/// Get the mbox marker stream offset for the most recently parsed message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the most recent mbox marker offset.
+		/// <para>Gets the mbox marker stream offset for the most recently parsed message.</para>
+		/// <para>If the <see cref="IMimeParser"/> was not initialized to parse the <see cref="MimeFormat.Mbox"/> format or if
+		/// the most recent call to <see cref="ParseMessage(CancellationToken)"/> or <see cref="ParseMessageAsync(CancellationToken)"/>
+		/// was not successful, then this property will return <c>-1</c>.</para>
 		/// </remarks>
-		/// <value>The mbox marker offset.</value>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
+		/// <value>The mbox marker stream offset.</value>
 		public long MboxMarkerOffset {
 			get { return mboxMarkerOffset; }
 		}
 
 		/// <summary>
-		/// Gets the most recent mbox marker.
+		/// Get the mbox marker for the most recently parsed message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the most recent mbox marker.
+		/// <para>Gets the mbox marker for the most recently parsed message.</para>
+		/// <para>If the <see cref="ExperimentalMimeParser"/> was not initialized to parse the <see cref="MimeFormat.Mbox"/> format or if
+		/// the most recent call to <see cref="ParseMessage(CancellationToken)"/> or <see cref="ParseMessageAsync(CancellationToken)"/>
+		/// was not successful, then this property will return <see langword="null"/>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
+		/// </example>
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
-			get { return Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
+			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength) : null; }
+		}
+
+		void OnSetStream (Stream stream, MimeFormat format, bool persistent)
+		{
+			this.persistent = persistent && stream.CanSeek;
+
+			mboxMarkerOffset = -1;
+
+			if (format == MimeFormat.Mbox && mboxMarkerBuffer is null)
+				mboxMarkerBuffer = new byte[64];
 		}
 
 		/// <summary>
@@ -210,9 +229,7 @@ namespace MimeKit {
 		{
 			base.SetStream (stream, format);
 
-			this.persistent = persistent && stream.CanSeek;
-			if (format == MimeFormat.Mbox && mboxMarkerBuffer is null)
-				mboxMarkerBuffer = new byte[64];
+			OnSetStream (stream, format, persistent);
 		}
 
 		/// <summary>
@@ -824,6 +841,7 @@ namespace MimeKit {
 				stream.Seek (position, SeekOrigin.Begin);
 
 			this.parsingMessageHeaders = parsingMessageHeaders;
+			mboxMarkerOffset = -1;
 			stack.Clear ();
 			depth = 0;
 		}

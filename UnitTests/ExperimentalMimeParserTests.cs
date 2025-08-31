@@ -5650,6 +5650,9 @@ This is the message body.
 
 				format.NewLineFormat = newLineFormat = DetectNewLineFormat (mbox);
 
+				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
+				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
+
 				while (!parser.IsEndOfStream) {
 					using var message = parser.ParseMessage ();
 
@@ -5689,6 +5692,9 @@ This is the message body.
 				int count = 0;
 
 				format.NewLineFormat = newLineFormat = DetectNewLineFormat (mbox);
+
+				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
+				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
 
 				while (!parser.IsEndOfStream) {
 					using var message = await parser.ParseMessageAsync ();
@@ -5754,6 +5760,9 @@ This is the message body.
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, true);
 
+				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
+				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
+
 				while (!parser.IsEndOfStream) {
 					using var message = parser.ParseMessage ();
 
@@ -5792,6 +5801,9 @@ This is the message body.
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, true);
+
+				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
+				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
 
 				while (!parser.IsEndOfStream) {
 					using var message = await parser.ParseMessageAsync ();

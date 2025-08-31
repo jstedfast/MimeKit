@@ -321,31 +321,37 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Get the most recent mbox marker offset.
+		/// Get the mbox marker stream offset for the most recently parsed message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the most recent mbox marker offset.
+		/// <para>Gets the mbox marker stream offset for the most recently parsed message.</para>
+		/// <para>If the <see cref="IMimeParser"/> was not initialized to parse the <see cref="MimeFormat.Mbox"/> format or if
+		/// the most recent call to <see cref="ParseMessage(CancellationToken)"/> or <see cref="ParseMessageAsync(CancellationToken)"/>
+		/// was not successful, then this property will return <c>-1</c>.</para>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
-		/// <value>The mbox marker offset.</value>
+		/// <value>The mbox marker stream offset.</value>
 		public long MboxMarkerOffset {
 			get { return mboxMarkerOffset; }
 		}
 
 		/// <summary>
-		/// Get the most recent mbox marker.
+		/// Get the mbox marker for the most recently parsed message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the most recent mbox marker.
+		/// <para>Gets the mbox marker for the most recently parsed message.</para>
+		/// <para>If the <see cref="MimeParser"/> was not initialized to parse the <see cref="MimeFormat.Mbox"/> format or if
+		/// the most recent call to <see cref="ParseMessage(CancellationToken)"/> or <see cref="ParseMessageAsync(CancellationToken)"/>
+		/// was not successful, then this property will return <see langword="null"/>.</para>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
 		/// <value>The mbox marker.</value>
 		public string MboxMarker {
-			get { return Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength); }
+			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer, 0, mboxMarkerLength) : null; }
 		}
 
 		/// <summary>
@@ -439,7 +445,7 @@ namespace MimeKit {
 			inputIndex = inputStart;
 			inputEnd = inputStart;
 
-			mboxMarkerOffset = 0;
+			mboxMarkerOffset = -1;
 			mboxMarkerLength = 0;
 			headerBlockBegin = 0;
 			headerBlockEnd = 0;
@@ -1826,6 +1832,7 @@ namespace MimeKit {
 		unsafe HeaderList ParseHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			state = MimeParserState.Headers;
+			mboxMarkerOffset = -1;
 			toplevel = true;
 
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
@@ -1923,6 +1930,7 @@ namespace MimeKit {
 			var beginLineNumber = lineNumber;
 
 			state = MimeParserState.Headers;
+			mboxMarkerOffset = -1;
 			toplevel = true;
 
 			if (Step (inbuf, cancellationToken) == MimeParserState.Error)
@@ -1992,6 +2000,8 @@ namespace MimeKit {
 			// reset.
 			if (persistent && stream.Position != position)
 				stream.Seek (position, SeekOrigin.Begin);
+
+			mboxMarkerOffset = -1;
 
 			// scan the from-line if we are parsing an mbox
 			while (state != MimeParserState.MessageHeaders) {
