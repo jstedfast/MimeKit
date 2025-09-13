@@ -107,6 +107,10 @@ namespace MimeKit.Cryptography {
 
 			using (var filtered = new FilteredStream (memory)) {
 				if (ctx.PrepareBeforeSigning) {
+					// FIXME: Since this entity could contain binary content, the ArmoredFromFilter and TrailingWhitespaceFilter
+					// logic should really be moved somehwere where it would only get applied to headers, multipart prefaces/epilogues,
+					// and non-binary MIME content.
+
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
 
@@ -115,9 +119,10 @@ namespace MimeKit.Cryptography {
 				}
 
 				// Note: see rfc2015 or rfc3156, section 5.1
-				filtered.Add (new Unix2DosFilter ());
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
 
-				entity.WriteTo (filtered, cancellationToken);
+				entity.WriteTo (options, filtered, cancellationToken);
 				filtered.Flush (cancellationToken);
 			}
 
@@ -136,6 +141,10 @@ namespace MimeKit.Cryptography {
 
 			using (var filtered = new FilteredStream (memory)) {
 				if (ctx.PrepareBeforeSigning) {
+					// FIXME: Since this entity could contain binary content, the ArmoredFromFilter and TrailingWhitespaceFilter
+					// logic should really be moved somehwere where it would only get applied to headers, multipart prefaces/epilogues,
+					// and non-binary MIME content.
+
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
 
@@ -144,9 +153,10 @@ namespace MimeKit.Cryptography {
 				}
 
 				// Note: see rfc2015 or rfc3156, section 5.1
-				filtered.Add (new Unix2DosFilter ());
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Dos;
 
-				await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+				await entity.WriteToAsync (options, filtered, cancellationToken).ConfigureAwait (false);
 				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 			}
 
