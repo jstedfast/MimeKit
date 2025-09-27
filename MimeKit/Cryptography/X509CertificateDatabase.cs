@@ -61,8 +61,8 @@ namespace MimeKit.Cryptography {
 		const int DefaultSaltSize = 20;
 
 		DbTransaction? activeTransaction;
-		DbConnection connection;
-		char[] password;
+		DbConnection? connection;
+		char[]? password;
 
 		/// <summary>
 		/// The name of the database table containing the certificates.
@@ -424,6 +424,12 @@ namespace MimeKit.Cryptography {
 			get; set;
 		}
 
+		internal void CheckDisposed ()
+		{
+			if (connection == null)
+				throw new ObjectDisposedException (GetType ().Name);
+		}
+
 		internal static string EncodeDnsNames (string[] dnsNames)
 		{
 			if (dnsNames.Length == 0)
@@ -672,9 +678,14 @@ namespace MimeKit.Cryptography {
 		/// Creates a new database command.
 		/// </remarks>
 		/// <returns>A new database command.</returns>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		protected DbCommand CreateCommand ()
 		{
-			var command = connection.CreateCommand ();
+			CheckDisposed ();
+
+			var command = connection!.CreateCommand ();
 			command.Transaction = activeTransaction;
 			return command;
 		}
@@ -685,9 +696,14 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// All database commands used within the <paramref name="action"/> must be created using <see cref="CreateCommand"/>.
 		/// </remarks>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		protected void ExecuteWithinTransaction (Action action)
 		{
-			using (var transaction = connection.BeginTransaction ()) {
+			CheckDisposed ();
+
+			using (var transaction = connection!.BeginTransaction ()) {
 				activeTransaction = transaction;
 
 				try {
@@ -875,7 +891,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="columnName"/> is not a known column name.
 		/// </exception>
-		protected static object GetValue (X509CrlRecord record, string columnName)
+		protected static object? GetValue (X509CrlRecord record, string columnName)
 		{
 			switch (columnName) {
 			//case CrlColumnNames.Id: return record.Id;
@@ -883,7 +899,7 @@ namespace MimeKit.Cryptography {
 			case CrlColumnNames.IssuerName: return record.IssuerName;
 			case CrlColumnNames.ThisUpdate: return record.ThisUpdate;
 			case CrlColumnNames.NextUpdate: return record.NextUpdate;
-			case CrlColumnNames.Crl: return record.Crl.GetEncoded ();
+			case CrlColumnNames.Crl: return record.Crl?.GetEncoded ();
 			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), nameof (columnName));
 			}
 		}
@@ -947,12 +963,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public X509CertificateRecord? Find (X509Certificate certificate, X509CertificateRecordFields fields)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			using (var command = GetSelectCommand (connection, certificate, fields)) {
+			CheckDisposed ();
+
+			using (var command = GetSelectCommand (connection!, certificate, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CertificateParser ();
@@ -975,8 +996,13 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The matching certificates.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to return all certificates.</param>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public IEnumerable<X509Certificate> FindCertificates (ISelector<X509Certificate>? selector)
 		{
+			CheckDisposed ();
+
 			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
@@ -984,7 +1010,7 @@ namespace MimeKit.Cryptography {
 
 					while (reader.Read ()) {
 						var record = LoadCertificateRecord (reader, parser, ref buffer);
-						if (selector == null || selector.Match (record.Certificate))
+						if (record.Certificate != null && (selector == null || selector.Match (record.Certificate)))
 							yield return record.Certificate;
 					}
 				}
@@ -1000,11 +1026,16 @@ namespace MimeKit.Cryptography {
 		/// Searches the database for certificate records matching the selector, returning the
 		/// private keys for each matching record.
 		/// </remarks>
-		/// <returns>The matching certificates.</returns>
+		/// <returns>The private keys for the matching certificates.</returns>
 		/// <param name="selector">The match selector or <see langword="null"/> to return all private keys.</param>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public IEnumerable<AsymmetricKeyParameter> FindPrivateKeys (ISelector<X509Certificate> selector)
 		{
-			using (var command = GetSelectCommand (connection, selector, false, true, PrivateKeyFields)) {
+			CheckDisposed ();
+
+			using (var command = GetSelectCommand (connection!, selector, false, true, PrivateKeyFields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1012,8 +1043,8 @@ namespace MimeKit.Cryptography {
 					while (reader.Read ()) {
 						var record = LoadCertificateRecord (reader, parser, ref buffer);
 
-						if (selector == null || selector.Match (record.Certificate))
-							yield return record.PrivateKey;
+						if (selector == null || selector.Match (record.Certificate!))
+							yield return record.PrivateKey!;
 					}
 				}
 			}
@@ -1037,12 +1068,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="mailbox"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public IEnumerable<X509CertificateRecord> Find (MailboxAddress mailbox, DateTime now, bool requirePrivateKey, X509CertificateRecordFields fields)
 		{
 			if (mailbox == null)
 				throw new ArgumentNullException (nameof (mailbox));
 
-			using (var command = GetSelectCommand (connection, mailbox, now, requirePrivateKey, fields)) {
+			CheckDisposed ();
+
+			using (var command = GetSelectCommand (connection!, mailbox, now, requirePrivateKey, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1067,9 +1103,14 @@ namespace MimeKit.Cryptography {
 		/// <param name="selector">The match selector or <see langword="null"/> to match all certificates.</param>
 		/// <param name="trustedAnchorsOnly"><see langword="true" /> if only trusted anchor certificates should be returned.</param>
 		/// <param name="fields">The desired fields.</param>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public IEnumerable<X509CertificateRecord> Find (ISelector<X509Certificate>? selector, bool trustedAnchorsOnly, X509CertificateRecordFields fields)
 		{
-			using (var command = GetSelectCommand (connection, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
+			CheckDisposed ();
+
+			using (var command = GetSelectCommand (connection!, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1077,7 +1118,7 @@ namespace MimeKit.Cryptography {
 					while (reader.Read ()) {
 						var record = LoadCertificateRecord (reader, parser, ref buffer);
 
-						if (selector == null || selector.Match (record.Certificate))
+						if (record.Certificate != null && (selector == null || selector.Match (record.Certificate)))
 							yield return record;
 					}
 				}
@@ -1096,12 +1137,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public void Add (X509CertificateRecord record)
 		{
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetInsertCommand (connection, record))
+			CheckDisposed ();
+
+			using (var command = GetInsertCommand (connection!, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1115,12 +1161,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public void Remove (X509CertificateRecord record)
 		{
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetDeleteCommand (connection, record))
+			CheckDisposed ();
+
+			using (var command = GetDeleteCommand (connection!, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1135,12 +1186,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public void Update (X509CertificateRecord record, X509CertificateRecordFields fields)
 		{
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetUpdateCommand (connection, record, fields))
+			CheckDisposed ();
+
+			using (var command = GetUpdateCommand (connection!, record, fields))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1157,12 +1213,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="issuer"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public IEnumerable<X509CrlRecord> Find (X509Name issuer, X509CrlRecordFields fields)
 		{
 			if (issuer == null)
 				throw new ArgumentNullException (nameof (issuer));
 
-			using (var command = GetSelectCommand (connection, issuer, fields)) {
+			CheckDisposed ();
+
+			using (var command = GetSelectCommand (connection!, issuer, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
@@ -1189,12 +1250,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="crl"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public X509CrlRecord? Find (X509Crl crl, X509CrlRecordFields fields)
 		{
 			if (crl == null)
 				throw new ArgumentNullException (nameof (crl));
 
-			using (var command = GetSelectCommand (connection, crl, fields)) {
+			CheckDisposed ();
+
+			using (var command = GetSelectCommand (connection!, crl, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CrlParser ();
@@ -1218,12 +1284,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public void Add (X509CrlRecord record)
 		{
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetInsertCommand (connection, record))
+			CheckDisposed ();
+
+			using (var command = GetInsertCommand (connection!, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1237,12 +1308,17 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public void Remove (X509CrlRecord record)
 		{
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetDeleteCommand (connection, record))
+			CheckDisposed ();
+
+			using (var command = GetDeleteCommand (connection!, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1256,13 +1332,18 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="record"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		[Obsolete ("This method is not used and will be removed in a future release.")]
 		public void Update (X509CrlRecord record)
 		{
 			if (record == null)
 				throw new ArgumentNullException (nameof (record));
 
-			using (var command = GetUpdateCommand (connection, record))
+			CheckDisposed ();
+
+			using (var command = GetUpdateCommand (connection!, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1273,18 +1354,25 @@ namespace MimeKit.Cryptography {
 		/// Gets a certificate revocation list store.
 		/// </remarks>
 		/// <returns>A certificate revocation list store.</returns>
+		/// <exception cref="ObjectDisposedException">
+		/// The <see cref="X509CertificateDatabase"/> has been disposed.
+		/// </exception>
 		public IStore<X509Crl> GetCrlStore ()
 		{
+			CheckDisposed ();
+
 			var crls = new List<X509Crl> ();
 
-			using (var command = GetSelectAllCrlsCommand (connection)) {
+			using (var command = GetSelectAllCrlsCommand (connection!)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
 						var record = LoadCrlRecord (reader, parser, ref buffer);
-						crls.Add (record.Crl);
+
+						if (record.Crl != null)
+							crls.Add (record.Crl);
 					}
 				}
 			}

@@ -172,7 +172,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate to use for the recipient; otherwise, or <see langword="null"/>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
-		protected virtual X509Certificate2 GetRecipientCertificate (MailboxAddress mailbox)
+		protected virtual X509Certificate2? GetRecipientCertificate (MailboxAddress mailbox)
 		{
 			var storeNames = new [] { StoreName.AddressBook, StoreName.My, StoreName.TrustedPeople };
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
@@ -246,7 +246,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected virtual RealCmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			X509Certificate2 certificate;
+			X509Certificate2? certificate;
 
 			if ((certificate = GetRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -328,7 +328,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate to use for the signer; otherwise, or <see langword="null"/>.</returns>
 		/// <param name="mailbox">The signer's mailbox address.</param>
-		protected virtual X509Certificate2 GetSignerCertificate (MailboxAddress mailbox)
+		protected virtual X509Certificate2? GetSignerCertificate (MailboxAddress mailbox)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
@@ -458,7 +458,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected virtual RealCmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			X509Certificate2 certificate;
+			X509Certificate2? certificate;
 
 			if ((certificate = GetSignerCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
