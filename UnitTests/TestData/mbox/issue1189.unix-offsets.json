@@ -1,0 +1,170 @@
+[
+  {
+    "mboxMarkerOffset": 0,
+    "lineNumber": 2,
+    "beginOffset": 29,
+    "headersEndOffset": 317,
+    "endOffset": 558,
+    "body": {
+      "mimeType": "multipart/alternative",
+      "lineNumber": 2,
+      "beginOffset": 29,
+      "headersEndOffset": 317,
+      "endOffset": 558,
+      "children": [
+        {
+          "mimeType": "text/plain",
+          "lineNumber": 11,
+          "beginOffset": 348,
+          "headersEndOffset": 391,
+          "endOffset": 410,
+          "octets": 19,
+          "lines": 1
+        },
+        {
+          "mimeType": "text/html",
+          "lineNumber": 16,
+          "beginOffset": 442,
+          "headersEndOffset": 484,
+          "endOffset": 524,
+          "octets": 40,
+          "lines": 1
+        }
+      ],
+      "octets": 241,
+      "lines": 11
+    },
+    "octets": 241
+  },
+  {
+    "mboxMarkerOffset": 559,
+    "lineNumber": 23,
+    "beginOffset": 588,
+    "headersEndOffset": 870,
+    "endOffset": 6445,
+    "body": {
+      "mimeType": "multipart/mixed",
+      "lineNumber": 23,
+      "beginOffset": 588,
+      "headersEndOffset": 870,
+      "endOffset": 6445,
+      "children": [
+        {
+          "mimeType": "multipart/alternative",
+          "lineNumber": 32,
+          "beginOffset": 901,
+          "headersEndOffset": 979,
+          "endOffset": 1219,
+          "children": [
+            {
+              "mimeType": "text/plain",
+              "lineNumber": 35,
+              "beginOffset": 1010,
+              "headersEndOffset": 1053,
+              "endOffset": 1072,
+              "octets": 19,
+              "lines": 1
+            },
+            {
+              "mimeType": "text/html",
+              "lineNumber": 40,
+              "beginOffset": 1104,
+              "headersEndOffset": 1146,
+              "endOffset": 1186,
+              "octets": 40,
+              "lines": 1
+            }
+          ],
+          "octets": 240,
+          "lines": 11
+        },
+        {
+          "mimeType": "application/x-zip-compressed",
+          "lineNumber": 46,
+          "beginOffset": 1251,
+          "headersEndOffset": 6411,
+          "endOffset": 6411,
+          "octets": 0,
+          "lines": 0
+        }
+      ],
+      "octets": 5575,
+      "lines": 21
+    },
+    "octets": 5575
+  },
+  {
+    "mboxMarkerOffset": 6446,
+    "lineNumber": 54,
+    "beginOffset": 6475,
+    "headersEndOffset": 6763,
+    "endOffset": 7004,
+    "body": {
+      "mimeType": "multipart/alternative",
+      "lineNumber": 54,
+      "beginOffset": 6475,
+      "headersEndOffset": 6763,
+      "endOffset": 7004,
+      "children": [
+        {
+          "mimeType": "text/plain",
+          "lineNumber": 63,
+          "beginOffset": 6794,
+          "headersEndOffset": 6837,
+          "endOffset": 6856,
+          "octets": 19,
+          "lines": 1
+        },
+        {
+          "mimeType": "text/html",
+          "lineNumber": 68,
+          "beginOffset": 6888,
+          "headersEndOffset": 6930,
+          "endOffset": 6970,
+          "octets": 40,
+          "lines": 1
+        }
+      ],
+      "octets": 241,
+      "lines": 11
+    },
+    "octets": 241
+  },
+  {
+    "mboxMarkerOffset": 7005,
+    "lineNumber": 75,
+    "beginOffset": 7034,
+    "headersEndOffset": 7322,
+    "endOffset": 7563,
+    "body": {
+      "mimeType": "multipart/alternative",
+      "lineNumber": 75,
+      "beginOffset": 7034,
+      "headersEndOffset": 7322,
+      "endOffset": 7563,
+      "children": [
+        {
+          "mimeType": "text/plain",
+          "lineNumber": 84,
+          "beginOffset": 7353,
+          "headersEndOffset": 7396,
+          "endOffset": 7415,
+          "octets": 19,
+          "lines": 1
+        },
+        {
+          "mimeType": "text/html",
+          "lineNumber": 89,
+          "beginOffset": 7447,
+          "headersEndOffset": 7489,
+          "endOffset": 7529,
+          "octets": 40,
+          "lines": 1
+        }
+      ],
+      "octets": 241,
+      "lines": 11
+    },
+    "octets": 241
+  }
+]
