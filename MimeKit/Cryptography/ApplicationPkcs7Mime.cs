@@ -215,8 +215,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				Content.DecodeTo (memory, cancellationToken);
-				memory.Position = 0;
+				if (Content != null) {
+					Content.DecodeTo (memory, cancellationToken);
+					memory.Position = 0;
+				}
 
 				return ctx.Decompress (memory, cancellationToken);
 			}
@@ -257,8 +259,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				await Content.DecodeToAsync (memory, cancellationToken).ConfigureAwait (false);
-				memory.Position = 0;
+				if (Content != null) {
+					await Content.DecodeToAsync (memory, cancellationToken).ConfigureAwait (false);
+					memory.Position = 0;
+				}
 
 				return await ctx.DecompressAsync (memory, cancellationToken).ConfigureAwait (false);
 			}
@@ -361,8 +365,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				Content.DecodeTo (memory, cancellationToken);
-				memory.Position = 0;
+				if (Content != null) {
+					Content.DecodeTo (memory, cancellationToken);
+					memory.Position = 0;
+				}
 
 				return ctx.Decrypt (memory, cancellationToken);
 			}
@@ -403,8 +409,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				await Content.DecodeToAsync (memory, cancellationToken).ConfigureAwait (false);
-				memory.Position = 0;
+				if (Content != null) {
+					await Content.DecodeToAsync (memory, cancellationToken).ConfigureAwait (false);
+					memory.Position = 0;
+				}
 
 				return await ctx.DecryptAsync (memory, cancellationToken).ConfigureAwait (false);
 			}
@@ -495,9 +503,14 @@ namespace MimeKit.Cryptography {
 			if (SecureMimeType != SecureMimeType.CertsOnly && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
 
+			if (Content is null)
+				return;
+
 			using (var memory = new MemoryBlockStream ()) {
-				Content.DecodeTo (memory, cancellationToken);
-				memory.Position = 0;
+				if (Content != null) {
+					Content.DecodeTo (memory, cancellationToken);
+					memory.Position = 0;
+				}
 
 				ctx.Import (memory, cancellationToken);
 			}
@@ -536,6 +549,9 @@ namespace MimeKit.Cryptography {
 
 			if (SecureMimeType != SecureMimeType.CertsOnly && SecureMimeType != SecureMimeType.Unknown)
 				throw new InvalidOperationException ();
+
+			if (Content is null)
+				return;
 
 			using (var memory = new MemoryBlockStream ()) {
 				await Content.DecodeToAsync (memory, cancellationToken).ConfigureAwait (false);
@@ -584,8 +600,10 @@ namespace MimeKit.Cryptography {
 				throw new InvalidOperationException ();
 
 			using (var memory = new MemoryBlockStream ()) {
-				Content.DecodeTo (memory, cancellationToken);
-				memory.Position = 0;
+				if (Content != null) {
+					Content.DecodeTo (memory, cancellationToken);
+					memory.Position = 0;
+				}
 
 				return ctx.Verify (memory, out entity, cancellationToken);
 			}

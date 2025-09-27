@@ -342,6 +342,9 @@ namespace MimeKit.Cryptography {
 
 			var key = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
 
+			if (key == null)
+				throw new ArgumentException ("Unable to extract the private key from the certificate.", nameof (certificate));
+
 			CheckCertificateCanBeUsedForSigning (cert);
 
 			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
@@ -356,7 +359,7 @@ namespace MimeKit.Cryptography {
 			PrivateKey = key;
 		}
 
-		internal X509Certificate2 WindowsCertificate {
+		internal X509Certificate2? WindowsCertificate {
 			get; set;
 		}
 
