@@ -5978,7 +5978,7 @@ This is the message body.
 
 					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
 					Assert.That (body, Is.Not.Null, "Did not find the message body.");
-					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested rfc822 message.\r\n"), "Message body did not match.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested rfc822 message." + Environment.NewLine), "Message body did not match.");
 				}
 			}
 
@@ -6035,7 +6035,7 @@ This is the message body.
 
 					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
 					Assert.That (body, Is.Not.Null, "Did not find the message body.");
-					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested rfc822 message.\r\n"), "Message body did not match.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested rfc822 message." + Environment.NewLine), "Message body did not match.");
 				}
 			}
 
@@ -6119,7 +6119,7 @@ This is the message body.
 
 					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
 					Assert.That (body, Is.Not.Null, "Did not find the message body.");
-					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested multipart message.\r\n"), "Message body did not match.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested multipart message." + Environment.NewLine), "Message body did not match.");
 				}
 			}
 
@@ -6175,7 +6175,7 @@ This is the message body.
 
 					Assert.That (depth, Is.EqualTo (maxDepth), "The maximum depth did not match.");
 					Assert.That (body, Is.Not.Null, "Did not find the message body.");
-					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested multipart message.\r\n"), "Message body did not match.");
+					Assert.That (body, Is.EqualTo ("This is the innermost part of a deeply nested multipart message." + Environment.NewLine), "Message body did not match.");
 				}
 			}
 
