@@ -1,0 +1,170 @@
+[
+  {
+    "mboxMarkerOffset": 0,
+    "lineNumber": 2,
+    "beginOffset": 30,
+    "headersEndOffset": 326,
+    "endOffset": 578,
+    "body": {
+      "mimeType": "multipart/alternative",
+      "lineNumber": 2,
+      "beginOffset": 30,
+      "headersEndOffset": 326,
+      "endOffset": 578,
+      "children": [
+        {
+          "mimeType": "text/plain",
+          "lineNumber": 11,
+          "beginOffset": 358,
+          "headersEndOffset": 403,
+          "endOffset": 423,
+          "octets": 20,
+          "lines": 1
+        },
+        {
+          "mimeType": "text/html",
+          "lineNumber": 16,
+          "beginOffset": 457,
+          "headersEndOffset": 501,
+          "endOffset": 542,
+          "octets": 41,
+          "lines": 1
+        }
+      ],
+      "octets": 252,
+      "lines": 11
+    },
+    "octets": 252
+  },
+  {
+    "mboxMarkerOffset": 580,
+    "lineNumber": 23,
+    "beginOffset": 610,
+    "headersEndOffset": 900,
+    "endOffset": 6496,
+    "body": {
+      "mimeType": "multipart/mixed",
+      "lineNumber": 23,
+      "beginOffset": 610,
+      "headersEndOffset": 900,
+      "endOffset": 6496,
+      "children": [
+        {
+          "mimeType": "multipart/alternative",
+          "lineNumber": 32,
+          "beginOffset": 932,
+          "headersEndOffset": 1012,
+          "endOffset": 1262,
+          "children": [
+            {
+              "mimeType": "text/plain",
+              "lineNumber": 35,
+              "beginOffset": 1044,
+              "headersEndOffset": 1089,
+              "endOffset": 1109,
+              "octets": 20,
+              "lines": 1
+            },
+            {
+              "mimeType": "text/html",
+              "lineNumber": 40,
+              "beginOffset": 1143,
+              "headersEndOffset": 1187,
+              "endOffset": 1228,
+              "octets": 41,
+              "lines": 1
+            }
+          ],
+          "octets": 250,
+          "lines": 11
+        },
+        {
+          "mimeType": "application/x-zip-compressed",
+          "lineNumber": 46,
+          "beginOffset": 1296,
+          "headersEndOffset": 6460,
+          "endOffset": 6460,
+          "octets": 0,
+          "lines": 0
+        }
+      ],
+      "octets": 5596,
+      "lines": 21
+    },
+    "octets": 5596
+  },
+  {
+    "mboxMarkerOffset": 6498,
+    "lineNumber": 54,
+    "beginOffset": 6528,
+    "headersEndOffset": 6824,
+    "endOffset": 7076,
+    "body": {
+      "mimeType": "multipart/alternative",
+      "lineNumber": 54,
+      "beginOffset": 6528,
+      "headersEndOffset": 6824,
+      "endOffset": 7076,
+      "children": [
+        {
+          "mimeType": "text/plain",
+          "lineNumber": 63,
+          "beginOffset": 6856,
+          "headersEndOffset": 6901,
+          "endOffset": 6921,
+          "octets": 20,
+          "lines": 1
+        },
+        {
+          "mimeType": "text/html",
+          "lineNumber": 68,
+          "beginOffset": 6955,
+          "headersEndOffset": 6999,
+          "endOffset": 7040,
+          "octets": 41,
+          "lines": 1
+        }
+      ],
+      "octets": 252,
+      "lines": 11
+    },
+    "octets": 252
+  },
+  {
+    "mboxMarkerOffset": 7078,
+    "lineNumber": 75,
+    "beginOffset": 7108,
+    "headersEndOffset": 7404,
+    "endOffset": 7656,
+    "body": {
+      "mimeType": "multipart/alternative",
+      "lineNumber": 75,
+      "beginOffset": 7108,
+      "headersEndOffset": 7404,
+      "endOffset": 7656,
+      "children": [
+        {
+          "mimeType": "text/plain",
+          "lineNumber": 84,
+          "beginOffset": 7436,
+          "headersEndOffset": 7481,
+          "endOffset": 7501,
+          "octets": 20,
+          "lines": 1
+        },
+        {
+          "mimeType": "text/html",
+          "lineNumber": 89,
+          "beginOffset": 7535,
+          "headersEndOffset": 7579,
+          "endOffset": 7620,
+          "octets": 41,
+          "lines": 1
+        }
+      ],
+      "octets": 252,
+      "lines": 11
+    },
+    "octets": 252
+  }
+]

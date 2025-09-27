@@ -131,32 +131,38 @@ namespace MimeKit {
 				var available = await ReadAheadAsync (left + 1, 0, cancellationToken).ConfigureAwait (false);
 
 				if (available == left) {
-					// EOF reached before we reached the end of the headers...
-					if (toplevel && scanningFieldName && left > 0) {
-						// EOF reached right in the middle of a header field name. Throw an error.
-						//
-						// See private email from Feb 8, 2018 which contained a sample message w/o
-						// any breaks between the header and message body. The file also did not
-						// end with a newline sequence.
-						state = MimeParserState.Error;
-					} else {
-						// EOF reached somewhere in the middle of the header.
-						//
-						// Append whatever data we've got left and pretend we found the end
-						// of the header (and the header block).
-						//
-						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
-						// and https://github.com/jstedfast/MimeKit/issues/348
-						if (left > 0) {
-							AppendRawHeaderData (inputIndex, left);
-							inputIndex = inputEnd;
+					// input buffer is already full -or- EOF reached before we reached the end of the headers...
+					if (eos) {
+						if (toplevel && scanningFieldName && left > 0) {
+							// EOF reached right in the middle of a header field name. Throw an error.
+							//
+							// See private email from Feb 8, 2018 which contained a sample message w/o
+							// any breaks between the header and message body. The file also did not
+							// end with a newline sequence.
+							state = MimeParserState.Error;
+						} else {
+							// EOF reached somewhere in the middle of the header.
+							//
+							// Append whatever data we've got left and pretend we found the end
+							// of the header (and the header block).
+							//
+							// For more details, see https://github.com/jstedfast/MimeKit/pull/51
+							// and https://github.com/jstedfast/MimeKit/issues/348
+							if (left > 0) {
+								AppendRawHeaderData (inputIndex, left);
+								inputIndex = inputEnd;
+							}
+
+							ParseAndAppendHeader ();
+
+							state = MimeParserState.Content;
 						}
-
-						ParseAndAppendHeader ();
-
-						state = MimeParserState.Content;
+						break;
+					} else {
+						// Append whatever data we've got and continue trying to parse this header.
+						AppendRawHeaderData (inputIndex, left);
+						inputIndex = inputEnd;
 					}
-					break;
 				}
 			} while (true);
 

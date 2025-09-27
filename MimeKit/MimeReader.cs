@@ -1326,7 +1326,7 @@ namespace MimeKit {
 
 			end = input.Length - PadSize;
 
-			return true;
+			return start < end;
 		}
 
 		int ReadAhead (int atleast, int save, CancellationToken cancellationToken)

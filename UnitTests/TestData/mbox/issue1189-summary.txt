@@ -1,0 +1,38 @@
+From 1844347792267117879@xxx
+From: "Sender" <sender@example.com>
+To: "Recipient" <recipient@example.com>
+Subject: Message 1
+Date: Fri, 26 Sep 2025 10:18:40 -0700
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: text/html
+
+From 1844347839636459560@xxx
+From: "Sender" <sender@example.com>
+To: "Recipient" <recipient@example.com>
+Subject: Message 2
+Date: Fri, 26 Sep 2025 10:19:25 -0700
+Content-Type: multipart/mixed
+   Content-Type: multipart/alternative
+      Content-Type: text/plain
+      Content-Type: text/html
+   Content-Type: application/x-zip-compressed
+
+From 1844347853750471882@xxx
+From: "Sender" <sender@example.com>
+To: "Recipient" <recipient@example.com>
+Subject: Message 3
+Date: Fri, 26 Sep 2025 10:19:39 -0700
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: text/html
+
+From 1844347869536581428@xxx
+From: "Sender" <sender@example.com>
+To: "Recipient" <recipient@example.com>
+Subject: Message 4
+Date: Fri, 26 Sep 2025 10:19:54 -0700
+Content-Type: multipart/alternative
+   Content-Type: text/plain
+   Content-Type: text/html
+

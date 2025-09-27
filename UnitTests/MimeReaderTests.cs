@@ -386,6 +386,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestIssue1189Mbox ()
+		{
+			TestMbox (null, "issue1189");
+		}
+
+		[Test]
+		public async Task TestIssue1189MboxAsync ()
+		{
+			await TestMboxAsync (null, "issue1189");
+		}
+
+		[Test]
 		public void TestJwzMbox ()
 		{
 			TestMbox (null, "jwz");
