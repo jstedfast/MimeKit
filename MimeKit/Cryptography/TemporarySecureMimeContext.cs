@@ -145,7 +145,7 @@ namespace MimeKit.Cryptography {
 				return certificates[0];
 
 			foreach (var certificate in certificates) {
-				if (selector.Match (certificate))
+				if (selector == null || selector.Match (certificate))
 					return certificate;
 			}
 
@@ -252,13 +252,13 @@ namespace MimeKit.Cryptography {
 				if (!crl.IssuerDN.Equals (issuer))
 					continue;
 
-				nextUpdate = crl.NextUpdate.Value > nextUpdate ? crl.NextUpdate.Value : nextUpdate;
+				nextUpdate = crl.NextUpdate.HasValue && crl.NextUpdate.Value > nextUpdate ? crl.NextUpdate.Value : nextUpdate;
 			}
 
 			return nextUpdate;
 		}
 
-		X509Certificate GetCmsRecipientCertificate (MailboxAddress mailbox)
+		X509Certificate? GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
@@ -320,7 +320,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			X509Certificate certificate;
+			X509Certificate? certificate;
 
 			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -333,7 +333,7 @@ namespace MimeKit.Cryptography {
 			return recipient;
 		}
 
-		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter? key)
+		X509Certificate? GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter? key)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
@@ -403,12 +403,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			X509Certificate certificate;
+			X509Certificate? certificate;
 
 			if ((certificate = GetCmsSignerCertificate (mailbox, out var key)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
-			return new CmsSigner (BuildCertificateChain (certificate), key) {
+			return new CmsSigner (BuildCertificateChain (certificate), key!) {
 				DigestAlgorithm = digestAlgo
 			};
 		}
@@ -528,7 +528,9 @@ namespace MimeKit.Cryptography {
 
 			if (certificate.HasPrivateKey && !keys.ContainsKey (fingerprint)) {
 				var privateKey = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
-				keys.Add (fingerprint, privateKey);
+
+				if (privateKey != null)
+					keys.Add (fingerprint, privateKey);
 			}
 		}
 
