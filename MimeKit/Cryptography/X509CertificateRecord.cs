@@ -256,7 +256,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate.
 		/// </remarks>
 		/// <value>The certificate.</value>
-		public X509Certificate Certificate { get; internal set; }
+		public X509Certificate? Certificate { get; internal set; }
 
 		/// <summary>
 		/// Gets the private key.

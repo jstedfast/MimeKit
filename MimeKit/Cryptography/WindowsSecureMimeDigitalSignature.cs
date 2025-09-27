@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// Gets certificate used by the signer.
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
-		public IDigitalCertificate SignerCertificate {
+		public IDigitalCertificate? SignerCertificate {
 			get; private set;
 		}
 
