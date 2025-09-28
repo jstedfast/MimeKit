@@ -27,15 +27,13 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.Cms;
-
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
@@ -51,23 +49,6 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class CmsSigner
 	{
-		/// <summary>
-		/// Initialize a new instance of the <see cref="CmsSigner"/> class.
-		/// </summary>
-		/// <remarks>
-		/// <para>The initial value of the <see cref="DigestAlgorithm"/> will be set to
-		/// <see cref="DigestAlgorithm.Sha256"/> and both the
-		/// <see cref="SignedAttributes"/> and <see cref="UnsignedAttributes"/> properties
-		/// will be initialized to empty tables.</para>
-		/// </remarks>
-		CmsSigner ()
-		{
-			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
-			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
-			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
-			DigestAlgorithm = DigestAlgorithm.Sha256;
-		}
-
 		static bool CanSign (X509Certificate certificate)
 		{
 			var keyUsage = certificate.GetKeyUsageFlags ();
@@ -105,13 +86,16 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is not a private key.</para>
 		/// </exception>
-		public CmsSigner (IEnumerable<X509Certificate> chain, AsymmetricKeyParameter key, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
+		public CmsSigner (IEnumerable<X509Certificate> chain, AsymmetricKeyParameter key, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (chain == null)
 				throw new ArgumentNullException (nameof (chain));
 
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
+
+			if (!key.IsPrivate)
+				throw new ArgumentException ("The key must be a private key.", nameof (key));
 
 			CertificateChain = new X509CertificateChain (chain);
 
@@ -120,8 +104,10 @@ namespace MimeKit.Cryptography {
 
 			CheckCertificateCanBeUsedForSigning (CertificateChain[0]);
 
-			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", nameof (key));
+			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
+			DigestAlgorithm = DigestAlgorithm.Sha256;
 
 			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
@@ -154,7 +140,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="key"/> is not a private key.</para>
 		/// </exception>
-		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
+		public CmsSigner (X509Certificate certificate, AsymmetricKeyParameter key, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -166,6 +152,11 @@ namespace MimeKit.Cryptography {
 
 			if (!key.IsPrivate)
 				throw new ArgumentException ("The key must be a private key.", nameof (key));
+
+			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
+			DigestAlgorithm = DigestAlgorithm.Sha256;
 
 			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
@@ -179,6 +170,9 @@ namespace MimeKit.Cryptography {
 			PrivateKey = key;
 		}
 
+		[MemberNotNull (nameof (CertificateChain))]
+		[MemberNotNull (nameof (Certificate))]
+		[MemberNotNull (nameof (PrivateKey))]
 		void LoadPkcs12 (Stream stream, string password, SubjectIdentifierType signerIdentifierType)
 		{
 			var pkcs12 = new Pkcs12StoreBuilder ().Build ();
@@ -248,13 +242,18 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public CmsSigner (Stream stream, string password, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
+		public CmsSigner (Stream stream, string password, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
+
+			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
+			DigestAlgorithm = DigestAlgorithm.Sha256;
 
 			LoadPkcs12 (stream, password, signerIdentifierType);
 		}
@@ -298,13 +297,18 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public CmsSigner (string fileName, string password, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
+		public CmsSigner (string fileName, string password, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException (nameof (fileName));
 
 			if (password == null)
 				throw new ArgumentNullException (nameof (password));
+
+			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
+			DigestAlgorithm = DigestAlgorithm.Sha256;
 
 			using (var stream = File.OpenRead (fileName))
 				LoadPkcs12 (stream, password, signerIdentifierType);
@@ -327,7 +331,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="certificate"/> cannot be used for signing.
 		/// </exception>
-		public CmsSigner (X509Certificate2 certificate, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber) : this ()
+		public CmsSigner (X509Certificate2 certificate, SubjectIdentifierType signerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
@@ -346,6 +350,11 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentException ("Unable to extract the private key from the certificate.", nameof (certificate));
 
 			CheckCertificateCanBeUsedForSigning (cert);
+
+			UnsignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			SignedAttributes = new AttributeTable (new Dictionary<DerObjectIdentifier, object> ());
+			//RsaSignaturePadding = RsaSignaturePadding.Pkcs1;
+			DigestAlgorithm = DigestAlgorithm.Sha256;
 
 			if (signerIdentifierType != SubjectIdentifierType.SubjectKeyIdentifier)
 				SignerIdentifierType = SubjectIdentifierType.IssuerAndSerialNumber;
@@ -417,7 +426,7 @@ namespace MimeKit.Cryptography {
 		/// the <see cref="PrivateKey"/> is an RSA key.</para>
 		/// </remarks>
 		/// <value>The signature padding scheme.</value>
-		public RsaSignaturePadding RsaSignaturePadding {
+		public RsaSignaturePadding? RsaSignaturePadding {
 			get; set;
 		}
 

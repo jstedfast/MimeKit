@@ -256,7 +256,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate.
 		/// </remarks>
 		/// <value>The certificate.</value>
-		public X509Certificate? Certificate { get; internal set; }
+		public X509Certificate Certificate { get; internal set; }
 
 		/// <summary>
 		/// Gets the private key.
@@ -305,24 +305,13 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
-		public X509CertificateRecord (X509Certificate certificate) : this ()
+		public X509CertificateRecord (X509Certificate certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
-			Certificate = certificate;
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
-		/// </summary>
-		/// <remarks>
-		/// This constructor is only meant to be used by implementors of <see cref="IX509CertificateDatabase"/>
-		/// when loading records from the database.
-		/// </remarks>
-		public X509CertificateRecord ()
-		{
 			AlgorithmsUpdated = DateTime.MinValue;
+			Certificate = certificate;
 		}
 	}
 }

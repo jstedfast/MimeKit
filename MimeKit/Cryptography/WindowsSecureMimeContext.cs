@@ -404,7 +404,7 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (CmsSigner signer)
 		{
-			if (signer.RsaSignaturePadding == RsaSignaturePadding.Pss)
+			if (signer.RsaSignaturePadding?.Scheme == RsaSignaturePaddingScheme.Pss)
 				throw new NotSupportedException ("The RSASSA-PSS signature padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 
 			RealSubjectIdentifierType type;

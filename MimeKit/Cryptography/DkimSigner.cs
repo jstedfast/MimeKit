@@ -188,7 +188,7 @@ namespace MimeKit.Cryptography {
 		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
 		/// </example>
 		/// <value>The agent or user identifier.</value>
-		public string AgentOrUserIdentifier {
+		public string? AgentOrUserIdentifier {
 			get; set;
 		}
 
@@ -206,7 +206,7 @@ namespace MimeKit.Cryptography {
 		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
 		/// </example>
 		/// <value>The public key query method.</value>
-		public string QueryMethod {
+		public string? QueryMethod {
 			get; set;
 		}
 
