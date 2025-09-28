@@ -404,7 +404,17 @@ namespace MimeKit.Cryptography {
 			var counts = new Dictionary<string, int> (StringComparer.Ordinal);
 
 			for (int i = 0; i < fields.Count; i++) {
-				var headers = fields[i].StartsWith ("Content-", StringComparison.OrdinalIgnoreCase) ? message.Body.Headers : message.Headers;
+				HeaderList headers;
+
+				if (fields[i].StartsWith ("Content-", StringComparison.OrdinalIgnoreCase)) {
+					if (message.Body == null)
+						continue;
+
+					headers = message.Body.Headers;
+				} else {
+					headers = message.Headers;
+				}
+
 				var name = fields[i].ToLowerInvariant ();
 				int index, n = 0;
 
