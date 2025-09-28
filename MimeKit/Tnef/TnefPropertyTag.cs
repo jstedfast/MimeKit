@@ -4157,6 +4157,15 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag ProviderUid = new TnefPropertyTag (TnefPropertyId.ProviderUid, TnefPropertyType.Binary);
 
 		/// <summary>
+		/// The MAPI property PR_PUID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_PUID.
+		/// </remarks>
+		[Obsolete ("Use PuidA or PuidW instead.")]
+		public static readonly TnefPropertyTag Puid = new TnefPropertyTag (TnefPropertyId.Puid, TnefPropertyType.Unspecified);
+
+		/// <summary>
 		/// The MAPI property PR_PUID_A.
 		/// </summary>
 		/// <remarks>

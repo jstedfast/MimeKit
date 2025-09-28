@@ -39,6 +39,11 @@ namespace UnitTests.Tnef {
 				var propertyTag = (TnefPropertyTag) field.GetValue (null);
 				int tagId = (int) propertyTag;
 
+				if (propertyTag.Equals (TnefPropertyTag.Puid)) {
+					Assert.That (propertyTag.IsTnefTypeValid, Is.False, $"{field.Name}.IsTnefTypeValid");
+					continue;
+				}
+
 				Assert.That (propertyTag.IsTnefTypeValid, Is.True, $"{field.Name}.IsTnefTypeValid");
 
 				var tag = new TnefPropertyTag (propertyTag.Id, propertyTag.TnefType);
