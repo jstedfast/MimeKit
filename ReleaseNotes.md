@@ -1,5 +1,36 @@
 # Release Notes
 
+## MimeKit 4.14.0 (2025-09-??)
+
+* Updated BouncyCastle.Cryptography dependency to v2.6.1.
+* Added BodyBuilder.BodyEncoding property to allow setting body text encoding.
+* Fixed a number of TnefPropertyTags that didn't have proper Type info.
+* Added TnefPropertyTag.PuidA and TnefPropertyTag.PuidW and Obsoleted
+  TnefPropertyTag.Puid.
+* Fixed TnefPropertyTag.ToUnicode() to only affect String8 tags.
+* Optimized the Base64Encoder to use hardware acceleration when available.
+* Optimized the Base64Decoder to use hardware acceleration when available.
+* Fixed parsing of short StatusGroups in MessageDeliveryStatus
+  (issue [#1181](https://github.com/jstedfast/MimeKit/discussions/1181))
+* Fixed MimeParser and ExperimentalMimeParser to consistently adhere to
+  ParserOptions.MaxMimeDepth.
+* Fixed MimeParser and ExperimentalMimeParser to properly (re)initialize their
+  MboxMarker and MboxMarkerOffset properties before parsing each message in an
+  mbox stream. When parsing fails, these properties will now have values of
+  null and -1, respectively.
+* Fixed MultipartSigned.Create() to avoid corrupting binary content of the
+  entity (or child entities) being signed (important for AS2 messages).
+  (issue [#1184](https://github.com/jstedfast/MimeKit/discussions/1184))
+    * Note: It is important for developers to properly set the
+      ContentTransferEncoding of these parts to ContentEncoding.Binary
+      to avoid corruption.
+* Fixed MimeParser, ExperimentalMimeParser and MimeReader to handle header
+  lines that exceed the internal input buffer length.
+  (issue [#1189](https://github.com/jstedfast/MimeKit/discussions/1189))
+* Obsoleted DkimSignerBase, DkimSigner, and ArcSigner .ctors that did not take a
+  parameter that could be used to initialize the PrivateKey property.
+* Obsoleted DkimSignerBase.PrivateKey property setter.
+
 ## MimeKit 4.13.0 (2025-06-25)
 
 * Fixed a memory leak in MimeAnonymizer and MimeUtils.Unquote() which gets used by the

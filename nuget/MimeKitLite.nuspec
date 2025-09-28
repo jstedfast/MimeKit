@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.13.0</version>
+    <version>4.14.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -22,13 +22,16 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Fixed a memory leak in MimeAnonymizer and MimeUtils.Unquote() which gets used by the address parser. (issue #1161)
-* Optimized MimeReader and MimeParser to use Span&lt;T&gt;.IndexOf() on .NET Core which can improve performance by 20-30% when parsing MemoryStreams or 5-10% when parsing FileStreams.
-* Optimized the MboxFromFilter and ArmoredFromFilter by using Span&lt;T&gt;.IndexOf().
-* Fixed S/MIME logic to allow certificates without the KeyEncipherment key usage for encryption. (issue #1165)
-* Added MimeAnonymizer.PreserveHeaders as a way of preventing anonymization for specific headers.
-* Added message/deliver-status and message/disposition-notification support to MimeAnonymizer.
-* Slightly optimized the Unix2DosFilter.
+* Added BodyBuilder.BodyEncoding property to allow setting body text encoding.
+* Fixed a number of TnefPropertyTags that didn't have proper Type info.
+* Added TnefPropertyTag.PuidA and TnefPropertyTag.PuidW and Obsoleted TnefPropertyTag.Puid.
+* Fixed TnefPropertyTag.ToUnicode() to only affect String8 tags.
+* Optimized the Base64Encoder to use hardware acceleration when available.
+* Optimized the Base64Decoder to use hardware acceleration when available.
+* Fixed parsing of short StatusGroups in MessageDeliveryStatus (issue #1181)
+* Fixed MimeParser and ExperimentalMimeParser to consistently adhere to ParserOptions.MaxMimeDepth.
+* Fixed MimeParser and ExperimentalMimeParser to properly (re)initialize their MboxMarker and MboxMarkerOffset properties before parsing each message in an mbox stream. When parsing fails, these properties will now have values of null and -1, respectively.
+* Fixed MimeParser, ExperimentalMimeParser and MimeReader to handle header lines that exceed the internal input buffer length. (issue #1189)
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
