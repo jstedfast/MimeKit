@@ -54,38 +54,6 @@ namespace MimeKit.Cryptography {
 		/// part of DKIM since it was originally standardized in 2007), it is recommended
 		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
 		/// </remarks>
-		/// <param name="domain">The domain that the signer represents.</param>
-		/// <param name="selector">The selector subdividing the domain.</param>
-		/// <param name="algorithm">The signature algorithm.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
-		/// </exception>
-		[Obsolete ("This constructor will be removed in a future release.")]
-		protected DkimSignerBase (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
-		{
-			if (domain == null)
-				throw new ArgumentNullException (nameof (domain));
-
-			if (selector == null)
-				throw new ArgumentNullException (nameof (selector));
-
-			SignatureAlgorithm = algorithm;
-			Selector = selector;
-			Domain = domain;
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="DkimSignerBase"/> class.
-		/// </summary>
-		/// <remarks>
-		/// <para>Creates a new <see cref="DkimSignerBase"/>.</para>
-		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
-		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
-		/// part of DKIM since it was originally standardized in 2007), it is recommended
-		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
-		/// </remarks>
 		/// <param name="key">The private key used for signing.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>

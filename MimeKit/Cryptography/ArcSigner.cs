@@ -57,25 +57,6 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.
 		/// </remarks>
-		/// <param name="domain">The domain that the signer represents.</param>
-		/// <param name="selector">The selector subdividing the domain.</param>
-		/// <param name="algorithm">The signature algorithm.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
-		/// </exception>
-		[Obsolete ("This constructor will be removed in a future release. Use one of the other constructors that accept a private key, a file name, or a stream instead.")]
-		protected ArcSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
-		{
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="ArcSigner"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="ArcSigner"/>.
-		/// </remarks>
 		/// <param name="key">The signer's private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
