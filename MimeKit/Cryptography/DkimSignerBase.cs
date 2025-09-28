@@ -117,7 +117,10 @@ namespace MimeKit.Cryptography {
 			SignatureAlgorithm = algorithm;
 			Selector = selector;
 			Domain = domain;
+
+#pragma warning disable CS0618 // Type or member is obsolete
 			PrivateKey = key;
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		/// <summary>
@@ -170,8 +173,11 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException (nameof (selector));
 
-			using (var stream = File.OpenRead (fileName))
+			using (var stream = File.OpenRead (fileName)) {
+#pragma warning disable CS0618 // Type or member is obsolete
 				PrivateKey = LoadPrivateKey (stream);
+#pragma warning restore CS0618 // Type or member is obsolete
+			}
 
 			SignatureAlgorithm = algorithm;
 			Selector = selector;
@@ -216,7 +222,9 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException (nameof (selector));
 
+#pragma warning disable CS0618 // Type or member is obsolete
 			PrivateKey = LoadPrivateKey (stream);
+#pragma warning restore CS0618 // Type or member is obsolete
 			SignatureAlgorithm = algorithm;
 			Selector = selector;
 			Domain = domain;
@@ -316,7 +324,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The private key.</value>
 		protected AsymmetricKeyParameter PrivateKey {
-			get; private set;
+			get;
+
+			[Obsolete ("Setting the PrivateKey property will be removed in a future release. Use the constructor that accepts an AsymmetricKeyParameter instead.")]
+			set;
 		}
 
 		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
