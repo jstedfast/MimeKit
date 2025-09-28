@@ -109,7 +109,6 @@ namespace MimeKit.Text {
 			Dispose (false);
 		}
 
-		[MemberNotNull (nameof (html))]
 		void CheckDisposed ()
 		{
 			if (disposed)
