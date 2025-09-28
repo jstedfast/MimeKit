@@ -194,7 +194,7 @@ namespace MimeKit.Cryptography {
 					var columns = new List<DataColumn> ();
 					var table = reader.GetSchemaTable ();
 
-					foreach (DataRow row in table.Rows)
+					foreach (DataRow row in table!.Rows)
 						columns.Add (new DataColumn { ColumnName = row.Field<string> ("ColumnName") });
 
 					return columns;

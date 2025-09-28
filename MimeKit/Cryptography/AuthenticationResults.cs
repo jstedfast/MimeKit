@@ -939,6 +939,7 @@ namespace MimeKit.Cryptography {
 
 			Properties = new List<AuthenticationMethodProperty> ();
 			Method = method;
+			Result = string.Empty;
 		}
 
 		/// <summary>
@@ -1007,7 +1008,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the authentication method results.
 		/// </remarks>
 		/// <value>The authentication method results.</value>
-		public string? Result {
+		public string Result {
 			get; internal set;
 		}
 
