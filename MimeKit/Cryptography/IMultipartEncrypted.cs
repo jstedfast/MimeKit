@@ -71,7 +71,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default);
+		MimeEntity Decrypt (OpenPgpContext ctx, out DigitalSignatureCollection? signatures, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Decrypts the <see cref="IMultipartEncrypted"/> part.

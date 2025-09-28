@@ -310,9 +310,9 @@ namespace MimeKit.Cryptography {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					for (int i = 0; i < count; i++) {
-						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult, false);
-						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature, false);
-						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcSeal, false);
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult!, false);
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature!, false);
+						DkimVerifierBase.WriteHeaderRelaxed (options, filtered, sets[i].ArcSeal!, false);
 					}
 
 					DkimVerifierBase.WriteHeaderRelaxed (options, filtered, aar, false);
@@ -339,7 +339,6 @@ namespace MimeKit.Cryptography {
 			ArcVerifier.GetArcHeaderSets (message, true, out ArcHeaderSet[] sets, out int count, out var errors);
 			AuthenticationResults authres;
 			int instance = count + 1;
-			string cv;
 
 			// do not sign if there is already a failed/invalid ARC-Seal.
 			if (count > 0 && (errors & ArcValidationErrors.InvalidArcSealChainValidationValue) != 0)
@@ -360,14 +359,15 @@ namespace MimeKit.Cryptography {
 			authres.Instance = instance;
 
 			var aar = new Header (HeaderId.ArcAuthenticationResults, authres.ToString ());
-			cv = "none";
+			string cv = "none";
 
 			if (count > 0) {
 				cv = "pass";
 
-				foreach (var method in authres.Results) {
-					if (method.Method.Equals ("arc", StringComparison.OrdinalIgnoreCase)) {
-						cv = method.Result;
+				foreach (var methodres in authres.Results) {
+					if (methodres.Method.Equals ("arc", StringComparison.OrdinalIgnoreCase)) {
+						// Note: ArcVerifier.GetArcHeaderSets() validates the cv value to be either "none" or "pass".
+						cv = methodres.Result;
 						break;
 					}
 				}

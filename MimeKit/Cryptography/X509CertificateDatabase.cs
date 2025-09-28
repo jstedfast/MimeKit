@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.BC;
@@ -583,34 +584,52 @@ namespace MimeKit.Cryptography {
 			return string.Join (",", tokens);
 		}
 
-		X509CertificateRecord LoadCertificateRecord (DbDataReader reader, X509CertificateParser parser, ref byte[] buffer)
+		bool TryLoadCertificateRecord (DbDataReader reader, X509CertificateParser parser, ref byte[] buffer, [NotNullWhen (true)] out X509CertificateRecord? record)
 		{
-			var record = new X509CertificateRecord ();
+			var algorithmsUpdated = DateTime.MinValue.ToUniversalTime ();
+			AsymmetricKeyParameter? privateKey = null;
+			EncryptionAlgorithm[]? algorithms = null;
+			X509Certificate? certificate = null;
+			bool trusted = false;
+			int id = -1;
 
 			for (int i = 0; i < reader.FieldCount; i++) {
 				switch (reader.GetName (i).ToUpperInvariant ()) {
 				case CertificateColumnNames.Certificate:
-					record.Certificate = DecodeCertificate (reader, parser, i, ref buffer);
+					certificate = DecodeCertificate (reader, parser, i, ref buffer);
 					break;
 				case CertificateColumnNames.PrivateKey:
-					record.PrivateKey = DecodePrivateKey (reader, i, ref buffer);
+					privateKey = DecodePrivateKey (reader, i, ref buffer);
 					break;
 				case CertificateColumnNames.Algorithms:
-					record.Algorithms = DecodeEncryptionAlgorithms (reader, i);
+					algorithms = DecodeEncryptionAlgorithms (reader, i);
 					break;
 				case CertificateColumnNames.AlgorithmsUpdated:
-					record.AlgorithmsUpdated = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
+					algorithmsUpdated = DateTime.SpecifyKind (reader.GetDateTime (i), DateTimeKind.Utc);
 					break;
 				case CertificateColumnNames.Trusted:
-					record.IsTrusted = reader.GetBoolean (i);
+					trusted = reader.GetBoolean (i);
 					break;
 				case CertificateColumnNames.Id:
-					record.Id = reader.GetInt32 (i);
+					id = reader.GetInt32 (i);
 					break;
 				}
 			}
 
-			return record;
+			if (certificate == null) {
+				record = null;
+				return false;
+			}
+
+			record = new X509CertificateRecord (certificate) {
+				AlgorithmsUpdated = algorithmsUpdated,
+				Algorithms = algorithms,
+				PrivateKey = privateKey,
+				IsTrusted = trusted,
+				Id = id
+			};
+
+			return true;
 		}
 
 		static X509CrlRecord LoadCrlRecord (DbDataReader reader, X509CrlParser parser, ref byte[] buffer)
@@ -862,8 +881,8 @@ namespace MimeKit.Cryptography {
 			case CertificateColumnNames.Trusted: return record.IsTrusted;
 			case CertificateColumnNames.Anchor: return record.IsAnchor;
 			case CertificateColumnNames.KeyUsage: return (int) record.KeyUsage;
-			case CertificateColumnNames.NotBefore: return record.NotBefore.ToUniversalTime ();
-			case CertificateColumnNames.NotAfter: return record.NotAfter.ToUniversalTime ();
+			case CertificateColumnNames.NotBefore: return record.NotBefore;
+			case CertificateColumnNames.NotAfter: return record.NotAfter;
 			case CertificateColumnNames.IssuerName: return record.IssuerName;
 			case CertificateColumnNames.SerialNumber: return record.SerialNumber;
 			case CertificateColumnNames.SubjectName: return record.SubjectName;
@@ -979,7 +998,8 @@ namespace MimeKit.Cryptography {
 						var parser = new X509CertificateParser ();
 						var buffer = new byte[4096];
 
-						return LoadCertificateRecord (reader, parser, ref buffer);
+						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record))
+							return record;
 					}
 				}
 			}
@@ -1003,15 +1023,16 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (connection!, selector, false, false, X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
-						var record = LoadCertificateRecord (reader, parser, ref buffer);
-						if (record.Certificate != null && (selector == null || selector.Match (record.Certificate)))
-							yield return record.Certificate;
+						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record)) {
+							if (selector == null || selector.Match (record.Certificate))
+								yield return record.Certificate;
+						}
 					}
 				}
 			}
@@ -1041,10 +1062,10 @@ namespace MimeKit.Cryptography {
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
-						var record = LoadCertificateRecord (reader, parser, ref buffer);
-
-						if (selector == null || selector.Match (record.Certificate!))
-							yield return record.PrivateKey!;
+						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record)) {
+							if (record.PrivateKey != null && (selector == null || selector.Match (record.Certificate)))
+								yield return record.PrivateKey;
+						}
 					}
 				}
 			}
@@ -1084,7 +1105,8 @@ namespace MimeKit.Cryptography {
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
-						yield return LoadCertificateRecord (reader, parser, ref buffer);
+						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record))
+							yield return record;
 					}
 				}
 			}
@@ -1116,10 +1138,10 @@ namespace MimeKit.Cryptography {
 					var buffer = new byte[4096];
 
 					while (reader.Read ()) {
-						var record = LoadCertificateRecord (reader, parser, ref buffer);
-
-						if (record.Certificate != null && (selector == null || selector.Match (record.Certificate)))
-							yield return record;
+						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record)) {
+							if (selector == null || selector.Match (record.Certificate))
+								yield return record;
+						}
 					}
 				}
 			}
