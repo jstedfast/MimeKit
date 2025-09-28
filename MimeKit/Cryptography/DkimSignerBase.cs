@@ -62,6 +62,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
+		[Obsolete ("This constructor will be removed in a future release.")]
 		protected DkimSignerBase (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
 		{
 			if (domain == null)
@@ -70,6 +71,152 @@ namespace MimeKit.Cryptography {
 			if (selector == null)
 				throw new ArgumentNullException (nameof (selector));
 
+			SignatureAlgorithm = algorithm;
+			Selector = selector;
+			Domain = domain;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DkimSignerBase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="DkimSignerBase"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
+		/// </remarks>
+		/// <param name="key">The private key used for signing.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="key"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="key"/> is not a private key.
+		/// </exception>
+		protected DkimSignerBase (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		{
+			if (key == null)
+				throw new ArgumentNullException (nameof (key));
+
+			if (!key.IsPrivate)
+				throw new ArgumentException ("The key must be a private key.", nameof (key));
+
+			if (domain == null)
+				throw new ArgumentNullException (nameof (domain));
+
+			if (selector == null)
+				throw new ArgumentNullException (nameof (selector));
+
+			SignatureAlgorithm = algorithm;
+			Selector = selector;
+			Domain = domain;
+			PrivateKey = key;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DkimSignerBase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="DkimSignerBase"/>.
+		/// </remarks>
+		/// <param name="fileName">The file containing the private key.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="fileName"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="fileName"/> is a zero-length string, contains only white space, or
+		/// contains one or more invalid characters.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The file did not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.DirectoryNotFoundException">
+		/// <paramref name="fileName"/> is an invalid file path.
+		/// </exception>
+		/// <exception cref="System.IO.FileNotFoundException">
+		/// The specified file path could not be found.
+		/// </exception>
+		/// <exception cref="System.UnauthorizedAccessException">
+		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		protected DkimSignerBase (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			if (fileName.Length == 0)
+				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
+
+			if (domain == null)
+				throw new ArgumentNullException (nameof (domain));
+
+			if (selector == null)
+				throw new ArgumentNullException (nameof (selector));
+
+			using (var stream = File.OpenRead (fileName))
+				PrivateKey = LoadPrivateKey (stream);
+
+			SignatureAlgorithm = algorithm;
+			Selector = selector;
+			Domain = domain;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="DkimSignerBase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="DkimSignerBase"/>.</para>
+		/// <note type="security">Due to the recognized weakness of the SHA-1 hash algorithm
+		/// and the wide availability of the SHA-256 hash algorithm (it has been a required
+		/// part of DKIM since it was originally standardized in 2007), it is recommended
+		/// that <see cref="DkimSignatureAlgorithm.RsaSha1"/> NOT be used.</note>
+		/// </remarks>
+		/// <param name="stream">The stream containing the private key.</param>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// The file did not contain a private key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		protected DkimSignerBase (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
+		{
+			if (stream == null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (domain == null)
+				throw new ArgumentNullException (nameof (domain));
+
+			if (selector == null)
+				throw new ArgumentNullException (nameof (selector));
+
+			PrivateKey = LoadPrivateKey (stream);
 			SignatureAlgorithm = algorithm;
 			Selector = selector;
 			Domain = domain;
@@ -169,10 +316,10 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The private key.</value>
 		protected AsymmetricKeyParameter PrivateKey {
-			get; set;
+			get; private set;
 		}
 
-		internal static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
+		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
 		{
 			AsymmetricKeyParameter key = null;
 

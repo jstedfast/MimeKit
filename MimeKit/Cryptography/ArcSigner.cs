@@ -65,6 +65,7 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
+		[Obsolete ("This constructor will be removed in a future release. Use one of the other constructors that accept a private key, a file name, or a stream instead.")]
 		protected ArcSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
 		{
 		}
@@ -89,15 +90,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="key"/> is not a private key.
 		/// </exception>
-		protected ArcSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		protected ArcSigner (AsymmetricKeyParameter key, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (key, domain, selector, algorithm)
 		{
-			if (key == null)
-				throw new ArgumentNullException (nameof (key));
-
-			if (!key.IsPrivate)
-				throw new ArgumentException ("The key must be a private key.", nameof (key));
-
-			PrivateKey = key;
 		}
 
 		/// <summary>
@@ -139,16 +133,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		protected ArcSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		protected ArcSigner (string fileName, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (fileName, domain, selector, algorithm)
 		{
-			if (fileName == null)
-				throw new ArgumentNullException (nameof (fileName));
-
-			if (fileName.Length == 0)
-				throw new ArgumentException ("The file name cannot be empty.", nameof (fileName));
-
-			using (var stream = File.OpenRead (fileName))
-				PrivateKey = LoadPrivateKey (stream);
 		}
 
 		/// <summary>
@@ -174,12 +160,8 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		protected ArcSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (domain, selector, algorithm)
+		protected ArcSigner (Stream stream, string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : this (stream, domain, selector, algorithm)
 		{
-			if (stream == null)
-				throw new ArgumentNullException (nameof (stream));
-
-			PrivateKey = LoadPrivateKey (stream);
 		}
 
 		/// <summary>
