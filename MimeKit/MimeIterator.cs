@@ -308,7 +308,7 @@ namespace MimeKit {
 
 			if (multipart != null) {
 				if (multipart.Count > 0) {
-					Push (current);
+					Push (current!);
 					current = multipart[0];
 					index = 0;
 					return true;

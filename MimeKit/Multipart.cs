@@ -746,7 +746,7 @@ namespace MimeKit {
 		/// <param name="boundary">The boundary marker preceeding the entity.</param>
 		internal void AddInternal (MimeEntity entity, byte[]? boundary)
 		{
-			rawBoundaries.Add (boundary);
+			rawBoundaries?.Add (boundary);
 			children.Add (entity);
 		}
 

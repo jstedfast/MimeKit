@@ -452,14 +452,16 @@ namespace MimeKit {
 			using (var chained = new ChainedStream ()) {
 				// chain all the partial content streams...
 				for (int i = 0; i < parts.Count; i++) {
-					int number = parts[i].Number.Value;
+					// Note: PartialCompare will throw an exception if any part has a null Number.
+					int number = parts[i].Number!.Value;
 
 					if (number != i + 1)
 						throw new ArgumentException ("One or more partials is missing.", nameof (partials));
 
 					var content = parts[i].Content;
 
-					chained.Add (content.Open ());
+					if (content != null)
+						chained.Add (content.Open ());
 				}
 
 				var parser = new MimeParser (options, chained);
