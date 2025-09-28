@@ -46,7 +46,6 @@ namespace MimeKit.Tnef {
 		int rawValueLength;
 		int propertyIndex;
 		int propertyCount;
-		Decoder decoder;
 		int valueIndex;
 		int valueCount;
 		int rowIndex;
@@ -713,23 +712,28 @@ namespace MimeKit.Tnef {
 			if (count < 0 || count > (buffer.Length - offset))
 				throw new ArgumentOutOfRangeException (nameof (count));
 
-			if (reader.StreamOffset == RawValueStreamOffset && decoder is null)
+			if (reader.StreamOffset == RawValueStreamOffset)
 				throw new InvalidOperationException ();
+
+			Encoding encoding = null;
 
 			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
 					ReadInt32 ();
-					decoder = Encoding.Unicode.GetDecoder ();
+					encoding = Encoding.Unicode;
 					break;
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
 					ReadInt32 ();
-					decoder = GetMessageEncoding ().GetDecoder ();
+					encoding = GetMessageEncoding ();
 					break;
 				}
 			}
+
+			if (encoding is null)
+				throw new InvalidOperationException ();
 
 			int valueEndOffset = RawValueStreamOffset + RawValueLength;
 			int valueLeft = valueEndOffset - reader.StreamOffset;
@@ -743,6 +747,7 @@ namespace MimeKit.Tnef {
 			n = reader.ReadAttributeRawValue (bytes, 0, n);
 
 			var flush = reader.StreamOffset >= valueEndOffset;
+			var decoder = encoding.GetDecoder ();
 
 			return decoder.GetChars (bytes, 0, n, buffer, offset, flush);
 		}
@@ -1523,7 +1528,6 @@ namespace MimeKit.Tnef {
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
-			decoder = null;
 		}
 
 		int ReadValueCount ()
@@ -1557,7 +1561,6 @@ namespace MimeKit.Tnef {
 			}
 
 			valueIndex = 0;
-			decoder = null;
 		}
 
 		void LoadRowCount ()
@@ -1571,7 +1574,6 @@ namespace MimeKit.Tnef {
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
-			decoder = null;
 			rowIndex = 0;
 		}
 
@@ -1584,7 +1586,6 @@ namespace MimeKit.Tnef {
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
-			decoder = null;
 			rowCount = 0;
 			rowIndex = 0;
 
