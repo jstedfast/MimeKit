@@ -107,9 +107,9 @@ namespace MimeKit.Utils {
 
 		public void Dispose ()
 		{
-			if (buffer != null) {
+			if (length != -1) {
 				ArrayPool<byte>.Shared.Return (buffer);
-				buffer = null;
+				length = -1;
 			}
 		}
 	}
