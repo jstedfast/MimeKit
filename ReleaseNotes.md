@@ -1,6 +1,6 @@
 # Release Notes
 
-## MimeKit 4.14.0 (2025-09-??)
+## MimeKit 4.14.0 (2025-09-28)
 
 * Updated BouncyCastle.Cryptography dependency to v2.6.1.
 * Added BodyBuilder.BodyEncoding property to allow setting body text encoding.
