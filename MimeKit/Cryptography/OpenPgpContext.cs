@@ -1166,7 +1166,7 @@ namespace MimeKit.Cryptography {
 					for (int i = 0; i < signatures.Count; i++) {
 						if (signatures[i].SignerCertificate != null) {
 							var pgp = (OpenPgpDigitalSignature) signatures[i];
-							pgp.Signature.Update (buf, 0, nread);
+							pgp.Signature!.Update (buf, 0, nread);
 						}
 					}
 				}
@@ -2306,7 +2306,7 @@ namespace MimeKit.Cryptography {
 
 											for (int i = 0; i < onepassList.Count; i++) {
 												var pgp = (OpenPgpDigitalSignature) onepassList[i];
-												pgp.OnePassSignature.Update (c);
+												pgp.OnePassSignature!.Update (c);
 											}
 										}
 									}

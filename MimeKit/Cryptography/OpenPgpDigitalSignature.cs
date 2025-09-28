@@ -134,6 +134,8 @@ namespace MimeKit.Cryptography {
 			if (vex != null)
 				throw vex;
 
+			Debug.Assert (Signature != null, "Signature should never be null here.");
+
 			long keyId = OnePassSignature != null ? OnePassSignature.KeyId : Signature.KeyId;
 
 			if (SignerCertificate == null) {
@@ -146,7 +148,7 @@ namespace MimeKit.Cryptography {
 				if (OnePassSignature != null)
 					valid = OnePassSignature.Verify (Signature);
 				else
-					valid = Signature!.Verify (); // Either OnePassSignature or Signature must be non-null
+					valid = Signature.Verify ();
 				return valid.Value;
 			} catch (Exception ex) {
 				var message = string.Format ("Failed to verify digital signature: {0}", ex.Message);
