@@ -45,10 +45,10 @@ namespace MimeKit.Cryptography {
 		public static readonly RsaSignaturePadding Pkcs1 = new RsaSignaturePadding (RsaSignaturePaddingScheme.Pkcs1);
 
 		/// <summary>
-		/// The Probibilistic Signature Scheme (PSS) padding.
+		/// The Probabilistic Signature Scheme (PSS) padding.
 		/// </summary>
 		/// <remarks>
-		/// The Probibilistic Signature Scheme (PSS) padding.
+		/// The Probabilistic Signature Scheme (PSS) padding.
 		/// </remarks>
 		public static readonly RsaSignaturePadding Pss = new RsaSignaturePadding (RsaSignaturePaddingScheme.Pss);
 

@@ -40,7 +40,7 @@ namespace MimeKit.Cryptography {
 		Pkcs1,
 
 		/// <summary>
-		/// The Probibilistic Signature Scheme (PSS).
+		/// The Probabilistic Signature Scheme (PSS).
 		/// </summary>
 		Pss
 	}
