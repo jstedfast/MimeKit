@@ -126,8 +126,9 @@ namespace MimeKit.Cryptography {
 				throw vex;
 
 			if (SignerCertificate == null) {
-				var message = string.Format (CultureInfo.InvariantCulture, "Failed to verify digital signature: no public key found for {0:X8}", (int) Signature.KeyId);
-				vex = new DigitalSignatureVerifyException (Signature.KeyId, message);
+				long keyId = OnePassSignature != null ? OnePassSignature.KeyId : Signature.KeyId;
+				var message = string.Format (CultureInfo.InvariantCulture, "Failed to verify digital signature: no public key found for {0:X8}", (int) keyId);
+				vex = new DigitalSignatureVerifyException (keyId, message);
 				throw vex;
 			}
 
