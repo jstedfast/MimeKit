@@ -3103,7 +3103,7 @@ namespace UnitTests.Cryptography {
 			public readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
 			readonly HttpClient client;
 
-			public MyTemporarySecureMimeContext (Mock<HttpMessageHandler>? mockHttpMessageHandler = null) : base (new SecureRandom (new CryptoApiRandomGenerator ()))
+			public MyTemporarySecureMimeContext (Mock<HttpMessageHandler> mockHttpMessageHandler = null) : base (new SecureRandom (new CryptoApiRandomGenerator ()))
 			{
 				CheckCertificateRevocation = false;
 
@@ -3255,7 +3255,7 @@ namespace UnitTests.Cryptography {
 			{
 			}
 
-			public MySecureMimeContext (string database, string password, Mock<HttpMessageHandler>? mockHttpMessageHandler = null) : base (database, password)
+			public MySecureMimeContext (string database, string password, Mock<HttpMessageHandler> mockHttpMessageHandler = null) : base (database, password)
 			{
 				CheckCertificateRevocation = false;
 
