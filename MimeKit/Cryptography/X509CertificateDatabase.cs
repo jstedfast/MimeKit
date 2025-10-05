@@ -61,9 +61,11 @@ namespace MimeKit.Cryptography {
 		const int DefaultMinIterations = 1024;
 		const int DefaultSaltSize = 20;
 
+		readonly DbConnection connection;
+		readonly char[] password;
+
 		DbTransaction? activeTransaction;
-		DbConnection? connection;
-		char[]? password;
+		bool disposed;
 
 		/// <summary>
 		/// The name of the database table containing the certificates.
@@ -427,7 +429,7 @@ namespace MimeKit.Cryptography {
 
 		internal void CheckDisposed ()
 		{
-			if (connection == null)
+			if (disposed)
 				throw new ObjectDisposedException (GetType ().Name);
 		}
 
@@ -704,7 +706,7 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			var command = connection!.CreateCommand ();
+			var command = connection.CreateCommand ();
 			command.Transaction = activeTransaction;
 			return command;
 		}
@@ -722,7 +724,7 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			using (var transaction = connection!.BeginTransaction ()) {
+			using (var transaction = connection.BeginTransaction ()) {
 				activeTransaction = transaction;
 
 				try {
@@ -992,7 +994,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, certificate, fields)) {
+			using (var command = GetSelectCommand (connection, certificate, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CertificateParser ();
@@ -1023,7 +1025,7 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, selector, false, false, X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (connection, selector, false, false, X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1056,7 +1058,7 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, selector, false, true, PrivateKeyFields)) {
+			using (var command = GetSelectCommand (connection, selector, false, true, PrivateKeyFields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1099,7 +1101,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, mailbox, now, requirePrivateKey, fields)) {
+			using (var command = GetSelectCommand (connection, mailbox, now, requirePrivateKey, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1132,7 +1134,7 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
+			using (var command = GetSelectCommand (connection, selector, trustedAnchorsOnly, false, fields | X509CertificateRecordFields.Certificate)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CertificateParser ();
 					var buffer = new byte[4096];
@@ -1169,7 +1171,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetInsertCommand (connection!, record))
+			using (var command = GetInsertCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1193,7 +1195,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetDeleteCommand (connection!, record))
+			using (var command = GetDeleteCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1218,7 +1220,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetUpdateCommand (connection!, record, fields))
+			using (var command = GetUpdateCommand (connection, record, fields))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1245,7 +1247,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, issuer, fields)) {
+			using (var command = GetSelectCommand (connection, issuer, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
@@ -1282,7 +1284,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetSelectCommand (connection!, crl, fields)) {
+			using (var command = GetSelectCommand (connection, crl, fields)) {
 				using (var reader = command.ExecuteReader ()) {
 					if (reader.Read ()) {
 						var parser = new X509CrlParser ();
@@ -1316,7 +1318,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetInsertCommand (connection!, record))
+			using (var command = GetInsertCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1340,7 +1342,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetDeleteCommand (connection!, record))
+			using (var command = GetDeleteCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1365,7 +1367,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			using (var command = GetUpdateCommand (connection!, record))
+			using (var command = GetUpdateCommand (connection, record))
 				command.ExecuteNonQuery ();
 		}
 
@@ -1385,7 +1387,7 @@ namespace MimeKit.Cryptography {
 
 			var crls = new List<X509Crl> ();
 
-			using (var command = GetSelectAllCrlsCommand (connection!)) {
+			using (var command = GetSelectAllCrlsCommand (connection)) {
 				using (var reader = command.ExecuteReader ()) {
 					var parser = new X509CrlParser ();
 					var buffer = new byte[4096];
@@ -1433,18 +1435,12 @@ namespace MimeKit.Cryptography {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			if (!disposing)
-				return;
-
-			if (password != null) {
+			if (disposing && !disposed) {
 				for (int i = 0; i < password.Length; i++)
 					password[i] = '\0';
-				password = null;
-			}
 
-			if (connection != null) {
 				connection.Dispose ();
-				connection = null;
+				disposed = true;
 			}
 		}
 
