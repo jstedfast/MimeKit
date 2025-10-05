@@ -313,5 +313,20 @@ namespace MimeKit.Cryptography {
 			AlgorithmsUpdated = DateTime.MinValue;
 			Certificate = certificate;
 		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new certificate record for storing in a <see cref="IX509CertificateDatabase"/>.
+		/// </remarks>
+		/// <exception cref="System.NotImplementedException">
+		/// This constructor is no longer supported. Use <see cref="X509CertificateRecord(X509Certificate)"/> instead.
+		/// </exception>
+		[Obsolete ("This constructor is no longer supported. Use X509CertificateRecord(X509Certificate) instead.", true)]
+		public X509CertificateRecord ()
+		{
+			throw new NotImplementedException ();
+		}
 	}
 }

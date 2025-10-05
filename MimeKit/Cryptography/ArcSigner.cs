@@ -57,6 +57,23 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="ArcSigner"/>.
 		/// </remarks>
+		/// <param name="domain">The domain that the signer represents.</param>
+		/// <param name="selector">The selector subdividing the domain.</param>
+		/// <param name="algorithm">The signature algorithm.</param>
+		/// <exception cref="System.NotImplementedException">
+		/// This constructor is no longer supported. Use one of the other constructors.
+		/// </exception>
+		[Obsolete ("This constructor is no longer supported. Use one of the other constructors.", true)]
+		protected ArcSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="ArcSigner"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="ArcSigner"/>.
+		/// </remarks>
 		/// <param name="key">The signer's private key.</param>
 		/// <param name="domain">The domain that the signer represents.</param>
 		/// <param name="selector">The selector subdividing the domain.</param>
