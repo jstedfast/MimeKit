@@ -507,10 +507,8 @@ namespace MimeKit.Cryptography {
 				return;
 
 			using (var memory = new MemoryBlockStream ()) {
-				if (Content != null) {
-					Content.DecodeTo (memory, cancellationToken);
-					memory.Position = 0;
-				}
+				Content.DecodeTo (memory, cancellationToken);
+				memory.Position = 0;
 
 				ctx.Import (memory, cancellationToken);
 			}
