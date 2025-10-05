@@ -562,6 +562,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				var serialNumber = match.SerialNumber ?? match.Certificate?.SerialNumber;
+
 				if (serialNumber != null) {
 					// Note: GetSelectCommand (X509Certificate certificate, X509CertificateRecordFields fields)
 					// queries for ISSUERNAME, SERIALNUMBER, and FINGERPRINT so we'll do the same.

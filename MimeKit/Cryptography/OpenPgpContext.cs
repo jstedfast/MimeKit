@@ -84,8 +84,9 @@ namespace MimeKit.Cryptography {
 		};
 
 		EncryptionAlgorithm defaultAlgorithm;
-		HttpClient? client;
+		readonly HttpClient client;
 		Uri? keyServer;
+		bool disposed;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
@@ -107,12 +108,6 @@ namespace MimeKit.Cryptography {
 			defaultAlgorithm = EncryptionAlgorithm.Cast5;
 
 			client = new HttpClient ();
-		}
-
-		void CheckDisposed ()
-		{
-			if (client == null)
-				throw new ObjectDisposedException (GetType ().Name);
 		}
 
 		/// <summary>
@@ -652,8 +647,6 @@ namespace MimeKit.Cryptography {
 		/// <returns>The public key ring.</returns>
 		async Task<PgpPublicKeyRing?> RetrievePublicKeyRingAsync (long keyId, bool doAsync, CancellationToken cancellationToken)
 		{
-			CheckDisposed ();
-
 			if (!IsValidKeyServer)
 				return null;
 
@@ -678,7 +671,7 @@ namespace MimeKit.Cryptography {
 					filtered.Add (new OpenPgpBlockFilter (BeginPublicKeyBlock, EndPublicKeyBlock));
 
 					if (doAsync) {
-						using (var response = await client!.GetAsync (builder.Uri, cancellationToken).ConfigureAwait (false)) {
+						using (var response = await client.GetAsync (builder.Uri, cancellationToken).ConfigureAwait (false)) {
 #if NET6_0_OR_GREATER
 							await response.Content.CopyToAsync (filtered, cancellationToken).ConfigureAwait (false);
 #else
@@ -689,7 +682,7 @@ namespace MimeKit.Cryptography {
 						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 					} else {
 #if NET6_0_OR_GREATER
-						using (var response = client!.GetAsync (builder.Uri, cancellationToken).GetAwaiter ().GetResult ())
+						using (var response = client.GetAsync (builder.Uri, cancellationToken).GetAwaiter ().GetResult ())
 							response.Content.CopyToAsync (filtered, cancellationToken).GetAwaiter ().GetResult ();
 #else
 						var request = (HttpWebRequest) WebRequest.Create (builder.Uri);
@@ -3010,9 +3003,9 @@ namespace MimeKit.Cryptography {
 		/// the garbage collector can reclaim the memory that the <see cref="OpenPgpContext"/> was occupying.</remarks>
 		protected override void Dispose (bool disposing)
 		{
-			if (disposing && client != null) {
+			if (disposing && !disposed) {
 				client.Dispose ();
-				client = null;
+				disposed = true;
 			}
 
 			base.Dispose (disposing);
