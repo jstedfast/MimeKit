@@ -27,7 +27,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 
@@ -55,33 +54,29 @@ namespace MimeKit.Text {
 		Encoding? encoding;
 		Decoder? decoder;
 
-		readonly byte[]? input;
+		readonly byte[] input;
 		int inputEnd;
 
-		char[]? buffer;
+		readonly char[] buffer;
 		int bufferIndex, bufferEnd;
 
 		readonly char[] cdata = new char[3];
 		int cdataIndex;
 
+		string activeTagName = string.Empty;
 		HtmlDocTypeToken? doctype;
 		HtmlAttribute? attribute;
-		string? activeTagName;
 		HtmlTagToken? tag;
 		char quote;
 
-		bool detectEncodingFromByteOrderMarks;
+		bool decodeCharacterReferences = true;
+		int linePosition = 1;
+		int lineNumber = 1;
+
 		bool detectByteOrderMark;
 		bool isEndTag;
 		bool bang;
 		bool eof;
-
-		HtmlTokenizer ()
-		{
-			DecodeCharacterReferences = true;
-			LinePosition = 1;
-			LineNumber = 1;
-		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlTokenizer"/> class.
@@ -126,7 +121,7 @@ namespace MimeKit.Text {
 		/// <param name="encoding">The charset encoding of the stream.</param>
 		/// <param name="detectEncodingFromByteOrderMarks"><see langword="true" /> if byte order marks should be detected and used to override the <paramref name="encoding"/>; otherwise, <see langword="false" />.</param>
 		/// <param name="bufferSize">The minimum buffer size to use for reading.</param>
-		public HtmlTokenizer (Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks, int bufferSize = 4096) : this ()
+		public HtmlTokenizer (Stream stream, Encoding encoding, bool detectEncodingFromByteOrderMarks, int bufferSize = 4096)
 		{
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
@@ -135,12 +130,11 @@ namespace MimeKit.Text {
 				throw new ArgumentNullException (nameof (encoding));
 
 			input = new byte[Math.Max (MinimumBufferSize, bufferSize)];
-			if (!detectEncodingFromByteOrderMarks) {
-				buffer = new char[encoding.GetMaxCharCount (input.Length)];
-				decoder = encoding.GetDecoder ();
-			}
+			buffer = new char[input.Length];
 
-			this.detectEncodingFromByteOrderMarks = detectEncodingFromByteOrderMarks;
+			if (!detectEncodingFromByteOrderMarks)
+				decoder = encoding.GetDecoder ();
+
 			this.detectByteOrderMark = !detectEncodingFromByteOrderMarks;
 			this.encoding = encoding;
 			this.stream = stream;
@@ -153,11 +147,12 @@ namespace MimeKit.Text {
 		/// Creates a new <see cref="HtmlTokenizer"/>.
 		/// </remarks>
 		/// <param name="reader">The <see cref="TextReader"/>.</param>
-		public HtmlTokenizer (TextReader reader) : this ()
+		public HtmlTokenizer (TextReader reader)
 		{
 			if (reader == null)
 				throw new ArgumentNullException (nameof (reader));
 
+			input = Array.Empty<byte> ();
 			buffer = new char[2048];
 			textReader = reader;
 		}
@@ -172,7 +167,8 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value><see langword="true" /> if character references should be decoded; otherwise, <see langword="false" />.</value>
 		public bool DecodeCharacterReferences {
-			get; set;
+			get { return decodeCharacterReferences; }
+			set { decodeCharacterReferences = value; }
 		}
 
 		/// <summary>
@@ -210,7 +206,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The current line number.</value>
 		public int LineNumber {
-			get; private set;
+			get { return lineNumber; }
 		}
 
 		/// <summary>
@@ -224,7 +220,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The column position of the current line.</value>
 		public int LinePosition {
-			get; private set;
+			get { return linePosition; }
 		}
 
 		/// <summary>
@@ -371,20 +367,17 @@ namespace MimeKit.Text {
 
 		int DetectByteOrderMark ()
 		{
-			Debug.Assert (input != null && stream != null && encoding != null, "Caller ensures input, stream, and encoding are not null");
 #if NET6_0_OR_GREATER
-			var preamble = encoding.Preamble;
+			var preamble = encoding!.Preamble;
 #else
-			var preamble = encoding.GetPreamble ();
+			var preamble = encoding!.GetPreamble ();
 #endif
-
-			detectByteOrderMark = false;
 
 			if (preamble.Length == 0)
 				return 0;
 
 			do {
-				int nread = stream.Read (input, inputEnd, input.Length - inputEnd);
+				int nread = stream!.Read (input, inputEnd, input.Length - inputEnd);
 
 				if (nread == 0)
 					break;
@@ -395,15 +388,11 @@ namespace MimeKit.Text {
 			return SkipByteOrderMark (input, preamble);
 		}
 
-		[MemberNotNull (nameof (decoder), nameof (buffer))]
+		[MemberNotNull (nameof (decoder))]
 		int DetectEncodingFromByteOrderMarks ()
 		{
-			Debug.Assert (input != null && stream != null && encoding != null, "Caller ensures input, stream, and encoding are not null");
-
-			detectEncodingFromByteOrderMarks = false;
-
 			do {
-				int nread = stream.Read (input, inputEnd, input.Length - inputEnd);
+				int nread = stream!.Read (input!, inputEnd, input!.Length - inputEnd);
 
 				if (nread == 0)
 					break;
@@ -435,8 +424,7 @@ namespace MimeKit.Text {
 				break;
 			}
 
-			decoder = encoding.GetDecoder ();
-			buffer = new char[encoding.GetMaxCharCount (input.Length)];
+			decoder = encoding!.GetDecoder ();
 
 #if NET6_0_OR_GREATER
 			var preamble = encoding.Preamble;
@@ -452,19 +440,17 @@ namespace MimeKit.Text {
 		{
 			if (bufferIndex == bufferEnd && !eof) {
 				if (stream != null) {
-					Debug.Assert (input != null, "input is not null when stream is not null");
-
 					int inputIndex;
 
-					if (detectEncodingFromByteOrderMarks) {
+					if (decoder == null) {
 						inputIndex = DetectEncodingFromByteOrderMarks ();
 					} else {
-						Debug.Assert (decoder != null && buffer != null, "decoder and buffer are not null when detectEncodingFromByteOrderMarks is false");
-
-						if (detectByteOrderMark)
+						if (detectByteOrderMark) {
 							inputIndex = DetectByteOrderMark ();
-						else
+							detectByteOrderMark = false;
+						} else {
 							inputIndex = 0;
+						}
 					}
 
 					bufferIndex = 0;
@@ -481,11 +467,11 @@ namespace MimeKit.Text {
 					} while (bufferEnd == 0 && inputEnd > 0);
 
 					inputEnd = 0;
-				} else {
-					Debug.Assert (textReader != null && buffer != null, "textReader and buffer are not null when stream is null");
-
+				} else if (textReader != null) {
 					bufferEnd = textReader.Read (buffer, 0, buffer.Length);
 					bufferIndex = 0;
+				} else {
+					throw new InvalidOperationException ("No input stream or text reader has been provided.");
 				}
 
 				eof = bufferEnd == 0;
@@ -498,8 +484,6 @@ namespace MimeKit.Text {
 			FillBuffer ();
 
 			if (bufferIndex < bufferEnd) {
-				Debug.Assert (buffer != null, "buffer is not null when bufferIndex < bufferEnd");
-
 				c = buffer[bufferIndex];
 				return true;
 			}
@@ -512,8 +496,8 @@ namespace MimeKit.Text {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		void IncrementLineNumber ()
 		{
-			LinePosition = 1;
-			LineNumber++;
+			linePosition = 1;
+			lineNumber++;
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -522,7 +506,7 @@ namespace MimeKit.Text {
 			if (c == '\n') {
 				IncrementLineNumber ();
 			} else {
-				LinePosition++;
+				linePosition++;
 			}
 
 			bufferIndex++;
@@ -534,14 +518,12 @@ namespace MimeKit.Text {
 			FillBuffer ();
 
 			if (bufferIndex < bufferEnd) {
-				Debug.Assert (buffer != null, "buffer is not null when bufferIndex < bufferEnd");
-
 				c = buffer[bufferIndex++];
 
 				if (c == '\n') {
 					IncrementLineNumber ();
 				} else {
-					LinePosition++;
+					linePosition++;
 				}
 
 				return true;
@@ -567,10 +549,8 @@ namespace MimeKit.Text {
 
 		void EmitTagAttribute ()
 		{
-			Debug.Assert (tag != null, "Caller ensures tag is not null");
-
 			attribute = CreateAttribute (name.ToString ());
-			tag.Attributes.Add (attribute);
+			tag!.Attributes.Add (attribute);
 			name.Length = 0;
 		}
 
@@ -638,9 +618,7 @@ namespace MimeKit.Text {
 
 		HtmlToken EmitTagToken ()
 		{
-			Debug.Assert (tag != null, "Caller ensures tag is not null");
-
-			if (!tag.IsEndTag && !tag.IsEmptyElement) {
+			if (!tag!.IsEndTag && !tag.IsEmptyElement) {
 				switch (tag.Id) {
 				case HtmlTagId.Style: case HtmlTagId.Xmp: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed: case HtmlTagId.NoFrames:
 					TokenizerState = HtmlTokenizerState.RawText;
@@ -768,8 +746,6 @@ namespace MimeKit.Text {
 
 		HtmlToken? ReadGenericRawTextEndTagName (bool decoded, HtmlTokenizerState rawText)
 		{
-			Debug.Assert (activeTagName != null, "Caller ensures activeTagName is not null");
-
 			var current = TokenizerState;
 
 			do {
@@ -941,13 +917,11 @@ namespace MimeKit.Text {
 		// 8.2.4.7 PLAINTEXT state
 		HtmlToken? ReadPlainText ()
 		{
-			Debug.Assert (bufferIndex >= bufferEnd || buffer != null, "buffer is not null when bufferIndex < bufferEnd");
-
 			do {
 				while (bufferIndex < bufferEnd) {
-					char c = buffer![bufferIndex++];
+					char c = buffer[bufferIndex++];
 
-					LinePosition++;
+					linePosition++;
 
 					switch (c) {
 					case '\0':
@@ -1745,8 +1719,6 @@ namespace MimeKit.Text {
 		// 8.2.4.38 Attribute value (double-quoted) state
 		HtmlToken? ReadAttributeValueQuoted ()
 		{
-			Debug.Assert (attribute != null, "Caller ensures attribute is not null");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1777,7 +1749,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.AttributeValueQuoted);
 
-			attribute.Value = name.ToString ();
+			attribute!.Value = name.ToString ();
 			name.Length = 0;
 
 			return null;
@@ -1786,8 +1758,6 @@ namespace MimeKit.Text {
 		// 8.2.4.40 Attribute value (unquoted) state
 		HtmlToken? ReadAttributeValueUnquoted ()
 		{
-			Debug.Assert (attribute != null, "Caller ensures attribute is not null");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
@@ -1807,7 +1777,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
 					return null;
 				case '>':
-					attribute.Value = name.ToString ();
+					attribute!.Value = name.ToString ();
 					name.Length = 0;
 
 					return EmitTagToken ();
@@ -1820,7 +1790,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.AttributeValueUnquoted);
 
-			attribute.Value = name.ToString ();
+			attribute!.Value = name.ToString ();
 			name.Length = 0;
 
 			return null;
@@ -1927,15 +1897,13 @@ namespace MimeKit.Text {
 		// 8.2.4.43 Self-closing start tag state
 		HtmlToken? ReadSelfClosingStartTag ()
 		{
-			Debug.Assert (tag != null, "Caller ensures tag is not null");
-
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitDataToken (false, true);
 			}
 
 			if (c == '>') {
-				tag.IsEmptyElement = true;
+				tag!.IsEmptyElement = true;
 
 				return EmitTagToken ();
 			}
@@ -2234,11 +2202,9 @@ namespace MimeKit.Text {
 		// 8.2.4.52 DOCTYPE state
 		HtmlToken? ReadDocType ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is DocType");
-
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				name.Length = 0;
 
 				return EmitDocType ();
@@ -2259,12 +2225,10 @@ namespace MimeKit.Text {
 		// 8.2.4.53 Before DOCTYPE name state
 		HtmlToken? ReadBeforeDocTypeName ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is BeforeDocTypeName");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2276,7 +2240,7 @@ namespace MimeKit.Text {
 					break;
 				case '>':
 					TokenizerState = HtmlTokenizerState.Data;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				default:
 					TokenizerState = HtmlTokenizerState.DocTypeName;
@@ -2289,12 +2253,10 @@ namespace MimeKit.Text {
 		// 8.2.4.54 DOCTYPE name state
 		HtmlToken? ReadDocTypeName ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is DocTypeName");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.Name = name.ToString ();
+					doctype!.Name = name.ToString ();
 					doctype.ForceQuirksMode = true;
 					name.Length = 0;
 
@@ -2310,7 +2272,7 @@ namespace MimeKit.Text {
 					break;
 				case '>':
 					TokenizerState = HtmlTokenizerState.Data;
-					doctype.Name = name.ToString ();
+					doctype!.Name = name.ToString ();
 					name.Length = 0;
 
 					return EmitDocType ();
@@ -2323,7 +2285,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.DocTypeName);
 
-			doctype.Name = name.ToString ();
+			doctype!.Name = name.ToString ();
 			name.Length = 0;
 
 			return null;
@@ -2332,12 +2294,10 @@ namespace MimeKit.Text {
 		// 8.2.4.55 After DOCTYPE name state
 		HtmlToken? ReadAfterDocTypeName ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypeName");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2357,10 +2317,10 @@ namespace MimeKit.Text {
 
 					if (NameIs ("public")) {
 						TokenizerState = HtmlTokenizerState.AfterDocTypePublicKeyword;
-						doctype.PublicKeyword = name.ToString ();
+						doctype!.PublicKeyword = name.ToString ();
 					} else if (NameIs ("system")) {
 						TokenizerState = HtmlTokenizerState.AfterDocTypeSystemKeyword;
-						doctype.SystemKeyword = name.ToString ();
+						doctype!.SystemKeyword = name.ToString ();
 					} else {
 						TokenizerState = HtmlTokenizerState.BogusDocType;
 					}
@@ -2374,11 +2334,9 @@ namespace MimeKit.Text {
 		// 8.2.4.56 After DOCTYPE public keyword state
 		HtmlToken? ReadAfterDocTypePublicKeyword ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypePublicKeyword");
-
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
 			}
 
@@ -2391,16 +2349,16 @@ namespace MimeKit.Text {
 				break;
 			case '"': case '\'': // parse error
 				TokenizerState = HtmlTokenizerState.DocTypePublicIdentifierQuoted;
-				doctype.PublicIdentifier = string.Empty;
+				doctype!.PublicIdentifier = string.Empty;
 				quote = c;
 				break;
 			case '>': // parse error
 				TokenizerState = HtmlTokenizerState.Data;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
 			default: // parse error
 				TokenizerState = HtmlTokenizerState.BogusDocType;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				break;
 			}
 
@@ -2410,12 +2368,10 @@ namespace MimeKit.Text {
 		// 8.2.4.57 Before DOCTYPE public identifier state
 		HtmlToken? ReadBeforeDocTypePublicIdentifier ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is BeforeDocTypePublicIdentifier");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2427,16 +2383,16 @@ namespace MimeKit.Text {
 					break;
 				case '"': case '\'':
 					TokenizerState = HtmlTokenizerState.DocTypePublicIdentifierQuoted;
-					doctype.PublicIdentifier = string.Empty;
+					doctype!.PublicIdentifier = string.Empty;
 					quote = c;
 					return null;
 				case '>': // parse error
 					TokenizerState = HtmlTokenizerState.Data;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				default: // parse error
 					TokenizerState = HtmlTokenizerState.BogusDocType;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return null;
 				}
 			} while (true);
@@ -2445,12 +2401,10 @@ namespace MimeKit.Text {
 		// 8.2.4.58 DOCTYPE public identifier (double-quoted) state
 		HtmlToken? ReadDocTypePublicIdentifierQuoted ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is DocTypePublicIdentifierQuoted");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.PublicIdentifier = name.ToString ();
+					doctype!.PublicIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
 					name.Length = 0;
 
@@ -2466,7 +2420,7 @@ namespace MimeKit.Text {
 					break;
 				case '>': // parse error
 					TokenizerState = HtmlTokenizerState.Data;
-					doctype.PublicIdentifier = name.ToString ();
+					doctype!.PublicIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
 					name.Length = 0;
 
@@ -2483,7 +2437,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.DocTypePublicIdentifierQuoted);
 
-			doctype.PublicIdentifier = name.ToString ();
+			doctype!.PublicIdentifier = name.ToString ();
 			name.Length = 0;
 
 			return null;
@@ -2492,11 +2446,9 @@ namespace MimeKit.Text {
 		// 8.2.4.60 After DOCTYPE public identifier state
 		HtmlToken? ReadAfterDocTypePublicIdentifier ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypePublicIdentifier");
-
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
 			}
 
@@ -2512,12 +2464,12 @@ namespace MimeKit.Text {
 				return EmitDocType ();
 			case '"': case '\'': // parse error
 				TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
-				doctype.SystemIdentifier = string.Empty;
+				doctype!.SystemIdentifier = string.Empty;
 				quote = c;
 				break;
 			default: // parse error
 				TokenizerState = HtmlTokenizerState.BogusDocType;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				break;
 			}
 
@@ -2527,12 +2479,10 @@ namespace MimeKit.Text {
 		// 8.2.4.61 Between DOCTYPE public and system identifiers state
 		HtmlToken? ReadBetweenDocTypePublicAndSystemIdentifiers ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is BetweenDocTypePublicAndSystemIdentifiers");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2547,12 +2497,12 @@ namespace MimeKit.Text {
 					return EmitDocType ();
 				case '"': case '\'':
 					TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
-					doctype.SystemIdentifier = string.Empty;
+					doctype!.SystemIdentifier = string.Empty;
 					quote = c;
 					return null;
 				default: // parse error
 					TokenizerState = HtmlTokenizerState.BogusDocType;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return null;
 				}
 			} while (true);
@@ -2561,11 +2511,9 @@ namespace MimeKit.Text {
 		// 8.2.4.62 After DOCTYPE system keyword state
 		HtmlToken? ReadAfterDocTypeSystemKeyword ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypeSystemKeyword");
-
 			if (!TryRead (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
 			}
 
@@ -2578,16 +2526,16 @@ namespace MimeKit.Text {
 				break;
 			case '"': case '\'': // parse error
 				TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
-				doctype.SystemIdentifier = string.Empty;
+				doctype!.SystemIdentifier = string.Empty;
 				quote = c;
 				break;
 			case '>': // parse error
 				TokenizerState = HtmlTokenizerState.Data;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
 			default: // parse error
 				TokenizerState = HtmlTokenizerState.BogusDocType;
-				doctype.ForceQuirksMode = true;
+				doctype!.ForceQuirksMode = true;
 				break;
 			}
 
@@ -2597,12 +2545,10 @@ namespace MimeKit.Text {
 		// 8.2.4.63 Before DOCTYPE system identifier state
 		HtmlToken? ReadBeforeDocTypeSystemIdentifier ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is BeforeDocTypeSystemIdentifier");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2614,16 +2560,16 @@ namespace MimeKit.Text {
 					break;
 				case '"': case '\'':
 					TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
-					doctype.SystemIdentifier = string.Empty;
+					doctype!.SystemIdentifier = string.Empty;
 					quote = c;
 					return null;
 				case '>': // parse error
 					TokenizerState = HtmlTokenizerState.Data;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				default: // parse error
 					TokenizerState = HtmlTokenizerState.BogusDocType;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return null;
 				}
 			} while (true);
@@ -2632,12 +2578,10 @@ namespace MimeKit.Text {
 		// 8.2.4.64 DOCTYPE system identifier (double-quoted) state
 		HtmlToken? ReadDocTypeSystemIdentifierQuoted ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is DocTypeSystemIdentifierQuoted");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.SystemIdentifier = name.ToString ();
+					doctype!.SystemIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
 					name.Length = 0;
 
@@ -2653,7 +2597,7 @@ namespace MimeKit.Text {
 					break;
 				case '>': // parse error
 					TokenizerState = HtmlTokenizerState.Data;
-					doctype.SystemIdentifier = name.ToString ();
+					doctype!.SystemIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
 					name.Length = 0;
 
@@ -2670,7 +2614,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.DocTypeSystemIdentifierQuoted);
 
-			doctype.SystemIdentifier = name.ToString ();
+			doctype!.SystemIdentifier = name.ToString ();
 			name.Length = 0;
 
 			return null;
@@ -2679,12 +2623,10 @@ namespace MimeKit.Text {
 		// 8.2.4.66 After DOCTYPE system identifier state
 		HtmlToken? ReadAfterDocTypeSystemIdentifier ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is AfterDocTypeSystemIdentifier");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2707,12 +2649,10 @@ namespace MimeKit.Text {
 		// 8.2.4.67 Bogus DOCTYPE state
 		HtmlToken? ReadBogusDocType ()
 		{
-			Debug.Assert (doctype != null, "doctype is not null when state is BogusDocType");
-
 			do {
 				if (!TryRead (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype.ForceQuirksMode = true;
+					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 
@@ -2729,16 +2669,14 @@ namespace MimeKit.Text {
 		// 8.2.4.68 CDATA section state
 		HtmlToken? ReadCDataSection ()
 		{
-			Debug.Assert (bufferIndex >= bufferEnd || buffer != null, "buffer is not null when bufferIndex < bufferEnd");
-
 			do {
 				while (bufferIndex < bufferEnd) {
-					char c = buffer![bufferIndex++];
+					char c = buffer[bufferIndex++];
 
 					if (c == '\n') {
 						IncrementLineNumber ();
 					} else {
-						LinePosition++;
+						linePosition++;
 					}
 
 					if (cdataIndex >= 3) {
