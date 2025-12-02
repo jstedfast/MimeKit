@@ -266,8 +266,13 @@ namespace MimeKit.Tnef {
 
 			var stream = GetRawValueReadStream ();
 			var guid = new byte[16];
+			int index = 0;
+			int n;
 
-			stream.Read (guid, 0, 16);
+			do {
+				if ((n = stream.Read (guid, index, 16 - index)) > 0)
+					index += n;
+			} while (n > 0);
 
 			return new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode);
 		}
