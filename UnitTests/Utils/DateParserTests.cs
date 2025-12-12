@@ -28,7 +28,8 @@ using System.Text;
 
 using MimeKit.Utils;
 
-namespace UnitTests.Utils {
+namespace UnitTests.Utils
+{
 	[TestFixture]
 	public class DateParserTests
 	{
@@ -78,6 +79,8 @@ namespace UnitTests.Utils {
 			"Fri, 28 Feb 2025 23:59:61 -0500", // too many seconds
 			"Fri, 28 Feb 2025 22:59:60 -0500", // leap second only valid if time is 23:59:60
 			"Fri, 28 Feb 2025 23:60:59 -0500", // too many minutes
+			"31 Dec 2024 10:15:00 AM", // missing timezone info after AM time
+			"31 Dec 2024 10:15:00 PM" // missing timezone info after PM time
 		};
 
 		static readonly string[] expected = {
@@ -126,6 +129,8 @@ namespace UnitTests.Utils {
 			"Fri, 28 Feb 2025 00:00:00 -0500",
 			"Fri, 28 Feb 2025 00:00:00 -0500",
 			"Fri, 28 Feb 2025 00:00:00 -0500",
+			"Tue, 31 Dec 2024 10:15:00 +0000",
+			"Tue, 31 Dec 2024 22:15:00 +0000"
 		};
 
 		[Test]
