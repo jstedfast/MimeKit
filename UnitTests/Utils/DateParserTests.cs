@@ -28,8 +28,7 @@ using System.Text;
 
 using MimeKit.Utils;
 
-namespace UnitTests.Utils
-{
+namespace UnitTests.Utils {
 	[TestFixture]
 	public class DateParserTests
 	{
