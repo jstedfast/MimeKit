@@ -422,7 +422,7 @@ namespace MimeKit.Utils {
 			if (IsAmOrPm (tokens[n], text, ref hour))
 				n++;
 
-			if (!TryGetTimeZone (tokens[n], text, out int tzone))
+			if (n >= tokens.Count || !TryGetTimeZone (tokens[n], text, out int tzone))
 				tzone = 0;
 
 			int minutes = tzone % 100;
