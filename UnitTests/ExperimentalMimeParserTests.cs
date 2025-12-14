@@ -1104,6 +1104,148 @@ This is the message body.
 		}
 
 		[Test]
+		public void TestHeaderFieldNameColonColon ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a Content-Transfer-Encoding header with double ':'s
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding:: base64
+Content-Disposition: inline; name=body.txt
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
+				var body = (TextPart) message.Body;
+
+				var header = body.Headers[body.Headers.Count - 2];
+
+				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Value, Is.EqualTo (": base64"));
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+
+				Assert.That (body.ContentDisposition, Is.Not.Null, "Expected Content-Disposition to not be null");
+				Assert.That (body.ContentDisposition.Disposition, Is.EqualTo ("inline"), "Expected Content-Disposition to be inline");
+				Assert.That (body.ContentDisposition.Parameters["name"], Is.EqualTo ("body.txt"), "Expected Content-Disposition name parameter to be body.txt");
+
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
+			}
+
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
+				var body = (TextPart) message.Body;
+
+				var header = body.Headers[body.Headers.Count - 2];
+
+				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Value, Is.EqualTo (": base64"));
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+
+				Assert.That (body.ContentDisposition, Is.Not.Null, "Expected Content-Disposition to not be null");
+				Assert.That (body.ContentDisposition.Disposition, Is.EqualTo ("inline"), "Expected Content-Disposition to be inline");
+				Assert.That (body.ContentDisposition.Parameters["name"], Is.EqualTo ("body.txt"), "Expected Content-Disposition name parameter to be body.txt");
+
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
+			}
+		}
+
+		[Test]
+		public async Task TestHeaderFieldNameColonColonAsync ()
+		{
+			string text = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a Content-Transfer-Encoding header with double ':'s
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Message-ID: <54AD68C9E3B0184CAC6041320424FD1B5B81E74D@localhost.localdomain>
+X-Mailer: Microsoft Office Outlook 12.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding:: base64
+Content-Disposition: inline; name=body.txt
+
+This is the message body.
+".Replace ("\r\n", "\n");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
+				var body = (TextPart) message.Body;
+
+				var header = body.Headers[body.Headers.Count - 2];
+
+				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Value, Is.EqualTo (": base64"));
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+
+				Assert.That (body.ContentDisposition, Is.Not.Null, "Expected Content-Disposition to not be null");
+				Assert.That (body.ContentDisposition.Disposition, Is.EqualTo ("inline"), "Expected Content-Disposition to be inline");
+				Assert.That (body.ContentDisposition.Parameters["name"], Is.EqualTo ("body.txt"), "Expected Content-Disposition name parameter to be body.txt");
+
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+			}
+
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Body, Is.InstanceOf<TextPart> (), "Expected top-level to be a TextPart");
+				var body = (TextPart) message.Body;
+
+				var header = body.Headers[body.Headers.Count - 2];
+
+				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
+				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
+				Assert.That (header.Value, Is.EqualTo (": base64"));
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
+				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
+
+				Assert.That (body.ContentDisposition, Is.Not.Null, "Expected Content-Disposition to not be null");
+				Assert.That (body.ContentDisposition.Disposition, Is.EqualTo ("inline"), "Expected Content-Disposition to be inline");
+				Assert.That (body.ContentDisposition.Parameters["name"], Is.EqualTo ("body.txt"), "Expected Content-Disposition name parameter to be body.txt");
+
+				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+			}
+		}
+
+		[Test]
 		public void TestMultipartTruncatedAtEndOfFirstBoundary ()
 		{
 			string text = @"From: mimekit@example.com
