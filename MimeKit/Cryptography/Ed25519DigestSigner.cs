@@ -33,8 +33,8 @@ using Org.BouncyCastle.Crypto.Parameters;
 namespace MimeKit.Cryptography {
 	class Ed25519DigestSigner : ISigner
 	{
-		Ed25519PrivateKeyParameters privateKey;
-		Ed25519PublicKeyParameters publicKey;
+		Ed25519PrivateKeyParameters? privateKey;
+		Ed25519PublicKeyParameters? publicKey;
 		readonly IDigest digest;
 
 		public Ed25519DigestSigner (IDigest digest)
@@ -102,7 +102,7 @@ namespace MimeKit.Cryptography {
 
 		public bool VerifySignature (byte[] signature)
 		{
-			if (privateKey != null)
+			if (publicKey == null || privateKey != null)
 				throw new InvalidOperationException ("Ed25519DigestSigner not initialised for verification");
 
 			if (Ed25519.SignatureSize != signature.Length)

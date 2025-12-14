@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
@@ -26,6 +26,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <RootNamespace>MimeKit</RootNamespace>
     <DefineConstants>$(DefineConstants);ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
+    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
@@ -50,6 +51,11 @@
   <!-- Enable serializable support for net4.x and net6.0 -->
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
     <DefineConstants>$(DefineConstants);SERIALIZABLE</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Disable nullable warnings in .NET Framework and netstandard2.0 -->
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' ">
+    <NoWarn>CS8601;CS8602;CS8604</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>

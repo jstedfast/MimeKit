@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 		const int MinDsaKeySize = 2048;
 		const int MinRsaKeySize = 2048;
 
-		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
+		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter? key)
 		{
 			var dp = dsa.ExportParameters (!publicOnly);
 			var validationParameters = dp.Seed != null ? new DsaValidationParameters (dp.Seed, dp.Counter) : null;
@@ -61,7 +61,7 @@ namespace MimeKit.Cryptography {
 		{
 			GetAsymmetricKeyParameters (dsa, dsa.PublicOnly, out var pub, out var key);
 
-			return dsa.PublicOnly ? pub : key;
+			return dsa.PublicOnly ? pub : key!; // key is not null when publicOnly is false
 		}
 
 		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (DSACryptoServiceProvider dsa)
@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 		{
 			GetAsymmetricKeyParameters (dsa, false, out _, out var key);
 
-			return key;
+			return key!; // key is not null when publicOnly is false
 		}
 
 		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (DSA dsa)
@@ -88,7 +88,7 @@ namespace MimeKit.Cryptography {
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
-		static void GetAsymmetricKeyParameters (RSA rsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter key)
+		static void GetAsymmetricKeyParameters (RSA rsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter? key)
 		{
 			var rp = rsa.ExportParameters (!publicOnly);
 			var modulus = new BigInteger (1, rp.Modulus);
@@ -111,7 +111,7 @@ namespace MimeKit.Cryptography {
 		{
 			GetAsymmetricKeyParameters (rsa, rsa.PublicOnly, out var pub, out var key);
 
-			return rsa.PublicOnly ? pub : key;
+			return rsa.PublicOnly ? pub : key!; // key is not null when publicOnly is false
 		}
 
 		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (RSACryptoServiceProvider rsa)
@@ -128,7 +128,7 @@ namespace MimeKit.Cryptography {
 		{
 			GetAsymmetricKeyParameters (rsa, false, out _, out var key);
 
-			return key;
+			return key!; // key is not null when publicOnly is false
 		}
 
 		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (RSA rsa)
@@ -245,13 +245,13 @@ namespace MimeKit.Cryptography {
 			return parameters;
 		}
 
-		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPrivateKeyParameters key, DsaPublicKeyParameters pub)
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPrivateKeyParameters key, DsaPublicKeyParameters? pub)
 		{
-			var parameters = GetDSAParameters (key);
-			parameters.X = GetPaddedByteArray (key.X, parameters.Q.Length);
+			var parameters = GetDSAParameters (key); // GetDSAParameters sets P, Q, and G
+			parameters.X = GetPaddedByteArray (key.X, parameters.Q!.Length);
 
 			if (pub != null) {
-				parameters.Y = GetPaddedByteArray (pub.Y, parameters.P.Length);
+				parameters.Y = GetPaddedByteArray (pub.Y, parameters.P!.Length);
 			} else {
 				// If pub is null, derive Y from the private key parameters
 				parameters.Y = key.Parameters.G.ModPow (key.X, key.Parameters.P).ToByteArrayUnsigned ();
@@ -266,8 +266,8 @@ namespace MimeKit.Cryptography {
 
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (DsaPublicKeyParameters key)
 		{
-			var parameters = GetDSAParameters (key);
-			parameters.Y = GetPaddedByteArray (key.Y, parameters.P.Length);
+			var parameters = GetDSAParameters (key); // GetDSAParameters sets P, Q, and G
+			parameters.Y = GetPaddedByteArray (key.Y, parameters.P!.Length);
 
 			var dsa = new DSACryptoServiceProvider (MinDsaKeySize);
 

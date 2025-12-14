@@ -29,6 +29,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	/// <summary>
@@ -40,7 +41,7 @@ namespace MimeKit.Utils {
 	public static class MimeUtils
 	{
 		const string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		static string DefaultHostName = null;
+		static string? DefaultHostName = null;
 		static readonly char[] UnquoteChars = new[] { '\r', '\n', '\t', '\\', '"' };
 
 		/// <summary>
@@ -186,7 +187,7 @@ namespace MimeKit.Utils {
 					break;
 
 				if (buffer[index] == '<') {
-					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string msgid))
+					if (ParseUtils.TryParseMsgId (buffer, ref index, endIndex, true, false, out string? msgid))
 						yield return msgid;
 				} else if (!ParseUtils.SkipWord (buffer, ref index, endIndex, false)) {
 					index++;
@@ -236,14 +237,14 @@ namespace MimeKit.Utils {
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
 		/// a valid range in the byte array.
 		/// </exception>
-		public static string ParseMessageId (byte[] buffer, int startIndex, int length)
+		public static string? ParseMessageId (byte[] buffer, int startIndex, int length)
 		{
 			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			int endIndex = startIndex + length;
 			int index = startIndex;
 
-			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string msgid);
+			ParseUtils.TryParseMsgId (buffer, ref index, endIndex, false, false, out string? msgid);
 
 			return msgid;
 		}
@@ -259,7 +260,7 @@ namespace MimeKit.Utils {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public static string ParseMessageId (string text)
+		public static string? ParseMessageId (string text)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));
@@ -281,7 +282,7 @@ namespace MimeKit.Utils {
 		/// <param name="startIndex">The index into the buffer to start parsing.</param>
 		/// <param name="length">The length of the buffer to parse.</param>
 		/// <param name="version">The parsed version.</param>
-		public static bool TryParse (byte[] buffer, int startIndex, int length, out Version version)
+		public static bool TryParse (byte[]? buffer, int startIndex, int length, [NotNullWhen (true)] out Version? version)
 		{
 			if (!ArgumentValidator.TryValidate (buffer, startIndex, length)) {
 				version = null;
@@ -332,7 +333,7 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the version was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="version">The parsed version.</param>
-		public static bool TryParse (string text, out Version version)
+		public static bool TryParse (string? text, [NotNullWhen (true)] out Version? version)
 		{
 			if (text is null) {
 				version = null;
@@ -358,7 +359,7 @@ namespace MimeKit.Utils {
 		/// <returns><see langword="true" /> if the encoding was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="encoding">The parsed encoding.</param>
-		public static bool TryParse (string text, out ContentEncoding encoding)
+		public static bool TryParse (string? text, out ContentEncoding encoding)
 		{
 			if (text is null) {
 				encoding = ContentEncoding.Default;

@@ -26,6 +26,7 @@
 
 using System;
 using System.Threading;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -255,7 +256,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The validation results for the ARC-Message-Signature header or <see langword="null"/>
 		/// if the ARC-Message-Signature header was not found.</value>
-		public ArcHeaderValidationResult MessageSignature {
+		public ArcHeaderValidationResult? MessageSignature {
 			get; internal set;
 		}
 
@@ -268,7 +269,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The array of validation results for the ARC-Seal headers or <see langword="null"/>
 		/// if no ARC-Seal headers were found.</value>
-		public ArcHeaderValidationResult[] Seals {
+		public ArcHeaderValidationResult[]? Seals {
 			get; internal set;
 		}
 
@@ -300,15 +301,15 @@ namespace MimeKit.Cryptography {
 
 	class ArcHeaderSet
 	{
-		public Header ArcAuthenticationResult { get; private set; }
+		public Header? ArcAuthenticationResult { get; private set; }
 
-		public Dictionary<string, string> ArcMessageSignatureParameters { get; private set; }
-		public Header ArcMessageSignature { get; private set; }
+		public Dictionary<string, string>? ArcMessageSignatureParameters { get; private set; }
+		public Header? ArcMessageSignature { get; private set; }
 
-		public Dictionary<string, string> ArcSealParameters { get; private set; }
-		public Header ArcSeal { get; private set; }
+		public Dictionary<string, string>? ArcSealParameters { get; private set; }
+		public Header? ArcSeal { get; private set; }
 
-		public bool Add (Header header, Dictionary<string, string> parameters)
+		public bool Add (Header header, Dictionary<string, string>? parameters)
 		{
 			switch (header.Id) {
 			case HeaderId.ArcAuthenticationResults:
@@ -321,12 +322,16 @@ namespace MimeKit.Cryptography {
 				if (ArcMessageSignature != null)
 					return false;
 
+				Debug.Assert (parameters != null);
+
 				ArcMessageSignatureParameters = parameters;
 				ArcMessageSignature = header;
 				break;
 			case HeaderId.ArcSeal:
 				if (ArcSeal != null)
 					return false;
+
+				Debug.Assert (parameters != null);
 
 				ArcSealParameters = parameters;
 				ArcSeal = header;
@@ -420,7 +425,7 @@ namespace MimeKit.Cryptography {
 			AsymmetricKeyParameter key;
 			string d, s, q, b;
 
-			ValidateArcSealParameters (sets[i].ArcSealParameters, out algorithm, out d, out s, out q, out b);
+			ValidateArcSealParameters (sets[i].ArcSealParameters!, out algorithm, out d, out s, out q, out b);
 
 			if (!IsEnabled (algorithm))
 				return false;
@@ -441,17 +446,17 @@ namespace MimeKit.Cryptography {
 					filtered.Add (options.CreateNewLineFilter ());
 
 					for (int j = 0; j < i; j++) {
-						WriteHeaderRelaxed (options, filtered, sets[j].ArcAuthenticationResult, false);
-						WriteHeaderRelaxed (options, filtered, sets[j].ArcMessageSignature, false);
-						WriteHeaderRelaxed (options, filtered, sets[j].ArcSeal, false);
+						WriteHeaderRelaxed (options, filtered, sets[j].ArcAuthenticationResult!, false);
+						WriteHeaderRelaxed (options, filtered, sets[j].ArcMessageSignature!, false);
+						WriteHeaderRelaxed (options, filtered, sets[j].ArcSeal!, false);
 					}
 
-					WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult, false);
-					WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature, false);
+					WriteHeaderRelaxed (options, filtered, sets[i].ArcAuthenticationResult!, false);
+					WriteHeaderRelaxed (options, filtered, sets[i].ArcMessageSignature!, false);
 
 					// now include the ARC-Seal header that we are verifying,
 					// but only after removing the "b=" signature value.
-					var seal = GetSignedSignatureHeader (sets[i].ArcSeal);
+					var seal = GetSignedSignatureHeader (sets[i].ArcSeal!);
 
 					WriteHeaderRelaxed (options, filtered, seal, true);
 
@@ -471,14 +476,14 @@ namespace MimeKit.Cryptography {
 			count = 0;
 
 			for (int i = 0; i < message.Headers.Count; i++) {
-				Dictionary<string, string> parameters = null;
+				Dictionary<string, string>? parameters = null;
 				var header = message.Headers[i];
 				int instance = 0;
-				string value;
+				string? value;
 
 				switch (header.Id) {
 				case HeaderId.ArcAuthenticationResults:
-					if (!AuthenticationResults.TryParse (header.RawValue, out AuthenticationResults authres)) {
+					if (!AuthenticationResults.TryParse (header.RawValue, out AuthenticationResults? authres)) {
 						if (throwOnError)
 							throw new FormatException ("Invalid ARC-Authentication-Results header.");
 
@@ -623,7 +628,7 @@ namespace MimeKit.Cryptography {
 					continue;
 				}
 
-				if (!set.ArcSealParameters.TryGetValue ("cv", out string cv)) {
+				if (!set.ArcSealParameters!.TryGetValue ("cv", out string? cv)) {
 					if (throwOnError)
 						throw new FormatException (string.Format (CultureInfo.InvariantCulture, "Missing chain validation tag in ARC-Seal header for i={0}.", i + 1));
 
@@ -674,14 +679,14 @@ namespace MimeKit.Cryptography {
 
 			result.Seals = new ArcHeaderValidationResult[count];
 
+			var parameters = sets[newest].ArcMessageSignatureParameters;
+			var header = sets[newest].ArcMessageSignature;
+
+			result.MessageSignature = new ArcHeaderValidationResult (header!);
+
 			// validate the most recent Arc-Message-Signature
 			try {
-				var parameters = sets[newest].ArcMessageSignatureParameters;
-				var header = sets[newest].ArcMessageSignature;
-
-				result.MessageSignature = new ArcHeaderValidationResult (header);
-
-				if (await VerifyArcMessageSignatureAsync (options, message, header, parameters, doAsync, cancellationToken).ConfigureAwait (false)) {
+				if (await VerifyArcMessageSignatureAsync (options, message, header!, parameters!, doAsync, cancellationToken).ConfigureAwait (false)) {
 					result.MessageSignature.Signature = ArcSignatureValidationResult.Pass;
 				} else {
 					result.MessageSignature.Signature = ArcSignatureValidationResult.Fail;
@@ -696,7 +701,7 @@ namespace MimeKit.Cryptography {
 
 			// validate all Arc-Seals starting with the most recent and proceeding to the oldest
 			for (int i = newest; i >= 0; i--) {
-				result.Seals[i] = new ArcHeaderValidationResult (sets[i].ArcSeal);
+				result.Seals[i] = new ArcHeaderValidationResult (sets[i].ArcSeal!);
 
 				try {
 					if (await VerifyArcSealAsync (options, sets, i, doAsync, cancellationToken).ConfigureAwait (false)) {

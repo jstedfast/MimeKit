@@ -1,5 +1,5 @@
 ﻿//
-// HeaderListChangedEventArgs.cs
+// ReflectionExtensions.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -25,53 +25,28 @@
 //
 
 using System;
-using System.Diagnostics;
+using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
-namespace MimeKit {
-	/// <summary>
-	/// Header list changed action.
-	/// </summary>
-    /// <remarks>
-    /// Specifies the way that a <see cref="HeaderList"/> was changed.
-    /// </remarks>
-	public enum HeaderListChangedAction {
-		/// <summary>
-		/// A header was added.
-		/// </summary>
-		Added,
-
-		/// <summary>
-		/// A header was changed.
-		/// </summary>
-		Changed,
-
-		/// <summary>
-		/// A header was removed.
-		/// </summary>
-		Removed,
-
-		/// <summary>
-		/// The header list was cleared.
-		/// </summary>
-		Cleared
-	}
-
-	class HeaderListChangedEventArgs : EventArgs
+namespace MimeKit.Utils {
+	static class ReflectionExtensions
 	{
-		internal HeaderListChangedEventArgs (Header? header, HeaderListChangedAction action)
+#if NET5_0_OR_GREATER
+		[RequiresUnreferencedCode ("Types might be removed")]
+#endif
+		public static Type GetRequiredType (this Assembly assembly, string name)
 		{
-			Debug.Assert (header != null || action == HeaderListChangedAction.Cleared, "Header cannot be null unless the action is Cleared.");
-
-			Header = header;
-			Action = action;
+			return assembly.GetType (name) ?? throw new TargetException ($"Type '{name}' not found in assembly '{assembly.FullName}'");
 		}
 
-		public HeaderListChangedAction Action {
-			get; private set;
-		}
-
-		public Header? Header {
-			get; private set;
+		public static PropertyInfo GetRequiredProperty (
+#if NET5_0_OR_GREATER
+			[DynamicallyAccessedMembers (DynamicallyAccessedMemberTypes.PublicProperties)]
+#endif
+			this Type type,
+			string name)
+		{
+			return type.GetProperty (name) ?? throw new TargetException ($"Property '{name}' not found on type '{type.FullName}'");
 		}
 	}
 }

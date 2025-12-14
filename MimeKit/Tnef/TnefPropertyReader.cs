@@ -720,7 +720,7 @@ namespace MimeKit.Tnef {
 			if (reader.StreamOffset == RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
-			Encoding encoding = null;
+			Encoding? encoding = null;
 
 			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
 				switch (propertyTag.ValueTnefType) {
@@ -837,9 +837,9 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		object ReadPropertyValue ()
+		object? ReadPropertyValue ()
 		{
-			object value;
+			object? value;
 
 			switch (propertyTag.ValueTnefType) {
 			case TnefPropertyType.Null:
@@ -911,7 +911,7 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.IO.EndOfStreamException">
 		/// The TNEF stream is truncated and the value could not be read.
 		/// </exception>
-		public object ReadValue ()
+		public object? ReadValue ()
 		{
 			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
@@ -919,7 +919,7 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0)
 				return ReadPropertyValue ();
 
-			object value = null;
+			object? value = null;
 
 			switch (reader.AttributeType) {
 			case TnefAttributeType.Triples: value = ReadAttrBytes (); break;
@@ -1483,7 +1483,7 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.IO.EndOfStreamException">
 		/// The TNEF stream is truncated and the value could not be read.
 		/// </exception>
-		internal Uri ReadValueAsUri ()
+		internal Uri? ReadValueAsUri ()
 		{
 			var value = ReadValueAsString ();
 
@@ -1518,7 +1518,7 @@ namespace MimeKit.Tnef {
 		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefPropertyReader"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="System.Object"/> is equal to the current
 		/// <see cref="TnefPropertyReader"/>; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (object obj)
+		public override bool Equals (object? obj)
 		{
 			return obj is TnefPropertyReader prop && prop.reader == reader;
 		}

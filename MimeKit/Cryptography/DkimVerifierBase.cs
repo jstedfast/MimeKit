@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -209,9 +210,9 @@ namespace MimeKit.Cryptography {
 		}
 
 		internal static void ValidateCommonParameters (string header, IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm,
-			out string d, out string s, out string q, out string b)
+			[NotNull] out string? d, [NotNull] out string? s, [NotNull] out string? q, [NotNull] out string? b)
 		{
-			if (!parameters.TryGetValue ("a", out string a))
+			if (!parameters.TryGetValue ("a", out string? a))
 				throw new FormatException (string.Format ("Malformed {0} header: no signature algorithm parameter detected.", header));
 
 			switch (a.ToLowerInvariant ()) {
@@ -242,25 +243,25 @@ namespace MimeKit.Cryptography {
 			if (b.Length == 0)
 				throw new FormatException (string.Format ("Malformed {0} header: empty signature parameter detected.", header));
 
-			if (parameters.TryGetValue ("t", out string t)) {
+			if (parameters.TryGetValue ("t", out string? t)) {
 				if (!int.TryParse (t, NumberStyles.None, CultureInfo.InvariantCulture, out int timestamp) || timestamp < 0)
 					throw new FormatException (string.Format ("Malformed {0} header: invalid timestamp parameter: t={1}.", header, t));
 			}
 		}
 
 		internal static void ValidateCommonSignatureParameters (string header, IDictionary<string, string> parameters, out DkimSignatureAlgorithm algorithm, out DkimCanonicalizationAlgorithm headerAlgorithm,
-			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, out string bh, out string b, out int maxLength)
+			out DkimCanonicalizationAlgorithm bodyAlgorithm, out string d, out string s, out string q, out string[] headers, [NotNull] out string? bh, out string b, out int maxLength)
 		{
 			ValidateCommonParameters (header, parameters, out algorithm, out d, out s, out q, out b);
 
-			if (parameters.TryGetValue ("l", out string l)) {
+			if (parameters.TryGetValue ("l", out string? l)) {
 				if (!int.TryParse (l, NumberStyles.None, CultureInfo.InvariantCulture, out maxLength) || maxLength < 0)
 					throw new FormatException (string.Format ("Malformed {0} header: invalid length parameter: l={1}", header, l));
 			} else {
 				maxLength = -1;
 			}
 
-			if (parameters.TryGetValue ("c", out string c)) {
+			if (parameters.TryGetValue ("c", out string? c)) {
 				var tokens = c.ToLowerInvariant ().Split ('/');
 
 				if (tokens.Length == 0 || tokens.Length > 2)
@@ -286,7 +287,7 @@ namespace MimeKit.Cryptography {
 				bodyAlgorithm = DkimCanonicalizationAlgorithm.Simple;
 			}
 
-			if (!parameters.TryGetValue ("h", out string h))
+			if (!parameters.TryGetValue ("h", out string? h))
 				throw new FormatException (string.Format ("Malformed {0} header: no signed header parameter detected.", header));
 
 			headers = h.Split (':');

@@ -50,7 +50,7 @@ namespace MimeKit.Utils {
 			const char SevenBit = '7';
 			const char EightBit = '8';
 
-			public readonly string CharsetCulture;
+			public readonly string? CharsetCulture;
 			public readonly int StartIndex;
 			public readonly int Length;
 			public readonly char Encoding;
@@ -69,7 +69,7 @@ namespace MimeKit.Utils {
 
 			public bool IsEncoded { get { return CodePage != 0; } }
 
-			public Token (string charset, string culture, char encoding, int startIndex, int length)
+			public Token (string charset, string? culture, char encoding, int startIndex, int length)
 			{
 				CharsetCulture = string.IsNullOrEmpty (culture) ? charset : charset + "*" + culture;
 #if REDUCE_TOKEN_SIZE
@@ -121,9 +121,9 @@ namespace MimeKit.Utils {
 			readonly ParserOptions options;
 			readonly byte[] input, scratch;
 			CodePageCount[] codepages;
-			QuotedPrintableDecoder qp;
-			Base64Decoder base64;
-			IMimeDecoder decoder;
+			QuotedPrintableDecoder? qp;
+			Base64Decoder? base64;
+			IMimeDecoder? decoder;
 			int codepageIndex;
 			int scratchLength;
 			char encoding;
@@ -297,7 +297,7 @@ namespace MimeKit.Utils {
 
 					firstToken = false;
 				} else if (token.IsEncoded) {
-					string charset = token.CharsetCulture;
+					string charset = token.CharsetCulture!; // not null if IsEncoded == true
 
 					if (lineLength + token.Length + charset.Length + 7 > options.MaxLineLength) {
 						if (tab != 0) {
@@ -446,7 +446,8 @@ namespace MimeKit.Utils {
 				return false;
 			}
 
-			string charset, culture;
+			string charset;
+			string? culture;
 
 			using (var buffer = new ValueStringBuilder (32)) {
 				// find the end of the charset name
@@ -1563,7 +1564,7 @@ namespace MimeKit.Utils {
 			var mode = type == EncodeType.Phrase ? QEncodeMode.Phrase : QEncodeMode.Text;
 			var words = GetRfc822Words (options, charset, text, startIndex, count, type == EncodeType.Phrase);
 			int start, length;
-			Word prev = null;
+			Word? prev = null;
 
 			words = Merge (options, charset, words);
 

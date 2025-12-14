@@ -69,7 +69,7 @@ namespace MimeKit
 		/// <code language="c#" source="Examples\MimeParserExamples.cs" region="ParseMbox" />
 		/// </example>
 		/// <value>The mbox marker.</value>
-		string MboxMarker { get; }
+		string? MboxMarker { get; }
 
 		/// <summary>
 		/// Set the stream to parse.

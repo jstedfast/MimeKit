@@ -367,7 +367,7 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
 		void OnChanged ()
 		{

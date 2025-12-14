@@ -67,8 +67,11 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
-		[Obsolete ("This constructor will be removed in a future release. Use one of the other constructors that accept a private key, a file name, or a stream instead.")]
-		protected DkimSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
+		/// <exception cref="System.NotImplementedException">
+		/// This constructor is no longer supported. Use one of the other constructors.
+		/// </exception>
+		[Obsolete ("This constructor is no longer supported. Use one of the other constructors.", true)]
+		public DkimSigner (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256) : base (domain, selector, algorithm)
 		{
 		}
 
@@ -188,7 +191,7 @@ namespace MimeKit.Cryptography {
 		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
 		/// </example>
 		/// <value>The agent or user identifier.</value>
-		public string AgentOrUserIdentifier {
+		public string? AgentOrUserIdentifier {
 			get; set;
 		}
 
@@ -206,7 +209,7 @@ namespace MimeKit.Cryptography {
 		/// <code language="c#" source="Examples\DkimExamples.cs" region="DkimSign" />
 		/// </example>
 		/// <value>The public key query method.</value>
-		public string QueryMethod {
+		public string? QueryMethod {
 			get; set;
 		}
 

@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Text {
 	/// <summary>

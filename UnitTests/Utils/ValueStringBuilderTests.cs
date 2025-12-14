@@ -85,7 +85,9 @@ namespace UnitTests.Utils {
 #pragma warning restore CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
 
 			vsb.Append ("a");
+#nullable enable
 			vsb.Append ((string?) null);
+#nullable disable
 			vsb.Append ("b");
 
 			Assert.That (vsb.Length, Is.EqualTo (sb.Length));
@@ -105,7 +107,9 @@ namespace UnitTests.Utils {
 #pragma warning restore CA1834 // Consider using 'StringBuilder.Append(char)' when applicable
 
 			vsb.Append ("b");
+#nullable enable
 			vsb.Insert (0, (string?) null);
+#nullable disable
 			vsb.Insert (0, "a");
 
 			Assert.That (vsb.Length, Is.EqualTo (sb.Length));

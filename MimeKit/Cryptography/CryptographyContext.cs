@@ -44,8 +44,8 @@ namespace MimeKit.Cryptography {
 	public abstract class CryptographyContext : ICryptographyContext
 	{
 		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
-		static Func<SecureMimeContext> SecureMimeContextFactory;
-		static Func<OpenPgpContext> PgpContextFactory;
+		static Func<SecureMimeContext>? SecureMimeContextFactory;
+		static Func<OpenPgpContext>? PgpContextFactory;
 		static readonly object mutex = new object ();
 
 		EncryptionAlgorithm[] encryptionAlgorithmRank;

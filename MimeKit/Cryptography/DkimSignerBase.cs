@@ -62,18 +62,13 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
 		/// </exception>
-		[Obsolete ("This constructor will be removed in a future release.")]
+		/// <exception cref="System.NotImplementedException">
+		/// This constructor is no longer supported. Use one of the other constructors.
+		/// </exception>
+		[Obsolete ("This constructor is no longer supported. Use one of the other constructors.", true)]
 		protected DkimSignerBase (string domain, string selector, DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256)
 		{
-			if (domain == null)
-				throw new ArgumentNullException (nameof (domain));
-
-			if (selector == null)
-				throw new ArgumentNullException (nameof (selector));
-
-			SignatureAlgorithm = algorithm;
-			Selector = selector;
-			Domain = domain;
+			throw new NotImplementedException ();
 		}
 
 		/// <summary>
@@ -332,7 +327,7 @@ namespace MimeKit.Cryptography {
 
 		static AsymmetricKeyParameter LoadPrivateKey (Stream stream)
 		{
-			AsymmetricKeyParameter key = null;
+			AsymmetricKeyParameter? key = null;
 
 			using (var reader = new StreamReader (stream)) {
 				var pem = new PemReader (reader);

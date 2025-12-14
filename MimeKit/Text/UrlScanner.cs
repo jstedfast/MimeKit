@@ -27,6 +27,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Text {
 	class UrlMatch
@@ -83,7 +84,7 @@ namespace MimeKit.Text {
 			trie.Add (pattern.Pattern);
 		}
 
-		public bool Scan (char[] text, int startIndex, int count, out UrlMatch match)
+		public bool Scan (char[] text, int startIndex, int count, [NotNullWhen (true)] out UrlMatch? match)
 		{
 			GetIndexDelegate getStartIndex, getEndIndex;
 			int endIndex = startIndex + count;
@@ -94,7 +95,8 @@ namespace MimeKit.Text {
 				return false;
 			}
 
-			if (!patterns.TryGetValue (pattern, out var url)) {
+			// Note: pattern is not null when Trie.Search != -1
+			if (!patterns.TryGetValue (pattern!, out var url)) {
 				match = null;
 				return false;
 			}

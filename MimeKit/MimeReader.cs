@@ -30,6 +30,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
@@ -72,12 +73,12 @@ namespace MimeKit {
 		int headerCount;
 
 		// boundary state
-		Boundary boundaries;
-		Boundary currentBoundary;
+		Boundary? boundaries;
+		Boundary? currentBoundary;
 		BoundaryType boundary;
 
 		ContentEncoding? currentEncoding;
-		ContentType currentContentType;
+		ContentType? currentContentType;
 		long? currentContentLength;
 
 		MimeParserState state;
@@ -147,6 +148,8 @@ namespace MimeKit {
 			get {
 				return options;
 			}
+
+			[MemberNotNull (nameof (options))]
 			set {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
@@ -192,6 +195,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
+		[MemberNotNull (nameof (this.stream))]
 		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
 			if (stream is null)
@@ -797,7 +801,7 @@ namespace MimeKit {
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		[Obsolete ("Use OnMultipartBoundaryEnd instead.")]
-		protected virtual void OnMultipartBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected virtual void OnMultipartBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
@@ -814,7 +818,7 @@ namespace MimeKit {
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		[Obsolete ("Use OnMultipartBoundaryEndAsync instead.")]
-		protected virtual Task OnMultipartBoundaryAsync (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected virtual Task OnMultipartBoundaryAsync (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
 			return Task.CompletedTask;
@@ -927,7 +931,7 @@ namespace MimeKit {
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		[Obsolete ("Use OnMultipartEndBoundaryEnd instead.")]
-		protected virtual void OnMultipartEndBoundary (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected virtual void OnMultipartEndBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 		}
 
@@ -944,7 +948,7 @@ namespace MimeKit {
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		[Obsolete ("Use OnMultipartEndBoundaryEndAsync instead.")]
-		protected virtual Task OnMultipartEndBoundaryAsync (string boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
+		protected virtual Task OnMultipartEndBoundaryAsync (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
 		{
 			OnMultipartEndBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
 			return Task.CompletedTask;
@@ -2035,9 +2039,9 @@ namespace MimeKit {
 
 			// skip over the boundary marker
 			if (endBoundary)
-				inptr += currentBoundary.FinalLength;
+				inptr += currentBoundary!.FinalLength;
 			else
-				inptr += currentBoundary.Length;
+				inptr += currentBoundary!.Length;
 
 			// skip over any trailing whitespace
 			inptr = EndOfLine (inptr, inend + 1);
@@ -2060,7 +2064,7 @@ namespace MimeKit {
 			return false;
 		}
 
-		unsafe bool SkipBoundaryMarker (byte* inbuf, string boundary, bool endBoundary, CancellationToken cancellationToken)
+		unsafe bool SkipBoundaryMarker (byte* inbuf, string? boundary, bool endBoundary, CancellationToken cancellationToken)
 		{
 			long beginOffset = GetOffset (inputIndex);
 			int beginLineNumber = lineNumber;
@@ -2125,7 +2129,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		ContentType GetContentType (ContentType parent)
+		ContentType GetContentType (ContentType? parent)
 		{
 			if (currentContentType != null)
 				return currentContentType;
@@ -2600,7 +2604,7 @@ namespace MimeKit {
 
 		void PopBoundary ()
 		{
-			boundaries = boundaries.Next;
+			boundaries = boundaries!.Next;
 
 			switch (boundary) {
 			case BoundaryType.ParentEndBoundary:

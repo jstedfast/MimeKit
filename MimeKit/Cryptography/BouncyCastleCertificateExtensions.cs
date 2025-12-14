@@ -381,7 +381,7 @@ namespace MimeKit.Cryptography {
 			return GetKeyUsageFlags (certificate.GetKeyUsage ());
 		}
 
-		static EncryptionAlgorithm[] DecodeEncryptionAlgorithms (byte[] rawData)
+		static EncryptionAlgorithm[]? DecodeEncryptionAlgorithms (byte[] rawData)
 		{
 			using (var memory = new MemoryStream (rawData, false)) {
 				using (var asn1 = new Asn1InputStream (memory)) {

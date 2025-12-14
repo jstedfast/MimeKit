@@ -62,6 +62,8 @@ namespace MimeKit.Cryptography {
 
 			if (MailboxAddress.TryParse (text, out var mailbox))
 				Mailbox = mailbox;
+			else
+				Mailbox = new MailboxAddress (string.Empty, string.Empty);
 		}
 #endif
 

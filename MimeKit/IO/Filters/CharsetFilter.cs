@@ -210,7 +210,7 @@ namespace MimeKit.IO.Filters {
 			outputLength = outputOffset;
 			outputIndex = 0;
 
-			return OutputBuffer;
+			return OutputBuffer!; // EnsureOutputSize has been called at least once at this point
 		}
 
 		/// <summary>

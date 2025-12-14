@@ -94,7 +94,7 @@ namespace MimeKit {
 		/// Gets the parent <see cref="MessagePart"/> if this message is an attachment.
 		/// </remarks>
 		/// <value>The parent <see cref="MessagePart"/>.</value>
-		public MessagePart Parent { get; }
+		public MessagePart? Parent { get; }
 
 		/// <summary>
 		/// Get or set the stream offset that marks the beginning of the message.

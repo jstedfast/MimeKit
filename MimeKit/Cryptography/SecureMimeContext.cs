@@ -324,7 +324,7 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		internal static bool TryGetDigestAlgorithm (string id, out DigestAlgorithm algorithm)
+		internal static bool TryGetDigestAlgorithm (string? id, out DigestAlgorithm algorithm)
 		{
 			if (id == CmsSignedGenerator.DigestSha1) {
 				algorithm = DigestAlgorithm.Sha1;

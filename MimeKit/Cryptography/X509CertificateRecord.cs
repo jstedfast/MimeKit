@@ -184,7 +184,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate's subject key identifier.
 		/// </remarks>
 		/// <value>The certificate's subject key identifier.</value>
-		public byte[] SubjectKeyIdentifier {
+		public byte[]? SubjectKeyIdentifier {
 			get {
 				var subjectKeyIdentifier = Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
 
@@ -238,7 +238,7 @@ namespace MimeKit.Cryptography {
 		/// Gets or sets the encryption algorithm capabilities.
 		/// </remarks>
 		/// <value>The encryption algorithms.</value>
-		public EncryptionAlgorithm[] Algorithms { get; set; }
+		public EncryptionAlgorithm[]? Algorithms { get; set; }
 
 		/// <summary>
 		/// Gets or sets the date when the algorithms were last updated.
@@ -265,7 +265,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the private key.
 		/// </remarks>
 		/// <value>The private key.</value>
-		public AsymmetricKeyParameter PrivateKey { get; set; }
+		public AsymmetricKeyParameter? PrivateKey { get; set; }
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
@@ -305,11 +305,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
-		public X509CertificateRecord (X509Certificate certificate) : this ()
+		public X509CertificateRecord (X509Certificate certificate)
 		{
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
+			AlgorithmsUpdated = DateTime.MinValue;
 			Certificate = certificate;
 		}
 
@@ -317,12 +318,15 @@ namespace MimeKit.Cryptography {
 		/// Initialize a new instance of the <see cref="X509CertificateRecord"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is only meant to be used by implementors of <see cref="IX509CertificateDatabase"/>
-		/// when loading records from the database.
+		/// Creates a new certificate record for storing in a <see cref="IX509CertificateDatabase"/>.
 		/// </remarks>
+		/// <exception cref="System.NotImplementedException">
+		/// This constructor is no longer supported. Use <see cref="X509CertificateRecord(X509Certificate)"/> instead.
+		/// </exception>
+		[Obsolete ("This constructor is no longer supported. Use X509CertificateRecord(X509Certificate) instead.", true)]
 		public X509CertificateRecord ()
 		{
-			AlgorithmsUpdated = DateTime.MinValue;
+			throw new NotImplementedException ();
 		}
 	}
 }

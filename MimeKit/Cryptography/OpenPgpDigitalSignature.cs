@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
@@ -38,26 +39,34 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class OpenPgpDigitalSignature : IDigitalSignature
 	{
-		DigitalSignatureVerifyException vex;
+		DigitalSignatureVerifyException? vex;
 		bool? valid;
 
-		internal OpenPgpDigitalSignature (PgpPublicKeyRing keyring, PgpPublicKey pubkey, PgpOnePassSignature signature)
+		internal OpenPgpDigitalSignature (PgpPublicKeyRing? keyring, PgpPublicKey? pubkey, PgpOnePassSignature signature)
 		{
-			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (keyring, pubkey) : null;
+			if (pubkey != null) {
+				Debug.Assert (keyring != null, "keyring must not be null if pubkey is not null");
+				SignerCertificate = new OpenPgpDigitalCertificate (keyring, pubkey);
+			}
+
 			OnePassSignature = signature;
 		}
 
-		internal OpenPgpDigitalSignature (PgpPublicKeyRing keyring, PgpPublicKey pubkey, PgpSignature signature)
+		internal OpenPgpDigitalSignature (PgpPublicKeyRing? keyring, PgpPublicKey? pubkey, PgpSignature signature)
 		{
-			SignerCertificate = pubkey != null ? new OpenPgpDigitalCertificate (keyring, pubkey) : null;
+			if (pubkey != null) {
+				Debug.Assert (keyring != null, "keyring must not be null if pubkey is not null");
+				SignerCertificate = new OpenPgpDigitalCertificate (keyring, pubkey);
+			}
+
 			Signature = signature;
 		}
 
-		internal PgpOnePassSignature OnePassSignature {
+		internal PgpOnePassSignature? OnePassSignature {
 			get; private set;
 		}
 
-		internal PgpSignature Signature {
+		internal PgpSignature? Signature {
 			get; set;
 		}
 
@@ -70,7 +79,7 @@ namespace MimeKit.Cryptography {
 		/// Gets certificate used by the signer.
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
-		public IDigitalCertificate SignerCertificate {
+		public IDigitalCertificate? SignerCertificate {
 			get; private set;
 		}
 
@@ -124,6 +133,8 @@ namespace MimeKit.Cryptography {
 
 			if (vex != null)
 				throw vex;
+
+			Debug.Assert (Signature != null, "Signature should never be null here.");
 
 			long keyId = OnePassSignature != null ? OnePassSignature.KeyId : Signature.KeyId;
 

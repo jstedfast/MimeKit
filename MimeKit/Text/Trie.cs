@@ -37,31 +37,33 @@ namespace MimeKit.Text {
 	class Trie
 	{
 		class TrieState {
-			public TrieState Next;
-			public TrieState Fail;
-			public TrieMatch Match;
-			public string Pattern;
+			public TrieState? Next;
+			public TrieState? Fail;
+			public TrieMatch? Match;
+			public string? Pattern;
 			public int Depth;
 
-			public TrieState (TrieState fail)
+			public TrieState (TrieState? fail)
 			{
 				Fail = fail;
 			}
 		}
 
 		class TrieMatch {
-			public TrieMatch Next;
+			public TrieMatch? Next;
 			public TrieState State;
 
 			public char Value { get; private set; }
 
-			public TrieMatch (char value)
+			public TrieMatch (char value, TrieMatch? next, TrieState state)
 			{
 				Value = value;
+				Next = next;
+				State = state;
 			}
 		}
 
-		readonly List<TrieState> failStates;
+		readonly List<TrieState?> failStates;
 		readonly TrieState root;
 		readonly bool icase;
 
@@ -74,7 +76,7 @@ namespace MimeKit.Text {
 		/// <param name="ignoreCase"><see langword="true" /> if searching should ignore case; otherwise, <see langword="false" />.</param>
 		public Trie (bool ignoreCase)
 		{
-			failStates = new List<TrieState> ();
+			failStates = new List<TrieState?> ();
 			root = new TrieState (null);
 			icase = ignoreCase;
 		}
@@ -101,7 +103,7 @@ namespace MimeKit.Text {
 				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
-		static TrieMatch FindMatch (TrieState state, char value)
+		static TrieMatch? FindMatch (TrieState state, char value)
 		{
 			var match = state.Match;
 
@@ -114,11 +116,7 @@ namespace MimeKit.Text {
 		TrieState Insert (TrieState state, int depth, char value)
 		{
 			var inserted = new TrieState (root);
-			var match = new TrieMatch (value) {
-				Next = state.Match,
-				State = inserted
-			};
-
+			var match = new TrieMatch (value, state.Match, inserted);
 			state.Match = match;
 
 			if (failStates.Count < depth + 1)
@@ -160,8 +158,8 @@ namespace MimeKit.Text {
 		/// </exception>
 		public void Add (string pattern)
 		{
-			TrieState state = root;
-			TrieMatch match;
+			TrieState? state = root;
+			TrieMatch? match;
 			int depth = 0;
 			char c;
 
@@ -194,8 +192,8 @@ namespace MimeKit.Text {
 					match = state.Match;
 					while (match != null) {
 						TrieState matchedState = match.State;
-						TrieState failState = state.Fail;
-						TrieMatch nextMatch = null;
+						TrieState? failState = state.Fail;
+						TrieMatch? nextMatch = null;
 
 						c = match.Value;
 
@@ -203,7 +201,8 @@ namespace MimeKit.Text {
 							failState = failState.Fail;
 
 						if (failState != null) {
-							matchedState.Fail = nextMatch.State;
+							// Note: nextMatch is not null when the while loop exits with failState != null
+							matchedState.Fail = nextMatch!.State;
 							if (matchedState.Fail.Depth > matchedState.Depth)
 								matchedState.Depth = matchedState.Fail.Depth;
 						} else {
@@ -259,13 +258,13 @@ namespace MimeKit.Text {
 		/// <paramref name="startIndex"/> and <paramref name="count"/> do not specify
 		/// a valid range in the <paramref name="text"/> string.
 		/// </exception>
-		public int Search (char[] text, int startIndex, int count, out string pattern)
+		public int Search (char[] text, int startIndex, int count, out string? pattern)
 		{
 			ValidateArguments (text, startIndex, count);
 
 			int endIndex = Math.Min (text.Length, startIndex + count);
-			TrieState state = root;
-			TrieMatch match = null;
+			TrieState? state = root;
+			TrieMatch? match = null;
 			int matched = 0;
 			int offset = -1;
 			char c;
@@ -322,7 +321,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> is out of range.
 		/// </exception>
-		public int Search (char[] text, int startIndex, out string pattern)
+		public int Search (char[] text, int startIndex, out string? pattern)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));
@@ -342,7 +341,7 @@ namespace MimeKit.Text {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="text"/> is <see langword="null"/>.
 		/// </exception>
-		public int Search (char[] text, out string pattern)
+		public int Search (char[] text, out string? pattern)
 		{
 			if (text is null)
 				throw new ArgumentNullException (nameof (text));

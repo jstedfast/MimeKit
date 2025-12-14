@@ -45,7 +45,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class SecureMimeDigitalSignature : IDigitalSignature
 	{
-		DigitalSignatureVerifyException vex;
+		DigitalSignatureVerifyException? vex;
 		bool? valid;
 
 		/// <summary>
@@ -59,7 +59,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="signerInfo"/> is <see langword="null"/>.
 		/// </exception>
-		public SecureMimeDigitalSignature (SignerInformation signerInfo, X509Certificate certificate)
+		public SecureMimeDigitalSignature (SignerInformation signerInfo, X509Certificate? certificate)
 		{
 			if (signerInfo == null)
 				throw new ArgumentNullException (nameof (signerInfo));
@@ -130,7 +130,7 @@ namespace MimeKit.Cryptography {
 		/// <see cref="ChainException"/> will be set.
 		/// </remarks>
 		/// <value>The certificate chain.</value>
-		public PkixCertPath Chain {
+		public PkixCertPath? Chain {
 			get; internal set;
 		}
 
@@ -141,7 +141,7 @@ namespace MimeKit.Cryptography {
 		/// This will only be set if building the certificate chain failed.
 		/// </remarks>
 		/// <value>The exception.</value>
-		public Exception ChainException {
+		public Exception? ChainException {
 			get; internal set;
 		}
 
@@ -154,7 +154,7 @@ namespace MimeKit.Cryptography {
 		/// Gets certificate used by the signer.
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
-		public IDigitalCertificate SignerCertificate {
+		public IDigitalCertificate? SignerCertificate {
 			get; private set;
 		}
 

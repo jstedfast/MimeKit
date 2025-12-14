@@ -48,7 +48,7 @@ namespace MimeKit.Utils
 	/// </remarks>
 	class BufferPool
 	{
-		readonly byte[][] buffers;
+		readonly byte[]?[] buffers;
 		SpinLock spinLock;
 		int index;
 
@@ -114,7 +114,7 @@ namespace MimeKit.Utils
 		/// <param name="clear"><see langword="true"/> if the buffer should be cleared; otherwise, <see langword="false"/>.</param>
 		public byte[] Rent (bool clear = false)
 		{
-			byte[] buffer = null;
+			byte[]? buffer = null;
 			bool locked = false;
 
 			try {

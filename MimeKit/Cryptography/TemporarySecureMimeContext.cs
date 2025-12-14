@@ -139,13 +139,13 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the certificate.</param>
-		protected override X509Certificate GetCertificate (ISelector<X509Certificate> selector)
+		protected override X509Certificate? GetCertificate (ISelector<X509Certificate> selector)
 		{
 			if (selector == null && certificates.Count > 0)
 				return certificates[0];
 
 			foreach (var certificate in certificates) {
-				if (selector.Match (certificate))
+				if (selector == null || selector.Match (certificate))
 					return certificate;
 			}
 
@@ -160,7 +160,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The private key on success; otherwise <see langword="null"/>.</returns>
 		/// <param name="selector">The search criteria for the private key.</param>
-		protected override AsymmetricKeyParameter GetPrivateKey (ISelector<X509Certificate> selector)
+		protected override AsymmetricKeyParameter? GetPrivateKey (ISelector<X509Certificate> selector)
 		{
 			foreach (var certificate in certificates) {
 				var fingerprint = certificate.GetFingerprint ();
@@ -252,18 +252,18 @@ namespace MimeKit.Cryptography {
 				if (!crl.IssuerDN.Equals (issuer))
 					continue;
 
-				nextUpdate = crl.NextUpdate.Value > nextUpdate ? crl.NextUpdate.Value : nextUpdate;
+				nextUpdate = crl.NextUpdate.HasValue && crl.NextUpdate.Value > nextUpdate ? crl.NextUpdate.Value : nextUpdate;
 			}
 
 			return nextUpdate;
 		}
 
-		X509Certificate GetCmsRecipientCertificate (MailboxAddress mailbox)
+		X509Certificate? GetCmsRecipientCertificate (MailboxAddress mailbox)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate domainCertificate = null;
+			X509Certificate? domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -320,7 +320,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			X509Certificate certificate;
+			X509Certificate? certificate;
 
 			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -333,13 +333,13 @@ namespace MimeKit.Cryptography {
 			return recipient;
 		}
 
-		X509Certificate GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter key)
+		X509Certificate? GetCmsSignerCertificate (MailboxAddress mailbox, out AsymmetricKeyParameter? key)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate domainCertificate = null;
-			AsymmetricKeyParameter domainKey = null;
+			X509Certificate? domainCertificate = null;
+			AsymmetricKeyParameter? domainKey = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var certificate in certificates) {
@@ -403,12 +403,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			X509Certificate certificate;
+			X509Certificate? certificate;
 
 			if ((certificate = GetCmsSignerCertificate (mailbox, out var key)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");
 
-			return new CmsSigner (BuildCertificateChain (certificate), key) {
+			return new CmsSigner (BuildCertificateChain (certificate), key!) {
 				DigestAlgorithm = digestAlgo
 			};
 		}
@@ -528,7 +528,9 @@ namespace MimeKit.Cryptography {
 
 			if (certificate.HasPrivateKey && !keys.ContainsKey (fingerprint)) {
 				var privateKey = certificate.GetPrivateKeyAsAsymmetricKeyParameter ();
-				keys.Add (fingerprint, privateKey);
+
+				if (privateKey != null)
+					keys.Add (fingerprint, privateKey);
 			}
 		}
 

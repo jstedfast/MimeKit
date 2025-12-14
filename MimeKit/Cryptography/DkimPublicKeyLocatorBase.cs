@@ -76,8 +76,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected static AsymmetricKeyParameter GetPublicKey (string txt)
 		{
-			AsymmetricKeyParameter pubkey;
-			string k = "rsa", p = null;
+			AsymmetricKeyParameter? pubkey;
+			string k = "rsa";
+			string? p = null;
 			int index = 0;
 
 			if (txt == null)

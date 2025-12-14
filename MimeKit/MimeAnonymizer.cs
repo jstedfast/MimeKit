@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -683,7 +684,7 @@ namespace MimeKit {
 				message.MimeVersion = new Version (1, 0);
 
 			if (message.Body != null) {
-				AnonymizeHeaders (options, message.MergeHeaders (), stream);
+				AnonymizeHeaders (options, MimeMessage.MergeHeaders (message.Headers, message.Body), stream);
 
 				if (message.compliance == RfcComplianceMode.Strict || message.Body.Headers.HasBodySeparator)
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
@@ -738,7 +739,7 @@ namespace MimeKit {
 			return marker;
 		}
 
-		static void AnonymizeBytes (FormatOptions options, Stream stream, byte[] rawValue, bool ensureNewLine)
+		static void AnonymizeBytes (FormatOptions options, Stream stream, byte[]? rawValue, bool ensureNewLine)
 		{
 			if (rawValue == null || rawValue.Length == 0)
 				return;
@@ -752,7 +753,7 @@ namespace MimeKit {
 			}
 		}
 
-		static bool TryGetStatusGroups (MessageDeliveryStatus mds, out HeaderListCollection statusGroups)
+		static bool TryGetStatusGroups (MessageDeliveryStatus mds, [NotNullWhen (true)] out HeaderListCollection? statusGroups)
 		{
 			try {
 				statusGroups = mds.StatusGroups;
@@ -763,7 +764,7 @@ namespace MimeKit {
 			}
 		}
 
-		static bool TryGetNotificationFields (MessageDispositionNotification mdn, out HeaderList fields)
+		static bool TryGetNotificationFields (MessageDispositionNotification mdn, [NotNullWhen (true)] out HeaderList? fields)
 		{
 			try {
 				fields = mdn.Fields;
@@ -787,7 +788,7 @@ namespace MimeKit {
 				if (messagePart.Message != null)
 					AnonymizeMessage (options, messagePart.Message, stream);
 			} else if (entity is Multipart multipart) {
-				var defaultBoundary = GenerateBoundaryMarker (multipart.Boundary, options.NewLineBytes);
+				var defaultBoundary = GenerateBoundaryMarker (multipart.Boundary ?? string.Empty, options.NewLineBytes);
 
 				AnonymizeBytes (options, stream, multipart.RawPreamble, multipart.Count > 0 || multipart.EnsureNewLine);
 
@@ -819,7 +820,7 @@ namespace MimeKit {
 
 					stream.Write (multipart.RawEndBoundary, 0, multipart.RawEndBoundary.Length);
 				} else {
-					var boundary = GenerateEndBoundaryMarker (multipart.Boundary, multipart.RawEpilogue is null ? options.NewLineBytes : Array.Empty<byte> ());
+					var boundary = GenerateEndBoundaryMarker (multipart.Boundary ?? string.Empty, multipart.RawEpilogue is null ? options.NewLineBytes : Array.Empty<byte> ());
 
 					stream.Write (boundary, 0, boundary.Length);
 				}

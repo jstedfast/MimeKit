@@ -89,24 +89,19 @@ namespace UnitTests.Cryptography {
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
 			}
 
-			record = new X509CertificateRecord ();
-
-			Assert.That (record.IsTrusted, Is.False, "IsTrusted #1");
-			Assert.That (record.AlgorithmsUpdated, Is.EqualTo (DateTime.MinValue), "AlgorithmsUpdated #1");
-
 			record = new X509CertificateRecord (signer.Certificate);
 
-			Assert.That (record.IsTrusted, Is.False, "IsTrusted #2");
-			Assert.That (record.Certificate, Is.EqualTo (signer.Certificate), "Certificate #2");
-			Assert.That (record.AlgorithmsUpdated, Is.EqualTo (DateTime.MinValue), "AlgorithmsUpdated #2");
+			Assert.That (record.IsTrusted, Is.False, "IsTrusted #1");
+			Assert.That (record.Certificate, Is.EqualTo (signer.Certificate), "Certificate #1");
+			Assert.That (record.AlgorithmsUpdated, Is.EqualTo (DateTime.MinValue), "AlgorithmsUpdated #1");
 			AssertCertificateProperties (record, signer.Certificate);
 
 			record = new X509CertificateRecord (signer.Certificate, signer.PrivateKey);
 
-			Assert.That (record.IsTrusted, Is.False, "IsTrusted #3");
-			Assert.That (record.PrivateKey, Is.EqualTo (signer.PrivateKey), "PrivateKey #3");
-			Assert.That (record.Certificate, Is.EqualTo (signer.Certificate), "Certificate #3");
-			Assert.That (record.AlgorithmsUpdated, Is.EqualTo (DateTime.MinValue), "AlgorithmsUpdated #3");
+			Assert.That (record.IsTrusted, Is.False, "IsTrusted #2");
+			Assert.That (record.PrivateKey, Is.EqualTo (signer.PrivateKey), "PrivateKey #2");
+			Assert.That (record.Certificate, Is.EqualTo (signer.Certificate), "Certificate #2");
+			Assert.That (record.AlgorithmsUpdated, Is.EqualTo (DateTime.MinValue), "AlgorithmsUpdated #2");
 			AssertCertificateProperties (record, signer.Certificate);
 		}
 	}

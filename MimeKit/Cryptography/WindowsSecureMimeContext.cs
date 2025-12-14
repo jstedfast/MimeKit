@@ -172,13 +172,13 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate to use for the recipient; otherwise, or <see langword="null"/>.</returns>
 		/// <param name="mailbox">The recipient's mailbox address.</param>
-		protected virtual X509Certificate2 GetRecipientCertificate (MailboxAddress mailbox)
+		protected virtual X509Certificate2? GetRecipientCertificate (MailboxAddress mailbox)
 		{
 			var storeNames = new [] { StoreName.AddressBook, StoreName.My, StoreName.TrustedPeople };
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate2 domainCertificate = null;
+			X509Certificate2? domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			foreach (var storeName in storeNames) {
@@ -246,7 +246,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected virtual RealCmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			X509Certificate2 certificate;
+			X509Certificate2? certificate;
 
 			if ((certificate = GetRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
@@ -328,13 +328,13 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <returns>The certificate to use for the signer; otherwise, or <see langword="null"/>.</returns>
 		/// <param name="mailbox">The signer's mailbox address.</param>
-		protected virtual X509Certificate2 GetSignerCertificate (MailboxAddress mailbox)
+		protected virtual X509Certificate2? GetSignerCertificate (MailboxAddress mailbox)
 		{
 			var mailboxDomain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 			var mailboxAddress = mailbox.GetAddress (true);
 			var store = new X509Store (StoreName.My, StoreLocation);
 			var secure = mailbox as SecureMailboxAddress;
-			X509Certificate2 domainCertificate = null;
+			X509Certificate2? domainCertificate = null;
 			var now = DateTime.UtcNow;
 
 			store.Open (OpenFlags.ReadOnly);
@@ -404,7 +404,7 @@ namespace MimeKit.Cryptography {
 
 		RealCmsSigner GetRealCmsSigner (CmsSigner signer)
 		{
-			if (signer.RsaSignaturePadding == RsaSignaturePadding.Pss)
+			if (signer.RsaSignaturePadding?.Scheme == RsaSignaturePaddingScheme.Pss)
 				throw new NotSupportedException ("The RSASSA-PSS signature padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 
 			RealSubjectIdentifierType type;
@@ -458,7 +458,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected virtual RealCmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			X509Certificate2 certificate;
+			X509Certificate2? certificate;
 
 			if ((certificate = GetSignerCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid signing certificate could not be found.");

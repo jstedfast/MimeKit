@@ -40,7 +40,7 @@ namespace MimeKit {
 		/// Gets or sets the message content.
 		/// </remarks>
 		/// <value>The message content.</value>
-		MimeMessage Message {
+		MimeMessage? Message {
 			get; set;
 		}
 	}

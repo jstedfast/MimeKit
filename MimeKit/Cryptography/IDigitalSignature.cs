@@ -42,7 +42,7 @@ namespace MimeKit.Cryptography {
 		/// Gets certificate used by the signer.
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
-		IDigitalCertificate SignerCertificate { get; }
+		IDigitalCertificate? SignerCertificate { get; }
 
 		/// <summary>
 		/// Gets the public key algorithm used for the signature.

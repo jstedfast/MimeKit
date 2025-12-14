@@ -30,6 +30,7 @@ using System.Buffers;
 using System.Collections;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.Encodings;
 using MimeKit.Utils;
@@ -243,7 +244,8 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentException">
 		/// The <paramref name="name"/> contains illegal characters.
 		/// </exception>
-		public string this [string name] {
+		[DisallowNull]
+		public string? this [string name] {
 			get {
 				if (name is null)
 					throw new ArgumentNullException (nameof (name));
@@ -283,7 +285,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
-		public bool TryGetValue (string name, out Parameter param)
+		public bool TryGetValue (string name, [NotNullWhen (true)] out Parameter? param)
 		{
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
@@ -303,7 +305,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <see langword="null"/>.
 		/// </exception>
-		public bool TryGetValue (string name, out string value)
+		public bool TryGetValue (string name, [NotNullWhen (true)] out string? value)
 		{
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
@@ -675,19 +677,17 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		internal event EventHandler BoundaryChanged;
+		internal event EventHandler? BoundaryChanged;
 
 		void OnBoundaryChanged ()
 		{
 			BoundaryChanged?.Invoke (this, EventArgs.Empty);
 		}
 
-		internal event EventHandler Changed;
+		internal event EventHandler? Changed;
 
-		void OnParamChanged (object sender, EventArgs args)
+		void OnParamChanged (Parameter param, EventArgs args)
 		{
-			var param = (Parameter) sender;
-
 			if (param.Name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
 				OnBoundaryChanged ();
 
@@ -718,9 +718,22 @@ namespace MimeKit {
 			public string Name;
 			public int? Id;
 
-			#region IComparable implementation
-			public int CompareTo (NameValuePair other)
+			public NameValuePair (int valueLength, int valueStart, bool encoded, byte[] value, string name, int? id)
 			{
+				ValueLength = valueLength;
+				ValueStart = valueStart;
+				Encoded = encoded;
+				Value = value;
+				Name = name;
+				Id = id;
+			}
+
+			#region IComparable implementation
+			public int CompareTo (NameValuePair? other)
+			{
+				if (other == null)
+					return 1;
+
 				if (!Id.HasValue)
 					return other.Id.HasValue ? -1 : 0;
 
@@ -732,7 +745,7 @@ namespace MimeKit {
 			#endregion
 		}
 
-		static bool TryParseNameValuePair (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out NameValuePair pair)
+		static bool TryParseNameValuePair (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out NameValuePair? pair)
 		{
 			int valueIndex, valueLength, startIndex;
 			bool encoded = false;
@@ -879,19 +892,19 @@ namespace MimeKit {
 					valueLength--;
 			}
 
-			pair = new NameValuePair {
-				ValueLength = valueLength,
-				ValueStart = valueIndex,
-				Encoded = encoded,
-				Value = value,
-				Name = name,
-				Id = id
-			};
+			pair = new NameValuePair (
+				valueLength: valueLength,
+				valueStart: valueIndex,
+				encoded: encoded,
+				value: value,
+				name: name,
+				id: id
+			);
 
 			return true;
 		}
 
-		static bool TryGetCharset (byte[] text, ref int index, int endIndex, out string charset)
+		static bool TryGetCharset (byte[] text, ref int index, int endIndex, [NotNullWhen (true)] out string? charset)
 		{
 			int startIndex = index;
 			int charsetEnd;
@@ -923,14 +936,14 @@ namespace MimeKit {
 			return true;
 		}
 
-		static string DecodeRfc2231 (out Encoding encoding, ref Decoder decoder, HexDecoder hex, byte[] text, int startIndex, int count, bool flush)
+		static string DecodeRfc2231 (out Encoding? encoding, ref Decoder? decoder, HexDecoder hex, byte[] text, int startIndex, int count, bool flush)
 		{
 			int endIndex = startIndex + count;
 			int index = startIndex;
 
 			// Note: decoder is only null if this is the first segment
 			if (decoder is null) {
-				if (TryGetCharset (text, ref index, endIndex, out string charset)) {
+				if (TryGetCharset (text, ref index, endIndex, out string? charset)) {
 					try {
 						encoding = CharsetUtils.GetEncoding (charset, "?");
 						decoder = (Decoder) encoding.GetDecoder ();
@@ -972,11 +985,11 @@ namespace MimeKit {
 			}
 		}
 
-		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, out ParameterList paramList)
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ParameterList? paramList)
 		{
 			var rfc2231 = new Dictionary<string, List<NameValuePair>> (MimeUtils.OrdinalIgnoreCase);
 			var @params = new List<NameValuePair> ();
-			List<NameValuePair> parts;
+			List<NameValuePair>? parts;
 
 			paramList = null;
 
@@ -1036,8 +1049,8 @@ namespace MimeKit {
 				int startIndex = param.ValueStart;
 				int length = param.ValueLength;
 				var buffer = param.Value;
-				Encoding encoding = null;
-				Decoder decoder = null;
+				Encoding? encoding = null;
+				Decoder? decoder = null;
 				string value;
 
 				if (param.Id.HasValue) {
@@ -1061,7 +1074,7 @@ namespace MimeKit {
 								length -= 2;
 							}
 
-							value += DecodeRfc2231 (out Encoding charset, ref decoder, hex, buffer, startIndex, length, flush);
+							value += DecodeRfc2231 (out Encoding? charset, ref decoder, hex, buffer, startIndex, length, flush);
 							encoding ??= charset;
 						} else if (length >= 2 && buffer[startIndex] == (byte) '"') {
 							var quoted = CharsetUtils.ConvertToUnicode (options, buffer, startIndex, length);

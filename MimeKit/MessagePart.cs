@@ -77,7 +77,7 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			MimeMessage message = null;
+			MimeMessage? message = null;
 
 			foreach (object obj in args) {
 				if (obj is null || TryInit (obj))
@@ -151,7 +151,7 @@ namespace MimeKit {
 		/// Gets or sets the message content.
 		/// </remarks>
 		/// <value>The message content.</value>
-		public MimeMessage Message {
+		public MimeMessage? Message {
 			get; set;
 		}
 

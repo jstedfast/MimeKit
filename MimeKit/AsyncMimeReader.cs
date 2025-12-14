@@ -292,7 +292,7 @@ namespace MimeKit {
 			await OnHeadersEndAsync (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task<bool> SkipBoundaryMarkerAsync (string boundary, bool endBoundary, CancellationToken cancellationToken)
+		async Task<bool> SkipBoundaryMarkerAsync (string? boundary, bool endBoundary, CancellationToken cancellationToken)
 		{
 			long beginOffset = GetOffset (inputIndex);
 			int beginLineNumber = lineNumber;

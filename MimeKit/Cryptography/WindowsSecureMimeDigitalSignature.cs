@@ -43,7 +43,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class WindowsSecureMimeDigitalSignature : IDigitalSignature
 	{
-		DigitalSignatureVerifyException vex;
+		DigitalSignatureVerifyException? vex;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="WindowsSecureMimeDigitalSignature"/> class.
@@ -126,7 +126,7 @@ namespace MimeKit.Cryptography {
 		/// Gets certificate used by the signer.
 		/// </remarks>
 		/// <value>The signer's certificate.</value>
-		public IDigitalCertificate SignerCertificate {
+		public IDigitalCertificate? SignerCertificate {
 			get; private set;
 		}
 

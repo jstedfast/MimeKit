@@ -38,7 +38,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="command">The database command.</param>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
-		public static int AddParameterWithValue (this DbCommand command, string name, object value)
+		public static int AddParameterWithValue (this DbCommand command, string name, object? value)
 		{
 			var parameter = command.CreateParameter ();
 			parameter.ParameterName = name;

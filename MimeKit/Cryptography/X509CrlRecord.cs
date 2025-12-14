@@ -105,7 +105,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the issuer name of the certificate revocation list.
 		/// </remarks>
 		/// <value>The issuer's name.</value>
-		public string IssuerName { get; internal set; }
+		public string? IssuerName { get; internal set; }
 
 		/// <summary>
 		/// Gets the date and time of the most recent update.
@@ -132,7 +132,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate revocation list.
 		/// </remarks>
 		/// <value>The certificate revocation list.</value>
-		public X509Crl Crl { get; set; }
+		public X509Crl? Crl { get; set; }
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="X509CrlRecord"/> class.
