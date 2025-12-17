@@ -267,7 +267,9 @@ namespace MimeKit.Cryptography {
 		{
 			int startIndex = index;
 
-			while (ParseUtils.SkipAtom (text, ref index, endIndex) && index < endIndex && text[index] == (byte) '.')
+			// Use SkipKeyword instead of SkipAtom to avoid consuming '=' as part of the domain.
+			// This allows parsing both Office365 domains and Gmail method names with dots.
+			while (SkipKeyword (text, ref index, endIndex) && index < endIndex && text[index] == (byte) '.')
 				index++;
 
 			if (index > startIndex && text[index - 1] != (byte) '.')
@@ -332,6 +334,10 @@ namespace MimeKit.Cryptography {
 				// method. This block of code is here to handle that case.
 				//
 				// See https://github.com/jstedfast/MimeKit/issues/527 for details.
+				//
+				// Gmail uses method names with dots (e.g., gateway.spf). We distinguish between Office365
+				// authserv-ids ("domain.com; method=pass") and Gmail method names ("gateway.spf=pass") by
+				// parsing the dotted token and checking if it's followed by semicolon (Office365) or equals (Gmail).
 				if (srvid is null && index < endIndex && text[index] == '.') {
 					index = methodIndex;
 
@@ -341,8 +347,6 @@ namespace MimeKit.Cryptography {
 
 						return false;
 					}
-
-					srvid = Encoding.UTF8.GetString (text, methodIndex, index - methodIndex);
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
@@ -354,17 +358,21 @@ namespace MimeKit.Cryptography {
 						return false;
 					}
 
-					if (text[index] != (byte) ';') {
+					if (text[index] == (byte) ';') {
+						// Office365 style: authserv-id followed by semicolon
+						srvid = Encoding.UTF8.GetString (text, methodIndex, index - methodIndex);
+
+						index++;
+
+						goto method_token;
+					} else if (text[index] == (byte) '=' || text[index] == (byte) '/') {
+						// Method name with dots (e.g., gateway.spf) - continue normal parsing
+					} else {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token after Office365 authserv-id token at offset {0}", index), index, index);
 
 						return false;
 					}
-
-					// skip over ';'
-					index++;
-
-					goto method_token;
 				}
 
 				var method = Encoding.ASCII.GetString (text, methodIndex, index - methodIndex);
