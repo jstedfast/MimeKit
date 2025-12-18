@@ -988,6 +988,47 @@ namespace UnitTests.Cryptography {
 			Assert.That (encoded.ToString (), Is.EqualTo (expected));
 		}
 
+		// Tests work-around for https://github.com/jstedfast/MimeKit/pull/1208
+		[Test]
+		public void TestParseGmailAuthenticationResults ()
+		{
+			const string input = "mx.google.com; dkim=pass header.i=@sender.com header.s=15ca3b75e6386151 header.b=qsGI6Y43; gateway.spf=pass (google.com: domain receiver.com configured 1.2.3.4 as internal address) smtp.mailfrom=mail@from.com smtp.remote-ip=1.2.3.4 policy.d=receiver.com";
+			var buffer = Encoding.ASCII.GetBytes (input);
+			AuthenticationResults authres;
+
+			Assert.That (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres), Is.True);
+			Assert.That (authres.AuthenticationServiceIdentifier, Is.EqualTo ("mx.google.com"), "authserv-id");
+			Assert.That (authres.Results.Count, Is.EqualTo (2), "methods");
+			Assert.That (authres.Results[0].Method, Is.EqualTo ("dkim"));
+			Assert.That (authres.Results[0].Result, Is.EqualTo ("pass"));
+			Assert.That (authres.Results[0].Properties.Count, Is.EqualTo (3), "dkim properties");
+			Assert.That (authres.Results[0].Properties[0].PropertyType, Is.EqualTo ("header"));
+			Assert.That (authres.Results[0].Properties[0].Property, Is.EqualTo ("i"));
+			Assert.That (authres.Results[0].Properties[0].Value, Is.EqualTo ("@sender.com"));
+			Assert.That (authres.Results[0].Properties[1].PropertyType, Is.EqualTo ("header"));
+			Assert.That (authres.Results[0].Properties[1].Property, Is.EqualTo ("s"));
+			Assert.That (authres.Results[0].Properties[1].Value, Is.EqualTo ("15ca3b75e6386151"));
+			Assert.That (authres.Results[0].Properties[2].PropertyType, Is.EqualTo ("header"));
+			Assert.That (authres.Results[0].Properties[2].Property, Is.EqualTo ("b"));
+			Assert.That (authres.Results[0].Properties[2].Value, Is.EqualTo ("qsGI6Y43"));
+
+			Assert.That (authres.Results[1].Method, Is.EqualTo ("gateway.spf"));
+			Assert.That (authres.Results[1].Result, Is.EqualTo ("pass"));
+			Assert.That (authres.Results[1].ResultComment, Is.EqualTo ("google.com: domain receiver.com configured 1.2.3.4 as internal address"));
+			Assert.That (authres.Results[1].Properties.Count, Is.EqualTo (3), "spf properties");
+			Assert.That (authres.Results[1].Properties[0].PropertyType, Is.EqualTo ("smtp"));
+			Assert.That (authres.Results[1].Properties[0].Property, Is.EqualTo ("mailfrom"));
+			Assert.That (authres.Results[1].Properties[0].Value, Is.EqualTo ("mail@from.com"));
+			Assert.That (authres.Results[1].Properties[1].PropertyType, Is.EqualTo ("smtp"));
+			Assert.That (authres.Results[1].Properties[1].Property, Is.EqualTo ("remote-ip"));
+			Assert.That (authres.Results[1].Properties[1].Value, Is.EqualTo ("1.2.3.4"));
+			Assert.That (authres.Results[1].Properties[2].PropertyType, Is.EqualTo ("policy"));
+			Assert.That (authres.Results[1].Properties[2].Property, Is.EqualTo ("d"));
+			Assert.That (authres.Results[1].Properties[2].Value, Is.EqualTo ("receiver.com"));
+
+			Assert.That (authres.ToString (), Is.EqualTo (input));
+		}
+
 		// Tests work-around for https://github.com/jstedfast/MimeKit/issues/584
 		[Test]
 		public void TestParseMethodResultWithUnderscore ()
@@ -1488,46 +1529,6 @@ namespace UnitTests.Cryptography {
 		public void TestParseFailureUnexpectedTokenAfterOffice365AuthServId ()
 		{
 			AssertParseFailure ("authserv-id; method=pass ptype.prop=pvalue; office365.domain :", 61, 61);
-		}
-
-		[Test]
-		public void TestParseGmailAuthenticationResults ()
-		{
-			const string input = "mx.google.com; dkim=pass header.i=@sender.com header.s=15ca3b75e6386151 header.b=qsGI6Y43; gateway.spf=pass (google.com: domain receiver.com configured 1.2.3.4 as internal address) smtp.mailfrom=mail@from.com smtp.remote-ip=1.2.3.4 policy.d=receiver.com";
-			var buffer = Encoding.ASCII.GetBytes (input);
-			AuthenticationResults authres;
-
-			Assert.That (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out authres), Is.True);
-			Assert.That (authres.AuthenticationServiceIdentifier, Is.EqualTo ("mx.google.com"), "authserv-id");
-			Assert.That (authres.Results.Count, Is.EqualTo (2), "methods");
-			Assert.That (authres.Results[0].Method, Is.EqualTo ("dkim"));
-			Assert.That (authres.Results[0].Result, Is.EqualTo ("pass"));
-			Assert.That (authres.Results[0].Properties.Count, Is.EqualTo (3), "dkim properties");
-			Assert.That (authres.Results[0].Properties[0].PropertyType, Is.EqualTo ("header"));
-			Assert.That (authres.Results[0].Properties[0].Property, Is.EqualTo ("i"));
-			Assert.That (authres.Results[0].Properties[0].Value, Is.EqualTo ("@sender.com"));
-			Assert.That (authres.Results[0].Properties[1].PropertyType, Is.EqualTo ("header"));
-			Assert.That (authres.Results[0].Properties[1].Property, Is.EqualTo ("s"));
-			Assert.That (authres.Results[0].Properties[1].Value, Is.EqualTo ("15ca3b75e6386151"));
-			Assert.That (authres.Results[0].Properties[2].PropertyType, Is.EqualTo ("header"));
-			Assert.That (authres.Results[0].Properties[2].Property, Is.EqualTo ("b"));
-			Assert.That (authres.Results[0].Properties[2].Value, Is.EqualTo ("qsGI6Y43"));
-
-			Assert.That (authres.Results[1].Method, Is.EqualTo ("gateway.spf"));
-			Assert.That (authres.Results[1].Result, Is.EqualTo ("pass"));
-			Assert.That (authres.Results[1].ResultComment, Is.EqualTo ("google.com: domain receiver.com configured 1.2.3.4 as internal address"));
-			Assert.That (authres.Results[1].Properties.Count, Is.EqualTo (3), "spf properties");
-			Assert.That (authres.Results[1].Properties[0].PropertyType, Is.EqualTo ("smtp"));
-			Assert.That (authres.Results[1].Properties[0].Property, Is.EqualTo ("mailfrom"));
-			Assert.That (authres.Results[1].Properties[0].Value, Is.EqualTo ("mail@from.com"));
-			Assert.That (authres.Results[1].Properties[1].PropertyType, Is.EqualTo ("smtp"));
-			Assert.That (authres.Results[1].Properties[1].Property, Is.EqualTo ("remote-ip"));
-			Assert.That (authres.Results[1].Properties[1].Value, Is.EqualTo ("1.2.3.4"));
-			Assert.That (authres.Results[1].Properties[2].PropertyType, Is.EqualTo ("policy"));
-			Assert.That (authres.Results[1].Properties[2].Property, Is.EqualTo ("d"));
-			Assert.That (authres.Results[1].Properties[2].Value, Is.EqualTo ("receiver.com"));
-
-			Assert.That (authres.ToString (), Is.EqualTo (input));
 		}
 	}
 }

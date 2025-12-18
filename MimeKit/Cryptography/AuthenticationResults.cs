@@ -263,12 +263,10 @@ namespace MimeKit.Cryptography {
 			return true;
 		}
 
-		static bool SkipDomain (byte[] text, ref int index, int endIndex)
+		static bool SkipDotMethodOrOffice365AuthServId (byte[] text, ref int index, int endIndex)
 		{
 			int startIndex = index;
 
-			// Use SkipKeyword instead of SkipAtom to avoid consuming '=' as part of the domain.
-			// This allows parsing both Office365 domains and Gmail method names with dots.
 			while (SkipKeyword (text, ref index, endIndex) && index < endIndex && text[index] == (byte) '.')
 				index++;
 
@@ -330,18 +328,22 @@ namespace MimeKit.Cryptography {
 					return false;
 				}
 
-				// Note: Office365 seems to (sometimes) place a method-specific authserv-id token before each
-				// method. This block of code is here to handle that case.
+				// Note: We need to work around 2 different real-world deviations from the spec here:
 				//
-				// See https://github.com/jstedfast/MimeKit/issues/527 for details.
+				// 1. Office365 will often put an authserv-id token before (each?) method name, so we need to
+				//    be able to handle domains (e.g., domain.com; method=pass).
+				//    See https://github.com/jstedfast/MimeKit/issues/527 for details.
 				//
-				// Gmail uses method names with dots (e.g., gateway.spf). We distinguish between Office365
-				// authserv-ids ("domain.com; method=pass") and Gmail method names ("gateway.spf=pass") by
-				// parsing the dotted token and checking if it's followed by semicolon (Office365) or equals (Gmail).
+				// 2. Gmail uses method names with dots (e.g., gateway.spf).
+				//    See https://github.com/jstedfast/MimeKit/pull/1208 for details.
+				//
+				// We distinguish between Office365 authserv-ids ("domain.com; method=pass") and Gmail method
+				// names ("gateway.spf=pass") by parsing the dotted token and checking if it's followed by
+				// ';' (Office365) or '=' (Gmail).
 				if (srvid is null && index < endIndex && text[index] == '.') {
 					index = methodIndex;
 
-					if (!SkipDomain (text, ref index, endIndex)) {
+					if (!SkipDotMethodOrOffice365AuthServId (text, ref index, endIndex)) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid Office365 authserv-id token at offset {0}", methodIndex), methodIndex, index);
 
@@ -359,14 +361,14 @@ namespace MimeKit.Cryptography {
 					}
 
 					if (text[index] == (byte) ';') {
-						// Office365 style: authserv-id followed by semicolon
+						// Office365 style: authserv-id followed by semicolon.
 						srvid = Encoding.UTF8.GetString (text, methodIndex, index - methodIndex);
 
 						index++;
 
 						goto method_token;
 					} else if (text[index] == (byte) '=' || text[index] == (byte) '/') {
-						// Method name with dots (e.g., gateway.spf) - continue normal parsing
+						// This is a method name with dots (e.g., gateway.spf). Continue normal parsing...
 					} else {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token after Office365 authserv-id token at offset {0}", index), index, index);
