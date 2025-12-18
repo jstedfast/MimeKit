@@ -340,8 +340,9 @@ namespace MimeKit.Cryptography {
 				// We distinguish between Office365 authserv-ids ("domain.com; method=pass") and Gmail method
 				// names ("gateway.spf=pass") by parsing the dotted token and checking if it's followed by
 				// ';' (Office365) or '=' (Gmail).
-				if (srvid is null && index < endIndex && text[index] == '.') {
-					index = methodIndex;
+				if (srvid is null && index < endIndex && text[index] == (byte) '.') {
+					// skip over '.'
+					index++;
 
 					if (!SkipDotMethodOrOffice365AuthServId (text, ref index, endIndex)) {
 						if (throwOnError)
