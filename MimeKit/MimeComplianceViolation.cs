@@ -58,16 +58,20 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// The Internet Message Format specification requires that all header field names be composed of
-		/// printable ASCII characters and must not contain control characters (i.e., characters with
-		/// codes 0-31) or whitespace characters (i.e., space and horizontal tab). Inclusion of these
-		/// characters can lead to divergent behavior among various MIME parsers, resulting in differences
-		/// in handling.
+		/// printable ASCII characters and must not contain control characters or whitespace characters.
+		/// Inclusion of these characters can lead to divergent behavior among various MIME parsers,
+		/// resulting in differences in handling.
 		/// </remarks>
 		InvalidHeader,
 
 		/// <summary>
 		/// A MIME part or message header ended prematurely at the end of the stream.
 		/// </summary>
+		/// <remarks>
+		/// This usually indicates that the message was truncated somewhere in transport and may be a sign that
+		/// an earlier MIME parser implementation failed to properly handle certain edge cases such as a null
+		/// byte in the message header.
+		/// </remarks>
 		IncompleteHeader,
 
 		/// <summary>
@@ -143,6 +147,15 @@ namespace MimeKit {
 		MissingMultipartBoundaryParameter,
 
 		/// <summary>
+		/// A boundary parameter in a multipart Content-Type header was not valid.
+		/// </summary>
+		/// <remarks>
+		/// A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by the MIME specifications.
+		/// Invalid boundary parameters can lead to ambiguity and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidMultipartBoundaryParameter,
+
+		/// <summary>
 		/// A multipart boundary was missing.
 		/// </summary>
 		/// <remarks>
@@ -165,11 +178,50 @@ namespace MimeKit {
 		/// <summary>
 		/// A MIME part or message header contained illegal null (<c>0x00</c>) bytes.
 		/// </summary>
+		/// <remarks>
+		/// Null (0x00) bytes in a message header can be used by malicious actors to prevent some MIME parsers, such as those
+		/// written in languages like C or C++, from discovering content after the null byte. This technique can be used to
+		/// smuggle viruses or other malicious content past content scanners.
+		/// </remarks>
 		UnexpectedNullBytesInHeader,
 
 		/// <summary>
 		/// A MIME part's body contained null (<c>0x00</c>) bytes without specifying a binary transfer encoding.
 		/// </summary>
+		/// <remarks>
+		/// Null (0x00) bytes in a message body can be used by malicious actors to prevent some MIME parsers, such as those
+		/// written in languages like C or C++, from discovering content after the null byte. This technique can be used to
+		/// smuggle viruses or other malicious content past content scanners.
+		/// </remarks>
 		UnexpectedNullBytesInBody,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained invalid characters or was otherwise malformed.
+		/// </summary>
+		/// <remarks>
+		/// Invalid characters in base64 content and/or erroneous '=' padding characters dispersed within the middle of the base64 block
+		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations which may stop decoding as
+		/// soon as either scenario is encountered. Some base64 decoders will ignore '=' padding characters if any are found within the
+		/// middle of the base64 encoded block while others will treat decode it as 6 bits of 0's.
+		/// </remarks>
+		InvalidBase64Content,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
+		/// </summary>
+		/// <remarks>
+		/// Incorrect line lengths and/or invalid characters in uuencoded content can lead to decoding issues and inconsistent behavior
+		/// among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodedContent,
+
+		/// <summary>
+		/// The quoted-printable encoded content of a MIME part contained invalid characters or was otherwise malformed.
+		/// </summary>
+		/// <remarks>
+		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
+		/// different MIME parser implementations.
+		/// </remarks>
+		InvalidQuotedPrintableContent
 	}
 }
