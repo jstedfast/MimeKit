@@ -30,6 +30,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 
 using MimeKit.Utils;
+using MimeKit.Encodings;
 
 namespace MimeKit {
 	public partial class MimeReader
@@ -392,10 +393,14 @@ namespace MimeKit {
 		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, DetectionOptions options, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
+			IEncodingValidator? validator = null;
 			var formats = new bool[2];
 			int contentLength = 0;
 			bool incomplete = false;
 			bool midline = false;
+
+			if (DetectMimeComplianceViolations && type == ScanContentType.MimeContent && currentEncoding.HasValue)
+				validator = GetEncodingValidator (currentEncoding.Value);
 
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
@@ -422,6 +427,7 @@ namespace MimeKit {
 						await OnMultipartEpilogueReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
 						break;
 					default:
+						validator?.Validate (input, contentIndex, inputIndex - contentIndex);
 						await OnMimePartContentReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
 						break;
 					}
@@ -429,6 +435,15 @@ namespace MimeKit {
 					contentLength += inputIndex - contentIndex;
 				}
 			} while (boundary == BoundaryType.None);
+
+			if (validator is not null && !validator.Complete ()) {
+				if (validator.Encoding == ContentEncoding.Base64)
+					OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Content, beginOffset, beginLineNumber);
+				else if (validator.Encoding == ContentEncoding.UUEncode)
+					OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedContent, beginOffset, beginLineNumber);
+				else
+					OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableContent, beginOffset, beginLineNumber);
+			}
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;
@@ -653,6 +668,10 @@ namespace MimeKit {
 
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
+
+			// Note: MimeReader can handle invalid boundary markers (but those with '\n' will fail to match, resulting in all content being treated as preamble).
+			if (DetectMimeComplianceViolations && !IsValidBoundary (marker))
+				OnMimeComplianceViolation (MimeComplianceViolation.InvalidMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
 
 			PushBoundary (marker);
 
