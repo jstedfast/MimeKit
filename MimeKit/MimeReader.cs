@@ -26,6 +26,9 @@
 
 using System;
 using System.IO;
+#if NET8_0_OR_GREATER
+using System.Buffers;
+#endif
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -35,6 +38,7 @@ using System.Runtime.CompilerServices;
 
 using MimeKit.IO;
 using MimeKit.Utils;
+using MimeKit.Encodings;
 
 namespace MimeKit {
 	/// <summary>
@@ -52,6 +56,11 @@ namespace MimeKit {
 			Multipart
 		}
 
+		// Valid boundary characters as per rfc2046 (bchars):
+		const string ValidBoundaryChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'()+_,-./:=? ";
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<char> ValidBoundaryCharsSV = SearchValues.Create (ValidBoundaryChars);
+#endif
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
 		static ReadOnlySpan<byte> MboxFromMarker => "From "u8;
 		const int SmtpMaxLineLength = 1000;
@@ -2534,13 +2543,27 @@ namespace MimeKit {
 			MultipartEpilogue
 		}
 
+		static IEncodingValidator? GetEncodingValidator (ContentEncoding encoding)
+		{
+			switch (encoding) {
+			case ContentEncoding.Base64: return new Base64Validator ();
+			case ContentEncoding.QuotedPrintable: return new QuotedPrintableValidator ();
+			case ContentEncoding.UUEncode: return new UUValidator ();
+			default: return null;
+			}
+		}
+
 		unsafe ScanContentResult ScanContent (ScanContentType type, byte* inbuf, long beginOffset, int beginLineNumber, bool trimNewLine, DetectionOptions options, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
+			IEncodingValidator? validator = null;
 			var formats = new bool[2];
 			int contentLength = 0;
 			bool incomplete = false;
 			bool midline = false;
+
+			if (DetectMimeComplianceViolations && type == ScanContentType.MimeContent && currentEncoding.HasValue)
+				validator = GetEncodingValidator (currentEncoding.Value);
 
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
@@ -2563,6 +2586,7 @@ namespace MimeKit {
 						OnMultipartEpilogueRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
 						break;
 					default:
+						validator?.Validate (input, contentIndex, inputIndex - contentIndex);
 						OnMimePartContentRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
 						break;
 					}
@@ -2570,6 +2594,15 @@ namespace MimeKit {
 					contentLength += inputIndex - contentIndex;
 				}
 			} while (boundary == BoundaryType.None);
+
+			if (validator is not null && !validator.Complete ()) {
+				if (validator.Encoding == ContentEncoding.Base64)
+					OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Content, beginOffset, beginLineNumber);
+				else if (validator.Encoding == ContentEncoding.UUEncode)
+					OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedContent, beginOffset, beginLineNumber);
+				else
+					OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableContent, beginOffset, beginLineNumber);
+			}
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;
@@ -2797,6 +2830,32 @@ namespace MimeKit {
 			}
 		}
 
+		static bool IsValidBoundary (string? boundary)
+		{
+			if (string.IsNullOrEmpty (boundary))
+				return false;
+
+			// According to RFC 2046, section 5.1.1, the boundary parameter must be no more than 70 characters long.
+			if (boundary.Length > 70)
+				return false;
+
+			// The boundary string must not end with a space.
+			if (boundary[boundary.Length - 1] == ' ')
+				return false;
+
+			// The boundary marker must only contain valid boundary characters.
+#if NET8_0_OR_GREATER
+			return boundary.AsSpan ().IndexOfAnyExcept (ValidBoundaryCharsSV) == -1;
+#else
+			for (int i = 0; i < boundary.Length; i++) {
+				if (ValidBoundaryChars.IndexOf (boundary[i]) == -1)
+					return false;
+			}
+
+			return true;
+#endif
+		}
+
 		unsafe int ConstructMultipart (ContentType contentType, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
 			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : DetectionOptions.None;
@@ -2816,6 +2875,10 @@ namespace MimeKit {
 
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
+
+			// Note: MimeReader can handle invalid boundary markers (but those with '\n' will fail to match, resulting in all content being treated as preamble).
+			if (DetectMimeComplianceViolations && !IsValidBoundary (marker))
+				OnMimeComplianceViolation (MimeComplianceViolation.InvalidMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
 
 			PushBoundary (marker);
 
