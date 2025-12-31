@@ -2453,8 +2453,6 @@ namespace MimeKit {
 					inptr = ParseUtils.EndOfLine (start, inend + 1);
 				}
 
-				// TODO: check total line length > MaxSmtpLineLength to set InvalidWrapping.
-				// Note: Need to take midline line length into account as well.
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
@@ -2481,6 +2479,13 @@ namespace MimeKit {
 						// Only consume this (incomplete) line of data if it *doesn't* match a boundary marker.
 						if (!midline && (boundary = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
 							break;
+
+						if (DetectMimeComplianceViolations) {
+							var offset = GetOffset ((int) (inptr - inbuf));
+
+							if ((offset - lineBeginOffset) > SmtpMaxLineLength)
+								OnMimeComplianceViolation (MimeComplianceViolation.InvalidWrapping, lineBeginOffset, lineNumber);
+						}
 
 						incomplete = false;
 						midline = false;
