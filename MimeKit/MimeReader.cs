@@ -2590,7 +2590,7 @@ namespace MimeKit {
 						OnMultipartEpilogueRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
 						break;
 					default:
-						validator?.Validate (input, contentIndex, inputIndex - contentIndex);
+						validator?.Write (input, contentIndex, inputIndex - contentIndex);
 						OnMimePartContentRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
 						break;
 					}
@@ -2599,7 +2599,7 @@ namespace MimeKit {
 				}
 			} while (boundaryType == BoundaryType.None);
 
-			if (validator is not null && !validator.Complete ()) {
+			if (validator is not null && !validator.Validate ()) {
 				if (validator.Encoding == ContentEncoding.Base64)
 					OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Content, beginOffset, beginLineNumber);
 				else if (validator.Encoding == ContentEncoding.UUEncode)
