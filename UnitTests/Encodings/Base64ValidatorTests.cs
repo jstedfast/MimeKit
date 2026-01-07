@@ -57,9 +57,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var validator = new Base64Validator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.True);
+			Assert.That (validator.Validate (), Is.True);
 		}
 
 		[TestCase (" &% VGhp\r\ncyBp\r\ncyB0aGUgcGxhaW4g  \tdGV4dCBtZ?!XNzY*WdlIQ==")]
@@ -72,9 +72,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var validator = new Base64Validator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[TestCase (4096)]

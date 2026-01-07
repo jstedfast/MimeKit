@@ -72,9 +72,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ($"This is some quoted printable text with an invalid {hex} sequence.");
 			var validator = new QuotedPrintableValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[Test]
@@ -83,9 +83,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ("This is some quoted printable text with an invalid =\rsoft break");
 			var validator = new QuotedPrintableValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 	}
 }
