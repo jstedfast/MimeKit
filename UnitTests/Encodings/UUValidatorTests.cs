@@ -54,9 +54,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.True);
+			Assert.That (validator.Validate (), Is.True);
 		}
 
 		[TestCase ("begin 644 photo.jpg")]
@@ -68,9 +68,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes (beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.True);
+			Assert.That (validator.Validate (), Is.True);
 		}
 
 		[Test]
@@ -79,9 +79,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&E\r\n`\r\nend\r\n");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[Test]
@@ -90,9 +90,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[Test]
@@ -101,9 +101,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\nmore text...");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[TestCase ("b egin 644 photo.jpg")]
@@ -122,9 +122,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes (beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[TestCase ("xnd")]
@@ -136,9 +136,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\n" + endLine);
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[Test]
@@ -147,9 +147,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`x\r\nend\r\n");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[TestCase ("abc")]
@@ -158,9 +158,9 @@ namespace UnitTests.Encodings {
 			var rawData = Encoding.ASCII.GetBytes (prefix + "\r\nbegin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
 			var validator = new UUValidator ();
 
-			validator.Validate (rawData, 0, rawData.Length);
+			validator.Write (rawData, 0, rawData.Length);
 
-			Assert.That (validator.Complete (), Is.False);
+			Assert.That (validator.Validate (), Is.False);
 		}
 
 		[TestCase (4096)]

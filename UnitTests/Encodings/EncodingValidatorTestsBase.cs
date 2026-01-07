@@ -71,9 +71,9 @@ namespace UnitTests.Encodings {
 
 		internal static void AssertArgumentExceptions (IEncodingValidator validator)
 		{
-			Assert.Throws<ArgumentNullException> (() => validator.Validate (null, 0, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => validator.Validate (Array.Empty<byte> (), -1, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => validator.Validate (new byte[1], 0, 10));
+			Assert.Throws<ArgumentNullException> (() => validator.Write (null, 0, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => validator.Write (Array.Empty<byte> (), -1, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => validator.Write (new byte[1], 0, 10));
 		}
 
 		internal static void TestValidator (IEncodingValidator validator, string fileName, byte[] rawData, int bufferSize)
@@ -81,10 +81,10 @@ namespace UnitTests.Encodings {
 			for (int i = 0; i < rawData.Length; i += bufferSize) {
 				int n = Math.Min (bufferSize, rawData.Length - i);
 
-				Assert.That (validator.Validate (rawData, i, n), Is.True, $"{fileName}: Validate failed at offset {i}");
+				validator.Write (rawData, i, n);
 			}
 
-			Assert.That (validator.Complete (), Is.True, $"{fileName}: Complete failed");
+			Assert.That (validator.Validate (), Is.True, $"{fileName}: Complete failed");
 		}
 	}
 }
