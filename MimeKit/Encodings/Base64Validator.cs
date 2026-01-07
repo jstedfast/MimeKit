@@ -83,7 +83,7 @@ namespace MimeKit.Encodings {
 		[SkipLocalsInit]
 #endif
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		unsafe bool Validate (ref byte table, byte* input, int length)
+		unsafe void Validate (ref byte table, byte* input, int length)
 		{
 			byte* inend = input + length;
 			byte* inptr = input;
@@ -97,13 +97,13 @@ namespace MimeKit.Encodings {
 						if (c == (byte) '\n') {
 							if (octets % 4 != 0) {
 								invalid = true;
-								return false;
+								return;
 							}
 
 							octets = 0;
 						} else if (!c.IsWhitespace ()) {
 							invalid = true;
-							return false;
+							return;
 						}
 					} else if (c == (byte) '=') {
 						padding = 1;
@@ -121,7 +121,7 @@ namespace MimeKit.Encodings {
 				if (c == (byte) '\n') {
 					if (octets % 4 != 0) {
 						invalid = true;
-						return false;
+						return;
 					}
 
 					octets = 0;
@@ -129,60 +129,57 @@ namespace MimeKit.Encodings {
 					padding++;
 					octets++;
 
-					if (octets % 4 != 0 || padding > 2) {
+					if (padding > 2) {
 						invalid = true;
-						return false;
+						return;
 					}
 				} else if (!c.IsWhitespace ()) {
 					invalid = true;
-					return false;
+					return;
 				}
 			}
-
-			return true;
 		}
 
 		/// <summary>
-		/// Validate that a buffer contains only valid base64 encoded content.
+		/// Write a sequence of bytes to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Validates that the input buffer contains only valid base64 encoded content.
+		/// Writes a sequence of bytes to the validator.
 		/// </remarks>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <returns><see langword="true"/> if the content is valid; otherwise, <see langword="false"/>.</returns>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="startIndex">The starting index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="input"/> is <see langword="null"/>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
+		/// a valid range in the <paramref name="buffer"/> byte array.
 		/// </exception>
-		public unsafe bool Validate (byte[] input, int startIndex, int length)
+		public unsafe void Write (byte[] buffer, int startIndex, int length)
 		{
-			ValidateArguments (input, startIndex, length);
+			ValidateArguments (buffer, startIndex, length);
 
 			if (invalid)
-				return false;
+				return;
 
-			fixed (byte* inbuf = input) {
+			fixed (byte* inbuf = buffer) {
 				ref byte table = ref MemoryMarshal.GetReference (Base64Decoder.base64_rank);
 
-				return Validate (ref table, inbuf + startIndex, length);
+				Validate (ref table, inbuf + startIndex, length);
 			}
 		}
 
 		/// <summary>
-		/// Complete the validation process.
+		/// Validate the content that was written to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Completes the validation process.
+		/// Validates the content that was written to the validator.
 		/// </remarks>
 		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		public bool Complete ()
+		public bool Validate ()
 		{
-			return invalid || (octets % 4 == 0 && padding <= 2);
+			return !invalid && octets % 4 == 0 && padding <= 2;
 		}
 	}
 }

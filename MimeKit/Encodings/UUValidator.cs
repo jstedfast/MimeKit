@@ -260,7 +260,7 @@ namespace MimeKit.Encodings {
 		[SkipLocalsInit]
 #endif
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		unsafe bool Validate (byte* input, int length)
+		unsafe void Validate (byte* input, int length)
 		{
 			bool last_was_eoln = uulen == 0;
 			byte* inend = input + length;
@@ -269,7 +269,7 @@ namespace MimeKit.Encodings {
 			if (state < UUValidatorState.Ended) {
 				if (state < UUValidatorState.Payload) {
 					if (!ScanBeginMarker (ref inptr, inend))
-						return false;
+						return;
 				}
 
 				while (inptr < inend) {
@@ -282,7 +282,7 @@ namespace MimeKit.Encodings {
 						if (uulen > 0) {
 							// incomplete line
 							state = UUValidatorState.Invalid;
-							return false;
+							return;
 						}
 
 						last_was_eoln = true;
@@ -325,7 +325,7 @@ namespace MimeKit.Encodings {
 					} else {
 						// extra data beyond the end of the uuencoded line
 						state = UUValidatorState.Invalid;
-						return false;
+						return;
 					}
 				}
 			}
@@ -334,7 +334,7 @@ namespace MimeKit.Encodings {
 				while (inptr < inend) {
 					if (!(*inptr).IsWhitespace ()) {
 						state = UUValidatorState.Invalid;
-						return false;
+						return;
 					}
 
 					if (*inptr == (byte) '\n') {
@@ -350,7 +350,7 @@ namespace MimeKit.Encodings {
 			if (state == UUValidatorState.EndedNewLine && inptr < inend) {
 				if (*inptr != (byte) 'e') {
 					state = UUValidatorState.Invalid;
-					return false;
+					return;
 				}
 
 				state = UUValidatorState.E;
@@ -360,7 +360,7 @@ namespace MimeKit.Encodings {
 			if (state == UUValidatorState.E && inptr < inend) {
 				if (*inptr != (byte) 'n') {
 					state = UUValidatorState.Invalid;
-					return false;
+					return;
 				}
 
 				state = UUValidatorState.En;
@@ -370,7 +370,7 @@ namespace MimeKit.Encodings {
 			if (state == UUValidatorState.En && inptr < inend) {
 				if (*inptr != (byte) 'd') {
 					state = UUValidatorState.Invalid;
-					return false;
+					return;
 				}
 
 				state = UUValidatorState.End;
@@ -381,50 +381,47 @@ namespace MimeKit.Encodings {
 				while (inptr < inend) {
 					if (!(*inptr).IsWhitespace ()) {
 						state = UUValidatorState.Invalid;
-						return false;
+						return;
 					}
 
 					inptr++;
 				}
 			}
-
-			return true;
 		}
 
 		/// <summary>
-		/// Validate that a buffer contains only valid base64 encoded content.
+		/// Write a sequence of bytes to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Validates that the input buffer contains only valid base64 encoded content.
+		/// Writes a sequence of bytes to the validator.
 		/// </remarks>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <returns><see langword="true"/> if the content is valid; otherwise, <see langword="false"/>.</returns>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="startIndex">The starting index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="input"/> is <see langword="null"/>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
+		/// a valid range in the <paramref name="buffer"/> byte array.
 		/// </exception>
-		public unsafe bool Validate (byte[] input, int startIndex, int length)
+		public unsafe void Write (byte[] buffer, int startIndex, int length)
 		{
-			ValidateArguments (input, startIndex, length);
+			ValidateArguments (buffer, startIndex, length);
 
-			fixed (byte* inbuf = input) {
-				return Validate (inbuf + startIndex, length);
+			fixed (byte* inbuf = buffer) {
+				Validate (inbuf + startIndex, length);
 			}
 		}
 
 		/// <summary>
-		/// Complete the validation process.
+		/// Validate the content that was written to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Completes the validation process.
+		/// Validates the content that was written to the validator.
 		/// </remarks>
 		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		public bool Complete ()
+		public bool Validate ()
 		{
 			// Note: the only valid state to end on is the 'end' state.
 			return state == UUValidatorState.End;
