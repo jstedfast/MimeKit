@@ -45,31 +45,30 @@ namespace MimeKit.Encodings {
 		ContentEncoding Encoding { get; }
 
 		/// <summary>
-		/// Validate that a buffer contains only valid encoded content.
+		/// Write a sequence of bytes to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Validates that the input buffer contains only valid encoded content.
+		/// Writes a sequence of bytes to the validator.
 		/// </remarks>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <returns><see langword="true"/> if the content is valid; otherwise, <see langword="false"/>.</returns>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="startIndex">The starting index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="input"/> is <see langword="null"/>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
+		/// a valid range in the <paramref name="buffer"/> byte array.
 		/// </exception>
-		bool Validate (byte[] input, int startIndex, int length);
+		void Write (byte[] buffer, int startIndex, int length);
 
 		/// <summary>
-		/// Complete the validation process.
+		/// Validate the content that was written to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Completes the validation process.
+		/// Validates the content that was written to the validator.
 		/// </remarks>
 		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		bool Complete ();
+		bool Validate ();
 	}
 }

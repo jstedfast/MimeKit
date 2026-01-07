@@ -81,10 +81,10 @@ namespace UnitTests.Encodings {
 			for (int i = 0; i < rawData.Length; i += bufferSize) {
 				int n = Math.Min (bufferSize, rawData.Length - i);
 
-				Assert.That (validator.Validate (rawData, i, n), Is.True, $"{fileName}: Validate failed at offset {i}");
+				validator.Write (rawData, i, n);
 			}
 
-			Assert.That (validator.Complete (), Is.True, $"{fileName}: Complete failed");
+			Assert.That (validator.Validate (), Is.True, $"{fileName}: Complete failed");
 		}
 	}
 }

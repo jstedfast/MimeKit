@@ -89,7 +89,7 @@ namespace MimeKit.Encodings {
 		[SkipLocalsInit]
 #endif
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		unsafe bool Validate (byte* input, int length)
+		unsafe void Validate (byte* input, int length)
 		{
 			byte* inend = input + length;
 			byte* inptr = input;
@@ -119,7 +119,7 @@ namespace MimeKit.Encodings {
 					} else {
 						// invalid encoded sequence
 						state = QpValidatorState.Invalid;
-						return false;
+						return;
 					}
 					break;
 				case QpValidatorState.SoftBreak:
@@ -129,7 +129,7 @@ namespace MimeKit.Encodings {
 					if (c != '\n') {
 						// invalid encoded sequence
 						state = QpValidatorState.Invalid;
-						return false;
+						return;
 					}
 					break;
 				case QpValidatorState.DecodeByte:
@@ -138,54 +138,51 @@ namespace MimeKit.Encodings {
 					if (!c.IsXDigit ()) {
 						// invalid encoded sequence
 						state = QpValidatorState.Invalid;
-						return false;
+						return;
 					}
 
 					state = QpValidatorState.PassThrough;
 					break;
 				}
 			}
-
-			return true;
 		}
 
 		/// <summary>
-		/// Validate that a buffer contains only valid quoted-printable encoded content.
+		/// Write a sequence of bytes to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Validates that the input buffer contains only valid quoted-printable encoded content.
+		/// Writes a sequence of bytes to the validator.
 		/// </remarks>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <returns><see langword="true"/> if the content is valid; otherwise, <see langword="false"/>.</returns>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="startIndex">The starting index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="input"/> is <see langword="null"/>.
+		/// <paramref name="buffer"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
+		/// a valid range in the <paramref name="buffer"/> byte array.
 		/// </exception>
-		public unsafe bool Validate (byte[] input, int startIndex, int length)
+		public unsafe void Write (byte[] buffer, int startIndex, int length)
 		{
-			ValidateArguments (input, startIndex, length);
+			ValidateArguments (buffer, startIndex, length);
 
 			if (state == QpValidatorState.Invalid)
-				return false;
+				return;
 
-			fixed (byte* inbuf = input) {
-				return Validate (inbuf + startIndex, length);
+			fixed (byte* inbuf = buffer) {
+				Validate (inbuf + startIndex, length);
 			}
 		}
 
 		/// <summary>
-		/// Complete the validation process.
+		/// Validate the content that was written to the validator.
 		/// </summary>
 		/// <remarks>
-		/// Completes the validation process.
+		/// Validates the content that was written to the validator.
 		/// </remarks>
 		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		public bool Complete ()
+		public bool Validate ()
 		{
 			// Note: the only valid state to end on is the pass-through state.
 			return state == QpValidatorState.PassThrough;
