@@ -267,7 +267,7 @@ namespace MimeKit.Encodings {
 			var utf8 = new ReadOnlySpan<byte> (inptr, remainingInput);
 			var decoded = new Span<byte> (outptr, remainingOutput);
 
-			var status = Base64.DecodeFromUtf8 (utf8, decoded, out int bytesRead, out int bytesWritten, false);
+			var status = Base64.DecodeFromUtf8 (utf8, decoded, out int bytesRead, out int bytesWritten, true);
 			outptr += bytesWritten;
 			inptr += bytesRead;
 
