@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2025 .NET Foundation and Contributors
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -61,6 +61,9 @@ namespace MimeKit.Encodings {
 			Invalid
 		}
 
+		readonly MimeReader reader;
+		long streamOffset;
+		int lineNumber;
 		UUValidatorState state;
 		byte nsaved;
 		byte uulen;
@@ -71,8 +74,14 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new Unix-to-Unix validator.
 		/// </remarks>
-		public UUValidator ()
+		/// <param name="reader">The mime reader.</param>
+		/// <param name="streamOffset">The current stream offset.</param>
+		/// <param name="lineNumber">The current line number.</param>
+		public UUValidator (MimeReader reader, long streamOffset, int lineNumber)
 		{
+			this.reader = reader;
+			this.streamOffset = streamOffset;
+			this.lineNumber = lineNumber;
 		}
 
 		/// <summary>
@@ -102,6 +111,7 @@ namespace MimeKit.Encodings {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe bool ScanBeginMarker (ref byte* inptr, byte* inend)
 		{
+			// TODO: properly track streamOffset and lineNumber for error reporting
 			while (inptr < inend) {
 				if (state == UUValidatorState.ExpectBegin) {
 					if (nsaved != 0 && nsaved != (byte) '\n') {
@@ -262,6 +272,7 @@ namespace MimeKit.Encodings {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe void Validate (byte* input, int length)
 		{
+			// TODO: properly track streamOffset and lineNumber for error reporting
 			bool last_was_eoln = uulen == 0;
 			byte* inend = input + length;
 			byte* inptr = input;
@@ -415,16 +426,15 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Validate the content that was written to the validator.
+		/// Flush the validator state.
 		/// </summary>
 		/// <remarks>
-		/// Validates the content that was written to the validator.
+		/// Flushes the validator state.
 		/// </remarks>
-		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		public bool Validate ()
+		public void Flush ()
 		{
 			// Note: the only valid state to end on is the 'end' state.
-			return state == UUValidatorState.End;
+			// TODO: report any remaining error(s).
 		}
 	}
 }
