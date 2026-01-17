@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2025 .NET Foundation and Contributors
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,10 +45,12 @@ namespace MimeKit.Encodings {
 			PassThrough,
 			EqualSign,
 			SoftBreak,
-			DecodeByte,
-			Invalid
+			DecodeByte
 		}
 
+		readonly MimeReader reader;
+		long streamOffset;
+		int lineNumber;
 		QpValidatorState state;
 
 		/// <summary>
@@ -57,8 +59,14 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new quoted-printable validator.
 		/// </remarks>
-		public QuotedPrintableValidator ()
+		/// <param name="reader">The mime reader.</param>
+		/// <param name="streamOffset">The current stream offset.</param>
+		/// <param name="lineNumber">The current line number.</param>
+		public QuotedPrintableValidator (MimeReader reader, long streamOffset, int lineNumber)
 		{
+			this.reader = reader;
+			this.streamOffset = streamOffset;
+			this.lineNumber = lineNumber;
 		}
 
 		/// <summary>
@@ -104,6 +112,8 @@ namespace MimeKit.Encodings {
 						if (c == '=') {
 							state = QpValidatorState.EqualSign;
 							break;
+						} else if (c == '\n') {
+							lineNumber++;
 						}
 					}
 					break;
@@ -116,35 +126,39 @@ namespace MimeKit.Encodings {
 						state = QpValidatorState.SoftBreak;
 					} else if (c == '\n') {
 						state = QpValidatorState.PassThrough;
+						lineNumber++;
 					} else {
-						// invalid encoded sequence
-						state = QpValidatorState.Invalid;
-						return;
+						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						state = QpValidatorState.PassThrough;
 					}
 					break;
 				case QpValidatorState.SoftBreak:
-					state = QpValidatorState.PassThrough;
 					c = *inptr++;
 
-					if (c != '\n') {
-						// invalid encoded sequence
-						state = QpValidatorState.Invalid;
-						return;
+					if (c == '\n') {
+						lineNumber++;
+					} else {
+						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber);
 					}
+
+					state = QpValidatorState.PassThrough;
 					break;
 				case QpValidatorState.DecodeByte:
 					c = *inptr++;
 
 					if (!c.IsXDigit ()) {
-						// invalid encoded sequence
-						state = QpValidatorState.Invalid;
-						return;
+						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+
+						if (c == '\n')
+							lineNumber++;
 					}
 
 					state = QpValidatorState.PassThrough;
 					break;
 				}
 			}
+
+			streamOffset += length;
 		}
 
 		/// <summary>
@@ -167,25 +181,24 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (buffer, startIndex, length);
 
-			if (state == QpValidatorState.Invalid)
-				return;
-
 			fixed (byte* inbuf = buffer) {
 				Validate (inbuf + startIndex, length);
 			}
 		}
 
 		/// <summary>
-		/// Validate the content that was written to the validator.
+		/// Flush the validator state.
 		/// </summary>
 		/// <remarks>
-		/// Validates the content that was written to the validator.
+		/// Flushes the validator state.
 		/// </remarks>
-		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		public bool Validate ()
+		public void Flush ()
 		{
 			// Note: the only valid state to end on is the pass-through state.
-			return state == QpValidatorState.PassThrough;
+			if (state == QpValidatorState.EqualSign || state == QpValidatorState.DecodeByte)
+				reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber);
+			else if (state == QpValidatorState.SoftBreak)
+				reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber);
 		}
 	}
 }

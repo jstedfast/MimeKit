@@ -400,7 +400,7 @@ namespace MimeKit {
 			bool midline = false;
 
 			if (DetectMimeComplianceViolations && type == ScanContentType.MimeContent && currentEncoding.HasValue)
-				validator = GetEncodingValidator (currentEncoding.Value);
+				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
 
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
@@ -436,14 +436,7 @@ namespace MimeKit {
 				}
 			} while (boundary == BoundaryType.None);
 
-			if (validator is not null && !validator.Validate ()) {
-				if (validator.Encoding == ContentEncoding.Base64)
-					OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Content, beginOffset, beginLineNumber);
-				else if (validator.Encoding == ContentEncoding.UUEncode)
-					OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedContent, beginOffset, beginLineNumber);
-				else
-					OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableContent, beginOffset, beginLineNumber);
-			}
+			validator?.Flush ();
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;
