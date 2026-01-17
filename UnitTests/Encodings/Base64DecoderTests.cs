@@ -33,6 +33,8 @@ namespace UnitTests.Encodings {
 	[TestFixture]
 	public class Base64DecoderTests : MimeDecoderTestsBase
 	{
+		static readonly bool DefaultHwAccel = Base64Decoder.EnableHardwareAcceleration;
+
 		static readonly string[] base64EncodedPatterns = {
 			"VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ==",
 			"VGhpcyBpcyBhIHRleHQgd2hpY2ggaGFzIHRvIGJlIHBhZGRlZCBvbmNlLi4=",
@@ -109,34 +111,40 @@ namespace UnitTests.Encodings {
 		[TestCase (false)]
 		public void TestDecodePatterns (bool enableHwAccel)
 		{
-			var decoder = new Base64Decoder () { EnableHardwareAcceleration = enableHwAccel };
-			var output = new byte[4096];
+			Base64Decoder.EnableHardwareAcceleration = enableHwAccel;
 
-			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Base64));
+			try {
+				var decoder = new Base64Decoder ();
+				var output = new byte[4096];
 
-			for (int i = 0; i < base64EncodedPatterns.Length; i++) {
-				decoder.Reset ();
-				var buf = Encoding.ASCII.GetBytes (base64EncodedPatterns[i]);
-				int n = decoder.Decode (buf, 0, buf.Length, output);
-				var actual = Encoding.ASCII.GetString (output, 0, n);
-				Assert.That (actual, Is.EqualTo (base64DecodedPatterns[i]), $"Failed to decode base64EncodedPatterns[{i}]");
-			}
+				Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Base64));
 
-			for (int i = 0; i < base64EncodedLongPatterns.Length; i++) {
-				decoder.Reset ();
-				var buf = Encoding.ASCII.GetBytes (base64EncodedLongPatterns[i]);
-				int n = decoder.Decode (buf, 0, buf.Length, output);
+				for (int i = 0; i < base64EncodedPatterns.Length; i++) {
+					decoder.Reset ();
+					var buf = Encoding.ASCII.GetBytes (base64EncodedPatterns[i]);
+					int n = decoder.Decode (buf, 0, buf.Length, output);
+					var actual = Encoding.ASCII.GetString (output, 0, n);
+					Assert.That (actual, Is.EqualTo (base64DecodedPatterns[i]), $"Failed to decode base64EncodedPatterns[{i}]");
+				}
 
-				for (int j = 0; j < n; j++)
-					Assert.That ((byte) (j + i), Is.EqualTo (output[j]), $"Failed to decode base64EncodedLongPatterns[{i}]");
-			}
+				for (int i = 0; i < base64EncodedLongPatterns.Length; i++) {
+					decoder.Reset ();
+					var buf = Encoding.ASCII.GetBytes (base64EncodedLongPatterns[i]);
+					int n = decoder.Decode (buf, 0, buf.Length, output);
 
-			for (int i = 0; i < base64EncodedPatternsExtraPadding.Length; i++) {
-				decoder.Reset ();
-				var buf = Encoding.ASCII.GetBytes (base64EncodedPatternsExtraPadding[i]);
-				int n = decoder.Decode (buf, 0, buf.Length, output);
-				var actual = Encoding.ASCII.GetString (output, 0, n);
-				Assert.That (actual, Is.EqualTo (base64DecodedPatterns[0]), $"Failed to decode base64EncodedPatternsExtraPadding[{i}]");
+					for (int j = 0; j < n; j++)
+						Assert.That ((byte) (j + i), Is.EqualTo (output[j]), $"Failed to decode base64EncodedLongPatterns[{i}]");
+				}
+
+				for (int i = 0; i < base64EncodedPatternsExtraPadding.Length; i++) {
+					decoder.Reset ();
+					var buf = Encoding.ASCII.GetBytes (base64EncodedPatternsExtraPadding[i]);
+					int n = decoder.Decode (buf, 0, buf.Length, output);
+					var actual = Encoding.ASCII.GetString (output, 0, n);
+					Assert.That (actual, Is.EqualTo (base64DecodedPatterns[0]), $"Failed to decode base64EncodedPatternsExtraPadding[{i}]");
+				}
+			} finally {
+				Base64Decoder.EnableHardwareAcceleration = DefaultHwAccel;
 			}
 		}
 
@@ -146,14 +154,21 @@ namespace UnitTests.Encodings {
 		{
 			const string input = "VGhpcyBpcyB0aGUgcGF5bG9hZCBvZiB0aGUgZmlyc3QgYmFzZTY0LWVuY29kZWQgYmxvY2sgb2Yg\r\ndGV4dC4=\r\nQW5kIHRoaXMgaXMgdGhlIHBheWxvYWQgb2YgdGhlIHNlY29uZCBiYXNlNjQtZW5jb2RlZCBibG9j\r\nayBvZiB0ZXh0Lg==\r\n";
 			const string expected = "This is the payload of the first base64-encoded block of text.And this is the payload of the second base64-encoded block of text.";
-			var data = Encoding.ASCII.GetBytes (input);
-			var decoder = new Base64Decoder () { EnableHardwareAcceleration = enableHwAccel };
-			var output = new byte[decoder.EstimateOutputLength (data.Length)];
 
-			int n = decoder.Decode (data, 0, data.Length, output);
-			var actual = Encoding.ASCII.GetString (output, 0, n);
+			Base64Decoder.EnableHardwareAcceleration = enableHwAccel;
 
-			Assert.That (actual, Is.EqualTo (expected), "Failed to decode two blocks of base64-encoded text.");
+			try {
+				var data = Encoding.ASCII.GetBytes (input);
+				var decoder = new Base64Decoder ();
+				var output = new byte[decoder.EstimateOutputLength (data.Length)];
+
+				int n = decoder.Decode (data, 0, data.Length, output);
+				var actual = Encoding.ASCII.GetString (output, 0, n);
+
+				Assert.That (actual, Is.EqualTo (expected), "Failed to decode two blocks of base64-encoded text.");
+			} finally {
+				Base64Decoder.EnableHardwareAcceleration = DefaultHwAccel;
+			}
 		}
 
 		[TestCase (true, 4096)]
@@ -166,7 +181,13 @@ namespace UnitTests.Encodings {
 		[TestCase (false, 1)]
 		public void TestDecode (bool enableHwAccel, int bufferSize)
 		{
-			TestDecoder (new Base64Decoder () { EnableHardwareAcceleration = enableHwAccel }, photo, "photo.b64", bufferSize);
+			Base64Decoder.EnableHardwareAcceleration = enableHwAccel;
+
+			try {
+				TestDecoder (new Base64Decoder (), photo, "photo.b64", bufferSize);
+			} finally {
+				Base64Decoder.EnableHardwareAcceleration = DefaultHwAccel;
+			}
 		}
 	}
 }

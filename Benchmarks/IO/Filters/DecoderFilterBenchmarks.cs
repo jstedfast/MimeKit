@@ -87,24 +87,32 @@ namespace Benchmarks.IO.Filters {
 		[Benchmark]
 		public void Base64Decode ()
 		{
-			Decode (Base64Data, new Base64Decoder () { EnableHardwareAcceleration = false });
+			Base64Decoder.EnableHardwareAcceleration = false;
+
+			Decode (Base64Data, new Base64Decoder ());
 		}
 
 		[Benchmark]
 		public void HwAccelBase64Decode ()
 		{
+			Base64Decoder.EnableHardwareAcceleration = true;
+
 			Decode (Base64Data, new Base64Decoder ());
 		}
 
 		[Benchmark]
 		public void Base64DecodeStream ()
 		{
-			DecodeStream (Base64Data, new Base64Decoder () { EnableHardwareAcceleration = false });
+			Base64Decoder.EnableHardwareAcceleration = false;
+
+			DecodeStream (Base64Data, new Base64Decoder ());
 		}
 
 		[Benchmark]
 		public void HwAccelBase64DecodeStream ()
 		{
+			Base64Decoder.EnableHardwareAcceleration = true;
+
 			DecodeStream (Base64Data, new Base64Decoder ());
 		}
 

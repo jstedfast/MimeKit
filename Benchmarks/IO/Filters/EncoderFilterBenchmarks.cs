@@ -87,24 +87,32 @@ namespace Benchmarks.IO.Filters {
 		[Benchmark]
 		public void Base64EncodeStream ()
 		{
-			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength) { EnableHardwareAcceleration = false });
+			Base64Encoder.EnableHardwareAcceleration = false;
+
+			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 
 		[Benchmark]
 		public void HwAccelBase64EncodeStream ()
 		{
+			Base64Encoder.EnableHardwareAcceleration = true;
+
 			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 
 		[Benchmark]
 		public void Base64Encode ()
 		{
-			Encode (BinaryData, new Base64Encoder (MaxLineLength) { EnableHardwareAcceleration = false });
+			Base64Encoder.EnableHardwareAcceleration = false;
+
+			Encode (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 
 		[Benchmark]
 		public void HwAccelBase64Encode ()
 		{
+			Base64Encoder.EnableHardwareAcceleration = true;
+
 			Encode (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 

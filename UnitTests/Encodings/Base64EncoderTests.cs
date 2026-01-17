@@ -31,6 +31,8 @@ namespace UnitTests.Encodings {
 	[TestFixture]
 	public class Base64EncoderTests : MimeEncoderTestsBase
 	{
+		static readonly bool DefaultHwAccel = Base64Encoder.EnableHardwareAcceleration;
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -69,14 +71,26 @@ namespace UnitTests.Encodings {
 		[TestCase (false, 1)]
 		public void TestEncode (bool enableHwAccel, int bufferSize)
 		{
-			TestEncoder (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, "photo.jpg", photo, "photo.b64", bufferSize);
+			Base64Encoder.EnableHardwareAcceleration = enableHwAccel;
+
+			try {
+				TestEncoder (new Base64Encoder (), "photo.jpg", photo, "photo.b64", bufferSize);
+			} finally {
+				Base64Encoder.EnableHardwareAcceleration = DefaultHwAccel;
+			}
 		}
 
 		[TestCase (false)]
 		[TestCase (true)]
 		public void TestFlush (bool enableHwAccel)
 		{
-			TestEncoderFlush (new Base64Encoder () { EnableHardwareAcceleration = enableHwAccel }, "photo.jpg", photo, "photo.b64");
+			Base64Encoder.EnableHardwareAcceleration = enableHwAccel;
+
+			try {
+				TestEncoderFlush (new Base64Encoder (), "photo.jpg", photo, "photo.b64");
+			} finally {
+				Base64Encoder.EnableHardwareAcceleration = DefaultHwAccel;
+			}
 		}
 	}
 }

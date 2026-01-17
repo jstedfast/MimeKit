@@ -60,6 +60,15 @@ namespace MimeKit.Encodings {
 		byte saved2;
 		byte saved;
 
+		static Base64Encoder ()
+		{
+#if NET9_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
+#elif NET6_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
+#endif
+		}
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
 		/// </summary>
@@ -76,12 +85,6 @@ namespace MimeKit.Encodings {
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			quartetsPerLine = maxLineLength / 4;
-
-#if NET9_0_OR_GREATER
-			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
-#elif NET6_0_OR_GREATER
-			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
-#endif
 		}
 
 		/// <summary>
@@ -94,9 +97,6 @@ namespace MimeKit.Encodings {
 		public IMimeEncoder Clone ()
 		{
 			return new Base64Encoder (quartetsPerLine * 4) {
-#if NET6_0_OR_GREATER
-				EnableHardwareAcceleration = EnableHardwareAcceleration,
-#endif
 				quartets = quartets,
 				saved1 = saved1,
 				saved2 = saved2,
@@ -109,10 +109,11 @@ namespace MimeKit.Encodings {
 		/// Get or set whether the <see cref="Base64Encoder"/> should use hardware acceleration when available.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether the <see cref="Base64Encoder"/> should use hardware acceleration when available.
+		/// <para>Gets or sets whether the <see cref="Base64Encoder"/> should use hardware acceleration when available.</para>
+		/// <note type="note">Hardware acceleration defaults to <see langword="true"/> if the system supports it.</note>
 		/// </remarks>
 		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
-		public bool EnableHardwareAcceleration {
+		public static bool EnableHardwareAcceleration {
 			get; set;
 		}
 #endif

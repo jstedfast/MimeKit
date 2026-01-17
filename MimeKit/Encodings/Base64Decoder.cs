@@ -69,6 +69,21 @@ namespace MimeKit.Encodings {
 		uint saved;
 		byte bytes;
 
+		static Base64Decoder ()
+		{
+#if DOTNET_BASE64_DECODER_GETS_FIXED
+#if NET9_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
+#elif NET6_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
+#endif
+#elif NET6_0_OR_GREATER
+			// Disable hardware acceleration by default due to a .NET runtime bug.
+			// See https://github.com/jstedfast/MimeKit/pull/1214 for details.
+			EnableHardwareAcceleration = false;
+#endif
+		}
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Decoder"/> class.
 		/// </summary>
@@ -77,11 +92,6 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public Base64Decoder ()
 		{
-#if NET9_0_OR_GREATER
-			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
-#elif NET6_0_OR_GREATER
-			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
-#endif
 		}
 
 		/// <summary>
@@ -94,9 +104,6 @@ namespace MimeKit.Encodings {
 		public IMimeDecoder Clone ()
 		{
 			return new Base64Decoder {
-#if NET6_0_OR_GREATER
-				EnableHardwareAcceleration = EnableHardwareAcceleration,
-#endif
 				previous = previous,
 				saved = saved,
 				bytes = bytes
@@ -108,10 +115,12 @@ namespace MimeKit.Encodings {
 		/// Get or set whether the <see cref="Base64Decoder"/> should use hardware acceleration when available.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether the <see cref="Base64Decoder"/> should use hardware acceleration when available.
+		/// <para>Gets or sets whether the <see cref="Base64Decoder"/> should use hardware acceleration when available.</para>
+		/// <note type="note">Hardware acceleration currently defaults to <see langword="false"/> even if the system supports it
+		/// due to a bug in the underlying .NET Runtime implementation of <see cref="Base64.DecodeFromUtf8(ReadOnlySpan{byte}, Span{byte}, out int, out int, bool)"/>.</note>
 		/// </remarks>
 		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
-		public bool EnableHardwareAcceleration {
+		public static bool EnableHardwareAcceleration {
 			get; set;
 		}
 #endif
