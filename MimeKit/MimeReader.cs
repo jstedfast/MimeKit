@@ -1336,7 +1336,7 @@ namespace MimeKit {
 		/// <param name="violation">The type of MIME compliance violation.</param>
 		/// <param name="offset">The offset into the stream where the violation was detected.</param>
 		/// <param name="lineNumber">The line number where the violation was detected.</param>
-		protected virtual void OnMimeComplianceViolation (MimeComplianceViolation violation, long offset, int lineNumber)
+		internal protected virtual void OnMimeComplianceViolation (MimeComplianceViolation violation, long offset, int lineNumber)
 		{
 			ComplianceViolation?.Invoke (this, new MimeComplianceViolationEventArgs (violation, offset, lineNumber));
 		}
@@ -2548,12 +2548,12 @@ namespace MimeKit {
 			MultipartEpilogue
 		}
 
-		static IEncodingValidator? GetEncodingValidator (ContentEncoding encoding)
+		IEncodingValidator? GetEncodingValidator (ContentEncoding encoding, long beginOffset, int beginLineNumber)
 		{
 			switch (encoding) {
-			case ContentEncoding.Base64: return new Base64Validator ();
-			case ContentEncoding.QuotedPrintable: return new QuotedPrintableValidator ();
-			case ContentEncoding.UUEncode: return new UUValidator ();
+			case ContentEncoding.Base64: return new Base64Validator (this, beginOffset, beginLineNumber);
+			case ContentEncoding.QuotedPrintable: return new QuotedPrintableValidator (this, beginOffset, beginLineNumber);
+			case ContentEncoding.UUEncode: return new UUValidator (this, beginOffset, beginLineNumber);
 			default: return null;
 			}
 		}
@@ -2568,7 +2568,7 @@ namespace MimeKit {
 			bool midline = false;
 
 			if (DetectMimeComplianceViolations && type == ScanContentType.MimeContent && currentEncoding.HasValue)
-				validator = GetEncodingValidator (currentEncoding.Value);
+				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
 
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
@@ -2600,14 +2600,7 @@ namespace MimeKit {
 				}
 			} while (boundary == BoundaryType.None);
 
-			if (validator is not null && !validator.Validate ()) {
-				if (validator.Encoding == ContentEncoding.Base64)
-					OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Content, beginOffset, beginLineNumber);
-				else if (validator.Encoding == ContentEncoding.UUEncode)
-					OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedContent, beginOffset, beginLineNumber);
-				else
-					OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableContent, beginOffset, beginLineNumber);
-			}
+			validator?.Flush ();
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;

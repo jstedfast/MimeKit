@@ -214,15 +214,64 @@ namespace MimeKit {
 		UnexpectedNullBytesInBody,
 
 		/// <summary>
-		/// The base64 encoded content of a MIME part contained invalid characters or was otherwise malformed.
+		/// The base64 encoded content of a MIME part contained an incomplete quantum on a line.
 		/// </summary>
 		/// <remarks>
-		/// Invalid characters in base64 content and/or erroneous '=' padding characters dispersed within the middle of the base64 block
-		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations which may stop decoding as
-		/// soon as either scenario is encountered. Some base64 decoders will ignore '=' padding characters if any are found within the
-		/// middle of the base64 encoded block while others will treat decode it as 6 bits of 0's.
+		/// The MIME specifications require that each line of base64 encoded content be a multiple of 4 bytes (a "quantum") in length.
+		/// Lines that break a base64 quantum across multiple lines is not allowed by the specifications and can therefore lead to
+		/// inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidBase64Content,
+		IncompleteBase64Quantum,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained invalid characters.
+		/// </summary>
+		/// <remarks>
+		/// Invalid characters within base64 content can lead to decoding issues and inconsistent behavior among different MIME
+		/// parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these
+		/// characters and continue decoding.
+		/// </remarks>
+		InvalidBase64Character,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained invalid padding.
+		/// </summary>
+		/// <remarks>
+		/// Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME
+		/// parser implementations. Some base64 decoders will ignore extraneous '=' padding characters if any are found within
+		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
+		/// soon as they are encountered.
+		/// </remarks>
+		InvalidBase64Padding,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained characters after the padding.
+		/// </summary>
+		/// <remarks>
+		/// Base64 characters found after padding (<c>'='</c>) in a base64 encoded block are not allowed by the MIME specifications
+		/// and can lead to inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		Base64CharactersAfterPadding,
+
+		/// <summary>
+		/// The quoted-printable encoded content of a MIME part contained an invalid hex sequence after an '=' character.
+		/// </summary>
+		/// <remarks>
+		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
+		/// different MIME parser implementations.
+		/// </remarks>
+		InvalidQuotedPrintableEncoding,
+
+		/// <summary>
+		/// The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.
+		/// </summary>
+		/// <remarks>
+		/// A soft line break in quoted-printable content is represented by an equal sign (=) character followed immediately by a
+		/// &lt;CR&gt;&lt;LF&gt; sequence. This error indicates that an equal sign was immediately followed by an incomplete
+		/// &lt;CR&gt;&lt;LF&gt; sequence which can lead to decoding issues and inconsistent behavior among different MIME parser
+		/// implementations.
+		/// </remarks>
+		InvalidQuotedPrintableSoftBreak,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
@@ -232,14 +281,5 @@ namespace MimeKit {
 		/// among different MIME parser implementations.
 		/// </remarks>
 		InvalidUUEncodedContent,
-
-		/// <summary>
-		/// The quoted-printable encoded content of a MIME part contained invalid characters or was otherwise malformed.
-		/// </summary>
-		/// <remarks>
-		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
-		/// different MIME parser implementations.
-		/// </remarks>
-		InvalidQuotedPrintableContent
 	}
 }
