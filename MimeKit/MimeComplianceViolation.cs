@@ -77,6 +77,9 @@ namespace MimeKit {
 		/// <summary>
 		/// A Content-Type header value was not valid.
 		/// </summary>
+		/// <remarks>
+		/// This indicates that the Content-Type header was not properly formatted and could not be parsed.
+		/// </remarks>
 		InvalidContentType,
 
 		/// <summary>
@@ -92,6 +95,9 @@ namespace MimeKit {
 		/// <summary>
 		/// A Content-Transfer-Encoding header value was not valid.
 		/// </summary>
+		/// <remarks>
+		/// This indicates that the Content-Transfer-Encoding header did not contain a valid value and could not be parsed.
+		/// </remarks>
 		InvalidContentTransferEncoding,
 
 		/// <summary>
@@ -125,6 +131,9 @@ namespace MimeKit {
 		/// <summary>
 		/// A line was found that was longer than the SMTP limit of 1000 characters.
 		/// </summary>
+		/// <remarks>
+		/// This indicates that a line was longer than the SMTP limit of 1000 characters.
+		/// </remarks>
 		InvalidWrapping,
 
 		/// <summary>
@@ -168,11 +177,20 @@ namespace MimeKit {
 		/// <summary>
 		/// A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected.
 		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification requires that headers are strictly US-ASCII. Header values that are not
+		/// US-ASCII should be encoded using the encoding mechanism described in the MIME specification and/or should be
+		/// valid UTF-8 as allowed in the Internationalized Email Headers specification.
+		/// </remarks>
 		Unexpected8BitBytesInHeaders,
 
 		/// <summary>
 		/// A MIME part's body contained 8-bit content where only 7-bit content was expected.
 		/// </summary>
+		/// <remarks>
+		/// This indicates that the Content-Transfer-Encoding header for a MIME part was set to <c>7bit</c> but contained
+		/// non-ASCII text (or potentially even binary data).
+		/// </remarks>
 		Unexpected8BitBytesInBody,
 
 		/// <summary>
