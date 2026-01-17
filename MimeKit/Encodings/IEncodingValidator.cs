@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2025 .NET Foundation and Contributors
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -63,12 +63,11 @@ namespace MimeKit.Encodings {
 		void Write (byte[] buffer, int startIndex, int length);
 
 		/// <summary>
-		/// Validate the content that was written to the validator.
+		/// Flush the validator state.
 		/// </summary>
 		/// <remarks>
-		/// Validates the content that was written to the validator.
+		/// Flushes the validator state.
 		/// </remarks>
-		/// <returns><see langword="true"/> if the content was valid; otherwise, <see langword="false"/>.</returns>
-		bool Validate ();
+		void Flush ();
 	}
 }
