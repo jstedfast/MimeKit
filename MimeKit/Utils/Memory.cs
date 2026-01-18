@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2025 .NET Foundation and Contributors
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -58,9 +58,9 @@ namespace MimeKit.Utils {
 		/// <param name="options">A bitwise set of options specifying classes of bytes to detect along the way.</param>
 		/// <param name="detected">A bitwise set of results indicating which classes of bytes were detected.</param>
 		/// <returns>The index of the first matching byte; otherwise, <c>-1</c>.</returns>
-		public unsafe static int IndexOf (byte* searchSpace, int length, byte value, DetectionOptions options, out DetectionResults detected)
+		public unsafe static int IndexOf (byte* searchSpace, int length, byte value, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
-			DetectionResults mask = (DetectionResults) ((int) options);
+			ByteDetectionResults mask = (ByteDetectionResults) ((int) options);
 			int index;
 
 #if NETCOREAPP
@@ -90,12 +90,12 @@ namespace MimeKit.Utils {
 #if NETCOREAPP
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		internal static unsafe int Avx2IndexOf (byte* searchSpace, int length, byte value, DetectionOptions options, out DetectionResults detected)
+		internal static unsafe int Avx2IndexOf (byte* searchSpace, int length, byte value, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
 			nint lengthToExamine = length, offset = 0;
 			uint uValue = value;
 
-			detected = DetectionResults.Nothing;
+			detected = ByteDetectionResults.Nothing;
 
 			// Note: We use Vector128 instead of Vector256 for this check because this AVX2 implementation will
 			// also use SSE2 if we end up not having enough data available to use the AVX2 vector instructions.
@@ -112,11 +112,11 @@ namespace MimeKit.Utils {
 				return index;
 
 			// For improved performance, disable detection options that we have already detected.
-			if ((detected & DetectionResults.Detected8Bit) != 0)
-				options &= ~DetectionOptions.Detect8Bit;
+			if ((detected & ByteDetectionResults.Detected8Bit) != 0)
+				options &= ~ByteDetectionOptions.Detect8Bit;
 
-			if ((detected & DetectionResults.DetectedNulls) != 0)
-				options &= ~DetectionOptions.DetectNulls;
+			if ((detected & ByteDetectionResults.DetectedNulls) != 0)
+				options &= ~ByteDetectionOptions.DetectNulls;
 
 			// We only get past the PreSequentialScan if the remaining length is greater than the length of at least 1 Vector128<byte>.
 			// After processing Vector128<byte> lengths, we return to PostSequentialScan to finish scanning over any remaining bytes.
@@ -134,23 +134,23 @@ namespace MimeKit.Utils {
 					int matches = Sse2.MoveMask (result);
 					if (matches == 0) {
 						// No matches found, so check for nulls and 8-bit characters.
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							result = Sse2.CompareEqual (search, Sse2Zero);
 							if (Sse2.MoveMask (result) != 0) {
 								// We found some null bytes, so set the detected flag and disable further null detection.
-								detected |= DetectionResults.DetectedNulls;
-								options &= ~DetectionOptions.DetectNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
+								options &= ~ByteDetectionOptions.DetectNulls;
 							}
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							result = Sse2.And (search, Sse2HighBits);
 							if (Sse2.MoveMask (result) != 0) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
-								detected |= DetectionResults.Detected8Bit;
-								options &= ~DetectionOptions.Detect8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
+								options &= ~ByteDetectionOptions.Detect8Bit;
 							}
 						}
 
@@ -160,7 +160,7 @@ namespace MimeKit.Utils {
 						// We have matches, so find the index of the first match.
 						index = BitOperations.TrailingZeroCount (matches);
 
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							result = Sse2.CompareEqual (search, Sse2Zero);
 							matches = Sse2.MoveMask (result);
@@ -170,10 +170,10 @@ namespace MimeKit.Utils {
 
 							// We detected a zero-byte only if it occurs before the matched first matched byte.
 							if (zeroIndex < index)
-								detected |= DetectionResults.DetectedNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							result = Sse2.And (search, Sse2HighBits);
 							matches = Sse2.MoveMask (result);
@@ -183,7 +183,7 @@ namespace MimeKit.Utils {
 
 							// We detected an 8bit character only if it occurs before the first matched byte.
 							if (bitIndex < index)
-								detected |= DetectionResults.Detected8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
 						}
 
 						return (int) offset + index;
@@ -204,23 +204,23 @@ namespace MimeKit.Utils {
 						// This means that the bit position in 'matches' corresponds to the element offset.
 						if (matches == 0) {
 							// No matches found, so check for nulls and 8-bit characters.
-							if ((options & DetectionOptions.DetectNulls) != 0) {
+							if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 								// Check if any of the bytes in the vector match against 0.
 								result = Avx2.CompareEqual (search, Avx2Zero);
 								if (Avx2.MoveMask (result) != 0) {
 									// We found some null bytes, so set the detected flag and disable further null detection.
-									detected |= DetectionResults.DetectedNulls;
-									options &= ~DetectionOptions.DetectNulls;
+									detected |= ByteDetectionResults.DetectedNulls;
+									options &= ~ByteDetectionOptions.DetectNulls;
 								}
 							}
 
-							if ((options & DetectionOptions.Detect8Bit) != 0) {
+							if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 								// Check if any of the bytes in the vector have their high bit set.
 								result = Avx2.And (search, Avx2HighBits);
 								if (Avx2.MoveMask (result) != 0) {
 									// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
-									detected |= DetectionResults.Detected8Bit;
-									options &= ~DetectionOptions.Detect8Bit;
+									detected |= ByteDetectionResults.Detected8Bit;
+									options &= ~ByteDetectionOptions.Detect8Bit;
 								}
 							}
 
@@ -233,7 +233,7 @@ namespace MimeKit.Utils {
 						index = BitOperations.TrailingZeroCount (matches);
 
 						// Now check for nulls and 8-bit characters that occur *before* the matched index.
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							result = Avx2.CompareEqual (search, Avx2Zero);
 							matches = Avx2.MoveMask (result);
@@ -243,10 +243,10 @@ namespace MimeKit.Utils {
 
 							// We detected a zero-byte only if it occurs before the matched first matched byte.
 							if (zeroIndex < index)
-								detected |= DetectionResults.DetectedNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							result = Avx2.And (search, Avx2HighBits);
 							matches = Avx2.MoveMask (result);
@@ -256,7 +256,7 @@ namespace MimeKit.Utils {
 
 							// We detected an 8bit character only if it occurs before the first matched byte.
 							if (bitIndex < index)
-								detected |= DetectionResults.Detected8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
 						}
 
 						return (int) offset + index;
@@ -275,23 +275,23 @@ namespace MimeKit.Utils {
 					int matches = Sse2.MoveMask (result);
 					if (matches == 0) {
 						// No matches found, so check for nulls and 8-bit characters.
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							result = Sse2.CompareEqual (search, Sse2Zero);
 							if (Sse2.MoveMask (result) != 0) {
 								// We found some null bytes, so set the detected flag and disable further null detection.
-								detected |= DetectionResults.DetectedNulls;
-								options &= ~DetectionOptions.DetectNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
+								options &= ~ByteDetectionOptions.DetectNulls;
 							}
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							result = Sse2.And (search, Sse2HighBits);
 							if (Sse2.MoveMask (result) != 0) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
-								detected |= DetectionResults.Detected8Bit;
-								options &= ~DetectionOptions.Detect8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
+								options &= ~ByteDetectionOptions.Detect8Bit;
 							}
 						}
 
@@ -302,7 +302,7 @@ namespace MimeKit.Utils {
 						index = BitOperations.TrailingZeroCount (matches);
 
 						// Now check for nulls and 8-bit characters that occur *before* the matched index.
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							result = Sse2.CompareEqual (search, Sse2Zero);
 							matches = Sse2.MoveMask (result);
@@ -312,10 +312,10 @@ namespace MimeKit.Utils {
 
 							// We detected a zero-byte only if it occurs before the matched first matched byte.
 							if (zeroIndex < index)
-								detected |= DetectionResults.DetectedNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							result = Sse2.And (search, Sse2HighBits);
 							matches = Sse2.MoveMask (result);
@@ -325,7 +325,7 @@ namespace MimeKit.Utils {
 
 							// We detected an 8bit character only if it occurs before the first matched byte.
 							if (bitIndex < index)
-								detected |= DetectionResults.Detected8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
 						}
 
 						return (int) offset + index;
@@ -343,12 +343,12 @@ namespace MimeKit.Utils {
 
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		internal static unsafe int Sse2IndexOf (byte* searchSpace, int length, byte value, DetectionOptions options, out DetectionResults detected)
+		internal static unsafe int Sse2IndexOf (byte* searchSpace, int length, byte value, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
 			nint lengthToExamine = length, offset = 0;
 			uint uValue = value;
 
-			detected = DetectionResults.Nothing;
+			detected = ByteDetectionResults.Nothing;
 
 			if (length >= Vector128<byte>.Count * 2) {
 				// Calculate the number of bytes to examine before we start processing SSE2 (128-bit) vectors.
@@ -363,11 +363,11 @@ namespace MimeKit.Utils {
 				return index;
 
 			// For improved performance, disable detection options that we have already detected.
-			if ((detected & DetectionResults.Detected8Bit) != 0)
-				options &= ~DetectionOptions.Detect8Bit;
+			if ((detected & ByteDetectionResults.Detected8Bit) != 0)
+				options &= ~ByteDetectionOptions.Detect8Bit;
 
-			if ((detected & DetectionResults.DetectedNulls) != 0)
-				options &= ~DetectionOptions.DetectNulls;
+			if ((detected & ByteDetectionResults.DetectedNulls) != 0)
+				options &= ~ByteDetectionOptions.DetectNulls;
 
 			// We only get past the PreSequentialScan if the remaining length is greater than the length of at least 1 Vector128<byte>.
 			// After processing Vector128<byte> lengths, we return to PostSequentialScan to finish scanning over any remaining bytes.
@@ -385,23 +385,23 @@ namespace MimeKit.Utils {
 					int matches = Sse2.MoveMask (result);
 					if (matches == 0) {
 						// No matches found, so check for nulls and 8-bit characters.
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							result = Sse2.CompareEqual (search, Sse2Zero);
 							if (Sse2.MoveMask (result) != 0) {
 								// We found some null bytes, so set the detected flag and disable further null detection.
-								detected |= DetectionResults.DetectedNulls;
-								options &= ~DetectionOptions.DetectNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
+								options &= ~ByteDetectionOptions.DetectNulls;
 							}
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							result = Sse2.And (search, Sse2HighBits);
 							if (Sse2.MoveMask (result) != 0) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
-								detected |= DetectionResults.Detected8Bit;
-								options &= ~DetectionOptions.Detect8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
+								options &= ~ByteDetectionOptions.Detect8Bit;
 							}
 						}
 
@@ -414,7 +414,7 @@ namespace MimeKit.Utils {
 					index = BitOperations.TrailingZeroCount (matches);
 
 					// Now check for nulls and 8-bit characters that occur *before* the matched index.
-					if ((options & DetectionOptions.DetectNulls) != 0) {
+					if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 						// Check if any of the bytes in the vector match against 0.
 						result = Sse2.CompareEqual (search, Sse2Zero);
 						matches = Sse2.MoveMask (result);
@@ -424,10 +424,10 @@ namespace MimeKit.Utils {
 
 						// We detected a zero-byte only if it occurs before the matched first matched byte.
 						if (zeroIndex < index)
-							detected |= DetectionResults.DetectedNulls;
+							detected |= ByteDetectionResults.DetectedNulls;
 					}
 
-					if ((options & DetectionOptions.Detect8Bit) != 0) {
+					if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 						// Check if any of the bytes in the vector have their high bit set.
 						result = Sse2.And (search, Sse2HighBits);
 						matches = Sse2.MoveMask (result);
@@ -437,7 +437,7 @@ namespace MimeKit.Utils {
 
 						// We detected an 8bit character only if it occurs before the first matched byte.
 						if (bitIndex < index)
-							detected |= DetectionResults.Detected8Bit;
+							detected |= ByteDetectionResults.Detected8Bit;
 					}
 
 					return (int) offset + index;
@@ -454,12 +454,12 @@ namespace MimeKit.Utils {
 
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		internal static unsafe int VectorIndexOf (byte* searchSpace, int length, byte value, DetectionOptions options, out DetectionResults detected)
+		internal static unsafe int VectorIndexOf (byte* searchSpace, int length, byte value, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
 			nint lengthToExamine = length;
 			nint offset = 0;
 
-			detected = DetectionResults.Nothing;
+			detected = ByteDetectionResults.Nothing;
 
 			if (length >= Vector<byte>.Count * 2) {
 				// Calculate the number of bytes to examine before we start processing Vector<byte> vectors (size is hardware dependent).
@@ -474,11 +474,11 @@ namespace MimeKit.Utils {
 				return index;
 
 			// For improved performance, disable detection options that we have already detected.
-			if ((detected & DetectionResults.Detected8Bit) != 0)
-				options &= ~DetectionOptions.Detect8Bit;
+			if ((detected & ByteDetectionResults.Detected8Bit) != 0)
+				options &= ~ByteDetectionOptions.Detect8Bit;
 
-			if ((detected & DetectionResults.DetectedNulls) != 0)
-				options &= ~DetectionOptions.DetectNulls;
+			if ((detected & ByteDetectionResults.DetectedNulls) != 0)
+				options &= ~ByteDetectionOptions.DetectNulls;
 
 			// We only get past the PreSequentialScan if the remaining length is greater than Vector length.
 			// After processing Vector lengths we return to PostSequentialScan to finish scanning over any remaining bytes.
@@ -495,23 +495,23 @@ namespace MimeKit.Utils {
 					// This means that if 'matches' is all Zeroes, then we have no matches.
 					if (Vector<byte>.Zero.Equals (matches)) {
 						// No matches found, so check for nulls and 8-bit characters.
-						if ((options & DetectionOptions.DetectNulls) != 0) {
+						if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 							// Check if any of the bytes in the vector match against 0.
 							matches = Vector.Equals (search, VectorZero);
 							if (!Vector<byte>.Zero.Equals (matches)) {
 								// We found some null bytes, so set the detected flag and disable further null detection.
-								detected |= DetectionResults.DetectedNulls;
-								options &= ~DetectionOptions.DetectNulls;
+								detected |= ByteDetectionResults.DetectedNulls;
+								options &= ~ByteDetectionOptions.DetectNulls;
 							}
 						}
 
-						if ((options & DetectionOptions.Detect8Bit) != 0) {
+						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
 							matches = Vector.BitwiseAnd (search, VectorHighBits);
 							if (!Vector<byte>.Zero.Equals (matches)) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
-								detected |= DetectionResults.Detected8Bit;
-								options &= ~DetectionOptions.Detect8Bit;
+								detected |= ByteDetectionResults.Detected8Bit;
+								options &= ~ByteDetectionOptions.Detect8Bit;
 							}
 						}
 
@@ -524,7 +524,7 @@ namespace MimeKit.Utils {
 					index = IndexOfFirstMatch (matches);
 
 					// Now check for nulls and 8-bit characters that occur *before* the matched index.
-					if ((options & DetectionOptions.DetectNulls) != 0) {
+					if ((options & ByteDetectionOptions.DetectNulls) != 0) {
 						// Check if any of the bytes in the vector match against 0.
 						matches = Vector.Equals (search, VectorZero);
 
@@ -533,10 +533,10 @@ namespace MimeKit.Utils {
 
 						// We detected a zero-byte only if it occurs before the matched first matched byte.
 						if (zeroIndex < index)
-							detected |= DetectionResults.DetectedNulls;
+							detected |= ByteDetectionResults.DetectedNulls;
 					}
 
-					if ((options & DetectionOptions.Detect8Bit) != 0) {
+					if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 						// Check if any of the bytes in the vector have their high bit set.
 						matches = Vector.BitwiseAnd (search, VectorHighBits);
 
@@ -545,7 +545,7 @@ namespace MimeKit.Utils {
 
 						// We detected an 8bit character only if it occurs before the first matched byte.
 						if (bitIndex < index)
-							detected |= DetectionResults.Detected8Bit;
+							detected |= ByteDetectionResults.Detected8Bit;
 					}
 
 					return (int) offset + index;
@@ -562,7 +562,7 @@ namespace MimeKit.Utils {
 
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		static unsafe int PreSequentialScan (byte* searchSpace, ref nint offset, nint length, uint value, DetectionOptions options, ref DetectionResults detected)
+		static unsafe int PreSequentialScan (byte* searchSpace, ref nint offset, nint length, uint value, ByteDetectionOptions options, ref ByteDetectionResults detected)
 		{
 			byte* inptr = searchSpace + offset;
 			byte* inend = inptr + length;
@@ -586,9 +586,9 @@ namespace MimeKit.Utils {
 						return (int) offset;
 
 					if (*inptr > 127)
-						detected |= DetectionResults.Detected8Bit;
+						detected |= ByteDetectionResults.Detected8Bit;
 					else if (*inptr == 0)
-						detected |= DetectionResults.DetectedNulls;
+						detected |= ByteDetectionResults.DetectedNulls;
 
 					inptr++;
 					offset++;
@@ -598,9 +598,9 @@ namespace MimeKit.Utils {
 						return (int) offset;
 
 					if (*inptr > 127)
-						detected |= DetectionResults.Detected8Bit;
+						detected |= ByteDetectionResults.Detected8Bit;
 					else if (*inptr == 0)
-						detected |= DetectionResults.DetectedNulls;
+						detected |= ByteDetectionResults.DetectedNulls;
 
 					inptr++;
 					offset++;
@@ -610,9 +610,9 @@ namespace MimeKit.Utils {
 						return (int) offset;
 
 					if (*inptr > 127)
-						detected |= DetectionResults.Detected8Bit;
+						detected |= ByteDetectionResults.Detected8Bit;
 					else if (*inptr == 0)
-						detected |= DetectionResults.DetectedNulls;
+						detected |= ByteDetectionResults.DetectedNulls;
 
 					inptr++;
 					offset++;
@@ -651,8 +651,8 @@ namespace MimeKit.Utils {
 
 						// The value we are searching for was not found in the next 4 bytes, so we can safely use bit masking to check
 						// the same next 4 bytes for 8-bit characters and null bytes.
-						detected |= (dword & 0x80808080) != 0 ? DetectionResults.Detected8Bit : DetectionResults.Nothing;
-						detected |= ((dword - 0x01010101) & (~dword & 0x80808080)) != 0 ? DetectionResults.DetectedNulls : DetectionResults.Nothing;
+						detected |= (dword & 0x80808080) != 0 ? ByteDetectionResults.Detected8Bit : ByteDetectionResults.Nothing;
+						detected |= ((dword - 0x01010101) & (~dword & 0x80808080)) != 0 ? ByteDetectionResults.DetectedNulls : ByteDetectionResults.Nothing;
 						offset += 4;
 						inptr += 4;
 					} while (inptr < vend);
@@ -665,9 +665,9 @@ namespace MimeKit.Utils {
 					return (int) offset;
 
 				if (*inptr > 127)
-					detected |= DetectionResults.Detected8Bit;
+					detected |= ByteDetectionResults.Detected8Bit;
 				else if (*inptr == 0)
-					detected |= DetectionResults.DetectedNulls;
+					detected |= ByteDetectionResults.DetectedNulls;
 
 				offset++;
 				inptr++;
@@ -678,7 +678,7 @@ namespace MimeKit.Utils {
 
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		static unsafe int PostSequentialScan (byte* searchSpace, nint offset, nint length, uint value, DetectionOptions options, ref DetectionResults detected)
+		static unsafe int PostSequentialScan (byte* searchSpace, nint offset, nint length, uint value, ByteDetectionOptions options, ref ByteDetectionResults detected)
 		{
 			// Note that in the post-sequential-scan, we do not need to worry about alignment - we are guaranteed to be 4 (or 16 or 32)
 			// byte aligned because the AVX2, SSE2 and Vector code-paths have already aligned us to a 4-byte address boundary.
@@ -719,8 +719,8 @@ namespace MimeKit.Utils {
 
 				// The value we are searching for was not found in the next 4 bytes, so we can safely use bit masking to check
 				// the same next 4 bytes for 8-bit characters and null bytes.
-				detected |= (dword & 0x80808080) != 0 ? DetectionResults.Detected8Bit : DetectionResults.Nothing;
-				detected |= ((dword - 0x01010101) & (~dword & 0x80808080)) != 0 ? DetectionResults.DetectedNulls : DetectionResults.Nothing;
+				detected |= (dword & 0x80808080) != 0 ? ByteDetectionResults.Detected8Bit : ByteDetectionResults.Nothing;
+				detected |= ((dword - 0x01010101) & (~dword & 0x80808080)) != 0 ? ByteDetectionResults.DetectedNulls : ByteDetectionResults.Nothing;
 				inptr += 4;
 			}
 
@@ -730,9 +730,9 @@ namespace MimeKit.Utils {
 					return (int) (inptr - searchSpace);
 
 				if (*inptr > 127)
-					detected |= DetectionResults.Detected8Bit;
+					detected |= ByteDetectionResults.Detected8Bit;
 				else if (*inptr == 0)
-					detected |= DetectionResults.DetectedNulls;
+					detected |= ByteDetectionResults.DetectedNulls;
 
 				inptr++;
 			}
@@ -810,9 +810,9 @@ namespace MimeKit.Utils {
 #endif // NETCOREAPP
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		internal unsafe static int SwAccelIndexOf (byte* searchSpace, int length, byte value, DetectionOptions options, out DetectionResults detected)
+		internal unsafe static int SwAccelIndexOf (byte* searchSpace, int length, byte value, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
-			DetectionResults detectedMask = (DetectionResults) ((int) options);
+			ByteDetectionResults detectedMask = (ByteDetectionResults) ((int) options);
 			byte* inend = searchSpace + length;
 			byte* inptr = searchSpace;
 
@@ -826,7 +826,7 @@ namespace MimeKit.Utils {
 			// ...and if inptr is 0x00000000 or 0x00000004, then alignment will be 0, meaning we are perfectly aligned.
 			nint alignment = ((nint) inptr) & 3;
 
-			detected = DetectionResults.Nothing;
+			detected = ByteDetectionResults.Nothing;
 
 			// Make sure we have enough data left to align to a 4-byte address, otherwise default to the while-loop after this if-statement.
 			if ((4 - alignment) < length) {
@@ -837,9 +837,9 @@ namespace MimeKit.Utils {
 						return (int) (inptr - searchSpace);
 
 					if (*inptr > 127)
-						detected |= DetectionResults.Detected8Bit;
+						detected |= ByteDetectionResults.Detected8Bit;
 					else if (*inptr == 0)
-						detected |= DetectionResults.DetectedNulls;
+						detected |= ByteDetectionResults.DetectedNulls;
 
 					inptr++;
 					goto case 2;
@@ -848,9 +848,9 @@ namespace MimeKit.Utils {
 						return (int) (inptr - searchSpace);
 
 					if (*inptr > 127)
-						detected |= DetectionResults.Detected8Bit;
+						detected |= ByteDetectionResults.Detected8Bit;
 					else if (*inptr == 0)
-						detected |= DetectionResults.DetectedNulls;
+						detected |= ByteDetectionResults.DetectedNulls;
 
 					inptr++;
 					goto case 3;
@@ -859,9 +859,9 @@ namespace MimeKit.Utils {
 						return (int) (inptr - searchSpace);
 
 					if (*inptr > 127)
-						detected |= DetectionResults.Detected8Bit;
+						detected |= ByteDetectionResults.Detected8Bit;
 					else if (*inptr == 0)
-						detected |= DetectionResults.DetectedNulls;
+						detected |= ByteDetectionResults.DetectedNulls;
 
 					inptr++;
 					break;
@@ -900,8 +900,8 @@ namespace MimeKit.Utils {
 
 						// The value we are searching for was not found in the next 4 bytes, so we can safely use bit masking to check
 						// the same next 4 bytes for 8-bit characters and null bytes.
-						detected |= (dword & 0x80808080) != 0 ? DetectionResults.Detected8Bit : DetectionResults.Nothing;
-						detected |= ((dword - 0x01010101) & (~dword & 0x80808080)) != 0 ? DetectionResults.DetectedNulls : DetectionResults.Nothing;
+						detected |= (dword & 0x80808080) != 0 ? ByteDetectionResults.Detected8Bit : ByteDetectionResults.Nothing;
+						detected |= ((dword - 0x01010101) & (~dword & 0x80808080)) != 0 ? ByteDetectionResults.DetectedNulls : ByteDetectionResults.Nothing;
 						inptr += 4;
 					} while (inptr < vend);
 				}
@@ -913,9 +913,9 @@ namespace MimeKit.Utils {
 					return (int) (inptr - searchSpace);
 
 				if (*inptr > 127)
-					detected |= DetectionResults.Detected8Bit;
+					detected |= ByteDetectionResults.Detected8Bit;
 				else if (*inptr == 0)
-					detected |= DetectionResults.DetectedNulls;
+					detected |= ByteDetectionResults.DetectedNulls;
 
 				inptr++;
 			}

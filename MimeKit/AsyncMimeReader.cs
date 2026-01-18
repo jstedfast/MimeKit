@@ -131,7 +131,7 @@ namespace MimeKit {
 
 		async Task StepHeadersAsync (CancellationToken cancellationToken)
 		{
-			var options = DetectMimeComplianceViolations ? DetectionOptions.Detect8Bit | DetectionOptions.DetectNulls : DetectionOptions.None;
+			var options = DetectMimeComplianceViolations ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
 			int headersBeginLineNumber = lineNumber;
 			var eof = false;
 
@@ -390,7 +390,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, DetectionOptions options, CancellationToken cancellationToken)
+		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions options, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
@@ -459,7 +459,7 @@ namespace MimeKit {
 
 		async Task<int> ConstructMimePartAsync (CancellationToken cancellationToken)
 		{
-			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : DetectionOptions.None;
+			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
@@ -486,20 +486,20 @@ namespace MimeKit {
 				// Check to see if this first line is a boundary marker.
 				unsafe {
 					fixed (byte* inbuf = input) {
-						var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : DetectionOptions.None;
+						var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 						byte* start = inbuf + inputIndex;
 						byte* inend = inbuf + inputEnd;
 						byte* inptr;
 
 						*inend = (byte) '\n';
 
-						if (options != DetectionOptions.None) {
+						if (options != ByteDetectionOptions.None) {
 							inptr = ParseUtils.EndOfLine (start, inend + 1, options, out var detected);
 
-							if ((detected & DetectionResults.Detected8Bit) != 0)
+							if ((detected & ByteDetectionResults.Detected8Bit) != 0)
 								OnMimeComplianceViolation (MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber);
 
-							if ((detected & DetectionResults.DetectedNulls) != 0)
+							if ((detected & ByteDetectionResults.DetectedNulls) != 0)
 								OnMimeComplianceViolation (MimeComplianceViolation.UnexpectedNullBytesInBody, beginOffset, beginLineNumber);
 						} else {
 							inptr = ParseUtils.EndOfLine (start, inend + 1);
@@ -567,7 +567,7 @@ namespace MimeKit {
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
-		async Task MultipartScanPreambleAsync (DetectionOptions options, CancellationToken cancellationToken)
+		async Task MultipartScanPreambleAsync (ByteDetectionOptions options, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
@@ -577,7 +577,7 @@ namespace MimeKit {
 			await OnMultipartPreambleEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task MultipartScanEpilogueAsync (DetectionOptions options, CancellationToken cancellationToken)
+		async Task MultipartScanEpilogueAsync (ByteDetectionOptions options, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
@@ -644,7 +644,7 @@ namespace MimeKit {
 
 		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
 		{
-			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : DetectionOptions.None;
+			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
 			var beginLineNumber = lineNumber;
