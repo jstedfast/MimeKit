@@ -1,9 +1,9 @@
 ﻿//
-// DetectionOptions.cs
+// DetectionResults.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2013-2025 .NET Foundation and Contributors
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,21 +28,21 @@ using System;
 
 namespace MimeKit.Utils {
 	[Flags]
-	enum DetectionOptions
+	enum ByteDetectionResults
 	{
 		/// <summary>
-		/// Do not detect anything.
+		/// None of the detection options were detected.
 		/// </summary>
-		None = 0,
+		Nothing = 0,
 
 		/// <summary>
-		/// Detect 8bit characters (high bit set).
+		/// The buffer contains 8bit characters (high bit set).
 		/// </summary>
-		Detect8Bit = 0x01,
+		Detected8Bit = 0x01,
 
 		/// <summary>
-		/// Detect null bytes (0x00).
+		/// The buffer contains null bytes (0x00).
 		/// </summary>
-		DetectNulls = 0x02
+		DetectedNulls = 0x02,
 	}
 }
