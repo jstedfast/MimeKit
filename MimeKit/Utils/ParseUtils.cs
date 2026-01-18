@@ -80,7 +80,7 @@ namespace MimeKit.Utils {
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		public static unsafe byte* EndOfLine (byte* inptr, byte* inend, DetectionOptions options, out DetectionResults detected)
+		public static unsafe byte* EndOfLine (byte* inptr, byte* inend, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
 			return inptr += Memory.IndexOf (inptr, (int) (inend - inptr), (byte) '\n', options, out detected);
 		}
