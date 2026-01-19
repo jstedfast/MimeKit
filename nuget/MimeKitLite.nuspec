@@ -62,6 +62,7 @@
         <dependency id="System.Memory" version="4.6.3" />
       </group>
       <group targetFramework="net8.0" />
+      <group targetFramework="net10.0" />
       <group targetFramework="netstandard2.0">
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
         <dependency id="System.Buffers" version="4.6.1" />
@@ -96,6 +97,10 @@
     <file src="..\MimeKit\bin\Release\net8.0\MimeKitLite.pdb" target="lib\net8.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKitLite.xml" target="lib\net8.0\MimeKitLite.xml" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKitLite.dll.config" target="lib\net8.0\MimeKitLite.dll.config" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKitLite.dll" target="lib\net10.0\MimeKitLite.dll" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKitLite.pdb" target="lib\net10.0\MimeKitLite.pdb" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKitLite.xml" target="lib\net10.0\MimeKitLite.xml" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKitLite.dll.config" target="lib\net10.0\MimeKitLite.dll.config" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>
