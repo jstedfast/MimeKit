@@ -1,0 +1,39 @@
+<Solution>
+  <Project Path="MimeKit/MimeKit.csproj" />
+  <Properties Name="MonoDevelopProperties">
+    <Property Name="$0.CSharpFormattingPolicy" Value="$3" />
+    <Property Name="$0.StandardHeader" Value="$1" />
+    <Property Name="$0.TextStylePolicy" Value="$4" />
+    <Property Name="$1.IncludeInNewFiles" Value="True" />
+    <Property Name="$1.Text" Value="@\n${FileName}\n \nAuthor: ${AuthorName} &lt;${AuthorEmail}&gt;\n\nCopyright (c) ${Year} ${CopyrightHolder}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the &quot;Software&quot;), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n" />
+    <Property Name="$2.EolMarker" Value="Unix" />
+    <Property Name="$2.FileWidth" Value="120" />
+    <Property Name="$2.inheritsScope" Value="text/plain" />
+    <Property Name="$2.inheritsSet" Value="VisualStudio" />
+    <Property Name="$2.scope" Value="text/plain" />
+    <Property Name="$2.TabsToSpaces" Value="False" />
+    <Property Name="$3.AfterDelegateDeclarationParameterComma" Value="True" />
+    <Property Name="$3.AlignToFirstIndexerArgument" Value="True" />
+    <Property Name="$3.BeforeSizeOfParentheses" Value="True" />
+    <Property Name="$3.BeforeTypeOfParentheses" Value="True" />
+    <Property Name="$3.EnumBraceStyle" Value="EndOfLine" />
+    <Property Name="$3.inheritsScope" Value="text/x-csharp" />
+    <Property Name="$3.inheritsSet" Value="Mono" />
+    <Property Name="$3.NamespaceBraceStyle" Value="EndOfLine" />
+    <Property Name="$3.NewLineForMembersInAnonymousTypes" Value="True" />
+    <Property Name="$3.NewLineForMembersInObjectInit" Value="True" />
+    <Property Name="$3.scope" Value="text/x-csharp" />
+    <Property Name="$3.SpaceAfterCast" Value="True" />
+    <Property Name="$3.SpaceBeforeOpenSquareBracket" Value="False" />
+    <Property Name="$3.SpacesAfterTypecast" Value="True" />
+    <Property Name="$3.SpacesBeforeBrackets" Value="False" />
+    <Property Name="$3.StructBraceStyle" Value="EndOfLine" />
+    <Property Name="$4.EolMarker" Value="Unix" />
+    <Property Name="$4.FileWidth" Value="120" />
+    <Property Name="$4.inheritsScope" Value="text/plain" />
+    <Property Name="$4.inheritsSet" Value="VisualStudio" />
+    <Property Name="$4.scope" Value="text/plain" />
+    <Property Name="$4.TabsToSpaces" Value="False" />
+    <Property Name="Policies" Value="$0" />
+  </Properties>
+</Solution>

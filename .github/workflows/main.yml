@@ -13,7 +13,7 @@ jobs:
       latest-version: ${{ steps.semantic_version.outputs.version_num }}
     environment: ci
     env:
-      SOLUTION_PATH: MimeKit.sln
+      SOLUTION_PATH: MimeKit.slnx
       BUILD_PLATFORM: Any CPU
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
       GENERATE_CODE_COVERAGE: ${{ matrix.os == 'windows-latest' && matrix.build-configuration == 'Debug' }}

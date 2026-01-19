@@ -160,8 +160,8 @@ directory and select **Git Sync...** in the menu. Once you do that, you'll need 
 
 In the top-level MimeKit directory, there are a number of solution files; they are:
 
-* **MimeKit.sln** - includes projects for .NET Framework 4.6.2/4.7/4.8, .NETStandard 2.0/2.1, .NET 6.0 as well as the unit tests.
-* **MimeKitLite.sln** - includes projects for the stripped-down versions of MimeKit that drop support for crypto.
+* **MimeKit.slnx** - includes projects for .NET Framework 4.6.2/4.7/4.8, .NETStandard 2.0/2.1, .NET 8.0/10.0 as well as the unit tests.
+* **MimeKitLite.slnx** - includes projects for the stripped-down versions of MimeKit that drop support for crypto.
 
 Once you've opened the appropriate MimeKit solution file in [Visual Studio](https://www.visualstudio.com/downloads/),
 you can choose the **Debug** or **Release** build configuration and then build.

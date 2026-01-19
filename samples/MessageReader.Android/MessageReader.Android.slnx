@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="MessageReader.Android/MessageReader.Android.csproj">
+    <Deploy />
+  </Project>
+  <Properties Name="MonoDevelopProperties">
+    <Property Name="StartupItem" Value="MessageReader.Android\MessageReader.Android.csproj" />
+  </Properties>
+</Solution>

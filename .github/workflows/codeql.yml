@@ -44,7 +44,7 @@ jobs:
     - name: Run .NET restore
       shell: pwsh
       run: |
-          dotnet restore MimeKit.sln
+          dotnet restore MimeKit.slnx
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -62,7 +62,7 @@ jobs:
       continue-on-error: false
       shell: pwsh
       run: |
-          dotnet msbuild MimeKit.sln -property:Platform="Any CPU" -property:Configuration=Release
+          dotnet msbuild MimeKit.slnx -property:Platform="Any CPU" -property:Configuration=Release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3

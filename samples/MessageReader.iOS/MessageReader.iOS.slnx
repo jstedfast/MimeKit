@@ -1,0 +1,21 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Ad-Hoc" />
+    <BuildType Name="AppStore" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <Platform Name="iPhone" />
+    <Platform Name="iPhoneSimulator" />
+  </Configurations>
+  <Project Path="MessageReader.iOS/MessageReader.iOS.csproj">
+    <BuildType Solution="Ad-Hoc|*" Project="Release" />
+    <BuildType Solution="AppStore|*" Project="Release" />
+    <Platform Solution="*|iPhone" Project="iPhone" />
+    <Platform Solution="*|iPhoneSimulator" Project="iPhoneSimulator" />
+    <Build Solution="Ad-Hoc|*" Project="false" />
+    <Build Solution="AppStore|*" Project="false" />
+  </Project>
+  <Properties Name="MonoDevelopProperties">
+    <Property Name="StartupItem" Value="MessageReader.iOS\MessageReader.iOS.csproj" />
+  </Properties>
+</Solution>

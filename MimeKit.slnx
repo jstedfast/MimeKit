@@ -1,0 +1,38 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="Benchmarks/Benchmarks.csproj" />
+  <Project Path="MimeKit/MimeKit.csproj" />
+  <Project Path="UnitTests/UnitTests.csproj">
+    <BuildDependency Project="MimeKit/MimeKit.csproj" />
+  </Project>
+  <Properties Name="MonoDevelopProperties">
+    <Property Name="$0.CSharpFormattingPolicy" Value="$4" />
+    <Property Name="$0.StandardHeader" Value="$1" />
+    <Property Name="$0.TextStylePolicy" Value="$3" />
+    <Property Name="$1.Text" Value="@\n${FileName}\n \nAuthor: ${AuthorName} &lt;${AuthorEmail}&gt;\n\nCopyright (c) ${Year} ${CopyrightHolder}\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the &quot;Software&quot;), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n" />
+    <Property Name="$3.FileWidth" Value="120" />
+    <Property Name="$3.inheritsScope" Value="text/plain" />
+    <Property Name="$3.inheritsSet" Value="null" />
+    <Property Name="$3.scope" Value="text/x-csharp" />
+    <Property Name="$3.TabsToSpaces" Value="False" />
+    <Property Name="$4.IndentSwitchSection" Value="False" />
+    <Property Name="$4.NewLineForCatch" Value="False" />
+    <Property Name="$4.NewLineForClausesInQuery" Value="False" />
+    <Property Name="$4.NewLineForElse" Value="False" />
+    <Property Name="$4.NewLineForFinally" Value="False" />
+    <Property Name="$4.NewLinesForBracesInAccessors" Value="False" />
+    <Property Name="$4.NewLinesForBracesInAnonymousMethods" Value="False" />
+    <Property Name="$4.NewLinesForBracesInAnonymousTypes" Value="False" />
+    <Property Name="$4.NewLinesForBracesInControlBlocks" Value="False" />
+    <Property Name="$4.NewLinesForBracesInLambdaExpressionBody" Value="False" />
+    <Property Name="$4.NewLinesForBracesInObjectCollectionArrayInitializers" Value="False" />
+    <Property Name="$4.NewLinesForBracesInProperties" Value="False" />
+    <Property Name="$4.scope" Value="text/x-csharp" />
+    <Property Name="$4.SpaceAfterCast" Value="True" />
+    <Property Name="$4.SpaceAfterMethodCallName" Value="True" />
+    <Property Name="$4.SpacingAfterMethodDeclarationName" Value="True" />
+    <Property Name="Policies" Value="$0" />
+  </Properties>
+</Solution>
