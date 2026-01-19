@@ -86,6 +86,10 @@
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
         <dependency id="BouncyCastle.Cryptography" version="2.6.1" />
       </group>
+      <group targetFramework="net10.0">
+        <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
+        <dependency id="BouncyCastle.Cryptography" version="2.6.1" />
+      </group>
       <group targetFramework="netstandard2.0">
         <dependency id="System.Security.Cryptography.Pkcs" version="8.0.1" />
         <dependency id="System.Text.Encoding.CodePages" version="8.0.0" />
@@ -125,6 +129,10 @@
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.pdb" target="lib\net8.0\MimeKit.pdb" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.xml" target="lib\net8.0\MimeKit.xml" />
     <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll.config" target="lib\net8.0\MimeKit.dll.config" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.dll" target="lib\net10.0\MimeKit.dll" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.pdb" target="lib\net10.0\MimeKit.pdb" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.xml" target="lib\net10.0\MimeKit.xml" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.dll.config" target="lib\net10.0\MimeKit.dll.config" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>

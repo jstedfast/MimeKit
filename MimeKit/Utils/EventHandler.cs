@@ -27,5 +27,7 @@
 using System;
 
 namespace MimeKit.Utils {
+#if !NET10_0_OR_GREATER
 	delegate void EventHandler<TSender, TEventArgs>(TSender sender, TEventArgs e) where TEventArgs : EventArgs;
+#endif
 }
