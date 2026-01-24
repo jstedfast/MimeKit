@@ -274,6 +274,24 @@ namespace MimeKit {
 		InvalidQuotedPrintableSoftBreak,
 
 		/// <summary>
+		/// The uuencoded content of a MIME part contained non-whitespace content before the begin marker.
+		/// </summary>
+		/// <remarks>
+		/// UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content
+		/// before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodePretext,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part had an invalid file mode in the begin marker.
+		/// </summary>
+		/// <remarks>
+		/// The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to
+		/// decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodeFileMode,
+
+		/// <summary>
 		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
 		/// </summary>
 		/// <remarks>
@@ -281,5 +299,23 @@ namespace MimeKit {
 		/// among different MIME parser implementations.
 		/// </remarks>
 		InvalidUUEncodedContent,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
+		/// </summary>
+		/// <remarks>
+		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
+		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodedLineLength,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.
+		/// </summary>
+		/// <remarks>
+		/// UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker
+		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodeEndMarker,
 	}
 }
