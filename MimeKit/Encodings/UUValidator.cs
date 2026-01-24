@@ -109,12 +109,37 @@ namespace MimeKit.Encodings {
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe byte ReadByte (ref byte* inptr)
+		{
+			byte c = *inptr++;
+
+			streamOffset++;
+
+			if (c == (byte) '\n')
+				lineNumber++;
+
+			return c;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe void SkipByte (ref byte* inptr)
+		{
+			byte c = *inptr++;
+
+			streamOffset++;
+
+			if (c == (byte) '\n')
+				lineNumber++;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe bool ScanBeginMarker (ref byte* inptr, byte* inend)
 		{
-			// TODO: properly track streamOffset and lineNumber for error reporting
 			while (inptr < inend) {
 				if (state == UUValidatorState.ExpectBegin) {
 					if (nsaved != 0 && nsaved != (byte) '\n') {
+						byte* start = inptr;
+
 						// only lines containing whitespace are allowed before the begin marker
 						while (inptr < inend && *inptr != (byte) '\n') {
 							if (!(*inptr).IsWhitespace ()) {
@@ -126,16 +151,20 @@ namespace MimeKit.Encodings {
 						}
 
 						if (inptr == inend) {
+							streamOffset += (int) (inptr - start);
 							nsaved = *(inptr - 1);
 							return true;
 						}
 
-						nsaved = *inptr++;
+						SkipByte (ref inptr);
+
+						streamOffset += (int) (inptr - start);
+
 						if (inptr == inend)
 							return true;
 					}
 
-					nsaved = *inptr++;
+					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'b') {
 						// only lines containing whitespace are allowed before the begin marker
 						if (!nsaved.IsWhitespace ()) {
@@ -152,7 +181,7 @@ namespace MimeKit.Encodings {
 				}
 
 				if (state == UUValidatorState.B) {
-					nsaved = *inptr++;
+					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'e') {
 						state = UUValidatorState.Invalid;
 						return false;
@@ -164,7 +193,7 @@ namespace MimeKit.Encodings {
 				}
 
 				if (state == UUValidatorState.Be) {
-					nsaved = *inptr++;
+					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'g') {
 						state = UUValidatorState.Invalid;
 						return false;
@@ -176,7 +205,7 @@ namespace MimeKit.Encodings {
 				}
 
 				if (state == UUValidatorState.Beg) {
-					nsaved = *inptr++;
+					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'i') {
 						state = UUValidatorState.Invalid;
 						return false;
@@ -188,7 +217,7 @@ namespace MimeKit.Encodings {
 				}
 
 				if (state == UUValidatorState.Begi) {
-					nsaved = *inptr++;
+					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'n') {
 						state = UUValidatorState.Invalid;
 						return false;
@@ -200,7 +229,7 @@ namespace MimeKit.Encodings {
 				}
 
 				if (state == UUValidatorState.Begin) {
-					nsaved = *inptr++;
+					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) ' ') {
 						state = UUValidatorState.Invalid;
 						return false;
@@ -216,6 +245,7 @@ namespace MimeKit.Encodings {
 				if (state == UUValidatorState.FileMode) {
 					// scan file mode
 					while (inptr < inend & *inptr >= (byte) '0' && *inptr <= (byte) '9') {
+						streamOffset++;
 						nsaved++;
 						inptr++;
 					}
@@ -240,24 +270,32 @@ namespace MimeKit.Encodings {
 						return false;
 					}
 
+					SkipByte (ref inptr);
+
 					state = UUValidatorState.FileName;
 					nsaved = 0;
-					inptr++;
 
 					if (inptr == inend)
 						return true;
 				}
 
 				if (state == UUValidatorState.FileName) {
+					byte* start = inptr;
+
 					while (inptr < inend && *inptr != (byte) '\n')
 						inptr++;
 
-					if (inptr == inend)
-						return true;
+					if (inptr == inend) {
+						// need to keep reading until we hit the end of the line
+						streamOffset += (int) (inptr - start);
+						return false;
+					}
 
+					SkipByte (ref inptr);
+
+					streamOffset += (int) (inptr - start);
 					state = UUValidatorState.Payload;
 					nsaved = 0;
-					inptr++;
 
 					return true;
 				}
@@ -272,7 +310,6 @@ namespace MimeKit.Encodings {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe void Validate (byte* input, int length)
 		{
-			// TODO: properly track streamOffset and lineNumber for error reporting
 			bool last_was_eoln = uulen == 0;
 			byte* inend = input + length;
 			byte* inptr = input;
@@ -285,7 +322,7 @@ namespace MimeKit.Encodings {
 
 				while (inptr < inend) {
 					if (*inptr == (byte) '\r') {
-						inptr++;
+						SkipByte (ref inptr);
 						continue;
 					}
 
@@ -297,7 +334,7 @@ namespace MimeKit.Encodings {
 						}
 
 						last_was_eoln = true;
-						inptr++;
+						SkipByte (ref inptr);
 						continue;
 					}
 
@@ -307,15 +344,15 @@ namespace MimeKit.Encodings {
 						last_was_eoln = false;
 						if (uulen == 0) {
 							state = UUValidatorState.Ended;
-							inptr++;
+							SkipByte (ref inptr);
 							break;
 						}
 
-						inptr++;
+						SkipByte (ref inptr);
 						continue;
 					}
 
-					byte c = *inptr++;
+					byte c = ReadByte (ref inptr);
 
 					if (uulen > 0) {
 						nsaved++;
@@ -343,18 +380,19 @@ namespace MimeKit.Encodings {
 
 			if (state == UUValidatorState.Ended) {
 				while (inptr < inend) {
-					if (!(*inptr).IsWhitespace ()) {
+					byte c = *inptr;
+
+					if (!c.IsWhitespace ()) {
 						state = UUValidatorState.Invalid;
 						return;
 					}
 
-					if (*inptr == (byte) '\n') {
+					SkipByte (ref inptr);
+
+					if (c == (byte) '\n') {
 						state = UUValidatorState.EndedNewLine;
-						inptr++;
 						break;
 					}
-
-					inptr++;
 				}
 			}
 
@@ -365,7 +403,7 @@ namespace MimeKit.Encodings {
 				}
 
 				state = UUValidatorState.E;
-				inptr++;
+				SkipByte (ref inptr);
 			}
 
 			if (state == UUValidatorState.E && inptr < inend) {
@@ -375,7 +413,7 @@ namespace MimeKit.Encodings {
 				}
 
 				state = UUValidatorState.En;
-				inptr++;
+				SkipByte (ref inptr);
 			}
 
 			if (state == UUValidatorState.En && inptr < inend) {
@@ -385,7 +423,7 @@ namespace MimeKit.Encodings {
 				}
 
 				state = UUValidatorState.End;
-				inptr++;
+				SkipByte (ref inptr);
 			}
 
 			if (state == UUValidatorState.End) {
@@ -395,7 +433,7 @@ namespace MimeKit.Encodings {
 						return;
 					}
 
-					inptr++;
+					SkipByte (ref inptr);
 				}
 			}
 		}
