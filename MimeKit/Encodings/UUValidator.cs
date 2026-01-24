@@ -479,8 +479,8 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public void Flush ()
 		{
-			// Note: the only valid state to end on is the 'end' state.
-			// TODO: report any remaining error(s).
+			if (state < UUValidatorState.End)
+				reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteUUEncodedContent, streamOffset, lineNumber);
 		}
 	}
 }

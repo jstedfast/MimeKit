@@ -317,5 +317,14 @@ namespace MimeKit {
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
 		InvalidUUEncodeEndMarker,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part did not properly end.
+		/// </summary>
+		/// <remarks>
+		/// UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers
+		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		IncompleteUUEncodedContent,
 	}
 }
