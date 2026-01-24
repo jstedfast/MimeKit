@@ -153,7 +153,7 @@ namespace MimeKit.Encodings {
 						if (inptr == inend) {
 							streamOffset += (int) (inptr - start);
 							nsaved = *(inptr - 1);
-							return true;
+							return false;
 						}
 
 						SkipByte (ref inptr);
@@ -161,7 +161,7 @@ namespace MimeKit.Encodings {
 						streamOffset += (int) (inptr - start);
 
 						if (inptr == inend)
-							return true;
+							return false;
 					}
 
 					nsaved = ReadByte (ref inptr);
@@ -177,7 +177,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.B;
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.B) {
@@ -189,7 +189,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Be;
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.Be) {
@@ -201,7 +201,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Beg;
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.Beg) {
@@ -213,7 +213,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Begi;
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.Begi) {
@@ -225,7 +225,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Begin;
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.Begin) {
@@ -239,7 +239,7 @@ namespace MimeKit.Encodings {
 					nsaved = 0;
 
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.FileMode) {
@@ -257,7 +257,7 @@ namespace MimeKit.Encodings {
 					}
 
 					if (inptr == inend)
-						return true;
+						return false;
 
 					if (nsaved < 3) {
 						// file mode is too short
@@ -276,7 +276,7 @@ namespace MimeKit.Encodings {
 					nsaved = 0;
 
 					if (inptr == inend)
-						return true;
+						return false;
 				}
 
 				if (state == UUValidatorState.FileName) {
@@ -301,7 +301,7 @@ namespace MimeKit.Encodings {
 				}
 			}
 
-			return true;
+			return false;
 		}
 
 #if NET6_0_OR_GREATER
