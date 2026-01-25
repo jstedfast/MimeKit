@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
@@ -103,7 +104,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the basic constraints of the certificate.
 		/// </remarks>
 		/// <value>The basic constraints of the certificate.</value>
-		public int BasicConstraints { get { return Certificate.GetBasicConstraints (); } }
+		[NotNullIfNotNull ("Certificate")]
+		public int? BasicConstraints { get { return Certificate?.GetBasicConstraints (); } }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether the certificate is trusted.
@@ -121,7 +123,7 @@ namespace MimeKit.Cryptography {
 		/// Gets whether the certificate is an anchor.
 		/// </remarks>
 		/// <value><see langword="true" /> if the certificate is an anchor; otherwise, <see langword="false" />.</value>
-		public bool IsAnchor { get { return Certificate.IsSelfSigned (); } }
+		public bool IsAnchor { get { return Certificate?.IsSelfSigned () ?? false; } }
 
 		/// <summary>
 		/// Gets the key usage flags for the certificate.
@@ -130,7 +132,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the key usage flags for the certificate.
 		/// </remarks>
 		/// <value>The X.509 key usage.</value>
-		public X509KeyUsageFlags KeyUsage { get { return Certificate.GetKeyUsageFlags (); } }
+		public X509KeyUsageFlags KeyUsage { get { return Certificate?.GetKeyUsageFlags () ?? X509KeyUsageFlags.None; } }
 
 		/// <summary>
 		/// Gets the starting date and time for which the certificate is valid.
@@ -139,7 +141,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the starting date and time for which the certificate is valid.
 		/// </remarks>
 		/// <value>The date and time in coordinated universal time (UTC).</value>
-		public DateTime NotBefore { get { return Certificate.NotBefore.ToUniversalTime (); } }
+		public DateTime NotBefore { get { return Certificate?.NotBefore.ToUniversalTime () ?? DateTime.MinValue; } }
 
 		/// <summary>
 		/// Gets the end date and time for which the certificate is valid.
@@ -148,7 +150,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the end date and time for which the certificate is valid.
 		/// </remarks>
 		/// <value>The date and time in coordinated universal time (UTC).</value>
-		public DateTime NotAfter { get { return Certificate.NotAfter.ToUniversalTime (); } }
+		public DateTime NotAfter { get { return Certificate?.NotAfter.ToUniversalTime () ?? DateTime.MinValue; } }
 
 		/// <summary>
 		/// Gets the certificate's issuer name.
@@ -157,7 +159,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate's issuer name.
 		/// </remarks>
 		/// <value>The certificate's issuer name.</value>
-		public string IssuerName { get { return Certificate.IssuerDN.ToString (); } }
+		[NotNullIfNotNull ("Certificate")]
+		public string? IssuerName { get { return Certificate?.IssuerDN.ToString (); } }
 
 		/// <summary>
 		/// Gets the serial number of the certificate.
@@ -166,7 +169,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the serial number of the certificate.
 		/// </remarks>
 		/// <value>The serial number.</value>
-		public string SerialNumber { get { return Certificate.SerialNumber.ToString (); } }
+		[NotNullIfNotNull ("Certificate")]
+		public string? SerialNumber { get { return Certificate?.SerialNumber.ToString (); } }
 
 		/// <summary>
 		/// Gets the certificate's subject name.
@@ -175,7 +179,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate's subject name.
 		/// </remarks>
 		/// <value>The certificate's subject name.</value>
-		public string SubjectName { get { return Certificate.SubjectDN.ToString (); } }
+		[NotNullIfNotNull ("Certificate")]
+		public string? SubjectName { get { return Certificate?.SubjectDN.ToString (); } }
 
 		/// <summary>
 		/// Gets the certificate's subject key identifier.
@@ -186,7 +191,7 @@ namespace MimeKit.Cryptography {
 		/// <value>The certificate's subject key identifier.</value>
 		public byte[]? SubjectKeyIdentifier {
 			get {
-				var subjectKeyIdentifier = Certificate.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
+				var subjectKeyIdentifier = Certificate?.GetExtensionValue (X509Extensions.SubjectKeyIdentifier);
 
 				if (subjectKeyIdentifier != null)
 					subjectKeyIdentifier = (Asn1OctetString) Asn1Object.FromByteArray (subjectKeyIdentifier.GetOctets ());
@@ -202,7 +207,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the subject email address.
 		/// </remarks>
 		/// <value>The subject email address.</value>
-		public string SubjectEmail { get { return Certificate.GetSubjectEmailAddress (true).ToLowerInvariant (); } }
+		[NotNullIfNotNull ("Certificate")]
+		public string? SubjectEmail { get { return Certificate?.GetSubjectEmailAddress (true).ToLowerInvariant (); } }
 
 		/// <summary>
 		/// Gets the subject DNS names.
@@ -211,14 +217,19 @@ namespace MimeKit.Cryptography {
 		/// Gets the subject DNS names.
 		/// </remarks>
 		/// <value>The subject DNS names.</value>
-		public string[] SubjectDnsNames {
+		[NotNullIfNotNull ("Certificate")]
+		public string[]? SubjectDnsNames {
 			get {
-				var domains = Certificate.GetSubjectDnsNames (true);
+				if (Certificate != null) {
+					var domains = Certificate.GetSubjectDnsNames (true);
 
-				for (int i = 0; i < domains.Length; i++)
-					domains[i] = domains[i].ToLowerInvariant ();
+					for (int i = 0; i < domains.Length; i++)
+						domains[i] = domains[i].ToLowerInvariant ();
 
-				return domains;
+					return domains;
+				}
+
+				return null;
 			}
 		}
 
@@ -229,7 +240,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the fingerprint of the certificate.
 		/// </remarks>
 		/// <value>The fingerprint.</value>
-		public string Fingerprint { get { return Certificate.GetFingerprint (); } }
+		[NotNullIfNotNull ("Certificate")]
+		public string? Fingerprint { get { return Certificate?.GetFingerprint (); } }
 
 		/// <summary>
 		/// Gets or sets the encryption algorithm capabilities.
@@ -256,7 +268,7 @@ namespace MimeKit.Cryptography {
 		/// Gets the certificate.
 		/// </remarks>
 		/// <value>The certificate.</value>
-		public X509Certificate Certificate { get; internal set; }
+		public X509Certificate? Certificate { get; internal set; }
 
 		/// <summary>
 		/// Gets the private key.
@@ -320,13 +332,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new certificate record for storing in a <see cref="IX509CertificateDatabase"/>.
 		/// </remarks>
-		/// <exception cref="System.NotImplementedException">
-		/// This constructor is no longer supported. Use <see cref="X509CertificateRecord(X509Certificate)"/> instead.
-		/// </exception>
-		[Obsolete ("This constructor is no longer supported. Use X509CertificateRecord(X509Certificate) instead.", true)]
 		public X509CertificateRecord ()
 		{
-			throw new NotImplementedException ();
+			AlgorithmsUpdated = DateTime.MinValue;
 		}
 	}
 }

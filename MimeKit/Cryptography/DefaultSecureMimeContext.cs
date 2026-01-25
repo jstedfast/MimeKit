@@ -445,6 +445,8 @@ namespace MimeKit.Cryptography {
 			};
 
 			foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
+				Debug.Assert (record.Certificate != null, "record.Certificate will never be null if the Certificate field is requested");
+
 				if (!record.Certificate.IsSelfSigned ())
 					intermediates.Add (record.Certificate);
 			}
@@ -486,6 +488,8 @@ namespace MimeKit.Cryptography {
 
 		static CmsRecipient CreateCmsRecipient (X509CertificateRecord record)
 		{
+			Debug.Assert (record.Certificate != null, "Caller ensures record.Certificate is non-null");
+
 			var recipient = new CmsRecipient (record.Certificate);
 
 			if (record.Algorithms != null)
@@ -517,7 +521,7 @@ namespace MimeKit.Cryptography {
 				if (!CanEncrypt (record.KeyUsage))
 					continue;
 
-				if (record.SubjectDnsNames.Length > 0) {
+				if (record.SubjectDnsNames!.Length > 0) {
 					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
 					domain ??= record;
 					continue;
@@ -534,6 +538,7 @@ namespace MimeKit.Cryptography {
 
 		CmsSigner CreateCmsSigner (X509CertificateRecord record, DigestAlgorithm digestAlgo)
 		{
+			Debug.Assert (record.Certificate != null, "Caller ensures record.Certificate is non-null");
 			Debug.Assert (record.PrivateKey != null, "Caller ensures record.PrivateKey is non-null");
 
 			var signer = new CmsSigner (BuildCertificateChain (record.Certificate), record.PrivateKey) {
@@ -571,7 +576,7 @@ namespace MimeKit.Cryptography {
 				if (record.Certificate == null || record.PrivateKey == null)
 					continue;
 
-				if (record.SubjectDnsNames.Length > 0) {
+				if (record.SubjectDnsNames!.Length > 0) {
 					// This is a domain-wide certificate. Only use this if we don't find an exact match for the mailbox address.
 					domain ??= record;
 					continue;

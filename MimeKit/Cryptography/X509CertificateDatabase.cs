@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -433,8 +434,11 @@ namespace MimeKit.Cryptography {
 				throw new ObjectDisposedException (GetType ().Name);
 		}
 
-		internal static string EncodeDnsNames (string[] dnsNames)
+		internal static string? EncodeDnsNames (string[]? dnsNames)
 		{
+			if (dnsNames == null)
+				return null;
+
 			if (dnsNames.Length == 0)
 				return string.Empty;
 
@@ -618,13 +622,9 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			if (certificate == null) {
-				record = null;
-				return false;
-			}
-
-			record = new X509CertificateRecord (certificate) {
+			record = new X509CertificateRecord () {
 				AlgorithmsUpdated = algorithmsUpdated,
+				Certificate = certificate,
 				Algorithms = algorithms,
 				PrivateKey = privateKey,
 				IsTrusted = trusted,
@@ -891,10 +891,10 @@ namespace MimeKit.Cryptography {
 			case CertificateColumnNames.SubjectKeyIdentifier: return record.SubjectKeyIdentifier?.AsHex ();
 			case CertificateColumnNames.SubjectEmail: return record.SubjectEmail;
 			case CertificateColumnNames.SubjectDnsNames: return EncodeDnsNames (record.SubjectDnsNames);
-			case CertificateColumnNames.Fingerprint: return record.Fingerprint.ToLowerInvariant ();
+			case CertificateColumnNames.Fingerprint: return record.Fingerprint?.ToLowerInvariant ();
 			case CertificateColumnNames.Algorithms: return EncodeEncryptionAlgorithms (record.Algorithms);
 			case CertificateColumnNames.AlgorithmsUpdated: return record.AlgorithmsUpdated;
-			case CertificateColumnNames.Certificate: return record.Certificate.GetEncoded ();
+			case CertificateColumnNames.Certificate: return record.Certificate?.GetEncoded ();
 			case CertificateColumnNames.PrivateKey: return EncodePrivateKey (record.PrivateKey);
 			default: throw new ArgumentException (string.Format ("Unknown column name: {0}", columnName), nameof (columnName));
 			}
@@ -1032,8 +1032,10 @@ namespace MimeKit.Cryptography {
 
 					while (reader.Read ()) {
 						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record)) {
+							Debug.Assert (record.Certificate != null, "record.Certificate will never be null if the certificate field is requested");
+
 							if (selector == null || selector.Match (record.Certificate))
-								yield return record.Certificate;
+								yield return record.Certificate!;
 						}
 					}
 				}
@@ -1065,6 +1067,8 @@ namespace MimeKit.Cryptography {
 
 					while (reader.Read ()) {
 						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record)) {
+							Debug.Assert (record.Certificate != null, "record.Certificate will never be null if the certificate field is requested");
+
 							if (record.PrivateKey != null && (selector == null || selector.Match (record.Certificate)))
 								yield return record.PrivateKey;
 						}
@@ -1141,6 +1145,8 @@ namespace MimeKit.Cryptography {
 
 					while (reader.Read ()) {
 						if (TryLoadCertificateRecord (reader, parser, ref buffer, out var record)) {
+							Debug.Assert (record.Certificate != null, "record.Certificate will never be null if the certificate field is requested");
+
 							if (selector == null || selector.Match (record.Certificate))
 								yield return record;
 						}
