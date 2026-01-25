@@ -71,6 +71,7 @@ namespace UnitTests.Encodings {
 
 		[TestCase ("=XA", 1)]
 		[TestCase ("=AX", 2)]
+		[TestCase ("=A\n", 2)]
 		public void TestValidateInvalidHexSequence (string hex, int offset)
 		{
 			string text = $"This is some quoted printable text with an invalid {hex} sequence.";
@@ -101,6 +102,24 @@ namespace UnitTests.Encodings {
 			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
 			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak));
 			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.LastIndexOf ('s')));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+		}
+
+		[TestCase ("invalid trailing =", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
+		[TestCase ("invalid trailing =A", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
+		[TestCase ("invalid trailing =\r", MimeComplianceViolation.InvalidQuotedPrintableSoftBreak)]
+		public void TestValidateInvalidFlush (string text, MimeComplianceViolation violation)
+		{
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var reader = new ComplianceMimeReader ();
+			var validator = new QuotedPrintableValidator (reader, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (violation));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.Length));
 			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
 		}
 	}
