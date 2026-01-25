@@ -118,7 +118,7 @@ namespace MimeKit.Encodings {
 					}
 					break;
 				case QpValidatorState.EqualSign:
-					c = *inptr++;
+					c = *inptr;
 
 					if (c.IsXDigit ()) {
 						state = QpValidatorState.DecodeByte;
@@ -131,9 +131,11 @@ namespace MimeKit.Encodings {
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
 						state = QpValidatorState.PassThrough;
 					}
+
+					inptr++;
 					break;
 				case QpValidatorState.SoftBreak:
-					c = *inptr++;
+					c = *inptr;
 
 					if (c == '\n') {
 						lineNumber++;
@@ -142,9 +144,10 @@ namespace MimeKit.Encodings {
 					}
 
 					state = QpValidatorState.PassThrough;
+					inptr++;
 					break;
 				case QpValidatorState.DecodeByte:
-					c = *inptr++;
+					c = *inptr;
 
 					if (!c.IsXDigit ()) {
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
@@ -154,6 +157,7 @@ namespace MimeKit.Encodings {
 					}
 
 					state = QpValidatorState.PassThrough;
+					inptr++;
 					break;
 				}
 			}

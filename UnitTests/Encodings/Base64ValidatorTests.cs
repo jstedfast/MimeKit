@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new Base64Validator ());
+			AssertArgumentExceptions (new Base64Validator (dummyReader, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new Base64Validator ();
+			var validator = new Base64Validator (dummyReader, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.Base64));
 		}
@@ -55,26 +55,96 @@ namespace UnitTests.Encodings {
 		public void TestValidateValidInput (string text)
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var validator = new Base64Validator ();
+			var reader = new ComplianceMimeReader ();
+			var validator = new Base64Validator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.True);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0));
 		}
 
-		[TestCase (" &% VGhp\r\ncyBp\r\ncyB0aGUgcGxhaW4g  \tdGV4dCBtZ?!XNzY*WdlIQ==")]
-		[TestCase ("VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ===")]
-		[TestCase ("VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ====")]
-		[TestCase ("VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=====")]
-		[TestCase ("VGhpcyBpcyB0aGUgcGF5bG9hZCBvZiB0aGUgZmlyc3QgYmFzZTY0LWVuY29kZWQgYmxvY2sgb2Yg\r\ndGV4dC4=\r\nQW5kIHRoaXMgaXMgdGhlIHBheWxvYWQgb2YgdGhlIHNlY29uZCBiYXNlNjQtZW5jb2RlZCBibG9j\r\nayBvZiB0ZXh0Lg==\r\n")]
-		public void TestValidateInvalidInput (string text)
+		public void TestValidateInvalidInput (string text, List<MimeComplianceViolationEventArgs> violations)
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var validator = new Base64Validator ();
+			var reader = new ComplianceMimeReader ();
+			var validator = new Base64Validator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
+			AssertInvalidInput (reader, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_MultipleInvalidCharacters ()
+		{
+			const string text = " &% VGhp\r\ncyBp\r\ncyB0aGUgcGxhaW4g  \tdGV4dCBtZ?!XNzY*WdlIQ==";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 1, 1),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 2, 1),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 44, 3),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 45, 3),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 50, 3),
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_IncorrectPadding1 ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ===";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Padding, 44, 1),
+
+				// TODO: should this really get emitted?
+				//new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 45, 1)
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_IncorrectPadding2 ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ====";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Padding, 44, 1),
+				//new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Padding, 45, 1),
+
+				// TODO: should this really get emitted?
+				//new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 46, 1)
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_IncorrectPadding3 ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=====";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Padding, 44, 1),
+				//new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Padding, 45, 1),
+				//new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Padding, 46, 1),
+
+				// TODO: should this really get emitted?
+				//new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 47, 1)
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_CharactersAfterPadding ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGF5bG9hZCBvZiB0aGUgZmlyc3QgYmFzZTY0LWVuY29kZWQgYmxvY2sgb2Yg\r\ndGV4dC4=\r\nQW5kIHRoaXMgaXMgdGhlIHBheWxvYWQgb2YgdGhlIHNlY29uZCBiYXNlNjQtZW5jb2RlZCBibG9j\r\nayBvZiB0ZXh0Lg==\r\n";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.Base64CharactersAfterPadding, text.IndexOf ('=') + 3, 3),
+			};
+
+			TestValidateInvalidInput (text, violations);
 		}
 
 		[TestCase (4096)]
@@ -83,7 +153,9 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestValidateBufferSize (int bufferSize)
 		{
-			TestValidator (new Base64Validator (), "photo.b64", photo_b64, bufferSize);
+			var reader = new ComplianceMimeReader ();
+
+			TestValidator (reader, new Base64Validator (reader, 0, 1), "photo.b64", photo_b64, bufferSize);
 		}
 	}
 }

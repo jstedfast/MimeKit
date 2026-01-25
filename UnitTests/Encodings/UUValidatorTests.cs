@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new UUValidator ());
+			AssertArgumentExceptions (new UUValidator (dummyReader, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new UUValidator ();
+			var validator = new UUValidator (dummyReader, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.UUEncode));
 		}
@@ -52,11 +52,13 @@ namespace UnitTests.Encodings {
 		public void TestValidateValidInput (string text)
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var validator = new UUValidator ();
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.True);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0));
 		}
 
 		[TestCase ("begin 644 photo.jpg")]
@@ -66,101 +68,162 @@ namespace UnitTests.Encodings {
 		public void TestValidateValidBeginLine (string beginLine)
 		{
 			var rawData = Encoding.ASCII.GetBytes (beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
-			var validator = new UUValidator ();
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.True);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0));
 		}
 
 		[Test]
 		public void TestValidateIncompleteLine ()
 		{
-			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&E\r\n`\r\nend\r\n");
-			var validator = new UUValidator ();
+			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&E\r\n`\r\nend\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodedLineLength));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.IndexOf ("E\r\n") + 2)); // triggers on '\n' (not '\r')
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (2));
 		}
 
 		[Test]
 		public void TestValidateExtraLineData ()
 		{
-			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n");
-			var validator = new UUValidator ();
+			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodedLineLength));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.IndexOf ("x\r\n")));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (2));
 		}
 
 		[Test]
 		public void TestValidateInvalidDataAfterEnd ()
 		{
-			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\nmore text...");
-			var validator = new UUValidator ();
+			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\nmore text...";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodeEndMarker));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.IndexOf ("more text...")));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (5));
 		}
 
-		[TestCase ("b egin 644 photo.jpg")]
-		[TestCase ("be gin 644 photo.jpg")]
-		[TestCase ("beg in 644 photo.jpg")]
-		[TestCase ("begi n 644 photo.jpg")]
-		[TestCase ("beginx 644 photo.jpg")]
-		[TestCase ("begin x644 photo.jpg")]
-		[TestCase ("begin x644 photo.jpg")]
-		[TestCase ("begin 6x44 photo.jpg")]
-		[TestCase ("begin 64x4 photo.jpg")]
-		[TestCase ("begin 644x photo.jpg")]
-		[TestCase ("begin 06440 photo.jpg")]
-		public void TestValidateInvalidBeginLine (string beginLine)
+		[TestCase ("b egin 644 photo.jpg", 1)]
+		[TestCase ("be gin 644 photo.jpg", 2)]
+		[TestCase ("beg in 644 photo.jpg", 3)]
+		[TestCase ("begi n 644 photo.jpg", 4)]
+		[TestCase ("beginx 644 photo.jpg", 5)]
+		public void TestValidateInvalidBeginLine (string beginLine, long offset)
 		{
 			var rawData = Encoding.ASCII.GetBytes (beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
-			var validator = new UUValidator ();
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (2));
+
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodePretext));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (offset));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+
+			Assert.That (reader.ComplianceViolations[1].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteUUEncodedContent));
+			Assert.That (reader.ComplianceViolations[1].StreamOffset, Is.EqualTo (rawData.Length));
+			Assert.That (reader.ComplianceViolations[1].LineNumber, Is.EqualTo (5));
 		}
 
-		[TestCase ("xnd")]
-		[TestCase ("exd")]
-		[TestCase ("enx")]
-		[TestCase ("endx")]
-		public void TestValidateInvalidEndLine (string endLine)
+		[Test]
+		public void TestValidateInvalidPretext ()
 		{
-			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\n" + endLine);
-			var validator = new UUValidator ();
+			var rawData = Encoding.ASCII.GetBytes ("this is some random garbage...\r\nbegin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodePretext));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (0));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+		}
+
+		[TestCase ("begin x644 photo.jpg", 6)]
+		[TestCase ("begin 6x44 photo.jpg", 7)]
+		[TestCase ("begin 64x4 photo.jpg", 8)]
+		[TestCase ("begin 644x photo.jpg", 9)]
+		[TestCase ("begin 06440 photo.jpg", 10)]
+		public void TestValidateInvalidFileMode (string beginLine, long offset)
+		{
+			var rawData = Encoding.ASCII.GetBytes (beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodeFileMode));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (offset));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+		}
+
+		[TestCase ("xnd", 0)]
+		[TestCase ("exd", 1)]
+		[TestCase ("enx", 2)]
+		[TestCase ("endx", 3)]
+		public void TestValidateInvalidEndLine (string endLine, int offset)
+		{
+			string text = $"begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\n{endLine}\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodeEndMarker));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.IndexOf (endLine) + offset));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (4));
 		}
 
 		[Test]
 		public void TestValidateInvalidTerminalLine ()
 		{
-			var rawData = Encoding.ASCII.GetBytes ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`x\r\nend\r\n");
-			var validator = new UUValidator ();
+			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`x\r\nend\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var reader = new ComplianceMimeReader ();
+			var validator = new UUValidator (reader, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
 
-			Assert.That (validator.Validate (), Is.False);
-		}
-
-		[TestCase ("abc")]
-		public void TestValidateInvalidPrefix (string prefix)
-		{
-			var rawData = Encoding.ASCII.GetBytes (prefix + "\r\nbegin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
-			var validator = new UUValidator ();
-
-			validator.Write (rawData, 0, rawData.Length);
-
-			Assert.That (validator.Validate (), Is.False);
+			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
+			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodeEndMarker));
+			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.IndexOf ("`x") + 1));
+			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (3));
 		}
 
 		[TestCase (4096)]
@@ -169,7 +232,9 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestValidateBufferSize (int bufferSize)
 		{
-			TestValidator (new UUValidator (), "photo.uu", photo_uu, bufferSize);
+			var reader = new ComplianceMimeReader ();
+
+			TestValidator (reader, new UUValidator (reader, 0, 1), "photo.uu", photo_uu, bufferSize);
 		}
 	}
 }
