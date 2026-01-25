@@ -147,6 +147,18 @@ namespace UnitTests.Encodings {
 			TestValidateInvalidInput (text, violations);
 		}
 
+		[Test]
+		public void TestValidateInvalidInput_IncompleteQuantumAfterPaddingStart ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=\r\n=";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 44, 1),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 46, 2)
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
 		[TestCase (4096)]
 		[TestCase (1024)]
 		[TestCase (16)]
