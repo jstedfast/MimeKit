@@ -90,7 +90,9 @@ namespace UnitTests.Cryptography {
 
 			Assert.Throws<ArgumentNullException> (() => database.Add ((X509CrlRecord) null));
 			Assert.Throws<ArgumentNullException> (() => database.Remove ((X509CrlRecord) null));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Throws<ArgumentNullException> (() => database.Update ((X509CrlRecord) null));
+#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Throws<ArgumentNullException> (() => database.Add ((X509CertificateRecord) null));
 			Assert.Throws<ArgumentNullException> (() => database.Remove ((X509CertificateRecord) null));
 			Assert.Throws<ArgumentNullException> (() => database.Update ((X509CertificateRecord) null, X509CertificateRecordFields.Algorithms));
