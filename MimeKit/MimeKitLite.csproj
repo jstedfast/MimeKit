@@ -74,7 +74,9 @@
   <ItemGroup>
     <Compile Remove="Cryptography\**" />
     <Compile Include="Cryptography\AuthenticationResults.cs" />
+    <Compile Remove="Utils\EventHandler.cs" />
     <Compile Remove="Utils\OptimizedOrdinalComparer.cs" />
+    <Compile Include="Utils\EventHandler.cs" Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2')) Or '$(TargetFramework)' == 'net8.0' " />
     <Compile Include="Utils\OptimizedOrdinalComparer.cs" Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' " />
   </ItemGroup>
 
