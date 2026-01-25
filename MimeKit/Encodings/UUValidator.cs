@@ -66,6 +66,8 @@ namespace MimeKit.Encodings {
 		int lineNumber;
 		UUValidatorState state;
 		bool invalidPretext;
+		bool invalidFileMode;
+		bool eoln;
 		byte nsaved;
 		byte uulen;
 
@@ -268,23 +270,38 @@ namespace MimeKit.Encodings {
 						inptr++;
 					}
 
-					if (nsaved > 4) {
+					if (!invalidFileMode && nsaved > 4) {
 						// file mode is too long
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset - nsaved + 4, lineNumber);
+						invalidFileMode = true;
 					}
 
 					if (inptr == inend)
 						break;
 
-					if (nsaved < 3) {
+					if (!invalidFileMode && nsaved < 3) {
 						// file mode is too short
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber);
+						invalidFileMode = true;
 					}
 
-					if (nsaved == 3 && *inptr != (byte) ' ') {
-						// no space after file mode
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber);
+					// scan ahead for the space after the file mode
+					while (inptr < inend && *inptr != (byte) ' ') {
+						if (!invalidFileMode) {
+							// invalid character in file mode
+							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber);
+							invalidFileMode = true;
+						}
+
+						if (*inptr == (byte) '\n')
+							break;
+
+						streamOffset++;
+						inptr++;
 					}
+
+					if (inptr == inend)
+						break;
 
 					if (*inptr != (byte) '\n') {
 						streamOffset++;
@@ -314,6 +331,7 @@ namespace MimeKit.Encodings {
 					SkipByte (ref inptr);
 
 					state = UUValidatorState.Payload;
+					eoln = true;
 					nsaved = 0;
 
 					return true;
@@ -329,7 +347,6 @@ namespace MimeKit.Encodings {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe void Validate (byte* input, int length)
 		{
-			bool last_was_eoln = uulen == 0;
 			byte* inend = input + length;
 			byte* inptr = input;
 
@@ -339,58 +356,61 @@ namespace MimeKit.Encodings {
 						return;
 				}
 
-				while (inptr < inend) {
-					if (*inptr == (byte) '\r') {
-						SkipByte (ref inptr);
-						continue;
-					}
-
-					if (*inptr == (byte) '\n') {
-						if (uulen > 0) {
-							// incomplete line
-							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset, lineNumber);
-						}
-
-						last_was_eoln = true;
-						SkipByte (ref inptr);
-						continue;
-					}
-
-					if (last_was_eoln) {
-						// first octet on a line is the uulen octet
-						uulen = UUDecoder.uudecode_rank[*inptr];
-						last_was_eoln = false;
-						if (uulen == 0) {
-							state = UUValidatorState.Ended;
+				if (state == UUValidatorState.Payload) {
+					while (inptr < inend) {
+						if (*inptr == (byte) '\r') {
 							SkipByte (ref inptr);
-							break;
+							continue;
 						}
 
-						SkipByte (ref inptr);
-						continue;
-					}
-
-					byte c = ReadByte (ref inptr);
-
-					if (uulen > 0) {
-						nsaved++;
-
-						if (nsaved == 4) {
-							if (uulen >= 3) {
-								uulen -= 3;
-							} else {
-								if (uulen >= 1)
-									uulen--;
-
-								if (uulen >= 1)
-									uulen--;
+						if (*inptr == (byte) '\n') {
+							if (uulen > 0) {
+								// incomplete line
+								reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset, lineNumber);
 							}
 
-							nsaved = 0;
+							SkipByte (ref inptr);
+							eoln = true;
+							continue;
 						}
-					} else {
-						// extra data beyond the end of the uuencoded line
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset - 1, lineNumber);
+
+						if (eoln) {
+							// first octet on a line is the uulen octet
+							uulen = UUDecoder.uudecode_rank[*inptr];
+							eoln = false;
+
+							if (uulen == 0) {
+								state = UUValidatorState.Ended;
+								SkipByte (ref inptr);
+								break;
+							}
+
+							SkipByte (ref inptr);
+							continue;
+						}
+
+						byte c = ReadByte (ref inptr);
+
+						if (uulen > 0) {
+							nsaved++;
+
+							if (nsaved == 4) {
+								if (uulen >= 3) {
+									uulen -= 3;
+								} else {
+									if (uulen >= 1)
+										uulen--;
+
+									if (uulen >= 1)
+										uulen--;
+								}
+
+								nsaved = 0;
+							}
+						} else {
+							// extra data beyond the end of the uuencoded line
+							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset - 1, lineNumber);
+						}
 					}
 				}
 			}
