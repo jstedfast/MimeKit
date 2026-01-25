@@ -46,6 +46,7 @@ namespace MimeKit.Encodings {
 		int lineNumber;
 		int padding;
 		int octets;
+		bool invalid;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Validator"/> class.
@@ -112,6 +113,7 @@ namespace MimeKit.Encodings {
 							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
 						}
 					} else if (c == (byte) '=') {
+						streamOffset++;
 						padding = 1;
 						octets++;
 						break;
@@ -136,10 +138,15 @@ namespace MimeKit.Encodings {
 					padding++;
 					octets++;
 
-					if (padding > 2)
+					if (padding > 2) {
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+						invalid = true;
+						break;
+					}
 				} else if (!c.IsWhitespace ()) {
 					reader.OnMimeComplianceViolation (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber);
+					invalid = true;
+					break;
 				}
 
 				streamOffset++;
@@ -166,6 +173,9 @@ namespace MimeKit.Encodings {
 		{
 			ValidateArguments (buffer, startIndex, length);
 
+			if (invalid)
+				return;
+
 			fixed (byte* inbuf = buffer) {
 				ref byte table = ref MemoryMarshal.GetReference (Base64Decoder.base64_rank);
 
@@ -181,7 +191,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public void Flush ()
 		{
-			if (octets % 4 != 0)
+			if (!invalid && octets % 4 != 0)
 				reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber);
 		}
 	}

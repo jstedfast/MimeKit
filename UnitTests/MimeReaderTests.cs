@@ -164,26 +164,6 @@ namespace UnitTests {
 			}
 		}
 
-		class ComplianceMimeReader : MimeReader
-		{
-			public readonly List<MimeComplianceViolationEventArgs> ComplianceViolations = new List<MimeComplianceViolationEventArgs> ();
-
-			public ComplianceMimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default) : base (options, stream, format)
-			{
-				DetectMimeComplianceViolations = true;
-			}
-
-			public ComplianceMimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : base (stream, format)
-			{
-				DetectMimeComplianceViolations = true;
-			}
-
-			protected override void OnMimeComplianceViolation (MimeComplianceViolation violation, long offset, int lineNumber)
-			{
-				ComplianceViolations.Add (new MimeComplianceViolationEventArgs (violation, offset, lineNumber));
-			}
-		}
-
 		class CustomMimeReader : ComplianceMimeReader
 		{
 			public readonly List<MimeOffsets> Offsets = new List<MimeOffsets> ();
