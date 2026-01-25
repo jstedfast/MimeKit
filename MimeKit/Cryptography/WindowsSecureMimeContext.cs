@@ -290,7 +290,11 @@ namespace MimeKit.Cryptography {
 
 			try {
 				foreach (var recipient in recipients) {
+#if NET10_0_OR_GREATER
+					var certificate = X509CertificateLoader.LoadCertificate (recipient.Certificate.GetEncoded ());
+#else
 					var certificate = new X509Certificate2 (recipient.Certificate.GetEncoded ());
+#endif
 					RealSubjectIdentifierType type;
 					RealCmsRecipient real;
 
@@ -433,7 +437,11 @@ namespace MimeKit.Cryptography {
 
 					var rawData = stream.ToArray ();
 
+#if NET10_0_OR_GREATER
+					certificate = X509CertificateLoader.LoadPkcs12 (rawData, password);
+#else
 					certificate = new X509Certificate2 (rawData, password);
+#endif
 				}
 			}
 
@@ -1578,8 +1586,13 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
+#if NET10_0_OR_GREATER
+			using (var certificate2 = X509CertificateLoader.LoadCertificate (certificate.GetEncoded ()))
+				Import (storeName, certificate2, cancellationToken);
+#else
 			using (var certificate2 = new X509Certificate2 (certificate.GetEncoded ()))
 				Import (storeName, certificate2, cancellationToken);
+#endif
 		}
 
 		/// <summary>
@@ -1694,11 +1707,16 @@ namespace MimeKit.Cryptography {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var rawData = ReadAllBytes (stream);
-			var store = new X509Store (StoreName.My, StoreLocation);
-			var certs = new X509Certificate2Collection ();
 
-			store.Open (OpenFlags.ReadWrite);
+#if NET10_0_OR_GREATER
+			var certs = X509CertificateLoader.LoadPkcs12Collection (rawData, password, flags);
+#else
+			var certs = new X509Certificate2Collection ();
 			certs.Import (rawData, password, flags);
+#endif
+
+			var store = new X509Store (StoreName.My, StoreLocation);
+			store.Open (OpenFlags.ReadWrite);
 			store.AddRange (certs);
 			store.Close ();
 		}
@@ -1733,11 +1751,16 @@ namespace MimeKit.Cryptography {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var rawData = await ReadAllBytesAsync (stream, cancellationToken).ConfigureAwait (false);
-			var store = new X509Store (StoreName.My, StoreLocation);
-			var certs = new X509Certificate2Collection ();
 
-			store.Open (OpenFlags.ReadWrite);
+#if NET10_0_OR_GREATER
+			var certs = X509CertificateLoader.LoadPkcs12Collection (rawData, password, flags);
+#else
+			var certs = new X509Certificate2Collection ();
 			certs.Import (rawData, password, flags);
+#endif
+
+			var store = new X509Store (StoreName.My, StoreLocation);
+			store.Open (OpenFlags.ReadWrite);
 			store.AddRange (certs);
 			store.Close ();
 		}

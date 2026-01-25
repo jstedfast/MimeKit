@@ -38,6 +38,9 @@ using Org.BouncyCastle.Crypto.Parameters;
 using MimeKit.Utils;
 
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
+#if NET10_0_OR_GREATER
+using X509CertificateLoader = System.Security.Cryptography.X509Certificates.X509CertificateLoader;
+#endif
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -64,7 +67,11 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
+#if NET10_0_OR_GREATER
+			return X509CertificateLoader.LoadCertificate (certificate.GetEncoded ());
+#else
 			return new X509Certificate2 (certificate.GetEncoded ());
+#endif
 		}
 
 		/// <summary>
