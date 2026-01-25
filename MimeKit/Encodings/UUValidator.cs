@@ -141,29 +141,21 @@ namespace MimeKit.Encodings {
 					if (nsaved != 0 && nsaved != (byte) '\n') {
 						byte* start = inptr;
 
-						// only lines containing whitespace are allowed before the begin marker
-						while (inptr < inend && *inptr != (byte) '\n') {
-							if (!invalidPretext && !(*inptr).IsWhitespace ()) {
-								// FIXME: should this really be emitted for *each* character before the 'begin'?
-								reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidUUEncodePretext, streamOffset + (int) (inptr - start), lineNumber);
-								invalidPretext = true;
-							}
-
+						// skip ahead to the next line...
+						while (inptr < inend && *inptr != (byte) '\n')
 							inptr++;
-						}
-
-						if (inptr == inend) {
-							streamOffset += (int) (inptr - start);
-							nsaved = *(inptr - 1);
-							return false;
-						}
 
 						streamOffset += (int) (inptr - start);
 
-						SkipByte (ref inptr);
+						if (inptr == inend) {
+							nsaved = *(inptr - 1);
+							break;
+						}
+
+						nsaved = ReadByte (ref inptr);
 
 						if (inptr == inend)
-							return false;
+							break;
 					}
 
 					nsaved = ReadByte (ref inptr);
@@ -183,7 +175,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.B;
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.B) {
@@ -199,7 +191,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Be;
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.Be) {
@@ -215,7 +207,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Beg;
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.Beg) {
@@ -231,7 +223,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Begi;
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.Begi) {
@@ -247,7 +239,7 @@ namespace MimeKit.Encodings {
 
 					state = UUValidatorState.Begin;
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.Begin) {
@@ -265,7 +257,7 @@ namespace MimeKit.Encodings {
 					nsaved = 0;
 
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.FileMode) {
@@ -282,7 +274,7 @@ namespace MimeKit.Encodings {
 					}
 
 					if (inptr == inend)
-						return false;
+						break;
 
 					if (nsaved < 3) {
 						// file mode is too short
@@ -303,7 +295,7 @@ namespace MimeKit.Encodings {
 					nsaved = 0;
 
 					if (inptr == inend)
-						return false;
+						break;
 				}
 
 				if (state == UUValidatorState.FileName) {
@@ -312,13 +304,12 @@ namespace MimeKit.Encodings {
 					while (inptr < inend && *inptr != (byte) '\n')
 						inptr++;
 
+					streamOffset += (int) (inptr - start);
+
 					if (inptr == inend) {
 						// need to keep reading until we hit the end of the line
-						streamOffset += (int) (inptr - start);
-						return false;
+						break;
 					}
-
-					streamOffset += (int) (inptr - start);
 
 					SkipByte (ref inptr);
 
