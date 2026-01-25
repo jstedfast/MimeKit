@@ -14,4 +14,4 @@ This is the message body
 Content-Type: application/octet-stream; name="attachment.dat"
 Content-Transfer-Encoding: base64
 
-<base64 content>
+VGhpcyBpcyB0aGUgemlwIGF0dGFjaG1lbnQu
