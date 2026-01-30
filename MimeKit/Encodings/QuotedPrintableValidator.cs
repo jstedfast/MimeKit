@@ -135,16 +135,14 @@ namespace MimeKit.Encodings {
 					inptr++;
 					break;
 				case QpValidatorState.SoftBreak:
-					c = *inptr;
-
-					if (c == '\n') {
+					if (*inptr == '\n') {
 						lineNumber++;
+						inptr++;
 					} else {
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber);
 					}
 
 					state = QpValidatorState.PassThrough;
-					inptr++;
 					break;
 				case QpValidatorState.DecodeByte:
 					c = *inptr;
