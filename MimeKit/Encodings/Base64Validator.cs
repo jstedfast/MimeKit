@@ -103,6 +103,7 @@ namespace MimeKit.Encodings {
 					byte rank = Unsafe.Add (ref table, c);
 
 					if (rank == 0xFF) {
+						// The current byte is outside of the base64 alphabet, but could be whitespace (which we will treat as valid).
 						if (c == (byte) '\n') {
 							if (octets % 4 != 0)
 								reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber);
@@ -110,14 +111,24 @@ namespace MimeKit.Encodings {
 							lineNumber++;
 							octets = 0;
 						} else if (!c.IsWhitespace ()) {
+							// This is an invalid base64 character.
 							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
 						}
 					} else if (c == (byte) '=') {
+						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
+						if (octets % 4 < 2) {
+							// Padding is only valid in the last 2 positions of the final quantum.
+							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+							invalid = true;
+							return;
+						}
+
 						streamOffset++;
 						padding = 1;
 						octets++;
 						break;
 					} else {
+						// Increment the number of octets in this base64 quantum (a quantum is a series of 4 octets).
 						octets++;
 					}
 
