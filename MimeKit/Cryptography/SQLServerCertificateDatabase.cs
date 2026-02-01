@@ -105,7 +105,7 @@ namespace MimeKit.Cryptography {
 			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 
@@ -137,7 +137,7 @@ namespace MimeKit.Cryptography {
 			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 
@@ -190,7 +190,7 @@ namespace MimeKit.Cryptography {
 		{
 			using (var command = CreateCommand ()) {
 				command.CommandText = $"select top 1 * from {tableName}";
-				using (var reader = command.ExecuteReader ()) {
+				using (var reader = ExecuteReader (command)) {
 					var columns = new List<DataColumn> ();
 					var table = reader.GetSchemaTable ();
 
@@ -218,7 +218,7 @@ namespace MimeKit.Cryptography {
 
 			using (var command = CreateCommand ()) {
 				command.CommandText = query;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 
@@ -238,7 +238,7 @@ namespace MimeKit.Cryptography {
 
 			using (var command = CreateCommand ()) {
 				command.CommandText = query;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 

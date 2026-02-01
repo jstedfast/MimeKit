@@ -240,7 +240,7 @@ namespace MimeKit.Cryptography {
 
 			using (var command = CreateCommand ()) {
 				command.CommandText = query;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 
@@ -260,7 +260,7 @@ namespace MimeKit.Cryptography {
 
 			using (var command = CreateCommand ()) {
 				command.CommandText = query;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 
@@ -324,7 +324,7 @@ namespace MimeKit.Cryptography {
 							command.CommandType = CommandType.Text;
 							command.CommandText = statement;
 
-							command.ExecuteNonQuery ();
+							ExecuteNonQuery (command);
 						}
 					}
 				});
@@ -357,7 +357,7 @@ namespace MimeKit.Cryptography {
 							command.CommandType = CommandType.Text;
 							command.CommandText = statement;
 
-							command.ExecuteNonQuery ();
+							ExecuteNonQuery (command);
 						}
 					}
 				});

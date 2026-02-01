@@ -128,7 +128,7 @@ namespace MimeKit.Cryptography {
 		{
 			using (var command = CreateCommand ()) {
 				command.CommandText = $"PRAGMA table_info({tableName})";
-				using (var reader = command.ExecuteReader ()) {
+				using (var reader = ExecuteReader (command)) {
 					var columns = new List<DataColumn> ();
 
 					while (reader.Read ()) {
@@ -232,7 +232,7 @@ namespace MimeKit.Cryptography {
 			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 
@@ -257,7 +257,7 @@ namespace MimeKit.Cryptography {
 			using (var command = CreateCommand ()) {
 				command.CommandText = statement.ToString ();
 				command.CommandType = CommandType.Text;
-				command.ExecuteNonQuery ();
+				ExecuteNonQuery (command);
 			}
 		}
 	}
