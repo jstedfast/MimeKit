@@ -75,19 +75,6 @@ namespace MimeKit.Encodings {
 			get { return ContentEncoding.Base64; }
 		}
 
-		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static void ValidateArguments (byte[] input, int startIndex, int length)
-		{
-			if (input is null)
-				throw new ArgumentNullException (nameof (input));
-
-			if (startIndex < 0 || startIndex > input.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (input.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
-		}
-
 #if NET6_0_OR_GREATER
 		[SkipLocalsInit]
 #endif
@@ -182,7 +169,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public unsafe void Write (byte[] buffer, int startIndex, int length)
 		{
-			ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			if (invalid)
 				return;
