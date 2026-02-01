@@ -98,6 +98,8 @@ namespace MimeKit.Cryptography {
 
 			CertificatesTable = CreateCertificatesDataTable (CertificatesTableName);
 			CrlsTable = CreateCrlsDataTable (CrlsTableName);
+			CertificateParameters = CreateParameters (CertificatesTable);
+			CrlParameters = CreateParameters (CrlsTable);
 
 			CreateCertificatesTable (connection, CertificatesTable);
 			CreateCrlsTable (connection, CrlsTable);
@@ -122,6 +124,26 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <value>The X.509 certificate revocation lists table definition.</value>
 		protected DataTable CrlsTable {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Dictionary mapping certificate <see cref="X509CertificateDatabase.CertificateColumnNames"/> to parameter names.
+		/// </summary>
+		/// <remarks>
+		/// Dictionary mapping certificate <see cref="X509CertificateDatabase.CertificateColumnNames"/> to parameter names.
+		/// </remarks>
+		protected Dictionary<string, string> CertificateParameters {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Dictionary mapping certificate <see cref="X509CertificateDatabase.CrlColumnNames"/> to parameter names.
+		/// </summary>
+		/// <remarks>
+		/// Dictionary mapping certificate <see cref="X509CertificateDatabase.CrlColumnNames"/> to parameter names.
+		/// </remarks>
+		protected Dictionary<string, string> CrlParameters {
 			get; private set;
 		}
 
@@ -165,6 +187,14 @@ namespace MimeKit.Cryptography {
 			return table;
 		}
 
+		Dictionary<string, string> CreateParameters (DataTable table)
+		{
+			Dictionary<string, string> parameters = new Dictionary<string, string> (table.Columns.Count);
+			for (int i = 0; i < table.Columns.Count; i++)
+				parameters[table.Columns[i].ColumnName] = CreateParameterName (table.Columns[i].ColumnName);
+			return parameters;
+		}
+
 		/// <summary>
 		/// Gets the columns for the specified table.
 		/// </summary>
@@ -205,7 +235,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		/// <param name="name">Original name of the parameter</param>
 		/// <returns>The parameter name to be used in queries and <see cref="DbParameter.ParameterName"/>.</returns>
-		protected virtual string CreateParameterName(string name)
+		protected virtual string CreateParameterName (string name)
 		{
 			return "@" + name;
 		}
@@ -290,12 +320,12 @@ namespace MimeKit.Cryptography {
 				// Upgrade from Version 1.
 				ExecuteWithinTransaction (() => {
 
-					var idParameter = CreateParameterName ("ID");
-					var anchorParameter = CreateParameterName ("ANCHOR");
-					var subjectNameParameter = CreateParameterName ("SUBJECTNAME");
-					var subjectKeyIdentifierParameter = CreateParameterName ("SUBJECTKEYIDENTIFIER");
-					var subjectEmailParameter = CreateParameterName ("SUBJECTEMAIL");
-					var subjectDnsNamesParameter = CreateParameterName ("SUBJECTDNSNAMES");
+					var idParameter = CertificateParameters[CertificateColumnNames.Id];
+					var anchorParameter = CertificateParameters[CertificateColumnNames.Anchor];
+					var subjectNameParameter = CertificateParameters[CertificateColumnNames.SubjectName];
+					var subjectKeyIdentifierParameter = CertificateParameters[CertificateColumnNames.SubjectKeyIdentifier];
+					var subjectEmailParameter = CertificateParameters[CertificateColumnNames.SubjectEmail];
+					var subjectDnsNamesParameter = CertificateParameters[CertificateColumnNames.SubjectDnsNames];
 
 					var column = table.Columns[table.Columns.IndexOf (CertificateColumnNames.Anchor)];
 					AddTableColumn (connection, table, column);
@@ -339,9 +369,9 @@ namespace MimeKit.Cryptography {
 				// Upgrade from Version 2.
 				ExecuteWithinTransaction (() => {
 
-					var idParameter = CreateParameterName ("ID");
-					var subjectEmailParameter = CreateParameterName ("SUBJECTEMAIL");
-					var subjectDnsNamesParameter = CreateParameterName ("SUBJECTDNSNAMES");
+					var idParameter = CertificateParameters[CertificateColumnNames.Id];
+					var subjectEmailParameter = CertificateParameters[CertificateColumnNames.SubjectEmail];
+					var subjectDnsNamesParameter = CertificateParameters[CertificateColumnNames.SubjectDnsNames];
 
 					var column = table.Columns[table.Columns.IndexOf (CertificateColumnNames.SubjectDnsNames)];
 					AddTableColumn (connection, table, column);
@@ -453,9 +483,9 @@ namespace MimeKit.Cryptography {
 			var command = CreateCommand ();
 			var query = CreateSelectQuery (fields);
 
-			var issuerNameParameter = CreateParameterName ("ISSUERNAME");
-			var serialNumberParameter = CreateParameterName ("SERIALNUMBER");
-			var fingerprintParameter = CreateParameterName ("FINGERPRINT");
+			var issuerNameParameter = CertificateParameters[CertificateColumnNames.IssuerName];
+			var serialNumberParameter = CertificateParameters[CertificateColumnNames.SerialNumber];
+			var fingerprintParameter = CertificateParameters[CertificateColumnNames.Fingerprint];
 
 			// FIXME: Is this really the best way to query for an exact match of a certificate?
 			query = query.Append (" WHERE ")
@@ -489,13 +519,13 @@ namespace MimeKit.Cryptography {
 			var command = CreateCommand ();
 			var query = CreateSelectQuery (fields);
 
-			var basicConstraintsParameter = CreateParameterName ("BASICCONSTRAINTS");
+			var basicConstraintsParameter = CertificateParameters[CertificateColumnNames.BasicConstraints];
 
 			command.AddParameterWithValue (basicConstraintsParameter, -1);
 			query = query.Append (" WHERE ").Append (CertificateColumnNames.BasicConstraints).Append (" = ").Append (basicConstraintsParameter).Append (" ");
 
 			if (mailbox is SecureMailboxAddress secure && !string.IsNullOrEmpty (secure.Fingerprint)) {
-				var fingerprintParameter = CreateParameterName ("FINGERPRINT");
+				var fingerprintParameter = CertificateParameters[CertificateColumnNames.Fingerprint];
 
 				if (secure.Fingerprint.Length < 40) {
 					command.AddParameterWithValue (fingerprintParameter, secure.Fingerprint.ToLowerInvariant () + "%");
@@ -508,8 +538,8 @@ namespace MimeKit.Cryptography {
 				var domain = MailboxAddress.IdnMapping.Encode (mailbox.Domain);
 				var address = mailbox.GetAddress (true);
 
-				var subjectEmailParameter = CreateParameterName ("SUBJECTEMAIL");
-				var subjectDnsNameParameter = CreateParameterName ("SUBJECTDNSNAME");
+				var subjectEmailParameter = CertificateParameters[CertificateColumnNames.SubjectEmail];
+				var subjectDnsNameParameter = CertificateParameters[CertificateColumnNames.SubjectDnsNames];
 
 				command.AddParameterWithValue (subjectEmailParameter, address.ToLowerInvariant ());
 				command.AddParameterWithValue (subjectDnsNameParameter, $"%|{domain.ToLowerInvariant ()}|%");
@@ -559,8 +589,8 @@ namespace MimeKit.Cryptography {
 			// adds properties like bool Trusted, bool Anchor, and bool HasPrivateKey ? Then we could drop the
 			// bool method arguments...
 			if (trustedAnchorsOnly) {
-				var trustedParameter = CreateParameterName ("TRUSTED");
-				var anchorParameter = CreateParameterName ("ANCHOR");
+				var trustedParameter = CertificateParameters[CertificateColumnNames.Trusted];
+				var anchorParameter = CertificateParameters[CertificateColumnNames.Anchor];
 
 				query = query.Append (CertificateColumnNames.Trusted).Append (" = ").Append (trustedParameter).Append (" AND ")
 					.Append (CertificateColumnNames.Anchor).Append (" = ").Append(anchorParameter);
@@ -570,7 +600,7 @@ namespace MimeKit.Cryptography {
 
 			if (selector is X509CertStoreSelector match) {
 				if (match.BasicConstraints >= 0 || match.BasicConstraints == -2) {
-					var basicConstraintsParameter = CreateParameterName ("BASICCONSTRAINTS");
+					var basicConstraintsParameter = CertificateParameters[CertificateColumnNames.BasicConstraints];
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");
 
@@ -601,7 +631,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");
 
-					var issuerNameParameter = CreateParameterName ("ISSUERNAME");
+					var issuerNameParameter = CertificateParameters[CertificateColumnNames.IssuerName];
 					command.AddParameterWithValue (issuerNameParameter, issuer.ToString ());
 					query = query.Append (CertificateColumnNames.IssuerName).Append (" = ").Append (issuerNameParameter);
 				}
@@ -615,7 +645,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");
 
-					var serialNumberParameter = CreateParameterName ("SERIALNUMBER");
+					var serialNumberParameter = CertificateParameters[CertificateColumnNames.SerialNumber];
 					command.AddParameterWithValue (serialNumberParameter, serialNumber.ToString ());
 					query = query.Append (CertificateColumnNames.SerialNumber).Append (" = ").Append (serialNumberParameter);
 				}
@@ -626,7 +656,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");
 
-					var fingerprintParameter = CreateParameterName ("FINGERPRINT");
+					var fingerprintParameter = CertificateParameters[CertificateColumnNames.Fingerprint];
 					command.AddParameterWithValue (fingerprintParameter, match.Certificate.GetFingerprint ());
 					query = query.Append (CertificateColumnNames.Fingerprint).Append (" = ").Append (fingerprintParameter);
 				}
@@ -635,7 +665,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						query = query.Append (" AND ");
 
-					var subjectNameParameter = CreateParameterName ("SUBJECTNAME");
+					var subjectNameParameter = CertificateParameters[CertificateColumnNames.SubjectName];
 					command.AddParameterWithValue (subjectNameParameter, match.Subject.ToString ());
 					query = query.Append (CertificateColumnNames.SubjectName).Append (" = ").Append (subjectNameParameter);
 				}
@@ -647,7 +677,7 @@ namespace MimeKit.Cryptography {
 					var id = (Asn1OctetString) Asn1Object.FromByteArray (match.SubjectKeyIdentifier);
 					var subjectKeyIdentifier = id.GetOctets ().AsHex ();
 
-					var subjectKeyIdentifierParameter = CreateParameterName ("SUBJECTKEYIDENTIFIER");
+					var subjectKeyIdentifierParameter = CertificateParameters[CertificateColumnNames.SubjectKeyIdentifier];
 					command.AddParameterWithValue (subjectKeyIdentifierParameter, subjectKeyIdentifier);
 					query = query.Append (CertificateColumnNames.SubjectKeyIdentifier).Append (" = ").Append (subjectKeyIdentifierParameter);
 				}
@@ -694,7 +724,7 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (DbConnection connection, X509Name issuer, X509CrlRecordFields fields)
 		{
-			var issuerNameParameter = CreateParameterName ("ISSUERNAME");
+			var issuerNameParameter = CrlParameters[CrlColumnNames.IssuerName];
 			var query = CreateSelectQuery (fields).Append (" WHERE ").Append (CrlColumnNames.IssuerName).Append (" = ").Append (issuerNameParameter);
 			var command = CreateCommand ();
 
@@ -717,9 +747,9 @@ namespace MimeKit.Cryptography {
 		/// <param name="fields">The fields to return.</param>
 		protected override DbCommand GetSelectCommand (DbConnection connection, X509Crl crl, X509CrlRecordFields fields)
 		{
-			var deltaParameter = CreateParameterName ("DELTA");
-			var issuerNameParameter = CreateParameterName ("ISSUERNAME");
-			var thisUpdateParameter = CreateParameterName ("THISUPDATE");
+			var deltaParameter = CrlParameters[CrlColumnNames.Delta];
+			var issuerNameParameter = CrlParameters[CrlColumnNames.IssuerName];
+			var thisUpdateParameter = CrlParameters[CrlColumnNames.ThisUpdate];
 
 			var query = CreateSelectQuery (fields).Append (" WHERE ")
 				.Append (CrlColumnNames.Delta).Append (" = ").Append (deltaParameter).Append (" AND ")
@@ -768,7 +798,7 @@ namespace MimeKit.Cryptography {
 		{
 			var command = CreateCommand ();
 
-			var idParameter = CreateParameterName ("ID");
+			var idParameter = CertificateParameters[CertificateColumnNames.Id];
 			command.CommandText = $"DELETE FROM {CertificatesTableName} WHERE {CertificateColumnNames.Id} = {idParameter}";
 			command.AddParameterWithValue (idParameter, record.Id);
 			command.CommandType = CommandType.Text;
@@ -789,7 +819,7 @@ namespace MimeKit.Cryptography {
 		{
 			var command = CreateCommand ();
 
-			var idParameter = CreateParameterName ("ID");
+			var idParameter = CrlParameters[CrlColumnNames.Id];
 			command.CommandText = $"DELETE FROM {CrlsTableName} WHERE {CrlColumnNames.Id} = {idParameter}";
 			command.AddParameterWithValue (idParameter, record.Id);
 			command.CommandType = CommandType.Text;
@@ -820,7 +850,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				var value = GetValue (record, columns[i].ColumnName);
-				var variable = CreateParameterName (columns[i].ToString ());
+				var variable = CertificateParameters[columns[i].ColumnName];
 
 				command.AddParameterWithValue (variable, value);
 				statement.Append (columns[i]);
@@ -859,7 +889,7 @@ namespace MimeKit.Cryptography {
 				}
 
 				var value = GetValue (record, columns[i].ColumnName);
-				var variable = CreateParameterName (columns[i].ToString ());
+				var variable = CrlParameters[columns[i].ToString ()];
 
 				command.AddParameterWithValue (variable, value);
 				statement.Append (columns[i]);
@@ -893,7 +923,7 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 0; i < columns.Length; i++) {
 				var value = GetValue (record, columns[i]);
-				var variable = CreateParameterName (columns[i].ToString ());
+				var variable = CertificateParameters[columns[i].ToString ()];
 
 				if (i > 0)
 					statement.Append (", ");
@@ -905,7 +935,7 @@ namespace MimeKit.Cryptography {
 				command.AddParameterWithValue (variable, value);
 			}
 
-			var idParameter = CreateParameterName ("ID");
+			var idParameter = CertificateParameters[CertificateColumnNames.Id];
 			statement.Append (" WHERE ").Append (CertificateColumnNames.Id).Append (" = ").Append (idParameter);
 			command.AddParameterWithValue (idParameter, record.Id);
 
@@ -933,7 +963,7 @@ namespace MimeKit.Cryptography {
 
 			for (int i = 1; i < columns.Count; i++) {
 				var value = GetValue (record, columns[i].ColumnName);
-				var variable = CreateParameterName (columns[i].ToString ());
+				var variable = CrlParameters[columns[i].ToString ()];
 
 				if (i > 1)
 					statement.Append (", ");
@@ -945,7 +975,7 @@ namespace MimeKit.Cryptography {
 				command.AddParameterWithValue (variable, value);
 			}
 
-			var idParameter = CreateParameterName ("ID");
+			var idParameter = CrlParameters[CrlColumnNames.Id];
 			statement.Append (" WHERE ").Append (CrlColumnNames.Id).Append (" = ").Append (idParameter);
 			command.AddParameterWithValue (idParameter, record.Id);
 
