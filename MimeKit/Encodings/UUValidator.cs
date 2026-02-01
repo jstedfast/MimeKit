@@ -99,19 +99,6 @@ namespace MimeKit.Encodings {
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static void ValidateArguments (byte[] input, int startIndex, int length)
-		{
-			if (input is null)
-				throw new ArgumentNullException (nameof (input));
-
-			if (startIndex < 0 || startIndex > input.Length)
-				throw new ArgumentOutOfRangeException (nameof (startIndex));
-
-			if (length < 0 || length > (input.Length - startIndex))
-				throw new ArgumentOutOfRangeException (nameof (length));
-		}
-
-		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe byte ReadByte (ref byte* inptr)
 		{
 			byte c = *inptr++;
@@ -495,7 +482,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public unsafe void Write (byte[] buffer, int startIndex, int length)
 		{
-			ValidateArguments (buffer, startIndex, length);
+			ArgumentValidator.Validate (buffer, startIndex, length);
 
 			if (state == UUValidatorState.Invalid)
 				return;
