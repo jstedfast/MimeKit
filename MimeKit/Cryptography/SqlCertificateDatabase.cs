@@ -228,7 +228,7 @@ namespace MimeKit.Cryptography {
 		protected abstract void AddTableColumn (DbConnection connection, DataTable table, DataColumn column);
 
 		/// <summary>
-		/// Creates a parameter name for the underlying database by appending '@' to the specified name.
+		/// Creates a parameter name for the underlying database by prefixing '@' to the specified name.
 		/// </summary>
 		/// <remarks>
 		/// Usually either @name or :name depending on the database.
