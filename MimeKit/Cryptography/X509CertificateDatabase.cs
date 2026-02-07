@@ -435,26 +435,29 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Executes the reader by calling <see cref="DbCommand.ExecuteReader()"/>."/>
+		/// Execute a database command.
 		/// </summary>
 		/// <remarks>
-		/// Method intended to be overriden by subclasses to patch commands before execution or log them.
+		/// <para>Executes the <see cref="DbCommand.ExecuteReader()"/> method.</para>
+		/// <para>This method is intended to be overridden by subclasses to patch commands before execution or to log them.</para>
 		/// </remarks>
 		/// <param name="command">The command to be executed.</param>
-		/// <returns>The reader generated from the command.</returns>
-		protected virtual DbDataReader ExecuteReader(DbCommand command)
+		/// <returns>The database reader.</returns>
+		protected virtual DbDataReader ExecuteReader (DbCommand command)
 		{
 			return command.ExecuteReader ();
 		}
+
 		/// <summary>
-		/// Executes the command by calling <see cref="DbCommand.ExecuteNonQuery()"/>."/>
+		/// Execute a non-query database command.
 		/// </summary>
 		/// <remarks>
-		/// Method intended to be overriden by subclasses to patch commands before execution or log them.
+		/// <para>Executes the <see cref="DbCommand.ExecuteNonQuery()"/> method.</para>
+		/// <para>This method is intended to be overridden by subclasses to patch commands before execution or to log them.</para>
 		/// </remarks>
 		/// <param name="command">The command to be executed.</param>
 		/// <returns>The number of rows affected.</returns>
-		protected virtual int ExecuteNonQuery(DbCommand command)
+		protected virtual int ExecuteNonQuery (DbCommand command)
 		{
 			return command.ExecuteNonQuery ();
 		}
