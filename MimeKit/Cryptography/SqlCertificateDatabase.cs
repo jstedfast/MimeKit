@@ -138,10 +138,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Dictionary mapping certificate <see cref="X509CertificateDatabase.CrlColumnNames"/> to parameter names.
+		/// Dictionary mapping CRL column names (<see cref="X509CertificateDatabase.CrlColumnNames"/>) to parameter names.
 		/// </summary>
 		/// <remarks>
-		/// Dictionary mapping certificate <see cref="X509CertificateDatabase.CrlColumnNames"/> to parameter names.
+		/// Dictionary mapping CRL column names (<see cref="X509CertificateDatabase.CrlColumnNames"/>) to parameter names.
 		/// </remarks>
 		protected Dictionary<string, string> CrlParameters {
 			get; private set;
