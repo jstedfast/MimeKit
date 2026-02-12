@@ -85,6 +85,7 @@ namespace MimeKit {
 				{ ".atom", "application/atom+xml" },
 				{ ".au", "audio/x-au" },
 				{ ".avi", "video/avi" },
+				{ ".avif", "image/avif" },
 				{ ".avs", "video/avs-video" },
 				{ ".axs", "application/olescript" },
 				{ ".azw", "application/vnd.amazon.ebook" },
