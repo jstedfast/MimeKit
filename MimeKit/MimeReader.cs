@@ -195,7 +195,7 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
-		[MemberNotNull (nameof (this.stream))]
+		[MemberNotNull (nameof (stream))]
 		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
 			if (stream is null)
