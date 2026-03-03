@@ -173,10 +173,12 @@ namespace UnitTests {
 
 			public CustomMimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default) : base (options, stream, format)
 			{
+				DetectMimeComplianceViolations = false;
 			}
 
 			public CustomMimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : base (stream, format)
 			{
+				DetectMimeComplianceViolations = false;
 			}
 
 			protected override void OnMboxMarkerRead (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
@@ -425,7 +427,7 @@ Content-Type: text/plain; charset=us-ascii
 This is a single line of text".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				reader.ReadMessage ();
 
@@ -449,7 +451,7 @@ Content-Type: text/plain; charset=us-ascii
 This is a single line of text".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				await reader.ReadMessageAsync ();
 
@@ -474,7 +476,7 @@ This is a single line of text
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				reader.ReadMessage ();
 
@@ -499,7 +501,7 @@ This is a single line of text
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				await reader.ReadMessageAsync ();
 
@@ -533,7 +535,7 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				reader.ReadMessage ();
 
@@ -567,7 +569,7 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				await reader.ReadMessageAsync ();
 
@@ -602,7 +604,7 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				reader.ReadMessage ();
 
@@ -637,7 +639,7 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				await reader.ReadMessageAsync ();
 
@@ -654,7 +656,7 @@ ABC
 			const string text = "From: mimekit@example.org";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				reader.ReadMessage ();
 
@@ -674,7 +676,7 @@ ABC
 			const string text = "From: mimekit@example.org";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				await reader.ReadMessageAsync ();
 
@@ -694,7 +696,7 @@ ABC
 			const string text = "From: mimekit@example.org\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				reader.ReadMessage ();
 
@@ -714,7 +716,7 @@ ABC
 			const string text = "From: mimekit@example.org\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
 
 				await reader.ReadMessageAsync ();
 
@@ -1281,6 +1283,42 @@ This is the second inner message body.
 		}
 
 		[Test]
+		public void TestMimeComplianceUnexpected8BitBytesInHeader ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
+			};
+
+			AssertMimeComplianceViolations ("raw-koi8r-header.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpected8BitBytesInHeaderAsync ()
+		{
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
+			};
+
+			return AssertMimeComplianceViolationsAsync ("raw-koi8r-header.eml", issues);
+		}
+
+		[Test]
+		public void TestMimeComplianceValid8BitBytesInHeader ()
+		{
+			var issues = Array.Empty<MimeComplianceIssue> ();
+
+			AssertMimeComplianceViolations ("raw-utf8-header.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceValid8BitBytesInHeaderAsync ()
+		{
+			var issues = Array.Empty<MimeComplianceIssue> ();
+
+			return AssertMimeComplianceViolationsAsync ("raw-utf8-header.eml", issues);
+		}
+
+		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInBody ()
 		{
 			var issues = new MimeComplianceIssue[] {
@@ -1341,7 +1379,7 @@ This is the second inner message body.
 		}
 
 		[Test]
-		public void TestMimeComplianceUnexpectedNullBytesInHeaders ()
+		public void TestMimeComplianceUnexpectedNullBytesInHeader ()
 		{
 			var issues = new MimeComplianceIssue[] {
 				new MimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1)
@@ -1351,7 +1389,7 @@ This is the second inner message body.
 		}
 
 		[Test]
-		public Task TestMimeComplianceUnexpectedNullBytesInHeadersAsync ()
+		public Task TestMimeComplianceUnexpectedNullBytesInHeaderAsync ()
 		{
 			var issues = new MimeComplianceIssue[] {
 				new MimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1)

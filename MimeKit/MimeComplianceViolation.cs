@@ -182,7 +182,7 @@ namespace MimeKit {
 		/// US-ASCII should be encoded using the encoding mechanism described in the MIME specification and/or should be
 		/// valid UTF-8 as allowed in the Internationalized Email Headers specification.
 		/// </remarks>
-		Unexpected8BitBytesInHeaders,
+		Unexpected8BitBytesInHeader,
 
 		/// <summary>
 		/// A MIME part's body contained 8-bit content where only 7-bit content was expected.
