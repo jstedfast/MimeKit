@@ -184,6 +184,42 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithInvalidQuotedLocalPart ()
+		{
+			const string text = "\"invalid\r\nquoted\"@domain.com";
+			int errorIndex = text.IndexOf ('\r');
+			const int tokenIndex = 0;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithInvalidQuotedPairLocalPart ()
+		{
+			const string text = "\"invalid\\\rquoted\"@domain.com";
+			int errorIndex = text.IndexOf ('\r');
+			const int tokenIndex = 0;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+		}
+
+		[Test]
+		public void TestParseMailboxWithValidQuotedLocalPart ()
+		{
+			const string text = "\"\t !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"@domain.com";
+
+			AssertParse (text);
+		}
+
+		[Test]
+		public void TestParseMailboxWithValidUTF8QuotedLocalPart ()
+		{
+			const string text = "\"名がドメイン\"@domain.com";
+
+			AssertParse (text);
+		}
+
+		[Test]
 		public void TestParseIncompleteQuotedString ()
 		{
 			const string text = "\"This quoted string never ends... oh no!";

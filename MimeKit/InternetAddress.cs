@@ -307,6 +307,80 @@ namespace MimeKit {
 			Changed?.Invoke (this, EventArgs.Empty);
 		}
 
+		static bool SkipQuoted (byte[] text, ref int index, int endIndex, bool throwOnError)
+		{
+			// From rfc5322:
+			//
+			// qcontent        =   qtext / quoted-pair
+			//
+			// qtext           =   %d33 /             ; Printable US-ASCII
+			//                     %d35-91 /          ; characters not including
+			//                     %d93-126 /         ; "\" or the quote character
+			//                     obs-qtext
+			//
+			// obs-qtext       =   <any CHAR excepting <">,     ; => may be folded
+			//                     "\" & CR, and including
+			//                     linear-white-space>
+			//
+			// quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
+			//
+			// VCHAR           =  %x21-7E             ; visible (printing) characters
+			//
+			// WSP             =  SP / HTAB           ; white space
+			int startIndex = index;
+			bool escaped = false;
+
+			// skip over leading '"'
+			index++;
+
+			while (index < endIndex) {
+				byte c = text[index];
+
+				if (c == (byte) '\\') {
+					escaped = !escaped;
+				} else if (!escaped) {
+					if (c == (byte) '"')
+						break;
+
+					// Note: the qtext definition from rfc5322 accepts %d33, %d35-91, and %d93-126 and so you
+					// might expect that we limit the characters to those ranges, but rfc6532 extends the qtext
+					// definition to allow UTF-8 characters and so we need to allow for that as well. In addition
+					// to that, obs-qtext also explicitly allows linear whitespace (SPACE %d32 and HTAB %d09), so
+					// the only characters that are not allowed are the control characters (%d0-8 and %d10-31),
+					// the double-quote character (%d34), and the delete character (%d127).
+					if (c < 9 || (c > 9 && c < 32) || c == 34 || c == 127) {
+						if (throwOnError)
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid character in quoted-string token at offset {0}", startIndex), startIndex, index);
+
+						return false;
+					}
+				} else {
+					if (c < 9 || (c > 9 && c < 32) || c == 127) {
+						if (throwOnError)
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid quoted-pair in quoted-string token at offset {0}", startIndex), startIndex, index);
+
+						return false;
+					}
+
+					escaped = false;
+				}
+
+				index++;
+			}
+
+			if (index >= endIndex) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			// skip over the closing '"'
+			index++;
+
+			return true;
+		}
+
 		internal static bool TryParseLocalPart (byte[] text, ref int index, int endIndex, RfcComplianceMode compliance, bool skipTrailingCfws, bool throwOnError, [NotNullWhen (true)] out string? localpart)
 		{
 			using var token = new ValueStringBuilder (128);
@@ -319,7 +393,7 @@ namespace MimeKit {
 				int start = index;
 
 				if (text[index] == (byte) '"') {
-					if (!ParseUtils.SkipQuoted (text, ref index, endIndex, throwOnError))
+					if (!SkipQuoted (text, ref index, endIndex, throwOnError))
 						return false;
 				} else if (text[index].IsAtom ()) {
 					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
