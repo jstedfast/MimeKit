@@ -130,6 +130,24 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Get or set whether to encrypt only to recipients whose certificates pass validation.
+		/// </summary>
+		/// <remarks>
+		/// <para>When set to <see langword="true"/> and <see cref="CheckCertificateRevocation"/>
+		/// is also <see langword="true"/>, recipient certificates that fail validation (e.g. due to
+		/// revocation or chain-building failure) will be silently skipped rather than causing an
+		/// exception to be thrown.</para>
+		/// <para>The encrypted message will only be decryptable by recipients whose certificates
+		/// passed validation.</para>
+		/// <para>If all recipient certificates fail validation, a <see cref="CertificateValidationException"/>
+		/// is still thrown since an empty CMS envelope cannot be created.</para>
+		/// </remarks>
+		/// <value><see langword="true"/> if encryption should skip invalid recipients; otherwise, <see langword="false"/>.</value>
+		public bool EncryptToValidRecipientsOnly {
+			get; set;
+		}
+
+		/// <summary>
 		/// Get the HTTP client to use for downloading CRLs.
 		/// </summary>
 		/// <remarks>
@@ -1664,29 +1682,51 @@ namespace MimeKit.Cryptography {
 		void AddCmsRecipients (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
 			var unique = new HashSet<X509Certificate> ();
+			List<CertificateValidationFailure>? failures = null;
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					if (CheckCertificateRevocation)
-						ValidateRecipientCertificate (recipient.Certificate, cancellationToken);
+					if (CheckCertificateRevocation) {
+						try {
+							ValidateRecipientCertificate (recipient.Certificate, cancellationToken);
+						} catch (Exception ex) {
+							failures ??= new List<CertificateValidationFailure> ();
+							failures.Add (new CertificateValidationFailure (recipient.Certificate, ex));
+							continue;
+						}
+					}
 
 					AddRecipient (cms, recipient);
 				}
 			}
+
+			if (failures != null && (!EncryptToValidRecipientsOnly || unique.Count == failures.Count))
+				throw new CertificateValidationException (failures);
 		}
 
 		async Task AddCmsRecipientsAsync (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
 			var unique = new HashSet<X509Certificate> ();
+			List<CertificateValidationFailure>? failures = null;
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					if (CheckCertificateRevocation)
-						await ValidateRecipientCertificateAsync (recipient.Certificate, cancellationToken).ConfigureAwait (false);
+					if (CheckCertificateRevocation) {
+						try {
+							await ValidateRecipientCertificateAsync (recipient.Certificate, cancellationToken).ConfigureAwait (false);
+						} catch (Exception ex) {
+							failures ??= new List<CertificateValidationFailure> ();
+							failures.Add (new CertificateValidationFailure (recipient.Certificate, ex));
+							continue;
+						}
+					}
 
 					AddRecipient (cms, recipient);
 				}
 			}
+
+			if (failures != null && (!EncryptToValidRecipientsOnly || unique.Count == failures.Count))
+				throw new CertificateValidationException (failures);
 		}
 
 		ApplicationPkcs7Mime Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
