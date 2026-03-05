@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.15.0</version>
+    <version>4.15.1</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,15 +26,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Fixed inexact read in TnefPropertyReader.GetEmbeddedMessageReader().
-* Fixed IndexOutOfRangeException in DateTImeUtils.TryParse() when missing timezone after AM/PM. (issue #1204)
-* Added nullable attributes to the API. (issue #1067)
-* AuthenticationResults parsing now supports Gmail style headers. (issue #1208)
-* Changed the Base64Decoder to no longer default to enabling hardware acceleration due to bugs in System.Buffers.Text.Base64.DecodeFromUtf8 (will likely be fixed in .NET 11). (issue #1215)
-* Improved SqlCertificateDatabase abstraction to make it easier to subclass when the SQL syntax does not match SQLite. (issue #1218)
-* Bumped System.Buffers to 4.6.1 and System.Memory to 4.6.3.
-* Bumped BouncyCastle.Cryptography to 2.6.2.
-* Added support for .NET 10.
+* [SECURITY] Use stricter parsing logic for quoted-strings in addr-specs to prevent SMTP command injection attacks when those quoted-strings include CRLF sequences.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
