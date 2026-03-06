@@ -327,6 +327,14 @@ namespace MimeKit {
 			// VCHAR           =  %x21-7E             ; visible (printing) characters
 			//
 			// WSP             =  SP / HTAB           ; white space
+			//
+			// obs-qp          =   "\" (%d0 / obs-NO-WS-CTL / LF / CR)
+			//
+			// obs-NO-WS-CTL   =   %d1-8 /            ; US-ASCII control
+			//                     %d11 /             ;  characters that do not
+			//                     %d12 /             ;  include the carriage
+			//                     %d14-31 /          ;  return, line feed, and
+			//                     %d127              ;  white space characters
 			int startIndex = index;
 			bool escaped = false;
 
@@ -348,14 +356,16 @@ namespace MimeKit {
 					// to that, obs-qtext also explicitly allows linear whitespace (SPACE %d32 and HTAB %d09), so
 					// the only characters that are not allowed are the control characters (%d0-8 and %d10-31),
 					// the double-quote character (%d34), and the delete character (%d127).
-					if (c < 9 || (c > 9 && c < 32) || c == 34 || c == 127) {
+					if ((c < 32 && c != 9) || c == 127) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid character in quoted-string token at offset {0}", startIndex), startIndex, index);
 
 						return false;
 					}
 				} else {
-					if (c < 9 || (c > 9 && c < 32) || c == 127) {
+					// Note: We are going to make the decision to not support any escaped ctrl characters even
+					// though they are allowed by obs-qp. They are just too dangerous.
+					if ((c < 32 && c != 9) || c == 127) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid quoted-pair in quoted-string token at offset {0}", startIndex), startIndex, index);
 
