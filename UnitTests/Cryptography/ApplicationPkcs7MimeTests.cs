@@ -300,6 +300,39 @@ namespace UnitTests.Cryptography {
 			return mockHttpMessageHandler;
 		}
 
+		protected static HttpResponseMessage[] SubCaRevokedCertificateResponses ()
+		{
+			return new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[4].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[1].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[2].GetEncoded ())
+				}
+			};
+		}
+
+		protected static Mock<HttpMessageHandler> CreateSubCaRevokedMockHttpMessageHandler ()
+		{
+			var responses = SubCaRevokedCertificateResponses ();
+			var mockHttpMessageHandler = CreateMockHttpMessageHandler (responses);
+
+			mockHttpMessageHandler
+				.Protected ()
+				.Setup<Task<HttpResponseMessage>> (
+					"SendAsync",
+					ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == SecureMimeTestsBase.SubCaRevokedCrlRequestUri),
+					ItExpr.IsAny<CancellationToken> ())
+				.ReturnsAsync (new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[5].GetEncoded ())
+				});
+
+			return mockHttpMessageHandler;
+		}
+
 		protected static void ImportAll (SecureMimeContext ctx)
 		{
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
@@ -1187,6 +1220,30 @@ namespace UnitTests.Cryptography {
 
 			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
 		}
+
+		protected static void VerifyEncryptToValidRecipientsOnlySubCaRevokedAllFail (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate subCaRevokedCertificate)
+		{
+			var body = new TextPart ("plain") { Text = "This is the message body that we will be encrypting..." };
+			var recipients = new CmsRecipientCollection () {
+				new CmsRecipient (subCaRevokedCertificate.Certificate)
+			};
+
+			ctx.CheckCertificateRevocation = true;
+			ctx.EncryptToValidRecipientsOnly = true;
+
+			try {
+				ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				Assert.Fail ("Encrypt should have thrown a CertificateValidationException when all recipients fail validation.");
+			} catch (CertificateValidationException cve) {
+				Assert.That (cve.Failures, Has.Count.EqualTo (1), "cve.Failures.Count");
+				Assert.That (cve.Failures[0].Certificate, Is.EqualTo (subCaRevokedCertificate.Certificate), "cve.Failures[0].Certificate");
+			} finally {
+				ctx.CheckCertificateRevocation = false;
+				ctx.EncryptToValidRecipientsOnly = false;
+			}
+
+			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler, new Uri[] { SecureMimeTestsBase.CrlRequestUris[0] });
+		}
 	}
 
 	[TestFixture]
@@ -1333,6 +1390,39 @@ namespace UnitTests.Cryptography {
 				VerifyEncryptToValidRecipientsOnlyAllFail (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate);
 			}
 		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlySubCaRevoked ()
+		{
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+		}
+
+		[Test]
+		public async Task TestEncryptToValidRecipientsOnlySubCaRevokedAsync ()
+		{
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
+				await ImportAllAsync (ctx);
+
+				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlySubCaRevokedAllFail ()
+		{
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnlySubCaRevokedAllFail (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+		}
 	}
 
 	[TestFixture]
@@ -1395,6 +1485,15 @@ namespace UnitTests.Cryptography {
 
 			if (File.Exists ("valid-only-all-fail-pkcs7.db"))
 				File.Delete ("valid-only-all-fail-pkcs7.db");
+
+			if (File.Exists ("valid-only-subca-revoked-pkcs7.db"))
+				File.Delete ("valid-only-subca-revoked-pkcs7.db");
+
+			if (File.Exists ("valid-only-subca-revoked-pkcs7-async.db"))
+				File.Delete ("valid-only-subca-revoked-pkcs7-async.db");
+
+			if (File.Exists ("valid-only-subca-revoked-all-fail-pkcs7.db"))
+				File.Delete ("valid-only-subca-revoked-all-fail-pkcs7.db");
 		}
 
 		[Test]
@@ -1538,6 +1637,51 @@ namespace UnitTests.Cryptography {
 				ImportAll (ctx);
 
 				VerifyEncryptToValidRecipientsOnlyAllFail (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlySubCaRevoked ()
+		{
+			const string fileName = "valid-only-subca-revoked-pkcs7.db";
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public async Task TestEncryptToValidRecipientsOnlySubCaRevokedAsync ()
+		{
+			const string fileName = "valid-only-subca-revoked-pkcs7-async.db";
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
+				await ImportAllAsync (ctx);
+
+				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlySubCaRevokedAllFail ()
+		{
+			const string fileName = "valid-only-subca-revoked-all-fail-pkcs7.db";
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnlySubCaRevokedAllFail (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SubCaRevokedCertificate);
 			}
 
 			File.Delete (fileName);
