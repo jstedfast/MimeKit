@@ -37,9 +37,12 @@ namespace MimeKit {
 		/// A bare linefeed character was found in a MIME part or message header.
 		/// </summary>
 		/// <remarks>
-		/// The Internet Message Format specification requires that all lines be terminated with a
-		/// &lt;CR&gt;&lt;LF&gt; sequence. Messages that deviate from this requirement may not be
-		/// processed correctly by some mail software.
+		/// <para>The Internet Message Format specification requires that all lines be terminated with
+		/// a &lt;CR&gt;&lt;LF&gt; sequence. Messages that deviate from this requirement may not be
+		/// processed correctly by some mail software.</para>
+		/// <note type="note">This is generally acceptable when parsing messages from disk storage on
+		/// UNIX systems but should not occur when transmitting messages over the network via protocols
+		/// such as SMTP, POP3 or IMAP.</note>
 		/// </remarks>
 		BareLinefeedInHeader,
 
@@ -47,9 +50,12 @@ namespace MimeKit {
 		/// A bare linefeed character was found in the body of the message.
 		/// </summary>
 		/// <remarks>
-		/// The Internet Message Format specification requires that all lines be terminated with a
-		/// &lt;CR&gt;&lt;LF&gt; sequence. Messages that deviate from this requirement may not be
-		/// processed correctly by some mail software.
+		/// <para>The Internet Message Format specification requires that all lines be terminated with
+		/// a &lt;CR&gt;&lt;LF&gt; sequence. Messages that deviate from this requirement may not be
+		/// processed correctly by some mail software.</para>
+		/// <note type="note">This is generally acceptable when parsing messages from disk storage on
+		/// UNIX systems but should not occur when transmitting messages over the network via protocols
+		/// such as SMTP, POP3 or IMAP.</note>
 		/// </remarks>
 		BareLinefeedInBody,
 
@@ -57,10 +63,14 @@ namespace MimeKit {
 		/// A MIME part or message header contained control (or whitespace) characters in the field name.
 		/// </summary>
 		/// <remarks>
-		/// The Internet Message Format specification requires that all header field names be composed of
-		/// printable ASCII characters and must not contain control characters or whitespace characters.
+		/// <para>The Internet Message Format specification requires that all header field names be composed
+		/// of printable US-ASCII characters and must not contain control characters or whitespace characters.
 		/// Inclusion of these characters can lead to divergent behavior among various MIME parsers,
-		/// resulting in differences in handling.
+		/// resulting in differences in handling.</para>
+		/// <note type="note">The Internet Message Format specification allows for whitespace characters to
+		/// exist between the end of the field name and the <c>':'</c> character that delineates the header
+		/// name and value. In that particular case, the <see cref="InvalidHeader"/> violation will NOT be
+		/// raised.</note>
 		/// </remarks>
 		InvalidHeader,
 
@@ -68,9 +78,9 @@ namespace MimeKit {
 		/// A MIME part or message header ended prematurely at the end of the stream.
 		/// </summary>
 		/// <remarks>
-		/// This usually indicates that the message was truncated somewhere in transport and may be a sign that
-		/// an earlier MIME parser implementation failed to properly handle certain edge cases such as a null
-		/// byte in the message header.
+		/// This usually indicates that the message was truncated somewhere in transit and may be a sign that
+		/// a MIME parser implementation earlier in transit failed to properly handle certain edge cases such
+		/// as a null (<c>0x00</c>) byte in the message header.
 		/// </remarks>
 		IncompleteHeader,
 
@@ -78,7 +88,10 @@ namespace MimeKit {
 		/// A Content-Type header value was not valid.
 		/// </summary>
 		/// <remarks>
-		/// This indicates that the Content-Type header was not properly formatted and could not be parsed.
+		/// <para>This indicates that the Content-Type header was not properly formatted and could not be parsed.
+		/// Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME
+		/// part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different
+		/// MIME parser implementations.</para>
 		/// </remarks>
 		InvalidContentType,
 
@@ -88,7 +101,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// The MIME specifications require that each MIME part contain only one Content-Type header.
 		/// Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different
-		/// MIME parser implementations.
+		/// MIME parser implementations which may choose to use different Content-Type headers as their
+		/// "source of truth".
 		/// </remarks>
 		MultipleContentTypes,
 
@@ -101,20 +115,24 @@ namespace MimeKit {
 		InvalidContentTransferEncoding,
 
 		/// <summary>
-		/// A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value such as "quoted-printable" or "base64".
+		/// A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value.
 		/// </summary>
 		/// <remarks>
-		/// The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify any encoding
-		/// that transforms the content in any way (such as quoted-printable or base64).
+		/// <para>The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify
+		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
+		/// <note type="note">The only permissable Content-Transfer-Encoding values for a message/rfc822 part are
+		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
 		/// </remarks>
 		IllegalMessageRfc822ContentTransferEncoding,
 
 		/// <summary>
-		/// A Content-Transfer-Encoding header for a multipart contained an illegal value such as "quoted-printable" or "base64".
+		/// A Content-Transfer-Encoding header for a multipart contained an illegal value.
 		/// </summary>
 		/// <remarks>
-		/// The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify any encoding
-		/// that transforms the content in any way (such as quoted-printable or base64).
+		/// <para>The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify
+		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
+		/// <note type="note">The only permissable Content-Transfer-Encoding values for a multipart are
+		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
 		/// </remarks>
 		IllegalMultipartContentTransferEncoding,
 
@@ -124,7 +142,8 @@ namespace MimeKit {
 		/// <remarks>
 		/// The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header.
 		/// Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different
-		/// MIME parser implementations.
+		/// MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their
+		/// "source of truth".
 		/// </remarks>
 		MultipleContentTransferEncodings,
 
@@ -140,8 +159,10 @@ namespace MimeKit {
 		/// An empty line separating the headers from the body was missing.
 		/// </summary>
 		/// <remarks>
-		/// A missing body separator can lead to ambiguity when parsing the message, as it becomes unclear
-		/// where the headers end and the body begins.
+		/// The Internet Message Format specifications require that an empty line separate the headers from
+		/// the body of a message. This empty line serves as a clear delimiter between the headers and the
+		/// body, allowing MIME parsers to correctly identify where the headers end and the body begins.
+		/// A missing body separator can lead to ambiguity when parsing the message.
 		/// </remarks>
 		MissingBodySeparator,
 
@@ -150,8 +171,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// The MIME specifications require that each multipart Content-Type header include a boundary parameter.
-		/// A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among different
-		/// MIME parser implementations.
+		/// A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among
+		/// different MIME parser implementations.
 		/// </remarks>
 		MissingMultipartBoundaryParameter,
 
@@ -159,8 +180,9 @@ namespace MimeKit {
 		/// A boundary parameter in a multipart Content-Type header was not valid.
 		/// </summary>
 		/// <remarks>
-		/// A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by the MIME specifications.
-		/// Invalid boundary parameters can lead to ambiguity and inconsistent behavior among different MIME parser implementations.
+		/// A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by
+		/// the MIME specifications. Invalid boundary parameters can lead to ambiguity and inconsistent behavior
+		/// among different MIME parser implementations.
 		/// </remarks>
 		InvalidMultipartBoundaryParameter,
 
@@ -178,9 +200,13 @@ namespace MimeKit {
 		/// A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected.
 		/// </summary>
 		/// <remarks>
-		/// The Internet Message Format specification requires that headers are strictly US-ASCII. Header values that are not
-		/// US-ASCII should be encoded using the encoding mechanism described in the MIME specification and/or should be
-		/// valid UTF-8 as allowed in the Internationalized Email Headers specification.
+		/// <para>Older Internet Message Format specifications require that headers are strictly US-ASCII
+		/// while the newer Internationalized Email Headers specification allows for UTF-8. Header values
+		/// that are not US-ASCII should be encoded using the encoding mechanism described in the MIME
+		/// specification and/or should be valid UTF-8 as allowed in the Internationalized Email Headers
+		/// specification.</para>
+		/// <note type="note">This violation will only be raised if the 8-bit text in the header value is
+		/// not valid UTF-8.</note>
 		/// </remarks>
 		Unexpected8BitBytesInHeader,
 
@@ -188,7 +214,8 @@ namespace MimeKit {
 		/// A MIME part's body contained 8-bit content where only 7-bit content was expected.
 		/// </summary>
 		/// <remarks>
-		/// This indicates that the Content-Transfer-Encoding header for a MIME part was set to <c>7bit</c> but contained
+		/// This indicates that the Content-Transfer-Encoding header for a MIME part was set to a 7-bit
+		/// encoding (such as <c>7bit</c>, <c>quoted-printable</c>, or <c>base64</c>) but contained
 		/// non-ASCII text (or potentially even binary data).
 		/// </remarks>
 		Unexpected8BitBytesInBody,
@@ -197,9 +224,10 @@ namespace MimeKit {
 		/// A MIME part or message header contained illegal null (<c>0x00</c>) bytes.
 		/// </summary>
 		/// <remarks>
-		/// Null (0x00) bytes in a message header can be used by malicious actors to prevent some MIME parsers, such as those
-		/// written in languages like C or C++, from discovering content after the null byte. This technique can be used to
-		/// smuggle viruses or other malicious content past content scanners.
+		/// Null (<c>0x00</c>) bytes in a message header can be used by malicious actors to prevent some
+		/// MIME parsers, such as those written in languages like C or C++ which tend to use the null byte
+		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
+		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>
 		UnexpectedNullBytesInHeader,
 
@@ -207,9 +235,10 @@ namespace MimeKit {
 		/// A MIME part's body contained null (<c>0x00</c>) bytes without specifying a binary transfer encoding.
 		/// </summary>
 		/// <remarks>
-		/// Null (0x00) bytes in a message body can be used by malicious actors to prevent some MIME parsers, such as those
-		/// written in languages like C or C++, from discovering content after the null byte. This technique can be used to
-		/// smuggle viruses or other malicious content past content scanners.
+		/// Null (<c>0x00</c>) bytes in a message body can be used by malicious actors to prevent some
+		/// MIME parsers, such as those written in languages like C or C++which tend to use the null byte
+		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
+		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>
 		UnexpectedNullBytesInBody,
 
