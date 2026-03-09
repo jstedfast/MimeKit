@@ -462,7 +462,7 @@ namespace MimeKit.Utils {
 
 						token.Append ('@');
 						index++;
-					} while (true);
+					} while (index < endIndex);
 
 					if (!SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
