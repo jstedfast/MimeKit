@@ -33,7 +33,7 @@ namespace MimeKit.Cryptography {
 	/// </summary>
 	/// <remarks>
 	/// <para>This exception is thrown by <see cref="BouncyCastleSecureMimeContext"/> when
-	/// <see cref="SecureMimeContext.CheckCertificateRevocation"/> is enabled and one or more
+	/// <see cref="BouncyCastleSecureMimeContext.CheckCertificateRevocation"/> is enabled and one or more
 	/// recipient certificates fail certificate chain validation (e.g. due to revocation).</para>
 	/// <para>The <see cref="Failures"/> property contains a list of
 	/// <see cref="CertificateValidationFailure"/> objects, each identifying a certificate
