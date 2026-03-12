@@ -74,15 +74,15 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates a new <see cref="CertificateValidationException"/>.
 		/// </remarks>
-		/// <param name="failures">The list of certificate validation failures.</param>
 		/// <param name="message">A message explaining the error.</param>
+		/// <param name="failures">The list of certificate validation failures.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="failures"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="failures"/> is empty.
 		/// </exception>
-		public CertificateValidationException (IList<CertificateValidationFailure> failures, string message)
+		public CertificateValidationException (string message, IList<CertificateValidationFailure> failures)
 			: base (message)
 		{
 			if (failures == null)

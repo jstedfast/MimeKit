@@ -1676,7 +1676,7 @@ namespace MimeKit.Cryptography {
 		void AddCmsRecipients (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
 			var unique = new HashSet<X509Certificate> ();
-			List<CertificateValidationFailure> failures = null;
+			List<CertificateValidationFailure>? failures = null;
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
@@ -1701,7 +1701,7 @@ namespace MimeKit.Cryptography {
 		async Task AddCmsRecipientsAsync (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
 			var unique = new HashSet<X509Certificate> ();
-			List<CertificateValidationFailure> failures = null;
+			List<CertificateValidationFailure>? failures = null;
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
