@@ -358,7 +358,7 @@ namespace MimeKit {
 					// the double-quote character (%d34), and the delete character (%d127).
 					if ((c < 32 && c != 9) || c == 127) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid character in quoted-string token at offset {0}", startIndex), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid control character in quoted-string token at offset {0}", startIndex), startIndex, index);
 
 						return false;
 					}
