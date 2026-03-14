@@ -79,8 +79,9 @@ namespace UnitTests.Cryptography {
 		public const string ThunderbirdName = "fejj@gnome.org";
 
 		public static readonly string[] RelativeConfigFilePaths = {
-			"certificate-authority.cfg", "intermediate1.cfg", "intermediate2.cfg", "dnsnames/smime.cfg", "dsa/smime.cfg",
-			"ec/smime.cfg", "nochain/smime.cfg", "revoked/smime.cfg", "revokednochain/smime.cfg", "rsa/smime.cfg"
+			"certificate-authority.cfg", "intermediate1.cfg", "intermediate2.cfg", "revoked-intermediate.cfg",
+			"dnsnames/smime.cfg", "dsa/smime.cfg", "ec/smime.cfg", "nochain/smime.cfg",
+			"revoked/smime.cfg", "revokednochain/smime.cfg", "revokedsubca/smime.cfg", "rsa/smime.cfg"
 		};
 
 		public static readonly string[] StartComCertificates = {
@@ -92,6 +93,7 @@ namespace UnitTests.Cryptography {
 		public static readonly SMimeCertificate[] SMimeCertificates;
 		public static readonly SMimeCertificate RevokedCertificate;
 		public static readonly SMimeCertificate RevokedNoChainCertificate;
+		public static readonly SMimeCertificate SubCaRevokedCertificate;
 		public static readonly SMimeCertificate DomainCertificate;
 		public static readonly SMimeCertificate RsaCertificate;
 
@@ -104,9 +106,13 @@ namespace UnitTests.Cryptography {
 		public static readonly X509Certificate IntermediateCertificate2;
 		public static readonly AsymmetricKeyParameter IntermediateKey2;
 
+		public static readonly X509Certificate RevokedIntermediateCertificate;
+		public static readonly AsymmetricKeyParameter RevokedIntermediateKey;
+
 		public static readonly X509Crl[] ObsoleteCrls;
 		public static readonly X509Crl[] CurrentCrls;
 		public static readonly Uri[] CrlRequestUris;
+		public static readonly Uri SubCaRevokedCrlRequestUri;
 
 		protected virtual bool IsEnabled { get { return true; } }
 
@@ -161,6 +167,8 @@ namespace UnitTests.Cryptography {
 								RevokedCertificate = smime;
 							} else if (smime.EmailAddress.Equals ("revokednochain@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 								RevokedNoChainCertificate = smime;
+							} else if (smime.EmailAddress.Equals ("revokedsubca@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
+								SubCaRevokedCertificate = smime;
 							} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 								if (!string.IsNullOrEmpty (smime.EmailAddress))
 									RsaCertificate = smime;
@@ -178,6 +186,9 @@ namespace UnitTests.Cryptography {
 						} else if (name.Equals ("intermediate2", StringComparison.OrdinalIgnoreCase)) {
 							IntermediateCertificate2 = chain[0];
 							IntermediateKey2 = privateKey;
+						} else if (name.Equals ("revoked-intermediate", StringComparison.OrdinalIgnoreCase)) {
+							RevokedIntermediateCertificate = chain[0];
+							RevokedIntermediateKey = privateKey;
 						}
 						continue;
 					}
@@ -203,6 +214,8 @@ namespace UnitTests.Cryptography {
 						RevokedCertificate = smime;
 					} else if (smime.EmailAddress.Equals ("revokednochain@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
 						RevokedNoChainCertificate = smime;
+					} else if (smime.EmailAddress.Equals ("revokedsubca@mimekit.net", StringComparison.OrdinalIgnoreCase)) {
+						SubCaRevokedCertificate = smime;
 					} else if (smime.PublicKeyAlgorithm == PublicKeyAlgorithm.RsaGeneral) {
 						if (!string.IsNullOrEmpty (smime.EmailAddress))
 							RsaCertificate = smime;
@@ -220,6 +233,9 @@ namespace UnitTests.Cryptography {
 				} else if (name.Equals ("intermediate2", StringComparison.OrdinalIgnoreCase)) {
 					IntermediateCertificate2 = chain[0];
 					IntermediateKey2 = privateKey;
+				} else if (name.Equals ("revoked-intermediate", StringComparison.OrdinalIgnoreCase)) {
+					RevokedIntermediateCertificate = chain[0];
+					RevokedIntermediateKey = privateKey;
 				}
 			}
 
@@ -235,14 +251,17 @@ namespace UnitTests.Cryptography {
 			ObsoleteCrls = new X509Crl [] {
 				X509CrlGenerator.Generate (RootCertificate, RootKey, threeMonthsAgo, yesterday),
 				X509CrlGenerator.Generate (IntermediateCertificate1, IntermediateKey1, threeMonthsAgo, yesterday),
-				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, threeMonthsAgo, yesterday)
+				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, threeMonthsAgo, yesterday),
+				X509CrlGenerator.Generate (RevokedIntermediateCertificate, RevokedIntermediateKey, threeMonthsAgo, yesterday)
 			};
 
 			CurrentCrls = new X509Crl [] {
 				X509CrlGenerator.Generate (RootCertificate, RootKey, yesterday, threeMonthsFromNow),
 				X509CrlGenerator.Generate (IntermediateCertificate1, IntermediateKey1, yesterday, threeMonthsFromNow),
 				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedCertificate.Certificate),
-				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedNoChainCertificate.Certificate)
+				X509CrlGenerator.Generate (IntermediateCertificate2, IntermediateKey2, yesterday, threeMonthsFromNow, RevokedNoChainCertificate.Certificate),
+				X509CrlGenerator.Generate (RootCertificate, RootKey, yesterday, threeMonthsFromNow, RevokedIntermediateCertificate),
+				X509CrlGenerator.Generate (RevokedIntermediateCertificate, RevokedIntermediateKey, yesterday, threeMonthsFromNow)
 			};
 
 			CrlRequestUris = new Uri [] {
@@ -250,6 +269,8 @@ namespace UnitTests.Cryptography {
 				new Uri ("https://mimekit.net/crls/intermediate1.crl"),
 				new Uri ("https://mimekit.net/crls/intermediate2.crl")
 			};
+
+			SubCaRevokedCrlRequestUri = new Uri ("https://mimekit.net/crls/revoked-intermediate.crl");
 		}
 
 		protected static HttpResponseMessage[] RevokedCertificateResponses ()
@@ -2879,9 +2900,14 @@ namespace UnitTests.Cryptography {
 
 		public static void AssertCrlsRequested (Mock<HttpMessageHandler> mockHttpMessageHandler)
 		{
+			AssertCrlsRequested (mockHttpMessageHandler, CrlRequestUris);
+		}
+
+		public static void AssertCrlsRequested (Mock<HttpMessageHandler> mockHttpMessageHandler, Uri[] requestUris)
+		{
 			try {
-				for (int i = 0; i < CrlRequestUris.Length; i++) {
-					var requestUri = CrlRequestUris[i];
+				for (int i = 0; i < requestUris.Length; i++) {
+					var requestUri = requestUris[i];
 
 					mockHttpMessageHandler.Protected ().Verify (
 						"SendAsync",
