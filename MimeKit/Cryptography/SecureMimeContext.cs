@@ -923,7 +923,7 @@ namespace MimeKit.Cryptography {
 		public abstract Stream Verify (Stream signedData, out DigitalSignatureCollection signatures, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -944,7 +944,7 @@ namespace MimeKit.Cryptography {
 		public abstract ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// Asynchronously encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously encrypts the specified content for the specified recipients.
@@ -965,7 +965,7 @@ namespace MimeKit.Cryptography {
 		public abstract Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Decrypts the specified encryptedData to an output stream.
+		/// Decrypt the specified encryptedData to an output stream.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData to an output stream.
@@ -984,7 +984,7 @@ namespace MimeKit.Cryptography {
 		public abstract void DecryptTo (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Asynchronously decrypts the specified encryptedData to an output stream.
+		/// Asynchronously decrypt the specified encryptedData to an output stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously decrypts the specified encryptedData to an output stream.
@@ -1004,7 +1004,7 @@ namespace MimeKit.Cryptography {
 		public abstract Task DecryptToAsync (Stream encryptedData, Stream decryptedData, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Imports certificates and keys from a pkcs12-encoded stream.
+		/// Import certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <remarks>
 		/// Imports certificates and keys from a pkcs12-encoded stream.
@@ -1026,7 +1026,7 @@ namespace MimeKit.Cryptography {
 		public abstract void Import (Stream stream, string password, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Asynchronously imports certificates and keys from a pkcs12-encoded stream.
+		/// Asynchronously import certificates and keys from a pkcs12-encoded stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously imports certificates and keys from a pkcs12-encoded stream.
@@ -1049,7 +1049,7 @@ namespace MimeKit.Cryptography {
 		public abstract Task ImportAsync (Stream stream, string password, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Imports certificates and keys from a pkcs12 file.
+		/// Import certificates and keys from a pkcs12 file.
 		/// </summary>
 		/// <remarks>
 		/// Imports certificates and keys from a pkcs12 file.
@@ -1103,7 +1103,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously imports certificates and keys from a pkcs12 file.
+		/// Asynchronously import certificates and keys from a pkcs12 file.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously imports certificates and keys from a pkcs12 file.

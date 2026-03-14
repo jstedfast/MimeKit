@@ -882,7 +882,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Attempts to map a <see cref="System.Security.Cryptography.Oid"/>
+		/// Attempt to map a <see cref="System.Security.Cryptography.Oid"/>
 		/// to a <see cref="DigestAlgorithm"/>.
 		/// </summary>
 		/// <remarks>
@@ -1080,7 +1080,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the preferred encryption algorithm to use for encrypting to the specified recipients.
+		/// Get the preferred encryption algorithm to use for encrypting to the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets the preferred encryption algorithm to use for encrypting to the specified recipients
@@ -1209,7 +1209,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -1250,7 +1250,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// Asynchronously encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously encrypts the specified content for the specified recipients.
@@ -1291,7 +1291,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Encrypts the specified content for the specified recipients.
+		/// Encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Encrypts the specified content for the specified recipients.
@@ -1335,7 +1335,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously encrypts the specified content for the specified recipients.
+		/// Asynchronously encrypt the specified content for the specified recipients.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously encrypts the specified content for the specified recipients.
@@ -1391,7 +1391,7 @@ namespace MimeKit.Cryptography {
 		/// Decrypt the encrypted data.
 		/// </summary>
 		/// <remarks>
-		/// Decrypt the encrypted data.
+		/// Decrypts the encrypted data.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
@@ -1422,7 +1422,7 @@ namespace MimeKit.Cryptography {
 		/// Asynchronously decrypt the encrypted data.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously decrypt the encrypted data.
+		/// Asynchronously decrypts the encrypted data.
 		/// </remarks>
 		/// <returns>The decrypted <see cref="MimeEntity"/>.</returns>
 		/// <param name="encryptedData">The encrypted data.</param>
@@ -1450,7 +1450,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Decrypts the specified encryptedData to an output stream.
+		/// Decrypt the specified encryptedData to an output stream.
 		/// </summary>
 		/// <remarks>
 		/// Decrypts the specified encryptedData to an output stream.
@@ -1484,7 +1484,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously decrypts the specified encryptedData to an output stream.
+		/// Asynchronously decrypt the specified encryptedData to an output stream.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously decrypts the specified encryptedData to an output stream.
@@ -1522,7 +1522,7 @@ namespace MimeKit.Cryptography {
 		/// Import the specified certificate.
 		/// </summary>
 		/// <remarks>
-		/// Import the specified certificate.
+		/// Imports the specified certificate.
 		/// </remarks>
 		/// <param name="storeName">The store to import the certificate into.</param>
 		/// <param name="certificate">The certificate.</param>
@@ -1570,7 +1570,7 @@ namespace MimeKit.Cryptography {
 		/// Import the specified certificate.
 		/// </summary>
 		/// <remarks>
-		/// Import the specified certificate.
+		/// Imports the specified certificate.
 		/// </remarks>
 		/// <param name="storeName">The store to import the certificate into.</param>
 		/// <param name="certificate">The certificate.</param>
@@ -1811,7 +1811,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Exports the certificates for the specified mailboxes.
+		/// Export certificates for the specified mailboxes.
 		/// </summary>
 		/// <remarks>
 		/// Exports the certificates for the specified mailboxes.
@@ -1868,7 +1868,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Asynchronously export the certificates for the specified mailboxes.
+		/// Asynchronously export certificates for the specified mailboxes.
 		/// </summary>
 		/// <remarks>
 		/// Asynchronously exports the certificates for the specified mailboxes.
