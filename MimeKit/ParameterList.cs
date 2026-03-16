@@ -206,7 +206,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove the specified parameter.
+		/// Remove a parameter.
 		/// </summary>
 		/// <remarks>
 		/// Removes the parameter with the specified name from the list, if it exists.
@@ -423,10 +423,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all the parameters in the list to an array.
+		/// Copy all of the parameters in the list to an array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the parameters within the <see cref="ParameterList"/> into the array,
+		/// Copies all of the parameters within the <see cref="ParameterList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the parameters to.</param>

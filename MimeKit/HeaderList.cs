@@ -919,10 +919,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all the headers in the <see cref="HeaderList"/> to the specified array.
+		/// Copy all of the headers in the <see cref="HeaderList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the headers within the <see cref="HeaderList"/> into the array,
+		/// Copies all of the headers within the <see cref="HeaderList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the headers to.</param>

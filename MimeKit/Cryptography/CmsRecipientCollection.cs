@@ -56,10 +56,10 @@ namespace MimeKit.Cryptography {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Gets the number of recipients in the collection.
+		/// Get the number of recipients in the collection.
 		/// </summary>
 		/// <remarks>
-		/// Indicates the number of recipients in the collection.
+		/// Gets the number of recipients in the collection.
 		/// </remarks>
 		/// <value>The number of recipients in the collection.</value>
 		public int Count {
@@ -78,7 +78,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Adds the specified recipient.
+		/// Add a recipient.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified recipient.
@@ -96,7 +96,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Clears the recipient collection.
+		/// Clear the recipient collection.
 		/// </summary>
 		/// <remarks>
 		/// Removes all the recipients from the collection.
@@ -107,7 +107,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks if the collection contains the specified recipient.
+		/// Check if the collection contains a recipient.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether the collection contains the specified recipient.
@@ -127,10 +127,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Copies all the recipients in the <see cref="CmsRecipientCollection"/> to the specified array.
+		/// Copy all of the recipients in the <see cref="CmsRecipientCollection"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the recipients within the <see cref="CmsRecipientCollection"/> into the array,
+		/// Copies all of the recipients within the <see cref="CmsRecipientCollection"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array.</param>
@@ -153,7 +153,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Removes the specified recipient.
+		/// Remove a recipient.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified recipient.

@@ -882,10 +882,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all the attachments in the collection to an array.
+		/// Copy all of the attachments in the collection to an array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the attachments within the <see cref="AttachmentCollection"/> into the array,
+		/// Copies all of the attachments within the <see cref="AttachmentCollection"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the attachments to.</param>

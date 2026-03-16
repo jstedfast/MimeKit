@@ -340,10 +340,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all the addresses in the <see cref="InternetAddressList"/> to the specified array.
+		/// Copy all of the addresses in the <see cref="InternetAddressList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the addresses within the <see cref="InternetAddressList"/> into the array,
+		/// Copies all of the addresses within the <see cref="InternetAddressList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the addresses to.</param>
@@ -360,7 +360,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove the specified address from the <see cref="InternetAddressList"/>.
+		/// Remove an address from the <see cref="InternetAddressList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified address.

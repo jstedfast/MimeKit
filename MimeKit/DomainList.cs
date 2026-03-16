@@ -226,10 +226,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all the domains in the <see cref="DomainList"/> to an array.
+		/// Copy all of the domains in the <see cref="DomainList"/> to an array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the domains within the <see cref="DomainList"/> into the array,
+		/// Copies all of the domains within the <see cref="DomainList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the domains to.</param>

@@ -72,7 +72,7 @@ namespace MimeKit.Cryptography {
 		#region IList implementation
 
 		/// <summary>
-		/// Gets the index of the specified certificate within the chain.
+		/// Get the index of a certificate within the chain.
 		/// </summary>
 		/// <remarks>
 		/// Finds the index of the specified certificate, if it exists.
@@ -91,7 +91,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Inserts the certificate at the specified index.
+		/// Insert a certificate at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Inserts the certificate at the specified index in the certificates.
@@ -113,7 +113,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Removes the certificate at the specified index.
+		/// Remove a certificate at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Removes the certificate at the specified index.
@@ -131,7 +131,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets or sets the certificate at the specified index.
+		/// Get or set the certificate at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the certificate at the specified index.
@@ -158,7 +158,7 @@ namespace MimeKit.Cryptography {
 		#region ICollection implementation
 
 		/// <summary>
-		/// Gets the number of certificates in the chain.
+		/// Get the number of certificates in the chain.
 		/// </summary>
 		/// <remarks>
 		/// Indicates the number of certificates in the chain.
@@ -180,7 +180,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Adds the specified certificate to the chain.
+		/// Add a certificate to the chain.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified certificate to the chain.
@@ -198,7 +198,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Adds the specified range of certificates to the chain.
+		/// Add a range of certificates to the chain.
 		/// </summary>
 		/// <remarks>
 		/// Adds the specified range of certificates to the chain.
@@ -217,7 +217,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Clears the certificate chain.
+		/// Clear the certificate chain.
 		/// </summary>
 		/// <remarks>
 		/// Removes all the certificates from the chain.
@@ -228,7 +228,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Checks if the chain contains the specified certificate.
+		/// Check if the chain contains the specified certificate.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether the certificate chain contains the specified certificate.
@@ -248,10 +248,10 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Copies all the certificates in the chain to the specified array.
+		/// Copy all of the certificates in the chain to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the certificates within the chain into the array,
+		/// Copies all of the certificates within the chain into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the certificates to.</param>
@@ -268,7 +268,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Removes the specified certificate from the chain.
+		/// Remove a certificate from the chain.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified certificate from the chain.
