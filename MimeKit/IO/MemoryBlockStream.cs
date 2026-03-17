@@ -76,7 +76,7 @@ namespace MimeKit.IO {
 		/// Copy the memory stream into a byte array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the stream data into a newly allocated byte array.
+		/// Copies all of the stream data into a newly allocated byte array.
 		/// </remarks>
 		/// <returns>The array.</returns>
 		/// <exception cref="System.ObjectDisposedException">

@@ -1552,6 +1552,7 @@ namespace MimeKit.Cryptography {
 
 			var builder = new PkixCertPathBuilder ();
 
+<<<<<<< Multiple-recipient-CRL-revocation
 			try {
 				// Note: if there are any validation problems with the certificate chain,
 				// this will throw PkixCertPathBuilderException
@@ -1559,6 +1560,11 @@ namespace MimeKit.Cryptography {
 			} catch (Exception ex) {
 				throw new CmsRecipientException ($"Failed to validate recipient certificate for '{recipient.Certificate.SubjectDN}'", recipient, ex);
 			}
+=======
+			// Note: if there are any validation problems with the certificate chain,
+			// this will throw PkixCertPathBuilderException
+			builder.Build (parameters);
+>>>>>>> master
 		}
 
 		async Task ValidateRecipientCertificateAsync (CmsRecipient recipient, CancellationToken cancellationToken = default)
@@ -1599,6 +1605,7 @@ namespace MimeKit.Cryptography {
 
 			var builder = new PkixCertPathBuilder ();
 
+<<<<<<< Multiple-recipient-CRL-revocation
 			try {
 				// Note: if there are any validation problems with the certificate chain,
 				// this will throw PkixCertPathBuilderException
@@ -1606,6 +1613,11 @@ namespace MimeKit.Cryptography {
 			} catch (Exception ex) {
 				throw new CmsRecipientException ($"Failed to validate recipient certificate for '{recipient.Certificate.SubjectDN}'", recipient, ex);
 			}
+=======
+			// Note: if there are any validation problems with the certificate chain,
+			// this will throw PkixCertPathBuilderException
+			builder.Build (parameters);
+>>>>>>> master
 		}
 
 		Stream Envelope (CmsEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
