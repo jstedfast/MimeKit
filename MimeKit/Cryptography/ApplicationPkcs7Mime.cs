@@ -806,7 +806,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -855,7 +855,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static async Task<ApplicationPkcs7Mime> EncryptAsync (SecureMimeContext ctx, CmsRecipientCollection recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -901,7 +901,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -937,7 +937,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static async Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -982,7 +982,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -1037,7 +1037,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static async Task<ApplicationPkcs7Mime> EncryptAsync (SecureMimeContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -1089,7 +1089,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static ApplicationPkcs7Mime Encrypt (IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
@@ -1131,7 +1131,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public static async Task<ApplicationPkcs7Mime> EncryptAsync (IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
