@@ -107,7 +107,7 @@ namespace MimeKit.Cryptography {
 #endif
 
 		/// <summary>
-		/// Gets the mailbox address that could not be resolved to a certificate.
+		/// Get the mailbox address that could not be resolved to a certificate.
 		/// </summary>
 		/// <remarks>
 		/// Gets the mailbox address that could not be resolved to a certificate.

@@ -203,7 +203,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the recipient's certificate.
+		/// Get the recipient's certificate.
 		/// </summary>
 		/// <remarks>
 		/// The certificate is used for the purpose of encrypting data.
@@ -214,7 +214,18 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the recipient identifier type.
+		/// Get or set the mailbox address of the recipient.
+		/// </summary>
+		/// <remarks>
+		/// Gets or sets the mailbox address of the recipient, if available.
+		/// </remarks>
+		/// <value>The mailbox address, if available.</value>
+		internal MailboxAddress? Mailbox {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get the recipient identifier type.
 		/// </summary>
 		/// <remarks>
 		/// Specifies how the certificate should be looked up on the recipient's end.
@@ -225,7 +236,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets or sets the known S/MIME encryption capabilities of the
+		/// Get or set the known S/MIME encryption capabilities of the
 		/// recipient's mail client, in their preferred order.
 		/// </summary>
 		/// <remarks>
