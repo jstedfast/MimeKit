@@ -218,12 +218,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Get the PrivateKey property as a BouncyCastle AsymmetricKeyParameter.
+		/// Get the certificate's private key as a BouncyCastle AsymmetricKeyParameter, if available.
 		/// </summary>
 		/// <remarks>
-		/// Gets the PrivateKey property as a BouncyCastle AsymmetricKeyParameter.
+		/// Gets the certificate's private key as a BouncyCastle AsymmetricKeyParameter, if available.
 		/// </remarks>
-		/// <returns>The asymmetric key parameter.</returns>
+		/// <returns>The asymmetric key parameter for the certificate's private key, if available; otherwise, <see langword="null"/>.</returns>
 		/// <param name="certificate">The X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -233,25 +233,35 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
+			if (!certificate.HasPrivateKey)
+				return null;
+
 #if NET6_0_OR_GREATER
 			AsymmetricAlgorithm? privateKey = null;
+			AsymmetricKeyParameter? key = null;
 
-			if (certificate.HasPrivateKey) {
-				switch (GetPublicKeyAlgorithm (certificate)) {
-				case PublicKeyAlgorithm.Dsa:
-					privateKey = certificate.GetDSAPrivateKey ();
-					break;
-				case PublicKeyAlgorithm.RsaGeneral:
-					privateKey = certificate.GetRSAPrivateKey ();
-					break;
-				case PublicKeyAlgorithm.EllipticCurve:
-					//privateKey = certificate.GetECDsaPrivateKey ();
-					privateKey = certificate.GetECDiffieHellmanPrivateKey ();
-					break;
+			switch (GetPublicKeyAlgorithm (certificate)) {
+			case PublicKeyAlgorithm.Dsa:
+				privateKey = certificate.GetDSAPrivateKey ();
+				break;
+			case PublicKeyAlgorithm.RsaGeneral:
+				privateKey = certificate.GetRSAPrivateKey ();
+				break;
+			case PublicKeyAlgorithm.EllipticCurve:
+				//privateKey = certificate.GetECDsaPrivateKey ();
+				privateKey = certificate.GetECDiffieHellmanPrivateKey ();
+				break;
+			}
+
+			if (privateKey != null) {
+				try {
+					key = privateKey.AsAsymmetricKeyParameter ();
+				} finally {
+					privateKey.Dispose ();
 				}
 			}
 
-			return privateKey?.AsAsymmetricKeyParameter ();
+			return key;
 #else
 			return certificate.PrivateKey?.AsAsymmetricKeyParameter ();
 #endif
