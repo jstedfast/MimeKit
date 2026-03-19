@@ -236,22 +236,26 @@ namespace MimeKit.Cryptography {
 #if NET6_0_OR_GREATER
 			AsymmetricAlgorithm? privateKey = null;
 
-			if (certificate.HasPrivateKey) {
-				switch (GetPublicKeyAlgorithm (certificate)) {
-				case PublicKeyAlgorithm.Dsa:
-					privateKey = certificate.GetDSAPrivateKey ();
-					break;
-				case PublicKeyAlgorithm.RsaGeneral:
-					privateKey = certificate.GetRSAPrivateKey ();
-					break;
-				case PublicKeyAlgorithm.EllipticCurve:
-					//privateKey = certificate.GetECDsaPrivateKey ();
-					privateKey = certificate.GetECDiffieHellmanPrivateKey ();
-					break;
+			try {
+				if (certificate.HasPrivateKey) {
+					switch (GetPublicKeyAlgorithm (certificate)) {
+					case PublicKeyAlgorithm.Dsa:
+						privateKey = certificate.GetDSAPrivateKey ();
+						break;
+					case PublicKeyAlgorithm.RsaGeneral:
+						privateKey = certificate.GetRSAPrivateKey ();
+						break;
+					case PublicKeyAlgorithm.EllipticCurve:
+						//privateKey = certificate.GetECDsaPrivateKey ();
+						privateKey = certificate.GetECDiffieHellmanPrivateKey ();
+						break;
+					}
 				}
-			}
 
-			return privateKey?.AsAsymmetricKeyParameter ();
+				return privateKey?.AsAsymmetricKeyParameter ();
+			} finally {
+				privateKey?.Dispose ();
+			}
 #else
 			return certificate.PrivateKey?.AsAsymmetricKeyParameter ();
 #endif
