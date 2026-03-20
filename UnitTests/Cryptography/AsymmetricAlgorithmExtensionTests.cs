@@ -261,20 +261,76 @@ namespace UnitTests.Cryptography {
 			pubec.Dispose ();
 		}
 
-		[Test]
-		public void TestECDsa ()
+		static ECCurve GetNamedCurve (string name)
 		{
-			using (var ecdsa = ECDsa.Create (ECCurve.NamedCurves.nistP256))
+			switch (name) {
+			case "brainpoolP160r1": return ECCurve.NamedCurves.brainpoolP160r1;
+			case "brainpoolP160t1": return ECCurve.NamedCurves.brainpoolP160t1;
+			case "brainpoolP192r1": return ECCurve.NamedCurves.brainpoolP192r1;
+			case "brainpoolP192t1": return ECCurve.NamedCurves.brainpoolP192t1;
+			case "brainpoolP224r1": return ECCurve.NamedCurves.brainpoolP224r1;
+			case "brainpoolP224t1": return ECCurve.NamedCurves.brainpoolP224t1;
+			case "brainpoolP256r1": return ECCurve.NamedCurves.brainpoolP256r1;
+			case "brainpoolP256t1": return ECCurve.NamedCurves.brainpoolP256t1;
+			case "brainpoolP320r1": return ECCurve.NamedCurves.brainpoolP320r1;
+			case "brainpoolP320t1": return ECCurve.NamedCurves.brainpoolP320t1;
+			case "brainpoolP384r1": return ECCurve.NamedCurves.brainpoolP384r1;
+			case "brainpoolP384t1": return ECCurve.NamedCurves.brainpoolP384t1;
+			case "brainpoolP512r1": return ECCurve.NamedCurves.brainpoolP512r1;
+			case "brainpoolP512t1": return ECCurve.NamedCurves.brainpoolP512t1;
+			case "nistP256": return ECCurve.NamedCurves.nistP256;
+			case "nistP384": return ECCurve.NamedCurves.nistP384;
+			case "nistP521": return ECCurve.NamedCurves.nistP521;
+			default: throw new NotSupportedException ($"Unknown NamedCurve: {name}");
+			}
+		}
+
+		[TestCase ("brainpoolP160r1")]
+		[TestCase ("brainpoolP160t1")]
+		[TestCase ("brainpoolP192r1")]
+		[TestCase ("brainpoolP192t1")]
+		[TestCase ("brainpoolP224r1")]
+		[TestCase ("brainpoolP224t1")]
+		[TestCase ("brainpoolP256r1")]
+		[TestCase ("brainpoolP256t1")]
+		[TestCase ("brainpoolP320r1")]
+		[TestCase ("brainpoolP320t1")]
+		[TestCase ("brainpoolP384r1")]
+		[TestCase ("brainpoolP384t1")]
+		[TestCase ("brainpoolP512r1")]
+		[TestCase ("brainpoolP512t1")]
+		[TestCase ("nistP256")]
+		[TestCase ("nistP384")]
+		[TestCase ("nistP521")]
+		public void TestECDsa (string namedCurve)
+		{
+			using (var ecdsa = ECDsa.Create (GetNamedCurve (namedCurve)))
 				AssertECDsa (ecdsa);
 		}
 
-		[Test]
+		[TestCase ("brainpoolP160r1")]
+		[TestCase ("brainpoolP160t1")]
+		[TestCase ("brainpoolP192r1")]
+		[TestCase ("brainpoolP192t1")]
+		[TestCase ("brainpoolP224r1")]
+		[TestCase ("brainpoolP224t1")]
+		[TestCase ("brainpoolP256r1")]
+		[TestCase ("brainpoolP256t1")]
+		[TestCase ("brainpoolP320r1")]
+		[TestCase ("brainpoolP320t1")]
+		[TestCase ("brainpoolP384r1")]
+		[TestCase ("brainpoolP384t1")]
+		[TestCase ("brainpoolP512r1")]
+		[TestCase ("brainpoolP512t1")]
+		[TestCase ("nistP256")]
+		[TestCase ("nistP384")]
+		[TestCase ("nistP521")]
 		[SuppressMessage ("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-		public void TestECDsaCng ()
+		public void TestECDsaCng (string namedCurve)
 		{
 #if !MONO
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				using (var ecdsa = new ECDsaCng ())
+				using (var ecdsa = new ECDsaCng (GetNamedCurve (namedCurve)))
 					AssertECDsa (ecdsa);
 			} else {
 				Assert.Ignore ("ECDsaCng is only supported on Windows systems.");

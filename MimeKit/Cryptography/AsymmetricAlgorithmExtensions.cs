@@ -153,7 +153,8 @@ namespace MimeKit.Cryptography {
 				var oid = new DerObjectIdentifier (curve.Oid.Value);
 
 				// Note: NistNamedCurves.GetByOid() falls back to calling SecNamedCurves.GetByOid() if the oid is not a NIST-specific OID.
-				return NistNamedCurves.GetByOid (oid);
+				return NistNamedCurves.GetByOid (oid) ??
+					TeleTrusTNamedCurves.GetByOid (oid);
 			}
 
 			return null;
