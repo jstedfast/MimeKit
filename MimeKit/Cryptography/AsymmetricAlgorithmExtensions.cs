@@ -147,17 +147,25 @@ namespace MimeKit.Cryptography {
 		}
 
 #if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
-		static X9ECParameters? GetECParameters (ECCurve curve)
+		static X9ECParameters GetECParameters (ECCurve curve)
 		{
+			X9ECParameters? parameters = null;
+
 			if (curve.IsNamed) {
 				var oid = new DerObjectIdentifier (curve.Oid.Value);
 
-				// Note: NistNamedCurves.GetByOid() falls back to calling SecNamedCurves.GetByOid() if the oid is not a NIST-specific OID.
-				return NistNamedCurves.GetByOid (oid) ??
-					TeleTrusTNamedCurves.GetByOid (oid);
+				if (oid.Id.StartsWith ("1.2.840.10045.3.1.", StringComparison.Ordinal))
+					parameters = NistNamedCurves.GetByOid (oid);
+				else if (oid.Id.StartsWith ("1.3.132.0.", StringComparison.Ordinal))
+					parameters = SecNamedCurves.GetByOid (oid);
+				else if (oid.Id.StartsWith ("1.3.36.3.3.2.8.1.1.", StringComparison.Ordinal))
+					parameters = TeleTrusTNamedCurves.GetByOid (oid);
 			}
 
-			return null;
+			if (parameters == null)
+				throw new NotSupportedException ("The EC curve is not supported.");
+
+			return parameters;
 		}
 
 		static AsymmetricKeyParameter GetAsymmetricKeyParameter (ECDsa ecdsa)
@@ -174,10 +182,6 @@ namespace MimeKit.Cryptography {
 			}
 
 			var ecParams = GetECParameters (parameters.Curve);
-
-			if (ecParams == null)
-				throw new NotSupportedException ("The EC curve is not supported.");
-
 			var domain = new ECDomainParameters (ecParams.Curve, ecParams.G, ecParams.N, ecParams.H, ecParams.GetSeed ());
 
 			if (parameters.D != null) {
@@ -196,14 +200,11 @@ namespace MimeKit.Cryptography {
 		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (ECDsa ecdsa)
 		{
 			var parameters = ecdsa.ExportParameters (true);
-			var ecParams = GetECParameters (parameters.Curve);
-
-			if (ecParams == null)
-				throw new NotSupportedException ("The EC curve is not supported.");
 
 			if (parameters.D == null)
 				throw new ArgumentException ("ECDsa key is not a private key.", "key");
 
+			var ecParams = GetECParameters (parameters.Curve);
 			var domain = new ECDomainParameters (ecParams.Curve, ecParams.G, ecParams.N, ecParams.H, ecParams.GetSeed ());
 			var d = new BigInteger (1, parameters.D);
 			var q = ecParams.Curve.CreatePoint (
@@ -405,7 +406,7 @@ namespace MimeKit.Cryptography {
 					namedCurve.H.Equals (domain.H);
 		}
 
-		static ECCurve? GetECCurve (ECDomainParameters domain)
+		static ECCurve GetECCurve (ECDomainParameters domain)
 		{
 			// Try to match against NIST curves
 			foreach (string name in NistNamedCurves.Names) {
@@ -443,15 +444,12 @@ namespace MimeKit.Cryptography {
 				}
 			}
 
-			return null;
+			throw new NotSupportedException ("The EC curve is not a supported named curve.");
 		}
 
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (ECPrivateKeyParameters key)
 		{
 			var curve = GetECCurve (key.Parameters);
-
-			if (curve == null)
-				throw new NotSupportedException ("The EC curve is not a supported named curve.");
 
 			// Calculate the public key point Q = d * G
 			var q = key.Parameters.G.Multiply (key.D).Normalize ();
@@ -462,7 +460,7 @@ namespace MimeKit.Cryptography {
 			var orderSize = (key.Parameters.N.BitLength + 7) / 8;
 
 			var parameters = new ECParameters {
-				Curve = curve.Value,
+				Curve = curve,
 				D = GetPaddedByteArray (key.D, orderSize),
 				Q = {
 					X = GetPaddedByteArray (qx, fieldSize),
@@ -476,10 +474,6 @@ namespace MimeKit.Cryptography {
 		static AsymmetricAlgorithm GetAsymmetricAlgorithm (ECPublicKeyParameters key)
 		{
 			var curve = GetECCurve (key.Parameters);
-
-			if (curve == null)
-				throw new NotSupportedException ("The EC curve is not a supported named curve.");
-
 			var q = key.Q.Normalize ();
 			var qx = q.AffineXCoord.ToBigInteger ();
 			var qy = q.AffineYCoord.ToBigInteger ();
@@ -487,7 +481,7 @@ namespace MimeKit.Cryptography {
 			var fieldSize = (key.Parameters.Curve.FieldSize + 7) / 8;
 
 			var parameters = new ECParameters {
-				Curve = curve.Value,
+				Curve = curve,
 				Q = {
 					X = GetPaddedByteArray (qx, fieldSize),
 					Y = GetPaddedByteArray (qy, fieldSize)
