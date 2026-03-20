@@ -90,28 +90,37 @@ namespace MimeKit.Cryptography {
 			switch (identifier) {
 			case "1.2.840.113549.1.1.1":  // RSA Encryption (rsaEncryption) and RSA General
 				return PublicKeyAlgorithm.RsaGeneral;
+#if false
+			// Note: For RSA S/MIME keys, the only public‑key OID used in X.509 (and therefore S/MIME) is 1.2.840.113549.1.1.1.
 			case "1.2.840.113549.1.1.5":  // RSA with SHA-1 (RSA Sign-Only)
 			case "1.2.840.113549.1.1.11": // RSA with SHA-256
 			case "1.2.840.113549.1.1.12": // RSA with SHA-384
 			case "1.2.840.113549.1.1.13": // RSA with SHA-512
 				return PublicKeyAlgorithm.RsaSign;
+#endif
 			case "1.2.840.10040.4.1":     // DSA
-			case "1.2.840.10040.4.3":     // DSA with SHA-1
+			//case "1.2.840.10040.4.3":     // DSA with SHA-1
 				return PublicKeyAlgorithm.Dsa;
 			case "1.2.840.10045.2.1":     // EC Public Key (technically also ECDSA)
 				return PublicKeyAlgorithm.EllipticCurve;
+#if false
+			// Note: For ECDSA S/MIME keys, the only public‑key OID used in X.509 (and therefore S/MIME) is 1.2.840.10045.2.1.
+			// The following OIDs are for ECDSA signatures, so they are not technically public-key OIDs.
 			case "1.2.840.10045.4.1":     // ECDSA with SHA-1
 			case "1.2.840.10045.4.3.2":   // ECDSA with SHA-256
 			case "1.2.840.10045.4.3.3":   // ECDSA with SHA-384
 			case "1.2.840.10045.4.3.4":   // ECDSA with SHA-512
 				return PublicKeyAlgorithm.EllipticCurveDsa;
+			// Diffie-Hellman is only for key-exchange, so this is very unlikely to be the PublicKey type for an X509Certificate2.
 			case "1.2.840.10046.2.1":     // Diffie-Hellman
 				return PublicKeyAlgorithm.DiffieHellman;
+			// EdDSA is not yet supported by .NET, so this is very unlikely to be the PublicKey type for an X509Certificate2.
 			case "1.3.101.110":           // X25519 (Curve25519 for ECDH)
 			case "1.3.101.111":           // X448 (Curve448 for ECDH)
 			case "1.3.101.112":           // Ed25519 (EdDSA signature)
 			case "1.3.101.113":           // Ed448 (EdDSA signature)
 				return PublicKeyAlgorithm.EdwardsCurveDsa;
+#endif
 			default:
 				return PublicKeyAlgorithm.None;
 			}
@@ -260,30 +269,20 @@ namespace MimeKit.Cryptography {
 			AsymmetricKeyParameter? key = null;
 
 			switch (GetPublicKeyAlgorithm (certificate)) {
-			case PublicKeyAlgorithm.RsaEncrypt:
 			case PublicKeyAlgorithm.RsaGeneral:
-			case PublicKeyAlgorithm.RsaSign:
 				privateKey = certificate.GetRSAPrivateKey ();
 				break;
 			case PublicKeyAlgorithm.Dsa:
 				privateKey = certificate.GetDSAPrivateKey ();
 				break;
 			case PublicKeyAlgorithm.EllipticCurve:
-			case PublicKeyAlgorithm.EllipticCurveDsa:
 				privateKey = certificate.GetECDsaPrivateKey ();
-				break;
-			case PublicKeyAlgorithm.DiffieHellman:
-				// Note: I think this is only a key-exchange algorithm, so this should be very unlikely?
-				privateKey = certificate.GetECDiffieHellmanPrivateKey ();
 				break;
 			}
 
 			if (privateKey != null) {
-				try {
+				using (privateKey)
 					key = privateKey.AsAsymmetricKeyParameter ();
-				} finally {
-					privateKey.Dispose ();
-				}
 			}
 
 			return key;
