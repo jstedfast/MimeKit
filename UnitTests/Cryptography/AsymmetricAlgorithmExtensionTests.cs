@@ -220,5 +220,124 @@ namespace UnitTests.Cryptography {
 			Assert.Ignore ("Mono does not implement RSACng");
 #endif
 		}
+
+		static void AssertECDsa (ECDsa ecdsa)
+		{
+			// first, check private key conversion
+			var expected = ecdsa.ExportParameters (true);
+			var keyParameter = ecdsa.AsAsymmetricKeyParameter ();
+			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as ECDsa;
+			var actual = asymmetricAlgorithm.ExportParameters (true);
+
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
+			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
+			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+
+			// test AsymmetricCipherKeyPair conversion
+			var keyPair = ecdsa.AsAsymmetricCipherKeyPair ();
+			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as ECDsa;
+			actual = asymmetricAlgorithm.ExportParameters (true);
+
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
+			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
+			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+
+			// test public key conversion
+			expected = ecdsa.ExportParameters (false);
+			var pubec = ECDsa.Create ();
+			pubec.ImportParameters (expected);
+
+			keyParameter = pubec.AsAsymmetricKeyParameter ();
+			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as ECDsa;
+			actual = asymmetricAlgorithm.ExportParameters (false);
+
+			Assert.That (actual.D, Is.Null, "D (public key)");
+			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
+			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
+			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+
+			pubec.Dispose ();
+		}
+
+		static ECCurve GetNamedCurve (string name)
+		{
+			switch (name) {
+			case "brainpoolP160r1": return ECCurve.NamedCurves.brainpoolP160r1;
+			case "brainpoolP160t1": return ECCurve.NamedCurves.brainpoolP160t1;
+			case "brainpoolP192r1": return ECCurve.NamedCurves.brainpoolP192r1;
+			case "brainpoolP192t1": return ECCurve.NamedCurves.brainpoolP192t1;
+			case "brainpoolP224r1": return ECCurve.NamedCurves.brainpoolP224r1;
+			case "brainpoolP224t1": return ECCurve.NamedCurves.brainpoolP224t1;
+			case "brainpoolP256r1": return ECCurve.NamedCurves.brainpoolP256r1;
+			case "brainpoolP256t1": return ECCurve.NamedCurves.brainpoolP256t1;
+			case "brainpoolP320r1": return ECCurve.NamedCurves.brainpoolP320r1;
+			case "brainpoolP320t1": return ECCurve.NamedCurves.brainpoolP320t1;
+			case "brainpoolP384r1": return ECCurve.NamedCurves.brainpoolP384r1;
+			case "brainpoolP384t1": return ECCurve.NamedCurves.brainpoolP384t1;
+			case "brainpoolP512r1": return ECCurve.NamedCurves.brainpoolP512r1;
+			case "brainpoolP512t1": return ECCurve.NamedCurves.brainpoolP512t1;
+			case "nistP256": return ECCurve.NamedCurves.nistP256;
+			case "nistP384": return ECCurve.NamedCurves.nistP384;
+			case "nistP521": return ECCurve.NamedCurves.nistP521;
+			default: throw new NotSupportedException ($"Unknown NamedCurve: {name}");
+			}
+		}
+
+		[TestCase ("brainpoolP160r1")]
+		[TestCase ("brainpoolP160t1")]
+		[TestCase ("brainpoolP192r1")]
+		[TestCase ("brainpoolP192t1")]
+		[TestCase ("brainpoolP224r1")]
+		[TestCase ("brainpoolP224t1")]
+		[TestCase ("brainpoolP256r1")]
+		[TestCase ("brainpoolP256t1")]
+		[TestCase ("brainpoolP320r1")]
+		[TestCase ("brainpoolP320t1")]
+		[TestCase ("brainpoolP384r1")]
+		[TestCase ("brainpoolP384t1")]
+		[TestCase ("brainpoolP512r1")]
+		[TestCase ("brainpoolP512t1")]
+		[TestCase ("nistP256")]
+		[TestCase ("nistP384")]
+		[TestCase ("nistP521")]
+		public void TestECDsa (string namedCurve)
+		{
+			using (var ecdsa = ECDsa.Create (GetNamedCurve (namedCurve)))
+				AssertECDsa (ecdsa);
+		}
+
+		[TestCase ("brainpoolP160r1")]
+		[TestCase ("brainpoolP160t1")]
+		[TestCase ("brainpoolP192r1")]
+		[TestCase ("brainpoolP192t1")]
+		[TestCase ("brainpoolP224r1")]
+		[TestCase ("brainpoolP224t1")]
+		[TestCase ("brainpoolP256r1")]
+		[TestCase ("brainpoolP256t1")]
+		[TestCase ("brainpoolP320r1")]
+		[TestCase ("brainpoolP320t1")]
+		[TestCase ("brainpoolP384r1")]
+		[TestCase ("brainpoolP384t1")]
+		[TestCase ("brainpoolP512r1")]
+		[TestCase ("brainpoolP512t1")]
+		[TestCase ("nistP256")]
+		[TestCase ("nistP384")]
+		[TestCase ("nistP521")]
+		[SuppressMessage ("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
+		public void TestECDsaCng (string namedCurve)
+		{
+#if !MONO
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				using (var ecdsa = new ECDsaCng (GetNamedCurve (namedCurve)))
+					AssertECDsa (ecdsa);
+			} else {
+				Assert.Ignore ("ECDsaCng is only supported on Windows systems.");
+			}
+#else
+			Assert.Ignore ("Mono does not implement ECDsaCng");
+#endif
+		}
 	}
 }

@@ -87,14 +87,42 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (certificate));
 
 			var identifier = certificate.GetKeyAlgorithm ();
-			var oid = new Oid (identifier);
-
-			switch (oid.FriendlyName) {
-			case "DSA": return PublicKeyAlgorithm.Dsa;
-			case "RSA": return PublicKeyAlgorithm.RsaGeneral;
-			case "ECC": return PublicKeyAlgorithm.EllipticCurve;
-			case "DH": return PublicKeyAlgorithm.DiffieHellman;
-			default: return PublicKeyAlgorithm.None;
+			switch (identifier) {
+			case "1.2.840.113549.1.1.1":  // RSA Encryption (rsaEncryption) and RSA General
+				return PublicKeyAlgorithm.RsaGeneral;
+#if false
+			// Note: For RSA S/MIME keys, the only public‑key OID used in X.509 (and therefore S/MIME) is 1.2.840.113549.1.1.1.
+			case "1.2.840.113549.1.1.5":  // RSA with SHA-1 (RSA Sign-Only)
+			case "1.2.840.113549.1.1.11": // RSA with SHA-256
+			case "1.2.840.113549.1.1.12": // RSA with SHA-384
+			case "1.2.840.113549.1.1.13": // RSA with SHA-512
+				return PublicKeyAlgorithm.RsaSign;
+#endif
+			case "1.2.840.10040.4.1":     // DSA
+			//case "1.2.840.10040.4.3":     // DSA with SHA-1
+				return PublicKeyAlgorithm.Dsa;
+			case "1.2.840.10045.2.1":     // EC Public Key (technically also ECDSA)
+				return PublicKeyAlgorithm.EllipticCurve;
+#if false
+			// Note: For ECDSA S/MIME keys, the only public‑key OID used in X.509 (and therefore S/MIME) is 1.2.840.10045.2.1.
+			// The following OIDs are for ECDSA signatures, so they are not technically public-key OIDs.
+			case "1.2.840.10045.4.1":     // ECDSA with SHA-1
+			case "1.2.840.10045.4.3.2":   // ECDSA with SHA-256
+			case "1.2.840.10045.4.3.3":   // ECDSA with SHA-384
+			case "1.2.840.10045.4.3.4":   // ECDSA with SHA-512
+				return PublicKeyAlgorithm.EllipticCurveDsa;
+			// Diffie-Hellman is only for key-exchange, so this is very unlikely to be the PublicKey type for an X509Certificate2.
+			case "1.2.840.10046.2.1":     // Diffie-Hellman
+				return PublicKeyAlgorithm.DiffieHellman;
+			// EdDSA is not yet supported by .NET, so this is very unlikely to be the PublicKey type for an X509Certificate2.
+			case "1.3.101.110":           // X25519 (Curve25519 for ECDH)
+			case "1.3.101.111":           // X448 (Curve448 for ECDH)
+			case "1.3.101.112":           // Ed25519 (EdDSA signature)
+			case "1.3.101.113":           // Ed448 (EdDSA signature)
+				return PublicKeyAlgorithm.EdwardsCurveDsa;
+#endif
+			default:
+				return PublicKeyAlgorithm.None;
 			}
 		}
 
@@ -218,12 +246,12 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Get the PrivateKey property as a BouncyCastle AsymmetricKeyParameter.
+		/// Get the certificate's private key as a BouncyCastle AsymmetricKeyParameter, if available.
 		/// </summary>
 		/// <remarks>
-		/// Gets the PrivateKey property as a BouncyCastle AsymmetricKeyParameter.
+		/// Gets the certificate's private key as a BouncyCastle AsymmetricKeyParameter, if available.
 		/// </remarks>
-		/// <returns>The asymmetric key parameter.</returns>
+		/// <returns>The asymmetric key parameter for the certificate's private key, if available; otherwise, <see langword="null"/>.</returns>
 		/// <param name="certificate">The X.509 certificate.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
@@ -233,25 +261,31 @@ namespace MimeKit.Cryptography {
 			if (certificate == null)
 				throw new ArgumentNullException (nameof (certificate));
 
+			if (!certificate.HasPrivateKey)
+				return null;
+
 #if NET6_0_OR_GREATER
 			AsymmetricAlgorithm? privateKey = null;
+			AsymmetricKeyParameter? key = null;
 
-			if (certificate.HasPrivateKey) {
-				switch (GetPublicKeyAlgorithm (certificate)) {
-				case PublicKeyAlgorithm.Dsa:
-					privateKey = certificate.GetDSAPrivateKey ();
-					break;
-				case PublicKeyAlgorithm.RsaGeneral:
-					privateKey = certificate.GetRSAPrivateKey ();
-					break;
-				case PublicKeyAlgorithm.EllipticCurve:
-					//privateKey = certificate.GetECDsaPrivateKey ();
-					privateKey = certificate.GetECDiffieHellmanPrivateKey ();
-					break;
-				}
+			switch (GetPublicKeyAlgorithm (certificate)) {
+			case PublicKeyAlgorithm.RsaGeneral:
+				privateKey = certificate.GetRSAPrivateKey ();
+				break;
+			case PublicKeyAlgorithm.Dsa:
+				privateKey = certificate.GetDSAPrivateKey ();
+				break;
+			case PublicKeyAlgorithm.EllipticCurve:
+				privateKey = certificate.GetECDsaPrivateKey ();
+				break;
 			}
 
-			return privateKey?.AsAsymmetricKeyParameter ();
+			if (privateKey != null) {
+				using (privateKey)
+					key = privateKey.AsAsymmetricKeyParameter ();
+			}
+
+			return key;
 #else
 			return certificate.PrivateKey?.AsAsymmetricKeyParameter ();
 #endif
