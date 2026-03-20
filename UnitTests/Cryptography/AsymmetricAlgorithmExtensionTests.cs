@@ -220,5 +220,68 @@ namespace UnitTests.Cryptography {
 			Assert.Ignore ("Mono does not implement RSACng");
 #endif
 		}
+
+		static void AssertECDsa (ECDsa ecdsa)
+		{
+			// first, check private key conversion
+			var expected = ecdsa.ExportParameters (true);
+			var keyParameter = ecdsa.AsAsymmetricKeyParameter ();
+			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as ECDsa;
+			var actual = asymmetricAlgorithm.ExportParameters (true);
+
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
+			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
+			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+
+			// test AsymmetricCipherKeyPair conversion
+			var keyPair = ecdsa.AsAsymmetricCipherKeyPair ();
+			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as ECDsa;
+			actual = asymmetricAlgorithm.ExportParameters (true);
+
+			AssertAreEqual (expected.D, actual.D, "D");
+			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
+			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
+			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+
+			// test public key conversion
+			expected = ecdsa.ExportParameters (false);
+			var pubec = ECDsa.Create ();
+			pubec.ImportParameters (expected);
+
+			keyParameter = pubec.AsAsymmetricKeyParameter ();
+			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as ECDsa;
+			actual = asymmetricAlgorithm.ExportParameters (false);
+
+			Assert.That (actual.D, Is.Null, "D (public key)");
+			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
+			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
+			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+
+			pubec.Dispose ();
+		}
+
+		[Test]
+		public void TestECDsa ()
+		{
+			using (var ecdsa = ECDsa.Create (ECCurve.NamedCurves.nistP256))
+				AssertECDsa (ecdsa);
+		}
+
+		[Test]
+		[SuppressMessage ("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
+		public void TestECDsaCng ()
+		{
+#if !MONO
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				using (var ecdsa = new ECDsaCng ())
+					AssertECDsa (ecdsa);
+			} else {
+				Assert.Ignore ("ECDsaCng is only supported on Windows systems.");
+			}
+#else
+			Assert.Ignore ("Mono does not implement ECDsaCng");
+#endif
+		}
 	}
 }

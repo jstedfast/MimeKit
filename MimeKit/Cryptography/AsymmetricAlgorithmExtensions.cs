@@ -31,6 +31,14 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Asn1.Nist;
+using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.TeleTrust;
+#endif
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// Extension methods for System.Security.Cryptography.AsymmetricAlgorithm.
@@ -138,6 +146,76 @@ namespace MimeKit.Cryptography {
 			return new AsymmetricCipherKeyPair (pub, key);
 		}
 
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+		static X9ECParameters? GetECParameters (ECCurve curve)
+		{
+			if (curve.IsNamed) {
+				var oid = new DerObjectIdentifier (curve.Oid.Value);
+
+				// Note: NistNamedCurves.GetByOid() falls back to calling SecNamedCurves.GetByOid() if the oid is not a NIST-specific OID.
+				return NistNamedCurves.GetByOid (oid);
+			}
+
+			return null;
+		}
+
+		static AsymmetricKeyParameter GetAsymmetricKeyParameter (ECDsa ecdsa)
+		{
+			ECParameters parameters;
+
+			// Note: There's no easy way to know if this ECDsa key has private key parameters or not.
+			// Try exporting them. If we get CryptographicException, then it's probably apublic key.
+			// Try again with includePrivateParameters = false.
+			try {
+				parameters = ecdsa.ExportParameters (true);
+			} catch (CryptographicException) {
+				parameters = ecdsa.ExportParameters (false);
+			}
+
+			var ecParams = GetECParameters (parameters.Curve);
+
+			if (ecParams == null)
+				throw new NotSupportedException ("The EC curve is not supported.");
+
+			var domain = new ECDomainParameters (ecParams.Curve, ecParams.G, ecParams.N, ecParams.H, ecParams.GetSeed ());
+
+			if (parameters.D != null) {
+				// Private key
+				var d = new BigInteger (1, parameters.D);
+				return new ECPrivateKeyParameters (d, domain);
+			} else {
+				// Public key only
+				var q = ecParams.Curve.CreatePoint (
+					new BigInteger (1, parameters.Q.X),
+					new BigInteger (1, parameters.Q.Y));
+				return new ECPublicKeyParameters (q, domain);
+			}
+		}
+
+		static AsymmetricCipherKeyPair GetAsymmetricCipherKeyPair (ECDsa ecdsa)
+		{
+			var parameters = ecdsa.ExportParameters (true);
+			var ecParams = GetECParameters (parameters.Curve);
+
+			if (ecParams == null)
+				throw new NotSupportedException ("The EC curve is not supported.");
+
+			if (parameters.D == null)
+				throw new ArgumentException ("ECDsa key is not a private key.", "key");
+
+			var domain = new ECDomainParameters (ecParams.Curve, ecParams.G, ecParams.N, ecParams.H, ecParams.GetSeed ());
+			var d = new BigInteger (1, parameters.D);
+			var q = ecParams.Curve.CreatePoint (
+				new BigInteger (1, parameters.Q.X),
+				new BigInteger (1, parameters.Q.Y));
+
+			var privateKey = new ECPrivateKeyParameters (d, domain);
+			var publicKey = new ECPublicKeyParameters (q, domain);
+
+			return new AsymmetricCipherKeyPair (publicKey, privateKey);
+		}
+#endif
+
 		/// <summary>
 		/// Convert an AsymmetricAlgorithm into a BouncyCastle AsymmetricKeyParameter.
 		/// </summary>
@@ -170,7 +248,10 @@ namespace MimeKit.Cryptography {
 			if (key is DSA dsa)
 				return GetAsymmetricKeyParameter (dsa);
 
-			// TODO: support ECDiffieHellman and ECDsa?
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+			if (key is ECDsa ecdsa)
+				return GetAsymmetricKeyParameter (ecdsa);
+#endif
 
 			throw new NotSupportedException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name));
 		}
@@ -210,7 +291,10 @@ namespace MimeKit.Cryptography {
 			if (key is DSA dsa)
 				return GetAsymmetricCipherKeyPair (dsa);
 
-			// TODO: support ECDiffieHellman and ECDsa?
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+			if (key is ECDsa ecdsa)
+				return GetAsymmetricCipherKeyPair (ecdsa);
+#endif
 
 			throw new NotSupportedException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name));
 		}
@@ -311,6 +395,108 @@ namespace MimeKit.Cryptography {
 			return rsa;
 		}
 
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+		static bool IsCurve (X9ECParameters namedCurve, ECDomainParameters domain)
+		{
+			return namedCurve.Curve.Equals (domain.Curve) &&
+					namedCurve.G.Equals (domain.G) &&
+					namedCurve.N.Equals (domain.N) &&
+					namedCurve.H.Equals (domain.H);
+		}
+
+		static ECCurve? GetECCurve (ECDomainParameters domain)
+		{
+			// Try to match against NIST curves
+			foreach (string name in NistNamedCurves.Names) {
+				var oid = NistNamedCurves.GetOid (name);
+
+				if (oid != null) {
+					var namedCurve = NistNamedCurves.GetByOid (oid);
+
+					if (namedCurve != null && IsCurve (namedCurve, domain))
+						return ECCurve.CreateFromOid (new Oid (oid.Id));
+				}
+			}
+
+			// Try to match against SEC curves
+			foreach (string name in SecNamedCurves.Names) {
+				var oid = SecNamedCurves.GetOid (name);
+
+				if (oid != null) {
+					var namedCurve = SecNamedCurves.GetByOid (oid);
+
+					if (namedCurve != null && IsCurve (namedCurve, domain))
+						return ECCurve.CreateFromOid (new Oid (oid.Id));
+				}
+			}
+
+			// Try to match against TeleTrust curves
+			foreach (string name in TeleTrusTNamedCurves.Names) {
+				var oid = TeleTrusTNamedCurves.GetOid (name);
+
+				if (oid != null) {
+					var namedCurve = TeleTrusTNamedCurves.GetByOid (oid);
+
+					if (namedCurve != null && IsCurve (namedCurve, domain))
+						return ECCurve.CreateFromOid (new Oid (oid.Id));
+				}
+			}
+
+			return null;
+		}
+
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (ECPrivateKeyParameters key)
+		{
+			var curve = GetECCurve (key.Parameters);
+
+			if (curve == null)
+				throw new NotSupportedException ("The EC curve is not a supported named curve.");
+
+			// Calculate the public key point Q = d * G
+			var q = key.Parameters.G.Multiply (key.D).Normalize ();
+			var qx = q.AffineXCoord.ToBigInteger ();
+			var qy = q.AffineYCoord.ToBigInteger ();
+
+			var fieldSize = (key.Parameters.Curve.FieldSize + 7) / 8;
+			var orderSize = (key.Parameters.N.BitLength + 7) / 8;
+
+			var parameters = new ECParameters {
+				Curve = curve.Value,
+				D = GetPaddedByteArray (key.D, orderSize),
+				Q = {
+					X = GetPaddedByteArray (qx, fieldSize),
+					Y = GetPaddedByteArray (qy, fieldSize)
+				}
+			};
+
+			return ECDsa.Create (parameters);
+		}
+
+		static AsymmetricAlgorithm GetAsymmetricAlgorithm (ECPublicKeyParameters key)
+		{
+			var curve = GetECCurve (key.Parameters);
+
+			if (curve == null)
+				throw new NotSupportedException ("The EC curve is not a supported named curve.");
+
+			var q = key.Q.Normalize ();
+			var qx = q.AffineXCoord.ToBigInteger ();
+			var qy = q.AffineYCoord.ToBigInteger ();
+
+			var fieldSize = (key.Parameters.Curve.FieldSize + 7) / 8;
+
+			var parameters = new ECParameters {
+				Curve = curve.Value,
+				Q = {
+					X = GetPaddedByteArray (qx, fieldSize),
+					Y = GetPaddedByteArray (qy, fieldSize)
+				}
+			};
+
+			return ECDsa.Create (parameters);
+		}
+#endif
+
 		/// <summary>
 		/// Convert a BouncyCastle AsymmetricKeyParameter into an AsymmetricAlgorithm.
 		/// </summary>
@@ -338,12 +524,22 @@ namespace MimeKit.Cryptography {
 
 				if (key is DsaPrivateKeyParameters dsaPrivateKey)
 					return GetAsymmetricAlgorithm (dsaPrivateKey, null);
+
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+				if (key is ECPrivateKeyParameters ecPrivateKey)
+					return GetAsymmetricAlgorithm (ecPrivateKey);
+#endif
 			} else {
 				if (key is RsaKeyParameters rsaPublicKey)
 					return GetAsymmetricAlgorithm (rsaPublicKey);
 
 				if (key is DsaPublicKeyParameters dsaPublicKey)
 					return GetAsymmetricAlgorithm (dsaPublicKey);
+
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+				if (key is ECPublicKeyParameters ecPublicKey)
+					return GetAsymmetricAlgorithm (ecPublicKey);
+#endif
 			}
 
 			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.GetType ().Name));
@@ -376,7 +572,12 @@ namespace MimeKit.Cryptography {
 			if (key.Private is DsaPrivateKeyParameters dsaPrivateKey)
 				return GetAsymmetricAlgorithm (dsaPrivateKey, (DsaPublicKeyParameters) key.Public);
 
-			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.GetType ().Name));
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NET6_0_OR_GREATER
+			if (key.Private is ECPrivateKeyParameters ecdsaPrivateKey)
+				return GetAsymmetricAlgorithm (ecdsaPrivateKey);
+#endif
+
+			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.Private.GetType ().Name));
 		}
 	}
 }
