@@ -847,6 +847,35 @@ namespace UnitTests {
 			}
 		}
 
+		[Test]
+		public void TestInternalTryParseRecoveryForBadSyntax ()
+		{
+			string text = "\"Winnie Cooper\" <wcooper@wonder-years.com>, \"Last Name, First Name\" (oops, no address), \"Kevin Arnold\" <kevin@wonder-years.com>";
+			var options = ParserOptions.Default.Clone ();
+			var rawValue = Encoding.UTF8.GetBytes (text);
+			int length = rawValue.Length;
+			MailboxAddress mailbox;
+			int index = 0;
+
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+			options.AllowUnquotedCommasInAddresses = false;
+			options.AllowAddressesWithoutDomain = false;
+
+			InternetAddressList.TryParse (AddressParserFlags.InternalTryParse, options, rawValue, ref index, length, false, 0, out var parsed);
+
+			Assert.That (parsed, Has.Count.EqualTo (2), "Expected 2 addresses to be parsed.");
+			Assert.That (parsed[0], Is.InstanceOf<MailboxAddress> (), "First address should be a MailboxAddress.");
+
+			mailbox = (MailboxAddress) parsed[0];
+			Assert.That (mailbox.Name, Is.EqualTo ("Winnie Cooper"), "First address name does not match.");
+			Assert.That (mailbox.Address, Is.EqualTo ("wcooper@wonder-years.com"), "First address does not match.");
+			Assert.That (parsed[1], Is.InstanceOf<MailboxAddress> (), "Second address should be a MailboxAddress.");
+
+			mailbox = (MailboxAddress) parsed[1];
+			Assert.That (mailbox.Name, Is.EqualTo ("Kevin Arnold"), "Second address name does not match.");
+			Assert.That (mailbox.Address, Is.EqualTo ("kevin@wonder-years.com"), "Second address does not match.");
+		}
+
 		#region Rfc7103
 
 		// TODO: test both Strict and Loose RfcCompliance modes
