@@ -260,8 +260,11 @@ namespace MimeKit.Cryptography {
 
 			var recipients = new CmsRecipientCollection ();
 
-			foreach (var mailbox in mailboxes)
-				recipients.Add (GetCmsRecipient (mailbox));
+			foreach (var mailbox in mailboxes) {
+				var recipient = GetCmsRecipient (mailbox);
+				recipient.Mailbox = mailbox;
+				recipients.Add (recipient);
+			}
 
 			return recipients;
 		}
@@ -1514,16 +1517,16 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		void ValidateRecipientCertificate (X509Certificate certificate, CancellationToken cancellationToken = default)
+		void ValidateRecipientCertificate (CmsRecipient recipient, CancellationToken cancellationToken = default)
 		{
-			DownloadCrls (certificate, cancellationToken);
+			DownloadCrls (recipient.Certificate, cancellationToken);
 
 			var selector = new X509CertStoreSelector () {
-				Certificate = certificate
+				Certificate = recipient.Certificate
 			};
 
 			var userCertificateStore = new X509CertificateStore ();
-			userCertificateStore.Add (certificate);
+			userCertificateStore.Add (recipient.Certificate);
 
 			var trustedAnchors = GetTrustedAnchors ();
 			var anchorStore = new X509CertificateStore ();
@@ -1552,21 +1555,25 @@ namespace MimeKit.Cryptography {
 
 			var builder = new PkixCertPathBuilder ();
 
-			// Note: if there are any validation problems with the certificate chain,
-			// this will throw PkixCertPathBuilderException
-			builder.Build (parameters);
+			try {
+				// Note: if there are any validation problems with the certificate chain,
+				// this will throw PkixCertPathBuilderException
+				builder.Build (parameters);
+			} catch (Exception ex) {
+				throw new CmsRecipientException ($"Failed to validate recipient certificate for '{recipient.Certificate.SubjectDN}'", recipient, ex);
+			}
 		}
 
-		async Task ValidateRecipientCertificateAsync (X509Certificate certificate, CancellationToken cancellationToken = default)
+		async Task ValidateRecipientCertificateAsync (CmsRecipient recipient, CancellationToken cancellationToken = default)
 		{
-			await DownloadCrlsAsync (certificate, cancellationToken).ConfigureAwait (false);
+			await DownloadCrlsAsync (recipient.Certificate, cancellationToken).ConfigureAwait (false);
 
 			var selector = new X509CertStoreSelector () {
-				Certificate = certificate
+				Certificate = recipient.Certificate
 			};
 
 			var userCertificateStore = new X509CertificateStore ();
-			userCertificateStore.Add (certificate);
+			userCertificateStore.Add (recipient.Certificate);
 
 			var trustedAnchors = GetTrustedAnchors ();
 			var anchorStore = new X509CertificateStore ();
@@ -1595,9 +1602,13 @@ namespace MimeKit.Cryptography {
 
 			var builder = new PkixCertPathBuilder ();
 
-			// Note: if there are any validation problems with the certificate chain,
-			// this will throw PkixCertPathBuilderException
-			builder.Build (parameters);
+			try {
+				// Note: if there are any validation problems with the certificate chain,
+				// this will throw PkixCertPathBuilderException
+				builder.Build (parameters);
+			} catch (Exception ex) {
+				throw new CmsRecipientException ($"Failed to validate recipient certificate for '{recipient.Certificate.SubjectDN}'", recipient, ex);
+			}
 		}
 
 		Stream Envelope (CmsEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
@@ -1663,30 +1674,52 @@ namespace MimeKit.Cryptography {
 
 		void AddCmsRecipients (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
+			List<CmsRecipientException>? recipientExceptions = null;
 			var unique = new HashSet<X509Certificate> ();
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					if (CheckCertificateRevocation)
-						ValidateRecipientCertificate (recipient.Certificate, cancellationToken);
+					if (CheckCertificateRevocation) {
+						try {
+							ValidateRecipientCertificate (recipient, cancellationToken);
+						} catch (CmsRecipientException ex) {
+							recipientExceptions ??= new List<CmsRecipientException> ();
+							recipientExceptions.Add (ex);
+							continue;
+						}
+					}
 
 					AddRecipient (cms, recipient);
 				}
 			}
+
+			if (recipientExceptions != null)
+				throw new AggregateException ("One or more recipient certificates failed validation.", recipientExceptions);
 		}
 
 		async Task AddCmsRecipientsAsync (CmsEnvelopedGenerator cms, CmsRecipientCollection recipients, CancellationToken cancellationToken)
 		{
+			List<CmsRecipientException>? recipientExceptions = null;
 			var unique = new HashSet<X509Certificate> ();
 
 			foreach (var recipient in recipients) {
 				if (unique.Add (recipient.Certificate)) {
-					if (CheckCertificateRevocation)
-						await ValidateRecipientCertificateAsync (recipient.Certificate, cancellationToken).ConfigureAwait (false);
+					if (CheckCertificateRevocation) {
+						try {
+							await ValidateRecipientCertificateAsync (recipient, cancellationToken).ConfigureAwait (false);
+						} catch (CmsRecipientException ex) {
+							recipientExceptions ??= new List<CmsRecipientException> ();
+							recipientExceptions.Add (ex);
+							continue;
+						}
+					}
 
 					AddRecipient (cms, recipient);
 				}
 			}
+
+			if (recipientExceptions != null)
+				throw new AggregateException ("One or more recipient certificates failed validation.", recipientExceptions);
 		}
 
 		ApplicationPkcs7Mime Envelope (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
@@ -1694,16 +1727,31 @@ namespace MimeKit.Cryptography {
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
 			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
 
-			AddCmsRecipients (cms, recipients, cancellationToken);
+			try {
+				AddCmsRecipients (cms, recipients, cancellationToken);
+			} catch (AggregateException ex) {
+				throw new CmsEnvelopeException (ex.Message, ex);
+			}
 
-			var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
+			try {
+				var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
 
-			return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+			} catch (CmsException ex) {
+				throw new CmsEnvelopeException (ex.Message, ex);
+			}
 		}
 
 		async Task<ApplicationPkcs7Mime> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
+			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+
+			try {
+				await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
+			} catch (AggregateException ex) {
+				throw new CmsEnvelopeException (ex.Message, ex);
+			}
 
 			// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
 			//
@@ -1726,13 +1774,11 @@ namespace MimeKit.Cryptography {
 			}
 
 			try {
-				var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
-
-				await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
-
 				var envelopedData = Envelope (cms, algorithm, content, cancellationToken);
 
 				return new ApplicationPkcs7Mime (SecureMimeType.EnvelopedData, envelopedData);
+			} catch (CmsException ex) {
+				throw new CmsEnvelopeException (ex.Message, ex);
 			} finally {
 				memory?.Dispose ();
 			}
@@ -1760,7 +1806,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override ApplicationPkcs7Mime Encrypt (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default)
@@ -1799,7 +1845,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override Task<ApplicationPkcs7Mime> EncryptAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken = default)
@@ -1841,7 +1887,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
@@ -1880,7 +1926,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="CertificateNotFoundException">
 		/// A certificate could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
-		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
+		/// <exception cref="CmsEnvelopeException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
 		public override async Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)

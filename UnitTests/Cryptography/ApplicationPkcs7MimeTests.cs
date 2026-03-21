@@ -33,11 +33,11 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto.Prng;
 
-using Moq;
-using Moq.Protected;
-
 using MimeKit;
 using MimeKit.Cryptography;
+
+using Moq;
+using Moq.Protected;
 
 using BCX509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
@@ -296,6 +296,39 @@ namespace UnitTests.Cryptography {
 						ItExpr.IsAny<CancellationToken> ())
 					.ReturnsAsync (response);
 			}
+
+			return mockHttpMessageHandler;
+		}
+
+		protected static HttpResponseMessage[] SubCaRevokedCertificateResponses ()
+		{
+			return new HttpResponseMessage[] {
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[4].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[1].GetEncoded ())
+				},
+				new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[2].GetEncoded ())
+				}
+			};
+		}
+
+		protected static Mock<HttpMessageHandler> CreateSubCaRevokedMockHttpMessageHandler ()
+		{
+			var responses = SubCaRevokedCertificateResponses ();
+			var mockHttpMessageHandler = CreateMockHttpMessageHandler (responses);
+
+			mockHttpMessageHandler
+				.Protected ()
+				.Setup<Task<HttpResponseMessage>> (
+					"SendAsync",
+					ItExpr.Is<HttpRequestMessage> (m => m.Method == HttpMethod.Get && m.RequestUri == SecureMimeTestsBase.SubCaRevokedCrlRequestUri),
+					ItExpr.IsAny<CancellationToken> ())
+				.ReturnsAsync (new HttpResponseMessage (HttpStatusCode.OK) {
+					Content = new ByteArrayContent (SecureMimeTestsBase.CurrentCrls[5].GetEncoded ())
+				});
 
 			return mockHttpMessageHandler;
 		}
@@ -991,16 +1024,25 @@ namespace UnitTests.Cryptography {
 				try {
 					ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
 					Assert.Fail ("Encrypt should have thrown an exception for the revoked recipient certificate.");
-				} catch (Exception ex) {
-					Assert.That (ex.Message, Is.EqualTo ("Certification path could not be validated."), "ex.Message");
+				} catch (CmsEnvelopeException ex) {
+					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
 
-					Exception innerException = ex.InnerException;
-					while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
-						innerException = innerException.InnerException;
+					var aggregate = (AggregateException) ex.InnerException;
 
-					Assert.That (innerException, Is.Not.Null);
-					Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
-					Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
+					Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+					Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+					var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+					Assert.That (cre.Recipient.Certificate, Is.EqualTo (certificate.Certificate), "CmsRecipient Certificate");
+
+					var failure = cre.InnerException;
+					while (failure is not PkixCertPathValidatorException && failure.InnerException != null)
+						failure = failure.InnerException;
+
+					Assert.That (failure, Is.Not.Null);
+					Assert.That (failure.Message, Does.StartWith ("Certificate revocation after "));
+					Assert.That (failure.Message, Does.EndWith (", reason: keyCompromise"));
 				} finally {
 					ctx.CheckCertificateRevocation = false;
 				}
@@ -1025,16 +1067,25 @@ namespace UnitTests.Cryptography {
 				try {
 					await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
 					Assert.Fail ("EncryptAsync should have thrown an exception for the revoked recipient certificate.");
-				} catch (Exception ex) {
-					Assert.That (ex.Message, Is.EqualTo ("Certification path could not be validated."), "ex.Message");
+				} catch (CmsEnvelopeException ex) {
+					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
 
-					Exception innerException = ex.InnerException;
-					while (innerException is not PkixCertPathValidatorException && innerException.InnerException != null)
-						innerException = innerException.InnerException;
+					var aggregate = (AggregateException) ex.InnerException;
 
-					Assert.That (innerException, Is.Not.Null);
-					Assert.That (innerException.Message, Does.StartWith ("Certificate revocation after "));
-					Assert.That (innerException.Message, Does.EndWith (", reason: keyCompromise"));
+					Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+					Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+					var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+					Assert.That (cre.Recipient.Certificate, Is.EqualTo (certificate.Certificate), "CmsRecipient Certificate");
+
+					var failure = cre.InnerException;
+					while (failure is not PkixCertPathValidatorException && failure.InnerException != null)
+						failure = failure.InnerException;
+
+					Assert.That (failure, Is.Not.Null);
+					Assert.That (failure.Message, Does.StartWith ("Certificate revocation after "));
+					Assert.That (failure.Message, Does.EndWith (", reason: keyCompromise"));
 				} finally {
 					ctx.CheckCertificateRevocation = false;
 				}
@@ -1044,6 +1095,204 @@ namespace UnitTests.Cryptography {
 				Assert.DoesNotThrow (() => ApplicationPkcs7Mime.Encrypt (ctx, recipients, body));
 				SecureMimeTestsBase.AssertCrlsNotRequested (mockHttpMessageHandler);
 			}
+		}
+
+		protected static void VerifyPartialRevokedRecipients (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate validCertificate, SMimeCertificate revokedCertificate)
+		{
+			var body = new TextPart ("plain") { Text = "This is the message body that we will be encrypting..." };
+			var recipients = new CmsRecipientCollection () {
+				new CmsRecipient (validCertificate.Certificate),
+				new CmsRecipient (revokedCertificate.Certificate)
+			};
+
+			ctx.CheckCertificateRevocation = true;
+
+			try {
+				ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				Assert.Fail ("Encrypt should have thrown an exception for the revoked recipient certificate.");
+			} catch (CmsEnvelopeException ex) {
+				Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
+
+				var aggregate = (AggregateException) ex.InnerException;
+
+				Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+				Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+				var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+				Assert.That (cre.Recipient.Certificate, Is.EqualTo (revokedCertificate.Certificate), "CmsRecipient Certificate");
+
+				var failure = cre.InnerException;
+				while (failure is not PkixCertPathValidatorException && failure.InnerException != null)
+					failure = failure.InnerException;
+
+				Assert.That (failure, Is.Not.Null);
+				Assert.That (failure.Message, Does.StartWith ("Certificate revocation after "));
+				Assert.That (failure.Message, Does.EndWith (", reason: keyCompromise"));
+			} finally {
+				ctx.CheckCertificateRevocation = false;
+			}
+
+			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
+		}
+
+		protected static async Task VerifyPartialRevokedRecipientsAsync (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate validCertificate, SMimeCertificate revokedCertificate)
+		{
+			var body = new TextPart ("plain") { Text = "This is the message body that we will be encrypting..." };
+			var recipients = new CmsRecipientCollection () {
+				new CmsRecipient (validCertificate.Certificate),
+				new CmsRecipient (revokedCertificate.Certificate)
+			};
+
+			ctx.CheckCertificateRevocation = true;
+
+			try {
+				await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+				Assert.Fail ("EncryptAsync should have thrown a CertificateValidationException for the revoked recipient certificate.");
+			} catch (CmsEnvelopeException ex) {
+				Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
+
+				var aggregate = (AggregateException) ex.InnerException;
+
+				Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+				Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+				var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+				Assert.That (cre.Recipient.Certificate, Is.EqualTo (revokedCertificate.Certificate), "CmsRecipient Certificate");
+
+				var failure = cre.InnerException;
+				while (failure is not PkixCertPathValidatorException && failure.InnerException != null)
+					failure = failure.InnerException;
+
+				Assert.That (failure, Is.Not.Null);
+				Assert.That (failure.Message, Does.StartWith ("Certificate revocation after "));
+				Assert.That (failure.Message, Does.EndWith (", reason: keyCompromise"));
+			} finally {
+				ctx.CheckCertificateRevocation = false;
+			}
+
+			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
+		}
+
+		protected static void VerifyEncryptToValidRecipientsOnly (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate validCertificate, SMimeCertificate revokedCertificate)
+		{
+			var body = new TextPart ("plain") { Text = "This is the message body that we will be encrypting..." };
+			var recipients = new CmsRecipientCollection () {
+				new CmsRecipient (validCertificate.Certificate),
+				new CmsRecipient (revokedCertificate.Certificate)
+			};
+
+			ctx.CheckCertificateRevocation = true;
+
+			try {
+				try {
+					ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					Assert.Fail ("Encrypt should have thrown an exception for the revoked recipient certificate.");
+				} catch (CmsEnvelopeException ex) {
+					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
+
+					var aggregate = (AggregateException) ex.InnerException;
+
+					Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+					Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+					var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+					Assert.That (cre.Recipient.Certificate, Is.EqualTo (revokedCertificate.Certificate), "CmsRecipient Certificate");
+
+					// Remove the recipient with the validation error.
+					recipients.Remove (cre.Recipient);
+				}
+
+				// Now that the revoked recipient has been removed, the encryption should succeed.
+				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				Assert.That (encrypted, Is.Not.Null, "Encrypt should succeed once the invalid recipient has been removed.");
+				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData));
+
+				var decrypted = encrypted.Decrypt (ctx);
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+			} finally {
+				ctx.CheckCertificateRevocation = false;
+			}
+
+			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
+		}
+
+		protected static async Task VerifyEncryptToValidRecipientsOnlyAsync (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate validCertificate, SMimeCertificate revokedCertificate)
+		{
+			var body = new TextPart ("plain") { Text = "This is the message body that we will be encrypting..." };
+			var recipients = new CmsRecipientCollection () {
+				new CmsRecipient (validCertificate.Certificate),
+				new CmsRecipient (revokedCertificate.Certificate)
+			};
+
+			ctx.CheckCertificateRevocation = true;
+
+			try {
+				try {
+					await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+					Assert.Fail ("EncryptAsync should have thrown an exception for the revoked recipient certificate.");
+				} catch (CmsEnvelopeException ex) {
+					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
+
+					var aggregate = (AggregateException) ex.InnerException;
+
+					Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+					Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+					var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+					Assert.That (cre.Recipient.Certificate, Is.EqualTo (revokedCertificate.Certificate), "CmsRecipient Certificate");
+
+					// Remove the recipient with the validation error.
+					recipients.Remove (cre.Recipient);
+				}
+
+				// Now that the revoked recipient has been removed, the encryption should succeed.
+				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+				Assert.That (encrypted, Is.Not.Null, "EncryptAsync should succeed once the invalid recipient has been removed.");
+				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData));
+
+				var decrypted = await encrypted.DecryptAsync (ctx);
+				Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+				Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+			} finally {
+				ctx.CheckCertificateRevocation = false;
+			}
+
+			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
+		}
+
+		protected static void VerifyEncryptToRevokedCertificateFails (BouncyCastleSecureMimeContext ctx, Mock<HttpMessageHandler> mockHttpMessageHandler, SMimeCertificate revokedCertificate, Uri[] crlRequestUris)
+		{
+			var body = new TextPart ("plain") { Text = "This is the message body that we will be encrypting..." };
+			var recipients = new CmsRecipientCollection () {
+				new CmsRecipient (revokedCertificate.Certificate)
+			};
+
+			ctx.CheckCertificateRevocation = true;
+
+			try {
+				ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				Assert.Fail ("Encrypt should have thrown an exception when all recipients fail validation.");
+			} catch (CmsEnvelopeException ex) {
+				Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
+
+				var aggregate = (AggregateException) ex.InnerException;
+
+				Assert.That (aggregate.InnerExceptions, Has.Count.EqualTo (1), "Aggregate InnerExceptions");
+				Assert.That (aggregate.InnerExceptions[0], Is.InstanceOf<CmsRecipientException> (), "Expected an inner exception of type CmsRecipientException.");
+
+				var cre = (CmsRecipientException) aggregate.InnerExceptions[0];
+
+				Assert.That (cre.Recipient.Certificate, Is.EqualTo (revokedCertificate.Certificate), "CmsRecipient Certificate");
+			} finally {
+				ctx.CheckCertificateRevocation = false;
+			}
+
+			SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler, crlRequestUris);
 		}
 	}
 
@@ -1141,6 +1390,89 @@ namespace UnitTests.Cryptography {
 				await VerifyRevokedRecipientAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, true);
 			}
 		}
+
+		[Test]
+		public void TestEncryptPartialRevokedRecipients ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext ()) {
+				ImportAll (ctx);
+
+				VerifyPartialRevokedRecipients (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+		}
+
+		[Test]
+		public async Task TestEncryptPartialRevokedRecipientsAsync ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext ()) {
+				await ImportAllAsync (ctx);
+
+				await VerifyPartialRevokedRecipientsAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnly ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext ()) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+		}
+
+		[Test]
+		public async Task TestEncryptToValidRecipientsOnlyAsync ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext ()) {
+				await ImportAllAsync (ctx);
+
+				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlyAllFail ()
+		{
+			using (var ctx = new MyTemporarySecureMimeContext ()) {
+				ImportAll (ctx);
+
+				VerifyEncryptToRevokedCertificateFails (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, SecureMimeTestsBase.CrlRequestUris);
+			}
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlySubCaRevoked ()
+		{
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+		}
+
+		[Test]
+		public async Task TestEncryptToValidRecipientsOnlySubCaRevokedAsync ()
+		{
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
+				await ImportAllAsync (ctx);
+
+				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+		}
+
+		[Test]
+		public void TestEncryptToRevokedSubCaCertificateFails ()
+		{
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToRevokedCertificateFails (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SubCaRevokedCertificate, new Uri[] { SecureMimeTestsBase.CrlRequestUris[0] });
+			}
+		}
 	}
 
 	[TestFixture]
@@ -1188,6 +1520,30 @@ namespace UnitTests.Cryptography {
 
 			if (File.Exists ("revoked-pkcs7-async.db"))
 				File.Delete ("revoked-pkcs7-async.db");
+
+			if (File.Exists ("partial-revoked-pkcs7.db"))
+				File.Delete ("partial-revoked-pkcs7.db");
+
+			if (File.Exists ("partial-revoked-pkcs7-async.db"))
+				File.Delete ("partial-revoked-pkcs7-async.db");
+
+			if (File.Exists ("valid-only-pkcs7.db"))
+				File.Delete ("valid-only-pkcs7.db");
+
+			if (File.Exists ("valid-only-pkcs7-async.db"))
+				File.Delete ("valid-only-pkcs7-async.db");
+
+			if (File.Exists ("valid-only-all-fail-pkcs7.db"))
+				File.Delete ("valid-only-all-fail-pkcs7.db");
+
+			if (File.Exists ("valid-only-subca-revoked-pkcs7.db"))
+				File.Delete ("valid-only-subca-revoked-pkcs7.db");
+
+			if (File.Exists ("valid-only-subca-revoked-pkcs7-async.db"))
+				File.Delete ("valid-only-subca-revoked-pkcs7-async.db");
+
+			if (File.Exists ("valid-only-subca-revoked-all-fail-pkcs7.db"))
+				File.Delete ("valid-only-subca-revoked-all-fail-pkcs7.db");
 		}
 
 		[Test]
@@ -1261,6 +1617,121 @@ namespace UnitTests.Cryptography {
 				await ImportAllAsync (ctx);
 
 				await VerifyRevokedRecipientAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, true);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptPartialRevokedRecipients ()
+		{
+			const string fileName = "partial-revoked-pkcs7.db";
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
+				ImportAll (ctx);
+
+				VerifyPartialRevokedRecipients (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public async Task TestEncryptPartialRevokedRecipientsAsync ()
+		{
+			const string fileName = "partial-revoked-pkcs7-async.db";
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
+				await ImportAllAsync (ctx);
+
+				await VerifyPartialRevokedRecipientsAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnly ()
+		{
+			const string fileName = "valid-only-pkcs7.db";
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public async Task TestEncryptToValidRecipientsOnlyAsync ()
+		{
+			const string fileName = "valid-only-pkcs7-async.db";
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
+				await ImportAllAsync (ctx);
+
+				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlyAllFail ()
+		{
+			const string fileName = "valid-only-all-fail-pkcs7.db";
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
+				ImportAll (ctx);
+
+				VerifyEncryptToRevokedCertificateFails (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, SecureMimeTestsBase.CrlRequestUris);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptToValidRecipientsOnlySubCaRevoked ()
+		{
+			const string fileName = "valid-only-subca-revoked-pkcs7.db";
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public async Task TestEncryptToValidRecipientsOnlySubCaRevokedAsync ()
+		{
+			const string fileName = "valid-only-subca-revoked-pkcs7-async.db";
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
+				await ImportAllAsync (ctx);
+
+				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+			}
+
+			File.Delete (fileName);
+		}
+
+		[Test]
+		public void TestEncryptToRevokedSubCaCertificateFails ()
+		{
+			const string fileName = "valid-only-subca-revoked-all-fail-pkcs7.db";
+			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
+
+			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
+				ImportAll (ctx);
+
+				VerifyEncryptToRevokedCertificateFails (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SubCaRevokedCertificate, new Uri[] { SecureMimeTestsBase.CrlRequestUris[0] });
 			}
 
 			File.Delete (fileName);
