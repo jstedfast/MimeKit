@@ -1569,6 +1569,9 @@ namespace MimeKit.Cryptography {
 			parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			var builder = new PkixCertPathBuilder ();
+
+			// Note: if there are any validation problems with the certificate chain,
+			// this will throw PkixCertPathBuilderException
 			builder.Build (parameters);
 		}
 
@@ -1609,6 +1612,9 @@ namespace MimeKit.Cryptography {
 			parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			var builder = new PkixCertPathBuilder ();
+
+			// Note: if there are any validation problems with the certificate chain,
+			// this will throw PkixCertPathBuilderException
 			builder.Build (parameters);
 		}
 

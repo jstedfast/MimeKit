@@ -135,12 +135,14 @@ namespace UnitTests.Utils {
 		static readonly string[] MsgIdInputs = {
 			" <Messe_Bauma_rz(1)_ae284449-6bdc-488f-8ec3-5be5e5b09efb.jpg>",
 			" Messe_Bauma_rz(1)_ae284449-6bdc-488f-8ec3-5be5e5b09efb.jpg",
-			" <15627601.388658.1676916781911.JavaMail.\"xxxxxx@united.com\"@xxxxxxx.ual.com>"
+			" <15627601.388658.1676916781911.JavaMail.\"xxxxxx@united.com\"@xxxxxxx.ual.com>",
+			" @0@" // test for issue #1227
 		};
 		static readonly string[] MsgIdOutputs = {
 			"Messe_Bauma_rz(1)_ae284449-6bdc-488f-8ec3-5be5e5b09efb.jpg",
 			"Messe_Bauma_rz(1)_ae284449-6bdc-488f-8ec3-5be5e5b09efb.jpg",
-			"15627601.388658.1676916781911.JavaMail.\"xxxxxx@united.com\"@xxxxxxx.ual.com"
+			"15627601.388658.1676916781911.JavaMail.\"xxxxxx@united.com\"@xxxxxxx.ual.com",
+			"@0@"
 		};
 
 		[Test]
@@ -353,6 +355,29 @@ namespace UnitTests.Utils {
 			index = 0;
 			Assert.That (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, true, out msgid), Is.True, "TryParseMsgId+thowOnError");
 			Assert.That (msgid, Is.EqualTo (expected), "msgid");
+		}
+
+		[Test]
+		public void TestTryParseMsgIdWithDoubleDomains ()
+		{
+			var buffer = Encoding.ASCII.GetBytes (" <id@domain1@domain2>");
+			const string expected = "id@domain1@domain2";
+			int index = 0;
+			string msgid;
+
+			Assert.That (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), Is.True, "TryParseMsgId");
+			Assert.That (msgid, Is.EqualTo (expected), "msgid");
+		}
+
+		[Test]
+		public void TestTryParseMsgIdWithAtAfterDomain ()
+		{
+			var buffer = Encoding.ASCII.GetBytes (" <id@domain@>");
+			int index = 0;
+			string msgid;
+
+			// FIXME: should this succeed and produce "id@domain@" as the msgid?
+			Assert.That (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), Is.False, "TryParseMsgId");
 		}
 	}
 }

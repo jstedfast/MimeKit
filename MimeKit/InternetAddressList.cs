@@ -340,10 +340,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copy all the addresses in the <see cref="InternetAddressList"/> to the specified array.
+		/// Copy all of the addresses in the <see cref="InternetAddressList"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the addresses within the <see cref="InternetAddressList"/> into the array,
+		/// Copies all of the addresses within the <see cref="InternetAddressList"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the addresses to.</param>
@@ -360,7 +360,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Remove the specified address from the <see cref="InternetAddressList"/>.
+		/// Remove an address from the <see cref="InternetAddressList"/>.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified address.
@@ -608,15 +608,36 @@ namespace MimeKit {
 				if (isGroup && text[index] == (byte) ';')
 					break;
 
+				// Save state in case InternetAddress.TryParse() fails and we need to recover.
+				int savedIndex = index;
+
 				if (!InternetAddress.TryParse (flags, options, text, ref index, endIndex, groupDepth, out var address)) {
 					if ((flags & AddressParserFlags.Internal) == 0) {
 						// Note: If flags contains the ThrowOnError flag, then InternetAddress.TryParse() would have thrown.
 						return false;
 					}
 
-					// skip this address...
-					while (index < endIndex && text[index] != (byte) ',' && (!isGroup || text[index] != (byte) ';'))
-						index++;
+					// When the 'Internal' flag is set, it means we are being called from places like MimeMessage or
+					// Header (when trying to reformat an existing header value) where we want to be more lenient with
+					// parsing and simply skip any addresses that we fail to parse instead of throwing an exception or
+					// prematurely abort parsing. In other words, we want to preserve as many valid addresses as possible.
+					//
+					// With that in mind, when InternetAddress.TryParse() fails, skip to the next address and resume parsing.
+					index = savedIndex;
+
+					while (index < endIndex) {
+						if (text[index] == (byte) '"') {
+							if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
+								break;
+						} else if (text[index] == (byte) '(') {
+							if (!ParseUtils.SkipComment (text, ref index, endIndex))
+								break;
+						} else if (text[index] == (byte) ',' || (isGroup && text[index] == (byte) ';')) {
+							break;
+						} else {
+							index++;
+						}
+					}
 				} else {
 					list.Add (address);
 				}

@@ -1,5 +1,10 @@
 # Release Notes
 
+## MimeKit 4.15.1 (2026-03-04)
+
+* SECURITY: Use stricter parsing logic for quoted-strings in addr-specs to prevent
+  SMTP command injection attacks when those quoted-strings include CRLF sequences.
+
 ## MimeKit 4.15.0 (2026-02-14)
 
 * Bumped System.Buffers to 4.6.1 and System.Memory to 4.6.3

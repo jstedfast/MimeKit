@@ -302,7 +302,7 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
 					int n = ReadInt32 ();
-					if (n >= 0 && n + 4 < length)
+					if (n >= 0 && n < length - 4)
 						length = n + 4;
 					break;
 				}

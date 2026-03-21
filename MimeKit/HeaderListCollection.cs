@@ -53,7 +53,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets the number of groups in the collection.
+		/// Get the number of groups in the collection.
 		/// </summary>
 		/// <remarks>
 		/// Gets the number of groups in the collection.
@@ -64,7 +64,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets whether the header list collection is read only.
+		/// Get whether the header list collection is read only.
 		/// </summary>
 		/// <remarks>
 		/// A <see cref="HeaderListCollection"/> is never read-only.
@@ -75,7 +75,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the <see cref="HeaderList"/> at the specified index.
+		/// Get or set the <see cref="HeaderList"/> at the specified index.
 		/// </summary>
 		/// <remarks>
 		/// Gets or sets the <see cref="HeaderList"/> at the specified index.
@@ -112,7 +112,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Adds the group of headers to the collection.
+		/// Add a group of headers to the collection.
 		/// </summary>
 		/// <remarks>
 		/// Adds the group of headers to the collection.
@@ -132,7 +132,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Clears the header list collection.
+		/// Clear the header list collection.
 		/// </summary>
 		/// <remarks>
 		/// Removes all the groups from the collection.
@@ -147,7 +147,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Checks if the collection contains the specified group of headers.
+		/// Check if the collection contains the specified group of headers.
 		/// </summary>
 		/// <remarks>
 		/// Determines whether the collection contains the specified group of headers.
@@ -167,10 +167,10 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Copies all the header groups in the <see cref="HeaderListCollection"/> to the specified array.
+		/// Copy all of the header groups in the <see cref="HeaderListCollection"/> to the specified array.
 		/// </summary>
 		/// <remarks>
-		/// Copies all the header groups within the <see cref="HeaderListCollection"/> into the array,
+		/// Copies all of the header groups within the <see cref="HeaderListCollection"/> into the array,
 		/// starting at the specified array index.
 		/// </remarks>
 		/// <param name="array">The array to copy the headers to.</param>
@@ -187,7 +187,7 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the specified header group.
+		/// Remove a header group.
 		/// </summary>
 		/// <remarks>
 		/// Removes the specified header group from the collection, if it exists.

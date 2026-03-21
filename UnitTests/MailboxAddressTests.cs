@@ -350,6 +350,64 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseMailboxWithInvalidQuotedLocalPart ()
+		{
+			const string text = "\"invalid\r\nquoted\"@domain.com";
+			int errorIndex = text.IndexOf ('\r');
+			const int tokenIndex = 0;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+
+			try {
+				var mailbox = new MailboxAddress ("Name", text);
+				Assert.Fail ("Expected ParseException in .ctor");
+			} catch (ParseException pex) {
+				Assert.That (pex.TokenIndex, Is.EqualTo (tokenIndex), ".ctor ParseException.TokenIndex");
+				Assert.That (pex.ErrorIndex, Is.EqualTo (errorIndex), ".ctor ParseException.ErrorIndex");
+			} catch (Exception ex) {
+				Assert.Fail ($"Expected ParseException, got {ex.GetType ().Name}");
+			}
+		}
+
+		[Test]
+		public void TestParseMailboxWithInvalidQuotedPairLocalPart ()
+		{
+			const string text = "\"invalid\\\rquoted\"@domain.com";
+			int errorIndex = text.IndexOf ('\r');
+			const int tokenIndex = 0;
+
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+
+			try {
+				var mailbox = new MailboxAddress ("Name", text);
+				Assert.Fail ("Expected ParseException in .ctor");
+			} catch (ParseException pex) {
+				Assert.That (pex.TokenIndex, Is.EqualTo (tokenIndex), ".ctor ParseException.TokenIndex");
+				Assert.That (pex.ErrorIndex, Is.EqualTo (errorIndex), ".ctor ParseException.ErrorIndex");
+			} catch (Exception ex) {
+				Assert.Fail ($"Expected ParseException, got {ex.GetType ().Name}");
+			}
+		}
+
+		[Test]
+		public void TestParseMailboxWithValidQuotedLocalPart ()
+		{
+			const string text = "\"\t !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"@domain.com";
+
+			AssertParse (text);
+			Assert.DoesNotThrow (() => new MailboxAddress ("Name", text), "MailboxAddress .ctor should not throw an exception.");
+		}
+
+		[Test]
+		public void TestParseMailboxWithValidUTF8QuotedLocalPart ()
+		{
+			const string text = "\"名がドメイン\"@domain.com";
+
+			AssertParse (text);
+			Assert.DoesNotThrow (() => new MailboxAddress ("Name", text), "MailboxAddress .ctor should not throw an exception.");
+		}
+
+		[Test]
 		public void TestParseIncompleteQuotedString ()
 		{
 			const string text = "\"This quoted string never ends... oh no!";
