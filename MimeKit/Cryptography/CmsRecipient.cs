@@ -220,7 +220,7 @@ namespace MimeKit.Cryptography {
 		/// Gets or sets the mailbox address of the recipient, if available.
 		/// </remarks>
 		/// <value>The mailbox address, if available.</value>
-		internal MailboxAddress? Mailbox {
+		public MailboxAddress? Mailbox {
 			get; set;
 		}
 
