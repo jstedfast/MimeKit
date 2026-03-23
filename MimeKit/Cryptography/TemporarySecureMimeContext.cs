@@ -325,7 +325,7 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetCmsRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
-			var recipient = new CmsRecipient (certificate) { Mailbox = mailbox };
+			var recipient = new CmsRecipient (certificate);
 
 			if (capabilities.TryGetValue (certificate.GetFingerprint (), out var algorithms))
 				recipient.EncryptionAlgorithms = algorithms;

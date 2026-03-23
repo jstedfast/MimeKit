@@ -486,11 +486,11 @@ namespace MimeKit.Cryptography {
 			return nextUpdate;
 		}
 
-		static CmsRecipient CreateCmsRecipient (MailboxAddress mailbox, X509CertificateRecord record)
+		static CmsRecipient CreateCmsRecipient (X509CertificateRecord record)
 		{
 			Debug.Assert (record.Certificate != null, "Caller ensures record.Certificate is non-null");
 
-			var recipient = new CmsRecipient (record.Certificate) { Mailbox = mailbox };
+			var recipient = new CmsRecipient (record.Certificate);
 
 			if (record.Algorithms != null)
 				recipient.EncryptionAlgorithms = record.Algorithms;
@@ -527,11 +527,11 @@ namespace MimeKit.Cryptography {
 					continue;
 				}
 
-				return CreateCmsRecipient (mailbox, record);
+				return CreateCmsRecipient (record);
 			}
 
 			if (domain != null)
-				return CreateCmsRecipient (mailbox, domain);
+				return CreateCmsRecipient (domain);
 
 			throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 		}

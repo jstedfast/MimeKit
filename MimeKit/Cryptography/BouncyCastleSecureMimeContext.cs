@@ -260,8 +260,15 @@ namespace MimeKit.Cryptography {
 
 			var recipients = new CmsRecipientCollection ();
 
-			foreach (var mailbox in mailboxes)
-				recipients.Add (GetCmsRecipient (mailbox));
+			foreach (var mailbox in mailboxes) {
+				var recipient = GetCmsRecipient (mailbox);
+
+				// Note: We set the recipient mailbox here so that we can use it to provide more context
+				// in case of an exception when trying to encrypt to this recipient later.
+				recipient.Mailbox = mailbox;
+
+				recipients.Add (recipient);
+			}
 
 			return recipients;
 		}
