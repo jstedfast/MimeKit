@@ -1746,10 +1746,26 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		static async Task<MemoryBlockStream> GetStreamAsMemoryAsync (Stream content, CancellationToken cancellationToken)
+		{
+			var memory = new MemoryBlockStream ();
+
+			try {
+				await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
+				memory.Position = 0;
+			} catch {
+				memory.Dispose ();
+				throw;
+			}
+
+			return memory;
+		}
+
 		async Task<ApplicationPkcs7Mime> EnvelopeAsync (CmsRecipientCollection recipients, Stream content, CancellationToken cancellationToken)
 		{
 			var algorithm = GetPreferredEncryptionAlgorithm (recipients);
 			var cms = new CmsEnvelopedDataGenerator (RandomNumberGenerator);
+			MemoryBlockStream? memory = null;
 
 			try {
 				await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
@@ -1761,19 +1777,8 @@ namespace MimeKit.Cryptography {
 			//
 			// If the content isn't already a memory stream of some sort, we clone it into a memory stream
 			// in order to provide asynchronous reading from the source content stream.
-			MemoryBlockStream? memory = null;
-
 			if (!(content is MemoryBlockStream or MemoryStream)) {
-				memory = new MemoryBlockStream ();
-
-				try {
-					await content.CopyToAsync (memory, 4096, cancellationToken).ConfigureAwait (false);
-					memory.Position = 0;
-				} catch {
-					memory.Dispose ();
-					throw;
-				}
-
+				memory = await GetStreamAsMemoryAsync (content, cancellationToken).ConfigureAwait (false);
 				content = memory;
 			}
 
