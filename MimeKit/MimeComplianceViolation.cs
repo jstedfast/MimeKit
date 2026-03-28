@@ -246,11 +246,20 @@ namespace MimeKit {
 		/// The base64 encoded content of a MIME part contained an incomplete quantum on a line.
 		/// </summary>
 		/// <remarks>
-		/// The MIME specifications require that each line of base64 encoded content be a multiple of 4 bytes (a "quantum") in length.
-		/// Lines that break a base64 quantum across multiple lines is not allowed by the specifications and can therefore lead to
-		/// inconsistent behavior among different MIME parser implementations.
+		/// While the MIME specifications do not require each line of base64 encoded content be a multiple of 4 bytes (a "quantum")
+		/// in length, it is not a common scenario and may break some decoders which expect lines to contain complete quantums.
 		/// </remarks>
-		IncompleteBase64Quantum,
+		IncompleteBase64LineQuantum,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part ended with an incomplete quantum.
+		/// </summary>
+		/// <remarks>
+		/// The MIME specifications require base64 encoded content be a multiple of 4 bytes (a "quantum") in length. An
+		/// incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or
+		/// otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		IncompleteBase64EndQuantum,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid characters.
@@ -281,6 +290,18 @@ namespace MimeKit {
 		/// and can lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
 		Base64CharactersAfterPadding,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained an obsolete comment.
+		/// </summary>
+		/// <remarks>
+		/// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments delimited by the <c>'*'</c> character in what
+		/// later became known as "base64 encoding". This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the
+		/// first MIME specification) explicitly disallowed it, but some mailers may generate such content. Since the vast
+		/// majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead
+		/// to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		ObsoleteBase64Comment,
 
 		/// <summary>
 		/// The quoted-printable encoded content of a MIME part contained an invalid hex sequence after an '=' character.

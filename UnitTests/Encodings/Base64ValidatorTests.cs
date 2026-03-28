@@ -85,7 +85,7 @@ namespace UnitTests.Encodings {
 				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 2, 1),
 				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 44, 3),
 				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 45, 3),
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidBase64Character, 50, 3),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.ObsoleteBase64Comment, 50, 3),
 			};
 
 			TestValidateInvalidInput (text, violations);
@@ -148,12 +148,36 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
-		public void TestValidateInvalidInput_IncompleteQuantumAfterPaddingStart ()
+		public void TestValidateInvalidInput_IncompleteLineQuantums ()
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=\r\n=";
 			var violations = new List<MimeComplianceViolationEventArgs> {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 44, 1),
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64Quantum, 46, 2)
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64LineQuantum, 44, 1),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64LineQuantum, 46, 2)
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_IncompleteEndQuantum ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=\r\n";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64LineQuantum, 44, 1),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64EndQuantum, 45, 2)
+			};
+
+			TestValidateInvalidInput (text, violations);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_IncompleteEndQuantum_NoNewLine ()
+		{
+			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=";
+			var violations = new List<MimeComplianceViolationEventArgs> {
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64LineQuantum, 43, 1),
+				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteBase64EndQuantum, 43, 1)
 			};
 
 			TestValidateInvalidInput (text, violations);
