@@ -46,6 +46,7 @@ namespace MimeKit.Encodings {
 		int lineNumber;
 		int padding;
 		int octets;
+		uint total;
 		bool invalid;
 
 		/// <summary>
@@ -93,17 +94,22 @@ namespace MimeKit.Encodings {
 						// The current byte is outside of the base64 alphabet, but could be whitespace (which we will treat as valid).
 						if (c == (byte) '\n') {
 							if (octets % 4 != 0)
-								reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber);
+								reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
 
 							lineNumber++;
 							octets = 0;
+						} else if (c == (byte) '*') {
+							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
+							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) exp? licitly
+							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
+							reader.OnMimeComplianceViolation (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber);
 						} else if (!c.IsWhitespace ()) {
 							// This is an invalid base64 character.
 							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
 						}
 					} else if (c == (byte) '=') {
 						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
-						if (octets % 4 < 2) {
+						if (total % 4 < 2) {
 							// Padding is only valid in the last 2 positions of the final quantum.
 							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
 							invalid = true;
@@ -113,10 +119,12 @@ namespace MimeKit.Encodings {
 						streamOffset++;
 						padding = 1;
 						octets++;
+						total++;
 						break;
 					} else {
 						// Increment the number of octets in this base64 quantum (a quantum is a series of 4 octets).
 						octets++;
+						total++;
 					}
 
 					streamOffset++;
@@ -128,13 +136,14 @@ namespace MimeKit.Encodings {
 
 				if (c == (byte) '\n') {
 					if (octets % 4 != 0)
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber);
+						reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
 
 					lineNumber++;
 					octets = 0;
 				} else if (c == (byte) '=') {
 					padding++;
 					octets++;
+					total++;
 
 					if (padding > 2) {
 						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
@@ -189,8 +198,13 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public void Flush ()
 		{
-			if (!invalid && octets % 4 != 0)
-				reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber);
+			if (!invalid) {
+				if (octets % 4 != 0)
+					reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+
+				if (total % 4 != 0)
+					reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64EndQuantum, streamOffset, lineNumber);
+			}
 		}
 	}
 }
