@@ -26,11 +26,6 @@
 
 #if NETFRAMEWORK || NETSTANDARD || !NET8_0_OR_GREATER
 
-using System;
-using System.Runtime.CompilerServices;
-
-using Microsoft.Win32;
-
 namespace System.Text.Unicode
 {
 	static class Utf8
