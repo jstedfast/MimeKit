@@ -1404,7 +1404,7 @@ namespace MimeKit {
 
 		unsafe bool ScanContent (byte* inbuf, ref bool midline, ref bool[] formats)
 		{
-			int length = inputEnd - inputIndex;
+			int length;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
