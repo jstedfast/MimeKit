@@ -154,7 +154,7 @@ namespace MimeKit {
 			await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
 
 			do {
-				var options = DetectMimeComplianceViolations ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
+				var options = ComplianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
 				int left = inputEnd - inputIndex;
@@ -177,8 +177,7 @@ namespace MimeKit {
 					}
 
 					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
-					if (DetectMimeComplianceViolations)
-						OnMimeComplianceViolation (MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber);
+					ComplianceLogger?.Log (MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber);
 
 					state = MimeParserState.Content;
 					break;
@@ -230,8 +229,7 @@ namespace MimeKit {
 
 						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
 						if (state == MimeParserState.Boundary) {
-							if (DetectMimeComplianceViolations)
-								OnMimeComplianceViolation (MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber);
+							ComplianceLogger?.Log (MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber);
 							break;
 						}
 
@@ -257,8 +255,7 @@ namespace MimeKit {
 						// 2. Error: Invalid *first* header and it was not a valid mbox marker
 						// 3. MessageHeaders or Headers: let it fall through and treat it as an invalid headers
 						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers) {
-							if (DetectMimeComplianceViolations)
-								OnMimeComplianceViolation (MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber);
+							ComplianceLogger?.Log (MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber);
 							break;
 						}
 
@@ -267,8 +264,7 @@ namespace MimeKit {
 						// Fall through and act as if we're consuming a header.
 					}
 
-					if (DetectMimeComplianceViolations)
-						OnMimeComplianceViolation (MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber);
+					ComplianceLogger?.Log (MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber);
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
@@ -294,11 +290,11 @@ namespace MimeKit {
 					}
 
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
-						if (DetectMimeComplianceViolations) {
+						if (ComplianceLogger != null) {
 							if (midline)
-								OnMimeComplianceViolation (MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber);
+								ComplianceLogger.Log (MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber);
 							else
-								OnMimeComplianceViolation (MimeComplianceViolation.MissingBodySeparator, GetOffset (inputIndex), lineNumber);
+								ComplianceLogger.Log (MimeComplianceViolation.MissingBodySeparator, GetOffset (inputIndex), lineNumber);
 						}
 						state = MimeParserState.Content;
 						eof = true;
@@ -400,7 +396,7 @@ namespace MimeKit {
 			bool incomplete = false;
 			bool midline = false;
 
-			if (DetectMimeComplianceViolations && type == ScanContentType.MimeContent && currentEncoding.HasValue)
+			if (type == ScanContentType.MimeContent && currentEncoding.HasValue)
 				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
 
 			do {
@@ -460,7 +456,7 @@ namespace MimeKit {
 
 		async Task<int> ConstructMimePartAsync (CancellationToken cancellationToken)
 		{
-			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+			var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
@@ -487,27 +483,27 @@ namespace MimeKit {
 				// Check to see if this first line is a boundary marker.
 				unsafe {
 					fixed (byte* inbuf = input) {
-						var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+						var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 						byte* start = inbuf + inputIndex;
 						byte* inend = inbuf + inputEnd;
 						byte* inptr;
 
 						*inend = (byte) '\n';
 
-						if (options != ByteDetectionOptions.None) {
+						if (ComplianceLogger != null && options != ByteDetectionOptions.None) {
 							inptr = ParseUtils.EndOfLine (start, inend + 1, options, out var detected);
 
 							if ((detected & ByteDetectionResults.Detected8Bit) != 0)
-								OnMimeComplianceViolation (MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber);
+								ComplianceLogger.Log (MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber);
 
 							if ((detected & ByteDetectionResults.DetectedNulls) != 0)
-								OnMimeComplianceViolation (MimeComplianceViolation.UnexpectedNullBytesInBody, beginOffset, beginLineNumber);
+								ComplianceLogger.Log (MimeComplianceViolation.UnexpectedNullBytesInBody, beginOffset, beginLineNumber);
 						} else {
 							inptr = ParseUtils.EndOfLine (start, inend + 1);
 						}
 
-						if (DetectMimeComplianceViolations && (inptr == start || inptr[-1] != (byte) '\r'))
-							OnMimeComplianceViolation (MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber);
+						if (ComplianceLogger != null && (inptr == start || inptr[-1] != (byte) '\r'))
+							ComplianceLogger.Log (MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber);
 
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
@@ -645,15 +641,14 @@ namespace MimeKit {
 
 		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
 		{
-			var options = DetectMimeComplianceViolations ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+			var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
 			var beginLineNumber = lineNumber;
 			long endOffset;
 
 			if (marker is null) {
-				if (DetectMimeComplianceViolations)
-					OnMimeComplianceViolation (MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
+				ComplianceLogger?.Log (MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
 
 				// Note: this will scan all content into the preamble...
 				await MultipartScanPreambleAsync (options, cancellationToken).ConfigureAwait (false);
@@ -664,8 +659,8 @@ namespace MimeKit {
 			}
 
 			// Note: MimeReader can handle invalid boundary markers (but those with '\n' will fail to match, resulting in all content being treated as preamble).
-			if (DetectMimeComplianceViolations && !IsValidBoundary (marker))
-				OnMimeComplianceViolation (MimeComplianceViolation.InvalidMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
+			if (ComplianceLogger != null && !IsValidBoundary (marker))
+				ComplianceLogger.Log (MimeComplianceViolation.InvalidMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
 
 			PushBoundary (marker);
 
@@ -687,8 +682,7 @@ namespace MimeKit {
 			}
 
 			// We either found the end of the stream or we found a parent's boundary
-			if (DetectMimeComplianceViolations)
-				OnMimeComplianceViolation (MimeComplianceViolation.MissingMultipartBoundary, GetOffset (inputIndex), lineNumber);
+			ComplianceLogger?.Log (MimeComplianceViolation.MissingMultipartBoundary, GetOffset (inputIndex), lineNumber);
 
 			PopBoundary ();
 
