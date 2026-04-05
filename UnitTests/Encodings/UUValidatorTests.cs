@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new UUValidator (dummyReader, 0, 1));
+			AssertArgumentExceptions (new UUValidator (nullComplianceLogger, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new UUValidator (dummyReader, 0, 1);
+			var validator = new UUValidator (nullComplianceLogger, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.UUEncode));
 		}
@@ -50,22 +50,22 @@ namespace UnitTests.Encodings {
 		static void AssertValidInput (string text)
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var reader = new ComplianceMimeReader ();
-			var validator = new UUValidator (reader, 0, 1);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new UUValidator (logger, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0));
+			Assert.That (logger.Issues.Count, Is.EqualTo (0));
 
-			validator = new UUValidator (reader, 0, 1);
+			validator = new UUValidator (logger, 0, 1);
 
 			for (int i = 0; i < rawData.Length; i++)
 				validator.Write (rawData, i, 1);
 
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0));
+			Assert.That (logger.Issues.Count, Is.EqualTo (0));
 		}
 
 		[TestCase ("begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n")]
@@ -86,35 +86,35 @@ namespace UnitTests.Encodings {
 			AssertValidInput (text);
 		}
 
-		static void AssertInvalidInput (string text, MimeComplianceViolationEventArgs[] violations)
+		static void AssertInvalidInput (string text, MimeComplianceIssue[] issues)
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var reader = new ComplianceMimeReader ();
-			var validator = new UUValidator (reader, 0, 1);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new UUValidator (logger, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (violations.Length), "ComplianceViolations");
-			for (int i = 0; i < violations.Length; i++) {
-				Assert.That (reader.ComplianceViolations[i].Violation, Is.EqualTo (violations[i].Violation), $"Violation[{i}]");
-				Assert.That (reader.ComplianceViolations[i].StreamOffset, Is.EqualTo (violations[i].StreamOffset), $"StreamOffset[{i}]");
-				Assert.That (reader.ComplianceViolations[i].LineNumber, Is.EqualTo (violations[i].LineNumber), $"LineNumber[{i}]");
+			Assert.That (logger.Issues.Count, Is.EqualTo (issues.Length), "ComplianceViolations");
+			for (int i = 0; i < issues.Length; i++) {
+				Assert.That (logger.Issues[i].Violation, Is.EqualTo (issues[i].Violation), $"Violation[{i}]");
+				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (issues[i].StreamOffset), $"StreamOffset[{i}]");
+				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (issues[i].LineNumber), $"LineNumber[{i}]");
 			}
 
-			reader = new ComplianceMimeReader ();
-			validator = new UUValidator (reader, 0, 1);
+			logger.Issues.Clear ();
+			validator = new UUValidator (logger, 0, 1);
 
 			for (int i = 0; i < rawData.Length; i++)
 				validator.Write (rawData, i, 1);
 
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (violations.Length), "1-byte ComplianceViolations");
-			for (int i = 0; i < violations.Length; i++) {
-				Assert.That (reader.ComplianceViolations[i].Violation, Is.EqualTo (violations[i].Violation), $"1-byte Violation[{i}]");
-				Assert.That (reader.ComplianceViolations[i].StreamOffset, Is.EqualTo (violations[i].StreamOffset), $"1-byte StreamOffset[{i}]");
-				Assert.That (reader.ComplianceViolations[i].LineNumber, Is.EqualTo (violations[i].LineNumber), $"1-byte LineNumber[{i}]");
+			Assert.That (logger.Issues.Count, Is.EqualTo (issues.Length), "1-byte ComplianceViolations");
+			for (int i = 0; i < issues.Length; i++) {
+				Assert.That (logger.Issues[i].Violation, Is.EqualTo (issues[i].Violation), $"1-byte Violation[{i}]");
+				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (issues[i].StreamOffset), $"1-byte StreamOffset[{i}]");
+				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (issues[i].LineNumber), $"1-byte LineNumber[{i}]");
 			}
 		}
 
@@ -123,33 +123,33 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&E\r\n`\r\nend\r\n";
 			// Note: the violation triggers on the '\n' character
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ("E\r\n") + 2, 2)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ("E\r\n") + 2, 2, 61)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[Test]
 		public void TestValidateExtraLineData ()
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ("x\r\n"), 2)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ("x\r\n"), 2, 61)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[Test]
 		public void TestValidateInvalidDataAfterEnd ()
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\nmore text...";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("more text..."), 5)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("more text..."), 5, 1)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[TestCase ("b egin 644 photo.jpg", 1)]
@@ -157,26 +157,26 @@ namespace UnitTests.Encodings {
 		[TestCase ("beg in 644 photo.jpg", 3)]
 		[TestCase ("begi n 644 photo.jpg", 4)]
 		[TestCase ("beginx 644 photo.jpg", 5)]
-		public void TestValidateInvalidBeginLine (string beginLine, long offset)
+		public void TestValidateInvalidBeginLine (string beginLine, int offset)
 		{
 			string text = beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodePretext, offset, 1),
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.IncompleteUUEncodedContent, text.Length, 5)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodePretext, offset, 1, offset + 1),
+				new MimeComplianceIssue (MimeComplianceViolation.IncompleteUUEncodedContent, text.Length, 5, 1)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[Test]
 		public void TestValidateInvalidPretext ()
 		{
 			string text = "this is some random garbage...\r\nbegin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodePretext, 0, 1)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodePretext, 0, 1, 1)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[TestCase ("begin x644 photo.jpg", 6)]
@@ -184,14 +184,14 @@ namespace UnitTests.Encodings {
 		[TestCase ("begin 64x4 photo.jpg", 8)]
 		[TestCase ("begin 644x photo.jpg", 9)]
 		[TestCase ("begin 06440 photo.jpg", 10)]
-		public void TestValidateInvalidFileMode (string beginLine, long offset)
+		public void TestValidateInvalidFileMode (string beginLine, int offset)
 		{
 			string text = beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodeFileMode, offset, 1)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeFileMode, offset, 1, offset + 1)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[TestCase ("xnd", 0)]
@@ -201,22 +201,22 @@ namespace UnitTests.Encodings {
 		public void TestValidateInvalidEndLine (string endLine, int offset)
 		{
 			string text = $"begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\n{endLine}\r\n";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf (endLine) + offset, 4)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf (endLine) + offset, 4, offset + 1)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[Test]
 		public void TestValidateInvalidTerminalLine ()
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`x\r\nend\r\n";
-			var violations = new MimeComplianceViolationEventArgs[] {
-				new MimeComplianceViolationEventArgs (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("`x") + 1, 3)
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("`x") + 1, 3, 2)
 			};
 
-			AssertInvalidInput (text, violations);
+			AssertInvalidInput (text, issues);
 		}
 
 		[TestCase (4096)]
@@ -225,9 +225,9 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestValidateBufferSize (int bufferSize)
 		{
-			var reader = new ComplianceMimeReader ();
+			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (reader, new UUValidator (reader, 0, 1), "photo.uu", photo_uu, bufferSize);
+			TestValidator (logger, new UUValidator (logger, 0, 1), "photo.uu", photo_uu, bufferSize);
 		}
 	}
 }
