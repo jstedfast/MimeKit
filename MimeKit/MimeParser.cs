@@ -1404,7 +1404,6 @@ namespace MimeKit {
 
 		unsafe bool ScanContent (byte* inbuf, ref bool midline, ref bool[] formats)
 		{
-			int length = inputEnd - inputIndex;
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
@@ -1414,6 +1413,7 @@ namespace MimeKit {
 
 			while (inptr < inend) {
 				byte* start = inptr;
+				int length;
 
 				inptr = EndOfLine (inptr, inend + 1);
 				length = (int) (inptr - start);
