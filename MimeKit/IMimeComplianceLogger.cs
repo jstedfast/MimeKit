@@ -1,5 +1,5 @@
 ﻿//
-// ComplianceMimeReader.cs
+// IMimeComplianceLogger.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,30 +24,27 @@
 // THE SOFTWARE.
 //
 
-using MimeKit;
-
-namespace UnitTests {
-	class ComplianceMimeReader : MimeReader
+namespace MimeKit {
+	/// <summary>
+	/// An interface for recording MIME compliance violations.
+	/// </summary>
+	/// <remarks>
+	/// Implementations of this interface are intended to capture and record information about MIME
+	/// compliance issues detected during parsing. This can be used for diagnostics, auditing, or
+	/// reporting purposes in systems that process MIME data.
+	/// </remarks>
+	public interface IMimeComplianceLogger
 	{
-		public readonly List<MimeComplianceViolationEventArgs> ComplianceViolations = new List<MimeComplianceViolationEventArgs> ();
-
-		public ComplianceMimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default) : base (options, stream, format)
-		{
-			DetectMimeComplianceViolations = true;
-		}
-
-		public ComplianceMimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : base (stream, format)
-		{
-			DetectMimeComplianceViolations = true;
-		}
-
-		public ComplianceMimeReader () : this (Stream.Null, MimeFormat.Default)
-		{
-		}
-
-		protected internal override void OnMimeComplianceViolation (MimeComplianceViolation violation, long offset, int lineNumber)
-		{
-			ComplianceViolations.Add (new MimeComplianceViolationEventArgs (violation, offset, lineNumber));
-		}
+		/// <summary>
+		/// Log a MIME compliance violation.
+		/// </summary>
+		/// <remarks>
+		/// Logs a MIME compliance violation.
+		/// </remarks>
+		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
+		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
+		/// <param name="lineNumber">The line number within the MIME message where the violation was found.</param>
+		/// <param name="columnNumber">The column number within the MIME message where the violation was found.</param>
+		void Log (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber = -1);
 	}
 }

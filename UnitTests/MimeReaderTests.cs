@@ -164,7 +164,7 @@ namespace UnitTests {
 			}
 		}
 
-		class CustomMimeReader : ComplianceMimeReader
+		class CustomMimeReader : MimeReader
 		{
 			public readonly List<MimeOffsets> Offsets = new List<MimeOffsets> ();
 			public readonly List<MimeItem> stack = new List<MimeItem> ();
@@ -173,12 +173,10 @@ namespace UnitTests {
 
 			public CustomMimeReader (ParserOptions options, Stream stream, MimeFormat format = MimeFormat.Default) : base (options, stream, format)
 			{
-				DetectMimeComplianceViolations = false;
 			}
 
 			public CustomMimeReader (Stream stream, MimeFormat format = MimeFormat.Default) : base (stream, format)
 			{
-				DetectMimeComplianceViolations = false;
 			}
 
 			protected override void OnMboxMarkerRead (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
@@ -427,14 +425,15 @@ Content-Type: text/plain; charset=us-ascii
 This is a single line of text".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -451,14 +450,15 @@ Content-Type: text/plain; charset=us-ascii
 This is a single line of text".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				await reader.ReadMessageAsync ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -476,14 +476,15 @@ This is a single line of text
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -501,14 +502,15 @@ This is a single line of text
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				await reader.ReadMessageAsync ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -535,14 +537,15 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -569,14 +572,15 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				await reader.ReadMessageAsync ();
 
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -604,14 +608,15 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -639,14 +644,15 @@ ABC
 ".ReplaceLineEndings ("\r\n");
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				await reader.ReadMessageAsync ();
 
 				var lines = reader.Offsets[0].Body.Children[0].Lines;
 
 				Assert.That (lines, Is.EqualTo (1), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), "ComplianceViolations");
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ComplianceViolations");
 			}
 		}
 
@@ -656,17 +662,18 @@ ABC
 			const string text = "From: mimekit@example.org";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1), "ComplianceViolations");
-				Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), "Violation");
-				Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1), "LineNumber");
+				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), "Violation");
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1), "LineNumber");
 			}
 		}
 
@@ -676,17 +683,18 @@ ABC
 			const string text = "From: mimekit@example.org";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				await reader.ReadMessageAsync ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1), "ComplianceViolations");
-				Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), "Violation");
-				Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1), "LineNumber");
+				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), "Violation");
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1), "LineNumber");
 			}
 		}
 
@@ -696,17 +704,18 @@ ABC
 			const string text = "From: mimekit@example.org\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1), "ComplianceViolations");
-				Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
-				Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (2), "LineNumber");
+				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (2), "LineNumber");
 			}
 		}
 
@@ -716,17 +725,18 @@ ABC
 			const string text = "From: mimekit@example.org\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
-				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { DetectMimeComplianceViolations = true };
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 
 				await reader.ReadMessageAsync ();
 
 				var lines = reader.Offsets[0].Body.Lines;
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
-				Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1), "ComplianceViolations");
-				Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
-				Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (2), "LineNumber");
+				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (2), "LineNumber");
 			}
 		}
 
@@ -744,7 +754,7 @@ ABC
 			}
 		}
 
-		static void UpdateStreamOffsets (string path, MimeComplianceIssue[] issues, out int bareLineFeeds)
+		static void UpdateStreamOffsets (string path, ExpectedMimeComplianceIssue[] issues, out int bareLineFeeds)
 		{
 			byte[] rawData = ReadAllBytes (path);
 			long unixOffset = 0;
@@ -768,7 +778,7 @@ ABC
 				}
 
 				foreach (var issue in issues) {
-					if (issue.LineNumber == lineNumber && issue.Column == column) {
+					if (issue.LineNumber == lineNumber && issue.ColumnNumber == column) {
 						issue.UnixOffset = unixOffset;
 						issue.DosOffset = dosOffset;
 					}
@@ -776,7 +786,7 @@ ABC
 			}
 		}
 
-		static void AssertMimeComplianceViolations (string fileName, MimeComplianceIssue[] issues)
+		static void AssertMimeComplianceViolations (string fileName, ExpectedMimeComplianceIssue[] issues)
 		{
 			var path = Path.Combine (ComplianceDataDir, fileName);
 			var expectedCount = issues.Length;
@@ -787,14 +797,17 @@ ABC
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Dos2UnixFilter ());
 
-					var reader = new ComplianceMimeReader (filtered);
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (filtered) {
+						ComplianceLogger = logger
+					};
 
 					reader.ReadMessage ();
 
-					Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (expectedCount + bareLineFeeds), "ComplianceViolations for Unix format");
+					Assert.That (logger.Issues.Count, Is.EqualTo (expectedCount + bareLineFeeds), "ComplianceViolations for Unix format");
 
-					for (int i = 0, v = 0; i < issues.Length && v < reader.ComplianceViolations.Count; v++) {
-						var actual = reader.ComplianceViolations[v];
+					for (int i = 0, v = 0; i < issues.Length && v < logger.Issues.Count; v++) {
+						var actual = logger.Issues[v];
 
 						if (actual.Violation == MimeComplianceViolation.BareLinefeedInHeader ||
 							actual.Violation == MimeComplianceViolation.BareLinefeedInBody)
@@ -813,15 +826,18 @@ ABC
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					var reader = new ComplianceMimeReader (filtered);
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (filtered) {
+						ComplianceLogger = logger
+					};
 
 					reader.ReadMessage ();
 
-					Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (expectedCount), "ComplianceViolations for DOS format");
+					Assert.That (logger.Issues.Count, Is.EqualTo (expectedCount), "ComplianceViolations for DOS format");
 
-					for (int i = 0; i < issues.Length; i++) {
-						var actual = reader.ComplianceViolations[i];
-						var expected = issues[i];
+					for (int i = 0, v = 0; i < issues.Length && v < logger.Issues.Count; v++) {
+						var actual = logger.Issues[v];
+						var expected = issues[i++];
 
 						Assert.That (actual.Violation, Is.EqualTo (expected.Violation), $"Violation for issue #{i}");
 						Assert.That (actual.LineNumber, Is.EqualTo (expected.LineNumber), $"LineNumber for issue #{i}");
@@ -831,7 +847,7 @@ ABC
 			}
 		}
 
-		static async Task AssertMimeComplianceViolationsAsync (string fileName, MimeComplianceIssue[] issues)
+		static async Task AssertMimeComplianceViolationsAsync (string fileName, ExpectedMimeComplianceIssue[] issues)
 		{
 			var path = Path.Combine (ComplianceDataDir, fileName);
 			var expectedCount = issues.Length;
@@ -842,14 +858,17 @@ ABC
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Dos2UnixFilter ());
 
-					var reader = new ComplianceMimeReader (filtered);
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (filtered) {
+						ComplianceLogger = logger
+					};
 
-					reader.ReadMessage ();
+					await reader.ReadMessageAsync ();
 
-					Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (expectedCount + bareLineFeeds), "ComplianceViolations for Unix format");
+					Assert.That (logger.Issues.Count, Is.EqualTo (expectedCount + bareLineFeeds), "ComplianceViolations for Unix format");
 
-					for (int i = 0, v = 0; i < issues.Length && v < reader.ComplianceViolations.Count; v++) {
-						var actual = reader.ComplianceViolations[v];
+					for (int i = 0, v = 0; i < issues.Length && v < logger.Issues.Count; v++) {
+						var actual = logger.Issues[v];
 
 						if (actual.Violation == MimeComplianceViolation.BareLinefeedInHeader ||
 							actual.Violation == MimeComplianceViolation.BareLinefeedInBody)
@@ -868,14 +887,17 @@ ABC
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					var reader = new ComplianceMimeReader (filtered);
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (filtered) {
+						ComplianceLogger = logger
+					};
 
 					await reader.ReadMessageAsync ();
 
-					Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (expectedCount), "ComplianceViolations for DOS format");
+					Assert.That (logger.Issues.Count, Is.EqualTo (expectedCount), "ComplianceViolations for DOS format");
 
 					for (int i = 0; i < issues.Length; i++) {
-						var actual = reader.ComplianceViolations[i];
+						var actual = logger.Issues[i];
 						var expected = issues[i];
 
 						Assert.That (actual.Violation, Is.EqualTo (expected.Violation), $"Violation for issue #{i}");
@@ -889,8 +911,8 @@ ABC
 		[Test]
 		public void TestMimeComplianceInvalidHeaderFieldNameWithSpace ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 1),
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 1),
 			};
 
 			AssertMimeComplianceViolations ("invalid-header-field-with-space.eml", issues);
@@ -899,8 +921,8 @@ ABC
 		[Test]
 		public Task TestMimeComplianceInvalidHeaderFieldNameWithSpaceAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 1),
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 1),
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-header-field-with-space.eml", issues);
@@ -909,8 +931,8 @@ ABC
 		[Test]
 		public void TestMimeComplianceIncompleteHeader ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 6, 25)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 6, 25)
 			};
 
 			AssertMimeComplianceViolations ("incomplete-header.eml", issues);
@@ -919,8 +941,8 @@ ABC
 		[Test]
 		public Task TestMimeComplianceIncompleteHeaderAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 6, 25)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 6, 25)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("incomplete-header.eml", issues);
@@ -929,8 +951,8 @@ ABC
 		[Test]
 		public void TestMimeComplianceInvalidContentTransferEncodingBasic ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 1)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-transfer-encoding-basic.eml", issues);
@@ -939,8 +961,8 @@ ABC
 		[Test]
 		public Task TestMimeComplianceInvalidContentTransferEncodingBasicAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-transfer-encoding-basic.eml", issues);
@@ -949,8 +971,8 @@ ABC
 		[Test]
 		public void TestMimeComplianceInvalidContentTransferEncodingMultipart ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 1)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-transfer-encoding-multipart.eml", issues);
@@ -959,8 +981,8 @@ ABC
 		[Test]
 		public Task TestMimeComplianceInvalidContentTransferEncodingMultipartAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-transfer-encoding-multipart.eml", issues);
@@ -969,8 +991,8 @@ ABC
 		[Test]
 		public void TestMimeComplianceInvalidContentTransferEncodingRfc822 ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 1)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-transfer-encoding-rfc822.eml", issues);
@@ -979,8 +1001,8 @@ ABC
 		[Test]
 		public Task TestMimeComplianceInvalidContentTransferEncodingRfc822Async ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-transfer-encoding-rfc822.eml", issues);
@@ -989,8 +1011,8 @@ ABC
 		[Test]
 		public void TestMimeComplianceInvalidContentType ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidContentType, 6, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentType, 6, 1)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-type.eml", issues);
@@ -999,8 +1021,8 @@ ABC
 		[Test]
 		public Task TestMimeComplianceInvalidContentTypeAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidContentType, 6, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentType, 6, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-type.eml", issues);
@@ -1143,9 +1165,9 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceInvalidWrapping ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 7, 1),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 10, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 7, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 10, 1)
 			};
 
 			AssertMimeComplianceViolations ("invalid-wrapping.eml", issues);
@@ -1154,9 +1176,9 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceInvalidWrappingAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 7, 1),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 10, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 7, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 10, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-wrapping.eml", issues);
@@ -1165,8 +1187,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceMissingBodySeparator ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 7, 1),
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 7, 1),
 			};
 
 			AssertMimeComplianceViolations ("missing-body-separator.eml", issues);
@@ -1175,8 +1197,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceMissingBodySeparatorAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 7, 1),
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 7, 1),
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-body-separator.eml", issues);
@@ -1185,8 +1207,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceMissingMultipartBoundaryParameter ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundaryParameter, 6, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundaryParameter, 6, 1)
 			};
 
 			AssertMimeComplianceViolations ("missing-multipart-boundary-parameter.eml", issues);
@@ -1195,8 +1217,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceMissingMultipartBoundaryParameterAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundaryParameter, 6, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundaryParameter, 6, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-multipart-boundary-parameter.eml", issues);
@@ -1205,8 +1227,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceMissingMultipartBoundary ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
 			};
 
 			AssertMimeComplianceViolations ("missing-multipart-boundary.eml", issues);
@@ -1215,8 +1237,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceMissingMultipartBoundaryAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-multipart-boundary.eml", issues);
@@ -1225,8 +1247,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceMissingMultipartEndBoundary ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
 			};
 
 			AssertMimeComplianceViolations ("missing-multipart-end-boundary.eml", issues);
@@ -1235,8 +1257,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceMissingMultipartEndBoundaryAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-multipart-end-boundary.eml", issues);
@@ -1245,8 +1267,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceMultipleContentTransferEncodings ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, 8, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, 8, 1)
 			};
 
 			AssertMimeComplianceViolations ("multiple-content-transfer-encodings.eml", issues);
@@ -1255,8 +1277,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceMultipleContentTransferEncodingsAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, 8, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, 8, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("multiple-content-transfer-encodings.eml", issues);
@@ -1265,8 +1287,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceMultipleContentTypes ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, 7, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, 7, 1)
 			};
 
 			AssertMimeComplianceViolations ("multiple-content-types.eml", issues);
@@ -1275,8 +1297,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceMultipleContentTypesAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, 7, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, 7, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("multiple-content-types.eml", issues);
@@ -1285,8 +1307,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInHeader ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
 			};
 
 			AssertMimeComplianceViolations ("raw-koi8r-header.eml", issues);
@@ -1295,8 +1317,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceUnexpected8BitBytesInHeaderAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("raw-koi8r-header.eml", issues);
@@ -1305,7 +1327,7 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceValid8BitBytesInHeader ()
 		{
-			var issues = Array.Empty<MimeComplianceIssue> ();
+			var issues = Array.Empty<ExpectedMimeComplianceIssue> ();
 
 			AssertMimeComplianceViolations ("raw-utf8-header.eml", issues);
 		}
@@ -1313,7 +1335,7 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceValid8BitBytesInHeaderAsync ()
 		{
-			var issues = Array.Empty<MimeComplianceIssue> ();
+			var issues = Array.Empty<ExpectedMimeComplianceIssue> ();
 
 			return AssertMimeComplianceViolationsAsync ("raw-utf8-header.eml", issues);
 		}
@@ -1321,8 +1343,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInBody ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 24, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 24, 1)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-8bit-bytes-in-body.eml", issues);
@@ -1331,8 +1353,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceUnexpected8BitBytesInBodyAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 24, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 24, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-8bit-bytes-in-body.eml", issues);
@@ -1341,8 +1363,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInPreamble ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 11, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 11, 1)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-8bit-bytes-in-preamble.eml", issues);
@@ -1351,8 +1373,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceUnexpected8BitBytesInPreambleAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 11, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 11, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-8bit-bytes-in-preamble.eml", issues);
@@ -1361,8 +1383,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInEpilogue ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 28, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 28, 1)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-8bit-bytes-in-epilogue.eml", issues);
@@ -1371,8 +1393,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceUnexpected8BitBytesInEpilogueAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 28, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 28, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-8bit-bytes-in-epilogue.eml", issues);
@@ -1381,8 +1403,8 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceUnexpectedNullBytesInHeader ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-null-bytes-in-headers.eml", issues);
@@ -1391,8 +1413,8 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceUnexpectedNullBytesInHeaderAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-null-bytes-in-headers.eml", issues);
@@ -1401,9 +1423,9 @@ This is the second inner message body.
 		[Test]
 		public void TestMimeComplianceUnexpectedNullBytesInBody ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 17, 1),
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 18, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 17, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 18, 1)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-null-bytes-in-body.eml", issues);
@@ -1412,9 +1434,9 @@ This is the second inner message body.
 		[Test]
 		public Task TestMimeComplianceUnexpectedNullBytesInBodyAsync ()
 		{
-			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 17, 1),
-				new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 18, 1)
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 17, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 18, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-null-bytes-in-body.eml", issues);

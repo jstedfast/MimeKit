@@ -33,16 +33,22 @@ namespace UnitTests.Encodings {
 	public abstract class EncodingValidatorTestsBase
 	{
 		protected static readonly string dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
-		protected static readonly MimeReader dummyReader;
+		internal static readonly IMimeComplianceLogger nullComplianceLogger;
 		protected static readonly byte[] wikipedia_unix;
 		protected static readonly byte[] wikipedia_dos;
 		protected static readonly byte[] photo_b64;
 		protected static readonly byte[] photo_uu;
 
+		class NullComplianceLogger : IMimeComplianceLogger
+		{
+			public void Log (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber = -1)
+			{
+			}
+		}
+
 		static EncodingValidatorTestsBase ()
 		{
-			dummyReader = new MimeReader (Stream.Null);
-
+			nullComplianceLogger = new NullComplianceLogger ();
 			using (var memory = new MemoryStream ()) {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Dos2UnixFilter ());
@@ -80,18 +86,19 @@ namespace UnitTests.Encodings {
 			Assert.Throws<ArgumentOutOfRangeException> (() => validator.Write (new byte[1], 0, 10));
 		}
 
-		internal static void AssertInvalidInput (ComplianceMimeReader reader, List<MimeComplianceViolationEventArgs> violations)
+		internal static void AssertInvalidInput (TestMimeComplianceLogger logger, List<MimeComplianceIssue> expected)
 		{
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (violations.Count), "ComplianceViolations.Count");
+			Assert.That (logger.Issues.Count, Is.EqualTo (expected.Count), "Issue Count");
 
-			for (int i = 0; i < violations.Count; i++) {
-				Assert.That (reader.ComplianceViolations[i].Violation, Is.EqualTo (violations[i].Violation), $"Violation[{i}]");
-				Assert.That (reader.ComplianceViolations[i].StreamOffset, Is.EqualTo (violations[i].StreamOffset), $"Violation[{i}].StreamOffset");
-				Assert.That (reader.ComplianceViolations[i].LineNumber, Is.EqualTo (violations[i].LineNumber), $"Violation[{i}].LineNumber");
+			for (int i = 0; i < expected.Count; i++) {
+				Assert.That (logger.Issues[i].Violation, Is.EqualTo (expected[i].Violation), $"Issues[{i}].Violation");
+				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (expected[i].StreamOffset), $"Issues[{i}].StreamOffset");
+				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (expected[i].LineNumber), $"Issues[{i}].LineNumber");
+				//Assert.That (logger.Issues[i].ColumnNumber, Is.EqualTo (expected[i].ColumnNumber), $"Issues[{i}].ColumnNumber");
 			}
 		}
 
-		internal static void TestValidator (ComplianceMimeReader reader, IEncodingValidator validator, string fileName, byte[] rawData, int bufferSize)
+		internal static void TestValidator (TestMimeComplianceLogger logger, IEncodingValidator validator, string fileName, byte[] rawData, int bufferSize)
 		{
 			for (int i = 0; i < rawData.Length; i += bufferSize) {
 				int n = Math.Min (bufferSize, rawData.Length - i);
@@ -101,7 +108,7 @@ namespace UnitTests.Encodings {
 
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (0), $"{fileName}: Complete failed");
+			Assert.That (logger.Issues.Count, Is.EqualTo (0), $"{fileName}: Complete failed");
 		}
 	}
 }

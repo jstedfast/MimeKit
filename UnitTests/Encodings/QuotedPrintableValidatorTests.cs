@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new QuotedPrintableValidator (dummyReader, 0, 1));
+			AssertArgumentExceptions (new QuotedPrintableValidator (nullComplianceLogger, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new QuotedPrintableValidator (dummyReader, 0, 1);
+			var validator = new QuotedPrintableValidator (nullComplianceLogger, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 		}
@@ -53,9 +53,9 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestValidateBufferSizeUnix (int bufferSize)
 		{
-			var reader = new ComplianceMimeReader ();
+			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (reader, new QuotedPrintableValidator (reader, 0, 1), "wikipedia.qp", wikipedia_unix, bufferSize);
+			TestValidator (logger, new QuotedPrintableValidator (logger, 0, 1), "wikipedia.qp", wikipedia_unix, bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -64,9 +64,9 @@ namespace UnitTests.Encodings {
 		[TestCase (1)]
 		public void TestValidateBufferSizeDos (int bufferSize)
 		{
-			var reader = new ComplianceMimeReader ();
+			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (reader, new QuotedPrintableValidator (reader, 0, 1), "wikipedia.qp", wikipedia_dos, bufferSize);
+			TestValidator (logger, new QuotedPrintableValidator (logger, 0, 1), "wikipedia.qp", wikipedia_dos, bufferSize);
 		}
 
 		[TestCase ("=XA", 1)]
@@ -76,16 +76,16 @@ namespace UnitTests.Encodings {
 		{
 			string text = $"This is some quoted printable text with an invalid {hex} sequence.";
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var reader = new ComplianceMimeReader ();
-			var validator = new QuotedPrintableValidator (reader, 0, 1);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
-			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
-			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.IndexOf ('=') + offset));
-			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.IndexOf ('=') + offset));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
 		}
 
 		[Test]
@@ -93,16 +93,16 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "This is some quoted printable text with an invalid =\rsoft break";
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var reader = new ComplianceMimeReader ();
-			var validator = new QuotedPrintableValidator (reader, 0, 1);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
-			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak));
-			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.LastIndexOf ('s')));
-			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.LastIndexOf ('s')));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
 		}
 
 		[TestCase ("invalid trailing =", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
@@ -111,16 +111,16 @@ namespace UnitTests.Encodings {
 		public void TestValidateInvalidFlush (string text, MimeComplianceViolation violation)
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
-			var reader = new ComplianceMimeReader ();
-			var validator = new QuotedPrintableValidator (reader, 0, 1);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
 
-			Assert.That (reader.ComplianceViolations.Count, Is.EqualTo (1));
-			Assert.That (reader.ComplianceViolations[0].Violation, Is.EqualTo (violation));
-			Assert.That (reader.ComplianceViolations[0].StreamOffset, Is.EqualTo (text.Length));
-			Assert.That (reader.ComplianceViolations[0].LineNumber, Is.EqualTo (1));
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (violation));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
 		}
 	}
 }

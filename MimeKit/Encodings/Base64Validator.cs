@@ -41,7 +41,7 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	class Base64Validator : IEncodingValidator
 	{
-		readonly MimeReader reader;
+		readonly IMimeComplianceLogger logger;
 		long streamOffset;
 		int lineNumber;
 		int padding;
@@ -55,12 +55,12 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new base64 validator.
 		/// </remarks>
-		/// <param name="reader">The mime reader.</param>
+		/// <param name="logger">The compliance logger.</param>
 		/// <param name="streamOffset">The current stream offset.</param>
 		/// <param name="lineNumber">The current line number.</param>
-		public Base64Validator (MimeReader reader, long streamOffset, int lineNumber)
+		public Base64Validator (IMimeComplianceLogger logger, long streamOffset, int lineNumber)
 		{
-			this.reader = reader;
+			this.logger = logger;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
 		}
@@ -94,7 +94,7 @@ namespace MimeKit.Encodings {
 						// The current byte is outside of the base64 alphabet, but could be whitespace (which we will treat as valid).
 						if (c == (byte) '\n') {
 							if (octets % 4 != 0)
-								reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+								logger.Log (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
 
 							lineNumber++;
 							octets = 0;
@@ -102,16 +102,16 @@ namespace MimeKit.Encodings {
 							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
 							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) exp? licitly
 							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
-							reader.OnMimeComplianceViolation (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber);
+							logger.Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber);
 						} else if (!c.IsWhitespace ()) {
 							// This is an invalid base64 character.
-							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
+							logger.Log (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
 						}
 					} else if (c == (byte) '=') {
 						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
 						if (total % 4 < 2) {
 							// Padding is only valid in the last 2 positions of the final quantum.
-							reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+							logger.Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
 							invalid = true;
 							return;
 						}
@@ -136,7 +136,7 @@ namespace MimeKit.Encodings {
 
 				if (c == (byte) '\n') {
 					if (octets % 4 != 0)
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+						logger.Log (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
 
 					lineNumber++;
 					octets = 0;
@@ -146,12 +146,12 @@ namespace MimeKit.Encodings {
 					total++;
 
 					if (padding > 2) {
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+						logger.Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
 						invalid = true;
 						break;
 					}
 				} else if (!c.IsWhitespace ()) {
-					reader.OnMimeComplianceViolation (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber);
+					logger.Log (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber);
 					invalid = true;
 					break;
 				}
@@ -200,10 +200,10 @@ namespace MimeKit.Encodings {
 		{
 			if (!invalid) {
 				if (octets % 4 != 0)
-					reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+					logger.Log (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
 
 				if (total % 4 != 0)
-					reader.OnMimeComplianceViolation (MimeComplianceViolation.IncompleteBase64EndQuantum, streamOffset, lineNumber);
+					logger.Log (MimeComplianceViolation.IncompleteBase64EndQuantum, streamOffset, lineNumber);
 			}
 		}
 	}

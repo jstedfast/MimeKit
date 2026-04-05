@@ -48,7 +48,7 @@ namespace MimeKit.Encodings {
 			DecodeByte
 		}
 
-		readonly MimeReader reader;
+		readonly IMimeComplianceLogger logger;
 		long streamOffset;
 		int lineNumber;
 		QpValidatorState state;
@@ -59,12 +59,12 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// Creates a new quoted-printable validator.
 		/// </remarks>
-		/// <param name="reader">The mime reader.</param>
+		/// <param name="logger">The compliance logger.</param>
 		/// <param name="streamOffset">The current stream offset.</param>
 		/// <param name="lineNumber">The current line number.</param>
-		public QuotedPrintableValidator (MimeReader reader, long streamOffset, int lineNumber)
+		public QuotedPrintableValidator (IMimeComplianceLogger logger, long streamOffset, int lineNumber)
 		{
-			this.reader = reader;
+			this.logger = logger;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
 		}
@@ -115,7 +115,7 @@ namespace MimeKit.Encodings {
 						state = QpValidatorState.PassThrough;
 						lineNumber++;
 					} else {
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
 						state = QpValidatorState.PassThrough;
 					}
 
@@ -126,7 +126,7 @@ namespace MimeKit.Encodings {
 						lineNumber++;
 						inptr++;
 					} else {
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber);
+						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber);
 					}
 
 					state = QpValidatorState.PassThrough;
@@ -135,7 +135,7 @@ namespace MimeKit.Encodings {
 					c = *inptr;
 
 					if (!c.IsXDigit ()) {
-						reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
 
 						if (c == '\n')
 							lineNumber++;
@@ -185,9 +185,9 @@ namespace MimeKit.Encodings {
 		{
 			// Note: the only valid state to end on is the pass-through state.
 			if (state == QpValidatorState.EqualSign || state == QpValidatorState.DecodeByte)
-				reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber);
+				logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber);
 			else if (state == QpValidatorState.SoftBreak)
-				reader.OnMimeComplianceViolation (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber);
+				logger.Log (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber);
 		}
 	}
 }
