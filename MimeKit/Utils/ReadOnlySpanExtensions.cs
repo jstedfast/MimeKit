@@ -83,5 +83,35 @@ namespace MimeKit.Utils {
 		{
 			return text.AsSpan ().Tokenize (separator);
 		}
+
+		/// <summary>
+		/// An equality method that supports <see cref="StringComparison"/> for <see cref="ReadOnlySpan{T}"/> of bytes.
+		/// </summary>
+		/// <param name="self">The source <see cref="ReadOnlySpan{T}"/> to compare.</param>
+		/// <param name="other">The <see cref="ReadOnlySpan{T}"/> to compare against.</param>
+		/// <param name="comparisonType">The <see cref="StringComparison"/> type to use.</param>
+		/// <returns><c>true</c> if the spans are equal; otherwise, <c>false</c>.</returns>
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public static bool Equals (this ReadOnlySpan<byte> self, ReadOnlySpan<byte> other, StringComparison comparisonType)
+		{
+			if (self.Length != other.Length)
+				return false;
+
+			if (comparisonType != StringComparison.OrdinalIgnoreCase)
+				return self.SequenceEqual (other);
+
+			for (int i = 0; i < self.Length; i++) {
+				if (self[i] == other[i])
+					continue;
+
+				byte selfUpper = self[i] >= 'a' && self[i] <= 'z' ? (byte) (self[i] - 0x20) : self[i];
+				byte otherUpper = other[i] >= 'a' && other[i] <= 'z' ? (byte) (other[i] - 0x20) : other[i];
+
+				if (selfUpper != otherUpper)
+					return false;
+			}
+
+			return true;
+		}
 	}
 }

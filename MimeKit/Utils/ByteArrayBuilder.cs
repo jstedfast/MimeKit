@@ -73,7 +73,7 @@ namespace MimeKit.Utils {
 			length += count;
 		}
 
-		public byte[] ToArray ()
+		public readonly byte[] ToArray ()
 		{
 			var array = new byte[length];
 
@@ -82,27 +82,16 @@ namespace MimeKit.Utils {
 			return array;
 		}
 
-		public bool Equals (ReadOnlySpan<byte> other, StringComparison comparer)
+		public readonly string ToString (ParserOptions options)
 		{
-			if (length != other.Length)
-				return false;
+			return CharsetUtils.ConvertToUnicode (options, buffer, 0, length);
+		}
 
-			for (int i = 0; i < length; i++) {
-				if (comparer == StringComparison.OrdinalIgnoreCase) {
-					if (buffer[i] == other[i])
-						continue;
+		public readonly bool Equals (ReadOnlySpan<byte> other, StringComparison comparisonType)
+		{
+			var self = new ReadOnlySpan<byte> (buffer, 0, length);
 
-					byte b = buffer[i] >= 'a' && buffer[i] <= 'z' ? (byte) (buffer[i] - 0x20) : buffer[i];
-					byte o = other[i] >= 'a' && other[i] <= 'z' ? (byte) (other[i] - 0x20) : other[i];
-
-					if (b != o)
-						return false;
-				} else if (buffer[i] != other[i]) {
-					return false;
-				}
-			}
-
-			return true;
+			return self.Equals (other, comparisonType);
 		}
 
 		public void Dispose ()
