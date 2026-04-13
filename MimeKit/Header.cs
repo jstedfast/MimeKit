@@ -693,7 +693,7 @@ namespace MimeKit {
 				var atom = encoding.GetString (rawValue, startIndex, index - startIndex);
 
 				for (int i = 0; i < ReceivedTokens.Length; i++) {
-					if (atom == ReceivedTokens[i].Atom) {
+					if (atom.Equals (ReceivedTokens[i].Atom, StringComparison.OrdinalIgnoreCase)) {
 						ReceivedTokens[i].Skip (rawValue, ref index);
 
 						if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
