@@ -68,6 +68,16 @@ namespace MimeKit.Utils {
 			return index > startIndex;
 		}
 
+		public static bool SkipWhiteSpace (string text, ref int index, int endIndex)
+		{
+			int startIndex = index;
+
+			while (index < endIndex && ByteExtensions.Whitespace.IndexOf (text[index]) != -1)
+				index++;
+
+			return index > startIndex;
+		}
+
 		public static bool SkipComment (byte[] text, ref int index, int endIndex)
 		{
 			bool escaped = false;
@@ -123,6 +133,26 @@ namespace MimeKit.Utils {
 			SkipWhiteSpace (text, ref index, endIndex);
 
 			while (index < endIndex && text[index] == (byte) '(') {
+				int startIndex = index;
+
+				if (!SkipComment (text, ref index, endIndex)) {
+					if (throwOnError)
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", startIndex), startIndex, index);
+
+					return false;
+				}
+
+				SkipWhiteSpace (text, ref index, endIndex);
+			}
+
+			return true;
+		}
+
+		public static bool SkipCommentsAndWhiteSpace (string text, ref int index, int endIndex, bool throwOnError)
+		{
+			SkipWhiteSpace (text, ref index, endIndex);
+
+			while (index < endIndex && text[index] == '(') {
 				int startIndex = index;
 
 				if (!SkipComment (text, ref index, endIndex)) {

@@ -59,7 +59,7 @@ namespace MimeKit.Utils {
 		const string EncodedPhraseSafe = "!*+-/";                  // rfc2047 5.3 (but w/o '=' and '_' since they need to be encoded, obviously)
 		const string Specials = "()<>[]:;@\\,.\"";                 // rfc5322 3.2.3
 		internal const string TokenSpecials = "()<>@,;:\\\"/[]?="; // rfc2045 5.1
-		const string Whitespace = " \t\r\n";
+		internal const string Whitespace = " \t\r\n";
 
 		static readonly CharType[] table = new CharType[256];
 

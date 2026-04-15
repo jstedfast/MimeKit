@@ -211,37 +211,70 @@ namespace UnitTests {
 		}
 
 		static readonly string[] ReceivedHeaderValues = {
-			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA01648> for nsb; Fri, 29 Nov 91 07:13:33 EST" + FormatOptions.Default.NewLine,
-			" from joyce.cs.su.oz.au by thumper.bellcore.com (4.1/4.7)" + FormatOptions.Default.NewLine + "\tid <AA11898> for nsb@greenbush; Fri, 29 Nov 91 07:11:57 EST" + FormatOptions.Default.NewLine,
-			" from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41" + FormatOptions.Default.NewLine + "\tvia MS.5.6.greenbush.galaxy.sun4_41; Fri, 12 Jun 1992 13:29:05 -0400 (EDT)" + FormatOptions.Default.NewLine,
-			" from sqhilton.pc.cs.cmu.edu by po3.andrew.cmu.edu (5.54/3.15)" + FormatOptions.Default.NewLine + "\tid <AA21478> for beatty@cosmos.vlsi.cs.cmu.edu; Wed, 26 Aug 92 22:14:07 EDT" + FormatOptions.Default.NewLine,
-			" from [127.0.0.1] by [127.0.0.1] id <AA21478> with sendmail (v1.8)" + FormatOptions.Default.NewLine + "\tfor <beatty@cosmos.vlsi.cs.cmu.edu>; Wed, 26 Aug 92 22:14:07 EDT" + FormatOptions.Default.NewLine,
+			// Syntactically normal Received headers
+			" from thumper.bellcore.com by greenbush.bellcore.com (4.1/4.7)\r\n\tid <AA01648> for nsb; Fri, 29 Nov 91 07:13:33 EST\r\n",
+			" from joyce.cs.su.oz.au by thumper.bellcore.com (4.1/4.7)\r\n\tid <AA11898> for nsb@greenbush; Fri, 29 Nov 91 07:11:57 EST\r\n",
+			" from Messages.8.5.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41\r\n\tvia MS.5.6.greenbush.galaxy.sun4_41; Fri, 12 Jun 1992 13:29:05 -0400 (EDT)\r\n",
+			" from sqhilton.pc.cs.cmu.edu by po3.andrew.cmu.edu (5.54/3.15)\r\n\tid <AA21478> for beatty@cosmos.vlsi.cs.cmu.edu; Wed, 26 Aug 92 22:14:07 EDT\r\n",
+			" from [127.0.0.1] by [127.0.0.1] id <AA21478> with sendmail (v1.8)\r\n\tfor <beatty@cosmos.vlsi.cs.cmu.edu>; Wed, 26 Aug 92 22:14:07 EDT\r\n",
+
+			// Non-standard Received headers that actually exist in the wild
+
+			// "Microsoft SMTP Server" and "Frontend Transport" are not single-word values but according to rfc5321, they should be...
+			" from us-smtp-delivery-105.mimecast.com (216.205.24.105)\r\n\tby BN3NAM04FT018.mail.protection.outlook.com (10.152.92.162) with Microsoft\r\n\tSMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384)\r\n\tid 15.20.1835.13 via Frontend Transport; Tue, 30 Apr 2019 19:10:19 +0000\r\n",
+
+			// Nested comments
+			" from [67.219.246.196] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))\r\n\tby server-2.bemta.az-c.us-east-1.aws.symcld.net id 11/DD-19573-41C55BC5;\r\n\tTue, 16 Apr 2019 04:37:40 +0000\r\n",
+
+			// No clauses
+			" (qmail 16244 invoked from network); 16 Apr 2019 04:37:38 -0000\r\n",
+
+			// Multiple comments in the 'from' clause
+			// FIXME: This SHOULD fold this way:
+			//" from relay301.mycloudmailbox.com (unknown [207.126.101.249])\r\n\t(using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))\r\n\t(No client certificate requested)\r\n\tby S15-GW103.mycloudmailbox.com (Postfix) with ESMTPS id 44th580QHjz2SnDr\r\n\tfor <unit-tests@mimekit.net>; Tue, 30 Apr 2019 08:42:52 -0400 (EDT)\r\n",
+			// but this is how we currently fold it:
+			" from relay301.mycloudmailbox.com (unknown [207.126.101.249]) (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits)) (No client certificate requested)\r\n\tby S15-GW103.mycloudmailbox.com (Postfix) with ESMTPS id 44th580QHjz2SnDr\r\n\tfor <unit-tests@mimekit.net>; Tue, 30 Apr 2019 08:42:52 -0400 (EDT)\r\n",
+
+			// Absolute yikes
+			//" from  [()] by  () (MDaemon PRO v18.5.1) id md50900000001.msg;\r\n\tTue, 30 Apr 2019 11:19:43 -0400\r\n",
 
 			// Incomplete comments
-			" (incomplete comment" + FormatOptions.Default.NewLine,
-			" from (incomplete comment" + FormatOptions.Default.NewLine,
-			" by (incomplete comment" + FormatOptions.Default.NewLine,
-			" via (incomplete comment" + FormatOptions.Default.NewLine,
-			" with (incomplete comment" + FormatOptions.Default.NewLine,
-			" id (incomplete comment" + FormatOptions.Default.NewLine,
-			" for (incomplete comment" + FormatOptions.Default.NewLine,
+			" (incomplete comment\r\n",
+			" from (incomplete comment\r\n",
+			" by (incomplete comment\r\n",
+			" via (incomplete comment\r\n",
+			" with (incomplete comment\r\n",
+			" id (incomplete comment\r\n",
+			" for (incomplete comment\r\n",
 
 			// Make sure long (incomplete) comments get folded properly
-			" from thumper.bellcore.com" + FormatOptions.Default.NewLine + "\tby greenbush.bellcore.com (this is an incomplete comment that is really really long in order to enforce folding..." + FormatOptions.Default.NewLine,
+			" from thumper.bellcore.com\r\n\tby greenbush.bellcore.com (this is an incomplete comment that is really really long in order to enforce folding...\r\n",
 		};
 
 		[Test]
 		public void TestReceivedHeaderFolding ()
 		{
+			var options = FormatOptions.Default.Clone ();
 			var header = new Header ("Received", "");
 
 			foreach (var received in ReceivedHeaderValues) {
-				header.SetValue (Encoding.ASCII, received.Replace (FormatOptions.Default.NewLine + "\t", " ").Trim ());
+				var unfolded = received.Replace ("\r\n\t", " ").Trim ();
+				string folded;
 
-				var raw = ByteArrayToString (header.RawValue);
+				// test DOS format
+				options.NewLineFormat = NewLineFormat.Dos;
+				header.SetValue (options, Encoding.ASCII, unfolded);
+				folded = ByteArrayToString (header.RawValue);
 
-				Assert.That (raw[raw.Length - 1], Is.EqualTo ('\n'), "The RawValue does not end with a new line.");
-				Assert.That (raw, Is.EqualTo (received), $"The folded Received header does not match the expected value: {raw}");
+				Assert.That (folded, Is.EqualTo (received), $"The folded Received header does not match the expected value (DOS): {folded}");
+
+				// test UNIX format
+				var expected = received.Replace ("\r\n", "\n");
+				options.NewLineFormat = NewLineFormat.Unix;
+				header.SetValue (options, Encoding.ASCII, unfolded);
+				folded = ByteArrayToString (header.RawValue);
+
+				Assert.That (folded, Is.EqualTo (expected), $"The folded Received header does not match the expected value (UNIX): {folded}");
 			}
 		}
 

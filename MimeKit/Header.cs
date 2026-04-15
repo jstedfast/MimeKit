@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -573,88 +574,20 @@ namespace MimeKit {
 			return encoding.GetBytes (" " + value + format.NewLine);
 		}
 
-		delegate void ReceivedTokenSkipValueFunc (byte[] text, ref int index);
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<char> ReceivedEndOfTokenSentinels = SearchValues.Create (new char[] { '\t', '\r', '\n', ' ', '(', ';' });
+#else
+		static ReadOnlySpan<char> ReceivedEndOfTokenSentinels => new char[] { '\t', '\r', '\n', ' ', '(', ';' };
+#endif
 
-		static void ReceivedTokenSkipAtom (byte[] text, ref int index)
+		static void ReceivedSkipToken (string value, ref int index)
 		{
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
-				return;
+			var span = value.AsSpan (index);
+			int endOfValue = span.IndexOfAny (ReceivedEndOfTokenSentinels);
+			int length = endOfValue == -1 ? span.Length : endOfValue;
 
-			ParseUtils.SkipAtom (text, ref index, text.Length);
+			index += length;
 		}
-
-		static void ReceivedTokenSkipDomain (byte[] text, ref int index)
-		{
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false))
-				return;
-
-			if (text[index] == (byte) '[') {
-				while (index < text.Length && text[index] != (byte) ']')
-					index++;
-
-				if (index < text.Length)
-					index++;
-
-				return;
-			}
-
-			while (ParseUtils.SkipAtom (text, ref index, text.Length) && index < text.Length && text[index] == (byte) '.')
-				index++;
-		}
-
-		static ReadOnlySpan<byte> ReceivedAddrSpecSentinels => new[] { (byte) '>', (byte) ';' };
-		static ReadOnlySpan<byte> ReceivedMessageIdSentinels => new[] { (byte) '>' };
-
-		static void ReceivedTokenSkipAddress (byte[] text, ref int index)
-		{
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
-				return;
-
-			if (text[index] == (byte) '<')
-				index++;
-
-			InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedAddrSpecSentinels, RfcComplianceMode.Strict, false, out _, out _);
-
-			if (index < text.Length && text[index] == (byte) '>')
-				index++;
-		}
-
-		static void ReceivedTokenSkipMessageId (byte[] text, ref int index)
-		{
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false) || index >= text.Length)
-				return;
-
-			if (text[index] == (byte) '<') {
-				index++;
-
-				InternetAddress.TryParseAddrspec (text, ref index, text.Length, ReceivedMessageIdSentinels, RfcComplianceMode.Strict, false, out _, out _);
-
-				if (index < text.Length && text[index] == (byte) '>')
-					index++;
-			} else {
-				ParseUtils.SkipAtom (text, ref index, text.Length);
-			}
-		}
-
-		readonly struct ReceivedToken {
-			public readonly ReceivedTokenSkipValueFunc Skip;
-			public readonly string Atom;
-
-			public ReceivedToken (string atom, ReceivedTokenSkipValueFunc skip)
-			{
-				Atom = atom;
-				Skip = skip;
-			}
-		}
-
-		static readonly ReceivedToken[] ReceivedTokens = {
-			new ReceivedToken ("from", ReceivedTokenSkipDomain),
-			new ReceivedToken ("by", ReceivedTokenSkipDomain),
-			new ReceivedToken ("via", ReceivedTokenSkipDomain),
-			new ReceivedToken ("with", ReceivedTokenSkipAtom),
-			new ReceivedToken ("id", ReceivedTokenSkipMessageId),
-			new ReceivedToken ("for", ReceivedTokenSkipAddress),
-		};
 
 		class ReceivedTokenValue
 		{
@@ -668,75 +601,98 @@ namespace MimeKit {
 			}
 		}
 
+		static int TrimEnd (string value, int index)
+		{
+			while (index > 0 && ByteExtensions.Whitespace.IndexOf (value[index - 1]) != -1)
+				index--;
+
+			return index;
+		}
+
 		static byte[] EncodeReceivedHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
 			var tokens = new List<ReceivedTokenValue> ();
-			var rawValue = encoding.GetBytes (value);
-			var encoded = new ValueStringBuilder (rawValue.Length);
-			int lineLength = field.Length + 1;
-			bool date = false;
-			int index = 0;
-			int count = 0;
+			int startIndex, endIndex, index = 0;
 
-			while (index < rawValue.Length) {
-				ReceivedTokenValue? token = null;
-				int startIndex = index;
+			// tokenize any preliminary comments as independent tokens
+			while (index < value.Length) {
+				ParseUtils.SkipWhiteSpace (value, ref index, value.Length);
 
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false) || index >= rawValue.Length) {
-					tokens.Add (new ReceivedTokenValue (startIndex, index - startIndex));
+				// break out of the loop if we've reached the end of the raw value or if the next token is not a comment
+				if (index >= value.Length || value[index] != '(')
+					break;
+
+				startIndex = index;
+
+				ParseUtils.SkipComment (value, ref index, value.Length);
+
+				tokens.Add (new ReceivedTokenValue (startIndex, index - startIndex));
+			}
+
+			// tokenize the clause keywords and values, stopping at ';'
+			while (index < value.Length && value[index] != ';') {
+				// Note: we tokenize the clause keyword, value and any comments that belong to it as a single token
+				startIndex = index;
+
+				// skip over the clause keyword
+				ReceivedSkipToken (value, ref index);
+
+				// skip any comments and/or whitespace that precede the value
+				ParseUtils.SkipCommentsAndWhiteSpace (value, ref index, value.Length, false);
+
+				// check for ';' in case the clause is missing a value
+				if (index >= value.Length || value[index] == ';') {
+					// trim any trailing whitespace from the clause
+					endIndex = TrimEnd (value, index);
+
+					// add the clause keyword and any comments that belong to it as a token
+					tokens.Add (new ReceivedTokenValue (startIndex, endIndex - startIndex));
 					break;
 				}
 
-				while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
-					index++;
+				// skip the value for the clause
+				ReceivedSkipToken (value, ref index);
 
-				var atom = encoding.GetString (rawValue, startIndex, index - startIndex);
+				// skip any comments and/or whitespace that follow the value
+				ParseUtils.SkipCommentsAndWhiteSpace (value, ref index, value.Length, false);
 
-				for (int i = 0; i < ReceivedTokens.Length; i++) {
-					if (atom.Equals (ReceivedTokens[i].Atom, StringComparison.OrdinalIgnoreCase)) {
-						ReceivedTokens[i].Skip (rawValue, ref index);
+				// trim any trailing whitespace from the clause
+				endIndex = TrimEnd (value, index);
 
-						if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
-							if (index < rawValue.Length && rawValue[index] == (byte) ';') {
-								date = true;
-								index++;
-							}
-						}
+				// add the entire clause as a token
+				tokens.Add (new ReceivedTokenValue (startIndex, endIndex - startIndex));
+			}
 
-						token = new ReceivedTokenValue (startIndex, index - startIndex);
-						break;
-					}
-				}
+			if (index < value.Length && value[index] == ';') {
+				// tokenize the ';' as its own token
+				tokens.Add (new ReceivedTokenValue (index, 1));
+				index++;
 
-				if (token is null) {
-					if (ParseUtils.SkipCommentsAndWhiteSpace (rawValue, ref index, rawValue.Length, false)) {
-						while (index < rawValue.Length && !rawValue[index].IsWhitespace ())
-							index++;
-					}
+				// skip any whitespace between the ';' and the date token
+				ParseUtils.SkipWhiteSpace (value, ref index, value.Length);
 
-					token = new ReceivedTokenValue (startIndex, index - startIndex);
-				}
+				if (index < value.Length) {
+					// trim any trailing whitespace from the date-time token
+					endIndex = TrimEnd (value, value.Length);
 
-				tokens.Add (token);
-
-				ParseUtils.SkipWhiteSpace (rawValue, ref index, rawValue.Length);
-
-				if (date && index < rawValue.Length) {
-					// slurp up the date (the final token)
-					tokens.Add (new ReceivedTokenValue (index, rawValue.Length - index));
-					break;
+					// treat the remainder of the header value as a single token (the date-time token contains whitespace)
+					tokens.Add (new ReceivedTokenValue (index, endIndex - index));
 				}
 			}
 
+			var encoded = new ValueStringBuilder (value.Length);
+			int lineLength = field.Length + 1;
+			int count = 0;
+
 			foreach (var token in tokens) {
-				var text = encoding.GetString (rawValue, token.StartIndex, token.Length).TrimEnd ();
+				var text = value.Substring (token.StartIndex, token.Length);
 
 				if (count > 0 && lineLength + text.Length + 1 > format.MaxLineLength) {
 					encoded.Append (format.NewLine);
 					encoded.Append ('\t');
 					lineLength = 1;
 					count = 0;
-				} else {
+				} else if (count == 0 || text != ";") {
 					encoded.Append (' ');
 					lineLength++;
 				}
