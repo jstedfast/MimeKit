@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.15.1</version>
+    <version>4.16.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -26,7 +26,16 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* [SECURITY] Use stricter parsing logic for quoted-strings in addr-specs to prevent SMTP command injection attacks when those quoted-strings include CRLF sequences.
+* Simplified logic for illegal ctrl characters within quoted-string local-part tokens in addr-specs.
+* Fixed IndexOutOfRangeException in ParseUtils.TryParseMsgId(). (issue #1227)
+* Improved ParseException message for invalid ctrl chars in quoted-strings.
+* Improved recovery logic for InternetAddressList.TryParse().
+* Fixed leak in X509Certificate2Extensions.GetPrivateKeyAsAsymmetricKeyParameter(). (issue #1230)
+* Fixed potential integer overflow in TnefPropertyReader. (issue #1231)
+* Added support for converting ECDsa PrivateKeys between Windows and BouncyCastle.
+* Partial Encryption and Certificate Validation Failures for S/MIME. (issue #1224)
+* Fixed MimeParser/MimeReader.ScanContent to not init local until needed. (issue #1234)
+* Improved Received header folding logic.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>

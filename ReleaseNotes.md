@@ -1,5 +1,23 @@
 # Release Notes
 
+## MimeKit 4.16.0 (2026-04-15)
+
+* Simplified logic for illegal ctrl characters within quoted-string local-part tokens in addr-specs.
+* Fixed IndexOutOfRangeException in ParseUtils.TryParseMsgId().
+  (issue [#1227](https://github.com/jstedfast/MimeKit/issues/1227))
+* Improved ParseException message for invalid ctrl chars in quoted-strings.
+* Improved recovery logic for InternetAddressList.TryParse().
+* Fixed leak in X509Certificate2Extensions.GetPrivateKeyAsAsymmetricKeyParameter().
+  (issue [#1230](https://github.com/jstedfast/MimeKit/issues/1230))
+* Fixed potential integer overflow in TnefPropertyReader.
+  (issue [#1231](https://github.com/jstedfast/MimeKit/issues/1231))
+* Added support for converting ECDsa PrivateKeys between Windows and BouncyCastle.
+* Partial Encryption & Certificate Validation Failures for S/MIME.
+  (issue [#1224](https://github.com/jstedfast/MimeKit/issues/1224))
+* Fixed MimeParser/MimeReader.ScanContent to not init local until needed.
+  (issue [#1234](https://github.com/jstedfast/MimeKit/issues/1234))
+* Improved Received header folding logic.
+
 ## MimeKit 4.15.1 (2026-03-04)
 
 * SECURITY: Use stricter parsing logic for quoted-strings in addr-specs to prevent
@@ -10,17 +28,17 @@
 * Bumped System.Buffers to 4.6.1 and System.Memory to 4.6.3
 * Fixed inexact read in TnefPropertyReader.GetEmbeddedMessageReader()
 * Fixed IndexOutOfRangeException in DateTImeUtils.TryParse() when missing timezone after AM/PM.
-  (issue [#1204](https://github.com/jstedfast/MimeKit/discussions/1204))
+  (issue [#1204](https://github.com/jstedfast/MimeKit/issues/1204))
 * Added nullable attributes to the API.
-  (issue [#1067](https://github.com/jstedfast/MimeKit/discussions/1067))
+  (issue [#1067](https://github.com/jstedfast/MimeKit/issues/1067))
 * AuthenticationResults parsing now supports Gmail style headers.
-  (issue [#1208](https://github.com/jstedfast/MimeKit/discussions/1208))
+  (issue [#1208](https://github.com/jstedfast/MimeKit/issues/1208))
 * Changed the Base64Decoder to no longer default to enabling hardware acceleration due to
   bugs in System.Buffers.Text.Base64.DecodeFromUtf8 (will likely be fixed in .NET 11).
-  (issue [#1215](https://github.com/jstedfast/MimeKit/discussions/1215))
+  (issue [#1215](https://github.com/jstedfast/MimeKit/issues/1215))
 * Improved SqlCertificateDatabase abstraction to make it easier to subclass when the
   SQL syntax does not match SQLite.
-  (issue [#1218](https://github.com/jstedfast/MimeKit/discussions/1218))
+  (issue [#1218](https://github.com/jstedfast/MimeKit/issues/1218))
 * Bumped BouncyCastle.Cryptography to 2.6.2.
 * Added support for .NET 10.
 
@@ -35,7 +53,7 @@
 * Optimized the Base64Encoder to use hardware acceleration when available.
 * Optimized the Base64Decoder to use hardware acceleration when available.
 * Fixed parsing of short StatusGroups in MessageDeliveryStatus
-  (issue [#1181](https://github.com/jstedfast/MimeKit/discussions/1181))
+  (issue [#1181](https://github.com/jstedfast/MimeKit/issues/1181))
 * Fixed MimeParser and ExperimentalMimeParser to consistently adhere to
   ParserOptions.MaxMimeDepth.
 * Fixed MimeParser and ExperimentalMimeParser to properly (re)initialize their
@@ -44,13 +62,13 @@
   null and -1, respectively.
 * Fixed MultipartSigned.Create() to avoid corrupting binary content of the
   entity (or child entities) being signed (important for AS2 messages).
-  (issue [#1184](https://github.com/jstedfast/MimeKit/discussions/1184))
+  (issue [#1184](https://github.com/jstedfast/MimeKit/issues/1184))
     * Note: It is important for developers to properly set the
       ContentTransferEncoding of these parts to ContentEncoding.Binary
       to avoid corruption.
 * Fixed MimeParser, ExperimentalMimeParser and MimeReader to handle header
   lines that exceed the internal input buffer length.
-  (issue [#1189](https://github.com/jstedfast/MimeKit/discussions/1189))
+  (issue [#1189](https://github.com/jstedfast/MimeKit/issues/1189))
 * Obsoleted DkimSignerBase, DkimSigner, and ArcSigner .ctors that did not take a
   parameter that could be used to initialize the PrivateKey property.
 * Obsoleted DkimSignerBase.PrivateKey property setter.
@@ -58,13 +76,13 @@
 ## MimeKit 4.13.0 (2025-06-25)
 
 * Fixed a memory leak in MimeAnonymizer and MimeUtils.Unquote() which gets used by the
-  address parser. (issue [#1161](https://github.com/jstedfast/MimeKit/discussions/1161))
+  address parser. (issue [#1161](https://github.com/jstedfast/MimeKit/issues/1161))
 * Optimized MimeReader and MimeParser to use Span&lt;T&gt;.IndexOf() on .NET Core which
   can improve performance by 20-30% when parsing MemoryStreams or 5-10% when parsing
   FileStreams.
 * Optimized the MboxFromFilter and ArmoredFromFilter by using Span&lt;T&gt;.IndexOf().
 * Fixed S/MIME logic to allow certificates without the KeyEncipherment key usage for
-  encryption. (issue [#1165](https://github.com/jstedfast/MimeKit/discussions/1165))
+  encryption. (issue [#1165](https://github.com/jstedfast/MimeKit/issues/1165))
 * Added MimeAnonymizer.PreserveHeaders as a way of preventing anonymization for
   specific headers.
 * Added message/deliver-status and message/disposition-notification support to
@@ -79,17 +97,17 @@
 * Added a new MimeAnonymizer class that can be used to anonymize MimeMessages by
   x-ing out non-syntactically relevant information.
 * Fixed TryParse methods to not throw ArgumentExceptions.
-  (issue [#1158](https://github.com/jstedfast/MimeKit/discussions/1158))
+  (issue [#1158](https://github.com/jstedfast/MimeKit/issues/1158))
 * Fixed a bug in MimeReader that used the buffer offset instead of the stream offset
   to check if the stream position was beyond the byte offset specified by a
   Content-Length header when parsing UNIX mbox files.
 * Fixed a long-standing bug in MimeParser (which also existed in MimeReader) where
   it would encounter a buffering bug when parsing some Mbox files (typically
-  multi-gigabyte). (issue [#991](https://github.com/jstedfast/MimeKit/discussions/991))
+  multi-gigabyte). (issue [#991](https://github.com/jstedfast/MimeKit/issues/991))
 * Fixed AttachmentCollection.Add/AddAsync methods to dispose the MimePart it is creating
   if loading content fails from the stream fails.
 * Added leaveOpen parameters for HtmlWriter .ctors.
-  (issue [#1159](https://github.com/jstedfast/MimeKit/discussions/1159))
+  (issue [#1159](https://github.com/jstedfast/MimeKit/issues/1159))
 * Fixed parsing when ParserOptions.AllowUnquotedCommasInAddresses = false. This used to
   incorrectly allow unquoted commas in address Display Names if the comma followed at least
   2 words.
