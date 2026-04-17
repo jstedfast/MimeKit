@@ -926,10 +926,10 @@ namespace MimeKit.Cryptography {
 	}
 
 	/// <summary>
-	/// An authentication method results.
+	/// Represents an authentication method and its result.
 	/// </summary>
 	/// <remarks>
-	/// An authentication method results.
+	/// The results for an authentication method.
 	/// </remarks>
 	public class AuthenticationMethodResult
 	{
