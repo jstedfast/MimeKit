@@ -292,6 +292,8 @@ namespace MimeKit {
 			} else if (comment != null) {
 				// Note: use the same .ctor as the parser so that the value is not validated.
 				clause = new ReceivedClause (id, Keywords[(int) id - 1], string.Empty, new List<string> () { comment });
+				Clauses.Add (clause);
+
 				((List<ReceivedClause>) Clauses).Sort ();
 			}
 		}

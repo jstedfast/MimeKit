@@ -226,30 +226,93 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestRemoveClause ()
+		public void TestRemoveClauses ()
 		{
-			const string input = " from smtp.source.com by smtp.target.com via TCP with ESMTPS; Sat, 18 Apr 2026 20:05:38 -0400\r\n";
-			const string expected = " from smtp.source.com by smtp.target.com with ESMTPS;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedAll = " from smtp.source.com ([192.168.1.1])\r\n\tby smtp.target.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com> for unit-tests@mimekit.net;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoFrom = " by smtp.target.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com> for unit-tests@mimekit.net;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoBy = " from smtp.source.com ([192.168.1.1]) via TCP with ESMTPS\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com> for unit-tests@mimekit.net;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoVia = " from smtp.source.com ([192.168.1.1])\r\n\tby smtp.target.com ([127.0.0.1]) with ESMTPS\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com> for unit-tests@mimekit.net;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoWith = " from smtp.source.com ([192.168.1.1])\r\n\tby smtp.target.com ([127.0.0.1]) via TCP\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com> for unit-tests@mimekit.net;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoId = " from smtp.source.com ([192.168.1.1])\r\n\tby smtp.target.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tfor unit-tests@mimekit.net; Sat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoFor = " from smtp.source.com ([192.168.1.1])\r\n\tby smtp.target.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>;\r\n\tSat, 18 Apr 2026 20:05:38 -0400\r\n";
+			const string expectedNoDateTime = " from smtp.source.com ([192.168.1.1])\r\n\tby smtp.target.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid <VAD7UBNO1TU4.JCMO6CD121AX1@office365.com> for unit-tests@mimekit.net\r\n";
 			var dateTime = new DateTimeOffset (2026, 4, 18, 20, 05, 38, TimeSpan.FromHours (-4));
-			var buffer = Encoding.UTF8.GetBytes (input);
-			var received = Received.Parse (buffer);
-
-			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
-			Assert.That (received.FromTcpInfo, Is.Null, "FromTcpInfo");
-			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
-			Assert.That (received.ByTcpInfo, Is.Null, "ByTcpInfo");
-			Assert.That (received.Via, Is.EqualTo ("TCP"), "Via");
-			Assert.That (received.With, Is.EqualTo ("ESMTPS"), "With");
-			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-
-			// this should remove the 'via' clause
-			received.Via = null;
-
-			Assert.That (received.Via, Is.Null, "Via");
-
+			var received = new Received {
+				From = "smtp.source.com",
+				FromTcpInfo = "[192.168.1.1]",
+				By = "smtp.target.com",
+				ByTcpInfo = "[127.0.0.1]",
+				Via = "TCP",
+				With = "ESMTPS",
+				Id = "<VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>",
+				For = "unit-tests@mimekit.net",
+				DateTime = new DateTimeOffset (2026, 4, 18, 20, 05, 38, TimeSpan.FromHours (-4))
+			};
+			var buffer = Encoding.ASCII.GetBytes (expectedAll);
 			var encoded = received.ToString ();
 
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
+			Assert.That (received.FromTcpInfo, Is.EqualTo ("[192.168.1.1]"), "FromTcpInfo");
+			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
+			Assert.That (received.ByTcpInfo, Is.EqualTo ("[127.0.0.1]"), "ByTcpInfo");
+			Assert.That (received.Via, Is.EqualTo ("TCP"), "Via");
+			Assert.That (received.With, Is.EqualTo ("ESMTPS"), "With");
+			Assert.That (received.Id, Is.EqualTo ("<VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>"), "Id");
+			Assert.That (received.For, Is.EqualTo ("unit-tests@mimekit.net"), "For");
+			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
+			Assert.That (encoded, Is.EqualTo (expectedAll), "ToString");
+
+			// remove 'from'
+			received.From = null;
+			encoded = received.ToString ();
+			Assert.That (received.From, Is.Null, "From == null");
+			Assert.That (received.FromTcpInfo, Is.Null, "FromTcpInfo == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoFrom), "w/o 'from'");
+
+			// remove 'by'
+			received.From = "smtp.source.com";
+			received.FromTcpInfo = "[192.168.1.1]";
+			received.By = null;
+			encoded = received.ToString ();
+			Assert.That (received.By, Is.Null, "By == null");
+			Assert.That (received.ByTcpInfo, Is.Null, "ByTcpInfo == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoBy), "w/o 'by'");
+
+			// remove 'via'
+			received.By = "smtp.target.com";
+			received.ByTcpInfo = "[127.0.0.1]";
+			received.Via = null;
+			encoded = received.ToString ();
+			Assert.That (received.Via, Is.Null, "Via == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoVia), "w/o 'via'");
+
+			// remove 'with'
+			received.Via = "TCP";
+			received.With = null;
+			encoded = received.ToString ();
+			Assert.That (received.With, Is.Null, "With == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoWith), "w/o 'with'");
+
+			// remove 'id'
+			received.With = "ESMTPS";
+			received.Id = null;
+			encoded = received.ToString ();
+			Assert.That (received.Id, Is.Null, "Id == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoId), "w/o 'id'");
+
+			// remove 'for'
+			received.Id = "<VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>";
+			received.For = null;
+			encoded = received.ToString ();
+			Assert.That (received.For, Is.Null, "For == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoFor), "w/o 'for'");
+
+			// remove dateTime
+			received.For = "unit-tests@mimekit.net";
+			received.DateTime = null;
+			encoded = received.ToString ();
+			Assert.That (received.DateTime, Is.Null, "DateTime == null");
+			Assert.That (encoded, Is.EqualTo (expectedNoDateTime), "w/o 'date-time'");
 		}
 
 		[Test]
@@ -283,6 +346,39 @@ namespace UnitTests {
 			Assert.That (encoded, Is.EqualTo (expected), "ToString");
 
 			Assert.That (Received.TryParse (buffer, out received), Is.True, "TryParse");
+		}
+
+		[Test]
+		public void TestTcpInfoWithoutValue ()
+		{
+			const string expected = " from  ([192.168.1.1]) by smtp.target.com\r\n";
+			var received = new Received {
+				FromTcpInfo = "[192.168.1.1]",
+				By = "smtp.target.com"
+			};
+			var encoded = received.ToString ();
+
+			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+		}
+
+		[Test]
+		public void TestUpdateValue ()
+		{
+			const string expected1 = " from smtp.source.com by smtp.target.com\r\n";
+			const string expected2 = " from smtp.gmail.com by smtp.target.com\r\n";
+			var received = new Received {
+				From = "smtp.source.com",
+				By = "smtp.target.com"
+			};
+			var encoded = received.ToString ();
+
+			Assert.That (encoded, Is.EqualTo (expected1), "ToString");
+
+			received.From = "smtp.gmail.com";
+
+			encoded = received.ToString ();
+
+			Assert.That (encoded, Is.EqualTo (expected2), "Updated");
 		}
 
 		[Test]
