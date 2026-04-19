@@ -525,6 +525,21 @@ namespace UnitTests {
 				Reformatted = " from relay301.mycloudmailbox.com (unknown [207.126.101.249])\r\n\t(using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))\r\n\t(No client certificate requested) by S15-GW103.mycloudmailbox.com (Postfix)\r\n\twith ESMTPS id 44th580QHjz2SnDr for <unit-tests@mimekit.net>;\r\n\tTue, 30 Apr 2019 08:42:52 -0400 (EDT)\r\n"
 			},
 
+			// No value after 'from' keyword
+			new ReceivedResults (" from  (this 'from' clause has no value) by smtp.destination.com\r\n\twith ESMTP/TLS; 02 Feb 2026 18:25:54 +0100\r\n") {
+				From = "",
+				FromTcpInfo = "this 'from' clause has no value",
+				By = "smtp.destination.com",
+				With = "ESMTP/TLS",
+				DateTime = "Mon, 02 Feb 2026 18:25:54 +0100"
+			},
+
+			// Semicolon and no value
+			new ReceivedResults (" from ; 02 Feb 2026 18:25:54 +0100\r\n") {
+				From = "",
+				DateTime = "Mon, 02 Feb 2026 18:25:54 +0100"
+			},
+
 			// Clause 'value' too long to fit on the same line as the keyword
 			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com with ESMTPS id\r\n<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
 				From = "relay301.mycloudmailbox.com",
