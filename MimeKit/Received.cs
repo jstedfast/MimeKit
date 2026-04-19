@@ -935,8 +935,12 @@ namespace MimeKit {
 				string? dateTimeStr = null;
 
 				if (index < dateEnd) {
-					if (!DateUtils.TryParse (rawValue, index, dateEnd - index, out var dto))
+					if (!DateUtils.TryParse (rawValue, index, dateEnd - index, out var dto)) {
+						if (throwOnError)
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid date-time format at offset {0}", index), index, dateEnd);
+
 						return false;
+					}
 
 					// cache the formatting of the date
 					dateTimeStr = CharsetUtils.ConvertToUnicode (options, rawValue, index, dateEnd - index);
