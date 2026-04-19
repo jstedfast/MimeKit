@@ -525,6 +525,31 @@ namespace UnitTests {
 				Reformatted = " from relay301.mycloudmailbox.com (unknown [207.126.101.249])\r\n\t(using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))\r\n\t(No client certificate requested) by S15-GW103.mycloudmailbox.com (Postfix)\r\n\twith ESMTPS id 44th580QHjz2SnDr for <unit-tests@mimekit.net>;\r\n\tTue, 30 Apr 2019 08:42:52 -0400 (EDT)\r\n"
 			},
 
+			// Clause 'value' too long to fit on the same line as the keyword
+			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com with ESMTPS id\r\n<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
+				From = "relay301.mycloudmailbox.com",
+				FromTcpInfo = "[207.126.101.249]",
+				By = "SJ0PR20MB4463.namprd00.prod.outlook.com",
+				With = "ESMTPS",
+				Id = "<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>",
+				For = "<unit-tests@mimekit.net>",
+				DateTime = "Sun, 19 Apr 2026 15:47:52 -0400",
+				Reformatted = " from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com with ESMTPS id\r\n\t<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n"
+			},
+			// Clause 'value' is too long to fit on the same line as keyword, but keyword also needs to be on its own line
+			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid\r\n<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
+				From = "relay301.mycloudmailbox.com",
+				FromTcpInfo = "[207.126.101.249]",
+				By = "SJ0PR20MB4463.namprd00.prod.outlook.com",
+				ByTcpInfo = "[127.0.0.1]",
+				Via = "TCP",
+				With = "ESMTPS",
+				Id = "<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>",
+				For = "<unit-tests@mimekit.net>",
+				DateTime = "Sun, 19 Apr 2026 15:47:52 -0400",
+				Reformatted = " from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid\r\n\t<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n"
+			},
+
 #if false
 			// Absolute yikes
 			new ReceivedResults (" from  [()] by  () (MDaemon PRO v18.5.1) id md50900000001.msg;\r\n\tTue, 30 Apr 2019 11:19:43 -0400\r\n") {
