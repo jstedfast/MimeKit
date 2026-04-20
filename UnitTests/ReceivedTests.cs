@@ -70,8 +70,10 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => received.By = "smtp.-server.com");
 
 			Assert.Throws<ArgumentException> (() => received.Via = string.Empty);
+			Assert.Throws<ArgumentException> (() => received.Via = "illegal\achar");
 
 			Assert.Throws<ArgumentException> (() => received.With = string.Empty);
+			Assert.Throws<ArgumentException> (() => received.With = "illegal\achar");
 
 			Assert.Throws<ArgumentException> (() => received.Id = string.Empty);
 			Assert.Throws<ArgumentException> (() => received.Id = "this is invalid...");
@@ -123,6 +125,15 @@ namespace UnitTests {
 			}
 		}
 
+		static void AssertClauseId (string keyword, ReceivedClauseId expected)
+		{
+			var clause = new ReceivedClause (keyword, "value", "comment");
+
+			Assert.That (clause.Id, Is.EqualTo (expected), keyword);
+			Assert.That (clause.Comments.Count, Is.EqualTo (1), "Comments.Count");
+			Assert.That (clause.Comments[0], Is.EqualTo ("comment"), "Comment");
+		}
+
 		[Test]
 		public void TestConstructors ()
 		{
@@ -137,6 +148,13 @@ namespace UnitTests {
 			Assert.That (received.ByTcpInfo, Is.EqualTo ("[127.0.0.1]"), "ByTcpInfo");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
 			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+
+			AssertClauseId ("from", ReceivedClauseId.From);
+			AssertClauseId ("by", ReceivedClauseId.By);
+			AssertClauseId ("via", ReceivedClauseId.Via);
+			AssertClauseId ("with", ReceivedClauseId.With);
+			AssertClauseId ("id", ReceivedClauseId.Id);
+			AssertClauseId ("for", ReceivedClauseId.For);
 		}
 
 		[Test]

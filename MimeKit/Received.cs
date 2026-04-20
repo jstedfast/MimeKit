@@ -1217,16 +1217,12 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="comment"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public ReceivedClause (string keyword, string value, string comment)
+		public ReceivedClause (string keyword, string value, string comment) : this (keyword, value)
 		{
-			Id = ValidateKeyword (keyword);
-			Keyword = keyword;
-			Value = value;
-
 			if (comment == null)
 				throw new ArgumentNullException (nameof (comment));
 
-			Comments = new List<string> () { comment };
+			Comments.Add (comment);
 		}
 
 		/// <summary>
