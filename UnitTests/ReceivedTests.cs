@@ -494,7 +494,7 @@ namespace UnitTests {
 			},
 
 			// Clause 'value' too long to fit on the same line as the keyword
-			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com with ESMTPS id\r\n<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
+			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com with ESMTPS id\r\n\t<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
 				From = "relay301.mycloudmailbox.com",
 				FromTcpInfo = "[207.126.101.249]",
 				By = "SJ0PR20MB4463.namprd00.prod.outlook.com",
@@ -502,10 +502,9 @@ namespace UnitTests {
 				Id = "<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>",
 				For = "<unit-tests@mimekit.net>",
 				DateTime = "Sun, 19 Apr 2026 15:47:52 -0400",
-				Reformatted = " from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com with ESMTPS id\r\n\t<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n"
 			},
 			// Clause 'value' is too long to fit on the same line as keyword, but keyword also needs to be on its own line
-			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid\r\n<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
+			new ReceivedResults (" from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid\r\n\t<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n") {
 				From = "relay301.mycloudmailbox.com",
 				FromTcpInfo = "[207.126.101.249]",
 				By = "SJ0PR20MB4463.namprd00.prod.outlook.com",
@@ -515,7 +514,6 @@ namespace UnitTests {
 				Id = "<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>",
 				For = "<unit-tests@mimekit.net>",
 				DateTime = "Sun, 19 Apr 2026 15:47:52 -0400",
-				Reformatted = " from relay301.mycloudmailbox.com ([207.126.101.249])\r\n\tby SJ0PR20MB4463.namprd00.prod.outlook.com ([127.0.0.1]) via TCP with ESMTPS\r\n\tid\r\n\t<SJ0PR20MB446393F2410E314E4704AE53C7202@SJ0PR20MB4463.namprd00.prod.outlook.com>\r\n\tfor <unit-tests@mimekit.net>; Sun, 19 Apr 2026 15:47:52 -0400 (EDT)\r\n"
 			},
 
 			// Non-compliant Received headers that actually exist in the wild
