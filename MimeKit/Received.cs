@@ -556,39 +556,39 @@ namespace MimeKit {
 
 				if (commentLength > 0 && keyword.Length + 1 + value.Length + 1 + commentLength < options.MaxLineLength) {
 					// keyword, value and (the first) comment can all fit on a single line
-					if (lineLength + 1 + keyword.Length + 1 + value.Length + 1 + commentLength < options.MaxLineLength) {
-						// they can all fit on the current line
-						builder.Append (' ');
-						lineLength++;
-					} else {
+					if (lineLength + 1 + keyword.Length + 1 + value.Length + 1 + commentLength > options.MaxLineLength) {
 						// fold the header value here so that we can put as many tokens on the same line as we can
 						builder.Append (options.NewLine);
 						builder.Append ('\t');
 						lineLength = 1;
+					} else {
+						// they can all fit on the current line
+						builder.Append (' ');
+						lineLength++;
 					}
 				} else if (keyword.Length + 1 + value.Length < options.MaxLineLength) {
 					// keyword and value can both fit on a single line
-					if (lineLength + 1 + keyword.Length + 1 + value.Length < options.MaxLineLength) {
-						// they can both fit on the current line
-						builder.Append (' ');
-						lineLength++;
-					} else {
+					if (lineLength + 1 + keyword.Length + 1 + value.Length > options.MaxLineLength) {
 						// they are too long to fit on the current line, so wrap and put them on the next line
 						builder.Append (options.NewLine);
 						builder.Append ('\t');
 						lineLength = 1;
+					} else {
+						// they can both fit on the current line
+						builder.Append (' ');
+						lineLength++;
 					}
 				} else {
 					// we'll need to separate the keyword and value
-					if (lineLength + 1 + keyword.Length < options.MaxLineLength) {
-						// keyword fit on the current line
-						builder.Append (' ');
-						lineLength++;
-					} else {
+					if (lineLength + 1 + keyword.Length > options.MaxLineLength) {
 						// keyword is too long to fit on the current line
 						builder.Append (options.NewLine);
 						builder.Append ('\t');
 						lineLength = 1;
+					} else {
+						// keyword fit on the current line
+						builder.Append (' ');
+						lineLength++;
 					}
 				}
 
@@ -596,13 +596,13 @@ namespace MimeKit {
 				builder.Append (keyword);
 				lineLength += keyword.Length;
 
-				if (lineLength + 1 + value.Length < options.MaxLineLength) {
-					builder.Append (' ');
-					lineLength++;
-				} else {
+				if (lineLength + 1 + value.Length > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
 					lineLength = 1;
+				} else {
+					builder.Append (' ');
+					lineLength++;
 				}
 
 				// append the value
@@ -613,13 +613,13 @@ namespace MimeKit {
 			for (int i = 0; i < clause.Comments.Count; i++) {
 				var comment = FormatComment (clause.Comments[i]);
 
-				if (lineLength + 1 + comment.Length < options.MaxLineLength) {
-					builder.Append (' ');
-					lineLength++;
-				} else {
+				if (lineLength + 1 + comment.Length > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
 					lineLength = 1;
+				} else {
+					builder.Append (' ');
+					lineLength++;
 				}
 
 				builder.Append (comment);

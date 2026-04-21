@@ -735,6 +735,8 @@ namespace UnitTests {
 
 		[TestCase ("smtp.gmail.com", "[192.168.1.1]", "smtp.office365.com", "[10.3.0.1]", "Frontend Transport", "Microsoft SMTP Server", "<123@gmail.com>", "user@office365.com",
 			" from smtp.gmail.com ([192.168.1.1])\r\n\tby smtp.office365.com ([10.3.0.1]) via Frontend Transport\r\n\twith Microsoft SMTP Server id <123@gmail.com> for user@office365.com;\r\n\tWed, 15 Apr 2026 20:39:57 -0400\r\n")]
+		[TestCase ("sender.com", "This comment is to force the ; onto the next line.", null, null, null, null, null, null,
+			" from sender.com (This comment is to force the ; onto the next line.)\r\n\t; Wed, 15 Apr 2026 20:39:57 -0400\r\n")]
 		public void TestToString (string from, string fromTcpInfo, string by, string byTcpInfo, string via, string with, string id, string @for, string expected)
 		{
 			var received = new Received {
