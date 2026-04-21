@@ -698,6 +698,7 @@ namespace UnitTests {
 		[TestCase (" from remote-host.com by smtp.local-host.com with SMTP with ESMTP", "Duplicate 'with' clause at offset 55", 55, 59)]
 		[TestCase (" from remote-host.com by smtp.local-host.com id <123@localhost> id <456@localhost>", "Duplicate 'id' clause at offset 64", 64, 66)]
 		[TestCase (" from remote-host.com by smtp.local-host.com for user@domain.com for user@domain.com", "Duplicate 'for' clause at offset 65", 65, 68)]
+		[TestCase (" from remote-host.com by smtp.local-host.com for user@domain.com; !^#&*^*@%@^*&#*&!*", "Invalid date-time format at offset 66", 66, 84)]
 		public void TestParseInvalidHeaderValues (string value, string reason, int tokenIndex, int errorIndex)
 		{
 			var header = new Header (HeaderId.Received, value);
