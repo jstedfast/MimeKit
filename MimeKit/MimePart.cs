@@ -403,6 +403,8 @@ namespace MimeKit {
 		/// that does not exist, then the "name" parameter on the Content-Type header is used.</para>
 		/// <para>When setting the filename, both the "filename" parameter on the Content-Disposition
 		/// header and the "name" parameter on the Content-Type header are set.</para>
+		/// <note type="warning">The filename, by its nature of being provided by an untrusted source,
+		/// be used with caution. It is recommended that this value be sanitized before use.</note>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
