@@ -100,9 +100,26 @@ namespace MimeKit.Text {
 		/// Get or set whether executable scripts should be stripped from the output.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether executable scripts should be stripped from the output.
+		/// <para>Gets or sets whether executable scripts should be stripped from the output.</para>
+		/// <note type="warning">
+		/// <para>This is an incomplete solution for protecting against Cross-Site Scripting (XSS) attacks
+		/// and should not be relied upon as a comprehensive security measure. This filter only removes
+		/// certain known dangerous HTML tags (such as <c>&lt;script&gt;</c>, <c>&lt;style&gt;</c>,
+		/// <c>&lt;iframe&gt;</c>, <c>&lt;object&gt;</c>, etc.) but does not:</para>
+		/// <list type="bullet">
+		/// <item><description>Validate or sanitize attribute values (e.g., <c>javascript:</c>, <c>data:</c>,
+		/// or <c>vbscript:</c> URI schemes in <c>href</c>, <c>src</c>, or other URL attributes)</description></item>
+		/// <item><description>Filter event handler attributes (e.g., <c>onclick</c>, <c>onerror</c>, <c>onload</c>, etc.)</description></item>
+		/// <item><description>Sanitize inline CSS that may contain expressions or imports</description></item>
+		/// <item><description>Protect against newly discovered XSS attack vectors or techniques</description></item>
+		/// </list>
+		/// <para>For robust XSS protection, it is strongly recommended that applications pass the HTML output through
+		/// a dedicated HTML sanitizer library (such as HtmlSanitizer, Ganss.XSS, or similar) that is actively maintained
+		/// and updated to address emerging security threats.</para>
+		/// </note>
 		/// </remarks>
 		/// <value><see langword="true" /> if executable scripts should be filtered; otherwise, <see langword="false" />.</value>
+		[Obsolete ("This is an incomplete solution for protecting against Cross-Site Scripting (XSS) attacks and should not be relied upon as a comprehensive security measure. For robust XSS protection, it is strongly recommended that applications pass the HTML output through a dedicated HTML sanitizer library that is actively maintained and updated to address emerging security threats.")]
 		public bool FilterHtml {
 			get; set;
 		}
@@ -228,6 +245,42 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Determines whether the HTML tag is considered unsafe in email contexts.
+		/// </summary>
+		/// <remarks>
+		/// <para>Determines whether the HTML tag is considered unsafe in email contexts.</para>
+		/// <para>Some of these tags are known to be abused for Cross-Site Scripting attacks while others are,
+		/// at best, questionable for use with HTML email due to the fact that they are interactive.</para>
+		/// </remarks>
+		/// <returns><see langword="true" /> if the HTML tag is a known XSS attack vector; otherwise, <see langword="false" />.</returns>
+		/// <param name="id">The HTML tag identifier.</param>
+		static bool IsUnsafe (HtmlTagId id)
+		{
+			switch (id) {
+			case HtmlTagId.Unknown:     // Unknown tags could potentially be dangerous
+			case HtmlTagId.Applet:      // Can execute Java applets
+			case HtmlTagId.Audio:       // Can embed audio with potentially malicious content
+			case HtmlTagId.Base:        // Can hijack relative URLs
+			case HtmlTagId.Embed:       // Can embed executable content
+			case HtmlTagId.Form:        // Can submit data to an attacker's server
+			case HtmlTagId.Frame:       // Embeds external (and thus unsafe) content
+			case HtmlTagId.FrameSet:    // Container for frames
+			case HtmlTagId.IFrame:      // Embeds external (and thus unsafe) content
+			case HtmlTagId.Input:       // Can be used to steal user input or trigger actions
+			case HtmlTagId.Link:        // Can load external stylesheets that execute in certain contexts
+			case HtmlTagId.Object:      // Can embed executable content
+			case HtmlTagId.Script:      // Direct script execution
+			case HtmlTagId.Select:      // Can be used to steal user input or trigger actions
+			case HtmlTagId.Style:       // Can contain CSS with expression() or import of malicious content
+			case HtmlTagId.TextArea:    // Can be used to steal user input or trigger actions
+			case HtmlTagId.Video:       // Can embed video with potentially malicious content
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		/// <summary>
 		/// Convert the contents of <paramref name="reader"/> from the <see cref="InputFormat"/> to the
 		/// <see cref="OutputFormat"/> and uses the <paramref name="writer"/> to write the resulting text.
 		/// </summary>
@@ -301,7 +354,7 @@ namespace MimeKit.Text {
 							if (!tag.IsEmptyElement) {
 								ctx = new HtmlToHtmlTagContext (tag);
 
-								if (FilterHtml && ctx.TagId == HtmlTagId.Script) {
+								if (FilterHtml && IsUnsafe (ctx.TagId)) {
 									ctx.SuppressInnerContent = true;
 									ctx.DeleteEndTag = true;
 									ctx.DeleteTag = true;
@@ -313,7 +366,7 @@ namespace MimeKit.Text {
 							} else if (!SuppressContent (stack)) {
 								ctx = new HtmlToHtmlTagContext (tag);
 
-								if (!FilterHtml || ctx.TagId != HtmlTagId.Script)
+								if (!FilterHtml || !IsUnsafe (ctx.TagId))
 									callback (ctx, htmlWriter);
 							}
 						} else {
