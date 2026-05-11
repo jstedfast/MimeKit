@@ -97,15 +97,18 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether executable scripts should be stripped from the output.
+		/// Get or set whether undesirable tags should be stripped from the output.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether executable scripts should be stripped from the output.</para>
+		/// <para>Gets or sets whether undesirable tags should be stripped from the output.</para>
 		/// <note type="warning">
 		/// <para>This is an incomplete solution for protecting against Cross-Site Scripting (XSS) attacks
 		/// and should not be relied upon as a comprehensive security measure. This filter only removes
-		/// certain known dangerous HTML tags (such as <c>&lt;script&gt;</c>, <c>&lt;style&gt;</c>,
-		/// <c>&lt;iframe&gt;</c>, <c>&lt;object&gt;</c>, etc.) but does not:</para>
+		/// certain known dangerous or undesirable HTML tags (such as <c>&lt;applet&gt;</c>, <c>&lt;audio&gt;</c>,
+		/// <c>&lt;base&gt;</c>, <c>&lt;dialog&gt;</c>, <c>&lt;embed&gt;</c>, <c>&lt;form&gt;</c>, <c>&lt;frame&gt;</c>,
+		/// <c>&lt;frameset&gt;</c>, <c>&lt;iframe&gt;</c>, <c>&lt;input&gt;</c>, <c>&lt;link&gt;</c>, <c>&lt;object&gt;</c>,
+		/// <c>&lt;script&gt;</c>, <c>&lt;select&gt;</c>, <c>&lt;source&gt;</c>, <c>&lt;style&gt;</c>, <c>&lt;textarea&gt;</c>,
+		/// <c>&lt;video&gt;</c>, and any tags without an enum mapping) but does not:</para>
 		/// <list type="bullet">
 		/// <item><description>Validate or sanitize attribute values (e.g., <c>javascript:</c>, <c>data:</c>,
 		/// or <c>vbscript:</c> URI schemes in <c>href</c>, <c>src</c>, or other URL attributes)</description></item>
@@ -118,7 +121,7 @@ namespace MimeKit.Text {
 		/// and updated to address emerging security threats.</para>
 		/// </note>
 		/// </remarks>
-		/// <value><see langword="true" /> if executable scripts should be filtered; otherwise, <see langword="false" />.</value>
+		/// <value><see langword="true" /> if undesirable tags should be filtered; otherwise, <see langword="false" />.</value>
 		[Obsolete ("This is an incomplete solution for protecting against Cross-Site Scripting (XSS) attacks and should not be relied upon as a comprehensive security measure. For robust XSS protection, it is strongly recommended that applications pass the HTML output through a dedicated HTML sanitizer library that is actively maintained and updated to address emerging security threats.")]
 		public bool FilterHtml {
 			get; set;
@@ -245,10 +248,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Determines whether the HTML tag is considered unsafe in email contexts.
+		/// Determines whether the HTML tag is considered unsafe or undesirable in email contexts.
 		/// </summary>
 		/// <remarks>
-		/// <para>Determines whether the HTML tag is considered unsafe in email contexts.</para>
+		/// <para>Determines whether the HTML tag is considered unsafe or undesirable in email contexts.</para>
 		/// <para>Some of these tags are known to be abused for Cross-Site Scripting attacks while others are,
 		/// at best, questionable for use with HTML email due to the fact that they are interactive.</para>
 		/// </remarks>
@@ -271,6 +274,7 @@ namespace MimeKit.Text {
 			case HtmlTagId.Object:      // Can embed executable content
 			case HtmlTagId.Script:      // Direct script execution
 			case HtmlTagId.Select:      // Can be used to steal user input or trigger actions
+			case HtmlTagId.Source:      // Can be used to define alternative audio or video sources
 			case HtmlTagId.Style:       // Can contain CSS with expression() or import of malicious content
 			case HtmlTagId.TextArea:    // Can be used to steal user input or trigger actions
 			case HtmlTagId.Video:       // Can embed video with potentially malicious content
