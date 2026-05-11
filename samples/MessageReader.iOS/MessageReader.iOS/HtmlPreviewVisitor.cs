@@ -91,6 +91,7 @@ namespace MessageReader.iOS {
 		}
 
 		// Modifies various HTML attributes for better suitability for rendering.
+		// Also performs some *very* basic Cross-Site Scripting (XSS) sanitization.
 		void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
 			if (ctx.TagId == HtmlTagId.Meta && !ctx.IsEndTag) {
@@ -106,29 +107,38 @@ namespace MessageReader.iOS {
 					} else if (isContentType && attribute.Id == HtmlAttributeId.Content) {
 						htmlWriter.WriteAttributeName (attribute.Name);
 						htmlWriter.WriteAttributeValue ("text/html; charset=utf-8");
+						isContentType = false;
+					} else if (attribute.Id == HtmlAttributeId.HttpEquiv) {
+						if (attribute.Value != null) {
+							if (attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase)) {
+								htmlWriter.WriteAttribute (attribute);
+								isContentType = true;
+							} else if (!attribute.Value.Equals ("refresh", StringComparison.OrdinalIgnoreCase)) {
+								// <meta http-equiv="refresh"> can be used as an XSS attack vector - filter it out
+								htmlWriter.WriteAttribute (attribute);
+							}
+						}
 					} else {
-						if (attribute.Id == HtmlAttributeId.HttpEquiv && attribute.Value != null
-							&& attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
-							isContentType = true;
-
 						htmlWriter.WriteAttribute (attribute);
 					}
 				}
-			} else if (ctx.TagId == HtmlTagId.Body && !ctx.IsEndTag) {
+			} else if (!ctx.IsEndTag) {
 				ctx.WriteTag (htmlWriter, false);
 
-				// add and/or replace oncontextmenu="return false;"
+				// filter out "onload", "onclick", "onmouseover", etc. event handlers which can be used as XSS attack vectors
 				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Name.Equals ("oncontextmenu", StringComparison.OrdinalIgnoreCase))
+					if (attribute.Name.Equals ("on", StringComparison.OrdinalIgnoreCase))
 						continue;
 
 					htmlWriter.WriteAttribute (attribute);
 				}
 
-				htmlWriter.WriteAttribute ("oncontextmenu", "return false;");
+				// if this is the <body> tag, explicitly add an oncontextmenu event handler that simply returns false
+				if (ctx.TagId == HtmlTagId.Body)
+					htmlWriter.WriteAttribute ("oncontextmenu", "return false;");
 			} else {
-				// pass the tag through to the output
-				ctx.WriteTag (htmlWriter, true);
+				// Write the end tag
+				ctx.WriteTag (htmlWriter);
 			}
 		}
 
@@ -150,7 +160,8 @@ namespace MessageReader.iOS {
 
 			if (entity.IsHtml) {
 				converter = new HtmlToHtml {
-					HtmlTagCallback = HtmlTagCallback
+					HtmlTagCallback = HtmlTagCallback,
+					FilterHtml = true
 				};
 			} else if (entity.IsFlowed) {
 				var flowed = new FlowedToHtml ();
