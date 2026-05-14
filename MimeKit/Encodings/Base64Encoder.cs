@@ -197,9 +197,9 @@ namespace MimeKit.Encodings {
 			int remainingInput = (int) (inend - inptr);
 
 			// prevent the while-loop from processing incomplete triplets
-			inend -= 2;
+			byte* loopEnd = inend - 2;
 
-			while (inptr < inend) {
+			while (inptr < loopEnd) {
 				int remainingLineInput = Math.Min (remainingInput, (quartetsPerLine - quartets) * 3);
 				byte* lineEnd = inptr + remainingLineInput;
 				int nread;
@@ -234,7 +234,11 @@ namespace MimeKit.Encodings {
 					// Hardware accelerated Intel/AMD code-path...
 					if (Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported && remainingLineInput >= 48 && remainingInput >= 64) {
 						// Avx512Encode processes 48 bytes at a time, but requires at least 64 bytes of input to avoid segfaulting.
-						nread = Avx512Encode (ref inptr, ref outptr, lineEnd - 48, ref quartets);
+						byte* maxLineOffset = lineEnd - 48;
+						byte* maxOffset = inend - 64;
+
+						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
+						nread = Avx512Encode (ref inptr, ref outptr, maxOffset, ref quartets);
 						remainingLineInput -= nread;
 						remainingInput -= nread;
 					}
@@ -242,14 +246,22 @@ namespace MimeKit.Encodings {
 					if (Avx2.IsSupported && remainingLineInput >= 48 && remainingInput >= 56) {
 						// Avx2Encode processes 24 bytes at a time, but requires at least 32 bytes of input to avoid segfaulting.
 						// Note: This is not worth doing for anything less than at least 2 passes.
-						nread = Avx2Encode (ref inptr, ref outptr, lineEnd - 24, ref quartets);
+						byte* maxLineOffset = lineEnd - 24;
+						byte* maxOffset = inend - 32;
+
+						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
+						nread = Avx2Encode (ref inptr, ref outptr, maxOffset, ref quartets);
 						remainingLineInput -= nread;
 						remainingInput -= nread;
 					}
 
 					if (remainingLineInput >= 12 && remainingInput >= 16) {
 						// Vector128Encode (requires SSSE3) processes 12 bytes at a time, but requires at least 16 bytes of input to avoid segfaulting.
-						nread = Vector128Encode (ref inptr, ref outptr, lineEnd - 12, ref quartets);
+						byte* maxLineOffset = lineEnd - 12;
+						byte* maxOffset = inend - 16;
+
+						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
+						nread = Vector128Encode (ref inptr, ref outptr, maxOffset, ref quartets);
 						remainingLineInput -= nread;
 						remainingInput -= nread;
 					}
@@ -266,7 +278,11 @@ namespace MimeKit.Encodings {
 
 					if (BitConverter.IsLittleEndian && remainingLineInput >= 12 && remainingInput >= 16) {
 						// Vector128Encode (requires AdvSIMD) processes 12 bytes at a time, but requires at least 16 bytes of input to avoid segfaulting.
-						nread = Vector128Encode (ref inptr, ref outptr, lineEnd - 12, ref quartets);
+						byte* maxLineOffset = lineEnd - 12;
+						byte* maxOffset = inend - 16;
+
+						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
+						nread = Vector128Encode (ref inptr, ref outptr, maxOffset, ref quartets);
 						remainingLineInput -= nread;
 						remainingInput -= nread;
 					}

@@ -72,7 +72,9 @@ namespace MimeKit.Encodings {
 		static Base64Decoder ()
 		{
 #if DOTNET_BASE64_DECODER_GETS_FIXED
-#if NET9_0_OR_GREATER
+			// Note: There are known bugs in Base64.DecodeFromUtf8() in .NET 10 and early .NET 11 releases that cause
+			// incorrect decoding of certain inputs. Disable this for .NET < 11 (or maybe we should do < 12).
+#if NET11_0_OR_GREATER
 			EnableHardwareAcceleration = Ssse3.IsSupported || AdvSimd.Arm64.IsSupported;
 #elif NET6_0_OR_GREATER
 			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
