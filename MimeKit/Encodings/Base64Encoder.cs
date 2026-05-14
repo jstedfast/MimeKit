@@ -84,6 +84,9 @@ namespace MimeKit.Encodings {
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
+			// The base64 specification in rfc2045 require a maximum line length of 76.
+			maxLineLength = Math.Min (maxLineLength, 76);
+
 			quartetsPerLine = maxLineLength / 4;
 		}
 
