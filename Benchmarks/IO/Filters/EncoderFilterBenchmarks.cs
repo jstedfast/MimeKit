@@ -40,7 +40,7 @@ namespace Benchmarks.IO.Filters {
 	{
 		readonly byte[] BinaryData, TextData;
 
-		[Params (76, 80)]
+		[Params (60, 64, 68, 72, 76)]
 		public int MaxLineLength;
 
 		public EncoderFilterBenchmarks ()
