@@ -2413,7 +2413,6 @@ namespace MimeKit {
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
 			bool incomplete = false;
-			int length;
 
 			*inend = (byte) '\n';
 
