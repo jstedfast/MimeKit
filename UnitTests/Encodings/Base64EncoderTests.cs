@@ -96,8 +96,9 @@ namespace UnitTests.Encodings {
 			}
 		}
 
-		[Test]
-		public void TestSuperLongLineLengths ()
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestSuperLongLineLengths (bool enableHwAccel)
 		{
 			ReadOnlySpan<byte> loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "u8;
 			const int MaxLineLength = 998;
@@ -115,32 +116,38 @@ namespace UnitTests.Encodings {
 			}
 
 			// Pass Base64Encoder 4 KB chunks.
-			var encoder = new Base64Encoder (MaxLineLength, overrideMaxLineLengthLimits: true);
-			var buffer = new byte[encoder.EstimateOutputLength (ChunkSize)];
-			using var base64Stream = new MemoryStream ();
-			int startIndex = 0;
+			Base64Encoder.EnableHardwareAcceleration = enableHwAccel;
 
-			while (startIndex < payload.Length) {
-				int length = Math.Min (ChunkSize, payload.Length - startIndex);
-				int n = encoder.Encode (payload, startIndex, length, buffer);
+			try {
+				var encoder = new Base64Encoder (MaxLineLength, overrideMaxLineLengthLimits: true);
+				var buffer = new byte[encoder.EstimateOutputLength (ChunkSize)];
+				using var base64Stream = new MemoryStream ();
+				int startIndex = 0;
 
-				base64Stream.Write (buffer, 0, n);
-				startIndex += length;
+				while (startIndex < payload.Length) {
+					int length = Math.Min (ChunkSize, payload.Length - startIndex);
+					int n = encoder.Encode (payload, startIndex, length, buffer);
+
+					base64Stream.Write (buffer, 0, n);
+					startIndex += length;
+				}
+
+				int flushed = encoder.Flush (payload, startIndex, 0, buffer);
+				base64Stream.Write (buffer, 0, flushed);
+
+				// Decode and compare.
+				var utf8 = base64Stream.GetBuffer ().AsSpan (0, (int) base64Stream.Length);
+				buffer = new byte[Base64.GetMaxDecodedFromUtf8Length (utf8.Length)];
+				var result = Base64.DecodeFromUtf8 (utf8, buffer, out int bytesConsumed, out int bytesWritten, true);
+				var decoded = buffer.AsSpan (0, bytesWritten);
+
+				Assert.That (result, Is.EqualTo (OperationStatus.Done), "result");
+				Assert.That (bytesConsumed, Is.EqualTo (utf8.Length), "bytesConsumed");
+				Assert.That (bytesWritten, Is.EqualTo (payload.Length), "bytesWritten");
+				Assert.That (decoded.SequenceEqual (payload), Is.True, "decoded");
+			} finally {
+				Base64Encoder.EnableHardwareAcceleration = DefaultHwAccel;
 			}
-
-			int flushed = encoder.Flush (payload, startIndex, 0, buffer);
-			base64Stream.Write (buffer, 0, flushed);
-
-			// Decode and compare.
-			var utf8 = base64Stream.GetBuffer ().AsSpan (0, (int) base64Stream.Length);
-			buffer = new byte[Base64.GetMaxDecodedFromUtf8Length (utf8.Length)];
-			var result = Base64.DecodeFromUtf8 (utf8, buffer, out int bytesConsumed, out int bytesWritten, true);
-			var decoded = buffer.AsSpan (0, bytesWritten);
-
-			Assert.That (result, Is.EqualTo (OperationStatus.Done), "result");
-			Assert.That (bytesConsumed, Is.EqualTo (utf8.Length), "bytesConsumed");
-			Assert.That (bytesWritten, Is.EqualTo (payload.Length), "bytesWritten");
-			Assert.That (decoded.SequenceEqual (payload), Is.True, "decoded");
 		}
 	}
 }
