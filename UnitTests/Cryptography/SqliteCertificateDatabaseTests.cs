@@ -218,11 +218,11 @@ namespace UnitTests.Cryptography {
 				foreach (var crl in SecureMimeTestsBase.ObsoleteCrls) {
 					var record = dbase.Find (crl, X509CrlRecordFields.Id | X509CrlRecordFields.IsDelta | X509CrlRecordFields.IssuerName | X509CrlRecordFields.ThisUpdate | X509CrlRecordFields.NextUpdate | X509CrlRecordFields.Crl);
 
-					Assert.That (record, Is.Not.Null, $"Did not find the expected CRL for {crl.IssuerDN.ToString ()}");
-					Assert.That (record.IsDelta, Is.EqualTo (crl.IsDelta ()), $"IsDelta for {crl.IssuerDN.ToString ()}");
-					Assert.That (record.IssuerName, Is.EqualTo (crl.IssuerDN.ToString ()), $"IssuerName for {crl.IssuerDN.ToString ()}");
-					Assert.That (record.ThisUpdate, Is.EqualTo (crl.ThisUpdate), $"ThisUpdate for {crl.IssuerDN.ToString ()}");
-					Assert.That (record.NextUpdate, Is.EqualTo (crl.NextUpdate), $"NextUpdate for {crl.IssuerDN.ToString ()}");
+					Assert.That (record, Is.Not.Null, $"Did not find the expected CRL for {crl.IssuerDN}");
+					Assert.That (record.IsDelta, Is.EqualTo (crl.IsDelta ()), $"IsDelta for {crl.IssuerDN}");
+					Assert.That (record.IssuerName, Is.EqualTo (crl.IssuerDN.ToString ()), $"IssuerName for {crl.IssuerDN}");
+					Assert.That (record.ThisUpdate, Is.EqualTo (crl.ThisUpdate), $"ThisUpdate for {crl.IssuerDN}");
+					Assert.That (record.NextUpdate, Is.EqualTo (crl.NextUpdate), $"NextUpdate for {crl.IssuerDN}");
 				}
 			}
 		}
