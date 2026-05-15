@@ -1338,106 +1338,106 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEncryptRevokedRecipient ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				ImportAll (tmp);
 
-				VerifyRevokedRecipient (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, false);
+				VerifyRevokedRecipient (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, false);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				ImportAll (tmp);
 
-				VerifyRevokedRecipient (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, true);
+				VerifyRevokedRecipient (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, true);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+				ImportAll (tmp);
 
-				VerifyRevokedRecipient (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, false);
+				VerifyRevokedRecipient (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, false);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+				ImportAll (tmp);
 
-				VerifyRevokedRecipient (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, true);
+				VerifyRevokedRecipient (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, true);
 			}
 		}
 
 		[Test]
 		public async Task TestEncryptRevokedRecipientAsync ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				await ImportAllAsync (tmp);
 
-				await VerifyRevokedRecipientAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, false);
+				await VerifyRevokedRecipientAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, false);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				await ImportAllAsync (tmp);
 
-				await VerifyRevokedRecipientAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, true);
+				await VerifyRevokedRecipientAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, true);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+				await ImportAllAsync (tmp);
 
-				await VerifyRevokedRecipientAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, false);
+				await VerifyRevokedRecipientAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, false);
 			}
 
-			using (var ctx = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ()))) {
+				await ImportAllAsync (tmp);
 
-				await VerifyRevokedRecipientAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, true);
+				await VerifyRevokedRecipientAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedNoChainCertificate, true);
 			}
 		}
 
 		[Test]
 		public void TestEncryptPartialRevokedRecipients ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				ImportAll (tmp);
 
-				VerifyPartialRevokedRecipients (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+				VerifyPartialRevokedRecipients (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
 			}
 		}
 
 		[Test]
 		public async Task TestEncryptPartialRevokedRecipientsAsync ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				await ImportAllAsync (tmp);
 
-				await VerifyPartialRevokedRecipientsAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+				await VerifyPartialRevokedRecipientsAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
 			}
 		}
 
 		[Test]
 		public void TestEncryptToValidRecipientsOnly ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				ImportAll (tmp);
 
-				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+				VerifyEncryptToValidRecipientsOnly (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
 			}
 		}
 
 		[Test]
 		public async Task TestEncryptToValidRecipientsOnlyAsync ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				await ImportAllAsync (tmp);
 
-				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
+				await VerifyEncryptToValidRecipientsOnlyAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.RevokedCertificate);
 			}
 		}
 
 		[Test]
 		public void TestEncryptToValidRecipientsOnlyAllFail ()
 		{
-			using (var ctx = new MyTemporarySecureMimeContext ()) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext ()) {
+				ImportAll (tmp);
 
-				VerifyEncryptToRevokedCertificateFails (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, SecureMimeTestsBase.CrlRequestUris);
+				VerifyEncryptToRevokedCertificateFails (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.RevokedCertificate, SecureMimeTestsBase.CrlRequestUris);
 			}
 		}
 
@@ -1445,10 +1445,10 @@ namespace UnitTests.Cryptography {
 		public void TestEncryptToValidRecipientsOnlySubCaRevoked ()
 		{
 			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
-			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (mockHandler)) {
+				ImportAll (tmp);
 
-				VerifyEncryptToValidRecipientsOnly (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+				VerifyEncryptToValidRecipientsOnly (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
 			}
 		}
 
@@ -1456,10 +1456,10 @@ namespace UnitTests.Cryptography {
 		public async Task TestEncryptToValidRecipientsOnlySubCaRevokedAsync ()
 		{
 			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
-			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
-				await ImportAllAsync (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (mockHandler)) {
+				await ImportAllAsync (tmp);
 
-				await VerifyEncryptToValidRecipientsOnlyAsync (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
+				await VerifyEncryptToValidRecipientsOnlyAsync (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SupportedCertificates[0], SecureMimeTestsBase.SubCaRevokedCertificate);
 			}
 		}
 
@@ -1467,10 +1467,10 @@ namespace UnitTests.Cryptography {
 		public void TestEncryptToRevokedSubCaCertificateFails ()
 		{
 			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
-			using (var ctx = new MyTemporarySecureMimeContext (mockHandler)) {
-				ImportAll (ctx);
+			using (var tmp = new MyTemporarySecureMimeContext (mockHandler)) {
+				ImportAll (tmp);
 
-				VerifyEncryptToRevokedCertificateFails (ctx, ctx.MockHttpMessageHandler, SecureMimeTestsBase.SubCaRevokedCertificate, new Uri[] { SecureMimeTestsBase.CrlRequestUris[0] });
+				VerifyEncryptToRevokedCertificateFails (tmp, tmp.MockHttpMessageHandler, SecureMimeTestsBase.SubCaRevokedCertificate, new Uri[] { SecureMimeTestsBase.CrlRequestUris[0] });
 			}
 		}
 	}

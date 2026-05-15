@@ -35,7 +35,7 @@ namespace UnitTests {
 	{
 		static FormatOptions UnixFormatOptions;
 
-		public InternetAddressListTests ()
+		static InternetAddressListTests ()
 		{
 			UnixFormatOptions = FormatOptions.Default.Clone ();
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;

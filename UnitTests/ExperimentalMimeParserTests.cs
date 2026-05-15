@@ -41,7 +41,7 @@ namespace UnitTests {
 		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
 		static FormatOptions UnixFormatOptions;
 
-		public ExperimentalMimeParserTests ()
+		static ExperimentalMimeParserTests ()
 		{
 			UnixFormatOptions = FormatOptions.Default.Clone ();
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
