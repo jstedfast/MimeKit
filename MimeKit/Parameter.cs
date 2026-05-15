@@ -329,10 +329,7 @@ namespace MimeKit {
 
 			switch (encodingMethod) {
 			default:
-				if (options.ParameterEncodingMethod == ParameterEncodingMethod.Rfc2231)
-					encode = EncodeMethod.Rfc2231;
-				else
-					encode = EncodeMethod.Rfc2047;
+				encode = options.ParameterEncodingMethod == ParameterEncodingMethod.Rfc2231 ? EncodeMethod.Rfc2231 : EncodeMethod.Rfc2047;
 				break;
 			case ParameterEncodingMethod.Rfc2231:
 				encode = EncodeMethod.Rfc2231;
@@ -543,9 +540,9 @@ namespace MimeKit {
 			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
 			int maxLength = Math.Max (options.MaxLineLength - (Name.Length + 6), 3);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
-			var encoder = (Encoder) bestEncoding.GetEncoder ();
 			var bytes = new byte[Math.Max (maxLength, 6)];
 			var hexbuf = new byte[bytes.Length * 3 + 3];
+			var encoder = bestEncoding.GetEncoder ();
 			var chars = Value.ToCharArray ();
 			var hex = new HexEncoder ();
 			var isFirstValue = true;
@@ -680,7 +677,7 @@ namespace MimeKit {
 			// Note: Arguably, this should be: bestEncoding = encoding ?? GetBestEncoding (Value, headerEncoding);
 			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
-			var encoder = (Encoder) bestEncoding.GetEncoder ();
+			var encoder = bestEncoding.GetEncoder ();
 			int index = 0;
 			int length;
 

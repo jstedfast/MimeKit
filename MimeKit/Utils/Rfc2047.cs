@@ -120,30 +120,33 @@ namespace MimeKit.Utils {
 		{
 			readonly ParserOptions options;
 			readonly byte[] input, scratch;
+			readonly bool rented;
+
 			CodePageCount[] codepages;
 			QuotedPrintableDecoder? qp;
 			Base64Decoder? base64;
 			IMimeDecoder? decoder;
-			int codepageIndex;
 			int scratchLength;
+			int numCodepages;
+			int curCodepage;
 			char encoding;
-			int codepage;
 
-			public TokenDecoder (ParserOptions options, byte[] input, byte[] scratch)
+			public TokenDecoder (ParserOptions options, byte[] input, int count)
 			{
 				this.options = options;
-				this.scratch = scratch;
 				this.input = input;
 
+				rented = count <= 2048;
+				scratch = rented ? ArrayPool<byte>.Shared.Rent (count) : new byte[count];
 				codepages = ArrayPool<CodePageCount>.Shared.Rent (16);
 				base64 = null;
 				qp = null;
 
 				decoder = null;
-				codepageIndex = 0;
 				scratchLength = 0;
+				numCodepages = 0;
+				curCodepage = 0;
 				encoding = '\0';
-				codepage = 0;
 			}
 
 			public bool IgnoreWhitespaceBetweenEncodedWords {
@@ -152,26 +155,26 @@ namespace MimeKit.Utils {
 
 			void AddCodePage (int codepage)
 			{
-				for (int i = 0; i < codepageIndex; i++) {
+				for (int i = 0; i < numCodepages; i++) {
 					if (codepages[i].CodePage == codepage) {
 						codepages[i].Count++;
 						return;
 					}
 				}
 
-				if (codepageIndex == codepages.Length) {
+				if (numCodepages == codepages.Length) {
 					var resized = ArrayPool<CodePageCount>.Shared.Rent (codepages.Length * 2);
 					codepages.AsSpan ().CopyTo (resized);
 					ArrayPool<CodePageCount>.Shared.Return (codepages);
 					codepages = resized;
 				}
 
-				codepages[codepageIndex++] = new CodePageCount (codepage);
+				codepages[numCodepages++] = new CodePageCount (codepage);
 			}
 
 			public unsafe void Write (ref ValueStringBuilder output, ref Token token)
 			{
-				if (decoder != null && (token.CodePage != codepage || char.ToUpperInvariant (token.Encoding) != encoding)) {
+				if (decoder != null && (token.CodePage != curCodepage || char.ToUpperInvariant (token.Encoding) != encoding)) {
 					// We've reached the end of a series of encoded-word tokens using identical charsets & encodings.
 					//
 					// In order to work around broken mailers, we need to combine the raw decoded content of runs of
@@ -185,13 +188,13 @@ namespace MimeKit.Utils {
 					// hex-encoded triplet of a quoted-printable encoded payload is split between 2 or more
 					// encoded-word tokens.
 					encoding = char.ToUpperInvariant (token.Encoding);
-					codepage = token.CodePage;
+					curCodepage = token.CodePage;
 					if (encoding == 'Q')
 						decoder = qp ??= new QuotedPrintableDecoder (true);
 					else
 						decoder = base64 ??= new Base64Decoder ();
 
-					AddCodePage (codepage);
+					AddCodePage (curCodepage);
 
 					fixed (byte* inbuf = input, outbuf = scratch) {
 						int n = decoder.Decode (inbuf + token.StartIndex, token.Length, outbuf + scratchLength);
@@ -217,7 +220,7 @@ namespace MimeKit.Utils {
 
 				if (scratchLength > 0) {
 					// Convert any decoded encoded-word payloads into unicode and append to our 'decoded' buffer.
-					var unicode = CharsetUtils.ConvertToUnicode (options, codepage, scratch, 0, scratchLength, out int length);
+					var unicode = CharsetUtils.ConvertToUnicode (options, curCodepage, scratch, 0, scratchLength, out int length);
 					output.Append (unicode.AsSpan (0, length));
 					scratchLength = 0;
 				}
@@ -228,7 +231,7 @@ namespace MimeKit.Utils {
 				int codepage = Encoding.UTF8.CodePage;
 				int max = 0;
 
-				for (int i = 0; i < codepageIndex; i++) {
+				for (int i = 0; i < numCodepages; i++) {
 					if (codepages[i].Count > max) {
 						codepage = codepages[i].CodePage;
 						max = codepages[i].Count;
@@ -241,6 +244,9 @@ namespace MimeKit.Utils {
 			public void Dispose ()
 			{
 				ArrayPool<CodePageCount>.Shared.Return (codepages);
+
+				if (rented)
+					ArrayPool<byte>.Shared.Return (scratch);
 			}
 		}
 
@@ -751,18 +757,12 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = phrase) {
-					var scratch = count < 2048 ? ArrayPool<byte>.Shared.Rent (count) : new byte[count];
-					var decoder = new TokenDecoder (options, phrase, scratch);
-					var decoded = new ValueStringBuilder (count);
+					using (var decoder = new TokenDecoder (options, phrase, count)) {
+						var decoded = new ValueStringBuilder (count);
 
-					try {
 						TokenizePhrase (options, decoder, ref decoded, inbuf, startIndex, count);
 						codepage = decoder.GetMostCommonCodePage ();
 						return decoded.ToString ();
-					} finally {
-						if (count < 2048)
-							ArrayPool<byte>.Shared.Return (scratch);
-						decoder.Dispose ();
 					}
 				}
 			}
@@ -882,18 +882,12 @@ namespace MimeKit.Utils {
 
 			unsafe {
 				fixed (byte* inbuf = text) {
-					var scratch = count < 2048 ? ArrayPool<byte>.Shared.Rent (count) : new byte[count];
-					var decoder = new TokenDecoder (options, text, scratch);
-					var decoded = new ValueStringBuilder (count);
+					using (var decoder = new TokenDecoder (options, text, count)) {
+						var decoded = new ValueStringBuilder (count);
 
-					try {
 						TokenizeText (options, decoder, ref decoded, inbuf, startIndex, count);
 						codepage = decoder.GetMostCommonCodePage ();
 						return decoded.ToString ();
-					} finally {
-						if (count < 2048)
-							ArrayPool<byte>.Shared.Return (scratch);
-						decoder.Dispose ();
 					}
 				}
 			}
@@ -1009,13 +1003,10 @@ namespace MimeKit.Utils {
 			unsafe {
 				fixed (byte* inbuf = text) {
 					var output = new ValueStringBuilder (text.Length + ((text.Length / options.MaxLineLength) * 2) + 2);
-					var folder = new TokenFolder (options, field, text);
 
-					try {
+					using (var folder = new TokenFolder (options, field, text)) {
 						TokenizeText (ParserOptions.Default, folder, ref output, inbuf, 0, text.Length);
 						return Encoding.ASCII.GetBytes (output.ToString ());
-					} finally {
-						folder.Dispose ();
 					}
 				}
 			}
