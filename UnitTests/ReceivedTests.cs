@@ -147,7 +147,7 @@ namespace UnitTests {
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
 			Assert.That (received.ByTcpInfo, Is.EqualTo ("[127.0.0.1]"), "ByTcpInfo");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 
 			AssertClauseId ("from", ReceivedClauseId.From);
 			AssertClauseId ("by", ReceivedClauseId.By);
@@ -192,7 +192,7 @@ namespace UnitTests {
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
 			Assert.That (received.ByTcpInfo, Is.EqualTo ("[127.0.0.1]"), "ByTcpInfo");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
 		[Test]
@@ -210,7 +210,7 @@ namespace UnitTests {
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
 			Assert.That (received.ByTcpInfo, Is.EqualTo (" [127.0.0.1] "), "ByTcpInfo");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
 		[Test]
@@ -240,7 +240,7 @@ namespace UnitTests {
 
 			var encoded = received.ToString ();
 
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
 		[Test]
@@ -278,14 +278,14 @@ namespace UnitTests {
 			Assert.That (received.Id, Is.EqualTo ("<VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>"), "Id");
 			Assert.That (received.For, Is.EqualTo ("unit-tests@mimekit.net"), "For");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-			Assert.That (encoded, Is.EqualTo (expectedAll), "ToString");
+			Assert.That (encoded, Is.EqualTo (expectedAll.ReplaceLineEndings ()), "ToString");
 
 			// remove 'from'
 			received.From = null;
 			encoded = received.ToString ();
 			Assert.That (received.From, Is.Null, "From == null");
 			Assert.That (received.FromTcpInfo, Is.Null, "FromTcpInfo == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoFrom), "w/o 'from'");
+			Assert.That (encoded, Is.EqualTo (expectedNoFrom.ReplaceLineEndings ()), "w/o 'from'");
 
 			// remove 'by'
 			received.From = "smtp.source.com";
@@ -294,7 +294,7 @@ namespace UnitTests {
 			encoded = received.ToString ();
 			Assert.That (received.By, Is.Null, "By == null");
 			Assert.That (received.ByTcpInfo, Is.Null, "ByTcpInfo == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoBy), "w/o 'by'");
+			Assert.That (encoded, Is.EqualTo (expectedNoBy.ReplaceLineEndings ()), "w/o 'by'");
 
 			// remove 'via'
 			received.By = "smtp.target.com";
@@ -302,35 +302,35 @@ namespace UnitTests {
 			received.Via = null;
 			encoded = received.ToString ();
 			Assert.That (received.Via, Is.Null, "Via == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoVia), "w/o 'via'");
+			Assert.That (encoded, Is.EqualTo (expectedNoVia.ReplaceLineEndings ()), "w/o 'via'");
 
 			// remove 'with'
 			received.Via = "TCP";
 			received.With = null;
 			encoded = received.ToString ();
 			Assert.That (received.With, Is.Null, "With == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoWith), "w/o 'with'");
+			Assert.That (encoded, Is.EqualTo (expectedNoWith.ReplaceLineEndings ()), "w/o 'with'");
 
 			// remove 'id'
 			received.With = "ESMTPS";
 			received.Id = null;
 			encoded = received.ToString ();
 			Assert.That (received.Id, Is.Null, "Id == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoId), "w/o 'id'");
+			Assert.That (encoded, Is.EqualTo (expectedNoId.ReplaceLineEndings ()), "w/o 'id'");
 
 			// remove 'for'
 			received.Id = "<VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>";
 			received.For = null;
 			encoded = received.ToString ();
 			Assert.That (received.For, Is.Null, "For == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoFor), "w/o 'for'");
+			Assert.That (encoded, Is.EqualTo (expectedNoFor.ReplaceLineEndings ()), "w/o 'for'");
 
 			// remove dateTime
 			received.For = "unit-tests@mimekit.net";
 			received.DateTime = null;
 			encoded = received.ToString ();
 			Assert.That (received.DateTime, Is.Null, "DateTime == null");
-			Assert.That (encoded, Is.EqualTo (expectedNoDateTime), "w/o 'date-time'");
+			Assert.That (encoded, Is.EqualTo (expectedNoDateTime.ReplaceLineEndings ()), "w/o 'date-time'");
 		}
 
 		[Test]
@@ -361,7 +361,7 @@ namespace UnitTests {
 			Assert.That (received.Id, Is.EqualTo ("<VAD7UBNO1TU4.JCMO6CD121AX1@office365.com>"), "Id");
 			Assert.That (received.For, Is.EqualTo ("unit-tests@mimekit.net"), "For");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 
 			Assert.That (Received.TryParse (buffer, out received), Is.True, "TryParse");
 		}
@@ -376,7 +376,7 @@ namespace UnitTests {
 			};
 			var encoded = received.ToString ();
 
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
 		[Test]
@@ -390,13 +390,13 @@ namespace UnitTests {
 			};
 			var encoded = received.ToString ();
 
-			Assert.That (encoded, Is.EqualTo (expected1), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected1.ReplaceLineEndings ()), "ToString");
 
 			received.From = "smtp.gmail.com";
 
 			encoded = received.ToString ();
 
-			Assert.That (encoded, Is.EqualTo (expected2), "Updated");
+			Assert.That (encoded, Is.EqualTo (expected2.ReplaceLineEndings ()), "Updated");
 		}
 
 		[Test]
@@ -419,7 +419,7 @@ namespace UnitTests {
 
 			var encoded = received.ToString ();
 
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
 		static readonly ReceivedResults[] ValidTestCases = {

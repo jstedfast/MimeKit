@@ -157,6 +157,10 @@ namespace UnitTests.Cryptography {
 				} catch (CryptographicException cex) {
 					if (!path.EndsWith ("\\ec\\smime.pfx", StringComparison.Ordinal) || !cex.Message.Equals ("Keyset does not exist", StringComparison.Ordinal))
 						Assert.Fail ($".ctor (X509Certificate2): {cex}");
+#if MONO
+				} catch (NotSupportedException nsx) {
+					Assert.Ignore ($".ctor (X509Certificate2): {nsx.Message}");
+#endif
 				} catch (Exception ex) {
 					Assert.Fail ($".ctor (X509Certificate2): {ex}");
 				}
