@@ -76,7 +76,7 @@ namespace MimeKit {
 
 		void EnsureAllocated ()
 		{
-			if (domains == Array.Empty<string> ())
+			if (domains is not List<string>)
 				domains = new List<string> ();
 		}
 

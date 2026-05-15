@@ -772,12 +772,14 @@ namespace MimeKit.Cryptography {
 					throw new ArgumentException ("expirationDate needs to be greater than DateTime.Now", nameof (expirationDate));
 			}
 
-			random ??= new SecureRandom (new CryptoApiRandomGenerator ());
+			using (var rng = random == null ? new CryptoApiRandomGenerator () : null) {
+				random ??= new SecureRandom (rng);
 
-			var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now, random);
+				var generator = CreateKeyRingGenerator (mailbox, algorithm, expirationTime, password, now, random);
 
-			Import (generator.GenerateSecretKeyRing ());
-			Import (generator.GeneratePublicKeyRing ());
+				Import (generator.GenerateSecretKeyRing ());
+				Import (generator.GeneratePublicKeyRing ());
+			}
 		}
 
 		/// <summary>

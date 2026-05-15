@@ -41,7 +41,7 @@ namespace UnitTests.Cryptography {
 
 		public static X509Crl Generate (X509Certificate authority, AsymmetricKeyParameter signingKey, DateTime thisUpdate, DateTime nextUpdate, params X509Certificate[] certificates)
 		{
-			var randomGenerator = new CryptoApiRandomGenerator ();
+			using var randomGenerator = new CryptoApiRandomGenerator ();
 			var random = new SecureRandom (randomGenerator);
 			var crlGenerator = new X509V2CrlGenerator ();
 			crlGenerator.SetIssuerDN (authority.SubjectDN);

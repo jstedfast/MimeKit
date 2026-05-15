@@ -450,7 +450,7 @@ namespace MimeKit.Cryptography {
 					break;
 				}
 
-				counts[name] = ++count;
+				counts[name] = count + 1;
 			}
 		}
 

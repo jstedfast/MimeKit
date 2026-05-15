@@ -349,7 +349,7 @@ namespace UnitTests.Cryptography {
 				throw new FormatException ($"[Generator] Output property cannot be empty!");
 
 			var subject = new X509Name (certificateOptions.Oids, certificateOptions.Values);
-			var randomGenerator = new CryptoApiRandomGenerator ();
+			using var randomGenerator = new CryptoApiRandomGenerator ();
 			var random = new SecureRandom (randomGenerator);
 			AsymmetricCipherKeyPair key;
 

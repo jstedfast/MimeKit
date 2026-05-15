@@ -317,17 +317,17 @@ namespace MimeKit {
 			PayloadQuestion,
 		}
 
-		static void PushPotentialRfc2047EncodedWordByte (ref Rfc2047EncodedWordState rfc2047, byte[] rawValue, ref int index, byte[] anonymized, ReadOnlySpan<byte> specials)
+		static void PushPotentialRfc2047EncodedWordByte (ref Rfc2047EncodedWordState rfc2047, byte c, ref int index, byte[] anonymized, ReadOnlySpan<byte> specials)
 		{
-			if (rawValue[index] == (byte) '=') {
+			if (c == (byte) '=') {
 				switch (rfc2047) {
 				case Rfc2047EncodedWordState.None:
 					rfc2047 = Rfc2047EncodedWordState.Equals;
-					anonymized[index] = rawValue[index];
+					anonymized[index] = c;
 					break;
 				case Rfc2047EncodedWordState.PayloadQuestion:
 					rfc2047 = Rfc2047EncodedWordState.None;
-					anonymized[index] = rawValue[index];
+					anonymized[index] = c;
 					break;
 				case Rfc2047EncodedWordState.Payload:
 					// anonymize '=' in the payload
@@ -336,11 +336,11 @@ namespace MimeKit {
 				default:
 					// break out of rfc2047 encoded-word mode
 					rfc2047 = Rfc2047EncodedWordState.None;
-					anonymized[index] = rawValue[index];
+					anonymized[index] = c;
 					break;
 				}
-			} else if (rawValue[index] == (byte) '?') {
-				anonymized[index] = rawValue[index];
+			} else if (c == (byte) '?') {
+				anonymized[index] = c;
 
 				switch (rfc2047) {
 				case Rfc2047EncodedWordState.Equals:
@@ -370,14 +370,14 @@ namespace MimeKit {
 					goto case Rfc2047EncodedWordState.Charset;
 				case Rfc2047EncodedWordState.Charset:
 					// allow charset name to pass through...
-					anonymized[index] = rawValue[index];
+					anonymized[index] = c;
 					break;
 				case Rfc2047EncodedWordState.CharsetQuestion:
 					rfc2047 = Rfc2047EncodedWordState.Encoding;
 					goto case Rfc2047EncodedWordState.Encoding;
 				case Rfc2047EncodedWordState.Encoding:
 					// allow encoding name to pass through...
-					anonymized[index] = rawValue[index];
+					anonymized[index] = c;
 					break;
 				case Rfc2047EncodedWordState.EncodingQuestion:
 					rfc2047 = Rfc2047EncodedWordState.Payload;
@@ -386,14 +386,14 @@ namespace MimeKit {
 					// anonymize everything but whitespace in the rfc2047 encoded-word payload
 					// mostly in case of folding whitespace but also because it can screw up
 					// tokenization in MIME parsers and we want to be able to see that.
-					if (rawValue[index].IsWhitespace ())
-						anonymized[index] = rawValue[index];
+					if (c.IsWhitespace ())
+						anonymized[index] = c;
 					else
 						anonymized[index] = (byte) 'x';
 					break;
 				case Rfc2047EncodedWordState.None:
-					if (specials.IndexOf (rawValue[index]) != -1) {
-						anonymized[index] = rawValue[index];
+					if (specials.IndexOf (c) != -1) {
+						anonymized[index] = c;
 					} else {
 						anonymized[index] = (byte) 'x';
 					}
@@ -416,28 +416,28 @@ namespace MimeKit {
 			var quoted = false;
 
 			for (int i = 0; i < rawValue.Length; i++) {
-				char c = (char) rawValue[i];
+				byte c = rawValue[i];
 
-				if (rawValue[i] == (byte) '\\') {
-					anonymized[i] = rawValue[i];
+				if (c == (byte) '\\') {
+					anonymized[i] = c;
 					escaped = !escaped;
-				} else if (rawValue[i] == (byte) '"') {
-					anonymized[i] = rawValue[i];
+				} else if (c == (byte) '"') {
+					anonymized[i] = c;
 					if (escaped)
 						escaped = false;
 					else
 						quoted = !quoted;
 				} else if (escaped) {
-					anonymized[i] = rawValue[i];
+					anonymized[i] = c;
 					escaped = false;
 				} else if (quoted) {
 					// anonymize everything but folding whitespace within a quoted string
-					if (rawValue[i] == (byte) '\r' || rawValue[i] == (byte) '\n')
-						anonymized[i] = rawValue[i];
+					if (c == (byte) '\r' || c == (byte) '\n')
+						anonymized[i] = c;
 					else
 						anonymized[i] = (byte) 'x';
 				} else {
-					PushPotentialRfc2047EncodedWordByte (ref rfc2047, rawValue, ref i, anonymized, AddressSpecials);
+					PushPotentialRfc2047EncodedWordByte (ref rfc2047, c, ref i, anonymized, AddressSpecials);
 				}
 			}
 
@@ -449,8 +449,11 @@ namespace MimeKit {
 			var anonymized = new byte[rawValue.Length];
 			var rfc2047 = Rfc2047EncodedWordState.None;
 
-			for (int i = 0; i < rawValue.Length; i++)
-				PushPotentialRfc2047EncodedWordByte (ref rfc2047, rawValue, ref i, anonymized, Whitespace);
+			for (int i = 0; i < rawValue.Length; i++) {
+				byte c = rawValue[i];
+
+				PushPotentialRfc2047EncodedWordByte (ref rfc2047, c, ref i, anonymized, Whitespace);
+			}
 
 			return anonymized;
 		}
@@ -734,7 +737,7 @@ namespace MimeKit {
 			marker[index++] = (byte) '-';
 
 			for (int i = 0; i < newLine.Length; i++)
-				marker[index++] = (byte) newLine[i];
+				marker[index++] = newLine[i];
 
 			return marker;
 		}
