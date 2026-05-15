@@ -403,8 +403,6 @@ namespace MimeKit.Cryptography {
 			int need = recipients.Count;
 
 			foreach (var recipient in recipients) {
-				int cast = EncryptionAlgorithmCount;
-
 				foreach (var algorithm in recipient.EncryptionAlgorithms)
 					votes[(int) algorithm]++;
 			}

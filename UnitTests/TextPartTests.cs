@@ -177,7 +177,7 @@ namespace UnitTests {
 			const string text = "This is some Låtín1 text.";
 
 			var latin1 = Encoding.GetEncoding ("iso-8859-1");
-			var memory = new MemoryStream ();
+			using var memory = new MemoryStream ();
 			var buffer = latin1.GetBytes (text);
 			memory.Write (buffer, 0, buffer.Length);
 			memory.Position = 0;
@@ -198,7 +198,7 @@ namespace UnitTests {
 			const string text = "This is some UTF-16BE text.\r\nThis is line #2.";
 			var expected = text.Replace ("\r\n", Environment.NewLine);
 
-			var memory = new MemoryStream ();
+			using var memory = new MemoryStream ();
 			memory.WriteByte (0xfe);
 			memory.WriteByte (0xff);
 
@@ -222,7 +222,7 @@ namespace UnitTests {
 			const string text = "This is some UTF-16LE text.\r\nThis is line #2.";
 			var expected = text.Replace ("\r\n", Environment.NewLine);
 
-			var memory = new MemoryStream ();
+			using var memory = new MemoryStream ();
 			memory.WriteByte (0xff);
 			memory.WriteByte (0xfe);
 

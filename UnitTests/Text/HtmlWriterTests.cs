@@ -242,7 +242,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestHtmlWriterToStream ()
 		{
-			var memory = new MemoryStream ();
+			using var memory = new MemoryStream ();
 
 			using (var html = new HtmlWriter (memory, new UTF8Encoding (false)))
 				TestHtmlWriter (html, memory);

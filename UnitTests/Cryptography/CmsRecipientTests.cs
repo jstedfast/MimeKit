@@ -102,8 +102,10 @@ namespace UnitTests.Cryptography {
 			recipient = new CmsRecipient (certificate, SubjectIdentifierType.SubjectKeyIdentifier);
 			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
 
-			recipient = new CmsRecipient (new X509Certificate2 (File.ReadAllBytes (path)), SubjectIdentifierType.SubjectKeyIdentifier);
-			Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
+			using (var certificate2 = new X509Certificate2 (File.ReadAllBytes (path))) {
+				recipient = new CmsRecipient (certificate2, SubjectIdentifierType.SubjectKeyIdentifier);
+				Assert.That (recipient.RecipientIdentifierType, Is.EqualTo (SubjectIdentifierType.SubjectKeyIdentifier));
+			}
 		}
 
 		[Test]

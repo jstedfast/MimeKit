@@ -839,8 +839,6 @@ namespace MimeKit {
 				while (index < value.Length && IsWhiteSpace (value[index]))
 					index++;
 
-				int startIndex = index;
-
 				while (index < value.Length && value[index] != '=') {
 					if (!IsWhiteSpace (value[index]))
 						parameter.Append (value[index]);

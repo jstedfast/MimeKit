@@ -116,7 +116,7 @@ namespace UnitTests {
 		{
 			const string expected = "Content-Type: text/plain\nContent-Transfer-Encoding: base64\nContent-Id: <id@localhost.com>\n\n";
 			var headers = new [] { new Header ("Content-Id", "<id@localhost.com>") };
-			var part = new MimePart ("text", "plain", new Header ("Content-Transfer-Encoding", "base64"), headers) {
+			using var part = new MimePart ("text", "plain", new Header ("Content-Transfer-Encoding", "base64"), headers) {
 				Content = new MimeContent (new MemoryStream ())
 			};
 
@@ -137,7 +137,7 @@ namespace UnitTests {
 		[Test]
 		public void TestContentDisposition ()
 		{
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentDisposition, Is.Null, "Initial ContentDisposition property should be null");
 
@@ -164,7 +164,7 @@ namespace UnitTests {
 		[Test]
 		public void TestIsAttachment ()
 		{
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentDisposition, Is.Null, "Initial ContentDisposition should be null");
 
@@ -200,7 +200,7 @@ namespace UnitTests {
 		{
 			var relative = new Uri ("relative", UriKind.Relative);
 			var uri = new Uri ("http://www.google.com");
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentBase, Is.Null, "Initial ContentBase should be null");
 
@@ -228,7 +228,7 @@ namespace UnitTests {
 		[Test]
 		public void TestContentLocation ()
 		{
-			var part = new MimePart ();
+			using var part = new MimePart ();
 			var uri = new Uri ("http://www.google.com");
 
 			Assert.That (part.ContentLocation, Is.Null, "Initial ContentLocation should be null");
@@ -256,7 +256,7 @@ namespace UnitTests {
 		public void TestContentDescription ()
 		{
 			const string description = "This is a sample description.";
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentDescription, Is.Null, "Initial ContentDescription property should be null");
 
@@ -282,7 +282,7 @@ namespace UnitTests {
 		[Test]
 		public void TestContentDuration ()
 		{
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentDuration, Is.Null, "Initial ContentDuration value should be null");
 
@@ -309,7 +309,7 @@ namespace UnitTests {
 		public void TestContentId ()
 		{
 			var id = MimeUtils.GenerateMessageId ();
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentId, Is.Null, "Initial ContentId value should be null");
 
@@ -383,7 +383,7 @@ namespace UnitTests {
 		[Test]
 		public void TestContentTransferEncoding ()
 		{
-			var part = new MimePart ();
+			using var part = new MimePart ();
 
 			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default));
 
@@ -412,7 +412,7 @@ namespace UnitTests {
 		public void TestPrepare ()
 		{
 			using (var content = new MemoryStream (new byte[64], false)) {
-				var part = new MimePart ("application/octet-stream") {
+				using var part = new MimePart ("application/octet-stream") {
 					Content = new MimeContent (content)
 				};
 

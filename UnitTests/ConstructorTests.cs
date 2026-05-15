@@ -125,7 +125,7 @@ namespace UnitTests {
 			using (var md5 = MD5.Create ())
 				checksum = Convert.ToBase64String (md5.ComputeHash (data));
 
-			var msg = new MimePart ("application", "octet-stream",
+			using var msg = new MimePart ("application", "octet-stream",
 				new MimeContent (new MemoryStream (data), ContentEncoding.Binary)
 			);
 
@@ -137,13 +137,11 @@ namespace UnitTests {
 		public void TestMimePartStream ()
 		{
 			byte[] data = Encoding.ASCII.GetBytes ("abcd");
-
-
-			var msg = new MimePart ("application", "octet-stream",
+			using var msg = new MimePart ("application", "octet-stream",
 				new MemoryStream (data)
 			);
 
-			var buffer = new MemoryStream ();
+			using var buffer = new MemoryStream ();
 			msg.Content.DecodeTo (buffer);
 			buffer.Seek (0, SeekOrigin.Begin);
 

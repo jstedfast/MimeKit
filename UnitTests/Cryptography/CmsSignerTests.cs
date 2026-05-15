@@ -46,7 +46,7 @@ namespace UnitTests.Cryptography {
 		{
 			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
-			var certificate = new X509Certificate2 (signer.Certificate.GetEncoded ());
+			using var certificate = new X509Certificate2 (signer.Certificate.GetEncoded ());
 			var chain = new[] { DotNetUtilities.FromX509Certificate (certificate) };
 			AsymmetricCipherKeyPair keyPair;
 

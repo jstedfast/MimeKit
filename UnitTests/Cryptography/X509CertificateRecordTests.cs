@@ -77,13 +77,7 @@ namespace UnitTests.Cryptography {
 		{
 			var rsa = SecureMimeTestsBase.RsaCertificate;
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
-			AsymmetricCipherKeyPair keyPair;
-			X509CertificateRecord record;
-
-			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
-				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
-
-			record = new X509CertificateRecord (signer.Certificate);
+			var record = new X509CertificateRecord (signer.Certificate);
 
 			Assert.That (record.IsTrusted, Is.False, "IsTrusted #1");
 			Assert.That (record.Certificate, Is.EqualTo (signer.Certificate), "Certificate #1");

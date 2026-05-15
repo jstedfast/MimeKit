@@ -120,10 +120,6 @@ namespace MimeKit.Cryptography {
 #if __MOBILE__
 			IsAvailable = true;
 #else // !__MOBILE__
-#if NETFRAMEWORK || NETSTANDARD2_0 || NETSTANDARD2_1 || NET5_0_OR_GREATER
-			var platform = Environment.OSVersion.Platform;
-#endif
-
 #if NETSTANDARD2_0 || NETSTANDARD2_1
 			if ((sqliteAssembly = SQLiteAssembly.Load ("Microsoft.Data.Sqlite")) != null) {
 				// Make sure that the runtime can load the native sqlite library
@@ -136,6 +132,8 @@ namespace MimeKit.Cryptography {
 
 #if NETFRAMEWORK || NET5_0_OR_GREATER
 			// Mono.Data.Sqlite will only work on Unix-based platforms.
+			var platform = Environment.OSVersion.Platform;
+
 			if (platform == PlatformID.Unix || platform == PlatformID.MacOSX) {
 				if ((sqliteAssembly = SQLiteAssembly.Load ("Mono.Data.Sqlite")) != null) {
 					// Make sure that the runtime can load the native sqlite3 library

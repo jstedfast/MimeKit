@@ -434,8 +434,8 @@ namespace UnitTests.IO {
 		public void TestChainedHeadersAndContent ()
 		{
 			var buf = Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\n");
-			var headers = new MemoryStream ();
-			var content = new MemoryStream ();
+			using var headers = new MemoryStream ();
+			using var content = new MemoryStream ();
 
 			headers.Write (buf, 0, buf.Length);
 			headers.Position = 0;

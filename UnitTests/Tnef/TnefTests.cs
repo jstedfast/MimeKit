@@ -514,22 +514,23 @@ namespace UnitTests.Tnef {
 							//Console.WriteLine ("Attachment Property: {0} = {1}", prop.PropertyTag.Id, flags);
 							break;
 						case TnefPropertyId.AttachData:
-							var stream = prop.GetRawValueReadStream ();
 							var content = new MemoryStream ();
 
-							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
-								var tnef = new TnefPart ();
+							using (var stream = prop.GetRawValueReadStream ()) {
+								if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
+									var tnef = new TnefPart ();
 
-								foreach (var param in attachment.ContentType.Parameters)
-									tnef.ContentType.Parameters[param.Name] = param.Value;
+									foreach (var param in attachment.ContentType.Parameters)
+										tnef.ContentType.Parameters[param.Name] = param.Value;
 
-								if (attachment.ContentDisposition != null)
-									tnef.ContentDisposition = attachment.ContentDisposition;
+									if (attachment.ContentDisposition != null)
+										tnef.ContentDisposition = attachment.ContentDisposition;
 
-								attachment = tnef;
+									attachment = tnef;
+								}
+
+								stream.CopyTo (content, 4096);
 							}
-
-							stream.CopyTo (content, 4096);
 
 							buffer = content.GetBuffer ();
 							filter.Flush (buffer, 0, (int) content.Length, out outIndex, out outLength);
