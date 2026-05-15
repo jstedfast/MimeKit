@@ -73,6 +73,21 @@ namespace MimeKit.Encodings {
 		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
 		/// </summary>
 		/// <remarks>
+		/// <para>This constructor defaults is used to override the default line length limits that constrain the
+		/// base64 encoder to line lengths of between 60 and 76 characters (which are optimal for MIME) and is only
+		/// used for unit testing and benchmarking.</para>
+		/// </remarks>
+		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF).</param>
+		/// <param name="overrideMaxLineLengthLimits">This parameter is not used and is only here to differentiate the constructor signature.</param>
+		internal Base64Encoder (int maxLineLength, bool overrideMaxLineLengthLimits)
+		{
+			quartetsPerLine = maxLineLength / 4;
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
+		/// </summary>
+		/// <remarks>
 		/// <para>Creates a new base64 encoder.</para>
 		/// <note type="note">Specifying a <paramref name="maxLineLength"/> value over 76 octets will be ignored and capped at 76.</note>
 		/// </remarks>
