@@ -447,7 +447,8 @@ namespace MimeKit {
 			if (parts.Count != lastTotal.Value)
 				throw new ArgumentException ("The number of partials provided does not match the expected count.", nameof (partials));
 
-			string? id = parts[0].Id;
+			// TODO: should we validate that all of the parts have the same Id parameter?
+			// string? id = parts[0].Id;
 
 			using (var chained = new ChainedStream ()) {
 				// chain all the partial content streams...

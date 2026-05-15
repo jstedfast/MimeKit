@@ -168,7 +168,7 @@ namespace MimeKit.Cryptography {
 		/// <see cref="RsaEncryptionPadding"/>.</returns>
 		public override string ToString ()
 		{
-			return Scheme == RsaEncryptionPaddingScheme.Pkcs1 ? "Pkcs1" : "Oaep" + OaepHashAlgorithm.ToString ();
+			return Scheme == RsaEncryptionPaddingScheme.Pkcs1 ? "Pkcs1" : "Oaep" + OaepHashAlgorithm;
 		}
 
 		/// <summary>

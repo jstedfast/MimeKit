@@ -5708,7 +5708,7 @@ namespace MimeKit.Tnef {
 		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
 		{
-			return ((int) this).GetHashCode ();
+			return (int) this;
 		}
 
 		/// <summary>
