@@ -1360,7 +1360,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var signer = new CmsSigner (certificate.FileName, "no.secret");
-					var multipart = MultipartSigned.Create (ctx, signer, body);
+					using var multipart = MultipartSigned.Create (ctx, signer, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -1416,8 +1416,6 @@ namespace UnitTests.Cryptography {
 						} else {
 							Assert.Fail ($"Failed to verify signature: {ex}");
 						}
-					} finally {
-						multipart.Dispose ();
 					}
 				}
 			}
@@ -1434,7 +1432,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var signer = new CmsSigner (certificate.FileName, "no.secret");
-					var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
+					using var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -1490,8 +1488,6 @@ namespace UnitTests.Cryptography {
 						} else {
 							Assert.Fail ($"Failed to verify signature: {ex}");
 						}
-					} finally {
-						multipart.Dispose ();
 					}
 				}
 			}
@@ -1516,44 +1512,44 @@ namespace UnitTests.Cryptography {
 					return;
 				}
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+				using (multipart) {
+					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
 
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
-				Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
+					Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+					Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
 
-				var signatures = multipart.Verify ();
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					var signatures = multipart.Verify ();
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				var signature = signatures[0];
+					var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (signer.Certificate.GetSubjectEmailAddress ()));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (signer.Certificate.GetFingerprint ()));
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (signer.Certificate.GetSubjectEmailAddress ()));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (signer.Certificate.GetFingerprint ()));
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 
-				try {
-					bool valid = signature.Verify ();
+					try {
+						bool valid = signature.Verify ();
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
-				} finally {
-					multipart.Dispose ();
 				}
 			}
 		}
@@ -1577,44 +1573,44 @@ namespace UnitTests.Cryptography {
 					return;
 				}
 
-				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
+				using (multipart) {
+					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
-				var protocol = multipart.ContentType.Parameters["protocol"];
-				Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
+					var protocol = multipart.ContentType.Parameters["protocol"];
+					Assert.That (protocol, Is.EqualTo ("application/pkcs7-signature"), "The multipart/signed protocol does not match.");
 
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
-				Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
+					Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "The first child is not a text part.");
+					Assert.That (multipart[1], Is.InstanceOf<ApplicationPkcs7Signature> (), "The second child is not a detached signature.");
 
-				var signatures = await multipart.VerifyAsync ();
-				Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
+					var signatures = await multipart.VerifyAsync ();
+					Assert.That (signatures.Count, Is.EqualTo (1), "Verify returned an unexpected number of signatures.");
 
-				var signature = signatures[0];
+					var signature = signatures[0];
 
-				if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
-					Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
-				Assert.That (signature.SignerCertificate.Email, Is.EqualTo (signer.Certificate.GetSubjectEmailAddress ()));
-				Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (signer.Certificate.GetFingerprint ()));
+					if (ctx is not WindowsSecureMimeContext || Environment.OSVersion.Platform == PlatformID.Win32NT)
+						Assert.That (signature.SignerCertificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+					Assert.That (signature.SignerCertificate.Email, Is.EqualTo (signer.Certificate.GetSubjectEmailAddress ()));
+					Assert.That (signature.SignerCertificate.Fingerprint.ToLowerInvariant (), Is.EqualTo (signer.Certificate.GetFingerprint ()));
 
-				var algorithms = GetEncryptionAlgorithms (signature);
-				int i = 0;
+					var algorithms = GetEncryptionAlgorithms (signature);
+					int i = 0;
 
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
-				Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes256), "Expected AES-256 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes192), "Expected AES-192 capability");
+					Assert.That (algorithms[i++], Is.EqualTo (EncryptionAlgorithm.Aes128), "Expected AES-128 capability");
 
-				try {
-					bool valid = signature.Verify ();
+					try {
+						bool valid = signature.Verify ();
 
-					Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
-				} catch (DigitalSignatureVerifyException ex) {
-					if (ctx is WindowsSecureMimeContext) {
-						// AppVeyor gets an exception about the root certificate not being trusted
-						Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
-					} else {
-						Assert.Fail ($"Failed to verify signature: {ex}");
+						Assert.That (valid, Is.True, $"Bad signature from {signature.SignerCertificate.Email}");
+					} catch (DigitalSignatureVerifyException ex) {
+						if (ctx is WindowsSecureMimeContext) {
+							// AppVeyor gets an exception about the root certificate not being trusted
+							Assert.That (ex.InnerException.Message, Is.EqualTo (UntrustedRootCertificateMessage));
+						} else {
+							Assert.Fail ($"Failed to verify signature: {ex}");
+						}
 					}
-				} finally {
-					multipart.Dispose ();
 				}
 			}
 		}
@@ -3142,17 +3138,17 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		readonly TemporarySecureMimeContext ctx = new MyTemporarySecureMimeContext ();
+		readonly TemporarySecureMimeContext singleton = new MyTemporarySecureMimeContext ();
 
 		[OneTimeTearDown]
 		public void Cleanup ()
 		{
-			ctx.Dispose ();
+			singleton.Dispose ();
 		}
 
 		protected override SecureMimeContext CreateContext ()
 		{
-			return ctx;
+			return singleton;
 		}
 
 		[Test]

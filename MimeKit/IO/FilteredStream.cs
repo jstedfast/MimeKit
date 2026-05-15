@@ -48,7 +48,7 @@ namespace MimeKit.IO {
 			Write
 		}
 
-		List<IMimeFilter> filters = new List<IMimeFilter> ();
+		readonly List<IMimeFilter> filters = new List<IMimeFilter> ();
 		IOOperation lastOp = IOOperation.Write;
 		int filteredLength;
 		int filteredIndex;

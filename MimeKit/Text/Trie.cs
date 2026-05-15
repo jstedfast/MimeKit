@@ -50,10 +50,9 @@ namespace MimeKit.Text {
 		}
 
 		class TrieMatch {
-			public TrieMatch? Next;
-			public TrieState State;
-
-			public char Value { get; private set; }
+			public readonly TrieMatch? Next;
+			public readonly TrieState State;
+			public readonly char Value;
 
 			public TrieMatch (char value, TrieMatch? next, TrieState state)
 			{

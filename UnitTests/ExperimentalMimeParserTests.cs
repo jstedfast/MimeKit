@@ -39,7 +39,7 @@ namespace UnitTests {
 	{
 		static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
 		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
-		static FormatOptions UnixFormatOptions;
+		static readonly FormatOptions UnixFormatOptions;
 
 		static ExperimentalMimeParserTests ()
 		{

@@ -33,7 +33,7 @@ namespace UnitTests {
 	[TestFixture]
 	public class InternetAddressListTests
 	{
-		static FormatOptions UnixFormatOptions;
+		static readonly FormatOptions UnixFormatOptions;
 
 		static InternetAddressListTests ()
 		{

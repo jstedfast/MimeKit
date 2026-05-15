@@ -711,12 +711,12 @@ namespace MimeKit {
 
 		class NameValuePair : IComparable<NameValuePair>
 		{
-			public int ValueLength;
-			public int ValueStart;
-			public bool Encoded;
-			public byte[] Value;
-			public string Name;
-			public int? Id;
+			public readonly int ValueLength;
+			public readonly int ValueStart;
+			public readonly bool Encoded;
+			public readonly byte[] Value;
+			public readonly string Name;
+			public readonly int? Id;
 
 			public NameValuePair (int valueLength, int valueStart, bool encoded, byte[] value, string name, int? id)
 			{

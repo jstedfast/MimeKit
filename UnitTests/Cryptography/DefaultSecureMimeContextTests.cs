@@ -151,7 +151,7 @@ namespace UnitTests.Cryptography {
 
 			try {
 				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
-					var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
+					using var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
 					var secure = new SecureMailboxAddress ("MimeKit UnitTests", rsa.EmailAddress, certificate.Thumbprint);
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
 
@@ -176,7 +176,7 @@ namespace UnitTests.Cryptography {
 
 			try {
 				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
-					var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
+					using var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
 					var secure = new SecureMailboxAddress ("MimeKit UnitTests", rsa.EmailAddress, certificate.Thumbprint);
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
 
