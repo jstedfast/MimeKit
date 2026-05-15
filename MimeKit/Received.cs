@@ -155,6 +155,7 @@ namespace MimeKit {
 			"from", "by", "via", "with", "id", "for"
 		};
 
+		readonly List<ReceivedClause> clauses;
 		DateTimeOffset? dateTime;
 		string? dateTimeStr;
 
@@ -162,7 +163,7 @@ namespace MimeKit {
 		{
 			this.dateTimeStr = dateTimeStr;
 			this.dateTime = dateTime;
-			Clauses = clauses;
+			this.clauses = clauses;
 		}
 
 		/// <summary>
@@ -174,7 +175,7 @@ namespace MimeKit {
 		/// </remarks>
 		public Received ()
 		{
-			Clauses = new List<ReceivedClause> ();
+			clauses = new List<ReceivedClause> ();
 		}
 
 		/// <summary>
@@ -217,9 +218,9 @@ namespace MimeKit {
 			if (byTcpInfo == null)
 				throw new ArgumentNullException (nameof (byTcpInfo));
 
-			Clauses = new List<ReceivedClause> {
-				new ReceivedClause (ReceivedClauseId.From, "from", from, $"[{fromTcpInfo.ToString ()}]"),
-				new ReceivedClause (ReceivedClauseId.By, "by", by, $"[{byTcpInfo.ToString ()}]")
+			clauses = new List<ReceivedClause> {
+				new ReceivedClause (ReceivedClauseId.From, "from", from, $"[{fromTcpInfo}]"),
+				new ReceivedClause (ReceivedClauseId.By, "by", by, $"[{byTcpInfo}]")
 			};
 			DateTime = dateTime;
 		}
@@ -231,7 +232,9 @@ namespace MimeKit {
 		/// Gets the collection of clauses that make up the <c>Received</c> header.
 		/// </remarks>
 		/// <value>The collection of clauses.</value>
-		public IList<ReceivedClause> Clauses { get; private set; }
+		public IList<ReceivedClause> Clauses {
+			get { return clauses; }
+		}
 
 		/// <summary>
 		/// Get or set the date and time when the message was received.
@@ -279,7 +282,7 @@ namespace MimeKit {
 
 		void AddOrUpdateComment (ReceivedClauseId id, string? comment)
 		{
-			var clause = Clauses.FirstOrDefault (clause => clause.Id == id);
+			var clause = clauses.FirstOrDefault (clause => clause.Id == id);
 
 			if (comment != null)
 				comment = Unfold (comment);
@@ -292,31 +295,29 @@ namespace MimeKit {
 			} else if (comment != null) {
 				// Note: use the same .ctor as the parser so that the value is not validated.
 				clause = new ReceivedClause (id, Keywords[(int) id - 1], string.Empty, new List<string> () { comment });
-				Clauses.Add (clause);
-
-				((List<ReceivedClause>) Clauses).Sort ();
+				clauses.Add (clause);
+				clauses.Sort ();
 			}
 		}
 
 		void AddOrUpdateValue (ReceivedClauseId id, string value)
 		{
-			var clause = Clauses.FirstOrDefault (clause => clause.Id == id);
+			var clause = clauses.FirstOrDefault (clause => clause.Id == id);
 
 			if (clause != null) {
 				clause.Value = value;
 			} else {
 				clause = new ReceivedClause (id, Keywords[(int) id - 1], value);
-				Clauses.Add (clause);
-
-				((List<ReceivedClause>) Clauses).Sort ();
+				clauses.Add (clause);
+				clauses.Sort ();
 			}
 		}
 
 		void Remove (ReceivedClauseId id)
 		{
-			for (int index = 0; index < Clauses.Count; index++) {
-				if (Clauses[index].Id == id) {
-					Clauses.RemoveAt (index);
+			for (int index = 0; index < clauses.Count; index++) {
+				if (clauses[index].Id == id) {
+					clauses.RemoveAt (index);
 					break;
 				}
 			}
@@ -335,7 +336,7 @@ namespace MimeKit {
 		/// The value is not a valid domain name or address literal.
 		/// </exception>
 		public string? From {
-			get { return Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.From)?.Value; }
+			get { return clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.From)?.Value; }
 			set {
 				if (value == null) {
 					Remove (ReceivedClauseId.From);
@@ -355,7 +356,7 @@ namespace MimeKit {
 		/// <value>The TCP connection information for the source host if available; otherwise, <see langword="null"/>.</value>
 		public string? FromTcpInfo {
 			get {
-				var clause = Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.From);
+				var clause = clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.From);
 
 				if (clause != null && clause.Comments.Count > 0)
 					return clause.Comments[0];
@@ -379,7 +380,7 @@ namespace MimeKit {
 		/// The value is not a valid domain name or address literal.
 		/// </exception>
 		public string? By {
-			get { return Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.By)?.Value; }
+			get { return clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.By)?.Value; }
 			set {
 				if (value == null) {
 					Remove (ReceivedClauseId.By);
@@ -399,7 +400,7 @@ namespace MimeKit {
 		/// <value>The TCP connection information for the receiving host if available; otherwise, <see langword="null"/>.</value>
 		public string? ByTcpInfo {
 			get {
-				var clause = Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.By);
+				var clause = clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.By);
 
 				if (clause != null && clause.Comments.Count > 0)
 					return clause.Comments[0];
@@ -423,7 +424,7 @@ namespace MimeKit {
 		/// The value is not a valid atom token.
 		/// </exception>
 		public string? Via {
-			get { return Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.Via)?.Value; }
+			get { return clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.Via)?.Value; }
 			set {
 				if (value == null) {
 					Remove (ReceivedClauseId.Via);
@@ -445,7 +446,7 @@ namespace MimeKit {
 		/// The value is not a valid atom token.
 		/// </exception>
 		public string? With {
-			get { return Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.With)?.Value; }
+			get { return clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.With)?.Value; }
 			set {
 				if (value == null) {
 					Remove (ReceivedClauseId.With);
@@ -467,7 +468,7 @@ namespace MimeKit {
 		/// The value is not a valid message identifier.
 		/// </exception>
 		public string? Id {
-			get { return Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.Id)?.Value; }
+			get { return clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.Id)?.Value; }
 			set {
 				if (value == null) {
 					Remove (ReceivedClauseId.Id);
@@ -489,7 +490,7 @@ namespace MimeKit {
 		/// The value is not a valid mailbox address.
 		/// </exception>
 		public string? For {
-			get { return Clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.For)?.Value; }
+			get { return clauses.FirstOrDefault (clause => clause.Id == ReceivedClauseId.For)?.Value; }
 			set {
 				if (value == null) {
 					Remove (ReceivedClauseId.For);
@@ -646,7 +647,7 @@ namespace MimeKit {
 			StringBuilder builder = new StringBuilder ();
 			int lineLength = "Received:".Length;
 
-			foreach (var clause in Clauses) {
+			foreach (var clause in clauses) {
 				if (clause == null)
 					continue;
 
@@ -676,7 +677,6 @@ namespace MimeKit {
 				}
 
 				builder.Append (stamp);
-				lineLength += stamp.Length;
 			}
 
 			builder.Append (options.NewLine);

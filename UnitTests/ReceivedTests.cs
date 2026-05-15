@@ -142,6 +142,7 @@ namespace UnitTests {
 			var received = new Received ("smtp.source.com", IPAddress.Parse ("192.168.1.1"), "smtp.target.com", IPAddress.Parse ("127.0.0.1"), dateTime);
 			var encoded = received.ToString ();
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (2), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("[192.168.1.1]"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
@@ -166,6 +167,7 @@ namespace UnitTests {
 			var received = Received.Parse (buffer);
 			var encoded = received.ToString ();
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (2), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("\\escaped\\"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
@@ -187,6 +189,7 @@ namespace UnitTests {
 			};
 			var encoded = received.ToString ();
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (2), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("HELO [192.168.1.1]"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
@@ -205,6 +208,7 @@ namespace UnitTests {
 			var received = Received.Parse (buffer);
 			var encoded = received.ToString ();
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (2), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("HELO [192.168.1.1]"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
@@ -222,6 +226,7 @@ namespace UnitTests {
 			var buffer = Encoding.UTF8.GetBytes (input);
 			var received = Received.Parse (buffer);
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (2), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("TcpInfo for 'from' clause"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
@@ -352,6 +357,7 @@ namespace UnitTests {
 			var buffer = Encoding.ASCII.GetBytes (expected);
 			var encoded = received.ToString ();
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (6), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("[192.168.1.1]"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
@@ -376,6 +382,7 @@ namespace UnitTests {
 			};
 			var encoded = received.ToString ();
 
+			Assert.That (received.Clauses.Count, Is.EqualTo (2), "Clause count");
 			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
@@ -407,6 +414,7 @@ namespace UnitTests {
 			var buffer = Encoding.ASCII.GetBytes (expected);
 
 			Assert.That (Received.TryParse (buffer, out var received), Is.True, "TryParse");
+			Assert.That (received.Clauses.Count, Is.EqualTo (6), "Clause count");
 			Assert.That (received.From, Is.EqualTo ("smtp.source.com"), "From");
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("[192.168.1.1]"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
