@@ -170,7 +170,7 @@ namespace UnitTests {
 			Assert.That (received.FromTcpInfo, Is.EqualTo ("\\escaped\\"), "FromTcpInfo");
 			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
 			Assert.That (received.DateTime, Is.EqualTo (dateTime), "DateTime");
-			Assert.That (encoded, Is.EqualTo (expected), "ToString");
+			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
 		}
 
 		[Test]
@@ -753,7 +753,7 @@ namespace UnitTests {
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
-			var value = received.ToString ();
+			var value = received.ToString (options);
 
 			Assert.That (value, Is.EqualTo (expected));
 		}
