@@ -73,7 +73,8 @@ namespace MimeKit.Encodings {
 		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new base64 encoder.
+		/// <para>Creates a new base64 encoder.</para>
+		/// <note type="note">Specifying a <paramref name="maxLineLength"/> value over 76 octets will be ignored and capped at 76.</note>
 		/// </remarks>
 		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
