@@ -61,18 +61,12 @@ namespace UnitTests.Cryptography {
 
 		static DkimTests ()
 		{
-			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
 				DkimKeys = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
 
 			// Note: you can use http://dkimcore.org/tools/dkimrecordcheck.html to get public keys manually
-			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.pub"))) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.pub"))))
 				GMailDkimPublicKey = reader.ReadObject () as AsymmetricKeyParameter;
-			}
 
 			var rawData = Convert.FromBase64String ("nWGxne/9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A=");
 			Ed25519PrivateKey = new Ed25519PrivateKeyParameters (rawData, 0);

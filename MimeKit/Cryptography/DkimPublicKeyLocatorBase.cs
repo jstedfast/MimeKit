@@ -136,9 +136,7 @@ namespace MimeKit.Cryptography {
 				var rawData = Encoding.ASCII.GetBytes (data);
 
 				using (var stream = new MemoryStream (rawData, false)) {
-					using (var reader = new StreamReader (stream)) {
-						var pem = new PemReader (reader);
-
+					using (var pem = new PemReader (new StreamReader (stream))) {
 						pubkey = pem.ReadObject () as AsymmetricKeyParameter;
 
 						if (pubkey != null)

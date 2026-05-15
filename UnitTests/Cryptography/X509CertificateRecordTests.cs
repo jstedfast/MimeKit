@@ -41,11 +41,8 @@ namespace UnitTests.Cryptography {
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			AsymmetricCipherKeyPair keyPair;
 
-			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
 
 			Assert.Throws<ArgumentNullException> (() => new X509CrlRecord (null));
 			Assert.Throws<ArgumentNullException> (() => new X509CertificateRecord (null));
@@ -83,11 +80,8 @@ namespace UnitTests.Cryptography {
 			AsymmetricCipherKeyPair keyPair;
 			X509CertificateRecord record;
 
-			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
 
 			record = new X509CertificateRecord (signer.Certificate);
 

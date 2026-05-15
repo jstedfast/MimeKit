@@ -48,11 +48,8 @@ namespace UnitTests.Cryptography {
 
 			AsymmetricCipherKeyPair keys;
 
-			using (var stream = new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
 				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
 
 			Assert.DoesNotThrow (() => {
 				var signer = new DummyArcSigner (keys.Private, "example.com", "1433868189.example") {
@@ -68,11 +65,8 @@ namespace UnitTests.Cryptography {
 			AsymmetricCipherKeyPair keys;
 			ArcSigner signer;
 
-			using (var stream = new StreamReader (path)) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (path)))
 				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
 
 			signer = new DummyArcSigner (keys.Private, "example.com", "1433868189.example");
 			Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #1");
@@ -99,11 +93,8 @@ namespace UnitTests.Cryptography {
 			AsymmetricCipherKeyPair keys;
 			ArcSigner signer;
 
-			using (var stream = new StreamReader (path)) {
-				var reader = new PemReader (stream);
-
+			using (var reader = new PemReader (new StreamReader (path)))
 				keys = reader.ReadObject () as AsymmetricCipherKeyPair;
-			}
 
 			Assert.Throws<ArgumentNullException> (() => new DummyArcSigner ((AsymmetricKeyParameter) null, "domain", "selector"));
 			Assert.Throws<ArgumentException> (() => new DummyArcSigner (keys.Public, "domain", "selector"));

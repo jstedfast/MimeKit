@@ -131,9 +131,8 @@ namespace UnitTests.Cryptography {
 		static AsymmetricCipherKeyPair LoadAsymmetricCipherKeyPair (string fileName)
 		{
 			using (var stream = File.OpenRead (fileName)) {
-				using (var reader = new StreamReader (stream)) {
-					var pem = new PemReader (reader);
-					var item = pem.ReadObject ();
+				using (var reader = new PemReader (new StreamReader (stream))) {
+					var item = reader.ReadObject ();
 
 					if (item is AsymmetricCipherKeyPair keyPair)
 						return keyPair;

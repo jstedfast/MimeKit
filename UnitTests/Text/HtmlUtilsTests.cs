@@ -35,7 +35,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var writer = new StringWriter ();
+			using var writer = new StringWriter ();
 			const string text = "text";
 
 			// HtmlAttributeEncode

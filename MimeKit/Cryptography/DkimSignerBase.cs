@@ -329,10 +329,8 @@ namespace MimeKit.Cryptography {
 		{
 			AsymmetricKeyParameter? key = null;
 
-			using (var reader = new StreamReader (stream)) {
-				var pem = new PemReader (reader);
-
-				var keyObject = pem.ReadObject ();
+			using (var reader = new PemReader (new StreamReader (stream))) {
+				var keyObject = reader.ReadObject ();
 
 				if (keyObject is AsymmetricCipherKeyPair pair) {
 					key = pair.Private;

@@ -103,7 +103,7 @@ namespace UnitTests.Cryptography {
 
 			// test public key conversion
 			expected = dsa.ExportParameters (false);
-			var pubdsa = new DSACryptoServiceProvider ();
+			using var pubdsa = new DSACryptoServiceProvider ();
 			pubdsa.ImportParameters (expected);
 
 			keyParameter = pubdsa.AsAsymmetricKeyParameter ();
@@ -181,7 +181,7 @@ namespace UnitTests.Cryptography {
 
 			// test public key conversion
 			expected = rsa.ExportParameters (false);
-			var pubrsa = new RSACryptoServiceProvider ();
+			using var pubrsa = new RSACryptoServiceProvider ();
 			pubrsa.ImportParameters (expected);
 
 			keyParameter = pubrsa.AsAsymmetricKeyParameter ();
