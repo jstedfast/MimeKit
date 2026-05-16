@@ -113,7 +113,7 @@ namespace MimeKit {
 			int left = 0;
 
 			headerBlockBegin = GetOffset (inputIndex);
-			boundary = BoundaryType.None;
+			boundaryType = BoundaryType.None;
 			currentBoundary = null;
 			ResetRawHeaderData ();
 			headers.Clear ();
@@ -219,7 +219,7 @@ namespace MimeKit {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
 				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundary = BoundaryType.Eos;
+					boundaryType = BoundaryType.Eos;
 					break;
 				}
 
@@ -233,11 +233,11 @@ namespace MimeKit {
 
 				if (contentIndex < inputIndex)
 					content.Write (input, contentIndex, inputIndex - contentIndex);
-			} while (boundary == BoundaryType.None);
+			} while (boundaryType == BoundaryType.None);
 
 			var isEmpty = content.Length == 0;
 
-			if (boundary != BoundaryType.Eos && trimNewLine) {
+			if (boundaryType != BoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (content.Length > 0) {
 					if (input[inputIndex - 2] == (byte) '\r')
@@ -295,7 +295,7 @@ namespace MimeKit {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundary = BoundaryType.Eos;
+					boundaryType = BoundaryType.Eos;
 					return;
 				}
 
@@ -312,7 +312,7 @@ namespace MimeKit {
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
 						// *never* be an Mbox "From " marker in Entity mode.
-						if ((boundary = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
+						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
 							return;
 					}
 				}
@@ -401,7 +401,7 @@ namespace MimeKit {
 				// skip over the boundary marker
 				if (!await SkipLineAsync (true, cancellationToken).ConfigureAwait (false)) {
 					//OnMultipartBoundaryEnd (multipart, GetOffset (inputIndex));
-					boundary = BoundaryType.Eos;
+					boundaryType = BoundaryType.Eos;
 					return;
 				}
 
@@ -415,7 +415,7 @@ namespace MimeKit {
 
 				if (state == MimeParserState.Boundary) {
 					if (headers.Count == 0) {
-						if (boundary == BoundaryType.ImmediateBoundary) {
+						if (boundaryType == BoundaryType.ImmediateBoundary) {
 							// FIXME: Should we add an empty TextPart? If we do, update MimeParserTests.TestDoubleMultipartBoundary()
 							//beginOffset = GetOffset (inputIndex);
 							continue;
@@ -455,7 +455,7 @@ namespace MimeKit {
 
 				//beginOffset = endOffset;
 				multipart.Add (entity);
-			} while (boundary == BoundaryType.ImmediateBoundary);
+			} while (boundaryType == BoundaryType.ImmediateBoundary);
 		}
 
 		async Task ConstructMultipartAsync (Multipart multipart, MimeEntityEndEventArgs args, int depth, CancellationToken cancellationToken)
@@ -481,10 +481,10 @@ namespace MimeKit {
 			PushBoundary (marker);
 
 			await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
-			if (boundary == BoundaryType.ImmediateBoundary)
+			if (boundaryType == BoundaryType.ImmediateBoundary)
 				await MultipartScanSubpartsAsync (multipart, depth, cancellationToken).ConfigureAwait (false);
 
-			if (boundary == BoundaryType.ImmediateEndBoundary) {
+			if (boundaryType == BoundaryType.ImmediateEndBoundary) {
 				//OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
@@ -708,7 +708,7 @@ namespace MimeKit {
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
 
-			if (boundary != BoundaryType.Eos) {
+			if (boundaryType != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
 					state = MimeParserState.MboxMarker;
 				else

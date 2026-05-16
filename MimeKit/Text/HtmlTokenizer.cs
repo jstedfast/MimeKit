@@ -274,10 +274,10 @@ namespace MimeKit.Text {
 		/// Creates an HTML character data token.
 		/// </remarks>
 		/// <returns>The HTML character data token.</returns>
-		/// <param name="data">The character data.</param>
-		protected virtual HtmlDataToken CreateDataToken (string data)
+		/// <param name="cdata">The character data.</param>
+		protected virtual HtmlDataToken CreateDataToken (string cdata)
 		{
-			return new HtmlDataToken (data);
+			return new HtmlDataToken (cdata);
 		}
 
 		/// <summary>
@@ -287,10 +287,10 @@ namespace MimeKit.Text {
 		/// Creates an HTML character data token.
 		/// </remarks>
 		/// <returns>The HTML character data token.</returns>
-		/// <param name="data">The character data.</param>
-		protected virtual HtmlCDataToken CreateCDataToken (string data)
+		/// <param name="cdata">The character data.</param>
+		protected virtual HtmlCDataToken CreateCDataToken (string cdata)
 		{
-			return new HtmlCDataToken (data);
+			return new HtmlCDataToken (cdata);
 		}
 
 		/// <summary>
@@ -300,10 +300,10 @@ namespace MimeKit.Text {
 		/// Creates an HTML script data token.
 		/// </remarks>
 		/// <returns>The HTML script data token.</returns>
-		/// <param name="data">The script data.</param>
-		protected virtual HtmlScriptDataToken CreateScriptDataToken (string data)
+		/// <param name="scriptData">The script data.</param>
+		protected virtual HtmlScriptDataToken CreateScriptDataToken (string scriptData)
 		{
-			return new HtmlScriptDataToken (data);
+			return new HtmlScriptDataToken (scriptData);
 		}
 
 		/// <summary>
@@ -313,11 +313,11 @@ namespace MimeKit.Text {
 		/// Creates an HTML tag token.
 		/// </remarks>
 		/// <returns>The HTML tag token.</returns>
-		/// <param name="name">The tag name.</param>
+		/// <param name="tagName">The tag name.</param>
 		/// <param name="isEndTag"><see langword="true" /> if the tag is an end tag; otherwise, <see langword="false" />.</param>
-		protected virtual HtmlTagToken CreateTagToken (string name, bool isEndTag = false)
+		protected virtual HtmlTagToken CreateTagToken (string tagName, bool isEndTag = false)
 		{
-			return new HtmlTagToken (name, isEndTag);
+			return new HtmlTagToken (tagName, isEndTag);
 		}
 
 		/// <summary>
@@ -327,10 +327,10 @@ namespace MimeKit.Text {
 		/// Creates an attribute.
 		/// </remarks>
 		/// <returns>The attribute.</returns>
-		/// <param name="name">The attribute name.</param>
-		protected virtual HtmlAttribute CreateAttribute (string name)
+		/// <param name="attributeName">The attribute name.</param>
+		protected virtual HtmlAttribute CreateAttribute (string attributeName)
 		{
-			return new HtmlAttribute (name);
+			return new HtmlAttribute (attributeName);
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]

@@ -132,7 +132,7 @@ namespace MimeKit {
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
-			boundary = BoundaryType.None;
+			boundaryType = BoundaryType.None;
 			currentBoundary = null;
 			headerCount = 0;
 
@@ -374,7 +374,7 @@ namespace MimeKit {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
 				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundary = BoundaryType.Eos;
+					boundaryType = BoundaryType.Eos;
 					break;
 				}
 
@@ -401,12 +401,12 @@ namespace MimeKit {
 
 					contentLength += inputIndex - contentIndex;
 				}
-			} while (boundary == BoundaryType.None);
+			} while (boundaryType == BoundaryType.None);
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;
 
-			if (boundary != BoundaryType.Eos && trimNewLine) {
+			if (boundaryType != BoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (contentLength > 0) {
 					if (input[inputIndex - 2] == (byte) '\r')
@@ -443,7 +443,7 @@ namespace MimeKit {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundary = BoundaryType.Eos;
+					boundaryType = BoundaryType.Eos;
 					return 0;
 				}
 
@@ -460,7 +460,7 @@ namespace MimeKit {
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
 						// *never* be an Mbox "From " marker in Entity mode.
-						if ((boundary = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
+						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
 							return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
 					}
 				}
@@ -538,7 +538,7 @@ namespace MimeKit {
 			do {
 				// skip over the boundary marker
 				if (!await SkipBoundaryMarkerAsync (multipartContentType.Boundary, endBoundary: false, cancellationToken).ConfigureAwait (false)) {
-					boundary = BoundaryType.Eos;
+					boundaryType = BoundaryType.Eos;
 					return;
 				}
 
@@ -582,7 +582,7 @@ namespace MimeKit {
 					await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 					break;
 				}
-			} while (boundary == BoundaryType.ImmediateBoundary);
+			} while (boundaryType == BoundaryType.ImmediateBoundary);
 		}
 
 		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
@@ -608,10 +608,10 @@ namespace MimeKit {
 			PushBoundary (marker);
 
 			await MultipartScanPreambleAsync (cancellationToken).ConfigureAwait (false);
-			if (boundary == BoundaryType.ImmediateBoundary)
+			if (boundaryType == BoundaryType.ImmediateBoundary)
 				await MultipartScanSubpartsAsync (contentType, depth, cancellationToken).ConfigureAwait (false);
 
-			if (boundary == BoundaryType.ImmediateEndBoundary) {
+			if (boundaryType == BoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
 				await SkipBoundaryMarkerAsync (marker, endBoundary: true, cancellationToken).ConfigureAwait (false);
 
@@ -815,7 +815,7 @@ namespace MimeKit {
 
 			await OnMimeMessageEndAsync (currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 
-			if (boundary != BoundaryType.Eos) {
+			if (boundaryType != BoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
 					state = MimeParserState.MboxMarker;
 				else

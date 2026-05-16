@@ -942,14 +942,14 @@ namespace MimeKit {
 				lineLength = Math.Max (lineLength, 1);
 
 				while (index < endIndex) {
-					int length = Math.Min (format.MaxLineLength - lineLength, endIndex - index);
+					int len = Math.Min (format.MaxLineLength - lineLength, endIndex - index);
 
-					if (char.IsSurrogatePair (text, index + length - 1))
-						length--;
+					if (char.IsSurrogatePair (text, index + len - 1))
+						len--;
 
-					yield return new Word (text, index, length);
+					yield return new Word (text, index, len);
 
-					index += length;
+					index += len;
 					lineLength = 1;
 				}
 
