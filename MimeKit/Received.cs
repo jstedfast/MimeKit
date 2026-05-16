@@ -280,6 +280,35 @@ namespace MimeKit {
 			return new string (buffer, 0, length);
 		}
 
+		class ReceivedClauseComparer : IComparer<ReceivedClause>
+		{
+			public static readonly ReceivedClauseComparer Instance = new ReceivedClauseComparer ();
+
+			/// <summary>
+			/// Compare two <see cref="ReceivedClause"/> objects.
+			/// </summary>
+			/// <remarks>
+			/// Compares two <see cref="ReceivedClause"/> objects and returns an integer that indicates
+			/// whether the first instance precedes, follows, or occurs in the same position in the sort
+			/// order as the second object.
+			/// </remarks>
+			/// <param name="x">The first <see cref="ReceivedClause"/> instance.</param>
+			/// <param name="y">The second <see cref="ReceivedClause"/> instance.</param>
+			/// <returns>A value less than zero if the first instance precedes the second in the sort order;
+			/// zero if the first instance occurs in the same position as the second; a value greater than
+			/// zero if the first instance follows the second in the sort order.</returns>
+			public int Compare (ReceivedClause? x, ReceivedClause? y)
+			{
+				if (x == null)
+					return -1;
+
+				if (y == null)
+					return 1;
+
+				return ((int) x.Id) - ((int) y.Id);
+			}
+		}
+
 		void AddOrUpdateComment (ReceivedClauseId id, string? comment)
 		{
 			var clause = clauses.FirstOrDefault (clause => clause.Id == id);
@@ -296,7 +325,7 @@ namespace MimeKit {
 				// Note: use the same .ctor as the parser so that the value is not validated.
 				clause = new ReceivedClause (id, Keywords[(int) id - 1], string.Empty, new List<string> () { comment });
 				clauses.Add (clause);
-				clauses.Sort ();
+				clauses.Sort (ReceivedClauseComparer.Instance);
 			}
 		}
 
@@ -309,7 +338,7 @@ namespace MimeKit {
 			} else {
 				clause = new ReceivedClause (id, Keywords[(int) id - 1], value);
 				clauses.Add (clause);
-				clauses.Sort ();
+				clauses.Sort (ReceivedClauseComparer.Instance);
 			}
 		}
 
@@ -1143,7 +1172,7 @@ namespace MimeKit {
 	/// "via", "with", "id", or "for") and a corresponding value. A clause may also include a
 	/// comment (or, as with some non-compliant mail software, a series of comments).
 	/// </remarks>
-	public class ReceivedClause : IComparable<ReceivedClause>
+	public class ReceivedClause
 	{
 		static ReadOnlySpan<char> Specials => new char[] { '(', ')', ';' };
 
@@ -1275,25 +1304,6 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The collection of comments.</value>
 		public IList<string> Comments { get; private set; }
-
-		/// <summary>
-		/// Compare the current instance with another <see cref="ReceivedClause"/> object.
-		/// </summary>
-		/// <remarks>
-		/// Compares the current instance with another <see cref="ReceivedClause"/> object and
-		/// returns an integer that indicates whether the current instance precedes, follows,
-		/// or occurs in the same position in the sort order as the other object.
-		/// </remarks>
-		/// <param name="other">The <see cref="ReceivedClause"/> instance to compare with the current instance.</param>
-		/// <returns>A value less than zero if this instance precedes other in the sort order; zero if this instance occurs in the same
-		/// position as other; a value greater than zero if this instance follows other in the sort order.</returns>
-		public int CompareTo (ReceivedClause? other)
-		{
-			if (other == null)
-				return 1;
-
-			return ((int) Id) - ((int) other.Id);
-		}
 
 		static ReceivedClauseId ValidateKeyword (string keyword)
 		{
