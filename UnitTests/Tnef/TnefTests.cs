@@ -994,7 +994,7 @@ namespace UnitTests.Tnef {
 			Assert.That (task1.ContentDisposition.Size, Is.EqualTo (9217), "Size");
 
 			var task2 = (MimePart) multipart[3];
-			Assert.That (task2.ContentType.MimeType, Is.EqualTo ("application/vnd.ms-tnef"), "MimeType");
+			Assert.That (task2.ContentType.MimeType, Is.EqualTo ("application/ms-tnef"), "MimeType");
 			Assert.That (task2.ContentType.Name, Is.EqualTo ("Build a train table"), "Name");
 			Assert.That (task2.ContentDisposition.Disposition, Is.EqualTo ("attachment"), "Disposition");
 			Assert.That (task2.ContentDisposition.FileName, Is.EqualTo ("Untitled Attachment"), "FileName");
@@ -1010,7 +1010,7 @@ namespace UnitTests.Tnef {
 			Assert.That (appointment1.ContentDisposition.Size, Is.EqualTo (387453), "Size");
 
 			var appointment2 = (MimePart) multipart[5];
-			Assert.That (appointment2.ContentType.MimeType, Is.EqualTo ("application/vnd.ms-tnef"), "MimeType");
+			Assert.That (appointment2.ContentType.MimeType, Is.EqualTo ("application/ms-tnef"), "MimeType");
 			Assert.That (appointment2.ContentType.Name, Is.EqualTo ("Christmas Celebration!"), "Name");
 			Assert.That (appointment2.ContentDisposition.Disposition, Is.EqualTo ("attachment"), "Disposition");
 			Assert.That (appointment2.ContentDisposition.FileName, Is.EqualTo ("Untitled Attachment"), "FileName");

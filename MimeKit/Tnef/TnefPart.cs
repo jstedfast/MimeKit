@@ -64,11 +64,11 @@ namespace MimeKit.Tnef {
 		/// Initialize a new instance of the <see cref="TnefPart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="TnefPart"/> with a Content-Type of application/vnd.ms-tnef
+		/// Creates a new <see cref="TnefPart"/> with a Content-Type of application/ms-tnef
 		/// and a Content-Disposition value of "attachment" and a filename paremeter with a
 		/// value of "winmail.dat".
 		/// </remarks>
-		public TnefPart () : base ("application", "vnd.ms-tnef")
+		public TnefPart () : base ("application", "ms-tnef")
 		{
 			FileName = "winmail.dat";
 		}
@@ -654,8 +654,8 @@ namespace MimeKit.Tnef {
 
 		static MimeMessage ExtractTnefMessage (TnefReader reader)
 		{
-			var message = new MimeMessage ();
 			var alternatives = new MultipartAlternative ();
+			var message = new MimeMessage ();
 			MimeEntity? body = null;
 
 			try {
