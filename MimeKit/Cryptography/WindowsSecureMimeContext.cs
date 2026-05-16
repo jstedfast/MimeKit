@@ -251,7 +251,12 @@ namespace MimeKit.Cryptography {
 			if ((certificate = GetRecipientCertificate (mailbox)) == null)
 				throw new CertificateNotFoundException (mailbox, "A valid certificate could not be found.");
 
-			return new RealCmsRecipient (certificate);
+			try {
+				return new RealCmsRecipient (certificate);
+			} catch {
+				certificate.Dispose ();
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -308,9 +313,13 @@ namespace MimeKit.Cryptography {
 						throw new NotSupportedException ("The RSAES-OAEP encryption padding scheme is not supported by the WindowsSecureMimeContext. You must use a subclass of BouncyCastleSecureMimeContext to get this feature.");
 					}
 
-					real = new RealCmsRecipient (type, certificate);
-
-					collection.Add (real);
+					try {
+						real = new RealCmsRecipient (type, certificate);
+						collection.Add (real);
+					} catch {
+						certificate.Dispose ();
+						throw;
+					}
 				}
 
 				return collection;
