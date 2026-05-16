@@ -780,12 +780,8 @@ namespace MimeKit.Cryptography {
 						break;
 
 					return privateKey;
-#if DEBUG
-				} catch (Exception ex) {
+				} catch (PgpException ex) {
 					Debug.WriteLine (string.Format ("Failed to extract secret key: {0}", ex));
-#else
-				} catch {
-#endif
 				}
 
 				attempts++;

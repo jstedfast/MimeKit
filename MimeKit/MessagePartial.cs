@@ -259,8 +259,13 @@ namespace MimeKit {
 
 			var memory = new MemoryStream ();
 
-			message.WriteTo (options, memory);
-			memory.Seek (0, SeekOrigin.Begin);
+			try {
+				message.WriteTo (options, memory);
+				memory.Seek (0, SeekOrigin.Begin);
+			} catch {
+				memory.Dispose ();
+				throw;
+			}
 
 			if (memory.Length <= maxSize) {
 				memory.Dispose ();
