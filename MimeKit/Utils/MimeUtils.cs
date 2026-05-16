@@ -512,6 +512,42 @@ namespace MimeKit.Utils {
 			return Quote (text.AsSpan ());
 		}
 
+		internal static void UnquoteTo (ReadOnlySpan<char> text, bool convertTabsToSpaces, ref ValueStringBuilder output)
+		{
+			bool escaped = false;
+			bool quoted = false;
+
+			for (int i = 0; i < text.Length; i++) {
+				switch (text[i]) {
+				case '\r':
+				case '\n':
+					escaped = false;
+					break;
+				case '\t':
+					output.Append (convertTabsToSpaces ? ' ' : '\t');
+					escaped = false;
+					break;
+				case '\\':
+					if (escaped)
+						output.Append ('\\');
+					escaped = !escaped;
+					break;
+				case '"':
+					if (escaped) {
+						output.Append ('"');
+						escaped = false;
+					} else {
+						quoted = !quoted;
+					}
+					break;
+				default:
+					output.Append (text[i]);
+					escaped = false;
+					break;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Unquote the specified text.
 		/// </summary>
@@ -535,38 +571,8 @@ namespace MimeKit.Utils {
 				return text;
 
 			var builder = new ValueStringBuilder (text.Length);
-			bool escaped = false;
-			bool quoted = false;
 
-			for (int i = 0; i < text.Length; i++) {
-				switch (text[i]) {
-				case '\r':
-				case '\n':
-					escaped = false;
-					break;
-				case '\t':
-					builder.Append (convertTabsToSpaces ? ' ' : '\t');
-					escaped = false;
-					break;
-				case '\\':
-					if (escaped)
-						builder.Append ('\\');
-					escaped = !escaped;
-					break;
-				case '"':
-					if (escaped) {
-						builder.Append ('"');
-						escaped = false;
-					} else {
-						quoted = !quoted;
-					}
-					break;
-				default:
-					builder.Append (text[i]);
-					escaped = false;
-					break;
-				}
-			}
+			UnquoteTo (text.AsSpan (), convertTabsToSpaces, ref builder);
 
 			return builder.ToString ();
 		}

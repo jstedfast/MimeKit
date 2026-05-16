@@ -274,10 +274,10 @@ namespace MimeKit.Text {
 		/// Creates an HTML character data token.
 		/// </remarks>
 		/// <returns>The HTML character data token.</returns>
-		/// <param name="cdata">The character data.</param>
-		protected virtual HtmlDataToken CreateDataToken (string cdata)
+		/// <param name="data">The character data.</param>
+		protected virtual HtmlDataToken CreateDataToken (string data)
 		{
-			return new HtmlDataToken (cdata);
+			return new HtmlDataToken (data);
 		}
 
 		/// <summary>

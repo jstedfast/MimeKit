@@ -1058,7 +1058,12 @@ namespace MimeKit {
 					parts = rfc2231[param.Name];
 					parts.Sort ();
 
-					value = string.Empty;
+					int initialCapacity = 0;
+
+					foreach (var part in parts)
+						initialCapacity += part.ValueLength;
+
+					var builder = new ValueStringBuilder (initialCapacity);
 
 					for (int i = 0; i < parts.Count; i++) {
 						startIndex = parts[i].ValueStart;
@@ -1074,17 +1079,21 @@ namespace MimeKit {
 								length -= 2;
 							}
 
-							value += DecodeRfc2231 (out Encoding? charset, ref decoder, hex, buffer, startIndex, length, flush);
+							var decoded = DecodeRfc2231 (out Encoding? charset, ref decoder, hex, buffer, startIndex, length, flush);
+							builder.Append (decoded);
 							encoding ??= charset;
 						} else if (length >= 2 && buffer[startIndex] == (byte) '"') {
-							var quoted = CharsetUtils.ConvertToUnicode (options, buffer, startIndex, length);
-							value += MimeUtils.Unquote (quoted);
+							var chars = CharsetUtils.ConvertToUnicode (options, buffer, startIndex, length, out int charCount);
+							MimeUtils.UnquoteTo (chars.AsSpan (0, charCount), false, ref builder);
 							hex.Reset ();
 						} else if (length > 0) {
-							value += CharsetUtils.ConvertToUnicode (options, buffer, startIndex, length);
+							var chars = CharsetUtils.ConvertToUnicode (options, buffer, startIndex, length, out int charCount);
+							builder.Append (chars.AsSpan (0, charCount));
 							hex.Reset ();
 						}
 					}
+
+					value = builder.ToString ();
 					hex.Reset ();
 				} else if (param.Encoded) {
 					// Note: param value is not supposed to be quoted, but issue #239 illustrates
