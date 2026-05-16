@@ -3090,9 +3090,8 @@ namespace MimeKit {
 				throw;
 			}
 
-			try {
+			if (item.ContentStream.CanSeek)
 				item.ContentStream.Position = 0;
-			} catch { }
 
 			var mimeType = item.ContentType.ToString ();
 			if (!ContentType.TryParse (mimeType, out var contentType))
