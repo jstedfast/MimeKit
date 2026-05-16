@@ -699,10 +699,8 @@ namespace MimeKit {
 				if (lineLength + 1 + stamp.Length > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
-					lineLength = 1;
 				} else {
 					builder.Append (' ');
-					lineLength++;
 				}
 
 				builder.Append (stamp);

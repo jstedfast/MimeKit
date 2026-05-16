@@ -133,14 +133,14 @@ namespace MimeKit.Encodings {
 
 			if (remaining == 2) {
 				c1 = *inptr++;
-				c2 = *inptr++;
+				c2 = *inptr;
 
 				*outptr++ = Base64Encoder.base64_alphabet[c1 >> 2];
 				*outptr++ = Base64Encoder.base64_alphabet[(c2 >> 4) | ((c1 & 0x3) << 4)];
 				*outptr++ = Base64Encoder.base64_alphabet[(c2 & 0x0f) << 2];
 				*outptr++ = (byte) '=';
 			} else if (remaining == 1) {
-				c1 = *inptr++;
+				c1 = *inptr;
 				c2 = 0;
 
 				*outptr++ = Base64Encoder.base64_alphabet[c1 >> 2];

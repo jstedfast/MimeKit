@@ -293,7 +293,7 @@ namespace MimeKit.Encodings {
 					*bufptr++ = Encode ((b0 >> 2) & 0x3F);
 					*bufptr++ = Encode (((b0 << 4) | ((b1 >> 4) & 0x0F)) & 0x3F);
 					*bufptr++ = Encode (((b1 << 2) | ((b2 >> 6) & 0x03)) & 0x3F);
-					*bufptr++ = Encode (b2 & 0x3F);
+					*bufptr   = Encode (b2 & 0x3F);
 					
 					uulen += 3;
 					nsaved = 0;

@@ -281,7 +281,7 @@ namespace MimeKit.Encodings {
 
 						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
 						nread = Vector128Encode (ref inptr, ref outptr, maxOffset, ref quartets);
-						remainingLineInput -= nread;
+						//remainingLineInput -= nread;
 						remainingInput -= nread;
 					}
 				} else if (AdvSimd.Arm64.IsSupported) {
@@ -302,7 +302,7 @@ namespace MimeKit.Encodings {
 
 						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
 						nread = Vector128Encode (ref inptr, ref outptr, maxOffset, ref quartets);
-						remainingLineInput -= nread;
+						//remainingLineInput -= nread;
 						remainingInput -= nread;
 					}
 				}
@@ -343,7 +343,7 @@ namespace MimeKit.Encodings {
 						saved2 = 0;
 				} else {
 					// We have 1 remaining input byte.
-					saved2 = *inptr++;
+					saved2 = *inptr;
 					saved = 2;
 				}
 			}
@@ -834,7 +834,7 @@ namespace MimeKit.Encodings {
 						saved2 = 0;
 				} else {
 					// We have 1 remaining input byte.
-					saved2 = *inptr++;
+					saved2 = *inptr;
 					saved = 2;
 				}
 			}
