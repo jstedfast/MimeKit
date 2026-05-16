@@ -916,6 +916,8 @@ namespace MimeKit {
 				}
 
 				// Note: some servers like to use multi-string values (e.g. "with Microsoft SMTP Server" or "via Frontend Transport")
+				StringBuilder? builder = null;
+
 				do {
 					// skip over any whitespace after the value token
 					ParseUtils.SkipWhiteSpace (rawValue, ref index, endIndex);
@@ -929,8 +931,13 @@ namespace MimeKit {
 						break;
 
 					// append the token to our value
-					value += " " + token;
+					builder ??= new StringBuilder (value);
+					builder.Append (' ');
+					builder.Append (token);
 				} while (true);
+
+				if (builder != null)
+					value = builder.ToString ();
 
 				// parse any comments that exist after the value...
 				while (index < endIndex) {
