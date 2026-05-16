@@ -80,57 +80,57 @@ namespace UnitTests.IO {
 		{
 			var buffer = new byte[1024];
 
-			using (var chained = new ChainedStream ()) {
-				chained.Add (new CanReadWriteSeekStream (true, false, false, false));
+			using (var stream = new ChainedStream ()) {
+				stream.Add (new CanReadWriteSeekStream (true, false, false, false));
 
-				Assert.That (chained.CanRead, Is.True);
-				Assert.That (chained.CanWrite, Is.False);
-				Assert.That (chained.CanSeek, Is.False);
-				Assert.That (chained.CanTimeout, Is.False);
+				Assert.That (stream.CanRead, Is.True);
+				Assert.That (stream.CanWrite, Is.False);
+				Assert.That (stream.CanSeek, Is.False);
+				Assert.That (stream.CanTimeout, Is.False);
 
-				Assert.Throws<NotImplementedException> (() => chained.Read (buffer, 0, buffer.Length));
-				Assert.Throws<NotSupportedException> (() => chained.Write (buffer, 0, buffer.Length));
-				Assert.Throws<NotSupportedException> (() => chained.Seek (0, SeekOrigin.End));
+				Assert.Throws<NotImplementedException> (() => stream.Read (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => stream.Write (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => stream.Seek (0, SeekOrigin.End));
 			}
 
-			using (var chained = new ChainedStream ()) {
-				chained.Add (new CanReadWriteSeekStream (false, true, false, false));
+			using (var stream = new ChainedStream ()) {
+				stream.Add (new CanReadWriteSeekStream (false, true, false, false));
 
-				Assert.That (chained.CanRead, Is.False);
-				Assert.That (chained.CanWrite, Is.True);
-				Assert.That (chained.CanSeek, Is.False);
-				Assert.That (chained.CanTimeout, Is.False);
+				Assert.That (stream.CanRead, Is.False);
+				Assert.That (stream.CanWrite, Is.True);
+				Assert.That (stream.CanSeek, Is.False);
+				Assert.That (stream.CanTimeout, Is.False);
 
-				Assert.Throws<NotSupportedException> (() => chained.Read (buffer, 0, buffer.Length));
-				Assert.Throws<NotImplementedException> (() => chained.Write (buffer, 0, buffer.Length));
-				Assert.Throws<NotSupportedException> (() => chained.Seek (0, SeekOrigin.End));
+				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
+				Assert.Throws<NotImplementedException> (() => stream.Write (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => stream.Seek (0, SeekOrigin.End));
 			}
 
-			using (var chained = new ChainedStream ()) {
-				chained.Add (new CanReadWriteSeekStream (false, false, true, false));
+			using (var stream = new ChainedStream ()) {
+				stream.Add (new CanReadWriteSeekStream (false, false, true, false));
 
-				Assert.That (chained.CanRead, Is.False);
-				Assert.That (chained.CanWrite, Is.False);
-				Assert.That (chained.CanSeek, Is.True);
-				Assert.That (chained.CanTimeout, Is.False);
+				Assert.That (stream.CanRead, Is.False);
+				Assert.That (stream.CanWrite, Is.False);
+				Assert.That (stream.CanSeek, Is.True);
+				Assert.That (stream.CanTimeout, Is.False);
 
-				Assert.Throws<NotSupportedException> (() => chained.Read (buffer, 0, buffer.Length));
-				Assert.Throws<NotSupportedException> (() => chained.Write (buffer, 0, buffer.Length));
-				Assert.Throws<NotImplementedException> (() => chained.Seek (0, SeekOrigin.End));
+				Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
+				Assert.Throws<NotSupportedException> (() => stream.Write (buffer, 0, buffer.Length));
+				Assert.Throws<NotImplementedException> (() => stream.Seek (0, SeekOrigin.End));
 			}
 		}
 
 		[Test]
 		public void TestGetSetTimeouts ()
 		{
-			using (var chained = new ChainedStream ()) {
-				chained.Add (new TimeoutStream ());
+			using (var stream = new ChainedStream ()) {
+				stream.Add (new TimeoutStream ());
 
-				Assert.Throws<InvalidOperationException> (() => { int x = chained.ReadTimeout; });
-				Assert.Throws<InvalidOperationException> (() => { int x = chained.WriteTimeout; });
+				Assert.Throws<InvalidOperationException> (() => { int x = stream.ReadTimeout; });
+				Assert.Throws<InvalidOperationException> (() => { int x = stream.WriteTimeout; });
 
-				Assert.Throws<InvalidOperationException> (() => chained.ReadTimeout = 5);
-				Assert.Throws<InvalidOperationException> (() => chained.WriteTimeout = 5);
+				Assert.Throws<InvalidOperationException> (() => stream.ReadTimeout = 5);
+				Assert.Throws<InvalidOperationException> (() => stream.WriteTimeout = 5);
 			}
 		}
 
@@ -138,7 +138,6 @@ namespace UnitTests.IO {
 		public void TestRead ()
 		{
 			Assert.That (chained.CanRead, Is.True, "Expected to be able to read from the chained stream.");
-
 			Assert.That (chained.Read (cbuf, 0, 0), Is.EqualTo (0), "Zero-length read");
 
 			do {
@@ -158,7 +157,6 @@ namespace UnitTests.IO {
 		public async Task TestReadAsync ()
 		{
 			Assert.That (chained.CanRead, Is.True, "Expected to be able to read from the chained stream.");
-
 			Assert.That (await chained.ReadAsync (cbuf, 0, 0), Is.EqualTo (0), "Zero-length read");
 
 			do {
@@ -445,11 +443,11 @@ namespace UnitTests.IO {
 			content.Write (buf, 0, buf.Length);
 			content.Position = 0;
 
-			using (var chained = new ChainedStream ()) {
-				chained.Add (headers);
-				chained.Add (content);
+			using (var stream = new ChainedStream ()) {
+				stream.Add (headers);
+				stream.Add (content);
 
-				var entity = MimeEntity.Load (chained, true) as TextPart;
+				var entity = MimeEntity.Load (stream, true) as TextPart;
 
 				Assert.That (entity.Text, Is.EqualTo ("Hello, world!" + Environment.NewLine));
 			}

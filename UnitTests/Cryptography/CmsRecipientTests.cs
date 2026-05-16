@@ -81,9 +81,11 @@ namespace UnitTests.Cryptography {
 
 			AssertDefaultValues (recipient, certificate);
 
-			recipient = new CmsRecipient (new X509Certificate2 (path));
+			using (var certificate2 = new X509Certificate2 (path)) {
+				recipient = new CmsRecipient (certificate2);
 
-			AssertDefaultValues (recipient, certificate);
+				AssertDefaultValues (recipient, certificate);
+			}
 		}
 
 		[Test]
