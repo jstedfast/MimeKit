@@ -553,7 +553,7 @@ namespace MimeKit {
 			if (index == -1)
 				return $"({comment})";
 
-			var builder = new ValueStringBuilder (GetCommentLength (comment));
+			using var builder = new ValueStringBuilder (GetCommentLength (comment));
 			int startIndex = 0;
 
 			try {

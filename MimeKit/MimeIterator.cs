@@ -207,7 +207,7 @@ namespace MimeKit {
 				if (current is null)
 					throw new InvalidOperationException ();
 
-				var specifier = new ValueStringBuilder(128);
+				using var specifier = new ValueStringBuilder (128);
 
 				for (int i = 0; i < path.Count; i++) {
 					specifier.AppendInvariant (path[i] + 1);

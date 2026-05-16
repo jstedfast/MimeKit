@@ -680,7 +680,7 @@ namespace MimeKit {
 				}
 			}
 
-			var encoded = new ValueStringBuilder (value.Length);
+			using var encoded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 1;
 			int count = 0;
 
@@ -829,7 +829,7 @@ namespace MimeKit {
 
 		static byte[] EncodeDispositionNotificationOptions (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new ValueStringBuilder (value.Length);
+			using var encoded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 1;
 			int index = 0;
 
@@ -876,7 +876,7 @@ namespace MimeKit {
 
 		static byte[] EncodeReferencesHeader (ParserOptions options, FormatOptions format, Encoding encoding, string field, string value)
 		{
-			var encoded = new ValueStringBuilder (value.Length);
+			using var encoded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 1;
 			int count = 0;
 
@@ -986,7 +986,7 @@ namespace MimeKit {
 
 		internal static string Fold (FormatOptions format, string field, string value)
 		{
-			var folded = new ValueStringBuilder (value.Length);
+			using var folded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 2;
 			int lastLwsp = -1;
 

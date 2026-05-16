@@ -475,7 +475,7 @@ namespace MimeKit.Cryptography {
 			for (int i = 0; i < dnsNames.Length; i++)
 				size += dnsNames[i].Length + 1;
 
-			var encoded = new ValueStringBuilder (size);
+			using var encoded = new ValueStringBuilder (size);
 			encoded.Append ('|');
 			for (int i = 0; i < dnsNames.Length; i++) {
 				encoded.Append (dnsNames[i]);

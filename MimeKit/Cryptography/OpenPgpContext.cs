@@ -505,7 +505,7 @@ namespace MimeKit.Cryptography {
 		/// <returns>A string representing the hex-encoded data.</returns>
 		static string HexEncode (byte[] data)
 		{
-			var fingerprint = new ValueStringBuilder (data.Length * 2);
+			using var fingerprint = new ValueStringBuilder (data.Length * 2);
 
 			for (int i = 0; i < data.Length; i++)
 				fingerprint.Append (data[i].ToString ("x2"));

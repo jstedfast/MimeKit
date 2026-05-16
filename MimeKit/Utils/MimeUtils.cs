@@ -96,7 +96,7 @@ namespace MimeKit.Utils {
 				throw new ArgumentException ("The domain is invalid.", nameof (domain));
 
 			ulong value = (ulong) DateTime.UtcNow.Ticks;
-			var id = new ValueStringBuilder (64);
+			using var id = new ValueStringBuilder (64);
 
 #if NET6_0_OR_GREATER
 			Span<byte> block = stackalloc byte[8];

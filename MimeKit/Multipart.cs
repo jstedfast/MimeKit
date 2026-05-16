@@ -410,7 +410,7 @@ namespace MimeKit {
 
 		internal static string FoldPreambleOrEpilogue (FormatOptions options, string text, bool isEpilogue)
 		{
-			var builder = new ValueStringBuilder (256);
+			using var builder = new ValueStringBuilder (256);
 			int startIndex, wordIndex;
 			int lineLength = 0;
 			int index = 0;

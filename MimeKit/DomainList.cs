@@ -327,7 +327,7 @@ namespace MimeKit {
 
 		internal string Encode (FormatOptions options)
 		{
-			var builder = new ValueStringBuilder (256);
+			using var builder = new ValueStringBuilder (256);
 
 			for (int i = 0; i < domains.Count; i++) {
 				if (string.IsNullOrWhiteSpace (domains[i]))
@@ -360,7 +360,7 @@ namespace MimeKit {
 		/// <returns>A string representing the <see cref="DomainList"/>.</returns>
 		public override string ToString ()
 		{
-			var builder = new ValueStringBuilder (128);
+			using var builder = new ValueStringBuilder (128);
 
 			for (int i = 0; i < domains.Count; i++) {
 				if (string.IsNullOrWhiteSpace (domains[i]))

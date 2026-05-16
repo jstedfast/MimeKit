@@ -2422,7 +2422,7 @@ namespace MimeKit {
 		void ReferencesChanged (object? o, EventArgs e)
 		{
 			if (references.Count > 0) {
-				var builder = new ValueStringBuilder (128);
+				using var builder = new ValueStringBuilder (128);
 				int lineLength = "References".Length + 1;
 				var options = FormatOptions.Default;
 
