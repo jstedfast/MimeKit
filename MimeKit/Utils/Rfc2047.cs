@@ -516,9 +516,7 @@ namespace MimeKit.Utils {
 		{
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
-			var lwsp = new Token (0, 0);
 			bool encoded = false;
-			Token token;
 			bool ascii;
 			int n;
 
@@ -527,7 +525,7 @@ namespace MimeKit.Utils {
 				while (inptr < inend && IsLwsp (*inptr))
 					inptr++;
 
-				lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
+				var lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 
 				word = inptr;
 				ascii = true;
@@ -592,7 +590,7 @@ namespace MimeKit.Utils {
 					}
 
 					n = (int) (inptr - word);
-					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
+					if (TryGetEncodedWordToken (inbuf, word, n, out Token token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
 						if ((!encoded || !writer.IgnoreWhitespaceBetweenEncodedWords) && lwsp.Length > 0) {
@@ -624,7 +622,7 @@ namespace MimeKit.Utils {
 						inptr++;
 					}
 
-					token = new Token ((int) (word - inbuf), (int) (inptr - word), !ascii);
+					var token = new Token ((int) (word - inbuf), (int) (inptr - word), !ascii);
 					writer.Write (ref decoded, ref token);
 
 					encoded = false;
@@ -638,9 +636,7 @@ namespace MimeKit.Utils {
 		{
 			byte* text, word, inptr = inbuf + startIndex;
 			byte* inend = inptr + length;
-			var lwsp = new Token (0, 0);
 			bool encoded = false;
-			Token token;
 			bool ascii;
 			int n;
 
@@ -649,7 +645,7 @@ namespace MimeKit.Utils {
 				while (inptr < inend && IsLwsp (*inptr))
 					inptr++;
 
-				lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
+				Token lwsp = new Token ((int) (text - inbuf), (int) (inptr - text));
 
 				if (inptr < inend) {
 					word = inptr;
@@ -716,7 +712,7 @@ namespace MimeKit.Utils {
 					}
 
 					n = (int) (inptr - word);
-					if (TryGetEncodedWordToken (inbuf, word, n, out token)) {
+					if (TryGetEncodedWordToken (inbuf, word, n, out Token token)) {
 						// rfc2047 states that you must ignore all whitespace between
 						// encoded-word tokens
 						if ((!encoded || !writer.IgnoreWhitespaceBetweenEncodedWords) && lwsp.Length > 0) {

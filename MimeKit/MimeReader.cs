@@ -1749,8 +1749,6 @@ namespace MimeKit {
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
-			int index = inputIndex;
-			int nread;
 
 			*inend = (byte) '\n';
 
@@ -1766,16 +1764,16 @@ namespace MimeKit {
 				// Consume the newline and update our line number state.
 				inptr++;
 
-				index = (int) (inptr - inbuf);
-				IncrementLineNumber (index);
+				int idx = (int) (inptr - inbuf);
+				IncrementLineNumber (idx);
 				midline = false;
 			}
 
 			// At this point, we either reached the end of the buffer or we reached the end of the header value.
 
 			// Calculate the new inputIndex and the amount of input we've read.
-			index = (int) (inptr - inbuf);
-			nread = index - inputIndex;
+			int index = (int) (inptr - inbuf);
+			int nread = index - inputIndex;
 
 			// Blit the input data that we've processed into the headerBuffer.
 			EnsureHeaderBufferSize (headerIndex + nread);
