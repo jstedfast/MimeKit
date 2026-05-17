@@ -134,7 +134,7 @@ namespace MimeKit {
 
 			Options = options;
 
-			SetStream (stream, format);
+			Initialize (stream, format);
 		}
 
 		/// <summary>
@@ -184,19 +184,8 @@ namespace MimeKit {
 			get { return GetOffset (inputIndex); }
 		}
 
-		/// <summary>
-		/// Set the stream to parse.
-		/// </summary>
-		/// <remarks>
-		/// <para>Sets the stream to parse.</para>
-		/// </remarks>
-		/// <param name="stream">The stream to parse.</param>
-		/// <param name="format">The format of the stream.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="stream"/> is <see langword="null"/>.
-		/// </exception>
 		[MemberNotNull (nameof (stream))]
-		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
+		void Initialize (Stream stream, MimeFormat format)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
@@ -227,6 +216,22 @@ namespace MimeKit {
 			state = MimeParserState.Initialized;
 			boundaryType = BoundaryType.None;
 			currentBoundary = null;
+		}
+
+		/// <summary>
+		/// Set the stream to parse.
+		/// </summary>
+		/// <remarks>
+		/// <para>Sets the stream to parse.</para>
+		/// </remarks>
+		/// <param name="stream">The stream to parse.</param>
+		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="stream"/> is <see langword="null"/>.
+		/// </exception>
+		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
+		{
+			Initialize (stream, format);
 		}
 
 		#region Mbox Events
