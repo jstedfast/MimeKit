@@ -631,14 +631,12 @@ namespace MimeKit {
 					byteCount++;
 					charCount++;
 					nchars = 1;
-					n = 1;
 				} else if (c < 256) {
 					// iso-8859-1
 					encodeCount++;
 					byteCount++;
 					charCount++;
 					nchars = 1;
-					n = 1;
 				} else {
 					if (char.IsSurrogatePair (text, index - 1)) {
 						buffer[1] = text[index++];
