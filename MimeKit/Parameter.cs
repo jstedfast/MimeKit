@@ -664,7 +664,10 @@ namespace MimeKit {
 					// restore our previous state
 					charCount -= nchars;
 					index -= nchars;
-					byteCount -= n;
+
+					// Note: Normally, we'd also restore 'byteCount' and 'encodeCount',
+					// but since we're about to break out of the loop, it doesn't really
+					// matter at this point.
 					break;
 				}
 			}
