@@ -1,5 +1,5 @@
 ﻿//
-// DetectionOptions.cs
+// ByteDetectionOptions.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //

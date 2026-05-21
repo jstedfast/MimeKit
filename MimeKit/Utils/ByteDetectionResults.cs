@@ -1,5 +1,5 @@
 ﻿//
-// DetectionResults.cs
+// ByteDetectionResults.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
