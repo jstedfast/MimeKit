@@ -120,7 +120,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify
 		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
-		/// <note type="note">The only permissable Content-Transfer-Encoding values for a message/rfc822 part are
+		/// <note type="note">The only permissible Content-Transfer-Encoding values for a message/rfc822 part are
 		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
 		/// </remarks>
 		IllegalMessageRfc822ContentTransferEncoding,
@@ -131,7 +131,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify
 		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
-		/// <note type="note">The only permissable Content-Transfer-Encoding values for a multipart are
+		/// <note type="note">The only permissible Content-Transfer-Encoding values for a multipart are
 		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
 		/// </remarks>
 		IllegalMultipartContentTransferEncoding,
@@ -236,7 +236,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Null (<c>0x00</c>) bytes in a message body can be used by malicious actors to prevent some
-		/// MIME parsers, such as those written in languages like C or C++which tend to use the null byte
+		/// MIME parsers, such as those written in languages like C or C++ which tend to use the null byte
 		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
 		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>

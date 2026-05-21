@@ -718,7 +718,7 @@ namespace UnitTests.Utils {
 		[Test]
 		public unsafe void TestVectorIndexOfOptions_NotFound ()
 		{
-			if (Sse2.IsSupported) {
+			if (Vector.IsHardwareAccelerated) {
 				var options = ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls;
 				var buffer = ArrayPool<byte>.Shared.Rent (BufferLength);
 
@@ -745,7 +745,7 @@ namespace UnitTests.Utils {
 					ArrayPool<byte>.Shared.Return (buffer);
 				}
 			} else {
-				Assert.Ignore ("SSE2 is not supported on this platform.");
+				Assert.Ignore ("Vector acceleration is not supported on this platform.");
 			}
 		}
 

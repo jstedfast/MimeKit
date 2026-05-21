@@ -100,7 +100,7 @@ namespace MimeKit.Encodings {
 							octets = 0;
 						} else if (c == (byte) '*') {
 							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
-							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) exp? licitly
+							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
 							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
 							logger.Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber);
 						} else if (!c.IsWhitespace ()) {
