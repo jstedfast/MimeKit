@@ -154,7 +154,7 @@ namespace MimeKit {
 			await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
 
 			do {
-				var options = ComplianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
+				var byteOptions = ComplianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
 				int left = inputEnd - inputIndex;
@@ -284,7 +284,7 @@ namespace MimeKit {
 				do {
 					unsafe {
 						fixed (byte* inbuf = input) {
-							if (StepHeaderValue (inbuf, ref options, ref midline, ref ascii))
+							if (StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii))
 								break;
 						}
 					}
@@ -387,7 +387,7 @@ namespace MimeKit {
 			return state;
 		}
 
-		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions options, CancellationToken cancellationToken)
+		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
@@ -411,7 +411,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						incomplete = ScanContent (inbuf, ref options, ref midline, ref formats);
+						incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref formats);
 					}
 				}
 
@@ -456,12 +456,12 @@ namespace MimeKit {
 
 		async Task<int> ConstructMimePartAsync (CancellationToken cancellationToken)
 		{
-			var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+			var byteOptions = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			await OnMimePartContentBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-			var result = await ScanContentAsync (ScanContentType.MimeContent, beginOffset, beginLineNumber, true, options, cancellationToken).ConfigureAwait (false);
+			var result = await ScanContentAsync (ScanContentType.MimeContent, beginOffset, beginLineNumber, true, byteOptions, cancellationToken).ConfigureAwait (false);
 			await OnMimePartContentEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, result.Format, cancellationToken).ConfigureAwait (false);
 
 			return result.Lines;
@@ -483,15 +483,15 @@ namespace MimeKit {
 				// Check to see if this first line is a boundary marker.
 				unsafe {
 					fixed (byte* inbuf = input) {
-						var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+						var byteOptions = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 						byte* start = inbuf + inputIndex;
 						byte* inend = inbuf + inputEnd;
 						byte* inptr;
 
 						*inend = (byte) '\n';
 
-						if (ComplianceLogger != null && options != ByteDetectionOptions.None) {
-							inptr = ParseUtils.EndOfLine (start, inend + 1, options, out var detected);
+						if (ComplianceLogger != null && byteOptions != ByteDetectionOptions.None) {
+							inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
 
 							if ((detected & ByteDetectionResults.Detected8Bit) != 0)
 								ComplianceLogger.Log (MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber);
@@ -564,23 +564,23 @@ namespace MimeKit {
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
-		async Task MultipartScanPreambleAsync (ByteDetectionOptions options, CancellationToken cancellationToken)
+		async Task MultipartScanPreambleAsync (ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			await OnMultipartPreambleBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-			var result = await ScanContentAsync (ScanContentType.MultipartPreamble, beginOffset, beginLineNumber, false, options, cancellationToken).ConfigureAwait (false);
+			var result = await ScanContentAsync (ScanContentType.MultipartPreamble, beginOffset, beginLineNumber, false, byteOptions, cancellationToken).ConfigureAwait (false);
 			await OnMultipartPreambleEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task MultipartScanEpilogueAsync (ByteDetectionOptions options, CancellationToken cancellationToken)
+		async Task MultipartScanEpilogueAsync (ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			await OnMultipartEpilogueBeginAsync (beginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-			var result = await ScanContentAsync (ScanContentType.MultipartEpilogue, beginOffset, beginLineNumber, true, options, cancellationToken).ConfigureAwait (false);
+			var result = await ScanContentAsync (ScanContentType.MultipartEpilogue, beginOffset, beginLineNumber, true, byteOptions, cancellationToken).ConfigureAwait (false);
 			await OnMultipartEpilogueEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -641,7 +641,7 @@ namespace MimeKit {
 
 		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
 		{
-			var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+			var byteOptions = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
 			var beginLineNumber = lineNumber;
@@ -651,7 +651,7 @@ namespace MimeKit {
 				ComplianceLogger?.Log (MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
 
 				// Note: this will scan all content into the preamble...
-				await MultipartScanPreambleAsync (options, cancellationToken).ConfigureAwait (false);
+				await MultipartScanPreambleAsync (byteOptions, cancellationToken).ConfigureAwait (false);
 
 				endOffset = GetEndOffset (inputIndex);
 
@@ -664,7 +664,7 @@ namespace MimeKit {
 
 			PushBoundary (marker);
 
-			await MultipartScanPreambleAsync (options, cancellationToken).ConfigureAwait (false);
+			await MultipartScanPreambleAsync (byteOptions, cancellationToken).ConfigureAwait (false);
 			if (boundaryType == BoundaryType.ImmediateBoundary)
 				await MultipartScanSubpartsAsync (contentType, depth, cancellationToken).ConfigureAwait (false);
 
@@ -674,7 +674,7 @@ namespace MimeKit {
 
 				PopBoundary ();
 
-				await MultipartScanEpilogueAsync (options, cancellationToken).ConfigureAwait (false);
+				await MultipartScanEpilogueAsync (byteOptions, cancellationToken).ConfigureAwait (false);
 
 				endOffset = GetEndOffset (inputIndex);
 

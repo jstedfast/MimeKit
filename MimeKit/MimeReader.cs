@@ -1748,7 +1748,7 @@ namespace MimeKit {
 			inputIndex += headerIndex;
 		}
 
-		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions options, ref bool midline, ref bool ascii)
+		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool ascii)
 		{
 			byte* start = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1757,20 +1757,20 @@ namespace MimeKit {
 			*inend = (byte) '\n';
 
 			while (inptr < inend && (midline || IsBlank (*inptr))) {
-				if (options != ByteDetectionOptions.None) {
-					inptr = ParseUtils.EndOfLine (inptr, inend + 1, options, out var detected);
+				if (byteOptions != ByteDetectionOptions.None) {
+					inptr = ParseUtils.EndOfLine (inptr, inend + 1, byteOptions, out var detected);
 
 					if ((detected & ByteDetectionResults.Detected8Bit) != 0) {
 						// Note: we don't emit Unexpected8BitBytesInHeader here because 8-bit might only indicate UTF-8 which is valid in headers
 						// according to RFC 6532. Instead, we'll just track that this header value contains non-ASCII text and check for valid UTF-8
 						// once we've got the full value.
-						options &= ~ByteDetectionOptions.Detect8Bit;
+						byteOptions &= ~ByteDetectionOptions.Detect8Bit;
 						ascii = false;
 					}
 
 					if ((detected & ByteDetectionResults.DetectedNulls) != 0) {
 						ComplianceLogger?.Log (MimeComplianceViolation.UnexpectedNullBytesInHeader, lineBeginOffset, lineNumber);
-						options &= ~ByteDetectionOptions.DetectNulls;
+						byteOptions &= ~ByteDetectionOptions.DetectNulls;
 					}
 				} else {
 					inptr = ParseUtils.EndOfLine (inptr, inend + 1);
@@ -1924,9 +1924,8 @@ namespace MimeKit {
 
 					if (!Utf8.IsValid (fieldSpan))
 						ComplianceLogger.Log (MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber);
-				} else if (!ascii) {
-					if (!Utf8.IsValid (value))
-						ComplianceLogger.Log (MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber);
+				} else if (!ascii && !Utf8.IsValid (value)) {
+					ComplianceLogger.Log (MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber);
 				}
 			}
 
@@ -1961,7 +1960,7 @@ namespace MimeKit {
 			ReadAhead (ReadAheadSize, 0, cancellationToken);
 
 			do {
-				var options = ComplianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
+				var byteOptions = ComplianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
 				int left = inputEnd - inputIndex;
@@ -2067,7 +2066,7 @@ namespace MimeKit {
 				bool ascii = true;
 
 				// Consume the header value.
-				while (!StepHeaderValue (inbuf, ref options, ref midline, ref ascii)) {
+				while (!StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii)) {
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
 						if (ComplianceLogger != null) {
 							if (midline)
@@ -2407,7 +2406,7 @@ namespace MimeKit {
 			return ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls;
 		}
 
-		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions options, ref bool midline, ref bool[] formats)
+		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool[] formats)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -2420,17 +2419,17 @@ namespace MimeKit {
 				byte* start = inptr;
 				int length;
 
-				if (options != ByteDetectionOptions.None) {
-					inptr = ParseUtils.EndOfLine (start, inend + 1, options, out var detected);
+				if (byteOptions != ByteDetectionOptions.None) {
+					inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
 
 					if ((detected & ByteDetectionResults.Detected8Bit) != 0) {
 						ComplianceLogger?.Log (MimeComplianceViolation.Unexpected8BitBytesInBody, GetOffset (startIndex), lineNumber);
-						options &= ~ByteDetectionOptions.Detect8Bit;
+						byteOptions &= ~ByteDetectionOptions.Detect8Bit;
 					}
 
 					if ((detected & ByteDetectionResults.DetectedNulls) != 0) {
 						ComplianceLogger?.Log (MimeComplianceViolation.UnexpectedNullBytesInBody, GetOffset (startIndex), lineNumber);
-						options &= ~ByteDetectionOptions.DetectNulls;
+						byteOptions &= ~ByteDetectionOptions.DetectNulls;
 					}
 				} else {
 					inptr = ParseUtils.EndOfLine (start, inend + 1);
@@ -2544,7 +2543,7 @@ namespace MimeKit {
 			}
 		}
 
-		unsafe ScanContentResult ScanContent (ScanContentType type, byte* inbuf, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions options, CancellationToken cancellationToken)
+		unsafe ScanContentResult ScanContent (ScanContentType type, byte* inbuf, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
@@ -2566,7 +2565,7 @@ namespace MimeKit {
 
 				int contentIndex = inputIndex;
 
-				incomplete = ScanContent (inbuf, ref options, ref midline, ref formats);
+				incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref formats);
 
 				if (contentIndex < inputIndex) {
 					switch (type) {
@@ -2609,12 +2608,12 @@ namespace MimeKit {
 
 		unsafe int ConstructMimePart (byte* inbuf, CancellationToken cancellationToken)
 		{
-			var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+			var byteOptions = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			OnMimePartContentBegin (beginOffset, beginLineNumber, cancellationToken);
-			var result = ScanContent (ScanContentType.MimeContent, inbuf, beginOffset, beginLineNumber, true, options, cancellationToken);
+			var result = ScanContent (ScanContentType.MimeContent, inbuf, beginOffset, beginLineNumber, true, byteOptions, cancellationToken);
 			OnMimePartContentEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, result.Format, cancellationToken);
 
 			return result.Lines;
@@ -2634,15 +2633,15 @@ namespace MimeKit {
 				}
 
 				// Check to see if this first line is a boundary marker.
-				var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+				var byteOptions = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 				byte* start = inbuf + inputIndex;
 				byte* inend = inbuf + inputEnd;
 				byte* inptr;
 
 				*inend = (byte) '\n';
 
-				if (ComplianceLogger != null && options != ByteDetectionOptions.None) {
-					inptr = ParseUtils.EndOfLine (start, inend + 1, options, out var detected);
+				if (ComplianceLogger != null && byteOptions != ByteDetectionOptions.None) {
+					inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
 
 					if ((detected & ByteDetectionResults.Detected8Bit) != 0)
 						ComplianceLogger.Log (MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber);
@@ -2713,23 +2712,23 @@ namespace MimeKit {
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
 
-		unsafe void MultipartScanPreamble (byte* inbuf, ByteDetectionOptions options, CancellationToken cancellationToken)
+		unsafe void MultipartScanPreamble (byte* inbuf, ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			OnMultipartPreambleBegin (beginOffset, beginLineNumber, cancellationToken);
-			var result = ScanContent (ScanContentType.MultipartPreamble, inbuf, beginOffset, beginLineNumber, false, options, cancellationToken);
+			var result = ScanContent (ScanContentType.MultipartPreamble, inbuf, beginOffset, beginLineNumber, false, byteOptions, cancellationToken);
 			OnMultipartPreambleEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken);
 		}
 
-		unsafe void MultipartScanEpilogue (byte* inbuf, ByteDetectionOptions options, CancellationToken cancellationToken)
+		unsafe void MultipartScanEpilogue (byte* inbuf, ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
 
 			OnMultipartEpilogueBegin (beginOffset, beginLineNumber, cancellationToken);
-			var result = ScanContent (ScanContentType.MultipartEpilogue, inbuf, beginOffset, beginLineNumber, true, options, cancellationToken);
+			var result = ScanContent (ScanContentType.MultipartEpilogue, inbuf, beginOffset, beginLineNumber, true, byteOptions, cancellationToken);
 			OnMultipartEpilogueEnd (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken);
 		}
 
@@ -2842,7 +2841,7 @@ namespace MimeKit {
 
 		unsafe int ConstructMultipart (ContentType contentType, byte* inbuf, int depth, CancellationToken cancellationToken)
 		{
-			var options = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
+			var byteOptions = ComplianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
 			var marker = contentType.Boundary;
 			var beginLineNumber = lineNumber;
@@ -2852,7 +2851,7 @@ namespace MimeKit {
 				ComplianceLogger?.Log (MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber);
 
 				// Note: this will scan all content into the preamble...
-				MultipartScanPreamble (inbuf, options, cancellationToken);
+				MultipartScanPreamble (inbuf, byteOptions, cancellationToken);
 
 				endOffset = GetEndOffset (inputIndex);
 
@@ -2865,7 +2864,7 @@ namespace MimeKit {
 
 			PushBoundary (marker);
 
-			MultipartScanPreamble (inbuf, options, cancellationToken);
+			MultipartScanPreamble (inbuf, byteOptions, cancellationToken);
 			if (boundaryType == BoundaryType.ImmediateBoundary)
 				MultipartScanSubparts (contentType, inbuf, depth, cancellationToken);
 
@@ -2875,7 +2874,7 @@ namespace MimeKit {
 
 				PopBoundary ();
 
-				MultipartScanEpilogue (inbuf, options, cancellationToken);
+				MultipartScanEpilogue (inbuf, byteOptions, cancellationToken);
 
 				endOffset = GetEndOffset (inputIndex);
 
