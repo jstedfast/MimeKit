@@ -353,7 +353,7 @@ namespace MimeKit.Encodings {
 						if (*inptr == (byte) '\n') {
 							if (uulen > 0) {
 								// incomplete line
-								logger.Log (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset, lineNumber);
+								logger.Log (MimeComplianceViolation.IncompleteUUEncodedLine, streamOffset, lineNumber);
 							}
 
 							SkipByte (ref inptr);
@@ -363,13 +363,19 @@ namespace MimeKit.Encodings {
 
 						if (eoln) {
 							// first octet on a line is the uulen octet
-							uulen = UUDecoder.uudecode_rank[*inptr];
 							eoln = false;
 
-							if (uulen == 0) {
+							if (*inptr == (byte) '`') {
 								state = UUValidatorState.Ended;
 								SkipByte (ref inptr);
 								break;
+							}
+
+							uulen = UUDecoder.uudecode_rank[*inptr];
+
+							if (uulen > 45) {
+								// invalid line length
+								logger.Log (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset, lineNumber);
 							}
 
 							SkipByte (ref inptr);
@@ -377,6 +383,11 @@ namespace MimeKit.Encodings {
 						}
 
 						byte c = ReadByte (ref inptr);
+
+						if (c < 33 || c > 96) {
+							// invalid character in uuencoded payload
+							logger.Log (MimeComplianceViolation.InvalidUUEncodedContent, streamOffset - 1, lineNumber);
+						}
 
 						if (uulen > 0) {
 							nsaved++;
@@ -396,7 +407,7 @@ namespace MimeKit.Encodings {
 							}
 						} else {
 							// extra data beyond the end of the uuencoded line
-							logger.Log (MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset - 1, lineNumber);
+							logger.Log (MimeComplianceViolation.InvalidUUEncodedLineExtraData, streamOffset - 1, lineNumber);
 						}
 					}
 				}

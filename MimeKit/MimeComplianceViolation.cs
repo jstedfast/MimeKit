@@ -351,13 +351,32 @@ namespace MimeKit {
 		InvalidUUEncodedContent,
 
 		/// <summary>
+		/// The uuencoded content of a MIME part had an invalid encoded line length.
+		/// </summary>
+		/// <remarks>
+		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. This length must be between 0 and
+		/// 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can
+		/// lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodedLineLength,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained an incomplete encoded line.
+		/// </summary>
+		/// <remarks>
+		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to
+		/// decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		IncompleteUUEncodedLine,
+
+		/// <summary>
 		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
 		/// </summary>
 		/// <remarks>
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
 		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineLength,
+		InvalidUUEncodedLineExtraData,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.

@@ -124,7 +124,7 @@ namespace UnitTests.Encodings {
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&E\r\n`\r\nend\r\n";
 			// Note: the violation triggers on the '\n' character
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ("E\r\n") + 2, 2, 61)
+				new MimeComplianceIssue (MimeComplianceViolation.IncompleteUUEncodedLine, text.IndexOf ("E\r\n") + 2, 2, 61)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -135,7 +135,8 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ("x\r\n"), 2, 61)
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedContent, text.IndexOf ('x'), 2, 61), // 'x' is an invalid character
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('x'), 2, 61)
 			};
 
 			AssertInvalidInput (text, issues);
