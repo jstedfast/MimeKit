@@ -1,5 +1,16 @@
 # Release Notes
 
+## MimeKit 4.17.0 (2026-05-26)
+
+* Added a Received header parser.
+* Marked HtmlToHtml.FilterHtml as obsolete to warn developers that this feature is not enough to protect
+  against Cross-Size Scripting (XSS) vulnerabilities.
+* Fixed logic for calculating maxOffset for Base64Encoder's hwaccel routines.
+  (issue [#1239](https://github.com/jstedfast/MimeKit/issues/1239))
+* Capped the maxLineLength at 76 for Base64Encoder (which is what it used to be capped at until v4.14).
+* Changed the default TnefPart mime-type to application/ms-tnef to match O365 Exchange behavior.
+* Code quality improvements.
+
 ## MimeKit 4.16.0 (2026-04-15)
 
 * Simplified logic for illegal ctrl characters within quoted-string local-part tokens in addr-specs.
