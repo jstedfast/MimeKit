@@ -73,16 +73,12 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) Or $(TargetFramework.StartsWith('net6')) Or $(TargetFramework.StartsWith('net8')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('net10')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.0" />
-  </ItemGroup>
-
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" ! $(TargetFramework.StartsWith('net4')) ">
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' ">
