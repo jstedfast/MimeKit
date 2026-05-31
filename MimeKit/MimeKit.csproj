@@ -78,7 +78,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" ! $(TargetFramework.StartsWith('net4')) ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' ">
