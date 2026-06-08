@@ -74,7 +74,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard2.')) ">
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.9" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.16" />
   </ItemGroup>
 
   <ItemGroup Condition=" ! $(TargetFramework.StartsWith('net4')) ">
