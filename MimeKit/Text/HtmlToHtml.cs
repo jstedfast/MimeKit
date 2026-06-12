@@ -263,18 +263,13 @@ namespace MimeKit.Text {
 			case HtmlTagId.Unknown:     // Unknown tags could potentially be dangerous
 			case HtmlTagId.Applet:      // Can execute Java applets
 			case HtmlTagId.Audio:       // Can embed audio with potentially malicious content
-			case HtmlTagId.Base:        // Can hijack relative URLs
-			case HtmlTagId.Embed:       // Can embed executable content
 			case HtmlTagId.Form:        // Can submit data to an attacker's server
 			case HtmlTagId.Frame:       // Embeds external (and thus unsafe) content
 			case HtmlTagId.FrameSet:    // Container for frames
 			case HtmlTagId.IFrame:      // Embeds external (and thus unsafe) content
-			case HtmlTagId.Input:       // Can be used to steal user input or trigger actions
-			case HtmlTagId.Link:        // Can load external stylesheets that execute in certain contexts
 			case HtmlTagId.Object:      // Can embed executable content
 			case HtmlTagId.Script:      // Direct script execution
 			case HtmlTagId.Select:      // Can be used to steal user input or trigger actions
-			case HtmlTagId.Source:      // Can be used to define alternative audio or video sources
 			case HtmlTagId.Style:       // Can contain CSS with expression() or import of malicious content
 			case HtmlTagId.TextArea:    // Can be used to steal user input or trigger actions
 			case HtmlTagId.Video:       // Can embed video with potentially malicious content
