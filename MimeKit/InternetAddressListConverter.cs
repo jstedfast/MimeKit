@@ -115,10 +115,11 @@ namespace MimeKit {
 		/// </exception>
 		public override object? ConvertFrom (ITypeDescriptorContext? context, CultureInfo? culture, object value)
 		{
-			if (value is string text)
-				return InternetAddressList.Parse (Options ?? ParserOptions.Default, text);
-
-			return base.ConvertFrom (context, culture, value);
+			return value switch {
+				"" => InternetAddressList.Empty,
+				string text => InternetAddressList.Parse (Options ?? ParserOptions.Default, text),
+				_ => base.ConvertFrom (context, culture, value)
+			};
 		}
 
 		/// <summary>
@@ -163,10 +164,11 @@ namespace MimeKit {
 		/// <param name="value">The <see cref="Object"/> to test for validity.</param>
 		public override bool IsValid (ITypeDescriptorContext? context, object? value)
 		{
-			if (value is string text)
-				return InternetAddressList.TryParse (Options ?? ParserOptions.Default, text, out _);
-
-			return base.IsValid (context, value);
+			return value switch {
+				"" => true,
+				string text => InternetAddressList.TryParse (Options ?? ParserOptions.Default, text, out _),
+				_ => base.IsValid (context, value)
+			};
 		}
 	}
 }

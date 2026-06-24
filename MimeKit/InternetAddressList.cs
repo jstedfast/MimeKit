@@ -55,6 +55,8 @@ namespace MimeKit {
 	[TypeConverter (typeof (InternetAddressListConverter))]
 	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>, IComparable<InternetAddressList>
 	{
+		internal static readonly InternetAddressList Empty = [];
+
 		readonly List<InternetAddress> list;
 
 		/// <summary>
