@@ -34,8 +34,8 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeReaderTests
 	{
-		//static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
-		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
+		//static readonly string MessagesDataDir = Path.Join (TestHelper.ProjectDir, "TestData", "messages");
+		static readonly string MboxDataDir = Path.Join (TestHelper.ProjectDir, "TestData", "mbox");
 		static readonly FormatOptions UnixFormatOptions;
 
 		static MimeReaderTests ()
@@ -303,7 +303,7 @@ namespace UnitTests {
 
 		static void AssertMboxResults (string baseName, List<MimeOffsets> offsets, NewLineFormat newLineFormat)
 		{
-			var path = Path.Combine (MboxDataDir, baseName + "." + newLineFormat.ToString ().ToLowerInvariant () + "-offsets.json");
+			var path = Path.Join (MboxDataDir, baseName + "." + newLineFormat.ToString ().ToLowerInvariant () + "-offsets.json");
 			var jsonSerializer = JsonSerializer.CreateDefault ();
 
 			if (!File.Exists (path)) {
@@ -325,7 +325,7 @@ namespace UnitTests {
 
 		static void TestMbox (ParserOptions options, string baseName)
 		{
-			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
+			var mbox = Path.Join (MboxDataDir, baseName + ".mbox.txt");
 			NewLineFormat newLineFormat;
 			List<MimeOffsets> offsets;
 
@@ -347,7 +347,7 @@ namespace UnitTests {
 
 		static async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
-			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
+			var mbox = Path.Join (MboxDataDir, baseName + ".mbox.txt");
 			NewLineFormat newLineFormat;
 			List<MimeOffsets> offsets;
 

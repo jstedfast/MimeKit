@@ -45,11 +45,11 @@ namespace Benchmarks.IO.Filters {
 
 		public EncoderFilterBenchmarks ()
 		{
-			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
-			var path = Path.Combine (dataDir, "wikipedia.txt");
+			var dataDir = Path.Join (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
+			var path = Path.Join (dataDir, "wikipedia.txt");
 			TextData = File.ReadAllBytes (path);
 
-			path = Path.Combine (dataDir, "photo.jpg");
+			path = Path.Join (dataDir, "photo.jpg");
 			BinaryData = File.ReadAllBytes (path);
 		}
 

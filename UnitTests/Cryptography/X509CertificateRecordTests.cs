@@ -41,7 +41,7 @@ namespace UnitTests.Cryptography {
 			var signer = new CmsSigner (rsa.FileName, "no.secret");
 			AsymmetricCipherKeyPair keyPair;
 
-			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
+			using (var reader = new PemReader (new StreamReader (Path.Join (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
 
 			Assert.Throws<ArgumentNullException> (() => new X509CrlRecord (null));

@@ -35,12 +35,12 @@ using BenchmarkDotNet.Attributes;
 namespace Benchmarks.IO.Filters {
 	public class TrailingWhitespaceFilterBenchmarks : IDisposable
 	{
-		static readonly string TestDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData");
+		static readonly string TestDataDir = Path.Join (BenchmarkHelper.UnitTestsDir, "TestData");
 		readonly Stream LoremIpsum;
 
 		public TrailingWhitespaceFilterBenchmarks ()
 		{
-			var path = Path.Combine (TestDataDir, "text", "lorem-ipsum.txt");
+			var path = Path.Join (TestDataDir, "text", "lorem-ipsum.txt");
 			var data = File.ReadAllBytes (path);
 
 			LoremIpsum = new MemoryStream (data, false);

@@ -51,7 +51,7 @@ namespace UnitTests.Cryptography {
 
 		static X509Certificate GetCertificate (string fileName)
 		{
-			using (var reader = new PemReader (File.OpenText (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", fileName)))) {
+			using (var reader = new PemReader (File.OpenText (Path.Join (TestHelper.ProjectDir, "TestData", "smime", fileName)))) {
 				object item;
 
 				while ((item = reader.ReadObject ()) != null) {

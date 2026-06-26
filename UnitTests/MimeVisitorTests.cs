@@ -38,16 +38,16 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeVisitor ()
 		{
-			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
+			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "mbox");
 			var visitor = new HtmlPreviewVisitor ();
 			int index = 0;
 
-			using (var stream = File.OpenRead (Path.Combine (dataDir, "jwz.mbox.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (dataDir, "jwz.mbox.txt"))) {
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
 					var filename = string.Format (CultureInfo.InvariantCulture, "jwz.body.{0}.html", index);
-					var path = Path.Combine (dataDir, filename);
+					var path = Path.Join (dataDir, filename);
 					using var message = parser.ParseMessage ();
 					string expected, actual;
 

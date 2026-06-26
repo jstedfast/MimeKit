@@ -66,7 +66,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDefaultValues ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
+			var path = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
 			var recipient = new CmsRecipient (path);
 			var certificate = recipient.Certificate;
 
@@ -91,7 +91,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestRecipientIdentifierType ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
+			var path = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
 			var recipient = new CmsRecipient (path, SubjectIdentifierType.SubjectKeyIdentifier);
 			var certificate = recipient.Certificate;
 
@@ -113,7 +113,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestCollectionAddRemove ()
 		{
-			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
+			var path = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
 			var recipients = new CmsRecipientCollection ();
 			var recipient = new CmsRecipient (path);
 			var array = new CmsRecipient[1];

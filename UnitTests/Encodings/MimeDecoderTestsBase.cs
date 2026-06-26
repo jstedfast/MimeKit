@@ -37,7 +37,7 @@ using MimeKit.IO.Filters;
 namespace UnitTests.Encodings {
 	public class MimeDecoderTestsBase
 	{
-		protected static readonly string dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
+		protected static readonly string dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "encoders");
 		protected static readonly byte[] wikipedia_unix;
 		protected static readonly byte[] wikipedia_dos;
 		protected static readonly byte[] photo;
@@ -48,7 +48,7 @@ namespace UnitTests.Encodings {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Dos2UnixFilter ());
 
-					using (var file = File.OpenRead (Path.Combine (dataDir, "wikipedia.txt")))
+					using (var file = File.OpenRead (Path.Join (dataDir, "wikipedia.txt")))
 						file.CopyTo (filtered, 4096);
 
 					filtered.Flush ();
@@ -61,7 +61,7 @@ namespace UnitTests.Encodings {
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					using (var file = File.OpenRead (Path.Combine (dataDir, "wikipedia.txt")))
+					using (var file = File.OpenRead (Path.Join (dataDir, "wikipedia.txt")))
 						file.CopyTo (filtered, 4096);
 
 					filtered.Flush ();
@@ -70,7 +70,7 @@ namespace UnitTests.Encodings {
 				wikipedia_dos = memory.ToArray ();
 			}
 
-			photo = File.ReadAllBytes (Path.Combine (dataDir, "photo.jpg"));
+			photo = File.ReadAllBytes (Path.Join (dataDir, "photo.jpg"));
 		}
 
 		protected static void AssertArgumentExceptions (IMimeDecoder decoder)
@@ -175,7 +175,7 @@ namespace UnitTests.Encodings {
 					if (unix)
 						filtered.Add (new Dos2UnixFilter ());
 
-					using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
+					using (var file = File.OpenRead (Path.Join (dataDir, encodedFile))) {
 						var buffer = new byte[bufferSize];
 
 						while ((n = file.Read (buffer, 0, bufferSize)) > 0)

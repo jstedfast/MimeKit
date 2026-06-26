@@ -42,14 +42,14 @@ namespace Benchmarks.IO.Filters {
 
 		public DecoderFilterBenchmarks ()
 		{
-			var dataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
-			var path = Path.Combine (dataDir, "wikipedia.qp");
+			var dataDir = Path.Join (BenchmarkHelper.UnitTestsDir, "TestData", "encoders");
+			var path = Path.Join (dataDir, "wikipedia.qp");
 			QuotedPrintableData = File.ReadAllBytes (path);
 
-			path = Path.Combine (dataDir, "photo.b64");
+			path = Path.Join (dataDir, "photo.b64");
 			Base64Data = File.ReadAllBytes (path);
 
-			path = Path.Combine (dataDir, "photo.uu");
+			path = Path.Join (dataDir, "photo.uu");
 			UUEncodedData = File.ReadAllBytes (path);
 		}
 

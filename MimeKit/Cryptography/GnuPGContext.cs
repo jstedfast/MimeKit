@@ -64,10 +64,10 @@ namespace MimeKit.Cryptography {
 			if (gnupg == null) {
 				if (Path.DirectorySeparatorChar == '\\') {
 					var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
-					gnupg = Path.Combine (appData, "gnupg");
+					gnupg = Path.Join (appData, "gnupg");
 				} else {
 					var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
-					gnupg = Path.Combine (home, ".gnupg");
+					gnupg = Path.Join (home, ".gnupg");
 				}
 			}
 
@@ -132,8 +132,8 @@ namespace MimeKit.Cryptography {
 			if (gnupgDir == null)
 				throw new ArgumentNullException (nameof (gnupgDir));
 
-			var pubring = Path.Combine (gnupgDir, "pubring.gpg");
-			var secring = Path.Combine (gnupgDir, "secring.gpg");
+			var pubring = Path.Join (gnupgDir, "pubring.gpg");
+			var secring = Path.Join (gnupgDir, "secring.gpg");
 
 			PublicKeyRingPath = pubring;
 			SecretKeyRingPath = secring;
@@ -154,7 +154,7 @@ namespace MimeKit.Cryptography {
 				SecretKeyRingBundle = new PgpSecretKeyRingBundle (EmptyKeyRingBundle);
 			}
 
-			var configFile = Path.Combine (gnupgDir, "gpg.conf");
+			var configFile = Path.Join (gnupgDir, "gpg.conf");
 
 			LoadConfiguration (configFile);
 
@@ -850,8 +850,8 @@ namespace MimeKit.Cryptography {
 		{
 			var filename = Path.GetFileName (PublicKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (PublicKeyRingPath);
-			var tmp = Path.Combine (dirname!, "." + filename);
-			var bak = Path.Combine (dirname!, filename);
+			var tmp = Path.Join (dirname!, "." + filename);
+			var bak = Path.Join (dirname!, filename);
 
 			Directory.CreateDirectory (dirname!);
 
@@ -881,8 +881,8 @@ namespace MimeKit.Cryptography {
 		{
 			var filename = Path.GetFileName (SecretKeyRingPath) + "~";
 			var dirname = Path.GetDirectoryName (SecretKeyRingPath);
-			var tmp = Path.Combine (dirname!, "." + filename);
-			var bak = Path.Combine (dirname!, filename);
+			var tmp = Path.Join (dirname!, "." + filename);
+			var bak = Path.Join (dirname!, filename);
 
 			Directory.CreateDirectory (dirname!);
 

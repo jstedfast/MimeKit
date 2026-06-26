@@ -43,10 +43,10 @@ namespace Benchmarks {
 
 			UnpreparedMessage.Body = new Multipart ("mixed") {
 				new TextPart ("plain") {
-					Text = File.ReadAllText (Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "text", "lorem-ipsum.txt"))
+					Text = File.ReadAllText (Path.Join (BenchmarkHelper.UnitTestsDir, "TestData", "text", "lorem-ipsum.txt"))
 				},
 				new MimePart ("application", "octet-stream") {
-					Content = new MimeContent (File.OpenRead (Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "images", "girl.jpg")))
+					Content = new MimeContent (File.OpenRead (Path.Join (BenchmarkHelper.UnitTestsDir, "TestData", "images", "girl.jpg")))
 				}
 			};
 		}

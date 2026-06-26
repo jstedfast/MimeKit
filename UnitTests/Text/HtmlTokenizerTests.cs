@@ -197,63 +197,63 @@ namespace UnitTests.Text {
 		[TestCase (false)]
 		public void TestGoogleSignInAttemptBlocked (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "blocked.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "blocked.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestXamarin3SampleHtml (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "xamarin3.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "xamarin3.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestPapercut (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "papercut.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "papercut.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestPapercut44 (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "papercut-4.4.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "papercut-4.4.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestScriptData (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "script-data.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "script-data.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestCData (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "cdata.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "cdata.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestTokenizer (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "test.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "test.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestPlainText (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "plaintext.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "plaintext.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase (true)]
 		[TestCase (false)]
 		public void TestBadlyQuotedAttribute (bool useTextReader)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", "badly-quoted-attr.html"), useTextReader: useTextReader);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", "badly-quoted-attr.html"), useTextReader: useTextReader);
 		}
 
 		[TestCase ("utf-8")]
@@ -263,7 +263,7 @@ namespace UnitTests.Text {
 		[TestCase ("utf-32BE")]
 		public void TestDetectEncodingFromByteOrderMarks (string charset)
 		{
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", $"Gimhae_Kim_clan.{charset}.html"), useTextReader: false, trimCharsetSuffix: true);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", $"Gimhae_Kim_clan.{charset}.html"), useTextReader: false, trimCharsetSuffix: true);
 		}
 
 		[TestCase ("utf-8")]
@@ -275,7 +275,7 @@ namespace UnitTests.Text {
 		{
 			var encoding = Encoding.GetEncoding (charset);
 
-			VerifyHtmlTokenizerOutput (Path.Combine (TestHelper.ProjectDir, "TestData", "html", $"Gimhae_Kim_clan.{charset}.html"), encoding, useTextReader: false, trimCharsetSuffix: true, detectEncodingFromByteOrderMarks: false);
+			VerifyHtmlTokenizerOutput (Path.Join (TestHelper.ProjectDir, "TestData", "html", $"Gimhae_Kim_clan.{charset}.html"), encoding, useTextReader: false, trimCharsetSuffix: true, detectEncodingFromByteOrderMarks: false);
 		}
 
 		// Note: The following tests are borrowed from AngleSharp

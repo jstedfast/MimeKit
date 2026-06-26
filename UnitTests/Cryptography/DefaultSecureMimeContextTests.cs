@@ -112,12 +112,12 @@ namespace UnitTests.Cryptography {
 		{
 			try {
 				var database = new SqliteCertificateDatabase ("smime.db", "no.secret");
-				var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
+				var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
 				var certificates = new List<X509Certificate> ();
 
 				using (var ctx = new DefaultSecureMimeContext (database)) {
 					foreach (var filename in CertificateAuthorities) {
-						var path = Path.Combine (dataDir, filename);
+						var path = Path.Join (dataDir, filename);
 
 						using (var stream = File.OpenRead (path)) {
 							var parser = new X509CertificateParser ();

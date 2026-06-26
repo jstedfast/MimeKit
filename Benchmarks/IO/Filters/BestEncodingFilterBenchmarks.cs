@@ -36,17 +36,17 @@ using BenchmarkDotNet.Attributes;
 namespace Benchmarks.IO.Filters {
 	public class BestEncodingFilterBenchmarks : IDisposable
 	{
-		static readonly string TestDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData");
+		static readonly string TestDataDir = Path.Join (BenchmarkHelper.UnitTestsDir, "TestData");
 		readonly Stream LoremIpsum, GirlJpeg;
 
 		public BestEncodingFilterBenchmarks ()
 		{
-			var path = Path.Combine (TestDataDir, "text", "lorem-ipsum.txt");
+			var path = Path.Join (TestDataDir, "text", "lorem-ipsum.txt");
 			var data = File.ReadAllBytes (path);
 
 			LoremIpsum = new MemoryStream (data, false);
 
-			path = Path.Combine (TestDataDir, "images", "girl.jpg");
+			path = Path.Join (TestDataDir, "images", "girl.jpg");
 			data = File.ReadAllBytes (path);
 
 			GirlJpeg = new MemoryStream (data, false);

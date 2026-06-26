@@ -50,7 +50,7 @@ namespace UnitTests.Cryptography {
 			var chain = new[] { DotNetUtilities.FromX509Certificate (certificate) };
 			AsymmetricCipherKeyPair keyPair;
 
-			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
+			using (var reader = new PemReader (new StreamReader (Path.Join (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
 				keyPair = reader.ReadObject () as AsymmetricCipherKeyPair;
 
 			Assert.Throws<ArgumentException> (() => new CmsSigner (certificate));

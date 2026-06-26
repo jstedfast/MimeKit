@@ -43,7 +43,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeParser ()
 		{
-			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "disposition-notification.txt"));
+			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "disposition-notification.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 

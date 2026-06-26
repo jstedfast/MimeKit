@@ -33,8 +33,8 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeAnonymizerTests
 	{
-		static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
-		static readonly string TextDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "text");
+		static readonly string MessagesDataDir = Path.Join (TestHelper.ProjectDir, "TestData", "messages");
+		static readonly string TextDataDir = Path.Join (TestHelper.ProjectDir, "TestData", "text");
 
 		[Test]
 		public void TestArgumentExceptions ()
@@ -244,7 +244,7 @@ namespace UnitTests {
 
 		static void AssertAnonymizeMessage (string fileName)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
+			var path = Path.Join (MessagesDataDir, fileName);
 			var anon = Path.ChangeExtension (path, ".anonymized.eml");
 
 			using (var stream = File.OpenRead (path)) {
@@ -274,7 +274,7 @@ namespace UnitTests {
 
 		static void AssertAnonymizeEntity (string fileName)
 		{
-			var path = Path.Combine (MessagesDataDir, fileName);
+			var path = Path.Join (MessagesDataDir, fileName);
 			var anon = Path.ChangeExtension (path, ".anonymized.eml");
 
 			using (var stream = File.OpenRead (path)) {
@@ -430,7 +430,7 @@ xxxx
 			multipart.Add (new TextPart ("plain") {
 				FileName = "lorem-ipsum.txt",
 				ContentTransferEncoding = ContentEncoding.Base64,
-				Text = File.ReadAllText (Path.Combine (TextDataDir, "lorem-ipsum.txt")).ReplaceLineEndings ("\r\n"),
+				Text = File.ReadAllText (Path.Join (TextDataDir, "lorem-ipsum.txt")).ReplaceLineEndings ("\r\n"),
 			});
 
 			message.Body = multipart;

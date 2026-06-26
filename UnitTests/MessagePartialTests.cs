@@ -148,10 +148,10 @@ namespace UnitTests {
 		[Test]
 		public void TestReassembleGirlOnTrainPhotoExample ()
 		{
-			using var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.0.eml"));
-			using var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.1.eml"));
-			using var message2 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.2.eml"));
-			using var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
+			using var message0 = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "message-partial.0.eml"));
+			using var message1 = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "message-partial.1.eml"));
+			using var message2 = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "message-partial.2.eml"));
+			using var original = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 
 			Assert.That (message0, Is.Not.Null, "Failed to parse message-partial.0.eml");
 			Assert.That (message1, Is.Not.Null, "Failed to parse message-partial.1.eml");
@@ -184,9 +184,9 @@ namespace UnitTests {
 		[Test]
 		public void TestReassembleRfc2046Example ()
 		{
-			using var message0 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.0.eml"));
-			using var message1 = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.1.eml"));
-			using var original = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.eml"));
+			using var message0 = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.0.eml"));
+			using var message1 = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.1.eml"));
+			using var original = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "rfc2046.eml"));
 
 			Assert.That (message0, Is.Not.Null, "Failed to parse rfc2046.0.eml");
 			Assert.That (message1, Is.Not.Null, "Failed to parse rfc2046.1.eml");
@@ -209,7 +209,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSplit ()
 		{
-			using var message = Load (Path.Combine (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
+			using var message = Load (Path.Join (TestHelper.ProjectDir, "TestData", "partial", "message-partial.eml"));
 			var split = MessagePartial.Split (message, 1024 * 16).ToList ();
 			var parts = new List<MessagePartial> ();
 

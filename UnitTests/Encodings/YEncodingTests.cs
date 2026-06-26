@@ -35,7 +35,7 @@ namespace UnitTests.Encodings {
 	[TestFixture]
 	public class YEncodingTests
 	{
-		static readonly string DataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "yenc");
+		static readonly string DataDir = Path.Join (TestHelper.ProjectDir, "TestData", "yenc");
 
 		static void TestYEncode (string fileName, byte[] content, int contentLength, uint crc32, MemoryStream expectedOutput)
 		{
@@ -110,7 +110,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestYDecodeSimpleMessage ()
 		{
-			using (var file = File.OpenRead (Path.Combine (DataDir, "simple.msg"))) {
+			using (var file = File.OpenRead (Path.Join (DataDir, "simple.msg"))) {
 				var message = MimeMessage.Load (file);
 
 				using (var decoded = new MemoryStream ()) {
@@ -151,10 +151,10 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestYDecodeMultiPart ()
 		{
-			var expected = File.ReadAllBytes (Path.Combine (DataDir, "joystick.jpg"));
+			var expected = File.ReadAllBytes (Path.Join (DataDir, "joystick.jpg"));
 
 			using (var decoded = new MemoryStream ()) {
-				using (var file = File.OpenRead (Path.Combine (DataDir, "00000020.ntx"))) {
+				using (var file = File.OpenRead (Path.Join (DataDir, "00000020.ntx"))) {
 					var ydec = new YDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
@@ -167,7 +167,7 @@ namespace UnitTests.Encodings {
 					Assert.That (ydec.Checksum ^ 0xffffffff, Is.EqualTo (0xbfae5c0b), "The decoded checksum does not match (part 1).");
 				}
 
-				using (var file = File.OpenRead (Path.Combine (DataDir, "00000021.ntx"))) {
+				using (var file = File.OpenRead (Path.Join (DataDir, "00000021.ntx"))) {
 					var ydec = new YDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
@@ -190,7 +190,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestYDecodeStateTransitions ()
 		{
-			using (var file = File.OpenRead (Path.Combine (DataDir, "state-changes.ntx"))) {
+			using (var file = File.OpenRead (Path.Join (DataDir, "state-changes.ntx"))) {
 				using (var decoded = new MemoryStream ()) {
 					var ydec = new YDecoder ();
 

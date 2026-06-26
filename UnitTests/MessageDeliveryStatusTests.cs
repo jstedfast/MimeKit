@@ -44,7 +44,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroups ()
 		{
-			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
+			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "delivery-status.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -69,7 +69,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroups2 ()
 		{
-			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status2.txt"));
+			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "delivery-status2.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -96,7 +96,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsNoBlankLine ()
 		{
-			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
+			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-no-blank-line.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -122,7 +122,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsWithContent ()
 		{
-			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
+			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "bounce.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 
@@ -158,7 +158,7 @@ namespace UnitTests {
 		[Test]
 		public void TestStatusGroupsMultipleBlankLines ()
 		{
-			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
+			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "delivery-status-multiple-blank-lines.txt"));
 
 			Assert.That (message.Body, Is.InstanceOf<MultipartReport> (), "Expected top-level body part to be a multipart/report.");
 

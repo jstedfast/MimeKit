@@ -37,8 +37,8 @@ namespace UnitTests {
 	[TestFixture]
 	public class ExperimentalMimeParserTests
 	{
-		static readonly string MessagesDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "messages");
-		static readonly string MboxDataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "mbox");
+		static readonly string MessagesDataDir = Path.Join (TestHelper.ProjectDir, "TestData", "messages");
+		static readonly string MboxDataDir = Path.Join (TestHelper.ProjectDir, "TestData", "mbox");
 		static readonly FormatOptions UnixFormatOptions;
 
 		static ExperimentalMimeParserTests ()
@@ -460,7 +460,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream ()) {
 				stream.Write (bom, 0, bom.Length);
 
-				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				using (var file = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 					file.CopyTo (stream, 4096);
 
 				stream.Position = 0;
@@ -5335,7 +5335,7 @@ This is the message body.
 		[Test]
 		public void TestSimpleMbox ()
 		{
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+			using (var stream = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 				AssertSimpleMbox (stream);
 		}
 
@@ -5377,7 +5377,7 @@ This is the message body.
 		[Test]
 		public async Task TestSimpleMboxAsync ()
 		{
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+			using (var stream = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 				await AssertSimpleMboxAsync (stream);
 		}
 
@@ -5389,7 +5389,7 @@ This is the message body.
 
 				stream.Write (bom, 0, bom.Length);
 
-				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				using (var file = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 					file.CopyTo (stream, 4096);
 
 				stream.Position = 0;
@@ -5406,7 +5406,7 @@ This is the message body.
 
 				stream.Write (bom, 0, bom.Length);
 
-				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				using (var file = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 					file.CopyTo (stream, 4096);
 
 				stream.Position = 0;
@@ -5432,7 +5432,7 @@ This is the message body.
 			using (var stream = new MemoryStream ()) {
 				stream.Write (garbage, 0, garbage.Length);
 
-				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				using (var file = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 					file.CopyTo (stream, 4096);
 
 				stream.Position = 0;
@@ -5458,7 +5458,7 @@ This is the message body.
 			using (var stream = new MemoryStream ()) {
 				stream.Write (garbage, 0, garbage.Length);
 
-				using (var file = File.OpenRead (Path.Combine (MboxDataDir, "simple.mbox.txt")))
+				using (var file = File.OpenRead (Path.Join (MboxDataDir, "simple.mbox.txt")))
 					file.CopyTo (stream, 4096);
 
 				stream.Position = 0;
@@ -5504,7 +5504,7 @@ This is the message body.
    Content-Type: text/plain
 ".Replace ("\r\n", "\n");
 
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "empty-multipart.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "empty-multipart.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 				var builder = new StringBuilder ();
@@ -5713,7 +5713,7 @@ This is the message body.
 			if (iso2022jp != "佐藤豊")
 				actual = actual.Replace (iso2022jp, "佐藤豊");
 
-			var path = Path.Combine (MboxDataDir, baseName + "-summary.txt");
+			var path = Path.Join (MboxDataDir, baseName + "-summary.txt");
 			if (!File.Exists (path))
 				File.WriteAllText (path, actual);
 
@@ -5724,7 +5724,7 @@ This is the message body.
 
 			Assert.That (actual, Is.EqualTo (summary), $"Summaries do not match for {baseName}.mbox");
 
-			using (var original = File.OpenRead (Path.Combine (MboxDataDir, baseName + ".mbox.txt"))) {
+			using (var original = File.OpenRead (Path.Join (MboxDataDir, baseName + ".mbox.txt"))) {
 				int lineNumber = 1, columnNumber = 1;
 
 				output.Position = 0;
@@ -5759,7 +5759,7 @@ This is the message body.
 
 			var jsonSerializer = JsonSerializer.CreateDefault ();
 
-			path = Path.Combine (MboxDataDir, baseName + "." + newLineFormat.ToString ().ToLowerInvariant () + "-offsets.json");
+			path = Path.Join (MboxDataDir, baseName + "." + newLineFormat.ToString ().ToLowerInvariant () + "-offsets.json");
 			if (!File.Exists (path)) {
 				jsonSerializer.Formatting = Formatting.Indented;
 
@@ -5779,7 +5779,7 @@ This is the message body.
 
 		static void TestMbox (ParserOptions options, string baseName)
 		{
-			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
+			var mbox = Path.Join (MboxDataDir, baseName + ".mbox.txt");
 			using var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 			NewLineFormat newLineFormat;
@@ -5822,7 +5822,7 @@ This is the message body.
 
 		static async Task TestMboxAsync (ParserOptions options, string baseName)
 		{
-			var mbox = Path.Combine (MboxDataDir, baseName + ".mbox.txt");
+			var mbox = Path.Join (MboxDataDir, baseName + ".mbox.txt");
 			using var output = new MemoryBlockStream ();
 			var builder = new StringBuilder ();
 			NewLineFormat newLineFormat;
@@ -5908,10 +5908,10 @@ This is the message body.
 		[Test]
 		public void TestJwzPersistentMbox ()
 		{
-			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
+			var summary = File.ReadAllText (Path.Join (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, true);
 
 				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
@@ -5950,10 +5950,10 @@ This is the message body.
 		[Test]
 		public async Task TestJwzPersistentMboxAsync ()
 		{
-			var summary = File.ReadAllText (Path.Combine (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
+			var summary = File.ReadAllText (Path.Join (MboxDataDir, "jwz-summary.txt")).Replace ("\r\n", "\n");
 			var builder = new StringBuilder ();
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MboxDataDir, "jwz.mbox.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, true);
 
 				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
@@ -5995,7 +5995,7 @@ This is the message body.
 			const string subject = "日本語メールテスト (testing Japanese emails)";
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
 
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "japanese.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 
@@ -6010,7 +6010,7 @@ This is the message body.
 			const string subject = "日本語メールテスト (testing Japanese emails)";
 			const string body = "Let's see if both subject and body works fine...\n\n日本語が\n正常に\n送れているか\nテスト.\n";
 
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "japanese.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "japanese.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -6024,7 +6024,7 @@ This is the message body.
 		{
 			int count = 0;
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "unmunged.mbox.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MboxDataDir, "unmunged.mbox.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
@@ -6049,7 +6049,7 @@ This is the message body.
 		{
 			int count = 0;
 
-			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "unmunged.mbox.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MboxDataDir, "unmunged.mbox.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
@@ -6074,7 +6074,7 @@ This is the message body.
 		{
 			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "epilogue.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 				var multipart = message.Body as Multipart;
@@ -6091,7 +6091,7 @@ This is the message body.
 		{
 			const string epilogue = "Peter Urka <pcu@umich.edu>\nDept. of Chemistry, Univ. of Michigan\nNewt-thought is right-thought.  Go Newt!\n\n";
 
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "epilogue.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "epilogue.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 				var multipart = message.Body as Multipart;
@@ -6106,7 +6106,7 @@ This is the message body.
 		[Test]
 		public void TestMissingSubtype ()
 		{
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "missing-subtype.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 				var type = message.Body.ContentType;
@@ -6120,7 +6120,7 @@ This is the message body.
 		[Test]
 		public async Task TestMissingSubtypeAsync ()
 		{
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "missing-subtype.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "missing-subtype.txt"))) {
 				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 				var type = message.Body.ContentType;
@@ -6454,7 +6454,7 @@ This is the message body.
 			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
 			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
 			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "issue358.txt"))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Unix2DosFilter ());
 
@@ -6473,7 +6473,7 @@ This is the message body.
 			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
 			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
 			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
-			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
+			using (var stream = File.OpenRead (Path.Join (MessagesDataDir, "issue358.txt"))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (new Unix2DosFilter ());
 

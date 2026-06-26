@@ -104,7 +104,7 @@ namespace UnitTests {
 		[Test]
 		public void TestClear ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -125,7 +125,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddFileName ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -149,7 +149,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddFileNameAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -173,7 +173,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddInlineFileName ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection (true);
 			MimePart attachment;
 
@@ -197,7 +197,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddInlineFileNameAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection (true);
 			MimePart attachment;
 
@@ -221,7 +221,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddFileNameContentType ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -246,7 +246,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddFileNameContentTypeAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -271,7 +271,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddData ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -295,7 +295,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddDataContentType ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -320,7 +320,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddStream ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -346,7 +346,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddStreamAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -372,7 +372,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddStreamContentType ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -399,7 +399,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddStreamContentTypeAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var contentType = new ContentType ("image", "gif");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
@@ -426,7 +426,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddTextFileName ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -450,7 +450,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddTextFileNameAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
 			var attachments = new AttachmentCollection ();
 			MimePart attachment;
 
@@ -474,7 +474,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddEmailMessage ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
 			var attachments = new AttachmentCollection ();
 			MimeEntity attachment;
 
@@ -498,7 +498,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddEmailMessageAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
 			var attachments = new AttachmentCollection ();
 			MimeEntity attachment;
 
@@ -522,7 +522,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddEmailMessageFallback ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimeEntity attachment;
 
@@ -546,7 +546,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddEmailMessageFallbackAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var attachments = new AttachmentCollection ();
 			MimeEntity attachment;
 
@@ -570,7 +570,7 @@ namespace UnitTests {
 		[Test]
 		public void TestAddInlineEmailMessage ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
 			var attachments = new AttachmentCollection (true);
 			MimeEntity attachment;
 
@@ -594,7 +594,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestAddInlineEmailMessageAsync ()
 		{
-			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var fileName = Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
 			var attachments = new AttachmentCollection (true);
 			MimeEntity attachment;
 
@@ -621,10 +621,10 @@ namespace UnitTests {
 			var attachments = new AttachmentCollection ();
 			string fileName;
 
-			fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
+			fileName = Path.Join (TestHelper.ProjectDir, "TestData", "text", "lorem-ipsum.txt");
 			var plain = (MimePart) attachments.Add (fileName);
 
-			fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
+			fileName = Path.Join (TestHelper.ProjectDir, "TestData", "images", "girl.jpg");
 			var jpeg = (MimePart) attachments.Add (fileName);
 
 			var copied = new MimeEntity[2];

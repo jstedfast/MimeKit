@@ -554,7 +554,7 @@ namespace UnitTests.Cryptography {
 			if (Path.IsPathRooted (value))
 				return value;
 
-			return Path.Combine (baseDirectory, value);
+			return Path.Join (baseDirectory, value);
 		}
 
 		public static X509Certificate[] Generate (string cfg, out AsymmetricKeyParameter privateKey)
