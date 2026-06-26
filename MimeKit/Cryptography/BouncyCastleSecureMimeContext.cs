@@ -1676,7 +1676,7 @@ namespace MimeKit.Cryptography {
 			return new MemoryStream (envelopedData.GetEncoded (), false);
 		}
 
-		Stream AuthEnvelope (CmsAuthEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
+		Stream AuthEnvelope (CmsAuthenticatedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
 		{
 			var input = new CmsProcessableInputStream (content);
 			CmsAuthenticatedData envelopedData;
@@ -1767,7 +1767,7 @@ namespace MimeKit.Cryptography {
 			Stream envelopedData;
 
 			if (smimeType == SecureMimeType.AuthEnvelopedData) {
-				var cms = new CmsAuthEnvelopedDataGenerator (RandomNumberGenerator);
+				var cms = new CmsAuthenticatedDataGenerator (RandomNumberGenerator);
 
 				try {
 					AddCmsRecipients (cms, recipients, cancellationToken);
@@ -1823,7 +1823,7 @@ namespace MimeKit.Cryptography {
 
 			try {
 				if (smimeType == SecureMimeType.AuthEnvelopedData) {
-					var cms = new CmsAuthEnvelopedDataGenerator (RandomNumberGenerator);
+					var cms = new CmsAuthenticatedDataGenerator (RandomNumberGenerator);
 
 					try {
 						await AddCmsRecipientsAsync (cms, recipients, cancellationToken).ConfigureAwait (false);
@@ -1831,7 +1831,7 @@ namespace MimeKit.Cryptography {
 						throw new CmsEnvelopeException (ex.Message, ex);
 					}
 
-					// Note: BouncyCastle's CmsEnvelopedDataGenerator does not support async operations.
+					// Note: BouncyCastle's CmsAuthenticatedDataGenerator does not support async operations.
 					//
 					// If the content isn't already a memory stream of some sort, we clone it into a memory stream
 					// in order to provide asynchronous reading from the source content stream.
