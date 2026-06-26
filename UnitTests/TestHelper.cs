@@ -54,7 +54,7 @@ namespace UnitTests {
 			var dir = Path.GetDirectoryName (codeBase);
 
 			while (Path.GetFileName (dir) != "UnitTests")
-				dir = Path.GetFullPath (Path.Join (dir, ".."));
+				dir = Path.GetFullPath (Path.Combine (dir, ".."));
 
 			ProjectDir = Path.GetFullPath (dir);
 		}

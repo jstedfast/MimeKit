@@ -35,8 +35,8 @@ using MimeKit;
 namespace Benchmarks {
 	public class MimeParserBenchmarks
 	{
-		static readonly string MessagesDataDir = Path.Join (BenchmarkHelper.ProjectDir, "TestData", "messages");
-		static readonly string MboxDataDir = Path.Join (BenchmarkHelper.UnitTestsDir, "TestData", "mbox");
+		static readonly string MessagesDataDir = Path.Combine (BenchmarkHelper.ProjectDir, "TestData", "messages");
+		static readonly string MboxDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "mbox");
 		const string MessageHeaderStressTest = @"Return-Path: <info@someserver>
 Received: from maleman.mcom.com (maleman.mcom.com [198.93.92.3]) by urchin.netscape.com (8.6.12/8.6.9) with ESMTP id EAA18301; Thu, 25 Apr 1996 04:30:51 -0700
 Received: from ns.netscape.com (ns.netscape.com.mcom.com [198.95.251.10]) by maleman.mcom.com (8.6.9/8.6.9) with ESMTP id EAA01168; Thu, 25 Apr 1996 04:29:58 -0700
@@ -109,9 +109,9 @@ header parser.
 
 ";
 		static readonly byte[] MessageHeaderStressTestData = Encoding.ASCII.GetBytes (MessageHeaderStressTest);
-		static readonly byte[] StarTrekData = File.ReadAllBytes (Path.Join (MessagesDataDir, "startrek.eml"));
-		static readonly byte[] ContentLengthMboxData = File.ReadAllBytes (Path.Join (MboxDataDir, "content-length.mbox.txt"));
-		static readonly byte[] JwzMboxData = File.ReadAllBytes (Path.Join (MboxDataDir, "jwz.mbox.txt"));
+		static readonly byte[] StarTrekData = File.ReadAllBytes (Path.Combine (MessagesDataDir, "startrek.eml"));
+		static readonly byte[] ContentLengthMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "content-length.mbox.txt"));
+		static readonly byte[] JwzMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "jwz.mbox.txt"));
 
 		#region MimeParser
 

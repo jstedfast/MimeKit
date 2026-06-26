@@ -40,11 +40,11 @@ namespace Benchmarks {
 			var dir = Path.GetDirectoryName (location);
 
 			while (Path.GetFileName (dir) != "Benchmarks")
-				dir = Path.GetFullPath (Path.Join (dir, ".."));
+				dir = Path.GetFullPath (Path.Combine (dir, ".."));
 
 			ProjectDir = Path.GetFullPath (dir);
 
-			dir = Path.Join (dir, "..", "UnitTests");
+			dir = Path.Combine (dir, "..", "UnitTests");
 
 			UnitTestsDir = Path.GetFullPath (dir);
 

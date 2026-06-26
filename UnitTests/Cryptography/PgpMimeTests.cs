@@ -40,8 +40,8 @@ namespace UnitTests.Cryptography {
 
 		public PgpMimeTests ()
 		{
-			GnuPGDir = Path.Join (TestHelper.ProjectDir, "Temp", ".gnupg");
-			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "openpgp");
+			GnuPGDir = Path.Combine (TestHelper.ProjectDir, "Temp", ".gnupg");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp");
 
 			Directory.CreateDirectory (GnuPGDir);
 
@@ -49,23 +49,23 @@ namespace UnitTests.Cryptography {
 			CryptographyContext.Register (typeof (DummyOpenPgpContext));
 
 			foreach (var name in new [] { "pubring.gpg", "pubring.gpg~", "secring.gpg", "secring.gpg~", "gpg.conf" }) {
-				var path = Path.Join (GnuPGDir, name);
+				var path = Path.Combine (GnuPGDir, name);
 
 				if (File.Exists (path))
 					File.Delete (path);
 			}
 
 			using (var ctx = new DummyOpenPgpContext ()) {
-				using (var seckeys = File.OpenRead (Path.Join (dataDir, "mimekit.gpg.sec"))) {
+				using (var seckeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.sec"))) {
 					using (var armored = new ArmoredInputStream (seckeys))
 						ctx.Import (new PgpSecretKeyRingBundle (armored));
 				}
 
-				using (var pubkeys = File.OpenRead (Path.Join (dataDir, "mimekit.gpg.pub")))
+				using (var pubkeys = File.OpenRead (Path.Combine (dataDir, "mimekit.gpg.pub")))
 					ctx.Import (pubkeys);
 			}
 
-			File.Copy (Path.Join (dataDir, "gpg.conf"), Path.Join (GnuPGDir, "gpg.conf"), true);
+			File.Copy (Path.Combine (dataDir, "gpg.conf"), Path.Combine (GnuPGDir, "gpg.conf"), true);
 		}
 
 		public void Dispose ()
@@ -1274,7 +1274,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestAutoKeyRetrieve ()
 		{
-			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
 			var multipart = (MultipartSigned) ((Multipart) message.Body)[0];
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
@@ -1322,7 +1322,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestAutoKeyRetrieveAsync ()
 		{
-			using var message = await MimeMessage.LoadAsync (Path.Join (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
+			using var message = await MimeMessage.LoadAsync (Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "[Announce] GnuPG 2.1.20 released.eml"));
 			var multipart = (MultipartSigned) ((Multipart) message.Body)[0];
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
@@ -1968,14 +1968,14 @@ namespace UnitTests.Cryptography {
 		{
 			var filter = new OpenPgpDetectionFilter ();
 
-			PumpDataThroughFilter (filter, Path.Join (TestHelper.ProjectDir, "TestData", "openpgp", "mimekit.gpg.pub"), true);
+			PumpDataThroughFilter (filter, Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "mimekit.gpg.pub"), true);
 			Assert.That (filter.DataType, Is.EqualTo (OpenPgpDataType.PublicKey));
 			Assert.That (filter.BeginOffset, Is.EqualTo (0));
 			Assert.That (filter.EndOffset, Is.EqualTo (1754));
 
 			filter.Reset ();
 
-			PumpDataThroughFilter (filter, Path.Join (TestHelper.ProjectDir, "TestData", "openpgp", "mimekit.gpg.sec"), true);
+			PumpDataThroughFilter (filter, Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp", "mimekit.gpg.sec"), true);
 			Assert.That (filter.DataType, Is.EqualTo (OpenPgpDataType.PrivateKey));
 			Assert.That (filter.BeginOffset, Is.EqualTo (0));
 			Assert.That (filter.EndOffset, Is.EqualTo (3650));

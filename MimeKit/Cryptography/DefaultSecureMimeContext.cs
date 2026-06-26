@@ -79,8 +79,8 @@ namespace MimeKit.Cryptography {
 
 			if (Path.DirectorySeparatorChar == '\\') {
 				var appData = Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData);
-				var compatPath = Path.Join (appData, "Roaming\\mimekit");
-				path = Path.Join (appData, "mimekit");
+				var compatPath = Path.Combine (appData, "Roaming\\mimekit");
+				path = Path.Combine (appData, "mimekit");
 
 				if (!Directory.Exists (path) && Directory.Exists (compatPath)) {
 					try {
@@ -91,10 +91,10 @@ namespace MimeKit.Cryptography {
 				}
 			} else {
 				var home = Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
-				path = Path.Join (home, ".mimekit");
+				path = Path.Combine (home, ".mimekit");
 			}
 
-			DefaultDatabasePath = Path.Join (path, "smime.db");
+			DefaultDatabasePath = Path.Combine (path, "smime.db");
 		}
 
 #if NET8_0_OR_GREATER

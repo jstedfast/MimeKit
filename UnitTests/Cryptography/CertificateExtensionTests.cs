@@ -72,11 +72,11 @@ namespace UnitTests.Cryptography {
 		public void TestCertificateConversion ()
 		{
 			var fileNames = new string[] { "StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt" };
-			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var parser = new X509CertificateParser ();
 
 			foreach (var fileName in fileNames) {
-				using (var stream = File.OpenRead (Path.Join (dataDir, fileName))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, fileName))) {
 					foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
 						var certificate2 = certificate.AsX509Certificate2 ();
 						var certificate1 = certificate2.AsBouncyCastleCertificate ();
@@ -99,7 +99,7 @@ namespace UnitTests.Cryptography {
 		public void TestGetSubjectDnsNames ()
 		{
 			var certificate = SecureMimeTestsBase.SupportedCertificates.FirstOrDefault (c => c.DnsNames.Length > 0);
-			var path = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "dnsnames", "smime.pfx");
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "dnsnames", "smime.pfx");
 			var parser = new X509CertificateParser ();
 
 			using (var stream = File.OpenRead (path)) {

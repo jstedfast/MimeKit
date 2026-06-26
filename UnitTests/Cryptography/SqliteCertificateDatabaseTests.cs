@@ -45,7 +45,7 @@ namespace UnitTests.Cryptography {
 		public SqliteCertificateDatabaseTests ()
 		{
 			var rsa = SecureMimeTestsBase.RsaCertificate;
-			dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
+			dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 
 			if (File.Exists ("sqlite.db"))
 				File.Delete ("sqlite.db");
@@ -54,7 +54,7 @@ namespace UnitTests.Cryptography {
 
 			using (var ctx = new DefaultSecureMimeContext ("sqlite.db", "no.secret")) {
 				foreach (var filename in StartComCertificates) {
-					var path = Path.Join (dataDir, filename);
+					var path = Path.Combine (dataDir, filename);
 					using (var stream = File.OpenRead (path))
 						ctx.Import (stream, true);
 				}
@@ -77,7 +77,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestAutoUpgradeVersion0 ()
 		{
-			var path = Path.Join (dataDir, "smimev0.db");
+			var path = Path.Combine (dataDir, "smimev0.db");
 			const string tmp = "smimev0-tmp.db";
 
 			if (File.Exists (tmp))
@@ -104,7 +104,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestAutoUpgradeVersion1 ()
 		{
-			var path = Path.Join (dataDir, "smimev1.db");
+			var path = Path.Combine (dataDir, "smimev1.db");
 			const string tmp = "smimev1-tmp.db";
 
 			if (File.Exists (tmp))

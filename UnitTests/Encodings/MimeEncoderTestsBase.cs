@@ -38,7 +38,7 @@ namespace UnitTests.Encodings
 {
 	public class MimeEncoderTestsBase
 	{
-		protected static readonly string dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "encoders");
+		protected static readonly string dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "encoders");
 		protected static readonly byte[] wikipedia_unix;
 		protected static readonly byte[] wikipedia_dos;
 		protected static readonly byte[] photo;
@@ -49,7 +49,7 @@ namespace UnitTests.Encodings
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Dos2UnixFilter ());
 
-					using (var file = File.OpenRead (Path.Join (dataDir, "wikipedia.txt")))
+					using (var file = File.OpenRead (Path.Combine (dataDir, "wikipedia.txt")))
 						file.CopyTo (filtered, 4096);
 
 					filtered.Flush ();
@@ -62,7 +62,7 @@ namespace UnitTests.Encodings
 				using (var filtered = new FilteredStream (memory)) {
 					filtered.Add (new Unix2DosFilter ());
 
-					using (var file = File.OpenRead (Path.Join (dataDir, "wikipedia.txt")))
+					using (var file = File.OpenRead (Path.Combine (dataDir, "wikipedia.txt")))
 						file.CopyTo (filtered, 4096);
 
 					filtered.Flush ();
@@ -71,7 +71,7 @@ namespace UnitTests.Encodings
 				wikipedia_dos = memory.ToArray ();
 			}
 
-			photo = File.ReadAllBytes (Path.Join (dataDir, "photo.jpg"));
+			photo = File.ReadAllBytes (Path.Combine (dataDir, "photo.jpg"));
 		}
 
 		protected static void AssertArgumentExceptions (IMimeEncoder encoder)
@@ -178,7 +178,7 @@ namespace UnitTests.Encodings
 			int n;
 
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead (Path.Join (dataDir, encodedFile))) {
+				using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
 					using (var filtered = new FilteredStream (original)) {
 						filtered.Add (new Dos2UnixFilter ());
 						file.CopyTo (filtered, 4096);
@@ -225,7 +225,7 @@ namespace UnitTests.Encodings
 		protected static void TestEncoderFlush (IMimeEncoder encoder, string fileName, byte[] rawData, string encodedFile)
 		{
 			using (var original = new MemoryStream ()) {
-				using (var file = File.OpenRead (Path.Join (dataDir, encodedFile))) {
+				using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
 					using (var filtered = new FilteredStream (original)) {
 						filtered.Add (new Dos2UnixFilter ());
 						file.CopyTo (filtered, 4096);

@@ -1523,47 +1523,47 @@ Subject: MIME & int'l mail
 			const string HtmlBody = "<html>This is an <b>html</b> body.</html>";
 			const string TextBody = "This is the text body.";
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.1.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.1.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.2.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.2.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.2.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.2.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.3.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.3.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.3.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.3.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.4.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.4.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.4.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.4.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.5.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.5.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.5.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.5.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.6.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.6.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.6.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.6.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.7.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.7.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.7.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.7.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.8.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.8.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (TextBody), "The text bodies do not match for body.8.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (null), "The HTML bodies do not match for body.8.txt.");
 			}
 
-			using (var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"))) {
+			using (var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.9.txt"))) {
 				Assert.That (message.TextBody, Is.EqualTo (null), "The text bodies do not match for body.9.txt.");
 				Assert.That (message.HtmlBody, Is.EqualTo (HtmlBody), "The HTML bodies do not match for body.9.txt.");
 			}
@@ -1573,7 +1573,7 @@ Subject: MIME & int'l mail
 		public void TestFlowedTextBodyIssue1130 ()
 		{
 			const string TextBody = "We should have access, and apparently did a few months ago, but now there isa \"You do not currently have access to this content.\" at the bottom of therecord\n\nThe URL in question URL:\nhttps://example.com/";
-			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "messages", "issue1130.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "issue1130.txt"));
 
 			var body = message.GetTextBody (TextFormat.Flowed).Replace ("\r\n", "\n");
 

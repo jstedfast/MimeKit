@@ -35,12 +35,12 @@ using BenchmarkDotNet.Attributes;
 namespace Benchmarks.IO.Filters {
 	public class Unix2DosFilterBenchmarks
 	{
-		static readonly string TextDataDir = Path.Join (BenchmarkHelper.UnitTestsDir, "TestData", "text");
+		static readonly string TextDataDir = Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "text");
 		static readonly byte[] LoremIpsumDos, LoremIpsumUnix, PathologicalDos, PathologicalUnix;
 
 		static Unix2DosFilterBenchmarks ()
 		{
-			var path = Path.Join (TextDataDir, "lorem-ipsum.txt");
+			var path = Path.Combine (TextDataDir, "lorem-ipsum.txt");
 			using var stream = File.OpenRead (path);
 
 			using (var memory = new MemoryStream ()) {

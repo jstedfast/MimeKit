@@ -335,25 +335,25 @@ namespace UnitTests.Cryptography {
 
 		protected static void ImportAll (SecureMimeContext ctx)
 		{
-			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var windows = ctx as WindowsSecureMimeContext;
 
 			// Import the StartCom certificates
 			if (windows is not null) {
 				var parser = new X509CertificateParser ();
 
-				using (var stream = File.OpenRead (Path.Join (dataDir, "StartComCertificationAuthority.crt"))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
 					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.AuthRoot, certificate);
 				}
 
-				using (var stream = File.OpenRead (Path.Join (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
 					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.CertificateAuthority, certificate);
 				}
 			} else {
 				foreach (var filename in SecureMimeTestsBase.StartComCertificates) {
-					var path = Path.Join (dataDir, filename);
+					var path = Path.Combine (dataDir, filename);
 					using (var stream = File.OpenRead (path)) {
 						if (ctx is DefaultSecureMimeContext sqlite) {
 							sqlite.Import (stream, true);
@@ -393,25 +393,25 @@ namespace UnitTests.Cryptography {
 
 		protected static async Task ImportAllAsync (SecureMimeContext ctx)
 		{
-			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var windows = ctx as WindowsSecureMimeContext;
 
 			// Import the StartCom certificates
 			if (windows is not null) {
 				var parser = new X509CertificateParser ();
 
-				using (var stream = File.OpenRead (Path.Join (dataDir, "StartComCertificationAuthority.crt"))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
 					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.AuthRoot, certificate);
 				}
 
-				using (var stream = File.OpenRead (Path.Join (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
 					foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.CertificateAuthority, certificate);
 				}
 			} else {
 				foreach (var filename in SecureMimeTestsBase.StartComCertificates) {
-					var path = Path.Join (dataDir, filename);
+					var path = Path.Combine (dataDir, filename);
 					using (var stream = File.OpenRead (path)) {
 						if (ctx is DefaultSecureMimeContext sqlite) {
 							await sqlite.ImportAsync (stream, true).ConfigureAwait (false);

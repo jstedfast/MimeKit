@@ -133,14 +133,14 @@ namespace UnitTests.Cryptography {
 
 		static SecureMimeTestsBase ()
 		{
-			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var unsupported = new List<SMimeCertificate> ();
 			var supported = new List<SMimeCertificate> ();
 			var all = new List<SMimeCertificate> ();
 			AsymmetricKeyParameter privateKey;
 
 			foreach (var relativePath in RelativeConfigFilePaths) {
-				var cfg = Path.Join (dataDir, relativePath.Replace ('/', Path.DirectorySeparatorChar));
+				var cfg = Path.Combine (dataDir, relativePath.Replace ('/', Path.DirectorySeparatorChar));
 				var name = Path.GetFileNameWithoutExtension (cfg);
 				var pfx = Path.ChangeExtension (cfg, ".pfx");
 				X509Certificate[] chain;
@@ -325,7 +325,7 @@ namespace UnitTests.Cryptography {
 
 		protected void ImportTestCertificates (SecureMimeContext ctx)
 		{
-			var dataDir = Path.Join (TestHelper.ProjectDir, "TestData", "smime");
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 			var windows = ctx as WindowsSecureMimeContext;
 
 			if (ctx is TemporarySecureMimeContext)
@@ -337,18 +337,18 @@ namespace UnitTests.Cryptography {
 			if (windows is not null) {
 				var parser = new X509CertificateParser ();
 
-				using (var stream = File.OpenRead (Path.Join (dataDir, "StartComCertificationAuthority.crt"))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComCertificationAuthority.crt"))) {
 					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.AuthRoot, certificate);
 				}
 
-				using (var stream = File.OpenRead (Path.Join (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
+				using (var stream = File.OpenRead (Path.Combine (dataDir, "StartComClass1PrimaryIntermediateClientCA.crt"))) {
 					foreach (X509Certificate certificate in parser.ReadCertificates (stream))
 						windows.Import (StoreName.CertificateAuthority, certificate);
 				}
 			} else {
 				foreach (var filename in StartComCertificates) {
-					var path = Path.Join (dataDir, filename);
+					var path = Path.Combine (dataDir, filename);
 					using (var stream = File.OpenRead (path)) {
 						if (ctx is DefaultSecureMimeContext sqlite) {
 							sqlite.Import (stream, true);
@@ -465,7 +465,7 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new TemporarySecureMimeContext ((SecureRandom) null));
 
 			using (var ctx = CreateContext ()) {
-				var signer = new CmsSigner (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret");
+				var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret");
 				var mailbox = new MailboxAddress ("Unit Tests", "example@mimekit.net");
 				var emptyRecipients = new CmsRecipientCollection ();
 				var recipients = new CmsRecipientCollection ();
@@ -1496,7 +1496,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeSigningWithRsaSsaPss ()
 		{
-			var signer = new CmsSigner (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret") {
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret") {
 				RsaSignaturePadding = RsaSignaturePadding.Pss
 			};
 			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1557,7 +1557,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual async Task TestSecureMimeSigningWithRsaSsaPssAsync ()
 		{
-			var signer = new CmsSigner (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret") {
+			var signer = new CmsSigner (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "rsa", "smime.pfx"), "no.secret") {
 				RsaSignaturePadding = RsaSignaturePadding.Pss
 			};
 			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
@@ -1782,7 +1782,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public virtual void TestSecureMimeVerifyThunderbird ()
 		{
-			using var message = MimeMessage.Load (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt"));
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt"));
 
 			using (var ctx = CreateContext ()) {
 				Assert.That (message.Body, Is.InstanceOf<MultipartSigned> (), "The message body should be a multipart/signed.");
@@ -1837,7 +1837,7 @@ namespace UnitTests.Cryptography {
 		{
 			MimeMessage message;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
@@ -2359,13 +2359,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSecureMimeDecryptThunderbird ()
 		{
-			var p12 = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
+			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
 			MimeMessage message;
 
 			if (!File.Exists (p12))
 				return;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
@@ -2399,13 +2399,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestSecureMimeDecryptThunderbirdAsync ()
 		{
-			var p12 = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
+			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
 			MimeMessage message;
 
 			if (!File.Exists (p12))
 				return;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
@@ -2621,13 +2621,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestSecureMimeDecryptVerifyThunderbird ()
 		{
-			var p12 = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
+			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
 			MimeMessage message;
 
 			if (!File.Exists (p12))
 				return;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
@@ -2704,13 +2704,13 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestSecureMimeDecryptVerifyThunderbirdAsync ()
 		{
-			var p12 = Path.Join (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
+			var p12 = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "gnome.p12");
 			MimeMessage message;
 
 			if (!File.Exists (p12))
 				return;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
@@ -2845,7 +2845,7 @@ namespace UnitTests.Cryptography {
 		{
 			MimeMessage message;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
@@ -2872,7 +2872,7 @@ namespace UnitTests.Cryptography {
 		{
 			MimeMessage message;
 
-			using (var file = File.OpenRead (Path.Join (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
+			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
 				var parser = new MimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
