@@ -812,7 +812,6 @@ namespace MimeKit.Utils {
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		internal unsafe static int SwAccelIndexOf (byte* searchSpace, int length, byte value, ByteDetectionOptions options, out ByteDetectionResults detected)
 		{
-			ByteDetectionResults detectedMask = (ByteDetectionResults) ((int) options);
 			byte* inend = searchSpace + length;
 			byte* inptr = searchSpace;
 
