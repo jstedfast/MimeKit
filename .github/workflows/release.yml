@@ -60,15 +60,7 @@ jobs:
     - name: Restore MimeKit.sln
       shell: pwsh
       run: |
-        nuget restore MimeKit.sln
         dotnet restore MimeKit.sln
-
-    # Restore MimeKitLite.sln
-    - name: Restore MimeKitLite.sln
-      shell: pwsh
-      run: |
-        nuget restore MimeKitLite.sln
-        dotnet restore MimeKitLite.sln
 
     # Build MimeKit
     - name: Build MimeKit
@@ -87,6 +79,12 @@ jobs:
       shell: pwsh
       run: |
         nuget pack nuget/MimeKit.nuspec
+
+    # Restore MimeKitLite.sln
+    - name: Restore MimeKitLite.sln
+      shell: pwsh
+      run: |
+        dotnet restore MimeKitLite.sln
 
     # Build MimeKitLite
     - name: Build MimeKitLite
