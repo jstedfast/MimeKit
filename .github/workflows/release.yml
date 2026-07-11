@@ -10,17 +10,21 @@ jobs:
     runs-on: windows-latest
     env:
       BUILD_PLATFORM: Any CPU
+    outputs:
+      version: ${{ steps.release_tag.outputs.version }}
 
     steps:
 
     # Validate that the tag is a release tag (e.g., 1.0.0 or 1.0.0.0)
     - name: Validate Release Tag
+      id: release_tag
       shell: pwsh
       run: |
         $TAG = $env:GITHUB_REF -replace '^refs/tags/', ''
 
         if ($TAG -match '^[0-9]+\.[0-9]+\.[0-9]+$' -or $TAG -match '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') {
           Write-Host "Valid version tag: $TAG"
+          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=${TAG}$([Environment]::NewLine)")
         } else {
           Write-Host "Invalid version tag: $TAG"
           exit 1
@@ -46,18 +50,23 @@ jobs:
         submodules: recursive
         fetch-depth: 0
 
-    # Restore NuGet packages
-    - name: Run .NET restore
-      shell: pwsh
-      run: |
-        dotnet restore MimeKit.sln
-        dotnet restore MimeKitLite.sln
-
     # Restore .NET tools
     - name: Run .NET tool restore
       shell: pwsh
       run: |
         dotnet tool restore
+
+    # Restore MimeKit.sln
+    - name: Restore MimeKit.sln
+      shell: pwsh
+      run: |
+        dotnet restore MimeKit.sln
+
+    # Restore MimeKitLite.sln
+    - name: Restore MimeKitLite.sln
+      shell: pwsh
+      run: |
+        dotnet restore MimeKitLite.sln
 
     # Build MimeKit
     - name: Build MimeKit
@@ -65,7 +74,13 @@ jobs:
       run: |
         dotnet msbuild MimeKit.sln -property:Platform=$env:BUILD_PLATFORM -property:Configuration=Release
 
-    # Create MimeKit NuGet package (with unsigned assemblies — sign CLI will sign contents + package)
+    - name: Run Unit Tests
+      if: false
+      shell: pwsh
+      run: |
+        & ./scripts/test.ps1 -Configuration Release -GenerateCodeCoverage false
+
+    # Create MimeKit NuGet package
     - name: Create MimeKit NuGet package
       shell: pwsh
       run: |
@@ -88,7 +103,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: BuildArtifacts
-        path: "*.nupkg"
+        path: |
+          MimeKit.${{ steps.release_tag.outputs.version }}.nupkg
+          MimeKitLite.${{ steps.release_tag.outputs.version }}.nupkg
 
   sign:
     needs: build
@@ -131,15 +148,29 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    # Sign NuGet Packages (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
-    - name: Sign NuGet Packages
+    # Sign MimeKit NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
+    - name: Sign MimeKit NuGet Package
       shell: pwsh
       run: >
         ./sign code azure-key-vault
-        *.nupkg
+        MimeKit.${{ needs.build.outputs.version }}.nupkg
         --base-directory "${{ github.workspace }}"
         --publisher-name "MimeKit"
         --description "MimeKit"
+        --description-url "https://github.com/jstedfast/MimeKit"
+        --azure-credential-type "azure-cli"
+        --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
+        --azure-key-vault-certificate "SC-MIMEKIT"
+
+    # Sign MimeKitLite NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
+    - name: Sign MimeKitLite NuGet Package
+      shell: pwsh
+      run: >
+        ./sign code azure-key-vault
+        MimeKitLite.${{ needs.build.outputs.version }}.nupkg
+        --base-directory "${{ github.workspace }}"
+        --publisher-name "MimeKit"
+        --description "MimeKitLite"
         --description-url "https://github.com/jstedfast/MimeKit"
         --azure-credential-type "azure-cli"
         --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
@@ -150,7 +181,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: SignedArtifacts
-        path: "*.nupkg"
+        path: |
+          MimeKit.${{ needs.build.outputs.version }}.nupkg
+          MimeKitLite.${{ needs.build.outputs.version }}.nupkg
 
     # Get a short-lived NuGet API key
     - name: Get NuGet API Key
@@ -166,7 +199,7 @@ jobs:
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
       env:
-        NUGET_PKG_PATH: MimeKit.*.nupkg
+        NUGET_PKG_PATH: MimeKit.${{ needs.build.outputs.version }}.nupkg
         NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
 
     # Publish MimeKitLite.{version}.nupkg to NuGet.org
@@ -176,5 +209,5 @@ jobs:
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
       env:
-        NUGET_PKG_PATH: MimeKitLite.*.nupkg
+        NUGET_PKG_PATH: MimeKitLite.${{ needs.build.outputs.version }}.nupkg
         NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
