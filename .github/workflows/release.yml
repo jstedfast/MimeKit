@@ -6,14 +6,10 @@ on:
       - '*'
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
-    environment: release
     env:
       BUILD_PLATFORM: Any CPU
-    permissions:
-      id-token: write # Required for requesting the JWT
-      contents: read
 
     steps:
 
@@ -54,7 +50,8 @@ jobs:
     - name: Run .NET restore
       shell: pwsh
       run: |
-        dotnet restore $env:SOLUTION_PATH
+        dotnet restore MimeKit.sln
+        dotnet restore MimeKitLite.sln
 
     # Restore .NET tools
     - name: Run .NET tool restore
@@ -68,7 +65,7 @@ jobs:
       run: |
         dotnet msbuild MimeKit.sln -property:Platform=$env:BUILD_PLATFORM -property:Configuration=Release
 
-    # Create MimeKit NuGet package
+    # Create MimeKit NuGet package (with unsigned assemblies — sign CLI will sign contents + package)
     - name: Create MimeKit NuGet package
       shell: pwsh
       run: |
@@ -86,11 +83,47 @@ jobs:
       run: |
         nuget pack nuget/MimeKitLite.nuspec
 
+    # Upload unsigned NuGet packages
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: BuildArtifacts
+        path: *.nupkg
+
+  sign:
+    needs: build
+    runs-on: windows-latest
+    environment: release
+    env:
+      BUILD_PLATFORM: Any CPU
+    permissions:
+      id-token: write # Required for requesting the JWT
+      contents: read
+
+    steps:
+
+    # Setup NuGet CLI (needed for nuget pack and nuget push)
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+
+    # Restore build artifacts from the build job
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: BuildArtifacts
+        path: ./
+
+    # Setup .NET (needed for the Sign CLI tool)
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+
     # Install Sign CLI tool
     - name: Install Sign CLI tool
       run: dotnet tool install --tool-path . --prerelease sign
-    
-    # Login to Azure using a ServicePrincipal configured to authenticate agaist a GitHub Action
+
+    # Login to Azure using a ServicePrincipal configured to authenticate against a GitHub Action
     - name: 'Az CLI login'
       uses: azure/login@v3
       with:
@@ -98,7 +131,7 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    # Sign NuGet Packages using Sign CLI tool and Azure Key Vault
+    # Sign NuGet Packages (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
     - name: Sign NuGet Packages
       shell: pwsh
       run: >
@@ -111,12 +144,13 @@ jobs:
         --azure-credential-type "azure-cli"
         --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
         --azure-key-vault-certificate "SC-MIMEKIT"
-  
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+
+    # Upload signed packages as artifacts
+    - name: Upload signed artifacts
+      uses: actions/upload-artifact@v4
       with:
         name: SignedArtifacts
-        path: BuildArtifacts
+        path: *.nupkg
 
     # Get a short-lived NuGet API key
     - name: Get NuGet API Key
@@ -125,8 +159,9 @@ jobs:
       with:
         user: ${{ secrets.NUGET_USER }}
 
-    # Publish MimeKit.{version}.nupkg to NuGet.Org
+    # Publish MimeKit.{version}.nupkg to NuGet.org
     - name: Push MimeKit package to NuGet.org
+      if: false
       shell: pwsh
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
@@ -134,8 +169,9 @@ jobs:
         NUGET_PKG_PATH: MimeKit.*.nupkg
         NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
 
-    # Publish MimeKitLite.{version}.nupkg to NuGet.Org
+    # Publish MimeKitLite.{version}.nupkg to NuGet.org
     - name: Push MimeKitLite package to NuGet.org
+      if: false
       shell: pwsh
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
