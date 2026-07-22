@@ -2359,10 +2359,10 @@ namespace MimeKit {
 		{
 			public readonly NewLineFormat? Format;
 			public readonly bool IsEmpty;
-			public readonly int ContentLength;
+			public readonly long ContentLength;
 			public readonly int Lines;
 
-			public ScanContentResult (int contentLength, int lines, bool[] formats, bool isEmpty)
+			public ScanContentResult (long contentLength, int lines, bool[] formats, bool isEmpty)
 			{
 				ContentLength = contentLength;
 				if (formats[(int) NewLineFormat.Unix] && formats[(int) NewLineFormat.Dos])
@@ -2389,7 +2389,7 @@ namespace MimeKit {
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			var formats = new bool[2];
-			int contentLength = 0;
+			long contentLength = 0;
 			bool incomplete = false;
 			bool midline = false;
 
