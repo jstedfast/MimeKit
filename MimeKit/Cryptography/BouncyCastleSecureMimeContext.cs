@@ -1478,10 +1478,12 @@ namespace MimeKit.Cryptography {
 
 			var keyPair = keyGenerator.GenerateKeyPair ();
 
+			var subjectKeyIdentifier = recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier
+				? X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate)
+				: null;
+
 			// TODO: better handle algorithm selection.
-			if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-				// TODO Null check subjectKeyIdentifier?
-				var subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
+			if (subjectKeyIdentifier != null) {
 				cms.AddKeyAgreementRecipient (
 					CmsEnvelopedGenerator.ECDHSha1Kdf,
 					keyPair.Private,
