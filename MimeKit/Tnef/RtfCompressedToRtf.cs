@@ -25,7 +25,6 @@
 //
 
 using System;
-using System.Text;
 
 using MimeKit.IO.Filters;
 using MimeKit.Utils;
@@ -39,10 +38,7 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	public class RtfCompressedToRtf : MimeFilterBase
 	{
-		const string DictionaryInitializerText = "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}" +
-			"{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier" +
-			"{\\colortbl\\red0\\green0\\blue0\r\n\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx";
-		static readonly byte[] DictionaryInitializer = Encoding.ASCII.GetBytes (DictionaryInitializerText);
+		static ReadOnlySpan<byte> DictionaryInitializer => "{\\rtf1\\ansi\\mac\\deff0\\deftab720{\\fonttbl;}{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier{\\colortbl\\red0\\green0\\blue0\r\n\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx"u8;
 
 		enum FilterState {
 			CompressedSize,
@@ -78,8 +74,8 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public RtfCompressedToRtf ()
 		{
-			Buffer.BlockCopy (DictionaryInitializer, 0, dict, 0, DictionaryInitializer.Length);
 			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
+			DictionaryInitializer.CopyTo (dict);
 		}
 
 		/// <summary>
@@ -326,8 +322,8 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public override void Reset ()
 		{
-			Buffer.BlockCopy (DictionaryInitializer, 0, dict, 0, DictionaryInitializer.Length);
 			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
+			DictionaryInitializer.CopyTo (dict);
 			state = FilterState.CompressedSize;
 			dictReadOffset = 0;
 			compressedSize = 0;
