@@ -588,7 +588,7 @@ namespace MimeKit.Encodings {
 			return nread;
 		}
 
-#if NET9_0_OR_GREATER // Part of the Arm APIs used here added in .NET 9
+#if NET9_0_OR_GREATER // Some of the Arm APIs used here were added in .NET 9
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		static unsafe int AdvSimdEncode (ref byte* input, ref byte* output, byte* maxOffset, ref int quartets)
 		{
