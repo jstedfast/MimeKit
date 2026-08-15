@@ -105,10 +105,9 @@ namespace MimeKit.Text {
 		/// <para>This is an incomplete solution for protecting against Cross-Site Scripting (XSS) attacks
 		/// and should not be relied upon as a comprehensive security measure. This filter only removes
 		/// certain known dangerous or undesirable HTML tags (such as <c>&lt;applet&gt;</c>, <c>&lt;audio&gt;</c>,
-		/// <c>&lt;base&gt;</c>, <c>&lt;dialog&gt;</c>, <c>&lt;embed&gt;</c>, <c>&lt;form&gt;</c>, <c>&lt;frame&gt;</c>,
-		/// <c>&lt;frameset&gt;</c>, <c>&lt;iframe&gt;</c>, <c>&lt;input&gt;</c>, <c>&lt;link&gt;</c>, <c>&lt;object&gt;</c>,
-		/// <c>&lt;script&gt;</c>, <c>&lt;select&gt;</c>, <c>&lt;source&gt;</c>, <c>&lt;style&gt;</c>, <c>&lt;textarea&gt;</c>,
-		/// <c>&lt;video&gt;</c>, and any tags without an enum mapping) but does not:</para>
+		/// <c>&lt;dialog&gt;</c>, <c>&lt;form&gt;</c>, <c>&lt;frame&gt;</c>, <c>&lt;frameset&gt;</c>,
+		/// <c>&lt;iframe&gt;</c>, <c>&lt;object&gt;</c>, <c>&lt;video&gt;</c>, and any tags without an enum
+		/// mapping) but does not:</para>
 		/// <list type="bullet">
 		/// <item><description>Validate or sanitize attribute values (e.g., <c>javascript:</c>, <c>data:</c>,
 		/// or <c>vbscript:</c> URI schemes in <c>href</c>, <c>src</c>, or other URL attributes)</description></item>
