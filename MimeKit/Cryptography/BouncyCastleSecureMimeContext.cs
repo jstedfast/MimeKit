@@ -319,21 +319,20 @@ namespace MimeKit.Cryptography {
 			var signedAttributes = AddSecureMimeCapabilities (signer.SignedAttributes);
 			var signedData = new CmsSignedDataStreamGenerator (RandomNumberGenerator);
 			var digestOid = GetDigestOid (signer.DigestAlgorithm);
-			byte[]? subjectKeyId = null;
+			byte[]? subjectKeyIdentifier = null;
 
-			if (signer.SignerIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-				subjectKeyId = X509ExtensionUtilities.GetSubjectKeyIdentifier (signer.Certificate)?.GetKeyIdentifier ();
-			}
+			if (signer.SignerIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier)
+				subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (signer.Certificate)?.GetKeyIdentifier ();
 
 			if (signer.PrivateKey is RsaKeyParameters && signer.RsaSignaturePadding?.Scheme == RsaSignaturePaddingScheme.Pss) {
-				if (subjectKeyId == null)
+				if (subjectKeyIdentifier == null)
 					signedData.AddSigner (signer.PrivateKey, signer.Certificate, RsassaPssOid, digestOid, signedAttributes, unsignedAttributes);
 				else
-					signedData.AddSigner (signer.PrivateKey, subjectKeyId, RsassaPssOid, digestOid, signedAttributes, unsignedAttributes);
-			} else if (subjectKeyId == null) {
+					signedData.AddSigner (signer.PrivateKey, subjectKeyIdentifier, RsassaPssOid, digestOid, signedAttributes, unsignedAttributes);
+			} else if (subjectKeyIdentifier == null) {
 				signedData.AddSigner (signer.PrivateKey, signer.Certificate, digestOid, signedAttributes, unsignedAttributes);
 			} else {
-				signedData.AddSigner (signer.PrivateKey, subjectKeyId, digestOid, signedAttributes, unsignedAttributes);
+				signedData.AddSigner (signer.PrivateKey, subjectKeyIdentifier, digestOid, signedAttributes, unsignedAttributes);
 			}
 
 			signedData.AddCertificates (signer.CertificateChain);
@@ -1455,10 +1454,13 @@ namespace MimeKit.Cryptography {
 				}
 
 				var encryptedKeyBytes = GenerateWrappedKey (contentEncryptionKey, keyEncryptionAlgorithm, publicKey, random);
+				SubjectKeyIdentifier? subjectKeyIdentifier = null;
 				RecipientIdentifier recipientIdentifier;
 
-				if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-					var subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
+				if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier)
+					subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
+
+				if (subjectKeyIdentifier != null) {
 					recipientIdentifier = new RecipientIdentifier (subjectKeyIdentifier);
 				} else {
 					var issuerAndSerial = new IssuerAndSerialNumber (certificate.Issuer, certificate.SerialNumber.Value);
@@ -1476,12 +1478,13 @@ namespace MimeKit.Cryptography {
 
 			keyGenerator.Init (new ECKeyGenerationParameters (publicKey.Parameters, RandomNumberGenerator));
 
+			SubjectKeyIdentifier? subjectKeyIdentifier = null;
 			var keyPair = keyGenerator.GenerateKeyPair ();
 
-			// TODO: better handle algorithm selection.
-			if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier) {
-				// TODO Null check subjectKeyIdentifier?
-				var subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
+			if (recipient.RecipientIdentifierType == SubjectIdentifierType.SubjectKeyIdentifier)
+				subjectKeyIdentifier = X509ExtensionUtilities.GetSubjectKeyIdentifier (recipient.Certificate);
+
+			if (subjectKeyIdentifier != null) {
 				cms.AddKeyAgreementRecipient (
 					CmsEnvelopedGenerator.ECDHSha1Kdf,
 					keyPair.Private,
