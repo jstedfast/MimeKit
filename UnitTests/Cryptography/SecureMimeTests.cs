@@ -28,12 +28,14 @@ using System.Net;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
 
+using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Pkix;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Utilities;
 
 using Moq;
 using Moq.Protected;
@@ -2098,6 +2100,22 @@ namespace UnitTests.Cryptography {
 						foreach (var recipient in recipients)
 							recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
 
+						if (ctx is BouncyCastleSecureMimeContext) {
+							// Note: As of BouncyCastle 2.7.0, this needs to be done or decryption will fail for these algorithms.
+							switch (algorithm) {
+							case EncryptionAlgorithm.Blowfish:
+							case EncryptionAlgorithm.Cast5:
+							case EncryptionAlgorithm.RC240:
+							case EncryptionAlgorithm.RC264:
+							case EncryptionAlgorithm.RC2128:
+								Properties.SetThreadBoolean (Properties.CmsAllowLenientRsaPkcs1, true);
+								break;
+							default:
+								Properties.SetThreadBoolean (Properties.CmsAllowLenientRsaPkcs1, false);
+								break;
+							}
+						}
+
 						var enabled = ctx.IsEnabled (algorithm);
 						ApplicationPkcs7Mime encrypted;
 
@@ -2161,8 +2179,12 @@ namespace UnitTests.Cryptography {
 						Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
 						using (var stream = new MemoryStream ()) {
-							ctx.DecryptTo (encrypted.Content.Open (), stream);
-							stream.Position = 0;
+							try {
+								ctx.DecryptTo (encrypted.Content.Open (), stream);
+								stream.Position = 0;
+							} catch (CmsException ex) {
+								Assert.Fail ($"{ctx.GetType ().Name} failed to decrypt {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.GetType ().Name}: {ex.Message}");
+							}
 
 							var decrypted = MimeEntity.Load (stream);
 
@@ -2195,6 +2217,22 @@ namespace UnitTests.Cryptography {
 					foreach (EncryptionAlgorithm algorithm in Enum.GetValues (typeof (EncryptionAlgorithm))) {
 						foreach (var recipient in recipients)
 							recipient.EncryptionAlgorithms = new EncryptionAlgorithm[] { algorithm };
+
+						if (ctx is BouncyCastleSecureMimeContext) {
+							// Note: As of BouncyCastle 2.7.0, this needs to be done or decryption will fail for these algorithms.
+							switch (algorithm) {
+							case EncryptionAlgorithm.Blowfish:
+							case EncryptionAlgorithm.Cast5:
+							case EncryptionAlgorithm.RC240:
+							case EncryptionAlgorithm.RC264:
+							case EncryptionAlgorithm.RC2128:
+								Properties.SetThreadBoolean (Properties.CmsAllowLenientRsaPkcs1, true);
+								break;
+							default:
+								Properties.SetThreadBoolean (Properties.CmsAllowLenientRsaPkcs1, false);
+								break;
+							}
+						}
 
 						var enabled = ctx.IsEnabled (algorithm);
 						ApplicationPkcs7Mime encrypted;
@@ -2259,8 +2297,12 @@ namespace UnitTests.Cryptography {
 						Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
 						using (var stream = new MemoryStream ()) {
-							await ctx.DecryptToAsync (encrypted.Content.Open (), stream);
-							stream.Position = 0;
+							try {
+								await ctx.DecryptToAsync (encrypted.Content.Open (), stream);
+								stream.Position = 0;
+							} catch (CmsException ex) {
+								Assert.Fail ($"{ctx.GetType ().Name} failed to decrypt {algorithm} for {certificate.PublicKeyAlgorithm}: {ex.GetType ().Name}: {ex.Message}");
+							}
 
 							var decrypted = await MimeEntity.LoadAsync (stream);
 
