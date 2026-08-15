@@ -482,9 +482,6 @@ namespace MimeKit.Utils {
 						if (!TryParseDomain (text, ref index, endIndex, GreaterThanOrAt, throwOnError, out string? domain))
 							return false;
 
-						if (IsIdnEncoded (domain))
-							domain = MailboxAddress.IdnMapping.Decode (domain);
-
 						token.Append (domain);
 
 						if (index >= endIndex || text[index] != (byte) '@')

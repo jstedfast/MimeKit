@@ -344,8 +344,10 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestTryParseMsgIdWithIdnDomain ()
 		{
+			// Note: The MsgId parser should NOT IDN-decode the domain.
 			var buffer = Encoding.ASCII.GetBytes (" <id@xn--v8jxj3d1dzdz08w.com>");
-			const string expected = "id@名がドメイン.com";
+			const string expected = "id@xn--v8jxj3d1dzdz08w.com";
+			//const string expected = "id@名がドメイン.com";
 			int index = 0;
 			string msgid;
 
