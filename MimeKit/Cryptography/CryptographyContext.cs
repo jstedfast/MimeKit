@@ -44,8 +44,8 @@ namespace MimeKit.Cryptography {
 	public abstract class CryptographyContext : ICryptographyContext
 	{
 		const string SubclassAndRegisterFormat = "You need to subclass {0} and then register it with MimeKit.Cryptography.CryptographyContext.Register().";
-		static Func<SecureMimeContext>? SecureMimeContextFactory;
-		static Func<OpenPgpContext>? PgpContextFactory;
+		static Func<CryptographyContext>? SecureMimeContextFactory;
+		static Func<CryptographyContext>? PgpContextFactory;
 		static readonly object mutex = new object ();
 
 		EncryptionAlgorithm[] encryptionAlgorithmRank;
@@ -734,7 +734,7 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextFactory != null)
 						return SecureMimeContextFactory ();
 
-					return new DefaultSecureMimeContext ();
+					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.SecureMimeContext (available in the MimeKit.Cryptography package)"));
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":
 				case "application/x-pgp-encrypted":
@@ -752,20 +752,21 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Registers a default <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.
+		/// Registers a default <c>SecureMimeContext</c> or <c>OpenPgpContext</c>.
 		/// </summary>
 		/// <remarks>
-		/// Registers the specified type as the default <see cref="SecureMimeContext"/> or
-		/// <see cref="OpenPgpContext"/>.
+		/// Registers the specified type as the default <c>SecureMimeContext</c> or
+		/// <c>OpenPgpContext</c>. The context implementations are provided by the
+		/// MimeKit.Cryptography package.
 		/// </remarks>
-		/// <param name="type">A custom subclass of <see cref="SecureMimeContext"/> or
-		/// <see cref="OpenPgpContext"/>.</param>
+		/// <param name="type">A custom subclass of <c>SecureMimeContext</c> or
+		/// <c>OpenPgpContext</c>.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="type"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// <para><paramref name="type"/> is not a subclass of
-		/// <see cref="SecureMimeContext"/> or <see cref="OpenPgpContext"/>.</para>
+		/// <c>SecureMimeContext</c> or <c>OpenPgpContext</c>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="type"/> does not have a parameterless constructor.</para>
 		/// </exception>
@@ -784,54 +785,56 @@ namespace MimeKit.Cryptography {
 			if (ctor == null)
 				throw new ArgumentException ("The specified type must have a parameterless constructor.", nameof (type));
 
-			if (type.IsSubclassOf (typeof (SecureMimeContext))) {
+			if (IsSubclassOf (type, "MimeKit.Cryptography.SecureMimeContext")) {
 				lock (mutex) {
-					SecureMimeContextFactory = () => (SecureMimeContext) ctor.Invoke (args);
+					SecureMimeContextFactory = () => (CryptographyContext) ctor.Invoke (args);
 				}
-			} else if (type.IsSubclassOf (typeof (OpenPgpContext))) {
+			} else if (IsSubclassOf (type, "MimeKit.Cryptography.OpenPgpContext")) {
 				lock (mutex) {
-					PgpContextFactory = () => (OpenPgpContext) ctor.Invoke (args);
+					PgpContextFactory = () => (CryptographyContext) ctor.Invoke (args);
 				}
 			} else {
 				throw new ArgumentException ("The specified type must be a subclass of SecureMimeContext or OpenPgpContext.", nameof (type));
 			}
 		}
 
+		static bool IsSubclassOf (Type type, string baseTypeName)
+		{
+			for (var baseType = type.BaseType; baseType != null; baseType = baseType.BaseType) {
+				if (baseType.FullName == baseTypeName)
+					return true;
+			}
+
+			return false;
+		}
+
 		/// <summary>
-		/// Registers a default <see cref="SecureMimeContext"/> factory.
+		/// Registers a default S/MIME context factory.
 		/// </summary>
 		/// <remarks>
-		/// Registers a factory that will return a new instance of the default <see cref="SecureMimeContext"/>.
+		/// This method is intended for use by the MimeKit.Cryptography package to register the default
+		/// <c>SecureMimeContext</c> factory. Applications should use <see cref="Register(Type)"/> or the
+		/// <c>SecureMimeContext.Register</c> methods provided by the MimeKit.Cryptography package.
 		/// </remarks>
-		/// <param name="factory">A factory that creates a new instance of <see cref="SecureMimeContext"/>.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="factory"/> is <see langword="null"/>.
-		/// </exception>
-		public static void Register (Func<SecureMimeContext> factory)
+		/// <param name="factory">A factory that creates a new S/MIME context.</param>
+		internal static void RegisterSecureMimeContextFactory (Func<CryptographyContext> factory)
 		{
-			if (factory == null)
-				throw new ArgumentNullException (nameof (factory));
-
 			lock (mutex) {
 				SecureMimeContextFactory = factory;
 			}
 		}
 
 		/// <summary>
-		/// Registers a default <see cref="OpenPgpContext"/> factory.
+		/// Registers a default OpenPGP context factory.
 		/// </summary>
 		/// <remarks>
-		/// Registers a factory that will return a new instance of the default <see cref="OpenPgpContext"/>.
+		/// This method is intended for use by the MimeKit.Cryptography package to register the default
+		/// <c>OpenPgpContext</c> factory. Applications should use <see cref="Register(Type)"/> or the
+		/// <c>OpenPgpContext.Register</c> methods provided by the MimeKit.Cryptography package.
 		/// </remarks>
-		/// <param name="factory">A factory that creates a new instance of <see cref="OpenPgpContext"/>.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="factory"/> is <see langword="null"/>.
-		/// </exception>
-		public static void Register (Func<OpenPgpContext> factory)
+		/// <param name="factory">A factory that creates a new OpenPGP context.</param>
+		internal static void RegisterPgpContextFactory (Func<CryptographyContext> factory)
 		{
-			if (factory == null)
-				throw new ArgumentNullException (nameof (factory));
-
 			lock (mutex) {
 				PgpContextFactory = factory;
 			}

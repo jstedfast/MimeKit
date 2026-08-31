@@ -68,104 +68,104 @@ namespace UnitTests.Cryptography {
 				ctx.Import (rsa.FileName, "no.secret");
 
 				// Compress
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Compress (null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Compress (ctx, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Compress (null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Compress (null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Compress (ctx, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Compress (null));
 
 				// CompressAsync
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.CompressAsync (null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.CompressAsync (ctx, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.CompressAsync (null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.CompressAsync (null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.CompressAsync (ctx, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.CompressAsync (null));
 
 				// Encrypt
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (null, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (null, recipients, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (ctx, (IEnumerable<MailboxAddress>) null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (ctx, (CmsRecipientCollection) null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (ctx, recipients, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (ctx, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (null, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (null, recipients, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (ctx, (IEnumerable<MailboxAddress>) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (ctx, (CmsRecipientCollection) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (ctx, recipients, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (ctx, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt ((IEnumerable<MailboxAddress>) null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt ((CmsRecipientCollection) null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (recipients, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Encrypt (mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt ((IEnumerable<MailboxAddress>) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt ((CmsRecipientCollection) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (recipients, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Encrypt (mailboxes, null));
 
 				// EncryptAsync
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (null, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (null, recipients, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (ctx, (IEnumerable<MailboxAddress>) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (ctx, (CmsRecipientCollection) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (null, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (null, recipients, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (ctx, (IEnumerable<MailboxAddress>) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (ctx, (CmsRecipientCollection) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (ctx, recipients, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (ctx, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync ((IEnumerable<MailboxAddress>) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync ((CmsRecipientCollection) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (recipients, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.EncryptAsync (mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync ((IEnumerable<MailboxAddress>) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync ((CmsRecipientCollection) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (recipients, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncryptAsync (mailboxes, null));
 
 				// Sign
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (null, mailbox, DigestAlgorithm.Sha1, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (null, signer, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (ctx, (CmsSigner) null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (ctx, mailbox, DigestAlgorithm.Sha1, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (ctx, signer, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (null, mailbox, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (null, signer, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (ctx, (CmsSigner) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (ctx, mailbox, DigestAlgorithm.Sha1, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (ctx, signer, null));
 
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign ((MailboxAddress) null, DigestAlgorithm.Sha1, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign ((CmsSigner) null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (mailbox, DigestAlgorithm.Sha1, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.Sign (signer, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign ((MailboxAddress) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign ((CmsSigner) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (mailbox, DigestAlgorithm.Sha1, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.EncapsulatedSign (signer, null));
 
 				// SignAsync
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (null, mailbox, DigestAlgorithm.Sha1, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (null, signer, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (ctx, (CmsSigner) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (ctx, mailbox, DigestAlgorithm.Sha1, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (ctx, signer, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (null, mailbox, DigestAlgorithm.Sha1, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (null, signer, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (ctx, (CmsSigner) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (ctx, mailbox, DigestAlgorithm.Sha1, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (ctx, signer, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync ((MailboxAddress) null, DigestAlgorithm.Sha1, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync ((CmsSigner) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (mailbox, DigestAlgorithm.Sha1, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAsync (signer, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync ((MailboxAddress) null, DigestAlgorithm.Sha1, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync ((CmsSigner) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (mailbox, DigestAlgorithm.Sha1, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.EncapsulatedSignAsync (signer, null));
 
 				// SignAndEncrypt
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (null, mailbox, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (ctx, null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (ctx, mailbox, DigestAlgorithm.Sha1, null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (ctx, mailbox, DigestAlgorithm.Sha1, mailboxes, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha1, null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (null, mailbox, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (ctx, null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (ctx, mailbox, DigestAlgorithm.Sha1, null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (ctx, mailbox, DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha1, null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha1, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (null, signer, recipients, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (ctx, null, recipients, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (ctx, signer, null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (ctx, signer, recipients, null));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (null, recipients, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (signer, null, entity));
-				Assert.Throws<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncrypt (signer, recipients, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (null, signer, recipients, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (ctx, null, recipients, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (ctx, signer, null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (ctx, signer, recipients, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (null, recipients, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (signer, null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.SignAndEncrypt (signer, recipients, null));
 
 				// SignAndEncryptAsync
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (null, mailbox, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (ctx, null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (ctx, mailbox, DigestAlgorithm.Sha1, null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (ctx, mailbox, DigestAlgorithm.Sha1, mailboxes, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha1, null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (null, mailbox, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (ctx, null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (ctx, mailbox, DigestAlgorithm.Sha1, null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (ctx, mailbox, DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha1, null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha1, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (null, signer, recipients, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (ctx, null, recipients, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (ctx, signer, null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (ctx, signer, recipients, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (null, recipients, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (signer, null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => ApplicationPkcs7Mime.SignAndEncryptAsync (signer, recipients, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (null, signer, recipients, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (ctx, null, recipients, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (ctx, signer, null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (ctx, signer, recipients, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (null, recipients, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (signer, null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAndEncryptAsync (signer, recipients, null));
 
-				var compressed = ApplicationPkcs7Mime.Compress (ctx, entity);
-				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, entity);
-				var signed = ApplicationPkcs7Mime.Sign (ctx, signer, entity);
+				var compressed = SecureMime.Compress (ctx, entity);
+				var encrypted = SecureMime.Encrypt (ctx, recipients, entity);
+				var signed = SecureMime.EncapsulatedSign (ctx, signer, entity);
 
 				// Decompress
 				Assert.Throws<ArgumentNullException> (() => compressed.Decompress (null));
@@ -460,7 +460,7 @@ namespace UnitTests.Cryptography {
 					new CmsRecipient (signer.Certificate, recipientIdentifierType)
 				};
 
-				var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, entity);
+				var encrypted = SecureMime.Encrypt (recipients, entity);
 
 				using (var ctx = CreateContext ()) {
 					ctx.Import (certificate.FileName, "no.secret");
@@ -481,7 +481,7 @@ namespace UnitTests.Cryptography {
 					new CmsRecipient (signer.Certificate, recipientIdentifierType)
 				};
 
-				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, entity).ConfigureAwait (false);
+				var encrypted = await SecureMime.EncryptAsync (recipients, entity).ConfigureAwait (false);
 
 				using (var ctx = CreateContext ()) {
 					await ctx.ImportAsync (certificate.FileName, "no.secret").ConfigureAwait (false);
@@ -509,13 +509,13 @@ namespace UnitTests.Cryptography {
 
 					ctx.Import (certificate.FileName, "no.secret");
 
-					encrypted = ApplicationPkcs7Mime.Encrypt (mailboxes, entity);
+					encrypted = SecureMime.Encrypt (mailboxes, entity);
 					decrypted = encrypted.Decrypt (ctx);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from Encrypt(mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
-					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, mailboxes, entity);
+					encrypted = SecureMime.Encrypt (ctx, mailboxes, entity);
 					decrypted = encrypted.Decrypt (ctx);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Encrypt(ctx, mailboxes, entity)");
 					text = (TextPart) decrypted;
@@ -542,13 +542,13 @@ namespace UnitTests.Cryptography {
 
 					await ctx.ImportAsync (certificate.FileName, "no.secret").ConfigureAwait (false);
 
-					encrypted = await ApplicationPkcs7Mime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
+					encrypted = await SecureMime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
 					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from EncryptAsync(mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
-					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
+					encrypted = await SecureMime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
 					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "EncryptAsync(ctx, mailboxes, entity)");
 					text = (TextPart) decrypted;
@@ -574,13 +574,13 @@ namespace UnitTests.Cryptography {
 
 					ctx.Import (certificate.FileName, "no.secret");
 
-					encrypted = ApplicationPkcs7Mime.Encrypt (mailboxes, entity);
+					encrypted = SecureMime.Encrypt (mailboxes, entity);
 					decrypted = encrypted.Decrypt (ctx);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from Encrypt(mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
-					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, mailboxes, entity);
+					encrypted = SecureMime.Encrypt (ctx, mailboxes, entity);
 					decrypted = encrypted.Decrypt (ctx);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Encrypt(ctx, mailboxes, entity)");
 					text = (TextPart) decrypted;
@@ -606,13 +606,13 @@ namespace UnitTests.Cryptography {
 
 					await ctx.ImportAsync (certificate.FileName, "no.secret").ConfigureAwait (false);
 
-					encrypted = await ApplicationPkcs7Mime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
+					encrypted = await SecureMime.EncryptAsync (mailboxes, entity).ConfigureAwait (false);
 					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted from EncryptAsync(mailboxes, entity)");
 					text = (TextPart) decrypted;
 					Assert.That (text.Text, Is.EqualTo (entity.Text), "Decrypted text");
 
-					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
+					encrypted = await SecureMime.EncryptAsync (ctx, mailboxes, entity).ConfigureAwait (false);
 					decrypted = await encrypted.DecryptAsync (ctx).ConfigureAwait (false);
 					Assert.That (decrypted, Is.InstanceOf<TextPart> (), "EncryptAsync(ctx, mailboxes, entity)");
 					text = (TextPart) decrypted;
@@ -699,7 +699,7 @@ namespace UnitTests.Cryptography {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var signer = new CmsSigner (certificate.FileName, "no.secret");
 
-					var signed = ApplicationPkcs7Mime.Sign (ctx, signer, entity);
+					var signed = SecureMime.EncapsulatedSign (ctx, signer, entity);
 					AssertSignResults (certificate, ctx, signed, entity);
 				}
 			}
@@ -715,7 +715,7 @@ namespace UnitTests.Cryptography {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var signer = new CmsSigner (certificate.FileName, "no.secret");
 
-					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, signer, entity).ConfigureAwait (false);
+					var signed = await SecureMime.EncapsulatedSignAsync (ctx, signer, entity).ConfigureAwait (false);
 					AssertSignResults (certificate, ctx, signed, entity);
 				}
 			}
@@ -734,7 +734,7 @@ namespace UnitTests.Cryptography {
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
-					var signed = ApplicationPkcs7Mime.Sign (ctx, mailbox, DigestAlgorithm.Sha224, entity);
+					var signed = SecureMime.EncapsulatedSign (ctx, mailbox, DigestAlgorithm.Sha224, entity);
 					AssertSignResults (certificate, ctx, signed, entity);
 				}
 			}
@@ -753,7 +753,7 @@ namespace UnitTests.Cryptography {
 					var mailbox = new SecureMailboxAddress ("MimeKit UnitTests", certificate.EmailAddress, certificate.Fingerprint);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
-					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity).ConfigureAwait (false);
+					var signed = await SecureMime.EncapsulatedSignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity).ConfigureAwait (false);
 					AssertSignResults (certificate, ctx, signed, entity);
 				}
 			}
@@ -771,7 +771,7 @@ namespace UnitTests.Cryptography {
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
-					var signed = ApplicationPkcs7Mime.Sign (ctx, mailbox, DigestAlgorithm.Sha224, entity);
+					var signed = SecureMime.EncapsulatedSign (ctx, mailbox, DigestAlgorithm.Sha224, entity);
 					AssertSignResults (certificate, ctx, signed, entity);
 				}
 			}
@@ -789,7 +789,7 @@ namespace UnitTests.Cryptography {
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@" + domain);
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 
-					var signed = await ApplicationPkcs7Mime.SignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity).ConfigureAwait (false);
+					var signed = await SecureMime.EncapsulatedSignAsync (ctx, mailbox, DigestAlgorithm.Sha224, entity).ConfigureAwait (false);
 					AssertSignResults (certificate, ctx, signed, entity);
 				}
 			}
@@ -908,7 +908,7 @@ namespace UnitTests.Cryptography {
 						new CmsRecipient (signer.Certificate)
 					};
 
-					var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (signer, recipients, entity);
+					var encrypted = SecureMime.SignAndEncrypt (signer, recipients, entity);
 					AssertSignAndEncryptResults (certificate, ctx, encrypted, entity);
 				}
 			}
@@ -927,7 +927,7 @@ namespace UnitTests.Cryptography {
 						new CmsRecipient (signer.Certificate)
 					};
 
-					var encrypted = await ApplicationPkcs7Mime.SignAndEncryptAsync (signer, recipients, entity).ConfigureAwait (false);
+					var encrypted = await SecureMime.SignAndEncryptAsync (signer, recipients, entity).ConfigureAwait (false);
 					await AssertSignAndEncryptResultsAsync (certificate, ctx, encrypted, entity).ConfigureAwait (false);
 				}
 			}
@@ -947,7 +947,7 @@ namespace UnitTests.Cryptography {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
 
-					var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha224, recipients, entity);
+					var encrypted = SecureMime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha224, recipients, entity);
 					AssertSignAndEncryptResults (certificate, ctx, encrypted, entity);
 				}
 			}
@@ -967,7 +967,7 @@ namespace UnitTests.Cryptography {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
 
-					var encrypted = await ApplicationPkcs7Mime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha224, recipients, entity).ConfigureAwait (false);
+					var encrypted = await SecureMime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha224, recipients, entity).ConfigureAwait (false);
 					await AssertSignAndEncryptResultsAsync (certificate, ctx, encrypted, entity).ConfigureAwait (false);
 				}
 			}
@@ -986,7 +986,7 @@ namespace UnitTests.Cryptography {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
 
-					var encrypted = ApplicationPkcs7Mime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha224, recipients, entity);
+					var encrypted = SecureMime.SignAndEncrypt (mailbox, DigestAlgorithm.Sha224, recipients, entity);
 					AssertSignAndEncryptResults (certificate, ctx, encrypted, entity);
 				}
 			}
@@ -1005,7 +1005,7 @@ namespace UnitTests.Cryptography {
 					var entity = new TextPart ("plain") { Text = "This is some text..." };
 					var recipients = new MailboxAddress[] { mailbox };
 
-					var encrypted = await ApplicationPkcs7Mime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha224, recipients, entity).ConfigureAwait (false);
+					var encrypted = await SecureMime.SignAndEncryptAsync (mailbox, DigestAlgorithm.Sha224, recipients, entity).ConfigureAwait (false);
 					await AssertSignAndEncryptResultsAsync (certificate, ctx, encrypted, entity).ConfigureAwait (false);
 				}
 			}
@@ -1022,7 +1022,7 @@ namespace UnitTests.Cryptography {
 
 			if (validateEncrypt) {
 				try {
-					ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					SecureMime.Encrypt (ctx, recipients, body);
 					Assert.Fail ("Encrypt should have thrown an exception for the revoked recipient certificate.");
 				} catch (CmsEnvelopeException ex) {
 					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1049,7 +1049,7 @@ namespace UnitTests.Cryptography {
 
 				SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
 			} else {
-				Assert.DoesNotThrow (() => ApplicationPkcs7Mime.Encrypt (ctx, recipients, body));
+				Assert.DoesNotThrow (() => SecureMime.Encrypt (ctx, recipients, body));
 				SecureMimeTestsBase.AssertCrlsNotRequested (mockHttpMessageHandler);
 			}
 		}
@@ -1065,7 +1065,7 @@ namespace UnitTests.Cryptography {
 
 			if (validateEncrypt) {
 				try {
-					await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+					await SecureMime.EncryptAsync (ctx, recipients, body);
 					Assert.Fail ("EncryptAsync should have thrown an exception for the revoked recipient certificate.");
 				} catch (CmsEnvelopeException ex) {
 					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1092,7 +1092,7 @@ namespace UnitTests.Cryptography {
 
 				SecureMimeTestsBase.AssertCrlsRequested (mockHttpMessageHandler);
 			} else {
-				Assert.DoesNotThrow (() => ApplicationPkcs7Mime.Encrypt (ctx, recipients, body));
+				Assert.DoesNotThrow (() => SecureMime.Encrypt (ctx, recipients, body));
 				SecureMimeTestsBase.AssertCrlsNotRequested (mockHttpMessageHandler);
 			}
 		}
@@ -1108,7 +1108,7 @@ namespace UnitTests.Cryptography {
 			ctx.CheckCertificateRevocation = true;
 
 			try {
-				ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				SecureMime.Encrypt (ctx, recipients, body);
 				Assert.Fail ("Encrypt should have thrown an exception for the revoked recipient certificate.");
 			} catch (CmsEnvelopeException ex) {
 				Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1147,7 +1147,7 @@ namespace UnitTests.Cryptography {
 			ctx.CheckCertificateRevocation = true;
 
 			try {
-				await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+				await SecureMime.EncryptAsync (ctx, recipients, body);
 				Assert.Fail ("EncryptAsync should have thrown a CertificateValidationException for the revoked recipient certificate.");
 			} catch (CmsEnvelopeException ex) {
 				Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1187,7 +1187,7 @@ namespace UnitTests.Cryptography {
 
 			try {
 				try {
-					ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					SecureMime.Encrypt (ctx, recipients, body);
 					Assert.Fail ("Encrypt should have thrown an exception for the revoked recipient certificate.");
 				} catch (CmsEnvelopeException ex) {
 					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1206,7 +1206,7 @@ namespace UnitTests.Cryptography {
 				}
 
 				// Now that the revoked recipient has been removed, the encryption should succeed.
-				var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				var encrypted = SecureMime.Encrypt (ctx, recipients, body);
 				Assert.That (encrypted, Is.Not.Null, "Encrypt should succeed once the invalid recipient has been removed.");
 				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData));
 
@@ -1232,7 +1232,7 @@ namespace UnitTests.Cryptography {
 
 			try {
 				try {
-					await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+					await SecureMime.EncryptAsync (ctx, recipients, body);
 					Assert.Fail ("EncryptAsync should have thrown an exception for the revoked recipient certificate.");
 				} catch (CmsEnvelopeException ex) {
 					Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1251,7 +1251,7 @@ namespace UnitTests.Cryptography {
 				}
 
 				// Now that the revoked recipient has been removed, the encryption should succeed.
-				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+				var encrypted = await SecureMime.EncryptAsync (ctx, recipients, body);
 				Assert.That (encrypted, Is.Not.Null, "EncryptAsync should succeed once the invalid recipient has been removed.");
 				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData));
 
@@ -1275,7 +1275,7 @@ namespace UnitTests.Cryptography {
 			ctx.CheckCertificateRevocation = true;
 
 			try {
-				ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+				SecureMime.Encrypt (ctx, recipients, body);
 				Assert.Fail ("Encrypt should have thrown an exception when all recipients fail validation.");
 			} catch (CmsEnvelopeException ex) {
 				Assert.That (ex.InnerException, Is.InstanceOf<AggregateException> (), "Expected an inner exception of type AggregateException.");
@@ -1327,7 +1327,7 @@ namespace UnitTests.Cryptography {
 
 		public ApplicationPkcs7MimeTests ()
 		{
-			CryptographyContext.Register (CreateContext);
+			SecureMimeContext.Register (CreateContext);
 		}
 
 		protected override SecureMimeContext CreateContext ()

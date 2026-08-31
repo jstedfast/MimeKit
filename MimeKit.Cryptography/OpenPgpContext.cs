@@ -89,6 +89,24 @@ namespace MimeKit.Cryptography {
 		bool disposed;
 
 		/// <summary>
+		/// Register a default <see cref="OpenPgpContext"/> factory.
+		/// </summary>
+		/// <remarks>
+		/// Registers a factory that will return a new instance of the default <see cref="OpenPgpContext"/>.
+		/// </remarks>
+		/// <param name="factory">A factory that creates a new instance of <see cref="OpenPgpContext"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="factory"/> is <see langword="null"/>.
+		/// </exception>
+		public static void Register (Func<OpenPgpContext> factory)
+		{
+			if (factory == null)
+				throw new ArgumentNullException (nameof (factory));
+
+			CryptographyContext.RegisterPgpContextFactory (factory);
+		}
+
+		/// <summary>
 		/// Initialize a new instance of the <see cref="OpenPgpContext"/> class.
 		/// </summary>
 		/// <remarks>

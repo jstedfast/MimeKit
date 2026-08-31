@@ -470,7 +470,7 @@ using (var ctx = new MySecureMimeContext ()) {
     // Subject Email identifier that matches her email address. If she doesn't,
     // try using a SecureMailboxAddress which allows you to specify the
     // fingerprint of her certificate to use for lookups.
-    message.Body = ApplicationPkcs7Mime.Encrypt (ctx, message.To.Mailboxes, body);
+    message.Body = SecureMime.Encrypt (ctx, message.To.Mailboxes, body);
 }
 ```
 
@@ -512,7 +512,7 @@ using (var ctx = new MyGnuPGContext ()) {
     // Note: this assumes that "Alice" has a public PGP key that matches her email
     // address. If she doesn't, try using a SecureMailboxAddress which allows you
     // to specify the fingerprint of her public PGP key to use for lookups.
-    message.Body = MultipartEncrypted.Encrypt (ctx, message.To.Mailboxes, body);
+    message.Body = PgpMime.Encrypt (ctx, message.To.Mailboxes, body);
 }
 ```
 
@@ -570,7 +570,7 @@ using (var ctx = new MySecureMimeContext ()) {
     var signer = new CmsSigner (certificate);
     signer.DigestAlgorithm = DigestAlgorithm.Sha1;
 
-    message.Body = MultipartSigned.Create (ctx, signer, body);
+    message.Body = SecureMime.Sign (ctx, signer, body);
 }
 ```
 
@@ -598,7 +598,7 @@ relying on email addresses to match up with the user's private key.
 // now to digitally sign our message body using our custom OpenPGP cryptography context
 using (var ctx = new MyGnuPGContext ()) {
     var key = GetJoeysPrivatePgpKey ();
-    message.Body = MultipartSigned.Create (ctx, key, DigestAlgorithm.Sha1, body);
+    message.Body = PgpMime.Sign (ctx, key, DigestAlgorithm.Sha1, body);
 }
 ```
 

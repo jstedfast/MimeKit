@@ -41,7 +41,7 @@ namespace UnitTests.Cryptography {
 			var message = new MimeMessage ();
 
 			Assert.Throws<ArgumentNullException> (() => new ArcVerifier (null));
-			Assert.Throws<ArgumentNullException> (() => new ArcHeaderValidationResult (null));
+			Assert.Throws<ArgumentNullException> (() => new ArcHeaderValidationResult (null, ArcSignatureValidationResult.None));
 			Assert.Throws<ArgumentNullException> (() => new ArcHeaderValidationResult (null, ArcSignatureValidationResult.Fail));
 
 			Assert.Throws<ArgumentNullException> (() => verifier.Verify (null));

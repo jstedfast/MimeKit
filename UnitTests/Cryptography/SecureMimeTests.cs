@@ -331,7 +331,7 @@ namespace UnitTests.Cryptography {
 			var windows = ctx as WindowsSecureMimeContext;
 
 			if (ctx is TemporarySecureMimeContext)
-				CryptographyContext.Register (CreateContext);
+				SecureMimeContext.Register (CreateContext);
 			else
 				CryptographyContext.Register (ctx.GetType ());
 
@@ -557,17 +557,17 @@ namespace UnitTests.Cryptography {
 
 				entity = new MimePart { Content = new MimeContent (stream) };
 
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((SecureMimeContext) null, signer, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (CmsSigner) null, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, signer, null));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((CmsSigner) null, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (signer, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Sign ((SecureMimeContext) null, signer, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Sign (ctx, (CmsSigner) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Sign (ctx, signer, null));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Sign ((CmsSigner) null, entity));
+				Assert.Throws<ArgumentNullException> (() => SecureMime.Sign (signer, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync ((SecureMimeContext) null, signer, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (ctx, (CmsSigner) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (ctx, signer, null));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync ((CmsSigner) null, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (signer, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAsync ((SecureMimeContext) null, signer, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAsync (ctx, (CmsSigner) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAsync (ctx, signer, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAsync ((CmsSigner) null, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => SecureMime.SignAsync (signer, null));
 			}
 		}
 
@@ -711,7 +711,7 @@ namespace UnitTests.Cryptography {
 				Text = "This is some text that we'll end up compressing..."
 			};
 
-			using var compressed = ApplicationPkcs7Mime.Compress (original);
+			using var compressed = SecureMime.Compress (original);
 
 			Assert.That (compressed.SecureMimeType, Is.EqualTo (SecureMimeType.CompressedData), "S/MIME type did not match.");
 
@@ -728,7 +728,7 @@ namespace UnitTests.Cryptography {
 				Text = "This is some text that we'll end up compressing..."
 			};
 
-			using var compressed = await ApplicationPkcs7Mime.CompressAsync (original);
+			using var compressed = await SecureMime.CompressAsync (original);
 
 			Assert.That (compressed.SecureMimeType, Is.EqualTo (SecureMimeType.CompressedData), "S/MIME type did not match.");
 
@@ -746,7 +746,7 @@ namespace UnitTests.Cryptography {
 			};
 
 			using (var ctx = CreateContext ()) {
-				using var compressed = ApplicationPkcs7Mime.Compress (ctx, original);
+				using var compressed = SecureMime.Compress (ctx, original);
 
 				Assert.That (compressed.SecureMimeType, Is.EqualTo (SecureMimeType.CompressedData), "S/MIME type did not match.");
 
@@ -780,7 +780,7 @@ namespace UnitTests.Cryptography {
 			};
 
 			using (var ctx = CreateContext ()) {
-				using var compressed = await ApplicationPkcs7Mime.CompressAsync (ctx, original);
+				using var compressed = await SecureMime.CompressAsync (ctx, original);
 
 				Assert.That (compressed.SecureMimeType, Is.EqualTo (SecureMimeType.CompressedData), "S/MIME type did not match.");
 
@@ -851,7 +851,7 @@ namespace UnitTests.Cryptography {
 					continue;
 
 				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
-				using var signed = ApplicationPkcs7Mime.Sign (self, DigestAlgorithm.Sha1, cleartext);
+				using var signed = SecureMime.EncapsulatedSign (self, DigestAlgorithm.Sha1, cleartext);
 
 				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
 
@@ -910,7 +910,7 @@ namespace UnitTests.Cryptography {
 					continue;
 
 				var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
-				using var signed = await ApplicationPkcs7Mime.SignAsync (self, DigestAlgorithm.Sha1, cleartext);
+				using var signed = await SecureMime.EncapsulatedSignAsync (self, DigestAlgorithm.Sha1, cleartext);
 				MimeEntity extracted;
 
 				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1010,7 +1010,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
-					using var signed = ApplicationPkcs7Mime.Sign (ctx, self, DigestAlgorithm.Sha1, cleartext);
+					using var signed = SecureMime.EncapsulatedSign (ctx, self, DigestAlgorithm.Sha1, cleartext);
 					MimeEntity extracted;
 
 					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1048,7 +1048,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var self = new MailboxAddress ("MimeKit UnitTests", certificate.EmailAddress);
-					using var signed = await ApplicationPkcs7Mime.SignAsync (ctx, self, DigestAlgorithm.Sha1, cleartext);
+					using var signed = await SecureMime.EncapsulatedSignAsync (ctx, self, DigestAlgorithm.Sha1, cleartext);
 					MimeEntity extracted;
 
 					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1084,7 +1084,7 @@ namespace UnitTests.Cryptography {
 
 				var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 				using var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-				using var signed = ApplicationPkcs7Mime.Sign (signer, cleartext);
+				using var signed = SecureMime.EncapsulatedSign (signer, cleartext);
 				MimeEntity extracted;
 
 				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1130,7 +1130,7 @@ namespace UnitTests.Cryptography {
 
 				var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
 				using var cleartext = new TextPart ("plain") { Text = "This is some text that we'll end up signing..." };
-				using var signed = await ApplicationPkcs7Mime.SignAsync (signer, cleartext);
+				using var signed = await SecureMime.EncapsulatedSignAsync (signer, cleartext);
 				MimeEntity extracted;
 
 				Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1178,7 +1178,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
-					using var signed = ApplicationPkcs7Mime.Sign (ctx, signer, cleartext);
+					using var signed = SecureMime.EncapsulatedSign (ctx, signer, cleartext);
 					MimeEntity extracted;
 
 					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1216,7 +1216,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var signer = new CmsSigner (certificate.FileName, "no.secret", SubjectIdentifierType.SubjectKeyIdentifier);
-					using var signed = await ApplicationPkcs7Mime.SignAsync (ctx, signer, cleartext);
+					using var signed = await SecureMime.EncapsulatedSignAsync (ctx, signer, cleartext);
 					MimeEntity extracted;
 
 					Assert.That (signed.SecureMimeType, Is.EqualTo (SecureMimeType.SignedData), "S/MIME type did not match.");
@@ -1252,7 +1252,7 @@ namespace UnitTests.Cryptography {
 
 				var signer = new CmsSigner (certificate.FileName, "no.secret");
 				using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-				using var multipart = MultipartSigned.Create (signer, body);
+				using var multipart = SecureMime.Sign (signer, body);
 
 				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -1306,7 +1306,7 @@ namespace UnitTests.Cryptography {
 
 				var signer = new CmsSigner (certificate.FileName, "no.secret");
 				using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
-				using var multipart = await MultipartSigned.CreateAsync (signer, body);
+				using var multipart = await SecureMime.SignAsync (signer, body);
 
 				Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -1362,7 +1362,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var signer = new CmsSigner (certificate.FileName, "no.secret");
-					using var multipart = MultipartSigned.Create (ctx, signer, body);
+					using var multipart = SecureMime.Sign (ctx, signer, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -1434,7 +1434,7 @@ namespace UnitTests.Cryptography {
 						continue;
 
 					var signer = new CmsSigner (certificate.FileName, "no.secret");
-					using var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
+					using var multipart = await SecureMime.SignAsync (ctx, signer, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -1507,7 +1507,7 @@ namespace UnitTests.Cryptography {
 				MultipartSigned multipart;
 
 				try {
-					multipart = MultipartSigned.Create (signer, body);
+					multipart = SecureMime.Sign (signer, body);
 				} catch (NotSupportedException) {
 					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSASSA-PSS should be supported.");
@@ -1568,7 +1568,7 @@ namespace UnitTests.Cryptography {
 				MultipartSigned multipart;
 
 				try {
-					multipart = await MultipartSigned.CreateAsync (signer, body);
+					multipart = await SecureMime.SignAsync (signer, body);
 				} catch (NotSupportedException) {
 					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSASSA-PSS should be supported.");
@@ -1973,7 +1973,7 @@ namespace UnitTests.Cryptography {
 					new CmsRecipient (certificate.Certificate, recipientIdentifierType)
 				};
 
-				var encrypted = ApplicationPkcs7Mime.Encrypt (recipients, body);
+				var encrypted = SecureMime.Encrypt (recipients, body);
 
 				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
@@ -1997,7 +1997,7 @@ namespace UnitTests.Cryptography {
 					new CmsRecipient (certificate.Certificate, recipientIdentifierType)
 				};
 
-				var encrypted = await ApplicationPkcs7Mime.EncryptAsync (recipients, body);
+				var encrypted = await SecureMime.EncryptAsync (recipients, body);
 
 				Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
@@ -2026,7 +2026,7 @@ namespace UnitTests.Cryptography {
 					else
 						recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
-					var encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					var encrypted = SecureMime.Encrypt (ctx, recipients, body);
 
 					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
@@ -2061,7 +2061,7 @@ namespace UnitTests.Cryptography {
 					else
 						recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
-					var encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+					var encrypted = await SecureMime.EncryptAsync (ctx, recipients, body);
 
 					Assert.That (encrypted.SecureMimeType, Is.EqualTo (SecureMimeType.EnvelopedData), "S/MIME type did not match.");
 
@@ -2136,7 +2136,7 @@ namespace UnitTests.Cryptography {
 						}
 
 						try {
-							encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+							encrypted = SecureMime.Encrypt (ctx, recipients, body);
 						} catch (NotSupportedException ex) {
 							if (ctx is WindowsSecureMimeContext) {
 								switch (algorithm) {
@@ -2254,7 +2254,7 @@ namespace UnitTests.Cryptography {
 						}
 
 						try {
-							encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+							encrypted = await SecureMime.EncryptAsync (ctx, recipients, body);
 						} catch (NotSupportedException ex) {
 							if (ctx is WindowsSecureMimeContext) {
 								switch (algorithm) {
@@ -2335,7 +2335,7 @@ namespace UnitTests.Cryptography {
 				ApplicationPkcs7Mime encrypted;
 
 				try {
-					encrypted = ApplicationPkcs7Mime.Encrypt (ctx, recipients, body);
+					encrypted = SecureMime.Encrypt (ctx, recipients, body);
 				} catch (NotSupportedException) {
 					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSAES-OAEP should be supported.");
@@ -2377,7 +2377,7 @@ namespace UnitTests.Cryptography {
 				ApplicationPkcs7Mime encrypted;
 
 				try {
-					encrypted = await ApplicationPkcs7Mime.EncryptAsync (ctx, recipients, body);
+					encrypted = await SecureMime.EncryptAsync (ctx, recipients, body);
 				} catch (NotSupportedException) {
 					if (ctx is not WindowsSecureMimeContext)
 						Assert.Fail ("RSAES-OAEP should be supported.");
@@ -2979,7 +2979,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			var multipart = MultipartSigned.Create (ctx, signer, body);
+			var multipart = SecureMime.Sign (ctx, signer, body);
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -3046,7 +3046,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			var multipart = await MultipartSigned.CreateAsync (ctx, signer, body);
+			var multipart = await SecureMime.SignAsync (ctx, signer, body);
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -3115,7 +3115,7 @@ namespace UnitTests.Cryptography {
 			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
 
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			var multipart = MultipartSigned.Create (ctx, signer, body);
+			var multipart = SecureMime.Sign (ctx, signer, body);
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -3139,7 +3139,7 @@ namespace UnitTests.Cryptography {
 			var certificate = SupportedCertificates.Single (c => c.EmailAddress == "nochain@mimekit.net");
 
 			var signer = new CmsSigner (certificate.FileName, "no.secret");
-			using var multipart = MultipartSigned.Create (ctx, signer, body);
+			using var multipart = SecureMime.Sign (ctx, signer, body);
 
 			Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -3796,7 +3796,7 @@ namespace UnitTests.Cryptography {
 			else
 				recipients.Add (new CmsRecipient (certificate.Certificate, recipientIdentifierType));
 
-			return ApplicationPkcs7Mime.Encrypt (ctx, recipients, entity);
+			return SecureMime.Encrypt (ctx, recipients, entity);
 		}
 
 		static void ValidateCanDecrypt (SecureMimeContext ctx, ApplicationPkcs7Mime encrypted, TextPart expected)

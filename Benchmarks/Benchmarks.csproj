@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
+    <ProjectReference Include="..\MimeKit.Cryptography\MimeKit.Cryptography.csproj" />
   </ItemGroup>
 
 </Project>

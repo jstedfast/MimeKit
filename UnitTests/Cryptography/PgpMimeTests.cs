@@ -1,4 +1,4 @@
-﻿//
+//
 // PgpMimeTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -384,7 +384,7 @@ namespace UnitTests.Cryptography {
 						digest == DigestAlgorithm.MD4)
 						continue;
 
-					using var multipart = MultipartSigned.Create (signer, digest, body);
+					using var multipart = PgpMime.Sign (signer, digest, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -432,7 +432,7 @@ namespace UnitTests.Cryptography {
 					    digest == DigestAlgorithm.MD4)
 						continue;
 
-					using var multipart = await MultipartSigned.CreateAsync (signer, digest, body);
+					using var multipart = await PgpMime.SignAsync (signer, digest, body);
 
 					Assert.That (multipart.Count, Is.EqualTo (2), "The multipart/signed has an unexpected number of children.");
 
@@ -589,7 +589,7 @@ namespace UnitTests.Cryptography {
 		{
 			var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
-			using var encrypted = MultipartEncrypted.Encrypt (new[] { self }, body);
+			using var encrypted = PgpMime.Encrypt (new[] { self }, body);
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var protocol = encrypted.ContentType.Parameters["protocol"];
@@ -638,7 +638,7 @@ namespace UnitTests.Cryptography {
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var stream = new MemoryStream ()) {
-				using (var encrypted = MultipartEncrypted.Encrypt (new[] { self }, body))
+				using (var encrypted = PgpMime.Encrypt (new[] { self }, body))
 					encrypted.WriteTo (stream);
 
 				stream.Position = 0;
@@ -667,7 +667,7 @@ namespace UnitTests.Cryptography {
 			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
 
 			using (var stream = new MemoryStream ()) {
-				using (var encrypted = await MultipartEncrypted.EncryptAsync (new[] { self }, body))
+				using (var encrypted = await PgpMime.EncryptAsync (new[] { self }, body))
 					await encrypted.WriteToAsync (stream);
 
 				stream.Position = 0;
@@ -701,7 +701,7 @@ namespace UnitTests.Cryptography {
 				recipients = ctx.GetPublicKeys (new [] { self });
 			}
 
-			using var encrypted = MultipartEncrypted.Encrypt (recipients, body);
+			using var encrypted = PgpMime.Encrypt (recipients, body);
 
 			//using (var file = File.Create ("pgp-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -723,7 +723,7 @@ namespace UnitTests.Cryptography {
 				recipients = await ctx.GetPublicKeysAsync (new[] { self });
 			}
 
-			using var encrypted = await MultipartEncrypted.EncryptAsync (recipients, body);
+			using var encrypted = await PgpMime.EncryptAsync (recipients, body);
 
 			//using (var file = File.Create ("pgp-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -746,7 +746,7 @@ namespace UnitTests.Cryptography {
 					if (!IsSupported (algorithm))
 						continue;
 
-					using var encrypted = MultipartEncrypted.Encrypt (algorithm, new [] { self }, body);
+					using var encrypted = PgpMime.Encrypt (algorithm, new [] { self }, body);
 
 					//using (var file = File.Create ("pgp-encrypted.asc"))
 					//	encrypted.WriteTo (file);
@@ -770,7 +770,7 @@ namespace UnitTests.Cryptography {
 					if (!IsSupported (algorithm))
 						continue;
 
-					using var encrypted = await MultipartEncrypted.EncryptAsync (algorithm, new[] { self }, body);
+					using var encrypted = await PgpMime.EncryptAsync (algorithm, new[] { self }, body);
 
 					//using (var file = File.Create ("pgp-encrypted.asc"))
 					//	encrypted.WriteTo (file);
@@ -799,7 +799,7 @@ namespace UnitTests.Cryptography {
 				if (!IsSupported (algorithm))
 					continue;
 
-				using var encrypted = MultipartEncrypted.Encrypt (algorithm, recipients, body);
+				using var encrypted = PgpMime.Encrypt (algorithm, recipients, body);
 
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
@@ -826,7 +826,7 @@ namespace UnitTests.Cryptography {
 				if (!IsSupported (algorithm))
 					continue;
 
-				using var encrypted = await MultipartEncrypted.EncryptAsync (algorithm, recipients, body);
+				using var encrypted = await PgpMime.EncryptAsync (algorithm, recipients, body);
 
 				//using (var file = File.Create ("pgp-encrypted.asc"))
 				//	encrypted.WriteTo (file);
@@ -1014,7 +1014,7 @@ namespace UnitTests.Cryptography {
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			using var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, new [] { self }, body);
+			using var encrypted = PgpMime.SignAndEncrypt (self, DigestAlgorithm.Sha1, new [] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1043,7 +1043,7 @@ namespace UnitTests.Cryptography {
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, new[] { self }, body);
+			using var encrypted = await PgpMime.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, new[] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1080,7 +1080,7 @@ namespace UnitTests.Cryptography {
 				signer = ctx.GetSigningKey (self);
 			}
 
-			using var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, recipients, body);
+			using var encrypted = PgpMime.SignAndEncrypt (signer, DigestAlgorithm.Sha1, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1116,7 +1116,7 @@ namespace UnitTests.Cryptography {
 				signer = await ctx.GetSigningKeyAsync (self);
 			}
 
-			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, recipients, body);
+			using var encrypted = await PgpMime.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1146,7 +1146,7 @@ namespace UnitTests.Cryptography {
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			using var encrypted = MultipartEncrypted.SignAndEncrypt (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new [] { self }, body);
+			using var encrypted = PgpMime.SignAndEncrypt (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new [] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1175,7 +1175,7 @@ namespace UnitTests.Cryptography {
 			var self = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "AB0821A2");
 			DigitalSignatureCollection signatures;
 
-			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new[] { self }, body);
+			using var encrypted = await PgpMime.SignAndEncryptAsync (self, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, new[] { self }, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1212,7 +1212,7 @@ namespace UnitTests.Cryptography {
 				signer = ctx.GetSigningKey (self);
 			}
 
-			using var encrypted = MultipartEncrypted.SignAndEncrypt (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
+			using var encrypted = PgpMime.SignAndEncrypt (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1248,7 +1248,7 @@ namespace UnitTests.Cryptography {
 				signer = await ctx.GetSigningKeyAsync (self);
 			}
 
-			using var encrypted = await MultipartEncrypted.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
+			using var encrypted = await PgpMime.SignAndEncryptAsync (signer, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, recipients, body);
 
 			//using (var file = File.Create ("pgp-signed-encrypted.asc"))
 			//	encrypted.WriteTo (file);
@@ -1529,8 +1529,8 @@ namespace UnitTests.Cryptography {
 		{
 			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Create (null));
 			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Type) null));
-			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Func<OpenPgpContext>) null));
-			Assert.Throws<ArgumentNullException> (() => CryptographyContext.Register ((Func<SecureMimeContext>) null));
+			Assert.Throws<ArgumentNullException> (() => OpenPgpContext.Register ((Func<OpenPgpContext>) null));
+			Assert.Throws<ArgumentNullException> (() => SecureMimeContext.Register ((Func<SecureMimeContext>) null));
 
 			using (var ctx = new DummyOpenPgpContext ()) {
 				var clintEastwood = new MailboxAddress ("Man with No Name", "clint.eastwood@fistfullofdollars.com");
@@ -1739,168 +1739,168 @@ namespace UnitTests.Cryptography {
 				// MultipartEncrypted
 
 				// Encrypt
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt ((MailboxAddress[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt ((MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt ((PgpPublicKey[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt ((PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (pubkeys, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, (MailboxAddress[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (null, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, (MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (ctx, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, (PgpPublicKey[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (null, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, (PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (ctx, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, pubkeys, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (EncryptionAlgorithm.Cast5, pubkeys, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (null, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (ctx, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (null, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.Encrypt (ctx, EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (null, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.Encrypt (ctx, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Encrypt (ctx, EncryptionAlgorithm.Cast5, pubkeys, null));
 
 				// EncryptAsync
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync ((MailboxAddress[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync ((MailboxAddress[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync ((PgpPublicKey[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync ((PgpPublicKey[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (pubkeys, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (null, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, (MailboxAddress[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (ctx, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (null, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, (MailboxAddress[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (ctx, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (null, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, (PgpPublicKey[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (ctx, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (null, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, (PgpPublicKey[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (ctx, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, pubkeys, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (EncryptionAlgorithm.Cast5, pubkeys, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (null, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (null, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, (MailboxAddress[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (null, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (null, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, (PgpPublicKey[]) null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.EncryptAsync (ctx, EncryptionAlgorithm.Cast5, pubkeys, null));
 
 				// SignAndEncrypt
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt ((MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt ((MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt ((PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (key, DigestAlgorithm.Sha1, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (key, DigestAlgorithm.Sha1, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt ((PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (key, DigestAlgorithm.Sha1, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (key, DigestAlgorithm.Sha1, pubkeys, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (null, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (null, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (null, key, DigestAlgorithm.Sha1, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (null, key, DigestAlgorithm.Sha1, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, pubkeys, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt ((MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt ((MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt ((PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt ((PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (null, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (null, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (null, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.Throws<ArgumentException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartEncrypted.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (null, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.Throws<ArgumentException> (() => PgpMime.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.SignAndEncrypt (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
 
 				// SignAndEncryptAsync
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync ((MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync ((MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, pubkeys, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (null, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (null, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (null, key, DigestAlgorithm.Sha1, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (null, key, DigestAlgorithm.Sha1, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, pubkeys, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync ((MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync ((MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (null, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (null, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyMailboxes, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, mailboxes, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (null, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
-				Assert.ThrowsAsync<ArgumentException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartEncrypted.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (null, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, null, entity));
+				Assert.ThrowsAsync<ArgumentException> (() => PgpMime.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, emptyPubkeys, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAndEncryptAsync (ctx, key, DigestAlgorithm.Sha1, EncryptionAlgorithm.Cast5, pubkeys, null));
 
 				using var encrypted = new MultipartEncrypted ();
 
@@ -1914,26 +1914,26 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
 				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, mailboxes[0], DigestAlgorithm.Sha1, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (null, key, DigestAlgorithm.Sha1, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (ctx, key, DigestAlgorithm.Sha1, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Sign (null, key, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Sign (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Sign (ctx, key, DigestAlgorithm.Sha1, null));
 
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create ((PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
-				Assert.Throws<ArgumentNullException> (() => MultipartSigned.Create (key, DigestAlgorithm.Sha1, null));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Sign ((PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
+				Assert.Throws<ArgumentNullException> (() => PgpMime.Sign (key, DigestAlgorithm.Sha1, null));
 
 				// MultipartSigned.CreateAsync
 				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (null, mailboxes[0], DigestAlgorithm.Sha1, entity));
 				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (ctx, (MailboxAddress) null, DigestAlgorithm.Sha1, entity));
 				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (ctx, mailboxes[0], DigestAlgorithm.Sha1, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (null, key, DigestAlgorithm.Sha1, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (ctx, key, DigestAlgorithm.Sha1, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAsync (null, key, DigestAlgorithm.Sha1, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAsync (ctx, (PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAsync (ctx, key, DigestAlgorithm.Sha1, null));
 
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
-				Assert.ThrowsAsync<ArgumentNullException> (() => MultipartSigned.CreateAsync (key, DigestAlgorithm.Sha1, null));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAsync ((PgpSecretKey) null, DigestAlgorithm.Sha1, entity));
+				Assert.ThrowsAsync<ArgumentNullException> (() => PgpMime.SignAsync (key, DigestAlgorithm.Sha1, null));
 
-				using var signed = MultipartSigned.Create (key, DigestAlgorithm.Sha1, entity);
+				using var signed = PgpMime.Sign (key, DigestAlgorithm.Sha1, entity);
 
 				Assert.Throws<ArgumentNullException> (() => signed.Accept (null));
 				Assert.Throws<ArgumentOutOfRangeException> (() => signed.Prepare (EncodingConstraint.SevenBit, 0));
