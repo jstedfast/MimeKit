@@ -17,11 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MimeKit\MimeKit.csproj" Condition=" '$(UseMimeKitLite)' == 'false' " />
-    <TrimmerRootAssembly Include="MimeKit" Path="..\MimeKit\MimeKit.csproj" Condition=" '$(UseMimeKitLite)' == 'false' " />
-
-    <ProjectReference Include="..\MimeKit\MimeKitLite.csproj" Condition=" '$(UseMimeKitLite)' == 'true' " />
-    <TrimmerRootAssembly Include="MimeKitLite" Path="..\MimeKit\MimeKitLite.csproj" Condition=" '$(UseMimeKitLite)' == 'true' " />
+    <ProjectReference Include="..\MimeKit\MimeKit.Core.csproj" />
+    <ProjectReference Include="..\MimeKit.Cryptography\MimeKit.Cryptography.csproj" />
+    <TrimmerRootAssembly Include="MimeKit.Core" Path="..\MimeKit\MimeKit.Core.csproj" />
+    <TrimmerRootAssembly Include="MimeKit.Cryptography" Path="..\MimeKit.Cryptography\MimeKit.Cryptography.csproj" />
   </ItemGroup>
 
 </Project>

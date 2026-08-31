@@ -63,6 +63,24 @@ namespace MimeKit.Cryptography {
 		internal static readonly DerObjectIdentifier Twofish = new DerObjectIdentifier ("1.3.6.1.4.1.25258.3.3");
 
 		/// <summary>
+		/// Register a default <see cref="SecureMimeContext"/> factory.
+		/// </summary>
+		/// <remarks>
+		/// Registers a factory that will return a new instance of the default <see cref="SecureMimeContext"/>.
+		/// </remarks>
+		/// <param name="factory">A factory that creates a new instance of <see cref="SecureMimeContext"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="factory"/> is <see langword="null"/>.
+		/// </exception>
+		public static void Register (Func<SecureMimeContext> factory)
+		{
+			if (factory == null)
+				throw new ArgumentNullException (nameof (factory));
+
+			CryptographyContext.RegisterSecureMimeContextFactory (factory);
+		}
+
+		/// <summary>
 		/// Initialize a new instance of the <see cref="SecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>

@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata minClientVersion="2.12">
+    <id>MimeKit.Cryptography</id>
+    <version>5.0.0</version>
+    <title>MimeKit.Cryptography</title>
+    <authors>Jeffrey Stedfast</authors>
+    <owners>Jeffrey Stedfast</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://www.mimekit.net</projectUrl>
+    <repository type="git" url="https://github.com/jstedfast/MimeKit" />
+    <icon>icons\mimekit-50.png</icon>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.
+
+      MimeKit.Cryptography extends MimeKit.Core with support for OpenPGP, S/MIME and DKIM/ARC using BouncyCastle.Cryptography. Reference this package (or the MimeKit meta-package) when you need cryptography features.
+
+      API documentation can be found on the web at http://www.mimekit.net/docs
+
+      For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit
+    </description>
+    <summary>Adds OpenPGP, S/MIME and DKIM/ARC cryptography support to MimeKit.Core.</summary>
+    <releaseNotes>
+* Split MimeKit into MimeKit.Core and MimeKit.Cryptography (this package). The cryptography APIs are now provided as extension methods and the PgpMime/SecureMime static classes.
+    </releaseNotes>
+    <copyright>.NET Foundation and Contributors</copyright>
+    <language>en-US</language>
+    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mail email tnef</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.8" />
+    </frameworkAssemblies>
+    <dependencies>
+      <group targetFramework="net462">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+      <group targetFramework="net47">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+      <group targetFramework="net48">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
+        <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+      <group targetFramework="netstandard2.1">
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
+        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.0\MimeKit.Cryptography.dll" target="lib\netstandard2.0\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.0\MimeKit.Cryptography.pdb" target="lib\netstandard2.0\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.0\MimeKit.Cryptography.xml" target="lib\netstandard2.0\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.dll" target="lib\netstandard2.1\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.pdb" target="lib\netstandard2.1\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.xml" target="lib\netstandard2.1\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net462\MimeKit.Cryptography.dll" target="lib\net462\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net462\MimeKit.Cryptography.pdb" target="lib\net462\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net462\MimeKit.Cryptography.xml" target="lib\net462\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net47\MimeKit.Cryptography.dll" target="lib\net47\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net47\MimeKit.Cryptography.pdb" target="lib\net47\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net47\MimeKit.Cryptography.xml" target="lib\net47\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net48\MimeKit.Cryptography.dll" target="lib\net48\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net48\MimeKit.Cryptography.pdb" target="lib\net48\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net48\MimeKit.Cryptography.xml" target="lib\net48\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.dll" target="lib\net8.0\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.pdb" target="lib\net8.0\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.xml" target="lib\net8.0\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.dll" target="lib\net10.0\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.pdb" target="lib\net10.0\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.xml" target="lib\net10.0\MimeKit.Cryptography.xml" />
+    <file src="mimekit-50.png" target="icons\mimekit-50.png" />
+  </files>
+</package>

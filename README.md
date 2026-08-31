@@ -3,7 +3,9 @@
 |  Package  |Latest Release|Latest Build|
 |:----------|:------------:|:----------:|
 |**MimeKit**|[![MimeKit NuGet](https://img.shields.io/nuget/v/MimeKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.svg?style=flat-square)|[![MimeKit MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit)|
-|**MimeKitLite**|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)||
+|**MimeKit.Core**|[![MimeKit.Core NuGet](https://img.shields.io/nuget/v/MimeKit.Core.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Core)![MimeKit.Core NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Core.svg?style=flat-square)||
+|**MimeKit.Cryptography**|[![MimeKit.Cryptography NuGet](https://img.shields.io/nuget/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Cryptography)![MimeKit.Cryptography NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Cryptography.svg?style=flat-square)||
+|**MimeKitLite** *(deprecated)*|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)||
 |**MailKit**|[![MailKit NuGet](https://img.shields.io/nuget/v/MailKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKit)![MailKit NuGet Downloads](https://img.shields.io/nuget/dt/MailKit.svg?style=flat-square)|[![MailKit MyGet](https://img.shields.io/myget/mimekit/v/MailKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MailKit)|
 |**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)||
 
@@ -122,6 +124,20 @@ enter the following command:
 Install-Package MimeKit
 ```
 
+MimeKit is distributed as several NuGet packages:
+
+* **MimeKit** - a meta-package that pulls in both `MimeKit.Core` and `MimeKit.Cryptography` for a
+  complete, backwards-compatible experience (this is what most users want).
+* **MimeKit.Core** - MIME creation and parsing only, with no dependency on BouncyCastle. Use this if
+  you don't need S/MIME, PGP/MIME, or DKIM/ARC support and want to avoid the extra dependency.
+* **MimeKit.Cryptography** - the cryptography extensions (S/MIME, PGP/MIME, DKIM/ARC). Depends on
+  `MimeKit.Core` and `BouncyCastle.Cryptography`.
+
+> **Note:** `MimeKit.Core` and `MimeKit.Cryptography` replace the old `MimeKit.dll` / `MimeKitLite.dll`
+> split. The `MimeKitLite` package is now **deprecated** in favor of `MimeKit.Core`. Both `MimeKit.Core`
+> and `MimeKit.Cryptography` share the same `MimeKit` namespace, so unlike `MimeKit` vs `MimeKitLite`,
+> they can coexist in a large dependency graph without type conflicts.
+
 ## Getting the Source Code
 
 First, you'll need to clone MimeKit from my GitHub repository. To do this using the command-line version of Git,
@@ -160,8 +176,8 @@ directory and select **Git Sync...** in the menu. Once you do that, you'll need 
 
 In the top-level MimeKit directory, there are a number of solution files; they are:
 
-* **MimeKit.sln** - includes projects for .NET Framework 4.6.2/4.7/4.8, .NETStandard 2.0/2.1, .NET 6.0 as well as the unit tests.
-* **MimeKitLite.sln** - includes projects for the stripped-down versions of MimeKit that drop support for crypto.
+* **MimeKit.sln** - includes projects for .NET Framework 4.6.2/4.7/4.8, .NETStandard 2.0/2.1, .NET 8.0/10.0 as well as the unit tests. Builds both `MimeKit.Core` and `MimeKit.Cryptography`.
+* **MimeKitLite.sln** - builds only `MimeKit.Core` (the stripped-down version of MimeKit that drops support for crypto).
 
 Once you've opened the appropriate MimeKit solution file in [Visual Studio](https://www.visualstudio.com/downloads/),
 you can choose the **Debug** or **Release** build configuration and then build.
@@ -647,7 +663,7 @@ using (var ctx = new MySecureMimeContext ()) {
     // Subject Email identifier that matches her email address. If she doesn't,
     // try using a SecureMailboxAddress which allows you to specify the
     // fingerprint of her certificate to use for lookups.
-    message.Body = ApplicationPkcs7Mime.Encrypt (ctx, message.To.Mailboxes, body);
+    message.Body = SecureMime.Encrypt (ctx, message.To.Mailboxes, body);
 }
 ```
 
@@ -689,7 +705,7 @@ using (var ctx = new MyGnuPGContext ()) {
     // Note: this assumes that "Alice" has a public PGP key that matches her email
     // address. If she doesn't, try using a SecureMailboxAddress which allows you
     // to specify the fingerprint of her public PGP key to use for lookups.
-    message.Body = MultipartEncrypted.Encrypt (ctx, message.To.Mailboxes, body);
+    message.Body = PgpMime.Encrypt (ctx, message.To.Mailboxes, body);
 }
 ```
 
@@ -747,7 +763,7 @@ using (var ctx = new MySecureMimeContext ()) {
     var signer = new CmsSigner (certificate);
     signer.DigestAlgorithm = DigestAlgorithm.Sha1;
 
-    message.Body = MultipartSigned.Create (ctx, signer, body);
+    message.Body = SecureMime.Sign (ctx, signer, body);
 }
 ```
 
@@ -775,7 +791,7 @@ relying on email addresses to match up with the user's private key.
 // now to digitally sign our message body using our custom OpenPGP cryptography context
 using (var ctx = new MyGnuPGContext ()) {
     var key = GetJoeysPrivatePgpKey ();
-    message.Body = MultipartSigned.Create (ctx, key, DigestAlgorithm.Sha1, body);
+    message.Body = PgpMime.Sign (ctx, key, DigestAlgorithm.Sha1, body);
 }
 ```
 

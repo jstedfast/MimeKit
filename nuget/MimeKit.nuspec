@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKit</id>
-    <version>4.17.1</version>
+    <version>5.0.0</version>
     <title>MimeKit</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -14,11 +14,7 @@
     <description>
       MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
-      Unlike any other .NET MIME parser, MimeKit's parser does not need to parse string input nor does it use a TextReader. Instead, it parses raw byte streams, thus allowing it to better support undeclared 8bit text in headers as well as message bodies. It also means that MimeKit's parser is significantly faster than other .NET MIME parsers.
-
-      MimeKit's parser also uses a real tokenizer when parsing the headers rather than regex or string.Split() like most other .NET MIME parsers. This means that MimeKit is much more RFC-compliant than any other .NET MIME parser out there, including the commercial implementations.
-
-      In addition to having a far superior parser implementation, MimeKit's object tree is not a derivative of System.Net.Mail objects and thus does not suffer from System.Net.Mail's limitations.
+      As of v5.0, MimeKit is a meta-package that references both MimeKit.Core (MIME creation and parsing) and MimeKit.Cryptography (OpenPGP, S/MIME and DKIM/ARC support). This preserves backwards compatibility for consumers that expect cryptography support out of the box. If you do not need cryptography, reference MimeKit.Core directly instead.
 
       API documentation can be found on the web at http://www.mimekit.net/docs
 
@@ -26,104 +22,45 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Added a Received header parser.
-* Marked HtmlToHtml.FilterHtml as obsolete to warn developers that this feature is not enough to protect against Cross-Size Scripting (XSS) vulnerabilities.
-* Fixed logic for calculating maxOffset for Base64Encoder's hwaccel routines. (issue #1239)
-* Capped the maxLineLength at 76 for Base64Encoder (which is what it used to be capped at until v4.14).
-* Changed the default TnefPart mime-type to application/ms-tnef to match O365 Exchange behavior.
-* Code quality improvements.
+* MimeKit is now a meta-package that pulls in MimeKit.Core and MimeKit.Cryptography. Existing consumers continue to get full cryptography support with no code changes.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
     <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef</tags>
     <readme>docs\README.md</readme>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />
-      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.6.2" />
-      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework=".NETFramework4.6.2" />
-      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6.2" />
-      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.6.2" />
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
-      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.7" />
-      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework=".NETFramework4.7" />
-      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
-      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.7" />
-      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
-      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
-      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.8" />
-      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework=".NETFramework4.8" />
-      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
-      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.8" />
-    </frameworkAssemblies>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="System.Buffers" version="4.6.1" />
-        <dependency id="System.Memory" version="4.6.3" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
       <group targetFramework="net47">
-        <dependency id="System.Buffers" version="4.6.1" />
-        <dependency id="System.Memory" version="4.6.3" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
       <group targetFramework="net48">
-        <dependency id="System.Buffers" version="4.6.1" />
-        <dependency id="System.Memory" version="4.6.3" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
       <group targetFramework="net8.0">
-        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
       <group targetFramework="net10.0">
-        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="10.0.0" />
-        <dependency id="System.Data.DataSetExtensions" version="4.5.0" />
-        <dependency id="System.Buffers" version="4.6.1" />
-        <dependency id="System.Memory" version="4.6.3" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
       <group targetFramework="netstandard2.1">
-        <dependency id="System.Security.Cryptography.Pkcs" version="10.0.0" />
-        <dependency id="System.Text.Encoding.CodePages" version="10.0.0" />
-        <dependency id="BouncyCastle.Cryptography" version="2.7.0" />
+        <dependency id="MimeKit.Core" version="[5.0.0]" />
+        <dependency id="MimeKit.Cryptography" version="[5.0.0]" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\FAQ.md" target="docs\FAQ.md" />
     <file src="..\README.md" target="docs\README.md" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll" target="lib\netstandard2.0\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.pdb" target="lib\netstandard2.0\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.xml" target="lib\netstandard2.0\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.dll.config" target="lib\netstandard2.0\MimeKit.dll.config" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.dll" target="lib\netstandard2.1\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.pdb" target="lib\netstandard2.1\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.xml" target="lib\netstandard2.1\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.dll.config" target="lib\netstandard2.1\MimeKit.dll.config" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.dll" target="lib\net462\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.pdb" target="lib\net462\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.xml" target="lib\net462\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.dll" target="lib\net47\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.pdb" target="lib\net47\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.xml" target="lib\net47\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.dll" target="lib\net48\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.pdb" target="lib\net48\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.xml" target="lib\net48\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll" target="lib\net8.0\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.pdb" target="lib\net8.0\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.xml" target="lib\net8.0\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.dll.config" target="lib\net8.0\MimeKit.dll.config" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.dll" target="lib\net10.0\MimeKit.dll" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.pdb" target="lib\net10.0\MimeKit.pdb" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.xml" target="lib\net10.0\MimeKit.xml" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.dll.config" target="lib\net10.0\MimeKit.dll.config" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>

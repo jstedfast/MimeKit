@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata minClientVersion="2.12">
+    <id>MimeKit.Core</id>
+    <version>5.0.0</version>
+    <title>MimeKit.Core</title>
+    <authors>Jeffrey Stedfast</authors>
+    <owners>Jeffrey Stedfast</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://www.mimekit.net</projectUrl>
+    <repository type="git" url="https://github.com/jstedfast/MimeKit" />
+    <icon>icons\mimekit-50.png</icon>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      MimeKit is an Open Source library for creating and parsing MIME messages. It also supports parsing of Unix mbox files.
+
+      MimeKit.Core provides the core MIME creation and parsing functionality without any dependency on BouncyCastle. For OpenPGP, S/MIME and DKIM/ARC support, add the MimeKit.Cryptography package (or the MimeKit meta-package).
+
+      API documentation can be found on the web at http://www.mimekit.net/docs
+
+      For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit
+    </description>
+    <summary>An Open Source library for creating and parsing MIME messages.</summary>
+    <releaseNotes>
+* Split MimeKit into MimeKit.Core (this package) and MimeKit.Cryptography. MimeKit.Core replaces the deprecated MimeKitLite package.
+    </releaseNotes>
+    <copyright>.NET Foundation and Contributors</copyright>
+    <language>en-US</language>
+    <tags>mime mbox mail email parser tnef</tags>
+    <readme>docs\README.md</readme>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.6.2" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Security" targetFramework=".NETFramework4.8" />
+    </frameworkAssemblies>
+    <dependencies>
+      <group targetFramework="net462">
+        <dependency id="System.Buffers" version="4.6.1" />
+        <dependency id="System.Memory" version="4.6.3" />
+      </group>
+      <group targetFramework="net47">
+        <dependency id="System.Buffers" version="4.6.1" />
+        <dependency id="System.Memory" version="4.6.3" />
+      </group>
+      <group targetFramework="net48">
+        <dependency id="System.Buffers" version="4.6.1" />
+        <dependency id="System.Memory" version="4.6.3" />
+      </group>
+      <group targetFramework="net8.0" />
+      <group targetFramework="net10.0" />
+      <group targetFramework="netstandard2.0">
+        <dependency id="System.Text.Encoding.CodePages" version="10.0.0" />
+        <dependency id="System.Buffers" version="4.6.1" />
+        <dependency id="System.Memory" version="4.6.3" />
+      </group>
+      <group targetFramework="netstandard2.1">
+        <dependency id="System.Text.Encoding.CodePages" version="10.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\FAQ.md" target="docs\FAQ.md" />
+    <file src="..\README.md" target="docs\README.md" />
+    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.Core.dll" target="lib\netstandard2.0\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.Core.pdb" target="lib\netstandard2.0\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.Core.xml" target="lib\netstandard2.0\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Core.dll" target="lib\netstandard2.1\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Core.pdb" target="lib\netstandard2.1\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Core.xml" target="lib\netstandard2.1\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Core.dll.config" target="lib\netstandard2.1\MimeKit.Core.dll.config" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKit.Core.dll" target="lib\net462\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKit.Core.pdb" target="lib\net462\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\net462\MimeKit.Core.xml" target="lib\net462\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.Core.dll" target="lib\net47\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.Core.pdb" target="lib\net47\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\net47\MimeKit.Core.xml" target="lib\net47\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKit.Core.dll" target="lib\net48\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKit.Core.pdb" target="lib\net48\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\net48\MimeKit.Core.xml" target="lib\net48\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Core.dll" target="lib\net8.0\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Core.pdb" target="lib\net8.0\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Core.xml" target="lib\net8.0\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Core.dll.config" target="lib\net8.0\MimeKit.Core.dll.config" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Core.dll" target="lib\net10.0\MimeKit.Core.dll" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Core.pdb" target="lib\net10.0\MimeKit.Core.pdb" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Core.xml" target="lib\net10.0\MimeKit.Core.xml" />
+    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Core.dll.config" target="lib\net10.0\MimeKit.Core.dll.config" />
+    <file src="mimekit-50.png" target="icons\mimekit-50.png" />
+  </files>
+</package>

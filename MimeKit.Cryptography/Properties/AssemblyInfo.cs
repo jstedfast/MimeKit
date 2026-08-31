@@ -30,11 +30,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("MimeKit")]
-[assembly: AssemblyDescription ("A complete MIME library with support for S/MIME, PGP, DKIM and Unix mbox spools.")]
+[assembly: AssemblyTitle ("MimeKit.Cryptography")]
+[assembly: AssemblyDescription ("A MimeKit extension that adds support for S/MIME, PGP, DKIM and ARC.")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany (".NET Foundation")]
-[assembly: AssemblyProduct ("MimeKit")]
+[assembly: AssemblyProduct ("MimeKit.Cryptography")]
 [assembly: AssemblyCopyright ("Copyright © 2013-2026 .NET Foundation and Contributors")]
 [assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
@@ -45,13 +45,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible (true)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid ("2fe79b66-d107-45da-9493-175f59c4a53c")]
-
-[assembly: InternalsVisibleTo ("MimeKit.Cryptography, PublicKey=00240000048000009400000006020000" +
-	"002400005253413100040000110000003fefa5187022727c3471938d10df4c47d5d5ecbe2f36" +
-	"4656c5bfe4c47803453a91ae525f723f4316fd90a3f87366f4d948593277e950f6d2df6ee26068" +
-	"1877a6d9e71c3ea77e87e61f3878af1d69bf10dce8debe92c54ca8a10afc44dc08674f3db6594e" +
-	"f545d67d31cc3e18b8f90d8f220c4b67d7e87f5b7e8df410ac8faeb3")]
+[assembly: Guid ("c9af6d28-551e-49f3-8efa-da18f3ca302c")]
 
 [assembly: InternalsVisibleTo ("MailKit, PublicKey=00240000048000009400000006020000" +
 	"00240000525341310004000011000000cde209732ce60a8fa70ee643cb32e9bf8149b61018c5b1" +
