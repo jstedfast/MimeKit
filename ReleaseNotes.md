@@ -1,5 +1,30 @@
 # Release Notes
 
+## MimeKit 4.18.0 (2026-09-13)
+
+* Removed base, embed, input, link and source tags as "unsafe" tags. These are all void tags in HTML,
+  meaning they do not have inner content. (issue [#1247](https://github.com/jstedfast/MimeKit/issues/1247))
+* Fixed InternetAddressListConverter to allow conversion of empty strings into an empty list.
+  (issue [#1249](https://github.com/jstedfast/MimeKit/issues/1249))
+* Fixed NullReferenceException in BouncyCastleSecureMimeContext when SubjectKeyIdentifier is requested
+  but not available. (issue [#1250](https://github.com/jstedfast/MimeKit/issues/1250))
+* Fixed MimeReader to support MimePart content larger than 2GB.
+  (issue [#1252](https://github.com/jstedfast/MimeKit/issues/1252))
+* Fixed Message-Id parser to not decode international domains.
+  (issue [#1254](https://github.com/jstedfast/MimeKit/issues/1254))
+* Bumped System.Security.Cryptography.Pkcs dependency to 10.0.0.
+* Bumped System.Text.Encoding.CodePages dependency to 10.0.0.
+* Bumped BouncyCastle.Cryptography dependency to 2.7.0.
+
+Note: As of BouncyCastle 2.7.0, decrypting S/MIME content encrypted with Blowfish, CAST5, RC2/40, RC2/64,
+or RC2/128 will fail with a `CmsException: no fixed size for content-encryption key; constant-time RSA unwrap unavailable.`
+
+Use the following code snippet to restore pre-2.7.0 behavior:
+
+```csharp
+Org.BouncyCastle.Utilities.Properties.SetThreadBoolean (Org.BouncyCastle.Utilities.Properties.CmsAllowLenientRsaPkcs1, true);
+```
+
 ## MimeKit 4.17.0 (2026-05-26)
 
 * Added a Received header parser.

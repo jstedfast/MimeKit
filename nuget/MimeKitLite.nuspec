@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.17.1</version>
+    <version>4.18.0</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -22,12 +22,11 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Added a Received header parser.
-* Marked HtmlToHtml.FilterHtml as obsolete to warn developers that this feature is not enough to protect against Cross-Size Scripting (XSS) vulnerabilities.
-* Fixed logic for calculating maxOffset for Base64Encoder's hwaccel routines. (issue #1239)
-* Capped the maxLineLength at 76 for Base64Encoder (which is what it used to be capped at until v4.14).
-* Changed the default TnefPart mime-type to application/ms-tnef to match O365 Exchange behavior.
-* Code quality improvements.
+* Removed base, embed, input, link and source tags as "unsafe" tags. These are all void tags in HTML, meaning they do not have inner content. (issue #1247)
+* Fixed InternetAddressListConverter to allow conversion of empty strings into an empty list. (issue #1249)
+* Fixed MimeReader to support MimePart content larger than 2GB. (issue #1252)
+* Fixed Message-Id parser to not decode international domains. (issue #1254)
+* Bumped System.Text.Encoding.CodePages dependency to 10.0.0.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
@@ -75,7 +74,6 @@
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.dll" target="lib\netstandard2.0\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.pdb" target="lib\netstandard2.0\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.xml" target="lib\netstandard2.0\MimeKitLite.xml" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKitLite.dll.config" target="lib\netstandard2.0\MimeKitLite.dll.config" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.dll" target="lib\netstandard2.1\MimeKitLite.dll" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.pdb" target="lib\netstandard2.1\MimeKitLite.pdb" />
     <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKitLite.xml" target="lib\netstandard2.1\MimeKitLite.xml" />
