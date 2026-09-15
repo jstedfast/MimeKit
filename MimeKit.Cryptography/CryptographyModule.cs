@@ -1,5 +1,5 @@
 ﻿//
-// TestHelper.cs
+// CryptographyModule.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,51 +24,24 @@
 // THE SOFTWARE.
 //
 
-using System.Text;
-
-using MimeKit.Utils;
-using MimeKit.Cryptography;
-
-namespace UnitTests {
-	[SetUpFixture]
-	static class TestHelper
+namespace MimeKit.Cryptography {
+	/// <summary>
+	/// The cryptography module.
+	/// </summary>
+	/// <remarks>
+	/// The cryptography module.
+	/// </remarks>
+	public static class CryptographyModule
 	{
-		public static readonly string ProjectDir;
-
-		static TestHelper ()
+		/// <summary>
+		/// Initializes the cryptography module.
+		/// </summary>
+		/// <remarks>
+		/// Initializes the cryptography module.
+		/// </remarks>
+		public static void Initialize ()
 		{
-#if NET5_0_OR_GREATER
-			var codeBase = typeof (TestHelper).Assembly.Location;
-#else
-			var codeBase = typeof (TestHelper).Assembly.CodeBase;
-			if (codeBase.StartsWith ("file://", StringComparison.OrdinalIgnoreCase))
-				codeBase = codeBase.Substring ("file://".Length);
-
-			if (Path.DirectorySeparatorChar == '\\') {
-				if (codeBase[0] == '/')
-					codeBase = codeBase.Substring (1);
-
-				codeBase = codeBase.Replace ('/', '\\');
-			}
-#endif
-
-			var dir = Path.GetDirectoryName (codeBase);
-
-			while (Path.GetFileName (dir) != "UnitTests")
-				dir = Path.GetFullPath (Path.Combine (dir, ".."));
-
-			ProjectDir = Path.GetFullPath (dir);
-		}
-
-		[OneTimeSetUp]
-		public static void Init ()
-		{
-			lock (CodePagesEncodingProvider.Instance) {
-				Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
-				CharsetUtils.GetCodePage ("iso-2022-jp");
-			}
-
-			CryptographyModule.Initialize ();
+			ParserOptions.Register (CryptographicEntityFactory.Instance);
 		}
 	}
 }

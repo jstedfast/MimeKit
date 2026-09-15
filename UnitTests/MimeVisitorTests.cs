@@ -77,7 +77,7 @@ namespace UnitTests {
 			}
 		}
 
-		class MimeVisitorTester : MimeVisitor
+		class MimeVisitorTester : CryptographicMimeVisitor
 		{
 			public int ApplicationPgpEncrypted;
 			public int ApplicationPgpSignature;

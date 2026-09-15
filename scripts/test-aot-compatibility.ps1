@@ -1,7 +1,5 @@
-param([string]$useMimeKitLite)
-
 $rootDirectory = Split-Path $PSScriptRoot -Parent
-$publishOutput = dotnet publish $rootDirectory/AotCompatibility/AotCompatibility.csproj -nodeReuse:false /p:UseSharedCompilation=false /p:ExposeExperimentalFeatures=true /p:UseMimeKitLite=$useMimeKitLite
+$publishOutput = dotnet publish $rootDirectory/AotCompatibility/AotCompatibility.csproj -nodeReuse:false /p:UseSharedCompilation=false /p:ExposeExperimentalFeatures=true
 
 $actualWarningCount = 0
 

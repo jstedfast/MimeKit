@@ -157,11 +157,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// This default implementation for <see cref="ApplicationPkcs7Mime"/> nodes
-		/// calls <see cref="MimeVisitor.VisitApplicationPkcs7Mime"/>. Override this
+		/// calls <see cref="CryptographicMimeVisitor.VisitApplicationPkcs7Mime"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeVisitor"/> class. However, it should still
+		/// of the <see cref="CryptographicMimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeVisitor.VisitApplicationPkcs7Mime"/>.
+		/// <see cref="CryptographicMimeVisitor.VisitApplicationPkcs7Mime"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -177,7 +177,10 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			visitor.VisitApplicationPkcs7Mime (this);
+			if (visitor is CryptographicMimeVisitor cryptoVisitor)
+				cryptoVisitor.VisitApplicationPkcs7Mime (this);
+			else
+				visitor.VisitMimePart (this);
 		}
 
 		/// <summary>

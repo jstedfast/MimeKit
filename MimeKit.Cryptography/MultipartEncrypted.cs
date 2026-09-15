@@ -77,11 +77,11 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// This default implementation for <see cref="MultipartEncrypted"/> nodes
-		/// calls <see cref="MimeVisitor.VisitMultipartEncrypted"/>. Override this
+		/// calls <see cref="CryptographicMimeVisitor.VisitMultipartEncrypted"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeVisitor"/> class. However, it should still
+		/// of the <see cref="CryptographicMimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeVisitor.VisitMultipartEncrypted"/>.
+		/// <see cref="CryptographicMimeVisitor.VisitMultipartEncrypted"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -97,7 +97,10 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			visitor.VisitMultipartEncrypted (this);
+			if (visitor is CryptographicMimeVisitor cryptoVisitor)
+				cryptoVisitor.VisitMultipartEncrypted (this);
+			else
+				visitor.VisitMultipart (this);
 		}
 
 		static MultipartEncrypted CreateMultipartEncrypted (OpenPgpContext ctx, MimeEntity part)

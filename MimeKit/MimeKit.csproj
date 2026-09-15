@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <Description>An Open Source library for creating and parsing MIME, S/MIME, PGP messages on desktop and mobile platforms.</Description>
-    <AssemblyTitle>MimeKit</AssemblyTitle>
-    <VersionPrefix>4.18.1</VersionPrefix>
+    <AssemblyTitle>MimeKit.Core</AssemblyTitle>
+    <VersionPrefix>5.0.0</VersionPrefix>
     <LangVersion>12</LangVersion>
     <Authors>Jeffrey Stedfast</Authors>
     <_LegacyFrameworks>net462;net47</_LegacyFrameworks>
     <_LegacyFrameworks Condition=" Exists('C:\Windows') ">$(_LegacyFrameworks);net48</_LegacyFrameworks>
     <TargetFrameworks>$(_LegacyFrameworks);netstandard2.0;netstandard2.1;net8.0;net10.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>MimeKit</AssemblyName>
-    <PackageId>MimeKit</PackageId>
+    <AssemblyName>MimeKit.Core</AssemblyName>
+    <PackageId>MimeKit.Core</PackageId>
     <PackageTags>mime;encryption;dkim;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
@@ -25,7 +25,7 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <RootNamespace>MimeKit</RootNamespace>
-    <DefineConstants>$(DefineConstants);ENABLE_CRYPTO;ENABLE_SNM</DefineConstants>
+    <DefineConstants>$(DefineConstants);ENABLE_SNM</DefineConstants>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyOriginatorKeyFile>mimekit.snk</AssemblyOriginatorKeyFile>
@@ -97,9 +97,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Cryptography\NpgsqlCertificateDatabase.cs" />
-    <Compile Remove="Cryptography\MacSecureMimeContext.cs" />
-    <Compile Remove="Cryptography\LdapUri.cs" />
     <Compile Remove="Utils\EventHandler.cs" />
     <Compile Remove="Utils\OptimizedOrdinalComparer.cs" />
     <Compile Include="Utils\EventHandler.cs" Condition=" $(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard2')) Or '$(TargetFramework)' == 'net8.0' " />
