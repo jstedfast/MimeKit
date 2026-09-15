@@ -41,7 +41,7 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public static class MimeMessageExtensions
 	{
-		static MailboxAddress GetMessageSigner (MimeMessage message)
+		static MailboxAddress? GetMessageSigner (MimeMessage message)
 		{
 			if (message.ResentSender != null)
 				return message.ResentSender;
