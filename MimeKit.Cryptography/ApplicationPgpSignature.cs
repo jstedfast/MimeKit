@@ -1,5 +1,5 @@
 ﻿//
-// ApplicationPkcs7Signature.cs
+// ApplicationPgpSignature.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -29,19 +29,20 @@ using System.IO;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// An S/MIME part with a Content-Type of application/pkcs7-signature.
+	/// A MIME part with a Content-Type of application/pgp-signature.
 	/// </summary>
 	/// <remarks>
-	/// <para>An application/pkcs7-signature part contains detatched pkcs7 signature data
+	/// <para>An application/pgp-signature part contains detatched pgp signature data
 	/// and is typically contained within a <see cref="MultipartSigned"/> part.</para>
-	/// <para>To verify the signature, use one of the
+	/// <para>To verify the signature, use the one of the
 	/// <a href="Overload_MimeKit_Cryptography_MultipartSigned_Verify.htm">Verify</a>
 	/// methods on the parent multipart/signed part.</para>
 	/// </remarks>
-	public class ApplicationPkcs7Signature : MimePart, IApplicationPkcs7Signature
+	public class ApplicationPgpSignature : MimePart, IApplicationPgpSignature
 	{
 		/// <summary>
-		/// Initialize a new instance of the <see cref="ApplicationPkcs7Signature"/> class.
+		/// Initialize a new instance of the <see cref="ApplicationPgpSignature"/>
+		/// class based on the <see cref="MimeEntityConstructorArgs"/>.
 		/// </summary>
 		/// <remarks>
 		/// This constructor is used by <see cref="MimeParser"/>.
@@ -50,16 +51,16 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <see langword="null"/>.
 		/// </exception>
-		public ApplicationPkcs7Signature (MimeEntityConstructorArgs args) : base (args)
+		public ApplicationPgpSignature (MimeEntityConstructorArgs args) : base (args)
 		{
 		}
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="ApplicationPkcs7Signature"/>
-		/// class with a Content-Type of application/pkcs7-signature.
+		/// Initialize a new instance of the <see cref="ApplicationPgpSignature"/>
+		/// class with a Content-Type of application/pgp-signature.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new MIME part with a Content-Type of application/pkcs7-signature
+		/// Creates a new MIME part with a Content-Type of application/pgp-signature
 		/// and the <paramref name="stream"/> as its content.
 		/// </remarks>
 		/// <param name="stream">The content stream.</param>
@@ -71,36 +72,36 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> does not support seeking.</para>
 		/// </exception>
-		public ApplicationPkcs7Signature (Stream stream) : base ("application", "pkcs7-signature")
+		public ApplicationPgpSignature (Stream stream) : base ("application", "pgp-signature")
 		{
 			ContentDisposition = new ContentDisposition (ContentDisposition.Attachment);
-			ContentTransferEncoding = ContentEncoding.Base64;
+			ContentTransferEncoding = ContentEncoding.SevenBit;
 			Content = new MimeContent (stream);
-			FileName = "smime.p7s";
+			FileName = "signature.asc";
 		}
 
 		void CheckDisposed ()
 		{
-			CheckDisposed (nameof (ApplicationPkcs7Signature));
+			CheckDisposed (nameof (ApplicationPgpSignature));
 		}
 
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
 		/// <remarks>
-		/// This default implementation for <see cref="ApplicationPkcs7Signature"/> nodes
-		/// calls <see cref="MimeVisitor.VisitApplicationPkcs7Signature"/>. Override this
+		/// This default implementation for <see cref="ApplicationPgpSignature"/> nodes
+		/// calls <see cref="CryptographicMimeVisitor.VisitApplicationPgpSignature"/>. Override this
 		/// method to call into a more specific method on a derived visitor class
-		/// of the <see cref="MimeVisitor"/> class. However, it should still
+		/// of the <see cref="CryptographicMimeVisitor"/> class. However, it should still
 		/// support unknown visitors by calling
-		/// <see cref="MimeVisitor.VisitApplicationPkcs7Signature"/>.
+		/// <see cref="CryptographicMimeVisitor.VisitApplicationPgpSignature"/>.
 		/// </remarks>
 		/// <param name="visitor">The visitor.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="visitor"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="ApplicationPkcs7Signature"/> has been disposed.
+		/// The <see cref="ApplicationPgpSignature"/> has been disposed.
 		/// </exception>
 		public override void Accept (MimeVisitor visitor)
 		{
@@ -109,7 +110,10 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			visitor.VisitApplicationPkcs7Signature (this);
+			if (visitor is CryptographicMimeVisitor cryptoVisitor)
+				cryptoVisitor.VisitApplicationPgpSignature (this);
+			else
+				visitor.VisitMimePart (this);
 		}
 	}
 }

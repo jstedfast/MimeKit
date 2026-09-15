@@ -30,12 +30,9 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-#if ENABLE_CRYPTO
-using MimeKit.Cryptography;
-#endif
-
 using MimeKit.Tnef;
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
@@ -49,6 +46,7 @@ namespace MimeKit {
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> (MimeUtils.OrdinalIgnoreCase);
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorArgs) };
+		static ICryptographicEntityFactory? CryptographicEntityFactory;
 
 		/// <summary>
 		/// The default parser options.
@@ -310,6 +308,11 @@ namespace MimeKit {
 			return false;
 		}
 
+		internal static void Register (ICryptographicEntityFactory factory)
+		{
+			CryptographicEntityFactory = factory;
+		}
+
 		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
 		{
 			var args = new MimeEntityConstructorArgs (this, contentType, headers, hasBodySeparator, toplevel);
@@ -350,15 +353,15 @@ namespace MimeKit {
 				if (subtype.Equals ("report", StringComparison.OrdinalIgnoreCase))
 					return new MultipartReport (args);
 
-#if ENABLE_CRYPTO
-				// multipart/encrypted
-				if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
-					return new MultipartEncrypted (args);
+				if (CryptographicEntityFactory is not null) {
+					// multipart/encrypted
+					if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
+						return CryptographicEntityFactory.CreateMultipartEncrypted (args);
 
-				// multipart/signed
-				if (subtype.Equals ("signed", StringComparison.OrdinalIgnoreCase))
-					return new MultipartSigned (args);
-#endif
+					// multipart/signed
+					if (subtype.Equals ("signed", StringComparison.OrdinalIgnoreCase))
+						return CryptographicEntityFactory.CreateMultipartSigned (args);
+				}
 
 				// multipart/mixed, multipart/parallel, etc.
 				return new Multipart (args);
@@ -396,27 +399,27 @@ namespace MimeKit {
 						return new TextRfc822Headers (args);
 				}
 			} else if (type.Equals ("application", StringComparison.OrdinalIgnoreCase)) {
-#if ENABLE_CRYPTO
-				// application/pkcs7-mime
-				if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pkcs7-mime", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPkcs7Mime (args);
+				if (CryptographicEntityFactory is not null) {
+					// application/pkcs7-mime
+					if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pkcs7-mime", StringComparison.OrdinalIgnoreCase))
+						return CryptographicEntityFactory.CreateApplicationPkcs7Mime (args);
 
-				// application/pkcs7-signature
-				if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPkcs7Signature (args);
+					// application/pkcs7-signature
+					if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
+						return CryptographicEntityFactory.CreateApplicationPkcs7Signature (args);
 
-				// application/pgp-encrypted
-				if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pgp-encrypted", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPgpEncrypted (args);
+					// application/pgp-encrypted
+					if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pgp-encrypted", StringComparison.OrdinalIgnoreCase))
+						return CryptographicEntityFactory.CreateApplicationPgpEncrypted (args);
 
-				// application/pgp-signature
-				if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPgpSignature (args);
-#endif
+					// application/pgp-signature
+					if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
+						return CryptographicEntityFactory.CreateApplicationPgpSignature (args);
+				}
 
 				// application/ms-tnef
 				if (subtype.Equals ("ms-tnef", StringComparison.OrdinalIgnoreCase) ||
