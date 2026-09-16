@@ -97,31 +97,38 @@ jobs:
           COVERALLS_JOB_ID: ${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}
 
       - if: ${{ env.PUBLISH == 'true' }}
-        name: Create NuGet package
+        name: Create NuGet packages
         id: create_nuget_package
         shell: pwsh
         run: |
           nuget pack nuget/MimeKit.nuspec -Version "$env:LATEST_VERSION.$env:BUILD_NUMBER"
+          nuget pack nuget/MimeKit.Core.nuspec -Version "$env:LATEST_VERSION.$env:BUILD_NUMBER"
+          nuget pack nuget/MimeKit.Cryptography.nuspec -Version "$env:LATEST_VERSION.$env:BUILD_NUMBER"
         env:
           LATEST_VERSION: ${{ steps.semantic_version.outputs.version_num }}
           BUILD_NUMBER: ${{ github.run_number }}
 
       - if: ${{ env.PUBLISH == 'true' }}
-        name: Push NuGet package to MyGet
+        name: Push NuGet packages to MyGet
         id: push_nuget_package
         shell: pwsh
         run: |
-          nuget push $env:NUGET_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
+          nuget push $env:MIMEKIT_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
+          nuget push $env:MIMEKIT_CORE_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
+          nuget push $env:MIMEKIT_CRYPTOGRAPHY_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
-          NUGET_PKG_PATH: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          MIMEKIT_PKG_PATH: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          MIMEKIT_CORE_PKG_PATH: MimeKit.Core.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+          MIMEKIT_CRYPTOGRAPHY_PKG_PATH: MimeKit.Cryptography.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
           MYGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
 
       - if: ${{ env.PUBLISH == 'true' }}
-        name: Upload NuGet package as artifact
+        name: Upload NuGet packages as artifacts
         id: upload_nuget_package
         uses: actions/upload-artifact@v7
         with:
-          name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
-          path: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
-
-# Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
+          name: nuget-packages
+          path: |
+            MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+            MimeKit.Core.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
+            MimeKit.Cryptography.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg

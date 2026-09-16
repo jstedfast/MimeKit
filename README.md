@@ -3,7 +3,8 @@
 |  Package  |Latest Release|Latest Build|
 |:----------|:------------:|:----------:|
 |**MimeKit**|[![MimeKit NuGet](https://img.shields.io/nuget/v/MimeKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.svg?style=flat-square)|[![MimeKit MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit)|
-|**MimeKitLite**|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)||
+|**MimeKit.Core**|[![MimeKit.Core NuGet](https://img.shields.io/nuget/v/MimeKit.Core.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Core)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Core.svg?style=flat-square)||
+|**MimeKit.Cryptography**|[![MimeKit.Cryptography NuGet](https://img.shields.io/nuget/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Cryptography)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Cryptography.svg?style=flat-square)||
 |**MailKit**|[![MailKit NuGet](https://img.shields.io/nuget/v/MailKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKit)![MailKit NuGet Downloads](https://img.shields.io/nuget/dt/MailKit.svg?style=flat-square)|[![MailKit MyGet](https://img.shields.io/myget/mimekit/v/MailKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MailKit)|
 |**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)||
 
@@ -161,7 +162,6 @@ directory and select **Git Sync...** in the menu. Once you do that, you'll need 
 In the top-level MimeKit directory, there are a number of solution files; they are:
 
 * **MimeKit.sln** - includes projects for .NET Framework 4.6.2/4.7/4.8, .NETStandard 2.0/2.1, .NET 6.0 as well as the unit tests.
-* **MimeKitLite.sln** - includes projects for the stripped-down versions of MimeKit that drop support for crypto.
 
 Once you've opened the appropriate MimeKit solution file in [Visual Studio](https://www.visualstudio.com/downloads/),
 you can choose the **Debug** or **Release** build configuration and then build.
@@ -536,7 +536,7 @@ database to use for certificate storage.
 
 If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
 anything (although you certainly can if you want to) because, by default, I've
-configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
+configured MimeKit.Cryptography to use the Mono.Data.Sqlite binding to SQLite.
 
 If you are on any of the Windows platforms, however, you'll need to decide on whether
 to use one of the conveniently available backends such as the `WindowsSecureMimeContext`
