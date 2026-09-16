@@ -932,9 +932,7 @@ namespace MimeKit.Cryptography {
 			var hashAlgorithm = GetHashAlgorithm (digestAlgo);
 			var memory = new MemoryBlockStream ();
 
-			using (var armored = new ArmoredOutputStream (memory)) {
-				armored.SetHeader ("Version", null);
-
+			using (var armored = new ArmoredOutputStream (memory, false)) {
 				var signatureGenerator = new PgpSignatureGenerator (signer.PublicKey.Algorithm, hashAlgorithm);
 				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 				int nread;
@@ -1106,7 +1104,7 @@ namespace MimeKit.Cryptography {
 			case PublicKeyAlgorithmTag.Dsa: return PublicKeyAlgorithm.Dsa;
 			case PublicKeyAlgorithmTag.ECDH: return PublicKeyAlgorithm.EllipticCurve;
 			case PublicKeyAlgorithmTag.ECDsa: return PublicKeyAlgorithm.EllipticCurveDsa;
-			case PublicKeyAlgorithmTag.EdDsa: return PublicKeyAlgorithm.EdwardsCurveDsa;
+			case PublicKeyAlgorithmTag.EdDsa_Legacy: return PublicKeyAlgorithm.EdwardsCurveDsa;
 			case PublicKeyAlgorithmTag.DiffieHellman: return PublicKeyAlgorithm.DiffieHellman;
 			default: throw new ArgumentOutOfRangeException (nameof (algorithm));
 			}
@@ -1297,12 +1295,10 @@ namespace MimeKit.Cryptography {
 		{
 			var memory = new MemoryBlockStream ();
 
-			using (var armored = new ArmoredOutputStream (memory)) {
+			using (var armored = new ArmoredOutputStream (memory, false)) {
 				var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 
 				try {
-					armored.SetHeader ("Version", null);
-
 					using (var compressed = await CompressAsync (content, buf, BufferLength, doAsync, cancellationToken).ConfigureAwait (false)) {
 						using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 							int nread;
@@ -1997,9 +1993,7 @@ namespace MimeKit.Cryptography {
 
 				var memory = new MemoryBlockStream ();
 
-				using (var armored = new ArmoredOutputStream (memory)) {
-					armored.SetHeader ("Version", null);
-
+				using (var armored = new ArmoredOutputStream (memory, false)) {
 					using (var encrypted = encrypter.Open (armored, compressed.Length)) {
 						var buf = ArrayPool<byte>.Shared.Rent (BufferLength);
 						int nread;
@@ -2876,9 +2870,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (stream));
 
 			if (armor) {
-				using (var armored = new ArmoredOutputStream (stream)) {
-					armored.SetHeader ("Version", null);
-
+				using (var armored = new ArmoredOutputStream (stream, false)) {
 					keys.Encode (armored);
 					armored.Flush ();
 				}
@@ -2918,9 +2910,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (stream));
 
 			if (armor) {
-				using (var armored = new ArmoredOutputStream (stream)) {
-					armored.SetHeader ("Version", null);
-
+				using (var armored = new ArmoredOutputStream (stream, false)) {
 					var encoded = keys.GetEncoded ();
 					await armored.WriteAsync (encoded, 0, encoded.Length, cancellationToken).ConfigureAwait (false);
 					await armored.FlushAsync (cancellationToken).ConfigureAwait (false);

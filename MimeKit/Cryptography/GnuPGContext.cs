@@ -450,7 +450,7 @@ namespace MimeKit.Cryptography {
 		protected virtual PgpPublicKey GetPublicKey (MailboxAddress mailbox)
 		{
 			foreach (var key in EnumeratePublicKeys (mailbox)) {
-				if (!key.IsEncryptionKey || key.IsRevoked () || IsExpired (key))
+				if (!key.IsEncryptionKey || key.HasRevocation () || IsExpired (key))
 					continue;
 
 				return key;
@@ -544,7 +544,7 @@ namespace MimeKit.Cryptography {
 						continue;
 
 					var pubkey = key.PublicKey;
-					if (pubkey.IsRevoked () || IsExpired (pubkey))
+					if (pubkey.HasRevocation () || IsExpired (pubkey))
 						continue;
 
 					return key;
@@ -579,7 +579,7 @@ namespace MimeKit.Cryptography {
 					continue;
 
 				var pubkey = key.PublicKey;
-				if (pubkey.IsRevoked () || IsExpired (pubkey))
+				if (pubkey.HasRevocation () || IsExpired (pubkey))
 					continue;
 
 				return true;
@@ -609,7 +609,7 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (mailbox));
 
 			foreach (var key in EnumeratePublicKeys (mailbox)) {
-				if (!key.IsEncryptionKey || key.IsRevoked () || IsExpired (key))
+				if (!key.IsEncryptionKey || key.HasRevocation () || IsExpired (key))
 					continue;
 
 				return true;
