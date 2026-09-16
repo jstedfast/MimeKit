@@ -26,6 +26,7 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -310,7 +311,7 @@ namespace MimeKit {
 
 		internal static void Register (ICryptographicEntityFactory factory)
 		{
-			CryptographicEntityFactory = factory;
+			Volatile.Write (ref CryptographicEntityFactory, factory);
 		}
 
 		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
@@ -353,14 +354,15 @@ namespace MimeKit {
 				if (subtype.Equals ("report", StringComparison.OrdinalIgnoreCase))
 					return new MultipartReport (args);
 
-				if (CryptographicEntityFactory is not null) {
+				var cryptoFactory = Volatile.Read (ref CryptographicEntityFactory);
+				if (cryptoFactory is not null) {
 					// multipart/encrypted
 					if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
-						return CryptographicEntityFactory.CreateMultipartEncrypted (args);
+						return cryptoFactory.CreateMultipartEncrypted (args);
 
 					// multipart/signed
 					if (subtype.Equals ("signed", StringComparison.OrdinalIgnoreCase))
-						return CryptographicEntityFactory.CreateMultipartSigned (args);
+						return cryptoFactory.CreateMultipartSigned (args);
 				}
 
 				// multipart/mixed, multipart/parallel, etc.
@@ -399,26 +401,27 @@ namespace MimeKit {
 						return new TextRfc822Headers (args);
 				}
 			} else if (type.Equals ("application", StringComparison.OrdinalIgnoreCase)) {
-				if (CryptographicEntityFactory is not null) {
+				var cryptoFactory = Volatile.Read (ref CryptographicEntityFactory);
+				if (cryptoFactory is not null) {
 					// application/pkcs7-mime
 					if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
 						subtype.Equals ("x-pkcs7-mime", StringComparison.OrdinalIgnoreCase))
-						return CryptographicEntityFactory.CreateApplicationPkcs7Mime (args);
+						return cryptoFactory.CreateApplicationPkcs7Mime (args);
 
 					// application/pkcs7-signature
 					if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
 						subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
-						return CryptographicEntityFactory.CreateApplicationPkcs7Signature (args);
+						return cryptoFactory.CreateApplicationPkcs7Signature (args);
 
 					// application/pgp-encrypted
 					if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
 						subtype.Equals ("x-pgp-encrypted", StringComparison.OrdinalIgnoreCase))
-						return CryptographicEntityFactory.CreateApplicationPgpEncrypted (args);
+						return cryptoFactory.CreateApplicationPgpEncrypted (args);
 
 					// application/pgp-signature
 					if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
 						subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
-						return CryptographicEntityFactory.CreateApplicationPgpSignature (args);
+						return cryptoFactory.CreateApplicationPgpSignature (args);
 				}
 
 				// application/ms-tnef
