@@ -58,6 +58,11 @@ using IssuerAndSerialNumber = Org.BouncyCastle.Asn1.Cms.IssuerAndSerialNumber;
 
 using MimeKit.IO;
 
+using Org.BouncyCastle.Asn1.Ntt;
+using Org.BouncyCastle.Asn1.Misc;
+using Org.BouncyCastle.Asn1.Nist;
+using Org.BouncyCastle.Asn1.Kisa;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A Secure MIME (S/MIME) cryptography context.
@@ -1620,54 +1625,54 @@ namespace MimeKit.Cryptography {
 
 		Stream Envelope (CmsEnvelopedDataGenerator cms, EncryptionAlgorithm algorithm, Stream content, CancellationToken cancellationToken)
 		{
-			var input = new CmsProcessableInputStream (content);
+			var input = new CmsTypedInputStream (content);
 			CmsEnvelopedData envelopedData;
 
 			switch (algorithm) {
 			case EncryptionAlgorithm.Aes128:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes128Cbc);
+				envelopedData = cms.Generate (input, NistObjectIdentifiers.IdAes128Cbc);
 				break;
 			case EncryptionAlgorithm.Aes192:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes192Cbc);
+				envelopedData = cms.Generate (input, NistObjectIdentifiers.IdAes192Cbc);
 				break;
 			case EncryptionAlgorithm.Aes256:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Aes256Cbc);
+				envelopedData = cms.Generate (input, NistObjectIdentifiers.IdAes256Cbc);
 				break;
 			case EncryptionAlgorithm.Blowfish:
-				envelopedData = cms.Generate (input, Blowfish.Id);
+				envelopedData = cms.Generate (input, Blowfish);
 				break;
 			case EncryptionAlgorithm.Camellia128:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia128Cbc);
+				envelopedData = cms.Generate (input, NttObjectIdentifiers.IdCamellia128Cbc);
 				break;
 			case EncryptionAlgorithm.Camellia192:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia192Cbc);
+				envelopedData = cms.Generate (input, NttObjectIdentifiers.IdCamellia192Cbc);
 				break;
 			case EncryptionAlgorithm.Camellia256:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Camellia256Cbc);
+				envelopedData = cms.Generate (input, NttObjectIdentifiers.IdCamellia256Cbc);
 				break;
 			case EncryptionAlgorithm.Cast5:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.Cast5Cbc);
+				envelopedData = cms.Generate (input, MiscObjectIdentifiers.cast5CBC);
 				break;
 			case EncryptionAlgorithm.Des:
-				envelopedData = cms.Generate (input, SmimeCapability.DesCbc.Id);
+				envelopedData = cms.Generate (input, SmimeCapability.DesCbc);
 				break;
 			case EncryptionAlgorithm.Idea:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.IdeaCbc);
+				envelopedData = cms.Generate (input, MiscObjectIdentifiers.as_sys_sec_alg_ideaCBC);
 				break;
 			case EncryptionAlgorithm.RC240:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 40);
+				envelopedData = cms.Generate (input, PkcsObjectIdentifiers.RC2Cbc, 40);
 				break;
 			case EncryptionAlgorithm.RC264:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 64);
+				envelopedData = cms.Generate (input, PkcsObjectIdentifiers.RC2Cbc, 64);
 				break;
 			case EncryptionAlgorithm.RC2128:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.RC2Cbc, 128);
+				envelopedData = cms.Generate (input, PkcsObjectIdentifiers.RC2Cbc, 128);
 				break;
 			case EncryptionAlgorithm.Seed:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.SeedCbc);
+				envelopedData = cms.Generate (input, KisaObjectIdentifiers.IdSeedCbc);
 				break;
 			case EncryptionAlgorithm.TripleDes:
-				envelopedData = cms.Generate (input, CmsEnvelopedGenerator.DesEde3Cbc);
+				envelopedData = cms.Generate (input, PkcsObjectIdentifiers.DesEde3Cbc);
 				break;
 			//case EncryptionAlgorithm.Twofish:
 			//	envelopedData = cms.Generate (input, Twofish.Id);

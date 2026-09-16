@@ -464,8 +464,8 @@ namespace MimeKit.Cryptography {
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var compresser = new CmsCompressedDataGenerator ();
-			var processable = new CmsProcessableInputStream (stream);
-			var compressed = compresser.Generate (processable, CmsCompressedDataGenerator.ZLib);
+			var input = new CmsTypedInputStream (stream);
+			var compressed = compresser.Generate (input, CmsCompressedDataGenerator.ZLib);
 
 			var content = new MemoryBlockStream ();
 			compressed.ContentInfo.EncodeTo (content);
