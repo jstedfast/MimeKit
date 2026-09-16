@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -318,12 +319,12 @@ namespace MimeKit.Tnef {
 
 		bool CheckRawValueLength ()
 		{
-			// Check that the property value does not go beyond the end of the end of the attribute
-			int attrEndOffset = reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
-			int valueEndOffset = RawValueStreamOffset + RawValueLength;
+			// Check that the length of the property value does not go beyond the end of the attribute value.
+			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			long valueEndOffset = (long) RawValueStreamOffset + RawValueLength;
 
 			if (valueEndOffset > attrEndOffset) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
+				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
 				return false;
 			}
 
@@ -337,14 +338,54 @@ namespace MimeKit.Tnef {
 
 		byte[] ReadBytes (int count)
 		{
-			var bytes = new byte[count];
-			int offset = 0;
-			int nread;
+			if (count <= 0) {
+				if (count < 0)
+					reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
 
-			while (offset < count && (nread = reader.ReadAttributeRawValue (bytes, offset, count - offset)) > 0)
-				offset += nread;
+				return Array.Empty<byte> ();
+			}
 
-			return bytes;
+			// Never allow our caller to request more than the number of bytes that actually remain in the current
+			// attribute. A corrupt or malicious length prefix could otherwise force an enormous allocation
+			// before any data is read, exhausting available memory.
+			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			long available = Math.Max (attrEndOffset - reader.StreamOffset, 0);
+
+			if (count > available) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+				count = (int) available;
+			}
+
+			// Both 'count' and the attribute length are vulnerable to corruption, so be careful not to allocate a huge buffer. Read the value in chunks if necessary.
+			const int MaxChunkSize = 4096;
+			int offset = 0, nread;
+			byte[] buffer;
+
+			if (count <= MaxChunkSize) {
+				// The specified value length is within a safe allocation size limit, so we can allocate the full buffer up front and read directly into it.
+				buffer = new byte[count];
+
+				while (offset < count && (nread = reader.ReadAttributeRawValue (buffer, offset, count - offset)) > 0)
+					offset += nread;
+
+				return buffer;
+			}
+
+			// The specified value length is larger than the safe allocation size limit, so we need to read it in chunks and grow the buffer as needed.
+			buffer = ArrayPool<byte>.Shared.Rent (MaxChunkSize);
+
+			try {
+				using (var memory = new MemoryStream ()) {
+					while (offset < count && (nread = reader.ReadAttributeRawValue (buffer, 0, Math.Min (buffer.Length, count - offset))) > 0) {
+						memory.Write (buffer, 0, nread);
+						offset += nread;
+					}
+
+					return memory.ToArray ();
+				}
+			} finally {
+				ArrayPool<byte>.Shared.Return (buffer);
+			}
 		}
 
 		short ReadInt16 ()
@@ -393,7 +434,9 @@ namespace MimeKit.Tnef {
 
 		static int GetPaddedLength (int length)
 		{
-			return (length + 3) & ~3;
+			int padding = (4 - (length & 3)) & 3;
+
+			return length + padding;
 		}
 
 		byte[] ReadByteArray ()
@@ -401,7 +444,7 @@ namespace MimeKit.Tnef {
 			int length = ReadInt32 ();
 			var bytes = ReadBytes (length);
 
-			if ((length % 4) != 0) {
+			if (length > 0 && (length % 4) != 0) {
 				// remaining bytes are padding
 				int padding = 4 - (length % 4);
 
@@ -783,7 +826,17 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.String8:
 			case TnefPropertyType.Binary:
 			case TnefPropertyType.Object:
-				length = 4 + GetPaddedLength (PeekInt32 ());
+				// Validate the length of the value before we do any padding arithmetic to avoid integer overflow.
+				if ((length = PeekInt32 ()) < 0 || length > int.MaxValue - 8) {
+					// A value length this large cannot possibly fit within an attribute, so reject it
+					// before the padding arithmetic has any chance to overflow.
+					reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+					length = 0;
+
+					return false;
+				}
+
+				length = 4 + GetPaddedLength (length);
 				break;
 			case TnefPropertyType.AppTime:
 			case TnefPropertyType.SysTime:
