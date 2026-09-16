@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Threading;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// The cryptography module.
@@ -33,6 +35,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public static class CryptographyModule
 	{
+		static int initialized = 0;
+
 		/// <summary>
 		/// Initializes the cryptography module.
 		/// </summary>
@@ -41,7 +45,8 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public static void Initialize ()
 		{
-			ParserOptions.Register (CryptographicEntityFactory.Instance);
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) == 0)
+				ParserOptions.Register (CryptographicEntityFactory.Instance);
 		}
 	}
 }
