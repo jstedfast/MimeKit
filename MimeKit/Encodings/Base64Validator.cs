@@ -1,0 +1,210 @@
+﻿//
+// Base64Validator.cs
+//
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
+//
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
+
+using MimeKit.Utils;
+
+namespace MimeKit.Encodings {
+	/// <summary>
+	/// Incrementally validates content encoded with the base64 encoding.
+	/// </summary>
+	/// <remarks>
+	/// Base64 is an encoding often used in MIME to encode binary content such
+	/// as images and other types of multimedia to ensure that the data remains
+	/// intact when sent via 7bit transports such as SMTP.
+	/// </remarks>
+	class Base64Validator : IEncodingValidator
+	{
+		readonly IMimeComplianceLogger logger;
+		long streamOffset;
+		int lineNumber;
+		int padding;
+		int octets;
+		uint total;
+		bool invalid;
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="Base64Validator"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new base64 validator.
+		/// </remarks>
+		/// <param name="logger">The compliance logger.</param>
+		/// <param name="streamOffset">The current stream offset.</param>
+		/// <param name="lineNumber">The current line number.</param>
+		public Base64Validator (IMimeComplianceLogger logger, long streamOffset, int lineNumber)
+		{
+			this.logger = logger;
+			this.streamOffset = streamOffset;
+			this.lineNumber = lineNumber;
+		}
+
+		/// <summary>
+		/// Get the encoding.
+		/// </summary>
+		/// <remarks>
+		/// Gets the encoding that the validator supports.
+		/// </remarks>
+		/// <value>The encoding.</value>
+		public ContentEncoding Encoding {
+			get { return ContentEncoding.Base64; }
+		}
+
+#if NET6_0_OR_GREATER
+		[SkipLocalsInit]
+#endif
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe void Validate (ref byte table, byte* input, int length)
+		{
+			byte* inend = input + length;
+			byte* inptr = input;
+
+			if (padding == 0) {
+				while (inptr < inend) {
+					byte c = *inptr++;
+					byte rank = Unsafe.Add (ref table, c);
+
+					if (rank == 0xFF) {
+						// The current byte is outside of the base64 alphabet, but could be whitespace (which we will treat as valid).
+						if (c == (byte) '\n') {
+							if (octets % 4 != 0)
+								logger.Log (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+
+							lineNumber++;
+							octets = 0;
+						} else if (c == (byte) '*') {
+							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
+							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
+							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
+							logger.Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber);
+						} else if (!c.IsWhitespace ()) {
+							// This is an invalid base64 character.
+							logger.Log (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
+						}
+					} else if (c == (byte) '=') {
+						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
+						if (total % 4 < 2) {
+							// Padding is only valid in the last 2 positions of the final quantum.
+							logger.Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+							invalid = true;
+							return;
+						}
+
+						streamOffset++;
+						padding = 1;
+						octets++;
+						total++;
+						break;
+					} else {
+						// Increment the number of octets in this base64 quantum (a quantum is a series of 4 octets).
+						octets++;
+						total++;
+					}
+
+					streamOffset++;
+				}
+			}
+
+			while (inptr < inend) {
+				byte c = *inptr++;
+
+				if (c == (byte) '\n') {
+					if (octets % 4 != 0)
+						logger.Log (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+
+					lineNumber++;
+					octets = 0;
+				} else if (c == (byte) '=') {
+					padding++;
+					octets++;
+					total++;
+
+					if (padding > 2) {
+						logger.Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+						invalid = true;
+						break;
+					}
+				} else if (!c.IsWhitespace ()) {
+					logger.Log (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber);
+					invalid = true;
+					break;
+				}
+
+				streamOffset++;
+			}
+		}
+
+		/// <summary>
+		/// Write a sequence of bytes to the validator.
+		/// </summary>
+		/// <remarks>
+		/// Writes a sequence of bytes to the validator.
+		/// </remarks>
+		/// <param name="buffer">The buffer.</param>
+		/// <param name="startIndex">The starting index of the buffer.</param>
+		/// <param name="length">The length of the buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="buffer"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="buffer"/> byte array.
+		/// </exception>
+		public unsafe void Write (byte[] buffer, int startIndex, int length)
+		{
+			ArgumentValidator.Validate (buffer, startIndex, length);
+
+			if (invalid)
+				return;
+
+			fixed (byte* inbuf = buffer) {
+				ref byte table = ref MemoryMarshal.GetReference (Base64Decoder.base64_rank);
+
+				Validate (ref table, inbuf + startIndex, length);
+			}
+		}
+
+		/// <summary>
+		/// Flush the validator state.
+		/// </summary>
+		/// <remarks>
+		/// Flushes the validator state.
+		/// </remarks>
+		public void Flush ()
+		{
+			if (!invalid) {
+				if (octets % 4 != 0)
+					logger.Log (MimeComplianceViolation.IncompleteBase64LineQuantum, streamOffset, lineNumber);
+
+				if (total % 4 != 0)
+					logger.Log (MimeComplianceViolation.IncompleteBase64EndQuantum, streamOffset, lineNumber);
+			}
+		}
+	}
+}
