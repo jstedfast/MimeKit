@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 using System.Text;
 
 using MimeKit;
@@ -93,5 +91,3 @@ namespace UnitTests.Encodings {
 		}
 	}
 }
-
-#pragma warning restore CS0618 // Type or member is obsolete
