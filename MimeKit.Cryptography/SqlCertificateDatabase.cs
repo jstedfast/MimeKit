@@ -951,46 +951,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Gets the database command to update the specified CRL record.
-		/// </summary>
-		/// <remarks>
-		/// Gets the database command to update the specified CRL record.
-		/// </remarks>
-		/// <returns>The database command.</returns>
-		/// <param name="connection">The database connection.</param>
-		/// <param name="record">The CRL record.</param>
-		[Obsolete ("This method is not used and will be removed in a future release.")]
-		protected override DbCommand GetUpdateCommand (DbConnection connection, X509CrlRecord record)
-		{
-			var statement = new StringBuilder ("UPDATE ").Append (CrlsTableName).Append (" SET ");
-			var command = CreateCommand ();
-			var columns = CrlsTable.Columns;
-
-			for (int i = 1; i < columns.Count; i++) {
-				var value = GetValue (record, columns[i].ColumnName);
-				var variable = GetParameterName (columns[i].ColumnName);
-
-				if (i > 1)
-					statement.Append (", ");
-
-				statement.Append (columns[i]);
-				statement.Append (" = ");
-				statement.Append (variable);
-
-				command.AddParameterWithValue (variable, value);
-			}
-
-			var id = GetParameterName (CrlColumnNames.Id);
-			statement.Append (" WHERE ").Append (CrlColumnNames.Id).Append (" = ").Append (id);
-			command.AddParameterWithValue (id, record.Id);
-
-			command.CommandText = statement.ToString ();
-			command.CommandType = CommandType.Text;
-
-			return command;
-		}
-
-		/// <summary>
 		/// Releases the unmanaged resources used by the <see cref="SqlCertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
