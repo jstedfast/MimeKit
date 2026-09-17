@@ -177,16 +177,6 @@ namespace MimeKit.Cryptography {
 		void Remove (X509CrlRecord record);
 
 		/// <summary>
-		/// Update the specified CRL record.
-		/// </summary>
-		/// <remarks>
-		/// Updates the specified fields of the record in the database.
-		/// </remarks>
-		/// <param name="record">The CRL record.</param>
-		[Obsolete ("This method is not used and will be removed in a future release.")]
-		void Update (X509CrlRecord record);
-
-		/// <summary>
 		/// Gets a certificate revocation list store.
 		/// </summary>
 		/// <remarks>
