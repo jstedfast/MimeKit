@@ -436,7 +436,7 @@ namespace MimeKit {
 			}
 		}
 
-		static bool Rfc2231GetNextValue (FormatOptions options, string charset, Encoder encoder, HexEncoder hex, char[] chars, ref bool isFirstValue, ref int index, ref byte[] bytes, ref byte[] encoded, int maxLength, out string value)
+		static bool Rfc2231GetNextValue (FormatOptions options, string charset, Encoder encoder, char[] chars, ref bool isFirstValue, ref int index, ref byte[] bytes, ref byte[] encoded, int maxLength, out string value)
 		{
 			int length = chars.Length - index;
 			bool requiresCharset = false;
@@ -500,11 +500,11 @@ namespace MimeKit {
 					}
 				}
 
-				n = hex.EstimateOutputLength (count);
+				n = HexEncoder.EstimateOutputLength (count);
 				if (encoded.Length < n)
 					Array.Resize<byte> (ref encoded, n);
 
-				n = hex.Encode (bytes, 0, count, encoded);
+				n = HexEncoder.Encode (bytes, 0, count, encoded);
 				if (length > 1 && n > 3 && n > maxLength) {
 					int x = 0;
 
@@ -544,7 +544,6 @@ namespace MimeKit {
 			var hexbuf = new byte[bytes.Length * 3 + 3];
 			var encoder = bestEncoding.GetEncoder ();
 			var chars = Value.ToCharArray ();
-			var hex = new HexEncoder ();
 			var isFirstValue = true;
 			int index = 0, i = 0;
 
@@ -552,7 +551,7 @@ namespace MimeKit {
 				builder.Append (';');
 				lineLength++;
 
-				bool encoded = Rfc2231GetNextValue (options, charset, encoder, hex, chars, ref isFirstValue, ref index, ref bytes, ref hexbuf, maxLength, out string value);
+				bool encoded = Rfc2231GetNextValue (options, charset, encoder, chars, ref isFirstValue, ref index, ref bytes, ref hexbuf, maxLength, out string value);
 				int length = Name.Length + (encoded ? 1 : 0) + 1 + value.Length;
 
 				if (i == 0 && index == chars.Length) {
