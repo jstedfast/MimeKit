@@ -30,49 +30,15 @@ using MimeKit.Utils;
 
 namespace MimeKit.Encodings {
 	/// <summary>
-	/// Incrementally encodes content using a Uri hex encoding.
+	/// Encodes content using a Uri hex encoding.
 	/// </summary>
 	/// <remarks>
 	/// This is mostly meant for decoding parameter values encoded using
 	/// the rules specified by rfc2184 and rfc2231.
 	/// </remarks>
-	[Obsolete ("This class will being going away in a future version of MimeKit.")]
-	public class HexEncoder : IMimeEncoder
+	static class HexEncoder
 	{
 		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="HexEncoder"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new hex encoder.
-		/// </remarks>
-		public HexEncoder ()
-		{
-		}
-
-		/// <summary>
-		/// Clone the <see cref="HexEncoder"/> with its current state.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="HexEncoder"/> with exactly the same state as the current encoder.
-		/// </remarks>
-		/// <returns>A new <see cref="HexEncoder"/> with identical state.</returns>
-		public IMimeEncoder Clone ()
-		{
-			return new HexEncoder ();
-		}
-
-		/// <summary>
-		/// Get the encoding.
-		/// </summary>
-		/// <remarks>
-		/// Gets the encoding that the encoder supports.
-		/// </remarks>
-		/// <value>The encoding.</value>
-		public ContentEncoding Encoding {
-			get { return ContentEncoding.Default; }
-		}
 
 		/// <summary>
 		/// Estimate the length of the output.
@@ -82,12 +48,12 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
-		public int EstimateOutputLength (int inputLength)
+		public static int EstimateOutputLength (int inputLength)
 		{
 			return inputLength * 3;
 		}
 
-		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
+		static void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
 		{
 			if (input is null)
 				throw new ArgumentNullException (nameof (input));
@@ -154,7 +120,7 @@ namespace MimeKit.Encodings {
 		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
 		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
-		public int Encode (byte[] input, int startIndex, int length, byte[] output)
+		public static int Encode (byte[] input, int startIndex, int length, byte[] output)
 		{
 			ValidateArguments (input, startIndex, length, output);
 
@@ -163,49 +129,6 @@ namespace MimeKit.Encodings {
 					return Encode (inptr + startIndex, length, outptr);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Encode the specified input into the output buffer, flushing any internal buffer state as well.
-		/// </summary>
-		/// <remarks>
-		/// <para>Encodes the specified input into the output buffer, flushing any internal state as well.</para>
-		/// <para>The output buffer should be large enough to hold all the
-		/// encoded input. For estimating the size needed for the output buffer,
-		/// see <see cref="EstimateOutputLength"/>.</para>
-		/// </remarks>
-		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name="input">The input buffer.</param>
-		/// <param name="startIndex">The starting index of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <param name="output">The output buffer.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="input"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="output"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
-		/// a valid range in the <paramref name="input"/> byte array.
-		/// </exception>
-		/// <exception cref="System.ArgumentException">
-		/// <para><paramref name="output"/> is not large enough to contain the encoded content.</para>
-		/// <para>Use the <see cref="EstimateOutputLength"/> method to properly determine the 
-		/// necessary length of the <paramref name="output"/> byte array.</para>
-		/// </exception>
-		public int Flush (byte[] input, int startIndex, int length, byte[] output)
-		{
-			return Encode (input, startIndex, length, output);
-		}
-
-		/// <summary>
-		/// Reset the encoder.
-		/// </summary>
-		/// <remarks>
-		/// Resets the state of the encoder.
-		/// </remarks>
-		public void Reset ()
-		{
 		}
 	}
 }
