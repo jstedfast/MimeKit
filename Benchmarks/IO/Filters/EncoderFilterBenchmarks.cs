@@ -117,12 +117,6 @@ namespace Benchmarks.IO.Filters {
 		}
 
 		[Benchmark]
-		public void QEncodeStream ()
-		{
-			EncodeStream (TextData, new QEncoder (QEncodeMode.Text));
-		}
-
-		[Benchmark]
 		public void QuotedPrintableEncodeStream ()
 		{
 			EncodeStream (TextData, new QuotedPrintableEncoder ());
