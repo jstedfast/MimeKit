@@ -47,13 +47,16 @@ using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
-	/// A default <see cref="SecureMimeContext"/> implementation that uses
+	/// A cross-platform <see cref="SecureMimeContext"/> implementation that uses
 	/// an SQLite database as a certificate and private key store.
 	/// </summary>
 	/// <remarks>
-	/// The default S/MIME context is designed to be usable on any platform
+	/// <para>This S/MIME context implementation is designed to be usable on any platform
 	/// where there exists a .NET runtime by storing certificates, CRLs, and
-	/// (encrypted) private keys in a SQL database.
+	/// (encrypted) private keys in a SQL database.</para>
+	/// <para>If an <see cref="IX509CertificateDatabase"/> implementation is not provided, then
+	/// it will probe the system for a platform-specific SQLite database implementation such as
+	/// System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux, macOS, iOS, and Android.</para>
 	/// </remarks>
 	public class DefaultSecureMimeContext : BouncyCastleSecureMimeContext
 	{
