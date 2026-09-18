@@ -91,7 +91,6 @@ namespace MessageReader.iOS {
 		}
 
 		// Modifies various HTML attributes for better suitability for rendering.
-		// Also performs some *very* basic Cross-Site Scripting (XSS) sanitization.
 		void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
 			if (ctx.TagId == HtmlTagId.Meta && !ctx.IsEndTag) {
@@ -113,8 +112,7 @@ namespace MessageReader.iOS {
 							if (attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase)) {
 								htmlWriter.WriteAttribute (attribute);
 								isContentType = true;
-							} else if (!attribute.Value.Equals ("refresh", StringComparison.OrdinalIgnoreCase)) {
-								// <meta http-equiv="refresh"> can be used as an XSS attack vector - filter it out
+							} else {
 								htmlWriter.WriteAttribute (attribute);
 							}
 						}
@@ -122,23 +120,9 @@ namespace MessageReader.iOS {
 						htmlWriter.WriteAttribute (attribute);
 					}
 				}
-			} else if (!ctx.IsEndTag) {
-				ctx.WriteTag (htmlWriter, false);
-
-				// filter out "onload", "onclick", "onmouseover", etc. event handlers which can be used as XSS attack vectors
-				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Name.Equals ("on", StringComparison.OrdinalIgnoreCase))
-						continue;
-
-					htmlWriter.WriteAttribute (attribute);
-				}
-
-				// if this is the <body> tag, explicitly add an oncontextmenu event handler that simply returns false
-				if (ctx.TagId == HtmlTagId.Body)
-					htmlWriter.WriteAttribute ("oncontextmenu", "return false;");
 			} else {
-				// Write the end tag
-				ctx.WriteTag (htmlWriter);
+				// write the tag or end tag as-is since we don't need to modify it
+				ctx.WriteTag (htmlWriter, true);
 			}
 		}
 
@@ -160,8 +144,7 @@ namespace MessageReader.iOS {
 
 			if (entity.IsHtml) {
 				converter = new HtmlToHtml {
-					HtmlTagCallback = HtmlTagCallback,
-					FilterHtml = true
+					HtmlTagCallback = HtmlTagCallback
 				};
 			} else if (entity.IsFlowed) {
 				var flowed = new FlowedToHtml ();
