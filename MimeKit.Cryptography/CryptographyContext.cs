@@ -734,7 +734,7 @@ namespace MimeKit.Cryptography {
 					if (SecureMimeContextFactory != null)
 						return SecureMimeContextFactory ();
 
-					return new DefaultSecureMimeContext ();
+					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.SecureMimeContext"));
 				case "application/x-pgp-signature":
 				case "application/pgp-signature":
 				case "application/x-pgp-encrypted":
@@ -744,7 +744,7 @@ namespace MimeKit.Cryptography {
 					if (PgpContextFactory != null)
 						return PgpContextFactory ();
 
-					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.OpenPgpContext or MimeKit.Cryptography.GnuPGContext"));
+					throw new NotSupportedException (string.Format (SubclassAndRegisterFormat, "MimeKit.Cryptography.OpenPgpContext"));
 				default:
 					throw new NotSupportedException ();
 				}
