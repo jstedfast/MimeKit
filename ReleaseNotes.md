@@ -1,5 +1,9 @@
 # Release Notes
 
+## MimeKit 4.18.1 (2026-09-19)
+
+* Prevent integer overflows in TnefPropertyReader due to corrupt content.
+
 ## MimeKit 4.18.0 (2026-09-13)
 
 * Removed base, embed, input, link and source tags as "unsafe" tags. These are all void tags in HTML,

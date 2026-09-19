@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata minClientVersion="2.12">
     <id>MimeKitLite</id>
-    <version>4.18.0</version>
+    <version>4.18.1</version>
     <title>MimeKit Lite</title>
     <authors>Jeffrey Stedfast</authors>
     <owners>Jeffrey Stedfast</owners>
@@ -22,11 +22,7 @@
     </description>
     <summary>An Open Source library for creating and parsing MIME messages.</summary>
     <releaseNotes>
-* Removed base, embed, input, link and source tags as "unsafe" tags. These are all void tags in HTML, meaning they do not have inner content. (issue #1247)
-* Fixed InternetAddressListConverter to allow conversion of empty strings into an empty list. (issue #1249)
-* Fixed MimeReader to support MimePart content larger than 2GB. (issue #1252)
-* Fixed Message-Id parser to not decode international domains. (issue #1254)
-* Bumped System.Text.Encoding.CodePages dependency to 10.0.0.
+* Prevent integer overflows in TnefPropertyReader due to corrupt content.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
