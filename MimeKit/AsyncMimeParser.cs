@@ -113,7 +113,7 @@ namespace MimeKit {
 			int left = 0;
 
 			headerBlockBegin = GetOffset (inputIndex);
-			boundaryType = BoundaryType.None;
+			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
 			ResetRawHeaderData ();
 			headers.Clear ();
@@ -219,7 +219,7 @@ namespace MimeKit {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
 				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundaryType = BoundaryType.Eos;
+					boundaryType = MimeBoundaryType.Eos;
 					break;
 				}
 
@@ -233,11 +233,11 @@ namespace MimeKit {
 
 				if (contentIndex < inputIndex)
 					content.Write (input, contentIndex, inputIndex - contentIndex);
-			} while (boundaryType == BoundaryType.None);
+			} while (boundaryType == MimeBoundaryType.None);
 
 			var isEmpty = content.Length == 0;
 
-			if (boundaryType != BoundaryType.Eos && trimNewLine) {
+			if (boundaryType != MimeBoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (content.Length > 0) {
 					if (input[inputIndex - 2] == (byte) '\r')
@@ -295,7 +295,7 @@ namespace MimeKit {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
-					boundaryType = BoundaryType.Eos;
+					boundaryType = MimeBoundaryType.Eos;
 					return;
 				}
 
@@ -312,7 +312,7 @@ namespace MimeKit {
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
 						// *never* be an Mbox "From " marker in Entity mode.
-						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
+						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != MimeBoundaryType.None)
 							return;
 					}
 				}
@@ -401,7 +401,7 @@ namespace MimeKit {
 				// skip over the boundary marker
 				if (!await SkipLineAsync (true, cancellationToken).ConfigureAwait (false)) {
 					//OnMultipartBoundaryEnd (multipart, GetOffset (inputIndex));
-					boundaryType = BoundaryType.Eos;
+					boundaryType = MimeBoundaryType.Eos;
 					return;
 				}
 
@@ -415,7 +415,7 @@ namespace MimeKit {
 
 				if (state == MimeParserState.Boundary) {
 					if (headers.Count == 0) {
-						if (boundaryType == BoundaryType.ImmediateBoundary) {
+						if (boundaryType == MimeBoundaryType.ImmediateBoundary) {
 							// FIXME: Should we add an empty TextPart? If we do, update MimeParserTests.TestDoubleMultipartBoundary()
 							//beginOffset = GetOffset (inputIndex);
 							continue;
@@ -455,7 +455,7 @@ namespace MimeKit {
 
 				//beginOffset = endOffset;
 				multipart.Add (entity);
-			} while (boundaryType == BoundaryType.ImmediateBoundary);
+			} while (boundaryType == MimeBoundaryType.ImmediateBoundary);
 		}
 
 		async Task ConstructMultipartAsync (Multipart multipart, MimeEntityEndEventArgs args, int depth, CancellationToken cancellationToken)
@@ -481,10 +481,10 @@ namespace MimeKit {
 			PushBoundary (marker);
 
 			await MultipartScanPreambleAsync (multipart, cancellationToken).ConfigureAwait (false);
-			if (boundaryType == BoundaryType.ImmediateBoundary)
+			if (boundaryType == MimeBoundaryType.ImmediateBoundary)
 				await MultipartScanSubpartsAsync (multipart, depth, cancellationToken).ConfigureAwait (false);
 
-			if (boundaryType == BoundaryType.ImmediateEndBoundary) {
+			if (boundaryType == MimeBoundaryType.ImmediateEndBoundary) {
 				//OnMultipartEndBoundaryBegin (multipart, GetEndOffset (inputIndex));
 
 				// consume the end boundary and read the epilogue (if there is one)
@@ -708,7 +708,7 @@ namespace MimeKit {
 			messageArgs.HeadersEndOffset = entityArgs.HeadersEndOffset = Math.Min (entityArgs.HeadersEndOffset, endOffset);
 			messageArgs.EndOffset = entityArgs.EndOffset = endOffset;
 
-			if (boundaryType != BoundaryType.Eos) {
+			if (boundaryType != MimeBoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
 					state = MimeParserState.MboxMarker;
 				else
