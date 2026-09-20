@@ -48,7 +48,7 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MultipartSigned"/> class.
 		/// </summary>
-		/// <remarks>This constructor is used by <see cref="MimeParser"/>.</remarks>
+		/// <remarks>This constructor is used by <see cref="IMimeParser"/>.</remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="args"/> is <see langword="null"/>.

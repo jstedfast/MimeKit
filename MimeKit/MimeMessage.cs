@@ -318,7 +318,7 @@ namespace MimeKit {
 		/// Get or set the mbox marker.
 		/// </summary>
 		/// <remarks>
-		/// Set by the <see cref="MimeParser"/> when parsing attached message/rfc822 parts
+		/// Set by the <see cref="IMimeParser"/> when parsing attached message/rfc822 parts
 		/// so that the message/rfc822 part can be reserialized back to its original form.
 		/// </remarks>
 		/// <value>The mbox marker.</value>
@@ -2074,9 +2074,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
@@ -2118,9 +2118,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
@@ -2222,9 +2222,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed message.</returns>
@@ -2255,9 +2255,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed message.</returns>

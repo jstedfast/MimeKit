@@ -1329,9 +1329,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
@@ -1373,9 +1373,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
@@ -1477,9 +1477,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save mmeory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save mmeory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>
@@ -1510,9 +1510,9 @@ namespace MimeKit {
 		/// <para>Loads a <see cref="MimeEntity"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="IMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="IMimeParser"/>
 		/// performance.</para>
 		/// </remarks>
 		/// <returns>The parsed MIME entity.</returns>

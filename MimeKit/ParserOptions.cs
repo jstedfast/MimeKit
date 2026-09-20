@@ -37,7 +37,7 @@ using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
-	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
+	/// Parser options as used by <see cref="IMimeParser"/> as well as various Parse and TryParse methods in MimeKit.
 	/// </summary>
 	/// <remarks>
 	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options used by methods such
@@ -53,7 +53,7 @@ namespace MimeKit {
 		/// The default parser options.
 		/// </summary>
 		/// <remarks>
-		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="MimeParser"/> or other Parse and TryParse
+		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="IMimeParser"/> or other Parse and TryParse
 		/// methods throughout MimeKit, <see cref="ParserOptions.Default"/> will be used.
 		/// </remarks>
 		public static readonly ParserOptions Default = new ParserOptions ();

@@ -44,7 +44,7 @@ namespace MimeKit.Cryptography {
 		/// class based on the <see cref="MimeEntityConstructorArgs"/>.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeParser"/>.
+		/// This constructor is used by <see cref="IMimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">

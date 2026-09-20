@@ -40,7 +40,7 @@ namespace MimeKit {
 	/// A textual MIME part.
 	/// </summary>
 	/// <remarks>
-	/// <para>Unless overridden, all textual parts parsed by the <see cref="MimeParser"/>,
+	/// <para>Unless overridden, all textual parts parsed by the <see cref="IMimeParser"/>,
 	/// such as text/plain or text/html, will be represented by a <see cref="TextPart"/>.</para>
 	/// <para>For more information about text media types, see section 4.1 of
 	/// <a href="https://tools.ietf.org/html/rfc2046#section-4.1">rfc2046</a>.</para>
@@ -54,7 +54,7 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="TextPart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeParser"/>.
+		/// This constructor is used by <see cref="IMimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
