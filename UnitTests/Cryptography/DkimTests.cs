@@ -670,7 +670,7 @@ namespace UnitTests.Cryptography {
 		public void TestDkimSignVerifyJwzMbox ()
 		{
 			using (var stream = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "mbox", "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox);
+				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox);
 				int i = 0;
 
 				while (!parser.IsEndOfStream && i < 10) {

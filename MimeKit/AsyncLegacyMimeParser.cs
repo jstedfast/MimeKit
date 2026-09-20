@@ -1,5 +1,5 @@
 ﻿//
-// AsyncMimeParser.cs
+// AsyncLegacyMimeParser.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -34,7 +34,7 @@ using MimeKit.IO;
 using MimeKit.Utils;
 
 namespace MimeKit {
-	public partial class MimeParser
+	public partial class LegacyMimeParser
 	{
 		async Task<int> ReadAheadAsync (int atleast, int save, CancellationToken cancellationToken)
 		{

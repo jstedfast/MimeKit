@@ -1,5 +1,5 @@
 ﻿//
-// MimeParser.cs
+// ExperimentalMimeParser.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -35,10 +35,10 @@ using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
-	/// An experimental replacement for <see cref="MimeParser"/>.
+	/// An experimental replacement for <see cref="LegacyMimeParser"/>.
 	/// </summary>
 	/// <remarks>
-	/// An experimental replacement for <see cref="MimeParser"/>.
+	/// An experimental replacement for <see cref="LegacyMimeParser"/>.
 	/// </remarks>
 	public class ExperimentalMimeParser : MimeReader, IMimeParser
 	{
@@ -66,7 +66,7 @@ namespace MimeKit {
 		bool persistent;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="MimeParser"/> class.
+		/// Initialize a new instance of the <see cref="ExperimentalMimeParser"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="ExperimentalMimeParser"/> that will parse the specified stream.</para>
@@ -212,9 +212,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="ExperimentalMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="ExperimentalMimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="MimeContent"/> to read the content.</para>
@@ -256,9 +256,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
 		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
+		/// the <see cref="ExperimentalMimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
 		/// it will use a <see cref="BoundStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
+		/// This has the potential to not only save memory usage, but also improve <see cref="ExperimentalMimeParser"/>
 		/// performance.</para>
 		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
 		/// for <see cref="MimeContent"/> to read the content.</para>

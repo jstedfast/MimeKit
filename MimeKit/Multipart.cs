@@ -1076,7 +1076,7 @@ namespace MimeKit {
 		{
 			if (disposing) {
 				if (rawBoundaries != null) {
-					// Note: this event is only connected if the Multipart was parsed by a MimeParser,
+					// Note: this event is only connected if the Multipart was parsed by a IMimeParser,
 					// in which case, `boundaries` will not be null.
 					ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
 					rawBoundaries = null;

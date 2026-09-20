@@ -100,7 +100,7 @@ namespace MimeKit {
 		string? inreplyto;
 		Version? version;
 
-		// Note: this .ctor is used only by the MimeParser and MimeMessage.CreateFromMailMessage()
+		// Note: this .ctor is used only by the LegacyMimeParser and MimeMessage.CreateFromMailMessage()
 		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
 		{
 			addresses = new Dictionary<HeaderId, InternetAddressList> ();
@@ -2106,7 +2106,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
+			var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity, persistent);
 
 			return parser.ParseMessage (cancellationToken);
 		}
@@ -2150,7 +2150,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
+			var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity, persistent);
 
 			return parser.ParseMessageAsync (cancellationToken);
 		}

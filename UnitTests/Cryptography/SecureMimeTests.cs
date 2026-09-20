@@ -1840,7 +1840,7 @@ namespace UnitTests.Cryptography {
 			MimeMessage message;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
 
@@ -2408,7 +2408,7 @@ namespace UnitTests.Cryptography {
 				return;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
 
@@ -2448,7 +2448,7 @@ namespace UnitTests.Cryptography {
 				return;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-encrypted.txt"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
 
@@ -2670,7 +2670,7 @@ namespace UnitTests.Cryptography {
 				return;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
 
@@ -2753,7 +2753,7 @@ namespace UnitTests.Cryptography {
 				return;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed-encrypted.txt"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
 
@@ -2888,7 +2888,7 @@ namespace UnitTests.Cryptography {
 			MimeMessage message;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = parser.ParseMessage ();
 			}
 
@@ -2915,7 +2915,7 @@ namespace UnitTests.Cryptography {
 			MimeMessage message;
 
 			using (var file = File.OpenRead (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "octet-stream-with-mixed-line-endings.dat"))) {
-				var parser = new MimeParser (file, MimeFormat.Default);
+				var parser = new LegacyMimeParser (file, MimeFormat.Default);
 				message = await parser.ParseMessageAsync ();
 			}
 

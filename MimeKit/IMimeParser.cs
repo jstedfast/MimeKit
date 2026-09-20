@@ -34,7 +34,7 @@ namespace MimeKit
 	/// An interface for parsing messages, entities, and/or headers.
 	/// </summary>
 	/// <remarks>
-	/// An interface for parsing messages, entities, and/or headers. Implemented by <see cref="MimeParser"/> and
+	/// An interface for parsing messages, entities, and/or headers. Implemented by <see cref="LegacyMimeParser"/> and
 	/// <see cref="ExperimentalMimeParser"/>.
 	/// </remarks>
 	public interface IMimeParser

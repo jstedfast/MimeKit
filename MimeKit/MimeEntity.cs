@@ -1361,7 +1361,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
+			var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity, persistent);
 
 			return parser.ParseEntity (cancellationToken);
 		}
@@ -1405,7 +1405,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var parser = new MimeParser (options, stream, MimeFormat.Entity, persistent);
+			var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity, persistent);
 
 			return parser.ParseEntityAsync (cancellationToken);
 		}

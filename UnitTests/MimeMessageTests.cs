@@ -243,7 +243,7 @@ This is the message body.
 			string expected = "X-Prepended: This is the prepended header\n" + rawMessageText;
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				message.Headers.Insert (0, new Header ("X-Prepended", "This is the prepended header"));
@@ -339,7 +339,7 @@ Just for fun....  -- Nathaniel<nl>
 ".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -423,7 +423,7 @@ Content-Description: this part contains a single blank line
 ".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -528,7 +528,7 @@ Content-ID: <spankulate4@hubba.hubba.hubba>
 ".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -583,7 +583,7 @@ Another test.
 This is the epilogue.".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -644,7 +644,7 @@ This is the preamble.
 .".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -737,7 +737,7 @@ This is the epilogue.
 ".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -812,7 +812,7 @@ unsubscribe
 ".Replace ("\r\n", "\n");
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				using (var serialized = new MemoryStream ()) {
@@ -1595,7 +1595,7 @@ Content-Transfer-Encoding: 7bit
 This is the text attachment";
 
 			using (var source = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				var parser = new MimeParser (source, MimeFormat.Default);
+				var parser = new LegacyMimeParser (source, MimeFormat.Default);
 				using var message = parser.ParseMessage ();
 
 				Assert.That (message.TextBody, Is.Null, "Message text should be blank, as no body defined");

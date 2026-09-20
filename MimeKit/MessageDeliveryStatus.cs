@@ -124,7 +124,7 @@ namespace MimeKit {
 
 			try {
 				using (var stream = content.Open ()) {
-					var parser = new MimeParser (stream, MimeFormat.Entity);
+					var parser = new LegacyMimeParser (stream, MimeFormat.Entity);
 					var encoding = ContentEncoding.Default;
 
 					// According to rfc3464, there are 1 or more Status Groups consisting of a block of field/value

@@ -28,10 +28,10 @@ using System;
 
 namespace MimeKit {
 	/// <summary>
-	/// Event args emitted by the <see cref="MimeParser"/> when it begins parsing a <see cref="MimeMessage"/>.
+	/// Event args emitted by the <see cref="LegacyMimeParser"/> when it begins parsing a <see cref="MimeMessage"/>.
 	/// </summary>
 	/// <remarks>
-	/// Event args emitted by the <see cref="MimeParser"/> when it begins parsing a <see cref="MimeMessage"/>.
+	/// Event args emitted by the <see cref="LegacyMimeParser"/> when it begins parsing a <see cref="MimeMessage"/>.
 	/// </remarks>
 	public class MimeMessageBeginEventArgs : EventArgs
 	{

@@ -6452,7 +6452,7 @@ This is the message body.
 		public void TestIssue358 ()
 		{
 			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
-			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
+			// which was causing LegacyMimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
 			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -6471,7 +6471,7 @@ This is the message body.
 		public async Task TestIssue358Async ()
 		{
 			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
-			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
+			// which was causing LegacyMimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
 			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
 				using (var filtered = new FilteredStream (stream)) {
