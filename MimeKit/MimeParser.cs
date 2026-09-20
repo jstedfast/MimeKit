@@ -35,10 +35,11 @@ using MimeKit.IO;
 
 namespace MimeKit {
 	/// <summary>
-	/// An experimental replacement for <see cref="LegacyMimeParser"/>.
+	/// A MIME message and entity parser.
 	/// </summary>
 	/// <remarks>
-	/// An experimental replacement for <see cref="LegacyMimeParser"/>.
+	/// A MIME parser is used to parse <see cref="MimeMessage"/> and
+	/// <see cref="MimeEntity"/> objects from arbitrary streams.
 	/// </remarks>
 	public class MimeParser : MimeReader, IMimeParser
 	{
