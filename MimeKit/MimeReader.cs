@@ -1643,6 +1643,59 @@ namespace MimeKit {
 			state = MimeParserState.MessageHeaders;
 		}
 
+		// Note: This is needed by MimeParser.ParseStatusGroup().
+		//
+		// Returns <see langword="true" /> if there is more input remaining to be parsed; otherwise, <see langword="false" />.
+		internal bool SkipBlankLines (CancellationToken cancellationToken)
+		{
+			// We'll need at least 1 byte to check for a blank line.
+			int need = 1;
+
+			// Prime the read-ahead buffer so that we (hopefully) only need to make a single read.
+			ReadAhead (ReadAheadSize, 0, cancellationToken);
+
+			do {
+				int left = inputEnd - inputIndex;
+
+				if (left < 2)
+					left = ReadAhead (2, 0, cancellationToken);
+
+				if (left < need) {
+					// Note: If `left` is non-zero at this point, then it is a lone CR at the end of the
+					// stream which ReadHeaders() will consume as (invalid) header data.
+					if (left == 0)
+						state = MimeParserState.Eos;
+
+					return left > 0;
+				}
+
+				// Check for an empty line.
+				if (input[inputIndex] == (byte) '\n') {
+					inputIndex++;
+					IncrementLineNumber (inputIndex);
+					need = 1;
+				} else if (input[inputIndex] == (byte) '\r') {
+					// We need at least 2 bytes to check for a CRLF.
+					if (left > 1) {
+						if (input[inputIndex + 1] != (byte) '\n') {
+							// We had a lone CR?
+							return true;
+						}
+
+						inputIndex += 2;
+						IncrementLineNumber (inputIndex);
+						need = 1;
+					} else {
+						// Not enough data to determine what this is. We'll need at least 2 bytes in the next loop.
+						need = 2;
+					}
+				} else {
+					// Not a blank line.
+					return true;
+				}
+			} while (true);
+		}
+
 		void UpdateHeaderState (Header header)
 		{
 			var rawValue = header.RawValue;
@@ -2671,6 +2724,32 @@ namespace MimeKit {
 			endOffset = GetEndOffset (inputIndex);
 
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
+		}
+
+		/// <summary>
+		/// This is a hack needed by the MessageDeliveryStatus.ParseStatusGroups() logic in order to work around an Office365 bug.
+		/// </summary>
+		/// <returns>The remainder of the parser's input stream (needed because the input stream may not be seekable).</returns>
+		internal Stream ReadToEos ()
+		{
+			var content = new MemoryBlockStream ();
+
+			try {
+				do {
+					if (ReadAhead (1, 0, CancellationToken.None) <= 0)
+						break;
+
+					content.Write (input, inputIndex, inputEnd - inputIndex);
+					inputIndex = inputEnd;
+				} while (!eos);
+
+				content.Position = 0;
+
+				return content;
+			} catch {
+				content.Dispose ();
+				throw;
+			}
 		}
 
 		unsafe void ReadHeaders (byte* inbuf, CancellationToken cancellationToken)

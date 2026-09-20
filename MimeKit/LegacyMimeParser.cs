@@ -1743,6 +1743,7 @@ namespace MimeKit {
 			PopBoundary ();
 		}
 
+#if false
 		/// <summary>
 		/// This is a hack needed by the MessageDeliveryStatus.ParseStatusGroups() logic in order to work around an Office365 bug.
 		/// </summary>
@@ -1768,6 +1769,7 @@ namespace MimeKit {
 				throw;
 			}
 		}
+#endif
 
 		unsafe HeaderList ParseHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
@@ -1813,6 +1815,7 @@ namespace MimeKit {
 			}
 		}
 
+#if false
 		unsafe bool IsBlankLine (byte* inbuf, CancellationToken cancellationToken)
 		{
 			if (ReadAhead (ReadAheadSize, 1, cancellationToken) <= 0)
@@ -1858,6 +1861,7 @@ namespace MimeKit {
 				}
 			}
 		}
+#endif
 
 		unsafe MimeEntity ParseEntity (byte* inbuf, CancellationToken cancellationToken)
 		{

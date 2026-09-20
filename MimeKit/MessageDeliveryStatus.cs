@@ -124,14 +124,20 @@ namespace MimeKit {
 
 			try {
 				using (var stream = content.Open ()) {
-					var parser = new LegacyMimeParser (stream, MimeFormat.Entity);
+					var parser = new MimeParser (stream, MimeFormat.Entity);
 					var encoding = ContentEncoding.Default;
 
 					// According to rfc3464, there are 1 or more Status Groups consisting of a block of field/value
 					// pairs (aka headers) separated by a blank line.
 					while (!parser.IsEndOfStream) {
-						var fields = parser.ParseStatusGroup ();
-						groups.Add (fields);
+						var statusGroup = parser.ParseStatusGroup ();
+
+						// Note: A null status group means that the parser reached the end of the stream
+						// before it was able to find another status group.
+						if (statusGroup is null)
+							break;
+
+						groups.Add (statusGroup);
 
 						// Note: Office365 seems to sometimes base64 encode everything after the first Status Group of headers.
 						//
@@ -139,7 +145,7 @@ namespace MimeKit {
 						// header to the first Status Group and then base64 encoded the remainder of the content. Therefore, if we
 						// encounter a Content-Transfer-Encoding header (that needs decoding), break out of this loop so that we can
 						// decode the rest of the content and parse the result for the remainder of the Status Groups.
-						if (fields.TryGetHeader (HeaderId.ContentTransferEncoding, out var header)) {
+						if (statusGroup.TryGetHeader (HeaderId.ContentTransferEncoding, out var header)) {
 							MimeUtils.TryParse (header.Value, out encoding);
 
 							// Note: Base64, QuotedPrintable and UUEncode are all > Binary
@@ -161,8 +167,12 @@ namespace MimeKit {
 								parser.SetStream (filtered, MimeFormat.Entity);
 
 								while (!parser.IsEndOfStream) {
-									var fields = parser.ParseHeaders ();
-									groups.Add (fields);
+									var statusGroup = parser.ParseStatusGroup ();
+
+									if (statusGroup is null)
+										break;
+
+									groups.Add (statusGroup);
 								}
 							}
 						}

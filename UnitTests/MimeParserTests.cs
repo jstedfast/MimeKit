@@ -33,6 +33,8 @@ using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class MimeParserTests
@@ -192,6 +194,146 @@ namespace UnitTests {
 					Assert.Fail ($"Failed to parse headers: {ex}");
 				}
 			}
+		}
+
+		static List<HeaderList> ParseStatusGroups (string text, bool readOneByteAtATime = false)
+		{
+			var bytes = Encoding.ASCII.GetBytes (text);
+			var groups = new List<HeaderList> ();
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				Stream stream = readOneByteAtATime ? new ReadOneByteStream (memory) : memory;
+
+				try {
+					var parser = new MimeParser (stream, MimeFormat.Entity);
+
+					while (!parser.IsEndOfStream) {
+						var group = parser.ParseStatusGroup ();
+
+						if (group is null)
+							break;
+
+						groups.Add (group);
+					}
+				} finally {
+					if (readOneByteAtATime)
+						stream.Dispose ();
+				}
+			}
+
+			return groups;
+		}
+
+		[Test]
+		public void TestStatusGroupParser ()
+		{
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserReturnsNullAtEndOfStream ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Reporting-MTA: dns; mm1\r\n\r\n");
+
+			using var memory = new MemoryStream (bytes, false);
+			var parser = new MimeParser (memory, MimeFormat.Entity);
+
+			var group = parser.ParseStatusGroup ();
+			Assert.That (group, Is.Not.Null, "Expected the first status group to be parsed.");
+			Assert.That (group.Count, Is.EqualTo (1), "Unexpected number of headers in the first status group.");
+
+			Assert.That (parser.ParseStatusGroup (), Is.Null, "Expected null once the end of the stream is reached.");
+			Assert.That (parser.IsEndOfStream, Is.True, "Expected IsEndOfStream to be true.");
+
+			// Calling it again should continue to return null rather than throw.
+			Assert.That (parser.ParseStatusGroup (), Is.Null, "Expected null on subsequent calls.");
+		}
+
+		[TestCase ("", TestName = "TestStatusGroupParserNoContent")]
+		[TestCase ("\r\n", TestName = "TestStatusGroupParserSingleBlankLine")]
+		[TestCase ("\r\n\r\n\r\n", TestName = "TestStatusGroupParserOnlyBlankLines")]
+		[TestCase ("\n\n\n", TestName = "TestStatusGroupParserOnlyBlankLinesLF")]
+		[TestCase ("\r", TestName = "TestStatusGroupParserOnlyLoneCarriageReturn")]
+		public void TestStatusGroupParserNoStatusGroups (string text)
+		{
+			var groups = ParseStatusGroups (text);
+
+			Assert.That (groups.Count, Is.EqualTo (0), "Did not expect any status groups.");
+		}
+
+		[Test]
+		public void TestStatusGroupParserTrailingLoneCarriageReturn ()
+		{
+			// Note: The trailing lone CR is not a status group, so it should not result in an empty status group.
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserTrailingBlankLines ()
+		{
+			// Note: The trailing blank lines should not produce an empty status group.
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r\n\r\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserLoneCarriageReturnSeparator ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Reporting-MTA: dns; mm1\r\n\r\n\rFinal-Recipient: rfc822; user@example.com\r\n");
+
+			using var memory = new MemoryStream (bytes, false);
+			var parser = new MimeParser (memory, MimeFormat.Entity);
+
+			var group = parser.ParseStatusGroup ();
+			Assert.That (group, Is.Not.Null, "Expected the first status group to be parsed.");
+			Assert.That (group["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+
+			// Note: A lone CR is not a blank line, so SkipBlankLines() stops there and the remainder
+			// of the stream fails to parse as a block of headers.
+			Assert.Throws<FormatException> (() => parser.ParseStatusGroup ());
+		}
+
+		[Test]
+		public void TestStatusGroupParserLeadingBlankLines ()
+		{
+			var groups = ParseStatusGroups ("\r\n\r\n\r\nReporting-MTA: dns; mm1\r\n\r\n\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserMixedNewLineFormats ()
+		{
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\n\r\n\nFinal-Recipient: rfc822; user@example.com\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserReadOneByteAtATime ()
+		{
+			// Note: Reading a single byte at a time forces SkipBlankLines() to deal with
+			// CRLF sequences that span multiple reads.
+			var groups = ParseStatusGroups ("\r\n\r\nReporting-MTA: dns; mm1\r\n\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r\n", true);
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
 		}
 
 		[Test]

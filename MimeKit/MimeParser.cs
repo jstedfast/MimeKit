@@ -849,6 +849,56 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Parse a single message/delivery-status status group from the stream.
+		/// </summary>
+		/// <remarks>
+		/// Parses a single message/delivery-status status group from the stream.
+		/// </remarks>
+		/// <returns>The parsed status group or <see langword="null" /> if there are no more status
+		/// groups to be found in the stream.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the status group.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		internal HeaderList? ParseStatusGroup (CancellationToken cancellationToken = default)
+		{
+			Initialize (false);
+
+			try {
+				// Note: Status groups are separated by 1 or more blank lines. If we run out of input
+				// while skipping them, then there are no more status groups to parse.
+				if (!SkipBlankLines (cancellationToken))
+					return null;
+
+				ReadHeaders (cancellationToken);
+			} catch {
+				Reset ();
+				throw;
+			}
+
+			if (headers.Count == 0) {
+				// Note: If we didn't parse any headers, then there was no status group. This can happen if
+				// the remainder of the stream consists of nothing more than a stray byte or two (such as a
+				// lone CR) that SkipBlankLines() could not consume.
+				return null;
+			}
+
+			var parsed = new HeaderList (Options);
+			foreach (var header in headers)
+				parsed.Add (header);
+
+			parsed.HasBodySeparator = hasBodySeparator;
+
+			return parsed;
+		}
+
+		/// <summary>
 		/// Parse a list of headers from the stream.
 		/// </summary>
 		/// <remarks>
