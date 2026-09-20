@@ -248,7 +248,7 @@ namespace UnitTests {
 			var anon = Path.ChangeExtension (path, ".anonymized.eml");
 
 			using (var stream = File.OpenRead (path)) {
-				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
 
 				using (var message = parser.ParseMessage ()) {
 					var anonymizer = new MimeAnonymizer ();
@@ -278,7 +278,7 @@ namespace UnitTests {
 			var anon = Path.ChangeExtension (path, ".anonymized.eml");
 
 			using (var stream = File.OpenRead (path)) {
-				var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity);
+				var parser = new MimeParser (stream, MimeFormat.Entity);
 
 				using (var entity = parser.ParseEntity ()) {
 					var anonymizer = new MimeAnonymizer ();

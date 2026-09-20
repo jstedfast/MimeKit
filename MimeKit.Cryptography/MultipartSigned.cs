@@ -132,7 +132,7 @@ namespace MimeKit.Cryptography {
 			memory.Position = 0;
 
 			// Note: we need to parse the modified entity structure to preserve any modifications
-			var parser = new LegacyMimeParser (memory, MimeFormat.Entity);
+			var parser = new MimeParser (memory, MimeFormat.Entity);
 
 			return parser.ParseEntity (cancellationToken);
 		}
@@ -166,7 +166,7 @@ namespace MimeKit.Cryptography {
 			memory.Position = 0;
 
 			// Note: we need to parse the modified entity structure to preserve any modifications
-			var parser = new LegacyMimeParser (memory, MimeFormat.Entity);
+			var parser = new MimeParser (memory, MimeFormat.Entity);
 
 			return await parser.ParseEntityAsync (cancellationToken).ConfigureAwait (false);
 		}

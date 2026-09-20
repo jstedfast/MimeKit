@@ -359,7 +359,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
+		[Ignore ("This should be handled the same as MimeParser")]
 		public void TestHeadersEndWithBareCarriageReturn ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
@@ -379,7 +379,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
+		[Ignore ("This should be handled the same as MimeParser")]
 		public async Task TestHeadersEndWithBareCarriageReturnAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
@@ -697,7 +697,7 @@ namespace UnitTests {
 				stream.Write (content, 0, content.Length);
 				stream.Position = 0;
 
-				// FIXME: Fix LegacyMimeParser to handle this as well as ExperimentalMimeParser?
+				// FIXME: Fix LegacyMimeParser to handle this as well as MimeParser?
 				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox);
 				//var message = parser.ParseMessage ();
 
@@ -720,7 +720,7 @@ namespace UnitTests {
 				stream.Write (content, 0, content.Length);
 				stream.Position = 0;
 
-				// FIXME: Fix LegacyMimeParser to handle this as well as ExperimentalMimeParser?
+				// FIXME: Fix LegacyMimeParser to handle this as well as MimeParser?
 				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox);
 				//var message = await parser.ParseMessageAsync ();
 
@@ -4391,7 +4391,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
@@ -4420,7 +4420,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
@@ -4474,7 +4474,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
@@ -4503,7 +4503,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
@@ -4557,7 +4557,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
@@ -4586,7 +4586,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
@@ -4640,7 +4640,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
@@ -4669,7 +4669,7 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
+				// IMHO, the MimeParser handles this case better...
 				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
 				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
 				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
@@ -6667,7 +6667,7 @@ ABC
 		[Test]
 		public void TestIssue991 ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateIssue991Mbox (out var expectedOffsets)) {
+			using (var memory = MimeParserTests.CreateIssue991Mbox (out var expectedOffsets)) {
 				var parser = new LegacyMimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 
@@ -6684,7 +6684,7 @@ ABC
 		[Test]
 		public async Task TestIssue991Async ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateIssue991Mbox (out var expectedOffsets)) {
+			using (var memory = MimeParserTests.CreateIssue991Mbox (out var expectedOffsets)) {
 				var parser = new LegacyMimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 
@@ -6701,7 +6701,7 @@ ABC
 		[Test]
 		public void TestMboxWithLinesExceedingMaxSmtpLineLength ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
+			using (var memory = MimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
 				var parser = new LegacyMimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 
@@ -6718,7 +6718,7 @@ ABC
 		[Test]
 		public async Task TestMboxWithLinesExceedingMaxSmtpLineLengthAsync ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
+			using (var memory = MimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
 				var parser = new LegacyMimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 

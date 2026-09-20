@@ -33,7 +33,7 @@ namespace UnitTests {
 		static MimeMessage Load (string path)
 		{
 			using (var file = File.OpenRead (path)) {
-				var parser = new LegacyMimeParser (file);
+				var parser = new MimeParser (file);
 				return parser.ParseMessage ();
 			}
 		}

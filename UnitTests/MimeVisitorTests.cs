@@ -43,7 +43,7 @@ namespace UnitTests {
 			int index = 0;
 
 			using (var stream = File.OpenRead (Path.Combine (dataDir, "jwz.mbox.txt"))) {
-				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox);
+				var parser = new MimeParser (stream, MimeFormat.Mbox);
 
 				while (!parser.IsEndOfStream) {
 					var filename = string.Format (CultureInfo.InvariantCulture, "jwz.body.{0}.html", index);

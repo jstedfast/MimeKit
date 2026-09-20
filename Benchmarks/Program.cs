@@ -46,10 +46,10 @@ namespace Benchmarks {
 #endif
 
 #if false
-			// Only run benchmarks for the MimeParser, ExperimentalMimeParser, and MimeReader classes
+			// Only run benchmarks for the MimeParser, LegacyMimeParser, and MimeReader classes
 			config.AddFilter (new DisjunctionFilter (
+				new NameFilter (name => name.StartsWith ("LegacyMimeParser_", StringComparison.Ordinal)),
 				new NameFilter (name => name.StartsWith ("MimeParser_", StringComparison.Ordinal)),
-				new NameFilter (name => name.StartsWith ("ExperimentalMimeParser_", StringComparison.Ordinal)),
 				new NameFilter (name => name.StartsWith ("MimeReader_", StringComparison.Ordinal))
 			));
 #endif

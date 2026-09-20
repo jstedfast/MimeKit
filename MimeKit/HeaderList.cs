@@ -1293,7 +1293,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity);
+			var parser = new MimeParser (options, stream, MimeFormat.Entity);
 
 			return parser.ParseHeaders (cancellationToken);
 		}
@@ -1331,7 +1331,7 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity);
+			var parser = new MimeParser (options, stream, MimeFormat.Entity);
 
 			return parser.ParseHeadersAsync (cancellationToken);
 		}

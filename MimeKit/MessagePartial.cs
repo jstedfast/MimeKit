@@ -470,7 +470,7 @@ namespace MimeKit {
 						chained.Add (content.Open ());
 				}
 
-				var parser = new LegacyMimeParser (options, chained);
+				var parser = new MimeParser (options, chained);
 				var joined = parser.ParseMessage ();
 
 				CombineHeaders (message, joined);

@@ -181,32 +181,32 @@ header parser.
 
 		#endregion LegacyMimeParser
 
-		#region ExperimentalMimeParser
+		#region MimeParser
 
-		static void ExperimentalMimeParserSingleMessage (byte[] data, bool persistent = false)
+		static void MimeParserSingleMessage (byte[] data, bool persistent = false)
 		{
 			using var stream = new MemoryStream (data, false);
-			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
+			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
 			var message = parser.ParseMessage ();
 			message.Dispose ();
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_StarTrekMessage ()
+		public void MimeParser_StarTrekMessage ()
 		{
-			ExperimentalMimeParserSingleMessage (StarTrekData);
+			MimeParserSingleMessage (StarTrekData);
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_StarTrekMessagePersistent ()
+		public void MimeParser_StarTrekMessagePersistent ()
 		{
-			ExperimentalMimeParserSingleMessage (StarTrekData, true);
+			MimeParserSingleMessage (StarTrekData, true);
 		}
 
-		static void ExperimentalMimeParserMboxFile (byte[] data, bool persistent = false)
+		static void MimeParserMboxFile (byte[] data, bool persistent = false)
 		{
 			using var stream = new MemoryStream (data, false);
-			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, persistent);
+			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent);
 
 			while (!parser.IsEndOfStream) {
 				var message = parser.ParseMessage ();
@@ -215,39 +215,39 @@ header parser.
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_ContentLengthMbox ()
+		public void MimeParser_ContentLengthMbox ()
 		{
-			ExperimentalMimeParserMboxFile (ContentLengthMboxData);
+			MimeParserMboxFile (ContentLengthMboxData);
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_ContentLengthMboxPersistent ()
+		public void MimeParser_ContentLengthMboxPersistent ()
 		{
-			ExperimentalMimeParserMboxFile (ContentLengthMboxData, true);
+			MimeParserMboxFile (ContentLengthMboxData, true);
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_JwzMbox ()
+		public void MimeParser_JwzMbox ()
 		{
-			ExperimentalMimeParserMboxFile (JwzMboxData);
+			MimeParserMboxFile (JwzMboxData);
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_JwzMboxPersistent ()
+		public void MimeParser_JwzMboxPersistent ()
 		{
-			ExperimentalMimeParserMboxFile (JwzMboxData, true);
+			MimeParserMboxFile (JwzMboxData, true);
 		}
 
 		[Benchmark]
-		public void ExperimentalMimeParser_HeaderStressTest ()
+		public void MimeParser_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, true);
+			var parser = new MimeParser (stream, MimeFormat.Entity, true);
 			var message = parser.ParseMessage ();
 			message.Dispose ();
 		}
 
-		#endregion ExperimentalMimeParser
+		#endregion MimeParser
 
 		#region MimeReader
 
