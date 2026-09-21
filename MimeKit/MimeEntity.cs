@@ -96,7 +96,7 @@ namespace MimeKit {
 			ContentType = args.ContentType;
 
 			foreach (var header in args.Headers) {
-				if (args.IsTopLevel && !header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+				if (args.IsTopLevel && !header.IsContentHeader)
 					continue;
 
 				Headers.Add (header);

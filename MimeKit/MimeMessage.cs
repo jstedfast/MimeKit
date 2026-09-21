@@ -120,7 +120,7 @@ namespace MimeKit {
 
 			// add all of our message headers...
 			foreach (var header in headers) {
-				if (header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+				if (header.IsContentHeader)
 					continue;
 
 				Headers.Add (header);
@@ -178,7 +178,7 @@ namespace MimeKit {
 				// Just add the headers and let the events (already setup) keep the
 				// addresses in sync.
 				if (obj is Header header) {
-					if (!header.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+					if (!header.IsContentHeader)
 						Headers.Add (header);
 
 					continue;
@@ -186,7 +186,7 @@ namespace MimeKit {
 
 				if (obj is IEnumerable<Header> headers) {
 					foreach (var h in headers) {
-						if (!h.Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase))
+						if (!h.IsContentHeader)
 							Headers.Add (h);
 					}
 
