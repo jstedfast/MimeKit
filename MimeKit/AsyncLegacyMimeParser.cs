@@ -539,7 +539,7 @@ namespace MimeKit {
 
 			state = eos && inputIndex == inputEnd ? MimeParserState.Eos : MimeParserState.Complete;
 
-			var parsed = new HeaderList (options);
+			var parsed = new HeaderList (options, headers.Count);
 			foreach (var header in headers)
 				parsed.Add (header);
 

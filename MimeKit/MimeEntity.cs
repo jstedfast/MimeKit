@@ -92,7 +92,21 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			Headers = new HeaderList (args.ParserOptions);
+			int capacity = 0;
+
+			if (args.IsTopLevel) {
+				// Count the number of Content-* headers so that we can pre-allocate
+				// the HeaderList with the correct capacity.
+				foreach (var header in args.Headers) {
+					if (header.IsContentHeader)
+						capacity++;
+				}
+			} else {
+				// For non-toplevel MimeEntities, we'll be adding every single header.
+				capacity = args.Headers.Count;
+			}
+
+			Headers = new HeaderList (args.ParserOptions, capacity);
 			ContentType = args.ContentType;
 
 			foreach (var header in args.Headers) {

@@ -314,7 +314,7 @@ namespace MimeKit {
 			Volatile.Write (ref CryptographicEntityFactory, factory);
 		}
 
-		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
+		internal MimeEntity CreateEntity (ContentType contentType, List<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
 		{
 			var args = new MimeEntityConstructorArgs (this, contentType, headers, hasBodySeparator, toplevel);
 			var subtype = contentType.MediaSubtype;

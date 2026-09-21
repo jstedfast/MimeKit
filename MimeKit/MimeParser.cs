@@ -890,7 +890,7 @@ namespace MimeKit {
 				return null;
 			}
 
-			var parsed = new HeaderList (Options);
+			var parsed = new HeaderList (Options, headers.Count);
 			foreach (var header in headers)
 				parsed.Add (header);
 
@@ -927,7 +927,7 @@ namespace MimeKit {
 				throw;
 			}
 
-			var parsed = new HeaderList (Options);
+			var parsed = new HeaderList (Options, headers.Count);
 			foreach (var header in headers)
 				parsed.Add (header);
 
@@ -964,7 +964,7 @@ namespace MimeKit {
 				throw;
 			}
 
-			var parsed = new HeaderList (Options);
+			var parsed = new HeaderList (Options, headers.Count);
 			foreach (var header in headers)
 				parsed.Add (header);
 

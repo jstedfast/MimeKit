@@ -56,10 +56,13 @@ namespace MimeKit {
 		// added to (or removed from) the list. This is a meaningful cost when parsing.
 		readonly EventHandler headerChanged;
 
-		internal HeaderList (ParserOptions options)
+		// Note: When the number of headers is known up front (such as when the parser constructs a
+		// MimeMessage or MimeEntity), pre-sizing the table and list avoids several rounds of
+		// re-allocation and re-hashing as the headers are added.
+		internal HeaderList (ParserOptions options, int capacity = 0)
 		{
-			table = new Dictionary<string, Header> (MimeUtils.OrdinalIgnoreCase);
-			headers = new List<Header> ();
+			table = new Dictionary<string, Header> (capacity, MimeUtils.OrdinalIgnoreCase);
+			headers = new List<Header> (capacity);
 			headerChanged = HeaderChanged;
 			HasBodySeparator = true;
 			Options = options;
