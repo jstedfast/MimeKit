@@ -92,7 +92,9 @@ namespace MimeKit {
 			if (args is null)
 				throw new ArgumentNullException (nameof (args));
 
-			Headers = new HeaderList (args.ParserOptions);
+			// For non-toplevel MimeEntities, we'll be adding every single header so we can
+			// pre-allocate the HeaderList to avoid resizing.
+			Headers = new HeaderList (args.ParserOptions, args.IsTopLevel ? 0 : args.Headers.Count);
 			ContentType = args.ContentType;
 
 			foreach (var header in args.Headers) {

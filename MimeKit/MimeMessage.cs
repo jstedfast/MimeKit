@@ -101,7 +101,7 @@ namespace MimeKit {
 		Version? version;
 
 		// Note: this .ctor is used only by the MimeParser/LegacyMimeParser and MimeMessage.CreateFromMailMessage()
-		internal MimeMessage (ParserOptions options, IEnumerable<Header> headers, RfcComplianceMode mode)
+		internal MimeMessage (ParserOptions options, List<Header> headers, RfcComplianceMode mode)
 		{
 			addresses = new Dictionary<HeaderId, InternetAddressList> ();
 			Headers = new HeaderList (options);
