@@ -800,41 +800,6 @@ namespace MimeKit {
 		/// <remarks>
 		/// Called when a multipart boundary is encountered in the stream.
 		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartBoundaryEnd instead.")]
-		protected virtual void OnMultipartBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-		}
-
-		/// <summary>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartBoundaryEndAsync instead.")]
-		protected virtual Task OnMultipartBoundaryAsync (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-			OnMultipartBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
-			return Task.CompletedTask;
-		}
-
-		/// <summary>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </remarks>
 		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -921,41 +886,6 @@ namespace MimeKit {
 		protected virtual Task OnMultipartBoundaryEndAsync (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
 		{
 			OnMultipartBoundaryEnd (beginOffset, lineNumber, endOffset, cancellationToken);
-			return Task.CompletedTask;
-		}
-
-		/// <summary>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartEndBoundaryEnd instead.")]
-		protected virtual void OnMultipartEndBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-		}
-
-		/// <summary>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartEndBoundaryEndAsync instead.")]
-		protected virtual Task OnMultipartEndBoundaryAsync (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-			OnMultipartEndBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
 			return Task.CompletedTask;
 		}
 
@@ -2144,18 +2074,8 @@ namespace MimeKit {
 
 			if (endBoundary) {
 				OnMultipartEndBoundaryEnd (beginOffset, beginLineNumber, endOffset, cancellationToken);
-
-#pragma warning disable 618
-				// Obsolete
-				OnMultipartEndBoundary (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken);
-#pragma warning restore 618
 			} else {
 				OnMultipartBoundaryEnd (beginOffset, beginLineNumber, endOffset, cancellationToken);
-
-#pragma warning disable 618
-				// Obsolete
-				OnMultipartBoundary (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken);
-#pragma warning restore 618
 			}
 
 			return result;

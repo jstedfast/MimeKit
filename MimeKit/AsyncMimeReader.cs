@@ -321,18 +321,8 @@ namespace MimeKit {
 
 			if (endBoundary) {
 				await OnMultipartEndBoundaryEndAsync (beginOffset, beginLineNumber, endOffset, cancellationToken).ConfigureAwait (false);
-
-#pragma warning disable 618
-				// Obsolete
-				await OnMultipartEndBoundaryAsync (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-#pragma warning restore 618
 			} else {
 				await OnMultipartBoundaryEndAsync (beginOffset, beginLineNumber, endOffset, cancellationToken).ConfigureAwait (false);
-
-#pragma warning disable 618
-				// Obsolete
-				await OnMultipartBoundaryAsync (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-#pragma warning restore 618
 			}
 
 			return result;
