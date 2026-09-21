@@ -870,8 +870,13 @@ namespace MimeKit {
 			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
+			// Note: TryAdd avoids hashing/probing the key twice (ContainsKey followed by Add).
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+			table.TryAdd (header.Field, header);
+#else
 			if (!table.ContainsKey (header.Field))
 				table.Add (header.Field, header);
+#endif
 
 			header.Changed += HeaderChanged;
 			headers.Add (header);
