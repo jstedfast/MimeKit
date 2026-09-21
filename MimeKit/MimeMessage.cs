@@ -84,7 +84,10 @@ namespace MimeKit {
 			XPriority       = 1 << 21
 		}
 
-		readonly Dictionary<HeaderId, InternetAddressList> addresses;
+		// Note: The address lists are allocated lazily (see GetAddressList) because most messages never
+		// touch most of them. Eagerly allocating all 10 lists (plus their event handlers) was a
+		// measurable per-message cost when parsing.
+		InternetAddressList?[]? addresses;
 		MessageImportance importance = MessageImportance.Normal;
 		XMessagePriority xpriority = XMessagePriority.Normal;
 		MessagePriority priority = MessagePriority.Normal;
@@ -103,17 +106,9 @@ namespace MimeKit {
 		// Note: this .ctor is used only by the MimeParser/LegacyMimeParser and MimeMessage.CreateFromMailMessage()
 		internal MimeMessage (ParserOptions options, List<Header> headers, RfcComplianceMode mode)
 		{
-			addresses = new Dictionary<HeaderId, InternetAddressList> ();
 			Headers = new HeaderList (options);
 
 			compliance = mode;
-
-			// initialize our address lists
-			foreach (var id in StandardAddressHeaders) {
-				var list = new InternetAddressList ();
-				list.Changed += InternetAddressListChanged;
-				addresses.Add (id, list);
-			}
 
 			references = new MessageIdList ();
 			references.Changed += ReferencesChanged;
@@ -131,17 +126,9 @@ namespace MimeKit {
 
 		internal MimeMessage (ParserOptions options)
 		{
-			addresses = new Dictionary<HeaderId, InternetAddressList> ();
 			Headers = new HeaderList (options);
 
 			compliance = RfcComplianceMode.Strict;
-
-			// initialize our address lists
-			foreach (var id in StandardAddressHeaders) {
-				var list = new InternetAddressList ();
-				list.Changed += InternetAddressListChanged;
-				addresses.Add (id, list);
-			}
 
 			references = new MessageIdList ();
 			references.Changed += ReferencesChanged;
@@ -233,15 +220,8 @@ namespace MimeKit {
 			if (headers is null)
 				throw new ArgumentNullException (nameof (headers));
 
-			addresses = new Dictionary<HeaderId, InternetAddressList> ();
+			addresses = null;
 			compliance = RfcComplianceMode.Strict;
-
-			// initialize our address lists
-			foreach (var id in StandardAddressHeaders) {
-				var list = new InternetAddressList ();
-				list.Changed += InternetAddressListChanged;
-				addresses.Add (id, list);
-			}
 
 			references = new MessageIdList ();
 			references.Changed += ReferencesChanged;
@@ -608,9 +588,34 @@ namespace MimeKit {
 			}
 		}
 
+		static int IndexOfAddressList (HeaderId id)
+		{
+			for (int i = 0; i < StandardAddressHeaders.Length; i++) {
+				if (StandardAddressHeaders[i] == id)
+					return i;
+			}
+
+			return -1;
+		}
+
+		InternetAddressList GetAddressList (HeaderId id)
+		{
+			addresses ??= new InternetAddressList?[StandardAddressHeaders.Length];
+
+			int index = IndexOfAddressList (id);
+
+			if (addresses[index] is not InternetAddressList list) {
+				list = new InternetAddressList ();
+				list.Changed += InternetAddressListChanged;
+				addresses[index] = list;
+			}
+
+			return list;
+		}
+
 		InternetAddressList GetLazyLoadedAddresses (HeaderId id, LazyLoadedFields bit)
 		{
-			var list = addresses[id];
+			var list = GetAddressList (id);
 
 			if ((lazyLoaded & bit) == 0) {
 				for (int i = 0; i < Headers.Count; i++) {
@@ -1852,9 +1857,10 @@ namespace MimeKit {
 
 		void InternetAddressListChanged (InternetAddressList list, EventArgs e)
 		{
-			foreach (var id in StandardAddressHeaders) {
-				if (addresses[id] == list) {
-					SerializeAddressList (id, list);
+			// Note: This handler is only ever attached to lists stored in `addresses`, so it cannot be null here.
+			for (int i = 0; i < addresses!.Length; i++) {
+				if (addresses[i] == list) {
+					SerializeAddressList (StandardAddressHeaders[i], list);
 					break;
 				}
 			}
@@ -1927,27 +1933,32 @@ namespace MimeKit {
 		void HeadersChanged (object? o, HeaderListChangedEventArgs e)
 		{
 			// Note: e.Header is not null if e.Action != Cleared
-			if (e.Action != HeaderListChangedAction.Cleared && addresses.TryGetValue (e.Header!.Id, out var list)) {
-				var bit = GetAddressListLazyLoadField (e.Header.Id);
+			if (e.Action != HeaderListChangedAction.Cleared) {
+				var bit = GetAddressListLazyLoadField (e.Header!.Id);
 
-				if ((lazyLoaded & bit) != 0) {
-					switch (e.Action) {
-					case HeaderListChangedAction.Added:
-						// Note: Only append new addresses of this type if the address list is already lazy-loaded.
-						AddAddresses (e.Header, list);
-						break;
-					case HeaderListChangedAction.Changed:
-					case HeaderListChangedAction.Removed:
-						// Unload the address list if it has already been loaded
-						list.Changed -= InternetAddressListChanged;
-						list.Clear ();
-						list.Changed += InternetAddressListChanged;
-						lazyLoaded &= ~bit;
-						break;
+				if (bit != LazyLoadedFields.None) {
+					// Note: If the bit is set, then the address list has already been materialized.
+					if ((lazyLoaded & bit) != 0) {
+						var list = GetAddressList (e.Header.Id);
+
+						switch (e.Action) {
+						case HeaderListChangedAction.Added:
+							// Note: Only append new addresses of this type if the address list is already lazy-loaded.
+							AddAddresses (e.Header, list);
+							break;
+						case HeaderListChangedAction.Changed:
+						case HeaderListChangedAction.Removed:
+							// Unload the address list if it has already been loaded
+							list.Changed -= InternetAddressListChanged;
+							list.Clear ();
+							list.Changed += InternetAddressListChanged;
+							lazyLoaded &= ~bit;
+							break;
+						}
 					}
-				}
 
-				return;
+					return;
+				}
 			}
 
 			switch (e.Action) {
@@ -2010,10 +2021,15 @@ namespace MimeKit {
 			case HeaderListChangedAction.Cleared:
 				lazyLoaded = LazyLoadedFields.None;
 
-				foreach (var kvp in addresses) {
-					kvp.Value.Changed -= InternetAddressListChanged;
-					kvp.Value.Clear ();
-					kvp.Value.Changed += InternetAddressListChanged;
+				if (addresses != null) {
+					foreach (var list in addresses) {
+						if (list is null)
+							continue;
+
+						list.Changed -= InternetAddressListChanged;
+						list.Clear ();
+						list.Changed += InternetAddressListChanged;
+					}
 				}
 
 				references.Changed -= ReferencesChanged;
