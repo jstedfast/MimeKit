@@ -117,6 +117,38 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get the severity of the MIME compliance violation.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets how much practical harm the violation is likely to cause, assuming the message
+		/// is being transmitted over the network.</para>
+		/// <para>Use <see cref="GetSeverity(MimeComplianceContext)"/> instead if the message was read
+		/// from a local message store, where a few violations are routine and harmless.</para>
+		/// </remarks>
+		/// <value>The severity.</value>
+		public MimeComplianceSeverity Severity {
+			get { return GetSeverity (Violation, MimeComplianceContext.Transport); }
+		}
+
+		/// <summary>
+		/// Get the severity of the MIME compliance violation in a particular context.
+		/// </summary>
+		/// <remarks>
+		/// Gets how much practical harm the violation is likely to cause when the message is used in
+		/// the specified context. Use this instead of <see cref="Severity"/> when the message came
+		/// from a local message store rather than from the network.
+		/// </remarks>
+		/// <returns>The severity.</returns>
+		/// <param name="context">The context that the message is being used in.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="context"/> is not a valid <see cref="MimeComplianceContext"/>.
+		/// </exception>
+		public MimeComplianceSeverity GetSeverity (MimeComplianceContext context)
+		{
+			return GetSeverity (Violation, context);
+		}
+
+		/// <summary>
 		/// Get a brief description of the MIME compliance violation.
 		/// </summary>
 		/// <remarks>
@@ -153,6 +185,114 @@ namespace MimeKit {
 				return string.Format (CultureInfo.InvariantCulture, "{0} at line {1}, column {2} (offset {3})", Violation, LineNumber, ColumnNumber, StreamOffset);
 
 			return string.Format (CultureInfo.InvariantCulture, "{0} at line {1} (offset {2})", Violation, LineNumber, StreamOffset);
+		}
+
+		/// <summary>
+		/// Get the severity of a MIME compliance violation.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets how much practical harm the violation is likely to cause, assuming the message
+		/// is being transmitted over the network.</para>
+		/// <para>Use <see cref="GetSeverity(MimeComplianceViolation,MimeComplianceContext)"/> instead
+		/// if the message was read from a local message store, where a few violations are routine and
+		/// harmless.</para>
+		/// </remarks>
+		/// <returns>The severity.</returns>
+		/// <param name="violation">The MIME compliance violation.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.
+		/// </exception>
+		public static MimeComplianceSeverity GetSeverity (MimeComplianceViolation violation)
+		{
+			return GetSeverity (violation, MimeComplianceContext.Transport);
+		}
+
+		/// <summary>
+		/// Get the severity of a MIME compliance violation in a particular context.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets how much practical harm the violation is likely to cause when the message is
+		/// used in the specified context.</para>
+		/// <para>A handful of violations are requirements of the channel that a message travels over
+		/// rather than of the message itself, and are therefore rated lower in
+		/// <see cref="MimeComplianceContext.Storage"/> than in
+		/// <see cref="MimeComplianceContext.Transport"/>. See <see cref="MimeComplianceContext"/> for
+		/// the complete list. Every other violation is rated the same in both contexts.</para>
+		/// </remarks>
+		/// <returns>The severity.</returns>
+		/// <param name="violation">The MIME compliance violation.</param>
+		/// <param name="context">The context that the message is being used in.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="context"/> is not a valid <see cref="MimeComplianceContext"/>.</para>
+		/// </exception>
+		public static MimeComplianceSeverity GetSeverity (MimeComplianceViolation violation, MimeComplianceContext context)
+		{
+			if (context != MimeComplianceContext.Transport && context != MimeComplianceContext.Storage)
+				throw new ArgumentOutOfRangeException (nameof (context));
+
+			switch (violation) {
+			// Note: These are requirements of the channel rather than of the message itself. On the
+			// wire they are real problems, but messages in a local store (especially on UNIX systems)
+			// routinely exhibit them without any ill effect.
+			case MimeComplianceViolation.BareLinefeedInHeader:
+			case MimeComplianceViolation.BareLinefeedInBody:
+			case MimeComplianceViolation.InvalidWrapping:
+				return context == MimeComplianceContext.Storage ? MimeComplianceSeverity.Minor : MimeComplianceSeverity.Major;
+
+			// Note: 8-bit content is so common that MIME parsers have had to cope with it for
+			// decades by falling back to the locale charset or to iso-8859-1 (MimeKit itself tries
+			// UTF-8, then the user-supplied charset, then iso-8859-1, which cannot fail). It is
+			// therefore no worse on the wire than it is on disk.
+			case MimeComplianceViolation.Unexpected8BitBytesInHeader:
+			case MimeComplianceViolation.Unexpected8BitBytesInBody:
+				return MimeComplianceSeverity.Minor;
+
+			// Note: Duplicate Content-Type and Content-Transfer-Encoding headers and null bytes are
+			// the classic MIME "content smuggling" vectors. In each case, a content scanner and an
+			// end-user's mail client can be made to disagree about the content of the message.
+			case MimeComplianceViolation.MultipleContentTypes:
+			case MimeComplianceViolation.MultipleContentTransferEncodings:
+			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
+			case MimeComplianceViolation.UnexpectedNullBytesInBody:
+				return MimeComplianceSeverity.Critical;
+
+			// Ambiguity or corruption that different MIME parsers may resolve differently.
+			case MimeComplianceViolation.InvalidHeader:
+			case MimeComplianceViolation.IncompleteHeader:
+			case MimeComplianceViolation.InvalidContentType:
+			case MimeComplianceViolation.InvalidContentTransferEncoding:
+			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
+			case MimeComplianceViolation.IllegalMultipartContentTransferEncoding:
+			case MimeComplianceViolation.MissingBodySeparator:
+			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
+			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
+			case MimeComplianceViolation.MissingMultipartBoundary:
+			case MimeComplianceViolation.IncompleteBase64Quantum:
+			case MimeComplianceViolation.InvalidBase64Character:
+			case MimeComplianceViolation.InvalidBase64Padding:
+			case MimeComplianceViolation.Base64CharactersAfterPadding:
+			// Note: The characters making up an RFC 1113 comment are themselves valid base64
+			// characters, so decoders that do not special-case the '*' delimiters (which is nearly
+			// all of them, including MimeKit's own Base64Decoder) silently absorb the comment as
+			// content and corrupt everything that follows it.
+			case MimeComplianceViolation.ObsoleteBase64Comment:
+			case MimeComplianceViolation.InvalidQuotedPrintableEncoding:
+			case MimeComplianceViolation.InvalidQuotedPrintableSoftBreak:
+			case MimeComplianceViolation.InvalidUUEncodePretext:
+			case MimeComplianceViolation.InvalidUUEncodeFileMode:
+			case MimeComplianceViolation.InvalidUUEncodedContent:
+			case MimeComplianceViolation.InvalidUUEncodedLineLength:
+			case MimeComplianceViolation.IncompleteUUEncodedLine:
+			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
+			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
+			case MimeComplianceViolation.IncompleteUUEncodedContent:
+				return MimeComplianceSeverity.Major;
+
+			default:
+				throw new ArgumentOutOfRangeException (nameof (violation));
+			}
 		}
 
 		/// <summary>
