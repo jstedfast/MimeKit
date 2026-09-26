@@ -115,7 +115,7 @@ namespace MimeKit.Encodings {
 						state = QpValidatorState.PassThrough;
 						lineNumber++;
 					} else {
-						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber));
 						state = QpValidatorState.PassThrough;
 					}
 
@@ -126,7 +126,7 @@ namespace MimeKit.Encodings {
 						lineNumber++;
 						inptr++;
 					} else {
-						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber);
+						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber));
 					}
 
 					state = QpValidatorState.PassThrough;
@@ -135,7 +135,7 @@ namespace MimeKit.Encodings {
 					c = *inptr;
 
 					if (!c.IsXDigit ()) {
-						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber));
 
 						if (c == '\n')
 							lineNumber++;
@@ -185,9 +185,9 @@ namespace MimeKit.Encodings {
 		{
 			// Note: the only valid state to end on is the pass-through state.
 			if (state == QpValidatorState.EqualSign || state == QpValidatorState.DecodeByte)
-				logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber);
+				logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber));
 			else if (state == QpValidatorState.SoftBreak)
-				logger.Log (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber);
+				logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber));
 		}
 	}
 }

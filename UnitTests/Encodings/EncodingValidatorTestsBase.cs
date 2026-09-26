@@ -41,7 +41,7 @@ namespace UnitTests.Encodings {
 
 		class NullComplianceLogger : IMimeComplianceLogger
 		{
-			public void Log (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber = -1)
+			public void Log (in MimeComplianceIssue issue)
 			{
 			}
 		}

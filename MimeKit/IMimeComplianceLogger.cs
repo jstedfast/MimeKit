@@ -41,10 +41,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// Logs a MIME compliance violation.
 		/// </remarks>
-		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
-		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
-		/// <param name="lineNumber">The line number within the MIME message where the violation was found.</param>
-		/// <param name="columnNumber">The column number within the MIME message where the violation was found.</param>
-		void Log (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber = -1);
+		/// <param name="issue">The MIME compliance issue that was detected.</param>
+		void Log (in MimeComplianceIssue issue);
 	}
 }

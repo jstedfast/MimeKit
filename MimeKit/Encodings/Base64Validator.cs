@@ -97,16 +97,16 @@ namespace MimeKit.Encodings {
 							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
 							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
 							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
-							logger.Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber);
+							logger.Log (new MimeComplianceIssue (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber));
 						} else if (!c.IsWhitespace ()) {
 							// This is an invalid base64 character.
-							logger.Log (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber);
+							logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber));
 						}
 					} else if (c == (byte) '=') {
 						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
 						if (total % 4 < 2) {
 							// Padding is only valid in the last 2 positions of the final quantum.
-							logger.Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+							logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber));
 							invalid = true;
 							return;
 						}
@@ -133,12 +133,12 @@ namespace MimeKit.Encodings {
 					total++;
 
 					if (padding > 2) {
-						logger.Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber);
+						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber));
 						invalid = true;
 						break;
 					}
 				} else if (!c.IsWhitespace ()) {
-					logger.Log (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber);
+					logger.Log (new MimeComplianceIssue (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber));
 					invalid = true;
 					break;
 				}
@@ -186,7 +186,7 @@ namespace MimeKit.Encodings {
 		public void Flush ()
 		{
 			if (!invalid && total % 4 != 0)
-				logger.Log (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber);
+				logger.Log (new MimeComplianceIssue (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber));
 		}
 	}
 }
