@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeComplianceIssue.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -149,6 +149,19 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get the categories of harm that the MIME compliance violation may cause.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets what kind of harm the violation may cause, as opposed to <see cref="Severity"/>,
+		/// which rates how much.</para>
+		/// <para>A violation may fall into more than one category, so this is a bit field.</para>
+		/// </remarks>
+		/// <value>The categories.</value>
+		public MimeComplianceCategories Categories {
+			get { return GetCategories (Violation); }
+		}
+
+		/// <summary>
 		/// Get a brief description of the MIME compliance violation.
 		/// </summary>
 		/// <remarks>
@@ -289,6 +302,148 @@ namespace MimeKit {
 			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
 				return MimeComplianceSeverity.Major;
+
+			default:
+				throw new ArgumentOutOfRangeException (nameof (violation));
+			}
+		}
+
+		/// <summary>
+		/// Get the categories of harm that a MIME compliance violation may cause.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets what kind of harm the violation may cause, as opposed to
+		/// <see cref="GetSeverity(MimeComplianceViolation)"/>, which rates how much.</para>
+		/// <para>A violation may fall into more than one category, so this is a bit field.</para>
+		/// </remarks>
+		/// <returns>The categories.</returns>
+		/// <param name="violation">The MIME compliance violation.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.
+		/// </exception>
+		public static MimeComplianceCategories GetCategories (MimeComplianceViolation violation)
+		{
+			const MimeComplianceCategories Cosmetic = MimeComplianceCategories.Cosmetic;
+			const MimeComplianceCategories Interop = MimeComplianceCategories.Interoperability;
+			const MimeComplianceCategories DataLoss = MimeComplianceCategories.DataLoss;
+			const MimeComplianceCategories Security = MimeComplianceCategories.Security;
+
+			switch (violation) {
+			// Note: A bare linefeed is the basis of SMTP smuggling. A sender and a receiver that
+			// disagree about whether a bare linefeed terminates a line can be made to disagree about
+			// where one message ends and the next begins.
+			case MimeComplianceViolation.BareLinefeedInHeader:
+			case MimeComplianceViolation.BareLinefeedInBody:
+				return Interop | Security;
+
+			// Note: A malformed header may be treated as a header by one parser and as the start of
+			// the body (or as a continuation of the previous header) by another.
+			case MimeComplianceViolation.InvalidHeader:
+				return Interop | Security;
+
+			// Note: A truncated header is unlikely to be interpreted differently by different
+			// parsers, but whatever it was meant to say has been lost.
+			case MimeComplianceViolation.IncompleteHeader:
+				return Interop;
+
+			// Note: When the Content-Type cannot be parsed, parsers fall back to different defaults,
+			// which is a classic way of getting a scanner to skip content that a client will render.
+			case MimeComplianceViolation.InvalidContentType:
+			case MimeComplianceViolation.MultipleContentTypes:
+				return Interop | Security;
+
+			// Note: As above, but an unrecognized or duplicated encoding also means the content may
+			// be decoded incorrectly (or not at all), so content can be lost as well.
+			case MimeComplianceViolation.InvalidContentTransferEncoding:
+			case MimeComplianceViolation.MultipleContentTransferEncodings:
+				return Interop | DataLoss | Security;
+
+			// Note: Encoding a message/rfc822 or multipart body part hides its internal structure
+			// from any scanner that does not decode it, which is a well-known evasion technique.
+			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
+			case MimeComplianceViolation.IllegalMultipartContentTransferEncoding:
+				return Interop | Security;
+
+			// Note: An over-long line may be folded or truncated in transit, which alters the content.
+			case MimeComplianceViolation.InvalidWrapping:
+				return Interop | DataLoss;
+
+			// Note: Without a blank line, parsers disagree about where the headers stop and the body
+			// starts, so the same bytes can be read as either.
+			case MimeComplianceViolation.MissingBodySeparator:
+				return Interop | Security;
+
+			// Note: Without a usable boundary, the body parts cannot be separated and are likely to
+			// be presented as a single blob of text instead.
+			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
+			case MimeComplianceViolation.MissingMultipartBoundary:
+				return Interop | DataLoss;
+
+			// Note: A boundary that needed to be repaired may be repaired differently elsewhere,
+			// which changes which bytes belong to which part.
+			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
+				return Interop | DataLoss | Security;
+
+			// Note: Unencoded 8-bit bytes carry no charset information, so the text is decoded by
+			// guesswork and may be mangled. Parsers have coped with this for decades, so it is not
+			// much of an interoperability problem in practice.
+			case MimeComplianceViolation.Unexpected8BitBytesInHeader:
+			case MimeComplianceViolation.Unexpected8BitBytesInBody:
+				return Interop | DataLoss;
+
+			// Note: Software written in C or C++ treats a null byte as the end of a string, so a null
+			// byte can be used to hide everything after it from one program but not from another.
+			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
+			case MimeComplianceViolation.UnexpectedNullBytesInBody:
+				return Interop | Security;
+
+			// Note: The bits in an incomplete quantum cannot be recovered.
+			case MimeComplianceViolation.IncompleteBase64Quantum:
+			case MimeComplianceViolation.InvalidBase64Padding:
+				return DataLoss;
+
+			// Note: Decoders disagree about whether to skip an invalid character or to stop, so they
+			// can derive different content from the same bytes.
+			case MimeComplianceViolation.InvalidBase64Character:
+				return DataLoss | Security;
+
+			// Note: A decoder that stops at the padding and one that keeps going will produce
+			// different content, so data can be hidden after the padding.
+			case MimeComplianceViolation.Base64CharactersAfterPadding:
+				return DataLoss | Security;
+
+			// Note: The letters inside an RFC 1113 comment are themselves valid base64 characters, so
+			// a decoder that does not recognize the comment absorbs them as data and silently
+			// corrupts everything that follows.
+			case MimeComplianceViolation.ObsoleteBase64Comment:
+				return DataLoss | Security;
+
+			// Note: Malformed quoted-printable is repaired differently by different decoders.
+			case MimeComplianceViolation.InvalidQuotedPrintableEncoding:
+			case MimeComplianceViolation.InvalidQuotedPrintableSoftBreak:
+				return DataLoss;
+
+			// Note: The uuencode header is only used to locate the start of the encoded content and
+			// to name the file. Getting it wrong does not corrupt the content itself.
+			case MimeComplianceViolation.InvalidUUEncodePretext:
+			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
+				return Interop;
+
+			// Note: The file mode is advisory and is ignored by most software.
+			case MimeComplianceViolation.InvalidUUEncodeFileMode:
+			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
+				return Cosmetic;
+
+			// Note: Content that cannot be decoded is content that is lost.
+			case MimeComplianceViolation.InvalidUUEncodedContent:
+			case MimeComplianceViolation.IncompleteUUEncodedContent:
+				return DataLoss;
+
+			// Note: A line whose length does not match its length character is ambiguous; decoders
+			// disagree about whether to trust the character or the line.
+			case MimeComplianceViolation.InvalidUUEncodedLineLength:
+			case MimeComplianceViolation.IncompleteUUEncodedLine:
+				return DataLoss;
 
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
