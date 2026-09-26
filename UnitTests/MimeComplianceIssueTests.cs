@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeComplianceIssueTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -225,6 +225,132 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEveryViolationHasACategory ()
+		{
+			// Note: This guards against a new MimeComplianceViolation being added without a
+			// corresponding entry in MimeComplianceIssue.GetCategories().
+			const MimeComplianceCategories all = MimeComplianceCategories.Cosmetic | MimeComplianceCategories.Interoperability |
+				MimeComplianceCategories.DataLoss | MimeComplianceCategories.Security;
+
+			foreach (var violation in AllViolations) {
+				var categories = MimeComplianceIssue.GetCategories (violation);
+
+				Assert.That (categories, Is.Not.EqualTo (MimeComplianceCategories.None), $"{violation} has no category.");
+				Assert.That (categories & ~all, Is.EqualTo (MimeComplianceCategories.None), $"{violation} has an undefined category bit.");
+			}
+		}
+
+		[Test]
+		public void TestEveryCategoryIsUsed ()
+		{
+			// Note: A category that no violation maps to is dead weight in the public API.
+			foreach (var category in Enum.GetValues<MimeComplianceCategories> ()) {
+				if (category == MimeComplianceCategories.None)
+					continue;
+
+				Assert.That (AllViolations.Any (v => (MimeComplianceIssue.GetCategories (v) & category) != 0), Is.True, $"No violation is categorized as {category}.");
+			}
+		}
+
+		[Test]
+		public void TestCosmeticIsMutuallyExclusive ()
+		{
+			// Note: Cosmetic means "no practical consequence", so it cannot coexist with a category
+			// that describes a practical consequence. Without this, it is tempting to read Cosmetic
+			// as "is a syntax error" and tag it onto violations that do real harm.
+			const MimeComplianceCategories harmful = MimeComplianceCategories.Interoperability |
+				MimeComplianceCategories.DataLoss | MimeComplianceCategories.Security;
+
+			foreach (var violation in AllViolations) {
+				var categories = MimeComplianceIssue.GetCategories (violation);
+
+				if ((categories & MimeComplianceCategories.Cosmetic) == 0)
+					continue;
+
+				Assert.That (categories & harmful, Is.EqualTo (MimeComplianceCategories.None), $"{violation} is Cosmetic but also causes practical harm.");
+			}
+		}
+
+		[Test]
+		public void TestCategoryAssignments ()
+		{
+			// Note: These are deliberate judgement calls, pinned so that any future re-categorization
+			// is a conscious decision rather than an accident.
+			const MimeComplianceCategories Cosmetic = MimeComplianceCategories.Cosmetic;
+			const MimeComplianceCategories Interop = MimeComplianceCategories.Interoperability;
+			const MimeComplianceCategories DataLoss = MimeComplianceCategories.DataLoss;
+			const MimeComplianceCategories Security = MimeComplianceCategories.Security;
+
+			var expected = new Dictionary<MimeComplianceViolation, MimeComplianceCategories> {
+				{ MimeComplianceViolation.BareLinefeedInHeader, Interop | Security },
+				{ MimeComplianceViolation.BareLinefeedInBody, Interop | Security },
+				{ MimeComplianceViolation.InvalidHeader, Interop | Security },
+				{ MimeComplianceViolation.IncompleteHeader, Interop },
+				{ MimeComplianceViolation.InvalidContentType, Interop | Security },
+				{ MimeComplianceViolation.MultipleContentTypes, Interop | Security },
+				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
+				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },
+				{ MimeComplianceViolation.MultipleContentTransferEncodings, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.InvalidWrapping, Interop | DataLoss },
+				{ MimeComplianceViolation.MissingBodySeparator, Interop | Security },
+				{ MimeComplianceViolation.MissingMultipartBoundaryParameter, Interop | DataLoss },
+				{ MimeComplianceViolation.InvalidMultipartBoundaryParameter, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.MissingMultipartBoundary, Interop | DataLoss },
+				{ MimeComplianceViolation.Unexpected8BitBytesInHeader, Interop | DataLoss },
+				{ MimeComplianceViolation.Unexpected8BitBytesInBody, Interop | DataLoss },
+				{ MimeComplianceViolation.UnexpectedNullBytesInHeader, Interop | Security },
+				{ MimeComplianceViolation.UnexpectedNullBytesInBody, Interop | Security },
+				{ MimeComplianceViolation.IncompleteBase64Quantum, DataLoss },
+				{ MimeComplianceViolation.InvalidBase64Character, DataLoss | Security },
+				{ MimeComplianceViolation.InvalidBase64Padding, DataLoss },
+				{ MimeComplianceViolation.Base64CharactersAfterPadding, DataLoss | Security },
+				{ MimeComplianceViolation.ObsoleteBase64Comment, DataLoss | Security },
+				{ MimeComplianceViolation.InvalidQuotedPrintableEncoding, DataLoss },
+				{ MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, DataLoss },
+				{ MimeComplianceViolation.InvalidUUEncodePretext, Interop },
+				{ MimeComplianceViolation.InvalidUUEncodeFileMode, Cosmetic },
+				{ MimeComplianceViolation.InvalidUUEncodedContent, DataLoss },
+				{ MimeComplianceViolation.InvalidUUEncodedLineLength, DataLoss },
+				{ MimeComplianceViolation.IncompleteUUEncodedLine, DataLoss },
+				{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, Cosmetic },
+				{ MimeComplianceViolation.InvalidUUEncodeEndMarker, Interop },
+				{ MimeComplianceViolation.IncompleteUUEncodedContent, DataLoss }
+			};
+
+			foreach (var violation in AllViolations) {
+				Assert.That (expected.ContainsKey (violation), Is.True, $"{violation} is missing from the expected category table.");
+				Assert.That (MimeComplianceIssue.GetCategories (violation), Is.EqualTo (expected[violation]), $"{violation}");
+			}
+		}
+
+		[Test]
+		public void TestCriticalViolationsAreAllSecurityIssues ()
+		{
+			// Note: The Critical rating exists because of content smuggling, so the two axes must
+			// agree about which violations that applies to.
+			foreach (var violation in AllViolations) {
+				if (MimeComplianceIssue.GetSeverity (violation) != MimeComplianceSeverity.Critical)
+					continue;
+
+				Assert.That (MimeComplianceIssue.GetCategories (violation) & MimeComplianceCategories.Security, Is.EqualTo (MimeComplianceCategories.Security), $"{violation} is Critical but is not categorized as a Security issue.");
+			}
+		}
+
+		[Test]
+		public void TestPurelyCosmeticViolationsAreNotCritical ()
+		{
+			// Note: A violation that loses no content, breaks no interoperability and enables no
+			// evasion cannot reasonably be Critical.
+			foreach (var violation in AllViolations) {
+				if (MimeComplianceIssue.GetCategories (violation) != MimeComplianceCategories.Cosmetic)
+					continue;
+
+				Assert.That (MimeComplianceIssue.GetSeverity (violation), Is.LessThan (MimeComplianceSeverity.Critical), $"{violation} is purely cosmetic but is rated Critical.");
+			}
+		}
+
+		[Test]
 		public void TestGetDescriptionAndGetRemarksThrowOnInvalidViolation ()
 		{
 			var invalid = (MimeComplianceViolation) 9999;
@@ -232,6 +358,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetDescription (invalid));
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetRemarks (invalid));
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetSeverity (invalid));
+			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetCategories (invalid));
 		}
 
 		[Test]
@@ -247,6 +374,7 @@ namespace UnitTests {
 				Assert.That (issue.Description, Is.EqualTo (MimeComplianceIssue.GetDescription (violation)));
 				Assert.That (issue.Remarks, Is.EqualTo (MimeComplianceIssue.GetRemarks (violation)));
 				Assert.That (issue.Severity, Is.EqualTo (MimeComplianceIssue.GetSeverity (violation)));
+				Assert.That (issue.Categories, Is.EqualTo (MimeComplianceIssue.GetCategories (violation)));
 			}
 		}
 
