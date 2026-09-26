@@ -38,8 +38,6 @@ namespace MimeKit.Utils {
 	{
 #if NETCOREAPP
 		const ulong XorPowerOfTwoToHighByte = (0x07ul | 0x06ul << 8 | 0x05ul << 16 | 0x04ul << 24 | 0x03ul << 32 | 0x02ul << 40 | 0x01ul << 48) + 1;
-		static readonly Vector256<byte> Avx2HighBits = Vector256.Create ((byte) 0x80);
-		static readonly Vector128<byte> Sse2HighBits = Vector128.Create ((byte) 0x80);
 		static readonly Vector<byte> VectorHighBits = new Vector<byte> (0x80);
 		static readonly Vector256<byte> Avx2Zero = Vector256<byte>.Zero;
 		static readonly Vector128<byte> Sse2Zero = Vector128<byte>.Zero;
@@ -146,8 +144,7 @@ namespace MimeKit.Utils {
 
 						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
-							result = Sse2.And (search, Sse2HighBits);
-							if (Sse2.MoveMask (result) != 0) {
+							if (Sse2.MoveMask (search) != 0) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
 								detected |= ByteDetectionResults.Detected8Bit;
 								options &= ~ByteDetectionOptions.Detect8Bit;
@@ -175,8 +172,7 @@ namespace MimeKit.Utils {
 
 						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
-							result = Sse2.And (search, Sse2HighBits);
-							matches = Sse2.MoveMask (result);
+							matches = Sse2.MoveMask (search);
 
 							// Find the index of first byte with the high bit set.
 							int bitIndex = BitOperations.TrailingZeroCount (matches);
@@ -216,8 +212,7 @@ namespace MimeKit.Utils {
 
 							if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 								// Check if any of the bytes in the vector have their high bit set.
-								result = Avx2.And (search, Avx2HighBits);
-								if (Avx2.MoveMask (result) != 0) {
+								if (Avx2.MoveMask (search) != 0) {
 									// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
 									detected |= ByteDetectionResults.Detected8Bit;
 									options &= ~ByteDetectionOptions.Detect8Bit;
@@ -248,8 +243,7 @@ namespace MimeKit.Utils {
 
 						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
-							result = Avx2.And (search, Avx2HighBits);
-							matches = Avx2.MoveMask (result);
+							matches = Avx2.MoveMask (search);
 
 							// Find the index of first byte with the high bit set.
 							int bitIndex = BitOperations.TrailingZeroCount (matches);
@@ -287,8 +281,7 @@ namespace MimeKit.Utils {
 
 						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
-							result = Sse2.And (search, Sse2HighBits);
-							if (Sse2.MoveMask (result) != 0) {
+							if (Sse2.MoveMask (search) != 0) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
 								detected |= ByteDetectionResults.Detected8Bit;
 								options &= ~ByteDetectionOptions.Detect8Bit;
@@ -317,8 +310,7 @@ namespace MimeKit.Utils {
 
 						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
-							result = Sse2.And (search, Sse2HighBits);
-							matches = Sse2.MoveMask (result);
+							matches = Sse2.MoveMask (search);
 
 							// Find the index of first byte with the high bit set.
 							int bitIndex = BitOperations.TrailingZeroCount (matches);
@@ -397,8 +389,7 @@ namespace MimeKit.Utils {
 
 						if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 							// Check if any of the bytes in the vector have their high bit set.
-							result = Sse2.And (search, Sse2HighBits);
-							if (Sse2.MoveMask (result) != 0) {
+							if (Sse2.MoveMask (search) != 0) {
 								// We found some 8-bit characters, so set the detected flag and disable further 8-bit detection.
 								detected |= ByteDetectionResults.Detected8Bit;
 								options &= ~ByteDetectionOptions.Detect8Bit;
@@ -429,8 +420,7 @@ namespace MimeKit.Utils {
 
 					if ((options & ByteDetectionOptions.Detect8Bit) != 0) {
 						// Check if any of the bytes in the vector have their high bit set.
-						result = Sse2.And (search, Sse2HighBits);
-						matches = Sse2.MoveMask (result);
+						matches = Sse2.MoveMask (search);
 
 						// Find the index of first byte with the high bit set.
 						int bitIndex = BitOperations.TrailingZeroCount (matches);
