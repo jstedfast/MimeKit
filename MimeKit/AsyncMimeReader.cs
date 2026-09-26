@@ -515,7 +515,7 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			entityType = GetEntityType (type, currentEncoding, depth);
+			entityType = GetEntityType (type, currentEncoding, depth + 1);
 
 			switch (entityType) {
 			case MimeEntityType.Multipart:
@@ -593,7 +593,7 @@ namespace MimeKit {
 				MimeEntityType entityType;
 				int lines;
 
-				entityType = GetEntityType (type, currentEncoding, depth);
+				entityType = GetEntityType (type, currentEncoding, depth + 1);
 
 				switch (entityType) {
 				case MimeEntityType.Multipart:
