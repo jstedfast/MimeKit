@@ -24,7 +24,10 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
+
 using MimeKit;
+using MimeKit.Encodings;
 
 namespace UnitTests {
 	[TestFixture]
@@ -73,12 +76,162 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEveryViolationHasASeverity ()
+		{
+			// Note: This guards against a new MimeComplianceViolation being added without a
+			// corresponding entry in MimeComplianceIssue.GetSeverity().
+			foreach (var violation in AllViolations) {
+				foreach (var context in Enum.GetValues<MimeComplianceContext> ()) {
+					var severity = MimeComplianceIssue.GetSeverity (violation, context);
+
+					Assert.That (Enum.IsDefined (severity), Is.True, $"{violation} has an undefined severity in {context}.");
+				}
+			}
+		}
+
+		[Test]
+		public void TestSeverityAssignments ()
+		{
+			// Note: These are deliberate judgement calls, pinned so that any future re-rating is a
+			// conscious decision rather than an accident.
+
+			// Note: These are requirements of the channel rather than of the message itself, so they
+			// are only Minor when the message came from a local message store.
+			var channelOnly = new [] {
+				MimeComplianceViolation.BareLinefeedInHeader,
+				MimeComplianceViolation.BareLinefeedInBody,
+				MimeComplianceViolation.InvalidWrapping
+			};
+
+			// Note: 8-bit content is universally tolerated via charset fallback, so it is Minor in
+			// both contexts.
+			var minor = new [] {
+				MimeComplianceViolation.Unexpected8BitBytesInHeader,
+				MimeComplianceViolation.Unexpected8BitBytesInBody
+			};
+
+			// Note: These are the classic MIME content-smuggling vectors.
+			var critical = new [] {
+				MimeComplianceViolation.MultipleContentTypes,
+				MimeComplianceViolation.MultipleContentTransferEncodings,
+				MimeComplianceViolation.UnexpectedNullBytesInHeader,
+				MimeComplianceViolation.UnexpectedNullBytesInBody
+			};
+
+			foreach (var violation in channelOnly) {
+				Assert.That (MimeComplianceIssue.GetSeverity (violation, MimeComplianceContext.Transport), Is.EqualTo (MimeComplianceSeverity.Major), $"{violation} (Transport)");
+				Assert.That (MimeComplianceIssue.GetSeverity (violation, MimeComplianceContext.Storage), Is.EqualTo (MimeComplianceSeverity.Minor), $"{violation} (Storage)");
+			}
+
+			foreach (var violation in minor)
+				Assert.That (MimeComplianceIssue.GetSeverity (violation), Is.EqualTo (MimeComplianceSeverity.Minor), $"{violation}");
+
+			foreach (var violation in critical)
+				Assert.That (MimeComplianceIssue.GetSeverity (violation), Is.EqualTo (MimeComplianceSeverity.Critical), $"{violation}");
+
+			foreach (var violation in AllViolations) {
+				if (channelOnly.Contains (violation) || minor.Contains (violation) || critical.Contains (violation))
+					continue;
+
+				Assert.That (MimeComplianceIssue.GetSeverity (violation), Is.EqualTo (MimeComplianceSeverity.Major), $"{violation}");
+			}
+		}
+
+		[Test]
+		public void TestOnlyChannelViolationsAreContextDependent ()
+		{
+			// Note: Guards against a new violation being given a context-dependent severity without
+			// MimeComplianceContext's documentation (which enumerates them) being updated to match.
+			var expected = new [] {
+				MimeComplianceViolation.BareLinefeedInHeader,
+				MimeComplianceViolation.BareLinefeedInBody,
+				MimeComplianceViolation.InvalidWrapping
+			};
+
+			var actual = AllViolations.Where (violation =>
+				MimeComplianceIssue.GetSeverity (violation, MimeComplianceContext.Transport) !=
+				MimeComplianceIssue.GetSeverity (violation, MimeComplianceContext.Storage)).ToArray ();
+
+			Assert.That (actual, Is.EquivalentTo (expected));
+		}
+
+		[Test]
+		public void TestStorageIsNeverStricterThanTransport ()
+		{
+			foreach (var violation in AllViolations) {
+				var transport = MimeComplianceIssue.GetSeverity (violation, MimeComplianceContext.Transport);
+				var storage = MimeComplianceIssue.GetSeverity (violation, MimeComplianceContext.Storage);
+
+				Assert.That (storage, Is.LessThanOrEqualTo (transport), $"{violation}");
+			}
+		}
+
+		[Test]
+		public void TestGetSeverityThrowsOnInvalidContext ()
+		{
+			var invalid = (MimeComplianceContext) 9999;
+			var issue = new MimeComplianceIssue (MimeComplianceViolation.BareLinefeedInHeader, 0, 1);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetSeverity (MimeComplianceViolation.BareLinefeedInHeader, invalid));
+			Assert.Throws<ArgumentOutOfRangeException> (() => issue.GetSeverity (invalid));
+		}
+
+		[Test]
+		public void TestInstanceGetSeverityMatchesStatic ()
+		{
+			foreach (var violation in AllViolations) {
+				var issue = new MimeComplianceIssue (violation, 0, 1);
+
+				foreach (var context in Enum.GetValues<MimeComplianceContext> ())
+					Assert.That (issue.GetSeverity (context), Is.EqualTo (MimeComplianceIssue.GetSeverity (violation, context)), $"{violation} ({context})");
+
+				Assert.That (issue.Severity, Is.EqualTo (issue.GetSeverity (MimeComplianceContext.Transport)), $"{violation}");
+			}
+		}
+
+		[Test]
+		public void TestObsoleteBase64CommentIsNotMerelyCosmetic ()
+		{
+			// Note: The characters making up an RFC 1113 comment are themselves valid base64
+			// characters, so MimeKit's own decoder absorbs the comment as content rather than
+			// skipping it, corrupting everything that follows. This is why the violation is rated
+			// Major rather than Minor.
+			const string expected = "This is the plain text message!";
+			var clean = Encoding.ASCII.GetBytes ("VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ==");
+			var commented = Encoding.ASCII.GetBytes ("VGhpcyBpcyB0*comment*aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ==");
+
+			Assert.That (Decode (clean), Is.EqualTo (expected), "The control input should decode correctly.");
+			Assert.That (Decode (commented), Is.Not.EqualTo (expected), "An RFC 1113 comment should corrupt the decoded content.");
+
+			Assert.That (MimeComplianceIssue.GetSeverity (MimeComplianceViolation.ObsoleteBase64Comment), Is.EqualTo (MimeComplianceSeverity.Major));
+
+			static string Decode (byte[] input)
+			{
+				var decoder = new Base64Decoder ();
+				var output = new byte[decoder.EstimateOutputLength (input.Length)];
+				int n = decoder.Decode (input, 0, input.Length, output);
+
+				return Encoding.ASCII.GetString (output, 0, n);
+			}
+		}
+
+		[Test]
+		public void TestSeveritiesAreOrderedByIncreasingSeriousness ()
+		{
+			// Note: Callers are documented as being able to write `severity >= Major`, so the
+			// numeric ordering is part of the public contract.
+			Assert.That (MimeComplianceSeverity.Minor, Is.LessThan (MimeComplianceSeverity.Major));
+			Assert.That (MimeComplianceSeverity.Major, Is.LessThan (MimeComplianceSeverity.Critical));
+		}
+
+		[Test]
 		public void TestGetDescriptionAndGetRemarksThrowOnInvalidViolation ()
 		{
 			var invalid = (MimeComplianceViolation) 9999;
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetDescription (invalid));
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetRemarks (invalid));
+			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetSeverity (invalid));
 		}
 
 		[Test]
@@ -93,6 +246,7 @@ namespace UnitTests {
 				Assert.That (issue.ColumnNumber, Is.EqualTo (0), "ColumnNumber should default to 0 (unknown).");
 				Assert.That (issue.Description, Is.EqualTo (MimeComplianceIssue.GetDescription (violation)));
 				Assert.That (issue.Remarks, Is.EqualTo (MimeComplianceIssue.GetRemarks (violation)));
+				Assert.That (issue.Severity, Is.EqualTo (MimeComplianceIssue.GetSeverity (violation)));
 			}
 		}
 
