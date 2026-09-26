@@ -6448,6 +6448,92 @@ This is the message body.
 			}
 		}
 
+		static string GetEntityTreeSummary (MimeMessage message)
+		{
+			var builder = new StringBuilder ();
+
+			using (var iter = new MimeIterator (message)) {
+				while (iter.MoveNext ())
+					builder.Append ($"[{iter.Depth}:{iter.Current.GetType ().Name}]");
+			}
+
+			return builder.ToString ();
+		}
+
+		// Note: MimeReader.GetEntityType() and ParserOptions.CreateEntity() must apply the exact same
+		// comparison against MaxMimeDepth. When they disagree, ExperimentalMimeParser casts the entity
+		// returned by CreateEntity() to the type implied by whichever On*Begin() callback fired and
+		// throws an InvalidCastException. The TestDeeplyNested* tests only probe MaxMimeDepth values of
+		// maxDepth and maxDepth - 1, so they cannot catch an off-by-one; these sweep MaxMimeDepth across
+		// the entire truncation boundary and assert that both parsers produce identical trees.
+		[TestCase (true, TestName = "TestMaxMimeDepthMatchesMimeParser(multipart)")]
+		[TestCase (false, TestName = "TestMaxMimeDepthMatchesMimeParser(message/rfc822)")]
+		public void TestMaxMimeDepthMatchesMimeParser (bool multipart)
+		{
+			const int nesting = 5;
+
+			var messageData = multipart
+				? GenerateDeeplyNestedMultipartMessage (nesting)
+				: GenerateDeeplyNestedRfc822Message (nesting);
+
+			for (int maxMimeDepth = 0; maxMimeDepth <= nesting + 2; maxMimeDepth++) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxMimeDepth;
+
+				string expected, actual;
+
+				using (var stream = new MemoryStream (messageData, false)) {
+					var parser = new MimeParser (options, stream, MimeFormat.Entity);
+					using var message = parser.ParseMessage ();
+
+					expected = GetEntityTreeSummary (message);
+				}
+
+				using (var stream = new MemoryStream (messageData, false)) {
+					var parser = new ExperimentalMimeParser (options, stream, MimeFormat.Entity);
+					using var message = parser.ParseMessage ();
+
+					actual = GetEntityTreeSummary (message);
+				}
+
+				Assert.That (actual, Is.EqualTo (expected), $"ExperimentalMimeParser did not match MimeParser at MaxMimeDepth={maxMimeDepth}.");
+			}
+		}
+
+		[TestCase (true, TestName = "TestMaxMimeDepthMatchesMimeParserAsync(multipart)")]
+		[TestCase (false, TestName = "TestMaxMimeDepthMatchesMimeParserAsync(message/rfc822)")]
+		public async Task TestMaxMimeDepthMatchesMimeParserAsync (bool multipart)
+		{
+			const int nesting = 5;
+
+			var messageData = multipart
+				? GenerateDeeplyNestedMultipartMessage (nesting)
+				: GenerateDeeplyNestedRfc822Message (nesting);
+
+			for (int maxMimeDepth = 0; maxMimeDepth <= nesting + 2; maxMimeDepth++) {
+				var options = ParserOptions.Default.Clone ();
+				options.MaxMimeDepth = maxMimeDepth;
+
+				string expected, actual;
+
+				using (var stream = new MemoryStream (messageData, false)) {
+					var parser = new MimeParser (options, stream, MimeFormat.Entity);
+					using var message = await parser.ParseMessageAsync ();
+
+					expected = GetEntityTreeSummary (message);
+				}
+
+				using (var stream = new MemoryStream (messageData, false)) {
+					var parser = new ExperimentalMimeParser (options, stream, MimeFormat.Entity);
+					using var message = await parser.ParseMessageAsync ();
+
+					actual = GetEntityTreeSummary (message);
+				}
+
+				Assert.That (actual, Is.EqualTo (expected), $"ExperimentalMimeParser did not match MimeParser at MaxMimeDepth={maxMimeDepth}.");
+			}
+		}
+
 		[Test]
 		public void TestIssue358 ()
 		{
