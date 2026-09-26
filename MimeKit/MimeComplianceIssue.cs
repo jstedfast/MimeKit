@@ -323,7 +323,6 @@ namespace MimeKit {
 		/// </exception>
 		public static MimeComplianceCategories GetCategories (MimeComplianceViolation violation)
 		{
-			const MimeComplianceCategories Cosmetic = MimeComplianceCategories.Cosmetic;
 			const MimeComplianceCategories Interop = MimeComplianceCategories.Interoperability;
 			const MimeComplianceCategories DataLoss = MimeComplianceCategories.DataLoss;
 			const MimeComplianceCategories Security = MimeComplianceCategories.Security;
@@ -427,12 +426,13 @@ namespace MimeKit {
 			// to name the file. Getting it wrong does not corrupt the content itself.
 			case MimeComplianceViolation.InvalidUUEncodePretext:
 			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
+			case MimeComplianceViolation.InvalidUUEncodeFileMode:
 				return Interop;
 
-			// Note: The file mode is advisory and is ignored by most software.
-			case MimeComplianceViolation.InvalidUUEncodeFileMode:
+			// Note: Decoders disagree about whether to trust the length character or the line, so the
+			// extra data is discarded by some and decoded as content by others.
 			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
-				return Cosmetic;
+				return Interop | DataLoss;
 
 			// Note: Content that cannot be decoded is content that is lost.
 			case MimeComplianceViolation.InvalidUUEncodedContent:

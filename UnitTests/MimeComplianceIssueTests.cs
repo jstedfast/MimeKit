@@ -229,7 +229,7 @@ namespace UnitTests {
 		{
 			// Note: This guards against a new MimeComplianceViolation being added without a
 			// corresponding entry in MimeComplianceIssue.GetCategories().
-			const MimeComplianceCategories all = MimeComplianceCategories.Cosmetic | MimeComplianceCategories.Interoperability |
+			const MimeComplianceCategories all = MimeComplianceCategories.Interoperability |
 				MimeComplianceCategories.DataLoss | MimeComplianceCategories.Security;
 
 			foreach (var violation in AllViolations) {
@@ -253,30 +253,10 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestCosmeticIsMutuallyExclusive ()
-		{
-			// Note: Cosmetic means "no practical consequence", so it cannot coexist with a category
-			// that describes a practical consequence. Without this, it is tempting to read Cosmetic
-			// as "is a syntax error" and tag it onto violations that do real harm.
-			const MimeComplianceCategories harmful = MimeComplianceCategories.Interoperability |
-				MimeComplianceCategories.DataLoss | MimeComplianceCategories.Security;
-
-			foreach (var violation in AllViolations) {
-				var categories = MimeComplianceIssue.GetCategories (violation);
-
-				if ((categories & MimeComplianceCategories.Cosmetic) == 0)
-					continue;
-
-				Assert.That (categories & harmful, Is.EqualTo (MimeComplianceCategories.None), $"{violation} is Cosmetic but also causes practical harm.");
-			}
-		}
-
-		[Test]
 		public void TestCategoryAssignments ()
 		{
 			// Note: These are deliberate judgement calls, pinned so that any future re-categorization
 			// is a conscious decision rather than an accident.
-			const MimeComplianceCategories Cosmetic = MimeComplianceCategories.Cosmetic;
 			const MimeComplianceCategories Interop = MimeComplianceCategories.Interoperability;
 			const MimeComplianceCategories DataLoss = MimeComplianceCategories.DataLoss;
 			const MimeComplianceCategories Security = MimeComplianceCategories.Security;
@@ -309,11 +289,11 @@ namespace UnitTests {
 				{ MimeComplianceViolation.InvalidQuotedPrintableEncoding, DataLoss },
 				{ MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, DataLoss },
 				{ MimeComplianceViolation.InvalidUUEncodePretext, Interop },
-				{ MimeComplianceViolation.InvalidUUEncodeFileMode, Cosmetic },
+				{ MimeComplianceViolation.InvalidUUEncodeFileMode, Interop },
 				{ MimeComplianceViolation.InvalidUUEncodedContent, DataLoss },
 				{ MimeComplianceViolation.InvalidUUEncodedLineLength, DataLoss },
 				{ MimeComplianceViolation.IncompleteUUEncodedLine, DataLoss },
-				{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, Cosmetic },
+				{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, Interop | DataLoss },
 				{ MimeComplianceViolation.InvalidUUEncodeEndMarker, Interop },
 				{ MimeComplianceViolation.IncompleteUUEncodedContent, DataLoss }
 			};
@@ -338,15 +318,15 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestPurelyCosmeticViolationsAreNotCritical ()
+		public void TestInteroperabilityOnlyViolationsAreNotCritical ()
 		{
-			// Note: A violation that loses no content, breaks no interoperability and enables no
-			// evasion cannot reasonably be Critical.
+			// Note: Critical is reserved for content smuggling, so a violation that loses no content
+			// and enables no evasion cannot reasonably earn it.
 			foreach (var violation in AllViolations) {
-				if (MimeComplianceIssue.GetCategories (violation) != MimeComplianceCategories.Cosmetic)
+				if (MimeComplianceIssue.GetCategories (violation) != MimeComplianceCategories.Interoperability)
 					continue;
 
-				Assert.That (MimeComplianceIssue.GetSeverity (violation), Is.LessThan (MimeComplianceSeverity.Critical), $"{violation} is purely cosmetic but is rated Critical.");
+				Assert.That (MimeComplianceIssue.GetSeverity (violation), Is.LessThan (MimeComplianceSeverity.Critical), $"{violation} only harms interoperability but is rated Critical.");
 			}
 		}
 
