@@ -26,12 +26,74 @@
 
 using System;
 using System.Text;
+using System.Diagnostics;
 using System.Globalization;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace MimeKit.Utils {
 	static class ParseUtils
 	{
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public static unsafe byte* EndOfLine (byte* inptr, byte* inend)
+		{
+			// Note: callers are expected to set a '\n' sentinel at *inend and then pass inend + 1,
+			// which guarantees that this scan always terminates within the buffer.
+			Debug.Assert (inend[-1] == (byte) '\n', "EndOfLine() requires the caller to set a '\\n' sentinel at inend[-1].");
+
+#if NET6_0_OR_GREATER
+			var span = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr));
+
+			return inptr + span.IndexOf ((byte) '\n');
+#else
+			// scan for a linefeed character until we are 4-byte aligned.
+			switch (((long) inptr) & 0x03) {
+			case 1:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 2;
+			case 2:
+				if (*inptr == (byte) '\n')
+					break;
+				inptr++;
+				goto case 3;
+			case 3:
+				if (*inptr != (byte) '\n')
+					inptr++;
+				break;
+			}
+
+			if (*inptr != (byte) '\n') {
+				// -funroll-loops, yippee ki-yay.
+				do {
+					uint mask = *((uint*) inptr) ^ 0x0A0A0A0A;
+					mask = ((mask - 0x01010101) & (~mask & 0x80808080));
+
+					if (mask != 0)
+						break;
+
+					inptr += 4;
+				} while (true);
+
+				while (*inptr != (byte) '\n')
+					inptr++;
+			}
+
+			return inptr;
+#endif
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public static unsafe byte* EndOfLine (byte* inptr, byte* inend, ByteDetectionOptions options, out ByteDetectionResults detected)
+		{
+			// Note: callers are expected to set a '\n' sentinel at *inend and then pass inend + 1,
+			// which guarantees that IndexOf() always finds a match within the buffer.
+			Debug.Assert (inend[-1] == (byte) '\n', "EndOfLine() requires the caller to set a '\\n' sentinel at inend[-1].");
+
+			return inptr + Memory.IndexOf (inptr, (int) (inend - inptr), (byte) '\n', options, out detected);
+		}
+
 		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
 		{
 			int startIndex = index;

@@ -1,0 +1,126 @@
+﻿//
+// QuotedPrintableValidatorTests.cs
+//
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
+//
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System.Text;
+
+using MimeKit;
+using MimeKit.Encodings;
+
+namespace UnitTests.Encodings {
+	[TestFixture]
+	public class QuotedPrintableValidatorTests : EncodingValidatorTestsBase
+	{
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			AssertArgumentExceptions (new QuotedPrintableValidator (nullComplianceLogger, 0, 1));
+		}
+
+		[Test]
+		public void TestEncoding ()
+		{
+			var validator = new QuotedPrintableValidator (nullComplianceLogger, 0, 1);
+
+			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
+		}
+
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestValidateBufferSizeUnix (int bufferSize)
+		{
+			var logger = new TestMimeComplianceLogger ();
+
+			TestValidator (logger, new QuotedPrintableValidator (logger, 0, 1), "wikipedia.qp", wikipedia_unix, bufferSize);
+		}
+
+		[TestCase (4096)]
+		[TestCase (1024)]
+		[TestCase (16)]
+		[TestCase (1)]
+		public void TestValidateBufferSizeDos (int bufferSize)
+		{
+			var logger = new TestMimeComplianceLogger ();
+
+			TestValidator (logger, new QuotedPrintableValidator (logger, 0, 1), "wikipedia.qp", wikipedia_dos, bufferSize);
+		}
+
+		[TestCase ("=XA", 1)]
+		[TestCase ("=AX", 2)]
+		[TestCase ("=A\n", 2)]
+		public void TestValidateInvalidHexSequence (string hex, int offset)
+		{
+			string text = $"This is some quoted printable text with an invalid {hex} sequence.";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.IndexOf ('=') + offset));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestValidateInvalidSoftBreak ()
+		{
+			const string text = "This is some quoted printable text with an invalid =\rsoft break";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.LastIndexOf ('s')));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
+		}
+
+		[TestCase ("invalid trailing =", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
+		[TestCase ("invalid trailing =A", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
+		[TestCase ("invalid trailing =\r", MimeComplianceViolation.InvalidQuotedPrintableSoftBreak)]
+		public void TestValidateInvalidFlush (string text, MimeComplianceViolation violation)
+		{
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (violation));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
+		}
+	}
+}
