@@ -2320,6 +2320,10 @@ namespace MimeKit {
 
 		MimeEntityType GetEntityType (ContentType contentType, ContentEncoding? encoding, int depth)
 		{
+			// Note: 'depth' is the nesting depth of the entity being created and must use the same
+			// comparison against MaxMimeDepth that ParserOptions.CreateEntity() uses. If the two
+			// disagree, MimeParser will cast the entity returned by CreateEntity() to
+			// the wrong type and throw an InvalidCastException.
 			if (IsMultipart (contentType)) {
 				if (encoding.HasValue && encoding != ContentEncoding.SevenBit && encoding != ContentEncoding.EightBit) {
 					// Note: multiparts are only allowed to have a Content-Transfer-Encoding of 7bit or 8bit
@@ -2329,7 +2333,7 @@ namespace MimeKit {
 					// a new Multipart in these cases so we need to be consistent.
 				}
 
-				if (depth + 1 < options.MaxMimeDepth)
+				if (depth < options.MaxMimeDepth)
 					return MimeEntityType.Multipart;
 			} else if (IsMessagePart (contentType)) {
 				if (encoding.HasValue && ParserOptions.IsEncoded (encoding.Value)) {
@@ -2339,7 +2343,7 @@ namespace MimeKit {
 					return MimeEntityType.MimePart;
 				}
 
-				if (depth + 1 < options.MaxMimeDepth)
+				if (depth < options.MaxMimeDepth)
 					return MimeEntityType.MessagePart;
 			}
 
@@ -2642,7 +2646,7 @@ namespace MimeKit {
 			MimeEntityType entityType;
 			int lines;
 
-			entityType = GetEntityType (type, currentEncoding, depth);
+			entityType = GetEntityType (type, currentEncoding, depth + 1);
 
 			switch (entityType) {
 			case MimeEntityType.Multipart:
@@ -2720,7 +2724,7 @@ namespace MimeKit {
 				MimeEntityType entityType;
 				int lines;
 
-				entityType = GetEntityType (type, currentEncoding, depth);
+				entityType = GetEntityType (type, currentEncoding, depth + 1);
 
 				switch (entityType) {
 				case MimeEntityType.Multipart:
