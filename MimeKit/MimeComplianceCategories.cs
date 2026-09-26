@@ -43,8 +43,11 @@ namespace MimeKit {
 	/// <para>Categories are intended for filtering. A program that lints outgoing mail cares about
 	/// <see cref="Interoperability"/>, a mail gateway cares about <see cref="Security"/>, and an
 	/// archiver cares about <see cref="DataLoss"/>. Each can select the issues relevant to it
-	/// without having to enumerate individual violations. Anything left over is
-	/// <see cref="Cosmetic"/>.</para>
+	/// without having to enumerate individual violations.</para>
+	/// <para>Every category describes a <i>kind of harm</i>. There is deliberately no category for
+	/// harmless deviations, because <see cref="MimeReader"/> only reports deviations that are worth
+	/// reporting, and "safe to ignore" is already expressed by
+	/// <see cref="MimeComplianceSeverity.Minor"/>.</para>
 	/// <note type="note">These ratings reflect practical experience with mail software found in the
 	/// wild rather than anything stated by the specifications themselves.</note>
 	/// </remarks>
@@ -63,24 +66,11 @@ namespace MimeKit {
 		/// No category.
 		/// </summary>
 		/// <remarks>
-		/// The violation has not been categorized. No <see cref="MimeComplianceViolation"/> maps to
-		/// this value; it exists so that <c>default</c> and the result of masking are meaningful.
+		/// The violation has not been categorized. Every <see cref="MimeComplianceViolation"/> maps
+		/// to at least one real category, so this exists only so that <c>default</c> and the result
+		/// of masking are meaningful.
 		/// </remarks>
 		None = 0,
-
-		/// <summary>
-		/// The message deviates from the specifications but suffers no practical consequence.
-		/// </summary>
-		/// <remarks>
-		/// <para>The message does not match what the specifications require, but no content is lost
-		/// or altered and mail software is unlikely to behave any differently as a result. These
-		/// violations are of interest mainly to authors of mail software who want their output to be
-		/// strictly conformant.</para>
-		/// <para>This category is mutually exclusive with <see cref="Interoperability"/>,
-		/// <see cref="DataLoss"/> and <see cref="Security"/>. A violation that causes any of those is
-		/// by definition not cosmetic, so a caller may treat this as meaning "safe to ignore".</para>
-		/// </remarks>
-		Cosmetic = 1 << 0,
 
 		/// <summary>
 		/// Other software may reject, mangle, or render the message differently.
@@ -91,7 +81,7 @@ namespace MimeKit {
 		/// way that changes it. This is the category to filter on when checking a message that is
 		/// about to be sent.
 		/// </remarks>
-		Interoperability = 1 << 1,
+		Interoperability = 1 << 0,
 
 		/// <summary>
 		/// Content may be silently lost or corrupted when the message is decoded.
@@ -101,7 +91,7 @@ namespace MimeKit {
 		/// usually without any error being raised. This is the category to filter on when archiving
 		/// or indexing messages, where a silent corruption is permanent.
 		/// </remarks>
-		DataLoss = 1 << 2,
+		DataLoss = 1 << 1,
 
 		/// <summary>
 		/// The construct can be used to make two pieces of software disagree.
@@ -115,6 +105,6 @@ namespace MimeKit {
 		/// scanner. Note that a violation in this category is not evidence of an attack by itself,
 		/// as broken mail software produces the same constructs by accident.</para>
 		/// </remarks>
-		Security = 1 << 3
+		Security = 1 << 2
 	}
 }
