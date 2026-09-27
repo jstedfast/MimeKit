@@ -988,18 +988,6 @@ namespace MimeKit.Cryptography {
 		protected abstract DbCommand GetUpdateCommand (DbConnection connection, X509CertificateRecord record, X509CertificateRecordFields fields);
 
 		/// <summary>
-		/// Gets the database command to update the specified CRL record.
-		/// </summary>
-		/// <remarks>
-		/// Gets the database command to update the specified CRL record.
-		/// </remarks>
-		/// <returns>The database command.</returns>
-		/// <param name="connection">The database connection.</param>
-		/// <param name="record">The CRL record.</param>
-		[Obsolete ("This method is not used and will be removed in a future release.")]
-		protected abstract DbCommand GetUpdateCommand (DbConnection connection, X509CrlRecord record);
-
-		/// <summary>
 		/// Find the specified certificate.
 		/// </summary>
 		/// <remarks>
@@ -1377,31 +1365,6 @@ namespace MimeKit.Cryptography {
 			CheckDisposed ();
 
 			using (var command = GetDeleteCommand (connection, record))
-				ExecuteNonQuery (command);
-		}
-
-		/// <summary>
-		/// Update the specified CRL record.
-		/// </summary>
-		/// <remarks>
-		/// Updates the specified fields of the record in the database.
-		/// </remarks>
-		/// <param name="record">The CRL record.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="record"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="ObjectDisposedException">
-		/// The <see cref="X509CertificateDatabase"/> has been disposed.
-		/// </exception>
-		[Obsolete ("This method is not used and will be removed in a future release.")]
-		public void Update (X509CrlRecord record)
-		{
-			if (record == null)
-				throw new ArgumentNullException (nameof (record));
-
-			CheckDisposed ();
-
-			using (var command = GetUpdateCommand (connection, record))
 				ExecuteNonQuery (command);
 		}
 

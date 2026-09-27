@@ -1,5 +1,5 @@
 ﻿//
-// Program.cs
+// CryptographyModule.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,37 +24,29 @@
 // THE SOFTWARE.
 //
 
-using System;
+using System.Threading;
 
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Filters;
-using BenchmarkDotNet.Exporters;
-
-namespace Benchmarks {
-	public class Program
+namespace MimeKit.Cryptography {
+	/// <summary>
+	/// The cryptography module.
+	/// </summary>
+	/// <remarks>
+	/// The cryptography module.
+	/// </remarks>
+	public static class CryptographyModule
 	{
-		public static void Main (string[] args)
+		static int initialized = 0;
+
+		/// <summary>
+		/// Initializes the cryptography module.
+		/// </summary>
+		/// <remarks>
+		/// Initializes the cryptography module.
+		/// </remarks>
+		public static void Initialize ()
 		{
-#if DEBUG
-			var config = new DebugInProcessConfig ()
-				.WithOptions (ConfigOptions.DisableOptimizationsValidator)
-				.AddExporter (MarkdownExporter.GitHub);
-#else
-			var config = ManualConfig.CreateMinimumViable ();
-				//.AddExporter (MarkdownExporter.GitHub);
-#endif
-
-#if false
-			// Only run benchmarks for the MimeParser, LegacyMimeParser, and MimeReader classes
-			config.AddFilter (new DisjunctionFilter (
-				new NameFilter (name => name.StartsWith ("LegacyMimeParser_", StringComparison.Ordinal)),
-				new NameFilter (name => name.StartsWith ("MimeParser_", StringComparison.Ordinal)),
-				new NameFilter (name => name.StartsWith ("MimeReader_", StringComparison.Ordinal))
-			));
-#endif
-
-			var summary = BenchmarkRunner.Run (typeof (Program).Assembly, config);
+			if (Interlocked.CompareExchange (ref initialized, 1, 0) == 0)
+				ParserOptions.Register (CryptographicEntityFactory.Instance);
 		}
 	}
 }

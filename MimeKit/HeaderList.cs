@@ -52,10 +52,18 @@ namespace MimeKit {
 		readonly Dictionary<string, Header> table;
 		readonly List<Header> headers;
 
-		internal HeaderList (ParserOptions options)
+		// Note: Cache the delegate so that we don't allocate a new one for every header that gets
+		// added to (or removed from) the list. This is a meaningful cost when parsing.
+		readonly EventHandler headerChanged;
+
+		// Note: When the number of headers is known up front (such as when the parser constructs a
+		// MimeMessage or MimeEntity), pre-sizing the table and list avoids several rounds of
+		// re-allocation and re-hashing as the headers are added.
+		internal HeaderList (ParserOptions options, int capacity = 0)
 		{
-			table = new Dictionary<string, Header> (MimeUtils.OrdinalIgnoreCase);
-			headers = new List<Header> ();
+			table = new Dictionary<string, Header> (capacity, MimeUtils.OrdinalIgnoreCase);
+			headers = new List<Header> (capacity);
+			headerChanged = HeaderChanged;
 			HasBodySeparator = true;
 			Options = options;
 		}
@@ -870,10 +878,15 @@ namespace MimeKit {
 			if (header is null)
 				throw new ArgumentNullException (nameof (header));
 
+			// Note: TryAdd avoids hashing/probing the key twice (ContainsKey followed by Add).
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+			table.TryAdd (header.Field, header);
+#else
 			if (!table.ContainsKey (header.Field))
 				table.Add (header.Field, header);
+#endif
 
-			header.Changed += HeaderChanged;
+			header.Changed += headerChanged;
 			headers.Add (header);
 			HasBodySeparator = true;
 
@@ -889,7 +902,7 @@ namespace MimeKit {
 		public void Clear ()
 		{
 			foreach (var header in headers)
-				header.Changed -= HeaderChanged;
+				header.Changed -= headerChanged;
 
 			HasBodySeparator = true;
 			headers.Clear ();
@@ -960,7 +973,7 @@ namespace MimeKit {
 			if (index == -1)
 				return false;
 
-			header.Changed -= HeaderChanged;
+			header.Changed -= headerChanged;
 
 			if (table[header.Field] == header) {
 				table.Remove (header.Field);
@@ -1012,12 +1025,12 @@ namespace MimeKit {
 				if (!headers[i].Field.Equals (header.Field, StringComparison.OrdinalIgnoreCase))
 					continue;
 
-				headers[i].Changed -= HeaderChanged;
+				headers[i].Changed -= headerChanged;
 				headers.RemoveAt (i);
 			}
 
-			header.Changed += HeaderChanged;
-			first.Changed -= HeaderChanged;
+			header.Changed += headerChanged;
+			first.Changed -= headerChanged;
 
 			table[header.Field] = header;
 			headers[i] = header;
@@ -1084,7 +1097,7 @@ namespace MimeKit {
 			}
 
 			headers.Insert (index, header);
-			header.Changed += HeaderChanged;
+			header.Changed += headerChanged;
 			HasBodySeparator = true;
 
 			OnChanged (header, HeaderListChangedAction.Added);
@@ -1107,7 +1120,7 @@ namespace MimeKit {
 
 			var header = headers[index];
 
-			header.Changed -= HeaderChanged;
+			header.Changed -= headerChanged;
 
 			if (table[header.Field] == header) {
 				table.Remove (header.Field);
@@ -1160,8 +1173,8 @@ namespace MimeKit {
 				if (header == value)
 					return;
 
-				header.Changed -= HeaderChanged;
-				value.Changed += HeaderChanged;
+				header.Changed -= headerChanged;
+				value.Changed += headerChanged;
 
 				if (header.Field.Equals (value.Field, StringComparison.OrdinalIgnoreCase)) {
 					// replace the old header with the new one

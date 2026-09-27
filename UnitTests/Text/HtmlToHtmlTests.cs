@@ -64,7 +64,6 @@ namespace UnitTests.Text {
 
 			Assert.That (converter.DetectEncodingFromByteOrderMark, Is.False, "DetectEncodingFromByteOrderMark");
 			Assert.That (converter.FilterComments, Is.False, "FilterComments");
-			Assert.That (converter.FilterHtml, Is.False, "FilterHtml");
 			Assert.That (converter.Footer, Is.Null, "Footer");
 			Assert.That (converter.FooterFormat, Is.EqualTo (HeaderFooterFormat.Text), "FooterFormat");
 			Assert.That (converter.Header, Is.Null, "Header");
@@ -163,18 +162,6 @@ namespace UnitTests.Text {
 			const string input = "<html><head><!-- this is a comment --></head><body>Here is the body content <!-- this is another comment -->which seems fine so far</body></html>";
 			const string expected = "<html><head></head><body>Here is the body content which seems fine so far</body></html>";
 			var converter = new HtmlToHtml { FilterComments = true };
-
-			var result = converter.Convert (input);
-
-			Assert.That (result, Is.EqualTo (expected));
-		}
-
-		[Test]
-		public void TestFilterHtml ()
-		{
-			const string input = "<html><head><script>/* this is a script */</script></head><body>Here is the body content which seems fine so far</body></html>";
-			const string expected = "<html><head></head><body>Here is the body content which seems fine so far</body></html>";
-			var converter = new HtmlToHtml { FilterHtml = true };
 
 			var result = converter.Convert (input);
 

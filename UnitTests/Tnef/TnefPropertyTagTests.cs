@@ -39,13 +39,6 @@ namespace UnitTests.Tnef {
 				var propertyTag = (TnefPropertyTag) field.GetValue (null);
 				int tagId = (int) propertyTag;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-				if (propertyTag.Equals (TnefPropertyTag.Puid)) {
-					Assert.That (propertyTag.IsTnefTypeValid, Is.False, $"{field.Name}.IsTnefTypeValid");
-					continue;
-				}
-#pragma warning restore CS0618 // Type or member is obsolete
-
 				Assert.That (propertyTag.IsTnefTypeValid, Is.True, $"{field.Name}.IsTnefTypeValid");
 
 				var tag = new TnefPropertyTag (propertyTag.Id, propertyTag.TnefType);

@@ -32,6 +32,25 @@ using MimeKit.Utils;
 
 namespace MimeKit.Encodings {
 	/// <summary>
+	/// Q-Encoding mode.
+	/// </summary>
+	/// <remarks>
+	/// The encoding mode for the 'Q' encoding used in rfc2047.
+	/// </remarks>
+	enum QEncodeMode : byte
+	{
+		/// <summary>
+		/// A mode for encoding phrases, as defined by rfc822.
+		/// </summary>
+		Phrase,
+
+		/// <summary>
+		/// A mode for encoding text.
+		/// </summary>
+		Text
+	}
+
+	/// <summary>
 	/// Encodes content using a variation of the quoted-printable encoding
 	/// that is specifically meant to be used for rfc2047 encoded-word tokens.
 	/// </summary>

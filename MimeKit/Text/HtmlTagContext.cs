@@ -174,7 +174,7 @@ namespace MimeKit.Text {
 		/// Write the HTML tag.
 		/// </summary>
 		/// <remarks>
-		/// Writes the HTML tag to the given <see cref="HtmlWriter"/>.
+		/// Writes only the HTML tag to the given <see cref="HtmlWriter"/> without writing the attributes.
 		/// </remarks>
 		/// <param name="htmlWriter">The HTML writer.</param>
 		/// <exception cref="System.ArgumentNullException">

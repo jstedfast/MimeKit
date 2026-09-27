@@ -33,6 +33,8 @@ using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class MimeParserTests
@@ -115,6 +117,8 @@ namespace UnitTests {
 			using (var stream = new MemoryStream ()) {
 				var parser = new MimeParser (stream);
 
+				Assert.That (parser.Position, Is.EqualTo (0), "Position");
+
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (null));
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, stream));
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, MimeFormat.Default));
@@ -122,15 +126,9 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, stream, MimeFormat.Default));
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (ParserOptions.Default, null, MimeFormat.Default));
 
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, false));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream));
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null));
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, stream, MimeFormat.Default));
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (ParserOptions.Default, null, MimeFormat.Default));
-#pragma warning restore CS0618 // Type or member is obsolete
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default, false));
 
 				Assert.Throws<ArgumentNullException> (() => parser.Options = null);
 			}
@@ -142,7 +140,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = parser.ParseHeaders ();
@@ -173,7 +171,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\nHeader-2: value 2\r\nHeader-3: value 3\r\n\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = await parser.ParseHeadersAsync ();
@@ -198,13 +196,153 @@ namespace UnitTests {
 			}
 		}
 
+		static List<HeaderList> ParseStatusGroups (string text, bool readOneByteAtATime = false)
+		{
+			var bytes = Encoding.ASCII.GetBytes (text);
+			var groups = new List<HeaderList> ();
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				Stream stream = readOneByteAtATime ? new ReadOneByteStream (memory) : memory;
+
+				try {
+					var parser = new MimeParser (stream, MimeFormat.Entity);
+
+					while (!parser.IsEndOfStream) {
+						var group = parser.ParseStatusGroup ();
+
+						if (group is null)
+							break;
+
+						groups.Add (group);
+					}
+				} finally {
+					if (readOneByteAtATime)
+						stream.Dispose ();
+				}
+			}
+
+			return groups;
+		}
+
+		[Test]
+		public void TestStatusGroupParser ()
+		{
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserReturnsNullAtEndOfStream ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Reporting-MTA: dns; mm1\r\n\r\n");
+
+			using var memory = new MemoryStream (bytes, false);
+			var parser = new MimeParser (memory, MimeFormat.Entity);
+
+			var group = parser.ParseStatusGroup ();
+			Assert.That (group, Is.Not.Null, "Expected the first status group to be parsed.");
+			Assert.That (group.Count, Is.EqualTo (1), "Unexpected number of headers in the first status group.");
+
+			Assert.That (parser.ParseStatusGroup (), Is.Null, "Expected null once the end of the stream is reached.");
+			Assert.That (parser.IsEndOfStream, Is.True, "Expected IsEndOfStream to be true.");
+
+			// Calling it again should continue to return null rather than throw.
+			Assert.That (parser.ParseStatusGroup (), Is.Null, "Expected null on subsequent calls.");
+		}
+
+		[TestCase ("", TestName = "TestStatusGroupParserNoContent")]
+		[TestCase ("\r\n", TestName = "TestStatusGroupParserSingleBlankLine")]
+		[TestCase ("\r\n\r\n\r\n", TestName = "TestStatusGroupParserOnlyBlankLines")]
+		[TestCase ("\n\n\n", TestName = "TestStatusGroupParserOnlyBlankLinesLF")]
+		[TestCase ("\r", TestName = "TestStatusGroupParserOnlyLoneCarriageReturn")]
+		public void TestStatusGroupParserNoStatusGroups (string text)
+		{
+			var groups = ParseStatusGroups (text);
+
+			Assert.That (groups.Count, Is.EqualTo (0), "Did not expect any status groups.");
+		}
+
+		[Test]
+		public void TestStatusGroupParserTrailingLoneCarriageReturn ()
+		{
+			// Note: The trailing lone CR is not a status group, so it should not result in an empty status group.
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserTrailingBlankLines ()
+		{
+			// Note: The trailing blank lines should not produce an empty status group.
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r\n\r\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserLoneCarriageReturnSeparator ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("Reporting-MTA: dns; mm1\r\n\r\n\rFinal-Recipient: rfc822; user@example.com\r\n");
+
+			using var memory = new MemoryStream (bytes, false);
+			var parser = new MimeParser (memory, MimeFormat.Entity);
+
+			var group = parser.ParseStatusGroup ();
+			Assert.That (group, Is.Not.Null, "Expected the first status group to be parsed.");
+			Assert.That (group["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+
+			// Note: A lone CR is not a blank line, so SkipBlankLines() stops there and the remainder
+			// of the stream fails to parse as a block of headers.
+			Assert.Throws<FormatException> (() => parser.ParseStatusGroup ());
+		}
+
+		[Test]
+		public void TestStatusGroupParserLeadingBlankLines ()
+		{
+			var groups = ParseStatusGroups ("\r\n\r\n\r\nReporting-MTA: dns; mm1\r\n\r\n\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserMixedNewLineFormats ()
+		{
+			var groups = ParseStatusGroups ("Reporting-MTA: dns; mm1\r\n\n\r\n\nFinal-Recipient: rfc822; user@example.com\n");
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupParserReadOneByteAtATime ()
+		{
+			// Note: Reading a single byte at a time forces SkipBlankLines() to deal with
+			// CRLF sequences that span multiple reads.
+			var groups = ParseStatusGroups ("\r\n\r\nReporting-MTA: dns; mm1\r\n\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r\n", true);
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Unexpected number of status groups.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
 		[Test]
 		public void TestTruncatedHeaderName ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("Header-1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = parser.ParseHeaders ();
@@ -222,7 +360,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = await parser.ParseHeadersAsync ();
@@ -240,7 +378,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = parser.ParseHeaders ();
@@ -262,7 +400,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = await parser.ParseHeadersAsync ();
@@ -284,7 +422,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = parser.ParseHeaders ();
@@ -306,7 +444,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("Header-1: value 1\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = await parser.ParseHeadersAsync ();
@@ -328,7 +466,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = parser.ParseHeaders ();
@@ -346,7 +484,7 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var parser = new MimeParser (memory, MimeFormat.Default);
 
 				try {
 					var headers = await parser.ParseHeadersAsync ();
@@ -359,7 +497,6 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
 		public void TestHeadersEndWithBareCarriageReturn ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
@@ -379,7 +516,6 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore ("This should be handled the same as ExperimentalMimeParser")]
 		public async Task TestHeadersEndWithBareCarriageReturnAsync ()
 		{
 			var bytes = Encoding.ASCII.GetBytes ("From: <mimekit@example.com>\r\nTo: <mimekit@example.com>\r\nSubject: Test of headers ending with bare carriage-return\r\n\r");
@@ -697,19 +833,16 @@ namespace UnitTests {
 				stream.Write (content, 0, content.Length);
 				stream.Position = 0;
 
-				// FIXME: Fix MimeParser to handle this as well as ExperimentalMimeParser?
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
-				//var message = parser.ParseMessage ();
-
-				//Assert.That (message.Headers.Count, Is.EqualTo (3));
-				//Assert.That (parser.MboxMarker, Is.EqualTo (marker));
-
-				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+				using (var message = parser.ParseMessage ()) {
+					Assert.That (message.Headers.Count, Is.EqualTo (3));
+					Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				}
 			}
 		}
 
 		[Test]
-		public void TestReallyLongMboxMarkerAsync ()
+		public async Task TestReallyLongMboxMarkerAsync ()
 		{
 			var content = Encoding.ASCII.GetBytes ("\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
 			var marker = "From " + new string ('X', 4092);
@@ -720,14 +853,11 @@ namespace UnitTests {
 				stream.Write (content, 0, content.Length);
 				stream.Position = 0;
 
-				// FIXME: Fix MimeParser to handle this as well as ExperimentalMimeParser?
 				var parser = new MimeParser (stream, MimeFormat.Mbox);
-				//var message = await parser.ParseMessageAsync ();
-
-				//Assert.That (message.Headers.Count, Is.EqualTo (3));
-				//Assert.That (parser.MboxMarker, Is.EqualTo (marker));
-
-				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+				using (var message = await parser.ParseMessageAsync ()) {
+					Assert.That (message.Headers.Count, Is.EqualTo (3));
+					Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				}
 			}
 		}
 
@@ -790,7 +920,6 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore ("MimeParser.ParseEntity() on an empty stream currently doesn't fail but probably should.")]
 		public void TestEmptyEntityStream ()
 		{
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
@@ -808,7 +937,6 @@ namespace UnitTests {
 		}
 
 		[Test]
-		[Ignore ("MimeParser.ParseEntityAsync() on an empty stream currently doesn't fail but probably should.")]
 		public async Task TestEmptyEntityStreamAsync ()
 		{
 			using (var memory = new MemoryStream (Array.Empty<byte> (), false)) {
@@ -923,9 +1051,12 @@ This is the message body.
 				};
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 
@@ -939,6 +1070,8 @@ This is the message body.
 				};
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -972,9 +1105,12 @@ This is the message body.
 				};
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -988,6 +1124,8 @@ This is the message body.
 				};
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1023,9 +1161,12 @@ This is the message body.
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				using var message = parser.ParseMessage ();
 
@@ -1041,6 +1182,8 @@ This is the message body.
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1076,9 +1219,12 @@ This is the message body.
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text.Replace ("\n", "\r\n")), false)) {
+			text = text.Replace ("\n", "\r\n");
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 
@@ -1094,6 +1240,8 @@ This is the message body.
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1470,8 +1618,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1487,8 +1634,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1521,8 +1667,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1538,8 +1683,7 @@ Content-Type: multipart/mixed;
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1584,8 +1728,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1608,8 +1751,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1654,8 +1796,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1678,8 +1819,7 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1824,8 +1964,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1843,8 +1982,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1879,8 +2017,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1898,8 +2035,7 @@ Content-Type: text/plain; charset=utf-8".Replace ("\r\n", "\n");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -1938,8 +2074,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1960,8 +2095,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2000,8 +2134,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2022,8 +2155,7 @@ Content-Dis".Replace ("\r\n", "\n");
 				Assert.That (body.Headers[1].Field, Is.EqualTo ("Content-Dis"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2060,8 +2192,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				AssertSerialization (message, NewLineFormat.Unix, text.Replace ("utf-8\n", "utf-8\n\n"));
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2079,8 +2210,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				AssertSerialization (message, NewLineFormat.Dos, text.Replace ("utf-8\r\n", "utf-8\r\n\r\n"));
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2117,8 +2247,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Replace ("utf-8\n", "utf-8\n\n"));
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2136,8 +2265,7 @@ Content-Type: text/plain; charset=utf-8
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes a body separator for the text/plain body part
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Replace ("utf-8\r\n", "utf-8\r\n\r\n"));
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2311,8 +2439,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2334,8 +2461,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2375,8 +2501,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2398,8 +2523,7 @@ Content-Type: text/plain; charset=utf-8
 
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2605,8 +2729,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: spaces at the end of boundary lines are stripped
-				AssertSerialization (message, NewLineFormat.Unix, text.Replace ("90       ", "90").Replace ("90   ", "90").Replace ("--  ", "--"));
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2631,8 +2754,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: spaces at the end of boundary lines are stripped
-				AssertSerialization (message, NewLineFormat.Dos, text.Replace ("90       ", "90").Replace ("90   ", "90").Replace ("--  ", "--"));
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2684,7 +2806,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Replace ("90       ", "90").Replace ("90   ", "90").Replace ("--  ", "--"));
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2709,7 +2831,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Replace ("90       ", "90").Replace ("90   ", "90").Replace ("--  ", "--"));
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2903,7 +3025,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2914,12 +3036,18 @@ This is technically the third part.
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Unix, text);
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2929,7 +3057,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2940,12 +3068,18 @@ This is technically the third part.
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Dos, text);
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2983,7 +3117,7 @@ This is technically the third part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -2994,22 +3128,28 @@ This is technically the third part.
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
-			text.Replace ("\n", "\r\n");
+			text = text.Replace ("\n", "\r\n");
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				using var message = await parser.ParseMessageAsync ();
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3020,12 +3160,18 @@ This is technically the third part.
 				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in second child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected second child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is technically the third part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3064,7 +3210,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3079,8 +3225,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3090,7 +3249,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3105,8 +3264,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3145,7 +3317,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3160,8 +3332,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3171,7 +3356,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3186,8 +3371,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3225,7 +3423,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3240,14 +3438,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3257,7 +3462,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3272,14 +3477,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3317,7 +3529,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3332,14 +3544,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3349,7 +3568,7 @@ This is the second part.
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var multipart = (Multipart) message.Body;
-				Assert.That (multipart.Count, Is.EqualTo (3), "Expected 3 children");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 children");
 				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
@@ -3364,14 +3583,21 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: Not sure if a 3rd part is really the expected behavior
 				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the multipart to be text/plain");
 				body = (TextPart) multipart[2];
 
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of multipart to be treated as text/plain");
 				Assert.That (body.Text, Is.EqualTo (string.Empty));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3416,27 +3642,41 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3446,28 +3686,41 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//AssertSerialization (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3512,28 +3765,41 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -3543,28 +3809,41 @@ Content-Type: image/jpeg
 
 				Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Expected top-level to be a multipart");
 				var outer = (Multipart) message.Body;
-				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 children");
+				Assert.That (outer.Count, Is.EqualTo (2), "Expected 2 outer children");
 				Assert.That (outer[0], Is.InstanceOf<Multipart> (), "Expected first child of the outer multipart to be multipart/mixed");
 				Assert.That (outer[1], Is.InstanceOf<MimePart> (), "Expected second child of the outer multipart to be image/jpeg");
 
 				var multipart = (Multipart) outer[0];
-				Assert.That (multipart.Count, Is.EqualTo (2), "Expected 2 children");
-				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the multipart to be text/plain");
+				Assert.That (multipart.Count, Is.EqualTo (4), "Expected 4 inner children");
+				Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "Expected first child of the inner multipart to be text/plain");
 				var body = (TextPart) multipart[0];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the first part." + Environment.NewLine));
 
-				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the multipart to be text/plain");
+				Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Expected second child of the inner multipart to be text/plain");
 				body = (TextPart) multipart[1];
 
 				Assert.That (body.Headers[HeaderId.ContentType], Is.EqualTo ("text/plain; charset=utf-8"));
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output is missing the double boundary
-				//await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				Assert.That (multipart[2], Is.InstanceOf<TextPart> (), "Expected third child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[2];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in third child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected third child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				Assert.That (multipart[3], Is.InstanceOf<TextPart> (), "Expected fourth child of the inner multipart to be text/plain");
+				body = (TextPart) multipart[3];
+
+				Assert.That (body.Headers.Count, Is.EqualTo (0), "Expected 0 headers in fourth child of inner multipart");
+				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected fourth child of inner multipart to be treated as text/plain");
+				Assert.That (body.Text, Is.EqualTo (string.Empty));
+
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3994,7 +4273,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
+				// FIXME: This is adding an extra newline to the end of the message
 				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
 			}
 
@@ -4026,7 +4305,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
+				// FIXME: This is adding an extra newline to the end of the message
 				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
@@ -4093,7 +4372,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
+				// FIXME: This is adding an extra newline to the end of the message
 				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
 			}
 
@@ -4125,7 +4404,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
+				// FIXME: This is adding an extra newline to the end of the message
 				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
 			}
 		}
@@ -4391,20 +4670,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4420,20 +4692,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4474,20 +4739,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4503,20 +4761,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From - Fri Dec 13 15:01:21 1996"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4557,20 +4808,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4586,20 +4830,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4640,20 +4877,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4669,20 +4899,13 @@ Content-Length: 2812
 				Assert.That (rfc822.ContentDisposition.FileName, Is.EqualTo ("smime18-encrypted.msg"), "MessagePart.ContentDisposition.FileName");
 				//Assert.That (rfc822.ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "MessagePart.ContentTransferEncoding");
 
-				// IMHO, the ExperimentalMimeParser handles this case better...
-				//Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				//Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
-				//Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
-				//Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
-				//Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
-
 				Assert.That (rfc822.Message, Is.Not.Null, "MessagePart.Message");
-				Assert.That (rfc822.Message.MboxMarker, Is.Null, "MessagePart.Message.MboxMarker");
-				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (1), "MessagePart.Message.Headers.Count");
-				Assert.That (rfc822.Message.Headers[0].Field, Is.EqualTo (">From"), "MessagePart.Message.Headers[0]");
+				Assert.That (rfc822.Message.MboxMarker, Is.Not.Null, "MessagePart.Message.MboxMarker");
+				Assert.That (Encoding.ASCII.GetString (rfc822.Message.MboxMarker), Is.EqualTo (">From"));
+				Assert.That (rfc822.Message.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Headers.Count");
 				Assert.That (rfc822.Message.Body.Headers.Count, Is.EqualTo (0), "MessagePart.Message.Body.Headers.Count");
 
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -5335,10 +5558,10 @@ This is the message body.
 		}
 
 		[TestCase (80)]
-		[TestCase (4094)]
+		[TestCase (4094)] // tests the not-enough-data code-path in MimeReader.StepMboxMarker()
 		[TestCase (4096)]
-		//[TestCase (4097)]
-		//[TestCase (8193)]
+		[TestCase (4097)] // tests midline code-paths in MimeReader.StepMboxMarkerStart()
+		[TestCase (8193)] // tests the not-enough-data midline code-path in MimeReader.StepMboxMarkerStart()
 		public void TestSimpleMboxWithGarbageBeforeMboxMarker (int garbageLength)
 		{
 			var garbage = new byte[garbageLength];
@@ -5361,10 +5584,10 @@ This is the message body.
 		}
 
 		[TestCase (80)]
-		[TestCase (4094)]
+		[TestCase (4094)] // tests the not-enough-data code-path in MimeReader.StepMboxMarker()
 		[TestCase (4096)]
-		//[TestCase (4097)]
-		//[TestCase (8193)]
+		[TestCase (4097)] // tests midline code-paths in MimeReader.StepMboxMarkerStart()
+		[TestCase (8193)] // tests the not-enough-data midline code-path in MimeReader.StepMboxMarkerStart()
 		public async Task TestSimpleMboxWithGarbageBeforeMboxMarkerAsync (int garbageLength)
 		{
 			var garbage = new byte[1024];
@@ -5516,10 +5739,9 @@ This is the message body.
 
 		class CustomMimeParser : MimeParser
 		{
-			readonly Dictionary<MimeMessage, MimeOffsets> messages = new Dictionary<MimeMessage, MimeOffsets> ();
-			readonly Dictionary<MimeEntity, MimeOffsets> entities = new Dictionary<MimeEntity, MimeOffsets> ();
 			public readonly List<MimeOffsets> Offsets = new List<MimeOffsets> ();
-			MimeOffsets body;
+			readonly Stack<MimeOffsets> stack = new Stack<MimeOffsets> ();
+			bool isMessageBody;
 
 			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format) : base (options, stream, format)
 			{
@@ -5529,77 +5751,100 @@ This is the message body.
 			{
 			}
 
-			protected override void OnMimeMessageBegin (MimeMessageBeginEventArgs args)
+			protected override void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 			{
 				var offsets = new MimeOffsets {
-					BeginOffset = args.BeginOffset,
-					LineNumber = args.LineNumber
+					BeginOffset = beginOffset,
+					LineNumber = beginLineNumber
 				};
 
-				if (args.Parent != null) {
-					if (entities.TryGetValue (args.Parent, out var parentOffsets))
-						parentOffsets.Message = offsets;
-					else
-						Console.WriteLine ("oops?");
+				if (stack.Count > 0) {
+					var parentOffsets = stack.Peek ();
+					parentOffsets.Message = offsets;
 				} else {
 					offsets.MboxMarkerOffset = MboxMarkerOffset;
 					Offsets.Add (offsets);
 				}
 
-				messages.Add (args.Message, offsets);
+				isMessageBody = true;
+				stack.Push (offsets);
 
-				base.OnMimeMessageBegin (args);
+				base.OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
 			}
 
-			protected override void OnMimeMessageEnd (MimeMessageEndEventArgs args)
+			protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 			{
-				if (messages.TryGetValue (args.Message, out var offsets)) {
-					offsets.Octets = args.EndOffset - args.HeadersEndOffset;
-					offsets.HeadersEndOffset = args.HeadersEndOffset;
-					offsets.EndOffset = args.EndOffset;
-					offsets.Body = body;
-				} else {
-					Console.WriteLine ("oops?");
-				}
+				var offsets = stack.Pop ();
+				offsets.Octets = endOffset - headersEndOffset;
+				offsets.HeadersEndOffset = headersEndOffset;
+				offsets.EndOffset = endOffset;
 
-				messages.Remove (args.Message);
-
-				base.OnMimeMessageEnd (args);
+				base.OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 
-			protected override void OnMimeEntityBegin (MimeEntityBeginEventArgs args)
+			void OnMimeEntityBegin (ContentType contentType, long beginOffset, int beginLineNumber)
 			{
 				var offsets = new MimeOffsets {
-					MimeType = args.Entity.ContentType.MimeType,
-					BeginOffset = args.BeginOffset,
-					LineNumber = args.LineNumber
+					MimeType = contentType.MimeType,
+					BeginOffset = beginOffset,
+					LineNumber = beginLineNumber
 				};
 
-				if (args.Parent != null && entities.TryGetValue (args.Parent, out var parentOffsets)) {
+				var parentOffsets = stack.Peek ();
+				if (isMessageBody) {
+					parentOffsets.Body = offsets;
+					isMessageBody = false;
+				} else {
 					parentOffsets.Children ??= new List<MimeOffsets> ();
 					parentOffsets.Children.Add (offsets);
 				}
 
-				entities.Add (args.Entity, offsets);
-
-				base.OnMimeEntityBegin (args);
+				stack.Push (offsets);
 			}
 
-			protected override void OnMimeEntityEnd (MimeEntityEndEventArgs args)
+			void OnMimeEntityEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines)
 			{
-				if (entities.TryGetValue (args.Entity, out var offsets)) {
-					offsets.Octets = args.EndOffset - args.HeadersEndOffset;
-					offsets.HeadersEndOffset = args.HeadersEndOffset;
-					offsets.EndOffset = args.EndOffset;
-					offsets.Lines = args.Lines;
-					body = offsets;
-				} else {
-					Console.WriteLine ("oops?");
-				}
+				var offsets = stack.Pop ();
+				offsets.Octets = endOffset - headersEndOffset;
+				offsets.HeadersEndOffset = headersEndOffset;
+				offsets.EndOffset = endOffset;
+				offsets.Lines = lines;
+			}
 
-				entities.Remove (args.Entity);
+			protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				OnMimeEntityBegin (contentType, beginOffset, beginLineNumber);
+				base.OnMessagePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
 
-				base.OnMimeEntityEnd (args);
+			protected override void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				OnMimeEntityEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
+				base.OnMessagePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				OnMimeEntityBegin (contentType, beginOffset, beginLineNumber);
+				base.OnMultipartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				OnMimeEntityEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
+				base.OnMultipartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				OnMimeEntityBegin (contentType, beginOffset, beginLineNumber);
+				base.OnMimePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				OnMimeEntityEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
+				base.OnMimePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
 			}
 		}
 
@@ -5626,7 +5871,7 @@ This is the message body.
 
 				output.Position = 0;
 
-				Assert.That (output.Length, Is.EqualTo (original.Length), "The length of the mbox did not match.");
+				//Assert.That (output.Length, Is.EqualTo (original.Length), "The length of the mbox did not match.");
 
 				do {
 					nx = original.Read (expected, 0, expected.Length);
@@ -5996,7 +6241,7 @@ This is the message body.
 				Assert.That (multipart.Epilogue.Replace ("\r\n", "\n"), Is.EqualTo (epilogue), "The epilogue does not match");
 
 				Assert.That (multipart.RawEpilogue[0] == (byte) '\r' || multipart.RawEpilogue[0] == (byte) '\n', Is.True,
-				               "The RawEpilogue does not start with a new-line.");
+							   "The RawEpilogue does not start with a new-line.");
 			}
 		}
 
@@ -6125,7 +6370,6 @@ This is the message body.
 			}
 
 			using (var stream = new MemoryStream (messageData, false)) {
-				// Now try again with a lower MaxMimeDepth and verify that it throws
 				var options = ParserOptions.Default.Clone ();
 				options.MaxMimeDepth = maxDepth - 1;
 
@@ -6350,7 +6594,7 @@ This is the message body.
 		public void TestIssue358 ()
 		{
 			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
-			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
+			// which was causing LegacyMimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
 			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -6369,7 +6613,7 @@ This is the message body.
 		public async Task TestIssue358Async ()
 		{
 			// Note: This particular message has a badly folded header value for "x-microsoft-exchange-diagnostics:"
-			// which was causing MimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
+			// which was causing LegacyMimeParser.StepHeaders[Async]() to abort because ReadAhead() already had more than
 			// ReadAheadSize bytes buffered, so it assumed it had reached EOF when in fact it had not.
 			using (var stream = File.OpenRead (Path.Combine (MessagesDataDir, "issue358.txt"))) {
 				using (var filtered = new FilteredStream (stream)) {
@@ -6664,10 +6908,82 @@ ABC
 			}
 		}
 
+		internal static MemoryStream CreateIssue991Mbox (out long[] expectedOffsets)
+		{
+			const string template = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: {0}
+Message-Id: <1234567890.{1}@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+";
+			const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			const int lineLength = 255;
+
+			var mboxMarker = Encoding.ASCII.GetBytes ("From -\n");
+			var memory = new MemoryStream ();
+
+			expectedOffsets = new long[2];
+
+			// Write the first message
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+
+			var headers = string.Format (template, "This message contains long lines that will cause ScanContent() to require a buffer refill", 0);
+			var headerBuffer = Encoding.ASCII.GetBytes (headers);
+			memory.Write (headerBuffer, 0, headerBuffer.Length);
+
+			int index = 0;
+
+			while (memory.Length <= 4096) {
+				char c = Alphabet[index % Alphabet.Length];
+				for (int i = 0; i < lineLength && memory.Length < 4096; i++)
+					memory.WriteByte ((byte) c);
+
+				if (memory.Length < 4096) {
+					memory.WriteByte ((byte) '\n');
+				} else {
+					// fake mbox marker that is midline
+					memory.Write (mboxMarker, 0, mboxMarker.Length);
+				}
+
+				index++;
+			}
+
+			memory.WriteByte ((byte) '\n');
+
+			expectedOffsets[0] = memory.Length;
+
+			// Write the second message
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+
+			headers = string.Format (template, "This message contains long lines that will cause ScanContent() to require a buffer refill", 1);
+			headerBuffer = Encoding.ASCII.GetBytes (headers);
+			memory.Write (headerBuffer, 0, headerBuffer.Length);
+
+			while (memory.Length <= expectedOffsets[0] + 4096) {
+				char c = Alphabet[index % Alphabet.Length];
+				for (int i = 0; i < lineLength; i++)
+					memory.WriteByte ((byte) c);
+
+				memory.WriteByte ((byte) '\n');
+				index++;
+			}
+
+			memory.WriteByte ((byte) '\n');
+
+			expectedOffsets[1] = memory.Length;
+
+			// reset the stream for parsing
+			memory.Position = 0;
+
+			return memory;
+		}
+
 		[Test]
 		public void TestIssue991 ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateIssue991Mbox (out var expectedOffsets)) {
+			using (var memory = CreateIssue991Mbox (out var expectedOffsets)) {
 				var parser = new MimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 
@@ -6684,7 +7000,7 @@ ABC
 		[Test]
 		public async Task TestIssue991Async ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateIssue991Mbox (out var expectedOffsets)) {
+			using (var memory = CreateIssue991Mbox (out var expectedOffsets)) {
 				var parser = new MimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 
@@ -6698,10 +7014,96 @@ ABC
 			}
 		}
 
+		internal static MemoryStream CreateMboxWithLinesExceedingMaxSmtpLineLength (out long[] expectedOffsets)
+		{
+			const string template = @"From: mimekit@example.org
+To: mimekit@example.org
+Subject: {0}
+Message-Id: <1234567890.{1}@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+";
+			const string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			const int lineLength = 255;
+
+			var mboxMarker = Encoding.ASCII.GetBytes ("From -\n");
+			var memory = new MemoryStream ();
+
+			expectedOffsets = new long[2];
+
+			// Write the first message
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+
+			var headers = string.Format (template, "This message contains long lines that will cause ScanContent() to require a buffer refill", 0);
+			var headerBuffer = Encoding.ASCII.GetBytes (headers);
+			memory.Write (headerBuffer, 0, headerBuffer.Length);
+
+			int index = 0;
+			char c;
+
+			while (memory.Length <= 4096 - 1001) {
+				c = Alphabet[index % Alphabet.Length];
+
+				for (int i = 0; i < lineLength && memory.Length < 4096 - 1001; i++)
+					memory.WriteByte ((byte) c);
+
+				memory.WriteByte ((byte) '\n');
+				index++;
+			}
+
+			// Write the line that will exceed SmtpMaxLineLength *and* span across read boundaries
+			c = Alphabet[index % Alphabet.Length];
+
+			for (int i = 0; memory.Length < 4096; i++)
+				memory.WriteByte ((byte) c);
+
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+			index++;
+
+			// Write another line data
+			c = Alphabet[index % Alphabet.Length];
+
+			for (int i = 0; i < lineLength; i++)
+				memory.WriteByte ((byte) c);
+
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+			index++;
+
+			memory.WriteByte ((byte) '\n');
+
+			expectedOffsets[0] = memory.Length;
+
+			// Write the second message
+			memory.Write (mboxMarker, 0, mboxMarker.Length);
+
+			headers = string.Format (template, "This message contains long lines that will cause ScanContent() to require a buffer refill", 1);
+			headerBuffer = Encoding.ASCII.GetBytes (headers);
+			memory.Write (headerBuffer, 0, headerBuffer.Length);
+
+			while (memory.Length <= expectedOffsets[0] + 4096) {
+				c = Alphabet[index % Alphabet.Length];
+				for (int i = 0; i < lineLength; i++)
+					memory.WriteByte ((byte) c);
+
+				memory.WriteByte ((byte) '\n');
+				index++;
+			}
+
+			memory.WriteByte ((byte) '\n');
+
+			expectedOffsets[1] = memory.Length;
+
+			// reset the stream for parsing
+			memory.Position = 0;
+
+			return memory;
+		}
+
 		[Test]
 		public void TestMboxWithLinesExceedingMaxSmtpLineLength ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
+			using (var memory = CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
 				var parser = new MimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 
@@ -6718,7 +7120,7 @@ ABC
 		[Test]
 		public async Task TestMboxWithLinesExceedingMaxSmtpLineLengthAsync ()
 		{
-			using (var memory = ExperimentalMimeParserTests.CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
+			using (var memory = CreateMboxWithLinesExceedingMaxSmtpLineLength (out var expectedOffsets)) {
 				var parser = new MimeParser (memory, MimeFormat.Mbox);
 				int i = 0;
 

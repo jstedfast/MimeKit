@@ -80,7 +80,7 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="Multipart"/> class.
 		/// </summary>
 		/// <remarks>
-		/// This constructor is used by <see cref="MimeParser"/>.
+		/// This constructor is used by <see cref="IMimeParser"/>.
 		/// </remarks>
 		/// <param name="args">Information used by the constructor.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1076,7 +1076,7 @@ namespace MimeKit {
 		{
 			if (disposing) {
 				if (rawBoundaries != null) {
-					// Note: this event is only connected if the Multipart was parsed by a MimeParser,
+					// Note: this event is only connected if the Multipart was parsed by a IMimeParser,
 					// in which case, `boundaries` will not be null.
 					ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
 					rawBoundaries = null;

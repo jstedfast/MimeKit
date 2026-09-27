@@ -26,20 +26,18 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-#if ENABLE_CRYPTO
-using MimeKit.Cryptography;
-#endif
-
 using MimeKit.Tnef;
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace MimeKit {
 	/// <summary>
-	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
+	/// Parser options as used by <see cref="IMimeParser"/> as well as various Parse and TryParse methods in MimeKit.
 	/// </summary>
 	/// <remarks>
 	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options used by methods such
@@ -49,12 +47,13 @@ namespace MimeKit {
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> (MimeUtils.OrdinalIgnoreCase);
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorArgs) };
+		static ICryptographicEntityFactory? CryptographicEntityFactory;
 
 		/// <summary>
 		/// The default parser options.
 		/// </summary>
 		/// <remarks>
-		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="MimeParser"/> or other Parse and TryParse
+		/// If a <see cref="ParserOptions"/> is not supplied to <see cref="IMimeParser"/> or other Parse and TryParse
 		/// methods throughout MimeKit, <see cref="ParserOptions.Default"/> will be used.
 		/// </remarks>
 		public static readonly ParserOptions Default = new ParserOptions ();
@@ -310,7 +309,12 @@ namespace MimeKit {
 			return false;
 		}
 
-		internal MimeEntity CreateEntity (ContentType contentType, IList<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
+		internal static void Register (ICryptographicEntityFactory factory)
+		{
+			Volatile.Write (ref CryptographicEntityFactory, factory);
+		}
+
+		internal MimeEntity CreateEntity (ContentType contentType, List<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
 		{
 			var args = new MimeEntityConstructorArgs (this, contentType, headers, hasBodySeparator, toplevel);
 			var subtype = contentType.MediaSubtype;
@@ -350,15 +354,16 @@ namespace MimeKit {
 				if (subtype.Equals ("report", StringComparison.OrdinalIgnoreCase))
 					return new MultipartReport (args);
 
-#if ENABLE_CRYPTO
-				// multipart/encrypted
-				if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
-					return new MultipartEncrypted (args);
+				var cryptoFactory = Volatile.Read (ref CryptographicEntityFactory);
+				if (cryptoFactory is not null) {
+					// multipart/encrypted
+					if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
+						return cryptoFactory.CreateMultipartEncrypted (args);
 
-				// multipart/signed
-				if (subtype.Equals ("signed", StringComparison.OrdinalIgnoreCase))
-					return new MultipartSigned (args);
-#endif
+					// multipart/signed
+					if (subtype.Equals ("signed", StringComparison.OrdinalIgnoreCase))
+						return cryptoFactory.CreateMultipartSigned (args);
+				}
 
 				// multipart/mixed, multipart/parallel, etc.
 				return new Multipart (args);
@@ -396,27 +401,28 @@ namespace MimeKit {
 						return new TextRfc822Headers (args);
 				}
 			} else if (type.Equals ("application", StringComparison.OrdinalIgnoreCase)) {
-#if ENABLE_CRYPTO
-				// application/pkcs7-mime
-				if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pkcs7-mime", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPkcs7Mime (args);
+				var cryptoFactory = Volatile.Read (ref CryptographicEntityFactory);
+				if (cryptoFactory is not null) {
+					// application/pkcs7-mime
+					if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pkcs7-mime", StringComparison.OrdinalIgnoreCase))
+						return cryptoFactory.CreateApplicationPkcs7Mime (args);
 
-				// application/pkcs7-signature
-				if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPkcs7Signature (args);
+					// application/pkcs7-signature
+					if (subtype.Equals ("pkcs7-signature", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pkcs7-signature", StringComparison.OrdinalIgnoreCase))
+						return cryptoFactory.CreateApplicationPkcs7Signature (args);
 
-				// application/pgp-encrypted
-				if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pgp-encrypted", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPgpEncrypted (args);
+					// application/pgp-encrypted
+					if (subtype.Equals ("pgp-encrypted", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pgp-encrypted", StringComparison.OrdinalIgnoreCase))
+						return cryptoFactory.CreateApplicationPgpEncrypted (args);
 
-				// application/pgp-signature
-				if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
-					subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
-					return new ApplicationPgpSignature (args);
-#endif
+					// application/pgp-signature
+					if (subtype.Equals ("pgp-signature", StringComparison.OrdinalIgnoreCase) ||
+						subtype.Equals ("x-pgp-signature", StringComparison.OrdinalIgnoreCase))
+						return cryptoFactory.CreateApplicationPgpSignature (args);
+				}
 
 				// application/ms-tnef
 				if (subtype.Equals ("ms-tnef", StringComparison.OrdinalIgnoreCase) ||

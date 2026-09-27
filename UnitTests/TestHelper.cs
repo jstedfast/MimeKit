@@ -27,6 +27,7 @@
 using System.Text;
 
 using MimeKit.Utils;
+using MimeKit.Cryptography;
 
 namespace UnitTests {
 	[SetUpFixture]
@@ -66,6 +67,8 @@ namespace UnitTests {
 				Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
 				CharsetUtils.GetCodePage ("iso-2022-jp");
 			}
+
+			CryptographyModule.Initialize ();
 		}
 	}
 }

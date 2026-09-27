@@ -24,10 +24,6 @@
 // THE SOFTWARE.
 //
 
-#if ENABLE_CRYPTO
-using MimeKit.Cryptography;
-#endif
-
 using MimeKit.Tnef;
 
 namespace MimeKit {
@@ -76,59 +72,6 @@ namespace MimeKit {
 		{
 			message?.Accept (this);
 		}
-
-#if ENABLE_CRYPTO
-		/// <summary>
-		/// Visit the application/pgp-encrypted MIME entity.
-		/// </summary>
-		/// <remarks>
-		/// Visits the application/pgp-encrypted MIME entity.
-		/// </remarks>
-		/// <seealso cref="MimeKit.Cryptography.MultipartEncrypted"/>
-		/// <param name="entity">The application/pgp-encrypted MIME entity.</param>
-		protected internal virtual void VisitApplicationPgpEncrypted (ApplicationPgpEncrypted entity)
-		{
-			VisitMimePart (entity);
-		}
-
-		/// <summary>
-		/// Visit the application/pgp-signature MIME entity.
-		/// </summary>
-		/// <remarks>
-		/// Visits the application/pgp-signature MIME entity.
-		/// </remarks>
-		/// <seealso cref="MimeKit.Cryptography.MultipartSigned"/>
-		/// <param name="entity">The application/pgp-signature MIME entity.</param>
-		protected internal virtual void VisitApplicationPgpSignature (ApplicationPgpSignature entity)
-		{
-			VisitMimePart (entity);
-		}
-
-		/// <summary>
-		/// Visit the application/pkcs7-mime MIME entity.
-		/// </summary>
-		/// <remarks>
-		/// Visits the application/pkcs7-mime MIME entity.
-		/// </remarks>
-		/// <param name="entity">The application/pkcs7-mime MIME entity.</param>
-		protected internal virtual void VisitApplicationPkcs7Mime (ApplicationPkcs7Mime entity)
-		{
-			VisitMimePart (entity);
-		}
-
-		/// <summary>
-		/// Visit the application/pkcs7-signature MIME entity.
-		/// </summary>
-		/// <remarks>
-		/// Visits the application/pkcs7-signature MIME entity.
-		/// </remarks>
-		/// <seealso cref="MimeKit.Cryptography.MultipartSigned"/>
-		/// <param name="entity">The application/pkcs7-signature MIME entity.</param>
-		protected internal virtual void VisitApplicationPkcs7Signature (ApplicationPkcs7Signature entity)
-		{
-			VisitMimePart (entity);
-		}
-#endif
 
 		/// <summary>
 		/// Visit the message/disposition-notification MIME entity.
@@ -297,20 +240,6 @@ namespace MimeKit {
 			VisitMultipart (alternative);
 		}
 
-#if ENABLE_CRYPTO
-		/// <summary>
-		/// Visit the multipart/encrypted MIME entity.
-		/// </summary>
-		/// <remarks>
-		/// Visits the multipart/encrypted MIME entity.
-		/// </remarks>
-		/// <param name="encrypted">The multipart/encrypted MIME entity.</param>
-		protected internal virtual void VisitMultipartEncrypted (MultipartEncrypted encrypted)
-		{
-			VisitMultipart (encrypted);
-		}
-#endif
-
 		/// <summary>
 		/// Visit the multipart/related MIME entity.
 		/// </summary>
@@ -340,20 +269,6 @@ namespace MimeKit {
 		{
 			VisitMultipart (report);
 		}
-
-#if ENABLE_CRYPTO
-		/// <summary>
-		/// Visit the multipart/signed MIME entity.
-		/// </summary>
-		/// <remarks>
-		/// Visits the multipart/signed MIME entity.
-		/// </remarks>
-		/// <param name="signed">The multipart/signed MIME entity.</param>
-		protected internal virtual void VisitMultipartSigned (MultipartSigned signed)
-		{
-			VisitMultipart (signed);
-		}
-#endif
 
 		/// <summary>
 		/// Visit the text-based MIME part entity.

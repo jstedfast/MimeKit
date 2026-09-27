@@ -447,6 +447,16 @@ namespace MimeKit {
 			get; private set;
 		}
 
+		// Note: All of the Content-* HeaderId values are contiguous, so a range check is far cheaper
+		// than a case-insensitive string comparison. Only fall back to comparing the field name when
+		// the header is not one that MimeKit knows about.
+		internal bool IsContentHeader {
+			get {
+				return (Id >= HeaderId.ContentAlternative && Id <= HeaderId.ContentType) ||
+					(Id == HeaderId.Unknown && Field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase));
+			}
+		}
+
 		/// <summary>
 		/// Get the raw field name of the header.
 		/// </summary>

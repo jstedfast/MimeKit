@@ -1,7 +1,6 @@
 [CmdletBinding()]
 param (
     [Parameter()]
-    [string] $ProjectName = "MimeKit",
     [string] $Version
 )
 
@@ -100,38 +99,48 @@ function Update-SamplePackageReferenceVersion {
     $project.Save($ProjectFile)
 }
 
-$assemblyInfo = Join-Path $ProjectName "Properties" "AssemblyInfo.cs"
-$assemblyInfo = Resolve-Path $assemblyInfo
-Write-Host "Updating $assemblyInfo..."
-Update-AssemblyInfo -AssemblyInfoPath $assemblyInfo -Version $Version
+# Update assembly info files
+$coreAssemblyInfo = Join-Path "MimeKit" "Properties" "AssemblyInfo.cs"
+$cryptographyAssemblyInfo = Join-Path "MimeKit.Cryptography" "Properties" "AssemblyInfo.cs"
 
-$fileName = $ProjectName + ".csproj"
-$projectFile = Join-Path $ProjectName $fileName
-$projectFile = Resolve-Path $projectFile
-Write-Host "Updating $projectFile..."
-Update-Project -ProjectFile $projectFile -Version $Version
+$assemblyInfoFiles = @(
+    $coreAssemblyInfo,
+    $cryptographyAssemblyInfo
+)
 
-$fileName = $ProjectName + "Lite.csproj"
-$projectFile = Join-Path $ProjectName $fileName
-$projectFile = Resolve-Path $projectFile
-Write-Host "Updating $projectFile..."
-Update-Project -ProjectFile $projectFile -Version $Version
+foreach ($assemblyInfo in $assemblyInfoFiles) {
+    $assemblyInfo = Resolve-Path $assemblyInfo
+    Write-Host "Updating $assemblyInfo..."
+    Update-AssemblyInfo -AssemblyInfoPath $assemblyInfo -Version $Version
+}
 
-$fileName = $ProjectName + ".nuspec"
-$nuspec = Join-Path "nuget" $fileName
-$nuspec = Resolve-Path $nuspec
-Write-Host "Updating $nuspec..."
-Update-NuGetPackageVersion -NuSpecFile $nuspec -Version $Version
+# Update project files
+$coreProjectFile = Join-Path "MimeKit" "MimeKit.csproj"
+$cryptographyProjectFIle = Join-Path "MimeKit.Cryptography" "MimeKit.Cryptography.csproj"
 
-$fileName = $ProjectName + "Lite.nuspec"
-$nuspec = Join-Path "nuget" $fileName
-$nuspec = Resolve-Path $nuspec
-Write-Host "Updating $nuspec..."
-Update-NuGetPackageVersion -NuSpecFile $nuspec -Version $Version
+$projectFiles = @(
+    $coreProjectFile,
+    $cryptographyProjectFIle
+)
 
+foreach ($projectFile in $projectFiles) {
+    $projectFile = Resolve-Path $projectFile
+    Write-Host "Updating $projectFile..."
+    Update-Project -ProjectFile $projectFile -Version $Version
+}
+
+# Update NuGet package versions
+$nuspecFiles = Get-ChildItem "nuget" -Filter "*.nuspec" -Recurse
+foreach ($nuspec in $nuspecFiles) {
+    $nuspec = Resolve-Path $nuspec
+    Write-Host "Updating $nuspec..."
+    Update-NuGetPackageVersion -NuSpecFile $nuspec -Version $Version
+}
+
+# Update sample project package references
 $sampleProjects = Get-ChildItem "samples" -Filter "*.csproj" -Recurse
 foreach ($projectFile in $sampleProjects) {
     $projectFile = Resolve-Path $projectFile
     Write-Host "Updating $projectFile..."
-    Update-SamplePackageReferenceVersion -ProjectFile $projectFile -PackageName $ProjectName -PackageVersion $Version
+    Update-SamplePackageReferenceVersion -ProjectFile $projectFile -PackageName "MimeKit" -PackageVersion $Version
 }

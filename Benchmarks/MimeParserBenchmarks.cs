@@ -113,6 +113,74 @@ header parser.
 		static readonly byte[] ContentLengthMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "content-length.mbox.txt"));
 		static readonly byte[] JwzMboxData = File.ReadAllBytes (Path.Combine (MboxDataDir, "jwz.mbox.txt"));
 
+		#region LegacyMimeParser
+
+		static void LegacyMimeParserSingleMessage (byte[] data, bool persistent = false)
+		{
+			using var stream = new MemoryStream (data, false);
+			var parser = new LegacyMimeParser (stream, MimeFormat.Entity, persistent);
+			var message = parser.ParseMessage ();
+			message.Dispose ();
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_StarTrekMessage ()
+		{
+			LegacyMimeParserSingleMessage (StarTrekData);
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_StarTrekMessagePersistent ()
+		{
+			LegacyMimeParserSingleMessage (StarTrekData, true);
+		}
+
+		static void LegacyMimeParserMboxFile (byte[] data, bool persistent = false)
+		{
+			using var stream = new MemoryStream (data, false);
+			var parser = new LegacyMimeParser (stream, MimeFormat.Mbox, persistent);
+
+			while (!parser.IsEndOfStream) {
+				var message = parser.ParseMessage ();
+				message.Dispose ();
+			}
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_ContentLengthMbox ()
+		{
+			LegacyMimeParserMboxFile (ContentLengthMboxData);
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_ContentLengthMboxPersistent ()
+		{
+			LegacyMimeParserMboxFile (ContentLengthMboxData, true);
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_JwzMbox ()
+		{
+			LegacyMimeParserMboxFile (JwzMboxData);
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_JwzMboxPersistent ()
+		{
+			LegacyMimeParserMboxFile (JwzMboxData, true);
+		}
+
+		[Benchmark]
+		public void LegacyMimeParser_HeaderStressTest ()
+		{
+			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
+			var parser = new LegacyMimeParser (stream, MimeFormat.Entity, true);
+			var message = parser.ParseMessage ();
+			message.Dispose ();
+		}
+
+		#endregion LegacyMimeParser
+
 		#region MimeParser
 
 		static void MimeParserSingleMessage (byte[] data, bool persistent = false)
@@ -180,74 +248,6 @@ header parser.
 		}
 
 		#endregion MimeParser
-
-		#region ExperimentalMimeParser
-
-		static void ExperimentalMimeParserSingleMessage (byte[] data, bool persistent = false)
-		{
-			using var stream = new MemoryStream (data, false);
-			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, persistent);
-			var message = parser.ParseMessage ();
-			message.Dispose ();
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_StarTrekMessage ()
-		{
-			ExperimentalMimeParserSingleMessage (StarTrekData);
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_StarTrekMessagePersistent ()
-		{
-			ExperimentalMimeParserSingleMessage (StarTrekData, true);
-		}
-
-		static void ExperimentalMimeParserMboxFile (byte[] data, bool persistent = false)
-		{
-			using var stream = new MemoryStream (data, false);
-			var parser = new ExperimentalMimeParser (stream, MimeFormat.Mbox, persistent);
-
-			while (!parser.IsEndOfStream) {
-				var message = parser.ParseMessage ();
-				message.Dispose ();
-			}
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_ContentLengthMbox ()
-		{
-			ExperimentalMimeParserMboxFile (ContentLengthMboxData);
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_ContentLengthMboxPersistent ()
-		{
-			ExperimentalMimeParserMboxFile (ContentLengthMboxData, true);
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_JwzMbox ()
-		{
-			ExperimentalMimeParserMboxFile (JwzMboxData);
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_JwzMboxPersistent ()
-		{
-			ExperimentalMimeParserMboxFile (JwzMboxData, true);
-		}
-
-		[Benchmark]
-		public void ExperimentalMimeParser_HeaderStressTest ()
-		{
-			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			var parser = new ExperimentalMimeParser (stream, MimeFormat.Entity, true);
-			var message = parser.ParseMessage ();
-			message.Dispose ();
-		}
-
-		#endregion ExperimentalMimeParser
 
 		#region MimeReader
 

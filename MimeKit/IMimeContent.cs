@@ -56,7 +56,7 @@ namespace MimeKit {
 		/// Get the new-line format, if known.
 		/// </summary>
 		/// <remarks>
-		/// <para>This property is typically only set by the <see cref="MimeParser"/> as it parses
+		/// <para>This property is typically only set by the <see cref="IMimeParser"/> as it parses
 		/// the content of a <see cref="MimePart"/> and is only used as a hint when verifying
 		/// digital signatures.</para>
 		/// </remarks>

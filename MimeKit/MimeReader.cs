@@ -73,9 +73,9 @@ namespace MimeKit {
 		int headerCount;
 
 		// boundary state
-		Boundary? boundaries;
-		Boundary? currentBoundary;
-		BoundaryType boundaryType;
+		MimeBoundary? boundaries;
+		MimeBoundary? currentBoundary;
+		MimeBoundaryType boundaryType;
 
 		ContentEncoding? currentEncoding;
 		ContentType? currentContentType;
@@ -208,13 +208,13 @@ namespace MimeKit {
 			eos = false;
 
 			if (format == MimeFormat.Mbox) {
-				boundaries = Boundary.CreateMboxBoundary ();
+				boundaries = MimeBoundary.CreateMboxBoundary ();
 			} else {
 				boundaries = null;
 			}
 
 			state = MimeParserState.Initialized;
-			boundaryType = BoundaryType.None;
+			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
 		}
 
@@ -800,41 +800,6 @@ namespace MimeKit {
 		/// <remarks>
 		/// Called when a multipart boundary is encountered in the stream.
 		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartBoundaryEnd instead.")]
-		protected virtual void OnMultipartBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-		}
-
-		/// <summary>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartBoundaryEndAsync instead.")]
-		protected virtual Task OnMultipartBoundaryAsync (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-			OnMultipartBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
-			return Task.CompletedTask;
-		}
-
-		/// <summary>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart boundary is encountered in the stream.
-		/// </remarks>
 		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
 		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -921,41 +886,6 @@ namespace MimeKit {
 		protected virtual Task OnMultipartBoundaryEndAsync (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
 		{
 			OnMultipartBoundaryEnd (beginOffset, lineNumber, endOffset, cancellationToken);
-			return Task.CompletedTask;
-		}
-
-		/// <summary>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </remarks>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartEndBoundaryEnd instead.")]
-		protected virtual void OnMultipartEndBoundary (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-		}
-
-		/// <summary>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </summary>
-		/// <remarks>
-		/// Called when a multipart end boundary is encountered in the stream.
-		/// </remarks>
-		/// <returns>An asynchronous task context.</returns>
-		/// <param name="boundary">The multipart boundary string.</param>
-		/// <param name="beginOffset">The offset into the stream where the boundary marker began.</param>
-		/// <param name="endOffset">The offset into the stream where the boundary marker ended.</param>
-		/// <param name="lineNumber">The line number where the boundary marker was found in the stream.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		[Obsolete ("Use OnMultipartEndBoundaryEndAsync instead.")]
-		protected virtual Task OnMultipartEndBoundaryAsync (string? boundary, long beginOffset, long endOffset, int lineNumber, CancellationToken cancellationToken)
-		{
-			OnMultipartEndBoundary (boundary, beginOffset, endOffset, lineNumber, cancellationToken);
 			return Task.CompletedTask;
 		}
 
@@ -1371,7 +1301,7 @@ namespace MimeKit {
 
 		long GetEndOffset (int index)
 		{
-			if (boundaryType != BoundaryType.Eos && index > 1 && input[index - 1] == (byte) '\n') {
+			if (boundaryType != MimeBoundaryType.Eos && index > 1 && input[index - 1] == (byte) '\n') {
 				index--;
 
 				if (index > 1 && input[index - 1] == (byte) '\r')
@@ -1388,7 +1318,7 @@ namespace MimeKit {
 			if (lineBeginOffset >= beginOffset && endOffset > lineBeginOffset)
 				lines++;
 
-			if (boundaryType != BoundaryType.Eos && endOffset == prevLineBeginOffset)
+			if (boundaryType != MimeBoundaryType.Eos && endOffset == prevLineBeginOffset)
 				lines--;
 
 			return lines;
@@ -1643,6 +1573,59 @@ namespace MimeKit {
 			state = MimeParserState.MessageHeaders;
 		}
 
+		// Note: This is needed by MimeParser.ParseStatusGroup().
+		//
+		// Returns <see langword="true" /> if there is more input remaining to be parsed; otherwise, <see langword="false" />.
+		internal bool SkipBlankLines (CancellationToken cancellationToken)
+		{
+			// We'll need at least 1 byte to check for a blank line.
+			int need = 1;
+
+			// Prime the read-ahead buffer so that we (hopefully) only need to make a single read.
+			ReadAhead (ReadAheadSize, 0, cancellationToken);
+
+			do {
+				int left = inputEnd - inputIndex;
+
+				if (left < 2)
+					left = ReadAhead (2, 0, cancellationToken);
+
+				if (left < need) {
+					// Note: If `left` is non-zero at this point, then it is a lone CR at the end of the
+					// stream which ReadHeaders() will consume as (invalid) header data.
+					if (left == 0)
+						state = MimeParserState.Eos;
+
+					return left > 0;
+				}
+
+				// Check for an empty line.
+				if (input[inputIndex] == (byte) '\n') {
+					inputIndex++;
+					IncrementLineNumber (inputIndex);
+					need = 1;
+				} else if (input[inputIndex] == (byte) '\r') {
+					// We need at least 2 bytes to check for a CRLF.
+					if (left > 1) {
+						if (input[inputIndex + 1] != (byte) '\n') {
+							// We had a lone CR?
+							return true;
+						}
+
+						inputIndex += 2;
+						IncrementLineNumber (inputIndex);
+						need = 1;
+					} else {
+						// Not enough data to determine what this is. We'll need at least 2 bytes in the next loop.
+						need = 2;
+					}
+				} else {
+					// Not a blank line.
+					return true;
+				}
+			} while (true);
+		}
+
 		void UpdateHeaderState (Header header)
 		{
 			var rawValue = header.RawValue;
@@ -1827,7 +1810,7 @@ namespace MimeKit {
 
 			int length = (int) (inptr - start);
 
-			if ((boundaryType = CheckBoundary (inputIndex, start, length)) != BoundaryType.None)
+			if ((boundaryType = CheckBoundary (inputIndex, start, length)) != MimeBoundaryType.None)
 				state = MimeParserState.Boundary;
 
 			return true;
@@ -1899,7 +1882,7 @@ namespace MimeKit {
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
-			boundaryType = BoundaryType.None;
+			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
 			headerCount = 0;
 
@@ -2091,18 +2074,8 @@ namespace MimeKit {
 
 			if (endBoundary) {
 				OnMultipartEndBoundaryEnd (beginOffset, beginLineNumber, endOffset, cancellationToken);
-
-#pragma warning disable 618
-				// Obsolete
-				OnMultipartEndBoundary (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken);
-#pragma warning restore 618
 			} else {
 				OnMultipartBoundaryEnd (beginOffset, beginLineNumber, endOffset, cancellationToken);
-
-#pragma warning disable 618
-				// Obsolete
-				OnMultipartBoundary (boundary, beginOffset, endOffset, beginLineNumber, cancellationToken);
-#pragma warning restore 618
 			}
 
 			return result;
@@ -2158,7 +2131,7 @@ namespace MimeKit {
 			return false;
 		}
 
-		static unsafe bool IsBoundary (byte* text, int length, Boundary boundary, out bool final)
+		static unsafe bool IsBoundary (byte* text, int length, MimeBoundary boundary, out bool final)
 		{
 			final = false;
 
@@ -2186,10 +2159,10 @@ namespace MimeKit {
 			return true;
 		}
 
-		unsafe BoundaryType CheckBoundary (int startIndex, byte* start, int length)
+		unsafe MimeBoundaryType CheckBoundary (int startIndex, byte* start, int length)
 		{
 			if (!IsPossibleBoundary (start, length))
-				return BoundaryType.None;
+				return MimeBoundaryType.None;
 
 			if (boundaries != null) {
 				byte* end = start + length;
@@ -2209,14 +2182,14 @@ namespace MimeKit {
 				if (!currentBoundary.IsMboxMarker) {
 					// check immediate boundary
 					if (IsBoundary (start, matchLength, currentBoundary, out final))
-						return final ? BoundaryType.ImmediateEndBoundary : BoundaryType.ImmediateBoundary;
+						return final ? MimeBoundaryType.ImmediateEndBoundary : MimeBoundaryType.ImmediateBoundary;
 
 					currentBoundary = currentBoundary.Next;
 
 					// check parent boundaries
 					while (currentBoundary != null && !currentBoundary.IsMboxMarker) {
 						if (IsBoundary (start, matchLength, currentBoundary, out final))
-							return final ? BoundaryType.ParentEndBoundary : BoundaryType.ParentBoundary;
+							return final ? MimeBoundaryType.ParentEndBoundary : MimeBoundaryType.ParentBoundary;
 
 						currentBoundary = currentBoundary.Next;
 					}
@@ -2227,11 +2200,11 @@ namespace MimeKit {
 					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
 
 					if (curOffset >= contentEnd && IsBoundary (start, matchLength, currentBoundary, out final))
-						return BoundaryType.ParentEndBoundary;
+						return MimeBoundaryType.ParentEndBoundary;
 				}
 			}
 
-			return BoundaryType.None;
+			return MimeBoundaryType.None;
 		}
 
 		unsafe bool IsPartialBoundary (int startIndex, byte* start, int length)
@@ -2304,7 +2277,7 @@ namespace MimeKit {
 				length = (int) (inptr - start);
 
 				if (inptr < inend) {
-					if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+					if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
 						break;
 
 					if (length > 0 && *(inptr - 1) == (byte) '\r')
@@ -2321,7 +2294,7 @@ namespace MimeKit {
 					// didn't find the end of the line...
 					if (eos) {
 						// Only consume this (incomplete) line of data if it *doesn't* match a boundary marker.
-						if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != BoundaryType.None)
+						if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
 							break;
 
 						incomplete = false;
@@ -2397,7 +2370,7 @@ namespace MimeKit {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
-					boundaryType = BoundaryType.Eos;
+					boundaryType = MimeBoundaryType.Eos;
 					break;
 				}
 
@@ -2420,12 +2393,12 @@ namespace MimeKit {
 
 					contentLength += inputIndex - contentIndex;
 				}
-			} while (boundaryType == BoundaryType.None);
+			} while (boundaryType == MimeBoundaryType.None);
 
 			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
 			var isEmpty = contentLength == 0;
 
-			if (boundaryType != BoundaryType.Eos && trimNewLine) {
+			if (boundaryType != MimeBoundaryType.Eos && trimNewLine) {
 				// the last \r\n belongs to the boundary
 				if (contentLength > 0) {
 					if (input[inputIndex - 2] == (byte) '\r')
@@ -2462,7 +2435,7 @@ namespace MimeKit {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
-					boundaryType = BoundaryType.Eos;
+					boundaryType = MimeBoundaryType.Eos;
 					return 0;
 				}
 
@@ -2477,7 +2450,7 @@ namespace MimeKit {
 				// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 				// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
 				// *never* be an Mbox "From " marker in Entity mode.
-				if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != BoundaryType.None)
+				if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != MimeBoundaryType.None)
 					return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
 			}
 
@@ -2553,7 +2526,7 @@ namespace MimeKit {
 			do {
 				// skip over the boundary marker
 				if (!SkipBoundaryMarker (inbuf, multipartContentType.Boundary, endBoundary: false, cancellationToken)) {
-					boundaryType = BoundaryType.Eos;
+					boundaryType = MimeBoundaryType.Eos;
 					return;
 				}
 
@@ -2597,12 +2570,12 @@ namespace MimeKit {
 					OnMimePartEnd (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken);
 					break;
 				}
-			} while (boundaryType == BoundaryType.ImmediateBoundary);
+			} while (boundaryType == MimeBoundaryType.ImmediateBoundary);
 		}
 
 		void PushBoundary (string boundary)
 		{
-			boundaries = new Boundary (boundary, boundaries);
+			boundaries = new MimeBoundary (boundary, boundaries);
 		}
 
 		void PopBoundary ()
@@ -2610,17 +2583,17 @@ namespace MimeKit {
 			boundaries = boundaries!.Next;
 
 			switch (boundaryType) {
-			case BoundaryType.ParentEndBoundary:
+			case MimeBoundaryType.ParentEndBoundary:
 				if (currentBoundary == boundaries)
-					boundaryType = BoundaryType.ImmediateEndBoundary;
+					boundaryType = MimeBoundaryType.ImmediateEndBoundary;
 				break;
-			case BoundaryType.ParentBoundary:
+			case MimeBoundaryType.ParentBoundary:
 				if (currentBoundary == boundaries)
-					boundaryType = BoundaryType.ImmediateBoundary;
+					boundaryType = MimeBoundaryType.ImmediateBoundary;
 				break;
-			case BoundaryType.ImmediateEndBoundary:
-			case BoundaryType.ImmediateBoundary:
-				boundaryType = BoundaryType.None;
+			case MimeBoundaryType.ImmediateEndBoundary:
+			case MimeBoundaryType.ImmediateBoundary:
+				boundaryType = MimeBoundaryType.None;
 				currentBoundary = null;
 				break;
 			}
@@ -2649,10 +2622,10 @@ namespace MimeKit {
 			PushBoundary (marker);
 
 			MultipartScanPreamble (inbuf, cancellationToken);
-			if (boundaryType == BoundaryType.ImmediateBoundary)
+			if (boundaryType == MimeBoundaryType.ImmediateBoundary)
 				MultipartScanSubparts (contentType, inbuf, depth, cancellationToken);
 
-			if (boundaryType == BoundaryType.ImmediateEndBoundary) {
+			if (boundaryType == MimeBoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
 				SkipBoundaryMarker (inbuf, marker, endBoundary: true, cancellationToken);
 
@@ -2671,6 +2644,32 @@ namespace MimeKit {
 			endOffset = GetEndOffset (inputIndex);
 
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
+		}
+
+		/// <summary>
+		/// This is a hack needed by the MessageDeliveryStatus.ParseStatusGroups() logic in order to work around an Office365 bug.
+		/// </summary>
+		/// <returns>The remainder of the parser's input stream (needed because the input stream may not be seekable).</returns>
+		internal Stream ReadToEos ()
+		{
+			var content = new MemoryBlockStream ();
+
+			try {
+				do {
+					if (ReadAhead (1, 0, CancellationToken.None) <= 0)
+						break;
+
+					content.Write (input, inputIndex, inputEnd - inputIndex);
+					inputIndex = inputEnd;
+				} while (!eos);
+
+				content.Position = 0;
+
+				return content;
+			} catch {
+				content.Dispose ();
+				throw;
+			}
 		}
 
 		unsafe void ReadHeaders (byte* inbuf, CancellationToken cancellationToken)
@@ -2855,7 +2854,7 @@ namespace MimeKit {
 
 			OnMimeMessageEnd (currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken);
 
-			if (boundaryType != BoundaryType.Eos) {
+			if (boundaryType != MimeBoundaryType.Eos) {
 				if (format == MimeFormat.Mbox)
 					state = MimeParserState.MboxMarker;
 				else

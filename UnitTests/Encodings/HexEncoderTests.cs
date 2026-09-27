@@ -24,11 +24,8 @@
 // THE SOFTWARE.
 //
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
 using System.Text;
 
-using MimeKit;
 using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
@@ -38,27 +35,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new HexEncoder ());
-		}
+			var output = Array.Empty<byte> ();
 
-		[Test]
-		public void TestEncoding ()
-		{
-			var encoder = new HexEncoder ();
-
-			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.Default));
-		}
-
-		[Test]
-		public void TestClone ()
-		{
-			CloneAndAssert (new HexEncoder ());
-		}
-
-		[Test]
-		public void TestReset ()
-		{
-			ResetAndAssert (new HexEncoder ());
+			Assert.Throws<ArgumentNullException> (() => HexEncoder.Encode (null, 0, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => HexEncoder.Encode (Array.Empty<byte> (), -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => HexEncoder.Encode (new byte[1], 0, 10, output));
+			Assert.Throws<ArgumentNullException> (() => HexEncoder.Encode (new byte[1], 0, 1, null));
+			Assert.Throws<ArgumentException> (() => HexEncoder.Encode (new byte[1], 0, 1, output));
 		}
 
 		[Test]
@@ -67,21 +50,18 @@ namespace UnitTests.Encodings {
 			const string expected = "%ED%E5%EC%F9%20%EF%E1%20%E9%EC%E8%F4%F0";
 			const string input = "םולש ןב ילטפנ";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
-			var encoder = new HexEncoder ();
-			var output = new byte[1024];
-
 			var buf = encoding.GetBytes (input);
-			int n = encoder.Encode (buf, 0, buf.Length, output);
+			int n;
+
+			n = HexEncoder.EstimateOutputLength (buf.Length);
+			
+			Assert.That (n, Is.EqualTo (buf.Length * 3), "EstimateOutputLength");
+
+			var output = new byte[n];
+			n = HexEncoder.Encode (buf, 0, buf.Length, output);
 			var actual = encoding.GetString (output, 0, n);
 
 			Assert.That (actual, Is.EqualTo (expected), "Encode");
-
-			encoder.Reset ();
-
-			n = encoder.Flush (buf, 0, buf.Length, output);
-			actual = Encoding.ASCII.GetString (output, 0, n);
-
-			Assert.That (actual, Is.EqualTo (expected), "Flush");
 		}
 
 		[Test]
@@ -89,23 +69,18 @@ namespace UnitTests.Encodings {
 		{
 			const string expected = "%20%09%0D%0AABCabc123!%40#$%25^&%2A%28%29_+`-%3D%5B%5D%5C{}|%3B%3A%27%22%2C.%2F%3C%3E%3F";
 			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
-			var encoder = new HexEncoder ();
-			var output = new byte[1024];
-
 			var buf = Encoding.ASCII.GetBytes (input);
-			int n = encoder.Encode (buf, 0, buf.Length, output);
+			int n;
+
+			n = HexEncoder.EstimateOutputLength (buf.Length);
+
+			Assert.That (n, Is.EqualTo (buf.Length * 3), "EstimateOutputLength");
+
+			var output = new byte[n];
+			n = HexEncoder.Encode (buf, 0, buf.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
 			Assert.That (actual, Is.EqualTo (expected), "Encode");
-
-			encoder.Reset ();
-
-			n = encoder.Flush (buf, 0, buf.Length, output);
-			actual = Encoding.ASCII.GetString (output, 0, n);
-
-			Assert.That (actual, Is.EqualTo (expected), "Flush");
 		}
 	}
 }
-
-#pragma warning restore CS0618 // Type or member is obsolete

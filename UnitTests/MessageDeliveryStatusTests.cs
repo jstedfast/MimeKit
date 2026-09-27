@@ -29,6 +29,8 @@ using System.Text;
 using MimeKit;
 using MimeKit.Utils;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class MessageDeliveryStatusTests
@@ -152,6 +154,66 @@ namespace UnitTests {
 			Assert.That (groups[1]["Status"], Is.EqualTo ("5.1.1"));
 			Assert.That (groups[1]["Remote-MTA"], Is.EqualTo ("dns; https://urldefense.proofpoint.com/v2/url?u=http-3A__mx1-2Deu1.ppe-2Dhosted.com&d=DwICAQ&c=euGZstcaTDllvimEN8b7jXrwqOf-v5A_CdpgnVfiiMM&r=xGEu8UUVNHyj_BIRW7SVPK81Hnp-FSanq3-_T1am-Kg&m=RMniPmjTykiwdgbzUU7Cewy0BeD_osytuQLS6cflj30&s=0Q-rn8HZSqF10OISjAJdmdg7HT9iADG2jsaaaxtt7tE&e="));
 			Assert.That (groups[1]["Diagnostic-Code"], Is.EqualTo ("smtp; 550 5.1.1 <netec.test@netecgc.com>: Recipient address    rejected: User unknown"));
+		}
+
+		static MessageDeliveryStatus CreateDeliveryStatus (string text, bool readOneByteAtATime = false)
+		{
+			var memory = new MemoryStream (Encoding.ASCII.GetBytes (text), false);
+			Stream stream = readOneByteAtATime ? new ReadOneByteStream (memory) : memory;
+
+			return new MessageDeliveryStatus {
+				Content = new MimeContent (stream)
+			};
+		}
+
+		[Test]
+		public void TestStatusGroupsTrailingBlankLines ()
+		{
+			// Note: The trailing blank lines should not result in an empty status group.
+			using var delivery = CreateDeliveryStatus ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r\n\r\n");
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Expected 2 groups of headers.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[TestCase ("", TestName = "TestStatusGroupsNoContent")]
+		[TestCase ("\r\n", TestName = "TestStatusGroupsSingleBlankLine")]
+		[TestCase ("\r\n\r\n\r\n", TestName = "TestStatusGroupsOnlyBlankLines")]
+		[TestCase ("\r", TestName = "TestStatusGroupsOnlyLoneCarriageReturn")]
+		public void TestStatusGroupsWithoutAnyStatusGroups (string text)
+		{
+			using var delivery = CreateDeliveryStatus (text);
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups, Is.Not.Null, "Did not expect null status groups.");
+			Assert.That (groups.Count, Is.EqualTo (0), "Did not expect any groups of headers.");
+		}
+
+		[Test]
+		public void TestStatusGroupsTrailingLoneCarriageReturn ()
+		{
+			// Note: The trailing lone CR should not result in an empty status group.
+			using var delivery = CreateDeliveryStatus ("Reporting-MTA: dns; mm1\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r");
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Expected 2 groups of headers.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupsReadOneByteAtATime ()
+		{
+			// Note: Reading a single byte at a time forces the parser to deal with CRLF
+			// sequences that span multiple reads while skipping blank lines.
+			using var delivery = CreateDeliveryStatus ("\r\n\r\nReporting-MTA: dns; mm1\r\n\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n\r\n", true);
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Expected 2 groups of headers.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
 		}
 
 		// This tests issue #855

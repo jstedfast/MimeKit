@@ -32,9 +32,9 @@ namespace MimeKit.IO {
 	/// </summary>
 	/// <remarks>
 	/// <para>This interface is meant to extend the functionality of a <see cref="System.IO.Stream"/>,
-	/// allowing the <see cref="MimeParser"/> to have much finer-grained canellability.</para>
+	/// allowing the <see cref="IMimeParser"/> to have much finer-grained canellability.</para>
 	/// <para>When a custom stream implementation also implements this interface,
-	/// the <see cref="MimeParser"/> will opt to use this interface
+	/// the <see cref="IMimeParser"/> will opt to use this interface
 	/// instead of the normal <see cref="System.IO.Stream.Read(byte[],int,int)"/>
 	/// API to read data from the stream.</para>
 	/// <para>This is really useful when parsing a message or other MIME entity
@@ -48,7 +48,7 @@ namespace MimeKit.IO {
 		/// </summary>
 		/// <remarks>
 		/// <para>When a custom stream implementation also implements this interface,
-		/// the <see cref="MimeParser"/> will opt to use this interface
+		/// the <see cref="IMimeParser"/> will opt to use this interface
 		/// instead of the normal <see cref="System.IO.Stream.Read(byte[],int,int)"/>
 		/// API to read data from the stream.</para>
 		/// <para>This is really useful when parsing a message or other MIME entity
