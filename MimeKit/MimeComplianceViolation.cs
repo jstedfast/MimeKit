@@ -665,7 +665,7 @@ namespace MimeKit {
 		NullByteInAddress                           = 53,
 
 		/// <summary>
-		/// A line break appeared inside an address token where folding is not permitted.
+		/// A line break appeared inside a local-part or domain.
 		/// </summary>
 		/// <remarks>
 		/// <para>Folding whitespace is permitted around the tokens of an address, but the <c>dot-atom-text</c> production in
@@ -676,6 +676,10 @@ namespace MimeKit {
 		/// that some component in the chain will treat what follows as a new header or a new command. Even where that
 		/// fails, implementations differ on whether to unfold, reject or truncate the address, so the recipient that is
 		/// finally used may not be the one an auditor sees.</para>
+		/// <note type="note">A line break inside a <i>quoted</i> local-part is also reported, even though section 3.2.4 of
+		/// rfc5322 permits folding whitespace inside a quoted-string. A quoted local-part is rare enough that
+		/// implementations mishandle it in practice, so the divergence in the recipient finally used is real regardless of
+		/// what the grammar allows.</note>
 		/// </remarks>
 		LineBreakInAddress                          = 54,
 

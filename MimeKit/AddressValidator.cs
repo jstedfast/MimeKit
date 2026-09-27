@@ -243,11 +243,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Report a line break within a range of whitespace that appeared inside a token.
+		/// Report a line break within a range that appeared inside a token.
 		/// </summary>
-		/// <returns><see langword="true"/> if the whitespace contained a line break.</returns>
-		/// <param name="start">The start of the whitespace.</param>
-		/// <param name="end">The end of the whitespace.</param>
+		/// <returns><see langword="true"/> if the range contained a line break.</returns>
+		/// <param name="start">The start of the range.</param>
+		/// <param name="end">The end of the range.</param>
 		/// <param name="reported">Whether a line break has already been reported for this address.</param>
 		bool CheckLineBreak (int start, int end, ref bool reported)
 		{
@@ -450,8 +450,17 @@ namespace MimeKit {
 			do {
 				// local-part = dot-atom / quoted-string
 				if (index < endIndex && text[index] == (byte) '"') {
+					int quoted = index;
+
 					if (!SkipQuoted ())
 						return;
+
+					// Note: Section 3.2.4 of rfc5322 does permit FWS inside a quoted-string, so this
+					// one is reported despite being legal. A quoted local-part is rare enough that
+					// implementations get it wrong, and both MimeKit and Exchange have mishandled a
+					// line break here, so the divergence this violation exists to report is real
+					// whether or not the grammar allows the construct.
+					CheckLineBreak (quoted, index, ref reportedLineBreak);
 				} else {
 					ValidateDotAtom (MimeComplianceViolation.InvalidLocalPart);
 				}

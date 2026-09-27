@@ -199,9 +199,27 @@ namespace UnitTests {
 				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
 		}
 
+		// Note: Section 3.2.4 of rfc5322 permits folding whitespace inside a quoted-string, so a
+		// quoted local-part that is folded is legal. It is reported anyway: a quoted local-part is
+		// rare enough that implementations mishandle it, and both MimeKit and Exchange have done so,
+		// which makes the divergence this violation describes real regardless of the grammar.
+		[TestCase ("\"us\r\n er\"@example.com")]
+		[TestCase ("<\"us\r\n er\"@example.com>")]
+		[TestCase ("John Doe <\"us\r\n er\"@example.com>")]
+		public void TestLineBreakInQuotedLocalPartIsReported (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.LineBreakInAddress));
+			Assert.That (issues, Has.Count.EqualTo (1),
+				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
 		// Note: This is the false-positive risk for LineBreakInAddress. Folding is legal between
 		// addresses, around the tokens of an addr-spec, between the words of a phrase, and inside
-		// quoted strings and comments, so none of these may be reported.
+		// comments and quoted display-names, so none of these may be reported. A folded quoted
+		// local-part is the one legal construct that is deliberately reported anyway; see
+		// TestLineBreakInQuotedLocalPartIsReported.
 		[TestCase ("a@example.com,\r\n b@example.com")]
 		[TestCase ("user\r\n @example.com")]
 		[TestCase ("user@\r\n example.com")]
@@ -209,6 +227,7 @@ namespace UnitTests {
 		[TestCase ("\"John\r\n Doe\" <j@example.com>")]
 		[TestCase ("(a\r\n comment) user@example.com")]
 		[TestCase ("John Doe\r\n <j@example.com>")]
+		[TestCase ("\"John\r\n Doe\" <\"user\"@example.com>")]
 		public void TestLegalFoldingIsNotReported (string value)
 		{
 			var issues = Validate ("To", value);
