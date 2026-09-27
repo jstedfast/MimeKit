@@ -37,8 +37,11 @@ namespace MimeKit {
 	/// <para>New properties may be added to this structure in future versions of MimeKit in order to
 	/// provide richer context about a violation. For that reason, always construct instances using one
 	/// of the available constructors rather than relying on the default value.</para>
+	/// <para>The default value of this structure has a <see cref="Violation"/> of
+	/// <see cref="MimeComplianceViolation.None"/>, which is never reported by <see cref="MimeReader"/>
+	/// and cannot be constructed, so it may be used to detect an uninitialized instance.</para>
 	/// </remarks>
-	public readonly struct MimeComplianceIssue
+	public readonly struct MimeComplianceIssue : IEquatable<MimeComplianceIssue>
 	{
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeComplianceIssue"/> struct.
@@ -49,6 +52,9 @@ namespace MimeKit {
 		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
 		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
 		/// <param name="lineNumber">The one-based line number where the violation was found.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.
+		/// </exception>
 		public MimeComplianceIssue (MimeComplianceViolation violation, long streamOffset, int lineNumber) : this (violation, streamOffset, lineNumber, 0)
 		{
 		}
@@ -63,8 +69,14 @@ namespace MimeKit {
 		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
 		/// <param name="lineNumber">The one-based line number where the violation was found.</param>
 		/// <param name="columnNumber">The one-based column number where the violation was found, or <c>0</c> if unknown.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.
+		/// </exception>
 		public MimeComplianceIssue (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber)
 		{
+			if (violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.EmptyGroupName)
+				throw new ArgumentOutOfRangeException (nameof (violation));
+
 			Violation = violation;
 			StreamOffset = streamOffset;
 			LineNumber = lineNumber;
@@ -201,6 +213,76 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Determine whether the specified <see cref="MimeComplianceIssue"/> is equal to the current <see cref="MimeComplianceIssue"/>.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified <see cref="MimeComplianceIssue"/> is equal to the current <see cref="MimeComplianceIssue"/>.
+		/// </remarks>
+		/// <param name="other">The <see cref="MimeComplianceIssue"/> to compare with the current <see cref="MimeComplianceIssue"/>.</param>
+		/// <returns><see langword="true" /> if the specified <see cref="MimeComplianceIssue"/> is equal to the current
+		/// <see cref="MimeComplianceIssue"/>; otherwise, <see langword="false" />.</returns>
+		public bool Equals (MimeComplianceIssue other)
+		{
+			return other.Violation == Violation && other.StreamOffset == StreamOffset &&
+				other.LineNumber == LineNumber && other.ColumnNumber == ColumnNumber;
+		}
+
+		/// <summary>
+		/// Determine whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeComplianceIssue"/>.
+		/// </summary>
+		/// <remarks>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="MimeComplianceIssue"/>.
+		/// </remarks>
+		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="MimeComplianceIssue"/>.</param>
+		/// <returns><see langword="true" /> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="MimeComplianceIssue"/>; otherwise, <see langword="false" />.</returns>
+		public override bool Equals (object? obj)
+		{
+			return obj is MimeComplianceIssue other && Equals (other);
+		}
+
+		/// <summary>
+		/// Serve as a hash function for a <see cref="MimeComplianceIssue"/> object.
+		/// </summary>
+		/// <remarks>
+		/// Serves as a hash function for a <see cref="MimeComplianceIssue"/> object.
+		/// </remarks>
+		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
+		/// and data structures such as a hash table.</returns>
+		public override int GetHashCode ()
+		{
+			return Violation.GetHashCode () ^ StreamOffset.GetHashCode () ^ LineNumber ^ ColumnNumber;
+		}
+
+		/// <summary>
+		/// Compare two <see cref="MimeComplianceIssue"/> objects for equality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="MimeComplianceIssue"/> objects for equality.
+		/// </remarks>
+		/// <param name="left">The first issue to compare.</param>
+		/// <param name="right">The second issue to compare.</param>
+		/// <returns><see langword="true" /> if the two issues are equal; otherwise, <see langword="false" />.</returns>
+		public static bool operator == (MimeComplianceIssue left, MimeComplianceIssue right)
+		{
+			return left.Equals (right);
+		}
+
+		/// <summary>
+		/// Compare two <see cref="MimeComplianceIssue"/> objects for inequality.
+		/// </summary>
+		/// <remarks>
+		/// Compares two <see cref="MimeComplianceIssue"/> objects for inequality.
+		/// </remarks>
+		/// <param name="left">The first issue to compare.</param>
+		/// <param name="right">The second issue to compare.</param>
+		/// <returns><see langword="true" /> if the two issues are not equal; otherwise, <see langword="false" />.</returns>
+		public static bool operator != (MimeComplianceIssue left, MimeComplianceIssue right)
+		{
+			return !left.Equals (right);
+		}
+
+		/// <summary>
 		/// Get the severity of a MIME compliance violation.
 		/// </summary>
 		/// <remarks>
@@ -251,7 +333,7 @@ namespace MimeKit {
 			// routinely exhibit them without any ill effect.
 			case MimeComplianceViolation.BareLinefeedInHeader:
 			case MimeComplianceViolation.BareLinefeedInBody:
-			case MimeComplianceViolation.InvalidWrapping:
+			case MimeComplianceViolation.OversizedLine:
 				return context == MimeComplianceContext.Storage ? MimeComplianceSeverity.Minor : MimeComplianceSeverity.Major;
 
 			// Note: 8-bit content is so common that MIME parsers have had to cope with it for
@@ -406,7 +488,7 @@ namespace MimeKit {
 				return Interop | Security;
 
 			// Note: An over-long line may be folded or truncated in transit, which alters the content.
-			case MimeComplianceViolation.InvalidWrapping:
+			case MimeComplianceViolation.OversizedLine:
 				return Interop | DataLoss;
 
 			// Note: Without a blank line, parsers disagree about where the headers stop and the body
@@ -565,7 +647,7 @@ namespace MimeKit {
 				return "A Content-Transfer-Encoding header for a multipart contained an illegal value.";
 			case MimeComplianceViolation.MultipleContentTransferEncodings:
 				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
-			case MimeComplianceViolation.InvalidWrapping:
+			case MimeComplianceViolation.OversizedLine:
 				return "A line was found that was longer than the SMTP limit of 1000 characters.";
 			case MimeComplianceViolation.MissingBodySeparator:
 				return "An empty line separating the headers from the body was missing.";
@@ -693,7 +775,7 @@ namespace MimeKit {
 				return "The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify any encoding that transforms the content in any way (such as quoted-printable or base64).";
 			case MimeComplianceViolation.MultipleContentTransferEncodings:
 				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
-			case MimeComplianceViolation.InvalidWrapping:
+			case MimeComplianceViolation.OversizedLine:
 				return "This indicates that a line was longer than the SMTP limit of 1000 characters.";
 			case MimeComplianceViolation.MissingBodySeparator:
 				return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";

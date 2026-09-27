@@ -1353,7 +1353,7 @@ namespace MimeKit {
 			lineBeginOffset = GetOffset (index);
 
 			if (ComplianceLogger != null && (lineBeginOffset - prevLineBeginOffset) > SmtpMaxLineLength)
-				ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, prevLineBeginOffset, lineNumber));
+				ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.OversizedLine, prevLineBeginOffset, lineNumber));
 
 			lineNumber++;
 		}
@@ -2477,7 +2477,7 @@ namespace MimeKit {
 							var offset = GetOffset ((int) (inptr - inbuf));
 
 							if ((offset - lineBeginOffset) > SmtpMaxLineLength)
-								ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, lineBeginOffset, lineNumber));
+								ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.OversizedLine, lineBeginOffset, lineNumber));
 						}
 
 						incomplete = false;

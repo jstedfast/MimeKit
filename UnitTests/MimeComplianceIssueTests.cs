@@ -24,8 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Linq;
 using System.Text;
-
 using MimeKit;
 using MimeKit.Encodings;
 
@@ -33,7 +33,76 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimeComplianceIssueTests
 	{
-		static IEnumerable<MimeComplianceViolation> AllViolations => Enum.GetValues<MimeComplianceViolation> ();
+		// Note: None is excluded because it is never reported and has no description, severity or categories.
+		static IEnumerable<MimeComplianceViolation> AllViolations => Enum.GetValues<MimeComplianceViolation> ().Where (v => v != MimeComplianceViolation.None);
+
+		[Test]
+		public void TestDefaultInstanceIsDistinguishableFromARealIssue ()
+		{
+			// Note: This is the reason MimeComplianceViolation.None occupies the zero slot. If a real
+			// violation were given the value 0, then default(MimeComplianceIssue) would masquerade as
+			// a genuine report of that violation.
+			var issue = default (MimeComplianceIssue);
+
+			Assert.That (issue.Violation, Is.EqualTo (MimeComplianceViolation.None));
+		}
+
+		[Test]
+		public void TestConstructorRejectsViolationsThatAreNotReportable ()
+		{
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceViolation.None, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceViolation.None, 0, 1, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue ((MimeComplianceViolation) (-1), 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue ((MimeComplianceViolation) 999, 0, 1));
+
+			foreach (var violation in AllViolations)
+				Assert.DoesNotThrow (() => new MimeComplianceIssue (violation, 0, 1), $"{violation} should be constructible.");
+		}
+
+		[Test]
+		public void TestEmptyGroupNameIsTheLargestViolation ()
+		{
+			// Note: The MimeComplianceIssue constructor range check is written in terms of the largest
+			// defined violation. If a new violation is appended, the check must be updated to match.
+			var max = Enum.GetValues<MimeComplianceViolation> ().Max ();
+
+			Assert.That (max, Is.EqualTo (MimeComplianceViolation.EmptyGroupName));
+		}
+
+		[Test]
+		public void TestEquality ()
+		{
+			var issue = new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 3);
+			var same = new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 3);
+
+			Assert.That (issue.Equals (same), Is.True, "Equals");
+			Assert.That (issue.Equals ((object) same), Is.True, "Equals (object)");
+			Assert.That (issue == same, Is.True, "operator ==");
+			Assert.That (issue != same, Is.False, "operator !=");
+			Assert.That (issue.GetHashCode (), Is.EqualTo (same.GetHashCode ()), "GetHashCode");
+
+			Assert.That (issue.Equals ((object) "not an issue"), Is.False, "Equals (string)");
+			Assert.That (issue.Equals ((object) null), Is.False, "Equals (null)");
+
+			// Note: Each of these differs from `issue` in exactly one field.
+			var others = new [] {
+				new MimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 100, 5, 3),
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 101, 5, 3),
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 6, 3),
+				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 4)
+			};
+
+			foreach (var other in others) {
+				Assert.That (issue.Equals (other), Is.False, $"{other} should not equal {issue}.");
+				Assert.That (issue == other, Is.False, $"{other} == {issue}");
+				Assert.That (issue != other, Is.True, $"{other} != {issue}");
+			}
+
+			// Note: Loggers that de-duplicate issues depend on this.
+			var set = new HashSet<MimeComplianceIssue> { issue, same };
+
+			Assert.That (set, Has.Count.EqualTo (1), "HashSet should treat equal issues as duplicates.");
+		}
 
 		[Test]
 		public void TestEveryViolationHasADescription ()
@@ -100,7 +169,7 @@ namespace UnitTests {
 			var channelOnly = new [] {
 				MimeComplianceViolation.BareLinefeedInHeader,
 				MimeComplianceViolation.BareLinefeedInBody,
-				MimeComplianceViolation.InvalidWrapping
+				MimeComplianceViolation.OversizedLine
 			};
 
 			// Note: 8-bit content is universally tolerated via charset fallback, so it is Minor in
@@ -160,7 +229,7 @@ namespace UnitTests {
 			var expected = new [] {
 				MimeComplianceViolation.BareLinefeedInHeader,
 				MimeComplianceViolation.BareLinefeedInBody,
-				MimeComplianceViolation.InvalidWrapping
+				MimeComplianceViolation.OversizedLine
 			};
 
 			var actual = AllViolations.Where (violation =>
@@ -287,7 +356,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.MultipleContentTransferEncodings, Interop | DataLoss | Security },
-				{ MimeComplianceViolation.InvalidWrapping, Interop | DataLoss },
+				{ MimeComplianceViolation.OversizedLine, Interop | DataLoss },
 				{ MimeComplianceViolation.MissingBodySeparator, Interop | Security },
 				{ MimeComplianceViolation.MissingMultipartBoundaryParameter, Interop | DataLoss },
 				{ MimeComplianceViolation.InvalidMultipartBoundaryParameter, Interop | DataLoss | Security },

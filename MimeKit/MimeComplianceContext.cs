@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeComplianceContext.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -36,7 +36,7 @@ namespace MimeKit {
 	/// <para>The affected violations are
 	/// <see cref="MimeComplianceViolation.BareLinefeedInHeader"/>,
 	/// <see cref="MimeComplianceViolation.BareLinefeedInBody"/> and
-	/// <see cref="MimeComplianceViolation.InvalidWrapping"/>. Every other violation is rated the
+	/// <see cref="MimeComplianceViolation.OversizedLine"/>. Every other violation is rated the
 	/// same in both contexts.</para>
 	/// <note type="note">This does not change which violations are reported, only how severe they
 	/// are considered to be. Use

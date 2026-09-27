@@ -1163,22 +1163,22 @@ This is the second inner message body.
 #endif
 
 		[Test]
-		public void TestMimeComplianceInvalidWrapping ()
+		public void TestMimeComplianceOversizedLine ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 7, 1),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 10, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 7, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 10, 1)
 			};
 
 			AssertMimeComplianceViolations ("invalid-wrapping.eml", issues);
 		}
 
 		[Test]
-		public Task TestMimeComplianceInvalidWrappingAsync ()
+		public Task TestMimeComplianceOversizedLineAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 7, 1),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidWrapping, 10, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 7, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 10, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-wrapping.eml", issues);
