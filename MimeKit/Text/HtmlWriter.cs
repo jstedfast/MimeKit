@@ -96,19 +96,6 @@ namespace MimeKit.Text {
 			this.leaveOpen = leaveOpen;
 		}
 
-		/// <summary>
-		/// Release unmanaged resources and perform other cleanup operations before the
-		/// <see cref="HtmlWriter"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="HtmlWriter"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~HtmlWriter ()
-		{
-			Dispose (false);
-		}
-
 		void CheckDisposed ()
 		{
 			if (disposed)

@@ -367,19 +367,6 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="X509CertificateDatabase"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="X509CertificateDatabase"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~X509CertificateDatabase ()
-		{
-			Dispose (false);
-		}
-
-		/// <summary>
 		/// Gets or sets the algorithm used for encrypting the private keys.
 		/// </summary>
 		/// <remarks>

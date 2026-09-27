@@ -162,19 +162,6 @@ namespace MimeKit {
 			SerializeContentType ();
 		}
 
-		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeEntity"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeEntity"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~MimeEntity ()
-		{
-			Dispose (false);
-		}
-
 		internal void CheckDisposed (string objectName)
 		{
 			if (IsDisposed)

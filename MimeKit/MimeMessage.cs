@@ -306,19 +306,6 @@ namespace MimeKit {
 			MessageId = MimeUtils.GenerateMessageId ();
 		}
 
-		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeMessage"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeMessage"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~MimeMessage ()
-		{
-			Dispose (false);
-		}
-
 		internal RfcComplianceMode Compliance {
 			get { return compliance; }
 		}

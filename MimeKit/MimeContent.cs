@@ -82,19 +82,6 @@ namespace MimeKit {
 			Stream = stream;
 		}
 
-		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeContent"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="MimeContent"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~MimeContent ()
-		{
-			Dispose (false);
-		}
-
 		[MemberNotNull (nameof (Stream))]
 		void CheckDisposed ()
 		{

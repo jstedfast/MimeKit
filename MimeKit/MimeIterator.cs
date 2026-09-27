@@ -83,19 +83,6 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before
-		/// the <see cref="MimeIterator"/> is reclaimed by garbage collection.
-		/// </summary>
-		/// <remarks>
-		/// Releases unmanaged resources and performs other cleanup operations before
-		/// the <see cref="MimeIterator"/> is reclaimed by garbage collection.
-		/// </remarks>
-		~MimeIterator ()
-		{
-			Dispose (false);
-		}
-
-		/// <summary>
 		/// Get the top-level message.
 		/// </summary>
 		/// <remarks>
