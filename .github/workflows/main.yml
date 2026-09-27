@@ -113,9 +113,9 @@ jobs:
         id: push_nuget_package
         shell: pwsh
         run: |
-          nuget push $env:MIMEKIT_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
           nuget push $env:MIMEKIT_CORE_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
           nuget push $env:MIMEKIT_CRYPTOGRAPHY_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
+          nuget push $env:MIMEKIT_PKG_PATH -ApiKey $env:MYGET_API_KEY -Source https://www.myget.org/F/mimekit/api/v3/index.json
         env:
           MIMEKIT_PKG_PATH: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
           MIMEKIT_CORE_PKG_PATH: MimeKit.Core.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}.nupkg
