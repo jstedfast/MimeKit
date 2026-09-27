@@ -70,6 +70,29 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestColumnNumberIsRelativeToThePhysicalLine ()
+		{
+			// Note: Unlike the address violations, this one is reported by the reader itself, which
+			// derives the column from the offset of the line it is currently scanning.
+			var text = "To: a@example.com\nSubject: test\r\n\r\nbody\r\n";
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+			}
+
+			var issue = logger.Issues.First (i => i.Violation == MimeComplianceViolation.BareLinefeedInHeader);
+
+			Assert.That (issue.LineNumber, Is.EqualTo (1), "LineNumber");
+
+			// Note: "To: a@example.com" is 17 characters, so the bare linefeed is at column 18.
+			Assert.That (issue.ColumnNumber, Is.EqualTo (18), "ColumnNumber");
+			Assert.That (text[(int) issue.StreamOffset], Is.EqualTo ('\n'), "StreamOffset");
+		}
+
+		[Test]
 		public void TestEquality ()
 		{
 			var issue = new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 3);

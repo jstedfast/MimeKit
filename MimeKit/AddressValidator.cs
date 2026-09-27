@@ -47,6 +47,7 @@ namespace MimeKit {
 		readonly IMimeComplianceLogger logger;
 		readonly long streamOffset;
 		readonly int lineNumber;
+		readonly int columnNumber;
 		byte[] text;
 		int startIndex;
 		int endIndex;
@@ -61,26 +62,36 @@ namespace MimeKit {
 		/// <param name="logger">The compliance logger.</param>
 		/// <param name="streamOffset">The stream offset of the start of the value being validated.</param>
 		/// <param name="lineNumber">The line number of the start of the value being validated.</param>
-		public AddressValidator (IMimeComplianceLogger logger, long streamOffset, int lineNumber)
+		/// <param name="columnNumber">The one-based column number of the start of the value being validated.</param>
+		public AddressValidator (IMimeComplianceLogger logger, long streamOffset, int lineNumber, int columnNumber)
 		{
 			this.logger = logger;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
+			this.columnNumber = columnNumber;
 			text = Array.Empty<byte> ();
 		}
 
 		void Log (MimeComplianceViolation violation, int at)
 		{
-			// Note: Header values are short and violations are rare, so the line number is counted on
+			// Note: Header values are short and violations are rare, so the position is worked out on
 			// demand rather than tracked on every advance, which would be easy to get subtly wrong.
+			// The column falls out of the same scan that counts the lines.
 			int line = lineNumber;
+			int lineBegin = -1;
 
 			for (int i = startIndex; i < at && i < endIndex; i++) {
-				if (text[i] == (byte) '\n')
+				if (text[i] == (byte) '\n') {
 					line++;
+					lineBegin = i + 1;
+				}
 			}
 
-			logger.Log (new MimeComplianceIssue (violation, streamOffset + (at - startIndex), line));
+			// Note: Until the value has been folded, the column is still relative to the field name
+			// that preceded it on the same line.
+			int column = lineBegin < 0 ? columnNumber + (at - startIndex) : (at - lineBegin) + 1;
+
+			logger.Log (new MimeComplianceIssue (violation, streamOffset + (at - startIndex), line, column));
 		}
 
 		bool SkipWhiteSpace ()

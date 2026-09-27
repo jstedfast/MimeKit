@@ -441,6 +441,36 @@ namespace UnitTests {
 			// Note: The offset points at the empty atom between the two dots, not at the start of
 			// the address, so that it names the offending character.
 			Assert.That (text.Substring ((int) issue.StreamOffset), Does.StartWith (".er@example.com"), "StreamOffset");
+
+			// Note: "\tus.." - the tab is column 1, so the second dot is column 5.
+			Assert.That (issue.ColumnNumber, Is.EqualTo (5), "ColumnNumber");
+		}
+
+		[TestCase ("To", "us..er@example.com", MimeComplianceViolation.InvalidLocalPart, 8)]
+		[TestCase ("To", "user@example.com.", MimeComplianceViolation.TrailingDotInDomain, 22)]
+		[TestCase ("Cc", "a@example.com b@example.com", MimeComplianceViolation.MissingAddressSeparator, 19)]
+		[TestCase ("Bcc", "\"Jo\rhn\" <j@example.com>", MimeComplianceViolation.ControlCharacterInAddress, 9)]
+		public void TestViolationColumnNumber (string field, string value, MimeComplianceViolation violation, int column)
+		{
+			// Note: The column is one-based and is relative to the start of the physical line, which
+			// includes the header field name, so the first character of the value on the first line of
+			// a header is at column field.Length + 3 (for the colon and the space).
+			var text = $"{field}: {value}\r\n\r\nbody\r\n";
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+			}
+
+			var issue = logger.Issues.First (i => i.Violation == violation);
+
+			Assert.That (issue.LineNumber, Is.EqualTo (1), "LineNumber");
+			Assert.That (issue.ColumnNumber, Is.EqualTo (column), "ColumnNumber");
+
+			// Note: The column and the stream offset must name the same byte.
+			Assert.That (issue.StreamOffset, Is.EqualTo (issue.ColumnNumber - 1), "StreamOffset");
 		}
 
 		[Test]
