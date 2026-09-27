@@ -72,7 +72,27 @@ namespace UnitTests {
 			{ MimeComplianceViolation.IncompleteUUEncodedLine, 30 },
 			{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, 31 },
 			{ MimeComplianceViolation.InvalidUUEncodeEndMarker, 32 },
-			{ MimeComplianceViolation.IncompleteUUEncodedContent, 33 }
+			{ MimeComplianceViolation.IncompleteUUEncodedContent, 33 },
+			{ MimeComplianceViolation.ExcessiveAngleBracketsInAddress, 34 },
+			{ MimeComplianceViolation.UnbalancedAngleBracketsInAddress, 35 },
+			{ MimeComplianceViolation.UnbalancedQuotesInAddress, 36 },
+			{ MimeComplianceViolation.UnbalancedParenthesesInAddress, 37 },
+			{ MimeComplianceViolation.UnquotedDisplayName, 38 },
+			{ MimeComplianceViolation.InvalidLocalPart, 39 },
+			{ MimeComplianceViolation.MissingAddressSeparator, 40 },
+			{ MimeComplianceViolation.ExtraneousCommaInAddressList, 41 },
+			{ MimeComplianceViolation.ObsoleteRouteAddress, 42 },
+			{ MimeComplianceViolation.AddressWithoutDomain, 43 },
+			{ MimeComplianceViolation.ObsoleteDomainSyntax, 44 },
+			{ MimeComplianceViolation.TrailingDotInDomain, 45 },
+			{ MimeComplianceViolation.WhitespaceInDomainLiteral, 46 },
+			{ MimeComplianceViolation.Invalid8BitAddress, 47 },
+			{ MimeComplianceViolation.MissingGroupTerminator, 48 },
+			{ MimeComplianceViolation.NonConformantAddress, 49 },
+			{ MimeComplianceViolation.NullByteInAddress, 50 },
+			{ MimeComplianceViolation.LineBreakInAddress, 51 },
+			{ MimeComplianceViolation.ControlCharacterInAddress, 52 },
+			{ MimeComplianceViolation.EmptyGroupName, 53 }
 		};
 
 		[Test]

@@ -1870,6 +1870,36 @@ namespace MimeKit {
 			return true;
 		}
 
+		/// <summary>
+		/// Determine whether a header's value is an address list that should be checked for compliance.
+		/// </summary>
+		/// <remarks>
+		/// Note that <c>Return-Path</c> is deliberately excluded: its value is a path rather than an
+		/// address list and it may legitimately be the empty path (<c>&lt;&gt;</c>) on a bounce message,
+		/// so validating it against the address grammar would misreport every such message.
+		/// </remarks>
+		static bool IsAddressHeader (HeaderId id)
+		{
+			switch (id) {
+			case HeaderId.From:
+			case HeaderId.Sender:
+			case HeaderId.ReplyTo:
+			case HeaderId.To:
+			case HeaderId.Cc:
+			case HeaderId.Bcc:
+			case HeaderId.ResentFrom:
+			case HeaderId.ResentSender:
+			case HeaderId.ResentReplyTo:
+			case HeaderId.ResentTo:
+			case HeaderId.ResentCc:
+			case HeaderId.ResentBcc:
+			case HeaderId.DispositionNotificationTo:
+				return true;
+			default:
+				return false;
+			}
+		}
+
 		Header CreateHeader (long beginOffset, int beginLineNumber, int fieldNameLength, int headerFieldLength, bool invalid, bool ascii)
 		{
 			byte[] field, value;
@@ -1901,8 +1931,20 @@ namespace MimeKit {
 
 					if (!Utf8.IsValid (fieldSpan))
 						ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber));
-				} else if (!ascii && !Utf8.IsValid (value)) {
-					ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber));
+				} else {
+					bool isAddressHeader = IsAddressHeader (header.Id);
+
+					// Note: For address headers, the AddressValidator reports the more specific (and more
+					// serious) Invalid8BitAddress violation instead, since 8-bit bytes in an address may
+					// change which mailbox it names rather than merely how it displays.
+					if (!ascii && !isAddressHeader && !Utf8.IsValid (value))
+						ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber));
+
+					if (isAddressHeader && value.Length > 0) {
+						var validator = new AddressValidator (ComplianceLogger, beginOffset + headerFieldLength + 1, beginLineNumber);
+
+						validator.Validate (value, 0, value.Length);
+					}
 				}
 			}
 

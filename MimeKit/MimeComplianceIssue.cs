@@ -303,6 +303,48 @@ namespace MimeKit {
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
 				return MimeComplianceSeverity.Major;
 
+			// Note: Obsolete-but-well-defined syntax and defects that MimeKit normalizes away. The
+			// resulting address is still the one the author intended; the risk is only that another
+			// implementation may normalize differently.
+			case MimeComplianceViolation.ObsoleteRouteAddress:
+			case MimeComplianceViolation.ExtraneousCommaInAddressList:
+			case MimeComplianceViolation.ObsoleteDomainSyntax:
+			case MimeComplianceViolation.TrailingDotInDomain:
+			case MimeComplianceViolation.WhitespaceInDomainLiteral:
+			// Note: Unlike unbalanced brackets, a repeated bracket leaves no doubt about where the
+			// address begins and ends. Discarding the extras is trivial and every implementation
+			// that does so arrives at the same mailbox.
+			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
+				return MimeComplianceSeverity.Minor;
+
+			// Note: Ambiguity over where an address begins and ends, or over which mailbox it names.
+			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
+			case MimeComplianceViolation.UnbalancedQuotesInAddress:
+			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
+			case MimeComplianceViolation.UnquotedDisplayName:
+			case MimeComplianceViolation.InvalidLocalPart:
+			case MimeComplianceViolation.MissingAddressSeparator:
+			case MimeComplianceViolation.AddressWithoutDomain:
+			case MimeComplianceViolation.Invalid8BitAddress:
+			case MimeComplianceViolation.MissingGroupTerminator:
+			case MimeComplianceViolation.NonConformantAddress:
+				return MimeComplianceSeverity.Major;
+
+			// Note: Both of these are injection primitives rather than mere syntax errors. A null
+			// byte truncates the address for anything that treats it as a C string, and a line break
+			// inside an address token is the header/command injection technique that unvalidated
+			// input concatenated into a header produces. In each case two components can be made to
+			// read different mailboxes, or different message boundaries, out of the same header.
+			case MimeComplianceViolation.NullByteInAddress:
+			case MimeComplianceViolation.LineBreakInAddress:
+				return MimeComplianceSeverity.Critical;
+
+			case MimeComplianceViolation.ControlCharacterInAddress:
+				return MimeComplianceSeverity.Major;
+
+			case MimeComplianceViolation.EmptyGroupName:
+				return MimeComplianceSeverity.Minor;
+
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -445,6 +487,44 @@ namespace MimeKit {
 			case MimeComplianceViolation.IncompleteUUEncodedLine:
 				return DataLoss;
 
+			// Note: An unclosed quote, comment or group absorbs everything that follows it, so the
+			// caller is handed a recipient list that is quietly shorter than the one on the wire.
+			case MimeComplianceViolation.UnbalancedQuotesInAddress:
+			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
+			case MimeComplianceViolation.MissingGroupTerminator:
+				return Interop | DataLoss | Security;
+
+			// Note: Each of these changes how many addresses a parser sees, or which mailbox one of
+			// them names, so two implementations can extract genuinely different recipient lists.
+			case MimeComplianceViolation.UnquotedDisplayName:
+			case MimeComplianceViolation.MissingAddressSeparator:
+			case MimeComplianceViolation.Invalid8BitAddress:
+				return Interop | DataLoss;
+
+			// Note: Syntax that another implementation may read differently, or repair differently,
+			// but with no reading under which an address goes missing.
+			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
+			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
+			case MimeComplianceViolation.InvalidLocalPart:
+			case MimeComplianceViolation.AddressWithoutDomain:
+			case MimeComplianceViolation.ObsoleteRouteAddress:
+			case MimeComplianceViolation.ExtraneousCommaInAddressList:
+			case MimeComplianceViolation.ObsoleteDomainSyntax:
+			case MimeComplianceViolation.TrailingDotInDomain:
+			case MimeComplianceViolation.WhitespaceInDomainLiteral:
+			case MimeComplianceViolation.NonConformantAddress:
+				return Interop;
+
+			case MimeComplianceViolation.NullByteInAddress:
+			case MimeComplianceViolation.LineBreakInAddress:
+				return Interop | DataLoss | Security;
+
+			case MimeComplianceViolation.ControlCharacterInAddress:
+				return Interop | Security;
+
+			case MimeComplianceViolation.EmptyGroupName:
+				return Interop;
+
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -533,6 +613,46 @@ namespace MimeKit {
 				return "The uuencoded content of a MIME part contained non-whitespace content after the end marker.";
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
 				return "The uuencoded content of a MIME part did not properly end.";
+			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
+				return "An address contained more angle brackets than the one pair that delimits an angle-addr.";
+			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
+				return "An address had an opening angle bracket without a closing one, or a closing bracket without an opening one.";
+			case MimeComplianceViolation.UnbalancedQuotesInAddress:
+				return "An address contained a quoted-string that was never closed.";
+			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
+				return "An address contained an unbalanced parenthesis in a comment.";
+			case MimeComplianceViolation.UnquotedDisplayName:
+				return "The display-name of an address contained a special character that should have been quoted.";
+			case MimeComplianceViolation.InvalidLocalPart:
+				return "The local-part of an address was not a valid dot-atom or quoted-string.";
+			case MimeComplianceViolation.MissingAddressSeparator:
+				return "Two addresses in an address list were not separated by a comma.";
+			case MimeComplianceViolation.ExtraneousCommaInAddressList:
+				return "An address list contained a comma that did not separate two addresses.";
+			case MimeComplianceViolation.ObsoleteRouteAddress:
+				return "An address used the obsolete source route syntax.";
+			case MimeComplianceViolation.AddressWithoutDomain:
+				return "An address consisted of a local-part with no domain.";
+			case MimeComplianceViolation.ObsoleteDomainSyntax:
+				return "The domain of an address used the obsolete syntax that allows comments and whitespace between its parts.";
+			case MimeComplianceViolation.TrailingDotInDomain:
+				return "The domain of an address ended with a dot.";
+			case MimeComplianceViolation.WhitespaceInDomainLiteral:
+				return "A domain-literal contained whitespace.";
+			case MimeComplianceViolation.Invalid8BitAddress:
+				return "An address contained 8-bit bytes that were not valid UTF-8.";
+			case MimeComplianceViolation.MissingGroupTerminator:
+				return "An address group was not terminated with a semi-colon.";
+			case MimeComplianceViolation.NonConformantAddress:
+				return "An address did not conform to the address syntax defined by rfc5322.";
+			case MimeComplianceViolation.NullByteInAddress:
+				return "An address contained a null byte.";
+			case MimeComplianceViolation.LineBreakInAddress:
+				return "A line break appeared inside an address token where folding is not permitted.";
+			case MimeComplianceViolation.ControlCharacterInAddress:
+				return "An address contained a control character.";
+			case MimeComplianceViolation.EmptyGroupName:
+				return "An address group had an empty name.";
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -621,6 +741,46 @@ namespace MimeKit {
 				return "UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
 				return "UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
+				return "Section 7.1.2 of rfc7103 describes address values such as \"<<user@example.com>>\" and notes that they can safely be interpreted as the same address with a single pair of brackets. Unlike an unbalanced bracket, a repeated one leaves no doubt about where the address begins and ends, so implementations that discard the extras all arrive at the same mailbox. It is still a departure from the angle-addr production, and usually indicates a mailer that has wrapped an address which was already wrapped.";
+			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
+				return "Section 7.1.3 of rfc7103 describes address values such as \"Name <user@example.com\" and \"user@example.org>\". Recovering from an unbalanced bracket requires guessing where the address was meant to end, and parsers that guess differently will extract different addresses.";
+			case MimeComplianceViolation.UnbalancedQuotesInAddress:
+				return "Section 7.1.6 of rfc7103 describes address values such as \"\\\"Unterminated <user@example.com>\". An unclosed quote absorbs everything that follows it, so any addresses later in the same header may be swallowed and silently lost rather than merely misparsed.";
+			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
+				return "Section 7.1.4 of rfc7103 describes address values such as \"Name (unbalanced <user@example.com>\". As with an unclosed quote, an unclosed comment absorbs the remainder of the header, so addresses that follow it may be lost.";
+			case MimeComplianceViolation.UnquotedDisplayName:
+				return "An unquoted display-name may only contain atoms, so values such as \"Doe, John <jdoe@example.com>\" and \"user@example.com <user@example.com>\" are not valid. The comma case is the most damaging, because a parser that does not special-case it will split the one address into two.";
+			case MimeComplianceViolation.InvalidLocalPart:
+				return "A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as \"first..last\" and \"first.\" are not valid. Receiving systems differ over whether to reject such an address, strip the offending dots, or pass the local-part through verbatim.";
+			case MimeComplianceViolation.MissingAddressSeparator:
+				return "Section 7.1.5 of rfc7103 describes address lists such as \"a@example.com b@example.com\". A parser must guess whether this is two addresses or one address with a malformed display-name, and the two readings produce different sets of recipients.";
+			case MimeComplianceViolation.ExtraneousCommaInAddressList:
+				return "Section 7.1.5 of rfc7103 describes address lists such as \"a@example.com,,,b@example.com\", as well as lists with leading or trailing commas. The empty entries are not addresses and are typically ignored, but their presence usually indicates that the generating software dropped an address it intended to include.";
+			case MimeComplianceViolation.ObsoleteRouteAddress:
+				return "The obs-route syntax described in section 4.4 of rfc5322, as in \"<@a.example,@b.example:user@example.com>\", must not be generated by conforming software. The route itself is meant to be ignored, but software that does not recognize the syntax may mistake the first domain in the route for the address domain.";
+			case MimeComplianceViolation.AddressWithoutDomain:
+				return "Section 7.1.7 of rfc7103 describes \"naked\" local-parts such as \"username\". Such an address is only meaningful relative to some implied domain, so different systems will complete it differently, or not at all.";
+			case MimeComplianceViolation.ObsoleteDomainSyntax:
+				return "The obs-domain syntax described in section 4.4 of rfc5322 allows folding whitespace and comments around the dots of a domain, as in \"user@example (comment) .com\". A conforming domain is a single dot-atom, so software that does not implement the obsolete grammar will read a different domain than software that does.";
+			case MimeComplianceViolation.TrailingDotInDomain:
+				return "A trailing dot, as in \"user@example.com.\", denotes a fully qualified domain in the DNS but is not part of the domain grammar in rfc5322. Parsers that strip it and parsers that retain it will disagree about whether two otherwise identical addresses are equal.";
+			case MimeComplianceViolation.WhitespaceInDomainLiteral:
+				return "The dtext rule in section 3.4.1 of rfc5322 does not permit whitespace inside the brackets of a domain-literal, as in \"user@[ 127.0.0.1 ]\". Parsers that strip the whitespace and parsers that preserve or reject it will not agree on the address.";
+			case MimeComplianceViolation.Invalid8BitAddress:
+				return "The internationalized address syntax in rfc6532 extends the address grammar to UTF-8 and to nothing else, so 8-bit bytes that are not valid UTF-8 have no defined interpretation. A parser that falls back to a single-byte charset will produce a different address than one that rejects the header, which may result in mail being delivered to the wrong mailbox.";
+			case MimeComplianceViolation.MissingGroupTerminator:
+				return "The group syntax in section 3.4 of rfc5322 requires a terminating ';', as in \"Friends: a@example.com;\". Without it, a parser must guess where the group ends, and addresses that follow the group may be absorbed into it.";
+			case MimeComplianceViolation.NonConformantAddress:
+				return "This is the general case, used when an address departs from the grammar in a way that none of the more specific violations describes. Receiving systems differ widely in how much malformed syntax they will accept and in how they repair what they accept, so an address that only some implementations can read may resolve to different mailboxes, or to none at all, depending on which software handles the message.";
+			case MimeComplianceViolation.NullByteInAddress:
+				return "A null byte is not permitted anywhere in a header, but inside an address it is more dangerous than elsewhere. Software written in or interfacing with C treats a null as a string terminator, so an address such as \"us<NUL>er@example.com\" may be read as the complete address \"us\" by one component and as \"user@example.com\" by another. That disagreement is the point of the construct: a filter, an audit log and the delivering agent can each be made to see a different mailbox from the same header. This is reported in addition to UnexpectedNullBytesInHeader, which identifies only the line that the null byte appeared on.";
+			case MimeComplianceViolation.LineBreakInAddress:
+				return "Folding whitespace is permitted around the tokens of an address, but the dot-atom-text production in section 3.2.3 of rfc5322 admits none inside a local-part or domain, so a line break within one of those tokens cannot be produced by a conforming mailer. It is most often seen when an application has concatenated unvalidated input into a header, which is the header injection technique described in section 5 of rfc5321: the attacker supplies a line break in the hope that some component in the chain will treat what follows as a new header or a new command. Even where that fails, implementations differ on whether to unfold, reject or truncate the address, so the recipient that is finally used may not be the one an auditor sees.";
+			case MimeComplianceViolation.ControlCharacterInAddress:
+				return "The atom, quoted-string and domain-literal productions in rfc5322 are all built from printable characters and whitespace, so a control character such as ESC or DEL can only have been introduced deliberately or by a mangled encoding. Control characters are stripped by some implementations and preserved by others, so the address may name a different mailbox depending on which software resolves it, and an escape sequence that survives into a log or a terminal-based mail client may be interpreted there rather than displayed.";
+			case MimeComplianceViolation.EmptyGroupName:
+				return "The group syntax in section 3.4 of rfc5322 is display-name \":\" [group-list] \";\", and a display-name is a phrase, which requires at least one word. A group introduced by a bare colon therefore has no name for a client to display, and parsers disagree over whether to treat the colon as introducing a group at all or as a stray character in an ordinary address.";
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}

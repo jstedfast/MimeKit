@@ -104,18 +104,33 @@ namespace UnitTests {
 			};
 
 			// Note: 8-bit content is universally tolerated via charset fallback, so it is Minor in
-			// both contexts.
+			// both contexts. The address violations listed here are obsolete-but-well-defined
+			// syntax or defects that MimeKit normalizes away without changing which mailbox the
+			// address denotes.
 			var minor = new [] {
 				MimeComplianceViolation.Unexpected8BitBytesInHeader,
-				MimeComplianceViolation.Unexpected8BitBytesInBody
+				MimeComplianceViolation.Unexpected8BitBytesInBody,
+				MimeComplianceViolation.ExcessiveAngleBracketsInAddress,
+				MimeComplianceViolation.ObsoleteRouteAddress,
+				MimeComplianceViolation.ExtraneousCommaInAddressList,
+				MimeComplianceViolation.ObsoleteDomainSyntax,
+				MimeComplianceViolation.TrailingDotInDomain,
+				MimeComplianceViolation.WhitespaceInDomainLiteral,
+				MimeComplianceViolation.EmptyGroupName
 			};
 
-			// Note: These are the classic MIME content-smuggling vectors.
+			// Note: These are the classic MIME content-smuggling vectors, plus the two address defects
+			// that work the same way: a null byte terminates the address early for anything that
+			// treats it as a C string, and a line break inside an address token is the SMTP header
+			// injection primitive. Either way, different components can be made to read different
+			// mailboxes out of the same header.
 			var critical = new [] {
 				MimeComplianceViolation.MultipleContentTypes,
 				MimeComplianceViolation.MultipleContentTransferEncodings,
 				MimeComplianceViolation.UnexpectedNullBytesInHeader,
-				MimeComplianceViolation.UnexpectedNullBytesInBody
+				MimeComplianceViolation.UnexpectedNullBytesInBody,
+				MimeComplianceViolation.NullByteInAddress,
+				MimeComplianceViolation.LineBreakInAddress
 			};
 
 			foreach (var violation in channelOnly) {
@@ -295,7 +310,27 @@ namespace UnitTests {
 				{ MimeComplianceViolation.IncompleteUUEncodedLine, DataLoss },
 				{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, Interop | DataLoss },
 				{ MimeComplianceViolation.InvalidUUEncodeEndMarker, Interop },
-				{ MimeComplianceViolation.IncompleteUUEncodedContent, DataLoss }
+				{ MimeComplianceViolation.IncompleteUUEncodedContent, DataLoss },
+				{ MimeComplianceViolation.ExcessiveAngleBracketsInAddress, Interop },
+				{ MimeComplianceViolation.UnbalancedAngleBracketsInAddress, Interop },
+				{ MimeComplianceViolation.UnbalancedQuotesInAddress, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.UnbalancedParenthesesInAddress, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.UnquotedDisplayName, Interop | DataLoss },
+				{ MimeComplianceViolation.InvalidLocalPart, Interop },
+				{ MimeComplianceViolation.MissingAddressSeparator, Interop | DataLoss },
+				{ MimeComplianceViolation.ExtraneousCommaInAddressList, Interop },
+				{ MimeComplianceViolation.ObsoleteRouteAddress, Interop },
+				{ MimeComplianceViolation.AddressWithoutDomain, Interop },
+				{ MimeComplianceViolation.ObsoleteDomainSyntax, Interop },
+				{ MimeComplianceViolation.TrailingDotInDomain, Interop },
+				{ MimeComplianceViolation.WhitespaceInDomainLiteral, Interop },
+				{ MimeComplianceViolation.Invalid8BitAddress, Interop | DataLoss },
+				{ MimeComplianceViolation.MissingGroupTerminator, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.NonConformantAddress, Interop },
+				{ MimeComplianceViolation.NullByteInAddress, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.LineBreakInAddress, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.ControlCharacterInAddress, Interop | Security },
+				{ MimeComplianceViolation.EmptyGroupName, Interop }
 			};
 
 			foreach (var violation in AllViolations) {
