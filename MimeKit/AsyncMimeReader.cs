@@ -117,8 +117,7 @@ namespace MimeKit {
 					}
 				}
 
-				// TODO: Remove beginOffset and lineNumber arguments from OnMboxMarkerReadAsync() in v5.0
-				await OnMboxMarkerReadAsync (input, startIndex, count, mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken).ConfigureAwait (false);
+				await OnMboxMarkerReadAsync (input, startIndex, count, cancellationToken).ConfigureAwait (false);
 			} while (!complete);
 
 			OnMboxMarkerEnd (mboxMarkerOffset, mboxMarkerLineNumber, GetOffset (inputIndex), cancellationToken);

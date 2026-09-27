@@ -176,12 +176,12 @@ namespace UnitTests {
 			{
 			}
 
-			protected override void OnMboxMarkerRead (byte[] marker, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			protected override void OnMboxMarkerBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
 			{
 				mboxMarkerBeginOffset = beginOffset;
 				//mboxMarkerLineNumber = lineNumber;
 
-				base.OnMboxMarkerRead (marker, startIndex, count, beginOffset, lineNumber, cancellationToken);
+				base.OnMboxMarkerBegin (beginOffset, lineNumber, cancellationToken);
 			}
 
 			protected override void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)

@@ -324,10 +324,8 @@ namespace MimeKit {
 		/// <param name="buffer">The buffer containing the mbox marker.</param>
 		/// <param name="startIndex">The index denoting the starting position of the mbox marker within the buffer.</param>
 		/// <param name="count">The length of the mbox marker within the buffer, in bytes.</param>
-		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
-		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
-		protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
 		{
 			int needed = mboxMarkerLength + count;
 
