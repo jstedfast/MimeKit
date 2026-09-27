@@ -925,7 +925,9 @@ namespace MimeKit.Cryptography {
 					} else {
 						try {
 							Import (signerInfo.Certificate);
-						} catch {
+						} catch (CryptographicException) {
+							// Best-effort: a failure to cache the signer's certificate in the
+							// AddressBook store should not fail signature verification.
 						}
 					}
 				}
