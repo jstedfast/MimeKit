@@ -933,6 +933,10 @@ namespace MimeKit.Cryptography {
 #endif
 
 				return true;
+			} catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+				// Note: HttpClient throws TaskCanceledException on timeout as well, so only propagate
+				// the exception if the caller actually requested cancellation.
+				throw;
 			} catch {
 				return false;
 			}
@@ -950,6 +954,10 @@ namespace MimeKit.Cryptography {
 				}
 
 				return true;
+			} catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
+				// Note: HttpClient throws TaskCanceledException on timeout as well, so only propagate
+				// the exception if the caller actually requested cancellation.
+				throw;
 			} catch {
 				return false;
 			}
@@ -1396,6 +1404,7 @@ namespace MimeKit.Cryptography {
 					content.Position = 0;
 				} catch {
 					content.Dispose ();
+					throw;
 				} finally {
 					signed.ContentStream.Dispose ();
 				}

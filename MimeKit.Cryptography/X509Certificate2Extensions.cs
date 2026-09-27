@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -58,6 +59,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="certificate"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="certificate"/> could not be converted into a BouncyCastle X509Certificate.
+		/// </exception>
 		public static X509Certificate AsBouncyCastleCertificate (this X509Certificate2 certificate)
 		{
 			if (certificate == null)
@@ -65,8 +69,12 @@ namespace MimeKit.Cryptography {
 
 			try {
 				return DotNetUtilities.FromX509Certificate (certificate);
-			} catch {
-				throw new ArgumentException ("Cannot convert X509Certificate2 to a BouncyCastle X509Certificate.", nameof (certificate));
+			} catch (Exception ex) when (ex is ArgumentException or CryptographicException or GeneralSecurityException) {
+				// Note: CryptographicException is thrown if the certificate has been disposed or was never
+				// initialized, ArgumentException if the raw certificate data is malformed, and
+				// GeneralSecurityException (the base class of BouncyCastle's CertificateParsingException)
+				// if the certificate structure itself cannot be parsed.
+				throw new ArgumentException ("Cannot convert X509Certificate2 to a BouncyCastle X509Certificate.", nameof (certificate), ex);
 			}
 		}
 
@@ -194,10 +202,13 @@ namespace MimeKit.Cryptography {
 		static EncryptionAlgorithm[]? DecodeEncryptionAlgorithms (byte[] rawData)
 		{
 			AlgorithmIdentifier[] capabilities;
+
 			try {
 				// TODO Ideally would use SmimeCapabilities (containing SmimeCapability)
 				capabilities = Asn1Sequence.GetInstance (rawData).MapElements (AlgorithmIdentifier.GetInstance);
-			} catch {
+			} catch (Exception ex) when (ex is ArgumentException or IOException or InvalidOperationException) {
+				// The extension data is malformed. Note: Asn1Exception derives from IOException and
+				// Asn1ParsingException derives from InvalidOperationException.
 				return null;
 			}
 

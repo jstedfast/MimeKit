@@ -693,6 +693,8 @@ namespace MimeKit.Cryptography {
 					result.ChainErrors |= ArcValidationErrors.MessageSignatureValidationFailed;
 					result.Chain = ArcSignatureValidationResult.Fail;
 				}
+			} catch (OperationCanceledException) {
+				throw;
 			} catch {
 				result.MessageSignature.Signature = ArcSignatureValidationResult.Fail;
 				result.ChainErrors |= ArcValidationErrors.MessageSignatureValidationFailed;
@@ -711,6 +713,8 @@ namespace MimeKit.Cryptography {
 						result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
 						result.Chain = ArcSignatureValidationResult.Fail;
 					}
+				} catch (OperationCanceledException) {
+					throw;
 				} catch {
 					result.Seals[i].Signature = ArcSignatureValidationResult.Fail;
 					result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
