@@ -29,9 +29,15 @@ namespace MimeKit {
 	/// An interface for recording MIME compliance violations.
 	/// </summary>
 	/// <remarks>
-	/// Implementations of this interface are intended to capture and record information about MIME
+	/// <para>Implementations of this interface are intended to capture and record information about MIME
 	/// compliance issues detected during parsing. This can be used for diagnostics, auditing, or
-	/// reporting purposes in systems that process MIME data.
+	/// reporting purposes in systems that process MIME data.</para>
+	/// <para>No limit is placed on how many issues a single message, or even a single header, may
+	/// produce. A malformed message is not obliged to be malformed in only a few places, and the
+	/// parser has no basis on which to decide that a caller has heard enough, so the number of issues
+	/// is bounded only by the size of the input. An implementation that retains issues rather than
+	/// summarizing them should impose whatever limit suits it, particularly when the messages being
+	/// parsed are untrusted.</para>
 	/// </remarks>
 	public interface IMimeComplianceLogger
 	{
@@ -39,7 +45,9 @@ namespace MimeKit {
 		/// Log a MIME compliance violation.
 		/// </summary>
 		/// <remarks>
-		/// Logs a MIME compliance violation.
+		/// <para>Logs a MIME compliance violation.</para>
+		/// <para>This is called during parsing, so an implementation that does significant work here
+		/// will slow parsing down, and one that throws will abort it.</para>
 		/// </remarks>
 		/// <param name="issue">The MIME compliance issue that was detected.</param>
 		void Log (in MimeComplianceIssue issue);
