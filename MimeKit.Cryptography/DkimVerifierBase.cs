@@ -350,13 +350,11 @@ namespace MimeKit.Cryptography {
 			var rawValue = header.GetRawValue (options);
 			int rawLength = rawValue.Length;
 
-			if (isDkimSignature && rawLength > 0) {
-				if (rawValue[rawLength - 1] == (byte) '\n') {
-					rawLength--;
+			if (isDkimSignature && rawLength > 0 && rawValue[rawLength - 1] == (byte) '\n') {
+				rawLength--;
 
-					if (rawLength > 0 && rawValue[rawLength - 1] == (byte) '\r')
-						rawLength--;
-				}
+				if (rawLength > 0 && rawValue[rawLength - 1] == (byte) '\r')
+					rawLength--;
 			}
 
 			stream.Write (header.RawField, 0, header.RawField.Length);
