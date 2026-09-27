@@ -62,41 +62,29 @@ jobs:
       run: |
         dotnet restore MimeKit.sln
 
-    # Build MimeKit
+    # Build MimeKit (MimeKit.sln builds both the MimeKit.Core and MimeKit.Cryptography assemblies)
     - name: Build MimeKit
       shell: pwsh
       run: |
         dotnet msbuild MimeKit.sln -property:Platform=$env:BUILD_PLATFORM -property:Configuration=Release
 
-    - name: Run Unit Tests
-      if: false
+    # Create MimeKit.Core NuGet package
+    - name: Create MimeKit.Core NuGet package
       shell: pwsh
       run: |
-        & ./scripts/test.ps1 -Configuration Release -GenerateCodeCoverage false
+        nuget pack nuget/MimeKit.Core.nuspec
 
-    # Create MimeKit NuGet package
+    # Create MimeKit.Cryptography NuGet package
+    - name: Create MimeKit.Cryptography NuGet package
+      shell: pwsh
+      run: |
+        nuget pack nuget/MimeKit.Cryptography.nuspec
+
+    # Create the MimeKit meta-package (depends on MimeKit.Core and MimeKit.Cryptography)
     - name: Create MimeKit NuGet package
       shell: pwsh
       run: |
         nuget pack nuget/MimeKit.nuspec
-
-    # Restore MimeKitLite.sln
-    - name: Restore MimeKitLite.sln
-      shell: pwsh
-      run: |
-        dotnet restore MimeKitLite.sln
-
-    # Build MimeKitLite
-    - name: Build MimeKitLite
-      shell: pwsh
-      run: |
-        dotnet msbuild MimeKitLite.sln -property:Platform=$env:BUILD_PLATFORM -property:Configuration=Release
-
-    # Create MimeKitLite NuGet package
-    - name: Create MimeKitLite NuGet package
-      shell: pwsh
-      run: |
-        nuget pack nuget/MimeKitLite.nuspec
 
     # Upload unsigned NuGet packages
     - name: Upload Build Artifacts
@@ -104,8 +92,9 @@ jobs:
       with:
         name: BuildArtifacts
         path: |
+          MimeKit.Core.${{ steps.release_tag.outputs.version }}.nupkg
+          MimeKit.Cryptography.${{ steps.release_tag.outputs.version }}.nupkg
           MimeKit.${{ steps.release_tag.outputs.version }}.nupkg
-          MimeKitLite.${{ steps.release_tag.outputs.version }}.nupkg
 
   sign:
     needs: build
@@ -148,7 +137,35 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    # Sign MimeKit NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
+    # Sign MimeKit.Core NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
+    - name: Sign MimeKit.Core NuGet Package
+      shell: pwsh
+      run: >
+        ./sign code azure-key-vault
+        MimeKit.Core.${{ needs.build.outputs.version }}.nupkg
+        --base-directory "${{ github.workspace }}"
+        --publisher-name "MimeKit"
+        --description "MimeKit.Core"
+        --description-url "https://github.com/jstedfast/MimeKit"
+        --azure-credential-type "azure-cli"
+        --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
+        --azure-key-vault-certificate "SC-MIMEKIT"
+
+    # Sign MimeKit.Cryptography NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
+    - name: Sign MimeKit.Cryptography NuGet Package
+      shell: pwsh
+      run: >
+        ./sign code azure-key-vault
+        MimeKit.Cryptography.${{ needs.build.outputs.version }}.nupkg
+        --base-directory "${{ github.workspace }}"
+        --publisher-name "MimeKit"
+        --description "MimeKit.Cryptography"
+        --description-url "https://github.com/jstedfast/MimeKit"
+        --azure-credential-type "azure-cli"
+        --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
+        --azure-key-vault-certificate "SC-MIMEKIT"
+
+    # Sign the MimeKit meta-package (contains no assemblies, so only the .nupkg itself is signed)
     - name: Sign MimeKit NuGet Package
       shell: pwsh
       run: >
@@ -162,28 +179,15 @@ jobs:
         --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
         --azure-key-vault-certificate "SC-MIMEKIT"
 
-    # Sign MimeKitLite NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
-    - name: Sign MimeKitLite NuGet Package
-      shell: pwsh
-      run: >
-        ./sign code azure-key-vault
-        MimeKitLite.${{ needs.build.outputs.version }}.nupkg
-        --base-directory "${{ github.workspace }}"
-        --publisher-name "MimeKit"
-        --description "MimeKitLite"
-        --description-url "https://github.com/jstedfast/MimeKit"
-        --azure-credential-type "azure-cli"
-        --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
-        --azure-key-vault-certificate "SC-MIMEKIT"
-
     # Upload signed packages as artifacts
     - name: Upload signed artifacts
       uses: actions/upload-artifact@v4
       with:
         name: SignedArtifacts
         path: |
+          MimeKit.Core.${{ needs.build.outputs.version }}.nupkg
+          MimeKit.Cryptography.${{ needs.build.outputs.version }}.nupkg
           MimeKit.${{ needs.build.outputs.version }}.nupkg
-          MimeKitLite.${{ needs.build.outputs.version }}.nupkg
 
     # Get a short-lived NuGet API key
     - name: Get NuGet API Key
@@ -192,7 +196,30 @@ jobs:
       with:
         user: ${{ secrets.NUGET_USER }}
 
-    # Publish MimeKit.{version}.nupkg to NuGet.org
+    # Publish MimeKit.Core.{version}.nupkg to NuGet.org
+    #
+    # Note: MimeKit.Core and MimeKit.Cryptography must be pushed *before* the MimeKit
+    # meta-package, otherwise NuGet.org cannot resolve the meta-package's dependencies.
+    - name: Push MimeKit.Core package to NuGet.org
+      if: false
+      shell: pwsh
+      run: |
+        nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+      env:
+        NUGET_PKG_PATH: MimeKit.Core.${{ needs.build.outputs.version }}.nupkg
+        NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+
+    # Publish MimeKit.Cryptography.{version}.nupkg to NuGet.org
+    - name: Push MimeKit.Cryptography package to NuGet.org
+      if: false
+      shell: pwsh
+      run: |
+        nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+      env:
+        NUGET_PKG_PATH: MimeKit.Cryptography.${{ needs.build.outputs.version }}.nupkg
+        NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+
+    # Publish the MimeKit.{version}.nupkg meta-package to NuGet.org (must be pushed last)
     - name: Push MimeKit package to NuGet.org
       if: false
       shell: pwsh
@@ -200,14 +227,4 @@ jobs:
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
       env:
         NUGET_PKG_PATH: MimeKit.${{ needs.build.outputs.version }}.nupkg
-        NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
-
-    # Publish MimeKitLite.{version}.nupkg to NuGet.org
-    - name: Push MimeKitLite package to NuGet.org
-      if: false
-      shell: pwsh
-      run: |
-        nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
-      env:
-        NUGET_PKG_PATH: MimeKitLite.${{ needs.build.outputs.version }}.nupkg
         NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}

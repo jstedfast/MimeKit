@@ -104,30 +104,30 @@ Org.BouncyCastle.Utilities.Properties.SetThreadBoolean (Org.BouncyCastle.Utiliti
   <files>
     <file src="..\FAQ.md" target="docs\FAQ.md" />
     <file src="..\README.md" target="docs\README.md" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.Cryptography.dll" target="lib\netstandard2.0\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.Cryptography.pdb" target="lib\netstandard2.0\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\netstandard2.0\MimeKit.Cryptography.xml" target="lib\netstandard2.0\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Cryptography.dll" target="lib\netstandard2.1\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Cryptography.pdb" target="lib\netstandard2.1\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Cryptography.xml" target="lib\netstandard2.1\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\netstandard2.1\MimeKit.Cryptography.dll.config" target="lib\netstandard2.1\MimeKit.Cryptography.dll.config" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.Cryptography.dll" target="lib\net462\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.Cryptography.pdb" target="lib\net462\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\net462\MimeKit.Cryptography.xml" target="lib\net462\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.Cryptography.dll" target="lib\net47\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.Cryptography.pdb" target="lib\net47\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\net47\MimeKit.Cryptography.xml" target="lib\net47\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.Cryptography.dll" target="lib\net48\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.Cryptography.pdb" target="lib\net48\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\net48\MimeKit.Cryptography.xml" target="lib\net48\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Cryptography.dll" target="lib\net8.0\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Cryptography.pdb" target="lib\net8.0\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Cryptography.xml" target="lib\net8.0\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\net8.0\MimeKit.Cryptography.dll.config" target="lib\net8.0\MimeKit.Cryptography.dll.config" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Cryptography.dll" target="lib\net10.0\MimeKit.Cryptography.dll" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Cryptography.pdb" target="lib\net10.0\MimeKit.Cryptography.pdb" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Cryptography.xml" target="lib\net10.0\MimeKit.Cryptography.xml" />
-    <file src="..\MimeKit\bin\Release\net10.0\MimeKit.Cryptography.dll.config" target="lib\net10.0\MimeKit.Cryptography.dll.config" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.0\MimeKit.Cryptography.dll" target="lib\netstandard2.0\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.0\MimeKit.Cryptography.pdb" target="lib\netstandard2.0\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.0\MimeKit.Cryptography.xml" target="lib\netstandard2.0\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.dll" target="lib\netstandard2.1\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.pdb" target="lib\netstandard2.1\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.xml" target="lib\netstandard2.1\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\netstandard2.1\MimeKit.Cryptography.dll.config" target="lib\netstandard2.1\MimeKit.Cryptography.dll.config" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net462\MimeKit.Cryptography.dll" target="lib\net462\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net462\MimeKit.Cryptography.pdb" target="lib\net462\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net462\MimeKit.Cryptography.xml" target="lib\net462\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net47\MimeKit.Cryptography.dll" target="lib\net47\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net47\MimeKit.Cryptography.pdb" target="lib\net47\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net47\MimeKit.Cryptography.xml" target="lib\net47\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net48\MimeKit.Cryptography.dll" target="lib\net48\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net48\MimeKit.Cryptography.pdb" target="lib\net48\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net48\MimeKit.Cryptography.xml" target="lib\net48\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.dll" target="lib\net8.0\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.pdb" target="lib\net8.0\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.xml" target="lib\net8.0\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net8.0\MimeKit.Cryptography.dll.config" target="lib\net8.0\MimeKit.Cryptography.dll.config" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.dll" target="lib\net10.0\MimeKit.Cryptography.dll" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.pdb" target="lib\net10.0\MimeKit.Cryptography.pdb" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.xml" target="lib\net10.0\MimeKit.Cryptography.xml" />
+    <file src="..\MimeKit.Cryptography\bin\Release\net10.0\MimeKit.Cryptography.dll.config" target="lib\net10.0\MimeKit.Cryptography.dll.config" />
     <file src="mimekit-50.png" target="icons\mimekit-50.png" />
   </files>
 </package>
