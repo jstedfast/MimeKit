@@ -90,10 +90,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Adds a column to a table.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		/// <param name="column">The column to add.</param>
-		protected override void AddTableColumn (DbConnection connection, DataTable table, DataColumn column)
+		protected override void AddTableColumn (DataTable table, DataColumn column)
 		{
 			var statement = new StringBuilder ("ALTER TABLE ");
 			int primaryKeys = table.PrimaryKey?.Length ?? 0;
@@ -115,9 +114,8 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates the specified table.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
-		protected override void CreateTable (DbConnection connection, DataTable table)
+		protected override void CreateTable (DataTable table)
 		{
 			var statement = new StringBuilder ($"if not exists (select * from sysobjects where name='{table.TableName}' and xtype='U') ");
 			int primaryKeys = 0;
@@ -183,10 +181,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <returns>The list of columns.</returns>
-		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
+		protected override IList<DataColumn> GetTableColumns (string tableName)
 		{
 			using (var command = CreateCommand ()) {
 				command.CommandText = $"select top 1 * from {tableName}";
@@ -208,10 +205,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates an index for faster table lookups.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns to index.</param>
-		protected override void CreateIndex (DbConnection connection, string tableName, string[] columnNames)
+		protected override void CreateIndex (string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("IF NOT EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) CREATE INDEX {0} ON {1}({2})", indexName, tableName, string.Join (", ", columnNames));
@@ -228,10 +224,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Removes an index that is no longer needed.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <param name="columnNames">The names of the columns that were indexed.</param>
-		protected override void RemoveIndex (DbConnection connection, string tableName, string[] columnNames)
+		protected override void RemoveIndex (string tableName, string[] columnNames)
 		{
 			var indexName = GetIndexName (tableName, columnNames);
 			var query = string.Format ("IF EXISTS (Select 8 from sys.indexes where name='{0}' and object_id=OBJECT_ID('{1}')) DROP INDEX {0} ON {1}", indexName, tableName);
@@ -262,9 +257,8 @@ namespace MimeKit.Cryptography {
 		/// Gets the database command to insert the specified certificate record.
 		/// </remarks>
 		/// <returns>The database command.</returns>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="record">The certificate record.</param>
-		protected override DbCommand GetInsertCommand (DbConnection connection, X509CertificateRecord record)
+		protected override DbCommand GetInsertCommand (X509CertificateRecord record)
 		{
 			var statement = new StringBuilder ("INSERT INTO CERTIFICATES(");
 			var variables = new StringBuilder ("VALUES(");

@@ -330,10 +330,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Gets the list of columns for the specified table.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="tableName">The name of the table.</param>
 		/// <returns>The list of columns.</returns>
-		protected override IList<DataColumn> GetTableColumns (DbConnection connection, string tableName)
+		protected override IList<DataColumn> GetTableColumns (string tableName)
 		{
 			using (var command = CreateCommand ()) {
 				command.CommandText = $"PRAGMA table_info({tableName})";
@@ -416,9 +415,8 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Creates the specified table.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
-		protected override void CreateTable (DbConnection connection, DataTable table)
+		protected override void CreateTable (DataTable table)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS ");
 			int primaryKeys = 0;
@@ -449,10 +447,9 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Adds a column to a table.
 		/// </remarks>
-		/// <param name="connection">The database connection.</param>
 		/// <param name="table">The table.</param>
 		/// <param name="column">The column to add.</param>
-		protected override void AddTableColumn (DbConnection connection, DataTable table, DataColumn column)
+		protected override void AddTableColumn (DataTable table, DataColumn column)
 		{
 			var statement = new StringBuilder ("ALTER TABLE ");
 			int primaryKeys = table.PrimaryKey?.Length ?? 0;
