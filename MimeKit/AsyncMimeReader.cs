@@ -137,6 +137,10 @@ namespace MimeKit {
 			currentBoundary = null;
 			headerCount = 0;
 
+			messageHeaderBlock = state == MimeParserState.MessageHeaders;
+			seenMessageHeaders = 0;
+			seenResentHeaders = 0;
+
 			currentContentLength = null;
 
 			currentContentType = null;

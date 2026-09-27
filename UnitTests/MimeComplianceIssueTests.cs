@@ -60,13 +60,13 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestEmptyGroupNameIsTheLargestViolation ()
+		public void TestLargestViolationMatchesTheConstructorBound ()
 		{
 			// Note: The MimeComplianceIssue constructor range check is written in terms of the largest
 			// defined violation. If a new violation is appended, the check must be updated to match.
 			var max = Enum.GetValues<MimeComplianceViolation> ().Max ();
 
-			Assert.That (max, Is.EqualTo (MimeComplianceViolation.EmptyGroupName));
+			Assert.That (max, Is.EqualTo (MimeComplianceViolation.IncompleteUUEncodedContent));
 		}
 
 		[Test]
@@ -208,7 +208,19 @@ namespace UnitTests {
 				MimeComplianceViolation.ObsoleteDomainSyntax,
 				MimeComplianceViolation.TrailingDotInDomain,
 				MimeComplianceViolation.WhitespaceInDomainLiteral,
-				MimeComplianceViolation.EmptyGroupName
+				MimeComplianceViolation.EmptyGroupName,
+
+				// Note: Repeating either of these can only cause the message to be threaded
+				// inconsistently, and resent fields are strictly informational.
+				MimeComplianceViolation.RepeatedInReplyTo,
+				MimeComplianceViolation.RepeatedReferences,
+				MimeComplianceViolation.RepeatedResentDate,
+				MimeComplianceViolation.RepeatedResentFrom,
+				MimeComplianceViolation.RepeatedResentSender,
+				MimeComplianceViolation.RepeatedResentTo,
+				MimeComplianceViolation.RepeatedResentCc,
+				MimeComplianceViolation.RepeatedResentBcc,
+				MimeComplianceViolation.RepeatedResentMessageId
 			};
 
 			// Note: These are the classic MIME content-smuggling vectors, plus the two address defects
@@ -217,12 +229,21 @@ namespace UnitTests {
 			// injection primitive. Either way, different components can be made to read different
 			// mailboxes out of the same header.
 			var critical = new [] {
-				MimeComplianceViolation.MultipleContentTypes,
-				MimeComplianceViolation.MultipleContentTransferEncodings,
+				MimeComplianceViolation.RepeatedContentType,
+				MimeComplianceViolation.RepeatedContentTransferEncoding,
 				MimeComplianceViolation.UnexpectedNullBytesInHeader,
 				MimeComplianceViolation.UnexpectedNullBytesInBody,
 				MimeComplianceViolation.NullByteInAddress,
-				MimeComplianceViolation.LineBreakInAddress
+				MimeComplianceViolation.LineBreakInAddress,
+
+				// Note: Repeating one of these lets a filter or a DKIM verifier act on one instance
+				// while the mail client displays another.
+				MimeComplianceViolation.RepeatedDate,
+				MimeComplianceViolation.RepeatedFrom,
+				MimeComplianceViolation.RepeatedSender,
+				MimeComplianceViolation.RepeatedReplyTo,
+				MimeComplianceViolation.RepeatedMessageId,
+				MimeComplianceViolation.RepeatedReturnPath
 			};
 
 			foreach (var violation in channelOnly) {
@@ -374,11 +395,11 @@ namespace UnitTests {
 				{ MimeComplianceViolation.InvalidHeader, Interop | Security },
 				{ MimeComplianceViolation.IncompleteHeader, Interop },
 				{ MimeComplianceViolation.InvalidContentType, Interop | Security },
-				{ MimeComplianceViolation.MultipleContentTypes, Interop | Security },
+				{ MimeComplianceViolation.RepeatedContentType, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },
-				{ MimeComplianceViolation.MultipleContentTransferEncodings, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.RepeatedContentTransferEncoding, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.OversizedLine, Interop | DataLoss },
 				{ MimeComplianceViolation.MissingBodySeparator, Interop | Security },
 				{ MimeComplianceViolation.MissingMultipartBoundaryParameter, Interop | DataLoss },
@@ -422,7 +443,26 @@ namespace UnitTests {
 				{ MimeComplianceViolation.NullByteInAddress, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.LineBreakInAddress, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.ControlCharacterInAddress, Interop | Security },
-				{ MimeComplianceViolation.EmptyGroupName, Interop }
+				{ MimeComplianceViolation.EmptyGroupName, Interop },
+				{ MimeComplianceViolation.RepeatedDate, Interop | Security },
+				{ MimeComplianceViolation.RepeatedFrom, Interop | Security },
+				{ MimeComplianceViolation.RepeatedSender, Interop | Security },
+				{ MimeComplianceViolation.RepeatedReplyTo, Interop | Security },
+				{ MimeComplianceViolation.RepeatedTo, Interop | Security },
+				{ MimeComplianceViolation.RepeatedCc, Interop | Security },
+				{ MimeComplianceViolation.RepeatedBcc, Interop | Security },
+				{ MimeComplianceViolation.RepeatedMessageId, Interop | Security },
+				{ MimeComplianceViolation.RepeatedInReplyTo, Interop },
+				{ MimeComplianceViolation.RepeatedReferences, Interop },
+				{ MimeComplianceViolation.RepeatedSubject, Interop | Security },
+				{ MimeComplianceViolation.RepeatedReturnPath, Interop | Security },
+				{ MimeComplianceViolation.RepeatedResentDate, Interop },
+				{ MimeComplianceViolation.RepeatedResentFrom, Interop },
+				{ MimeComplianceViolation.RepeatedResentSender, Interop },
+				{ MimeComplianceViolation.RepeatedResentTo, Interop },
+				{ MimeComplianceViolation.RepeatedResentCc, Interop },
+				{ MimeComplianceViolation.RepeatedResentBcc, Interop },
+				{ MimeComplianceViolation.RepeatedResentMessageId, Interop }
 			};
 
 			foreach (var violation in AllViolations) {

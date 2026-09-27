@@ -96,6 +96,13 @@ namespace MimeKit {
 
 		long? currentContentLength;
 
+		// Note: Bitmasks of the header fields that RFC 5322, Section 3.6 limits to one occurrence.
+		// seenResentHeaders covers the current block of resent fields and is cleared by any header
+		// field that is not a resent field.
+		ulong seenMessageHeaders;
+		ulong seenResentHeaders;
+		bool messageHeaderBlock;
+
 		MimeParserState state;
 		MimeFormat format;
 		bool toplevel;
@@ -1614,10 +1621,99 @@ namespace MimeKit {
 			} while (true);
 		}
 
+		// Note: RFC 5322, Section 3.6 limits each of these header fields to a single occurrence. The
+		// resent fields are limited to one occurrence per block of resent fields rather than one per
+		// message, so they are tracked separately and occupy the upper indexes.
+		const int FirstResentHeaderIndex = 12;
+
+		static readonly MimeComplianceViolation[] RepeatedHeaderViolations = {
+			MimeComplianceViolation.RepeatedDate,
+			MimeComplianceViolation.RepeatedFrom,
+			MimeComplianceViolation.RepeatedSender,
+			MimeComplianceViolation.RepeatedReplyTo,
+			MimeComplianceViolation.RepeatedTo,
+			MimeComplianceViolation.RepeatedCc,
+			MimeComplianceViolation.RepeatedBcc,
+			MimeComplianceViolation.RepeatedMessageId,
+			MimeComplianceViolation.RepeatedInReplyTo,
+			MimeComplianceViolation.RepeatedReferences,
+			MimeComplianceViolation.RepeatedSubject,
+			MimeComplianceViolation.RepeatedReturnPath,
+			MimeComplianceViolation.RepeatedResentDate,
+			MimeComplianceViolation.RepeatedResentFrom,
+			MimeComplianceViolation.RepeatedResentSender,
+			MimeComplianceViolation.RepeatedResentTo,
+			MimeComplianceViolation.RepeatedResentCc,
+			MimeComplianceViolation.RepeatedResentBcc,
+			MimeComplianceViolation.RepeatedResentMessageId
+		};
+
+		static int GetRepeatableHeaderIndex (HeaderId id)
+		{
+			switch (id) {
+			case HeaderId.Date:              return 0;
+			case HeaderId.From:              return 1;
+			case HeaderId.Sender:            return 2;
+			case HeaderId.ReplyTo:           return 3;
+			case HeaderId.To:                return 4;
+			case HeaderId.Cc:                return 5;
+			case HeaderId.Bcc:               return 6;
+			case HeaderId.MessageId:         return 7;
+			case HeaderId.InReplyTo:         return 8;
+			case HeaderId.References:        return 9;
+			case HeaderId.Subject:           return 10;
+			case HeaderId.ReturnPath:        return 11;
+			case HeaderId.ResentDate:        return 12;
+			case HeaderId.ResentFrom:        return 13;
+			case HeaderId.ResentSender:      return 14;
+			case HeaderId.ResentTo:          return 15;
+			case HeaderId.ResentCc:          return 16;
+			case HeaderId.ResentBcc:         return 17;
+			case HeaderId.ResentMessageId:   return 18;
+			default:                         return -1;
+			}
+		}
+
+		void CheckForRepeatedHeader (HeaderId id, long beginOffset, int beginLineNumber)
+		{
+			int index = GetRepeatableHeaderIndex (id);
+
+			if (index < FirstResentHeaderIndex) {
+				// Note: Resent fields corresponding to a single resending of the message are grouped
+				// together, so any other header field ends the current block.
+				seenResentHeaders = 0;
+
+				if (index < 0)
+					return;
+
+				ulong bit = 1UL << index;
+
+				if ((seenMessageHeaders & bit) != 0)
+					ComplianceLogger!.Log (new MimeComplianceIssue (RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1));
+				else
+					seenMessageHeaders |= bit;
+			} else {
+				ulong bit = 1UL << index;
+
+				if ((seenResentHeaders & bit) != 0)
+					ComplianceLogger!.Log (new MimeComplianceIssue (RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1));
+				else
+					seenResentHeaders |= bit;
+			}
+		}
+
 		void UpdateHeaderState (Header header, long beginOffset, int beginLineNumber)
 		{
 			var rawValue = header.RawValue;
 			int index = 0;
+
+			// Note: The header field counts in RFC 5322, Section 3.6 constrain a message rather than
+			// a MIME entity, so they apply to the top-level message and to message/rfc822 parts but
+			// not to the headers of an ordinary entity. This cannot be written as a test of the
+			// current state, because a message that ends without a body separator has already
+			// transitioned to MimeParserState.Content by the time its final header is created.
+			if (ComplianceLogger != null && messageHeaderBlock)
+				CheckForRepeatedHeader (header.Id, beginOffset, beginLineNumber);
 
 			switch (header.Id) {
 			case HeaderId.ContentTransferEncoding:
@@ -1630,7 +1726,7 @@ namespace MimeKit {
 					currentEncodingOffset = beginOffset;
 					currentEncodingLineNumber = beginLineNumber;
 				} else if (ComplianceLogger != null) {
-					ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, beginOffset, beginLineNumber, 1));
+					ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.RepeatedContentTransferEncoding, beginOffset, beginLineNumber, 1));
 				}
 				break;
 			case HeaderId.ContentLength:
@@ -1662,7 +1758,7 @@ namespace MimeKit {
 					currentContentTypeOffset = beginOffset;
 					currentContentTypeLineNumber = beginLineNumber;
 				} else if (ComplianceLogger != null) {
-					ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, beginOffset, beginLineNumber, 1));
+					ComplianceLogger.Log (new MimeComplianceIssue (MimeComplianceViolation.RepeatedContentType, beginOffset, beginLineNumber, 1));
 				}
 				break;
 			}
@@ -1974,6 +2070,10 @@ namespace MimeKit {
 			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
 			headerCount = 0;
+
+			messageHeaderBlock = state == MimeParserState.MessageHeaders;
+			seenMessageHeaders = 0;
+			seenResentHeaders = 0;
 
 			currentContentLength = null;
 

@@ -39,6 +39,15 @@ namespace MimeKit {
 	/// </remarks>
 	public enum MimeComplianceViolation
 	{
+		// Note: The members below are grouped by subject matter so that the enumeration reads well,
+		// but the numeric values are append-only. C# inlines enum constants into consuming
+		// assemblies at compile time, so renumbering an existing member silently changes the meaning
+		// of code that was compiled against an earlier version of MimeKit, as well as any value that
+		// has been persisted or logged. A new violation therefore belongs in whichever #region
+		// covers its subject matter, but it must take the next unused value rather than the value
+		// that its position would suggest. MimeComplianceViolationTests enforces both halves of this
+		// rule.
+
 		/// <summary>
 		/// No violation.
 		/// </summary>
@@ -47,6 +56,8 @@ namespace MimeKit {
 		/// a <see cref="MimeComplianceIssue"/> is distinguishable from a genuine violation.
 		/// </remarks>
 		None                                        = 0,
+
+		#region Line Format
 
 		/// <summary>
 		/// A bare linefeed character was found in a MIME part or message header.
@@ -75,94 +86,6 @@ namespace MimeKit {
 		BareLinefeedInBody                          = 2,
 
 		/// <summary>
-		/// A MIME part or message header contained control (or whitespace) characters in the field name.
-		/// </summary>
-		/// <remarks>
-		/// <para>The Internet Message Format specification requires that all header field names be composed
-		/// of printable US-ASCII characters and must not contain control characters or whitespace characters.
-		/// Inclusion of these characters can lead to divergent behavior among various MIME parsers,
-		/// resulting in differences in handling.</para>
-		/// <note type="note">The Internet Message Format specification allows for whitespace characters to
-		/// exist between the end of the field name and the <c>':'</c> character that delineates the header
-		/// name and value. In that particular case, the <see cref="InvalidHeader"/> violation will NOT be
-		/// raised.</note>
-		/// </remarks>
-		InvalidHeader                               = 3,
-
-		/// <summary>
-		/// A MIME part or message header ended prematurely at the end of the stream.
-		/// </summary>
-		/// <remarks>
-		/// This usually indicates that the message was truncated somewhere in transit and may be a sign that
-		/// a MIME parser implementation earlier in transit failed to properly handle certain edge cases such
-		/// as a null (<c>0x00</c>) byte in the message header.
-		/// </remarks>
-		IncompleteHeader                            = 4,
-
-		/// <summary>
-		/// A Content-Type header value was not valid.
-		/// </summary>
-		/// <remarks>
-		/// <para>This indicates that the Content-Type header was not properly formatted and could not be parsed.
-		/// Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME
-		/// part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different
-		/// MIME parser implementations.</para>
-		/// </remarks>
-		InvalidContentType                          = 5,
-
-		/// <summary>
-		/// A MIME part contained multiple Content-Type headers.
-		/// </summary>
-		/// <remarks>
-		/// The MIME specifications require that each MIME part contain only one Content-Type header.
-		/// Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different
-		/// MIME parser implementations which may choose to use different Content-Type headers as their
-		/// "source of truth".
-		/// </remarks>
-		MultipleContentTypes                        = 6,
-
-		/// <summary>
-		/// A Content-Transfer-Encoding header value was not valid.
-		/// </summary>
-		/// <remarks>
-		/// This indicates that the Content-Transfer-Encoding header did not contain a valid value and could not be parsed.
-		/// </remarks>
-		InvalidContentTransferEncoding              = 7,
-
-		/// <summary>
-		/// A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value.
-		/// </summary>
-		/// <remarks>
-		/// <para>The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify
-		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
-		/// <note type="note">The only permissible Content-Transfer-Encoding values for a message/rfc822 part are
-		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
-		/// </remarks>
-		IllegalMessageRfc822ContentTransferEncoding = 8,
-
-		/// <summary>
-		/// A Content-Transfer-Encoding header for a multipart contained an illegal value.
-		/// </summary>
-		/// <remarks>
-		/// <para>The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify
-		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
-		/// <note type="note">The only permissible Content-Transfer-Encoding values for a multipart are
-		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
-		/// </remarks>
-		IllegalMultipartContentTransferEncoding     = 9,
-
-		/// <summary>
-		/// A MIME part contained multiple Content-Transfer-Encoding headers.
-		/// </summary>
-		/// <remarks>
-		/// The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header.
-		/// Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different
-		/// MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their
-		/// "source of truth".
-		/// </remarks>
-		MultipleContentTransferEncodings            = 10,
-
-		/// <summary>
 		/// A line was found that exceeded the maximum line length permitted by the Internet Message Format.
 		/// </summary>
 		/// <remarks>
@@ -170,48 +93,7 @@ namespace MimeKit {
 		/// &lt;CR&gt;&lt;LF&gt; terminator. Some handling agents will not examine content beyond the first
 		/// 998 bytes of a line, which provides an opportunity to hide malicious content.
 		/// </remarks>
-		OversizedLine                               = 11,
-
-		/// <summary>
-		/// An empty line separating the headers from the body was missing.
-		/// </summary>
-		/// <remarks>
-		/// The Internet Message Format specifications require that an empty line separate the headers from
-		/// the body of a message. This empty line serves as a clear delimiter between the headers and the
-		/// body, allowing MIME parsers to correctly identify where the headers end and the body begins.
-		/// A missing body separator can lead to ambiguity when parsing the message.
-		/// </remarks>
-		MissingBodySeparator                        = 12,
-
-		/// <summary>
-		/// A boundary parameter was missing from a multipart Content-Type header.
-		/// </summary>
-		/// <remarks>
-		/// The MIME specifications require that each multipart Content-Type header include a boundary parameter.
-		/// A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among
-		/// different MIME parser implementations.
-		/// </remarks>
-		MissingMultipartBoundaryParameter           = 13,
-
-		/// <summary>
-		/// A boundary parameter in a multipart Content-Type header was not valid.
-		/// </summary>
-		/// <remarks>
-		/// A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by
-		/// the MIME specifications. Invalid boundary parameters can lead to ambiguity and inconsistent behavior
-		/// among different MIME parser implementations.
-		/// </remarks>
-		InvalidMultipartBoundaryParameter           = 14,
-
-		/// <summary>
-		/// A multipart boundary was missing.
-		/// </summary>
-		/// <remarks>
-		/// When a multipart does not contain any boundary markers within its content, it can lead to ambiguity
-		/// and inconsistent behavior among different MIME parser implementations which may opt to treat the content
-		/// as a single part rather than a multipart message.
-		/// </remarks>
-		MissingMultipartBoundary                    = 15,
+		OversizedLine                               = 3,
 
 		/// <summary>
 		/// A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected.
@@ -225,7 +107,7 @@ namespace MimeKit {
 		/// <note type="note">This violation will only be raised if the 8-bit text in the header value is
 		/// not valid UTF-8.</note>
 		/// </remarks>
-		Unexpected8BitBytesInHeader                 = 16,
+		Unexpected8BitBytesInHeader                 = 4,
 
 		/// <summary>
 		/// A MIME part's body contained 8-bit content where only 7-bit content was expected.
@@ -235,7 +117,7 @@ namespace MimeKit {
 		/// encoding (such as <c>7bit</c>, <c>quoted-printable</c>, or <c>base64</c>) but contained
 		/// non-ASCII text (or potentially even binary data).
 		/// </remarks>
-		Unexpected8BitBytesInBody                   = 17,
+		Unexpected8BitBytesInBody                   = 5,
 
 		/// <summary>
 		/// A MIME part or message header contained illegal null (<c>0x00</c>) bytes.
@@ -246,7 +128,7 @@ namespace MimeKit {
 		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
 		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>
-		UnexpectedNullBytesInHeader                 = 18,
+		UnexpectedNullBytesInHeader                 = 6,
 
 		/// <summary>
 		/// A MIME part's body contained null (<c>0x00</c>) bytes without specifying a binary transfer encoding.
@@ -257,152 +139,354 @@ namespace MimeKit {
 		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
 		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>
-		UnexpectedNullBytesInBody                   = 19,
+		UnexpectedNullBytesInBody                   = 7,
+
+		#endregion
+
+		#region Header Syntax
 
 		/// <summary>
-		/// The base64 encoded content of a MIME part ended with an incomplete quantum.
+		/// A MIME part or message header contained control (or whitespace) characters in the field name.
 		/// </summary>
 		/// <remarks>
-		/// The MIME specifications require base64 encoded content be a multiple of 4 bytes (a "quantum") in length. An
-		/// incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or
-		/// otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.
+		/// <para>The Internet Message Format specification requires that all header field names be composed
+		/// of printable US-ASCII characters and must not contain control characters or whitespace characters.
+		/// Inclusion of these characters can lead to divergent behavior among various MIME parsers,
+		/// resulting in differences in handling.</para>
+		/// <note type="note">The Internet Message Format specification allows for whitespace characters to
+		/// exist between the end of the field name and the <c>':'</c> character that delineates the header
+		/// name and value. In that particular case, the <see cref="InvalidHeader"/> violation will NOT be
+		/// raised.</note>
 		/// </remarks>
-		IncompleteBase64Quantum                     = 20,
+		InvalidHeader                               = 8,
 
 		/// <summary>
-		/// The base64 encoded content of a MIME part contained invalid characters.
+		/// A MIME part or message header ended prematurely at the end of the stream.
 		/// </summary>
 		/// <remarks>
-		/// Invalid characters within base64 content can lead to decoding issues and inconsistent behavior among different MIME
-		/// parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these
-		/// characters and continue decoding.
+		/// This usually indicates that the message was truncated somewhere in transit and may be a sign that
+		/// a MIME parser implementation earlier in transit failed to properly handle certain edge cases such
+		/// as a null (<c>0x00</c>) byte in the message header.
 		/// </remarks>
-		InvalidBase64Character                      = 21,
+		IncompleteHeader                            = 9,
+
+		#endregion
+
+		#region Repeated Header Fields
 
 		/// <summary>
-		/// The base64 encoded content of a MIME part contained invalid padding.
+		/// A MIME part contained multiple Content-Type headers.
 		/// </summary>
 		/// <remarks>
-		/// Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME
-		/// parser implementations. Some base64 decoders will ignore extraneous '=' padding characters if any are found within
-		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
-		/// soon as they are encountered.
+		/// The MIME specifications require that each MIME part contain only one Content-Type header.
+		/// Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different
+		/// MIME parser implementations which may choose to use different Content-Type headers as their
+		/// "source of truth".
 		/// </remarks>
-		InvalidBase64Padding                        = 22,
+		RepeatedContentType                         = 10,
 
 		/// <summary>
-		/// The base64 encoded content of a MIME part contained characters after the padding.
+		/// A MIME part contained multiple Content-Transfer-Encoding headers.
 		/// </summary>
 		/// <remarks>
-		/// Base64 characters found after padding (<c>'='</c>) in a base64 encoded block are not allowed by the MIME specifications
-		/// and can lead to inconsistent behavior among different MIME parser implementations.
+		/// The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header.
+		/// Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different
+		/// MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their
+		/// "source of truth".
 		/// </remarks>
-		Base64CharactersAfterPadding                = 23,
+		RepeatedContentTransferEncoding             = 11,
 
 		/// <summary>
-		/// The base64 encoded content of a MIME part contained an obsolete comment.
+		/// The message contained more than one Date header field.
 		/// </summary>
 		/// <remarks>
-		/// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments delimited by the <c>'*'</c> character in what
-		/// later became known as "base64 encoding". This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the
-		/// first MIME specification) explicitly disallowed it, but some mailers may generate such content. Since the vast
-		/// majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead
-		/// to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// The Internet Message Format specification permits at most one Date header field. When more than one is present,
+		/// agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can
+		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
+		/// one instance while the mail client displays another.
 		/// </remarks>
-		ObsoleteBase64Comment                       = 24,
+		RepeatedDate                                = 12,
 
 		/// <summary>
-		/// The quoted-printable encoded content of a MIME part contained an invalid hex sequence after an '=' character.
+		/// The message contained more than one From header field.
 		/// </summary>
 		/// <remarks>
-		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
+		/// The Internet Message Format specification permits at most one From header field. When more than one is present,
+		/// agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can
+		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
+		/// one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedFrom                                = 13,
+
+		/// <summary>
+		/// The message contained more than one Sender header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one Sender header field. When more than one is present,
+		/// agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can
+		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
+		/// one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedSender                              = 14,
+
+		/// <summary>
+		/// The message contained more than one Reply-To header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one Reply-To header field. When more than one is present,
+		/// agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can
+		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
+		/// one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedReplyTo                             = 15,
+
+		/// <summary>
+		/// The message contained more than one To header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one To header field. When more than one is present, agents
+		/// disagree about which instance is authoritative: some take the first, some take the last. A message filter may
+		/// therefore evaluate one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedTo                                  = 16,
+
+		/// <summary>
+		/// The message contained more than one Cc header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one Cc header field. When more than one is present, agents
+		/// disagree about which instance is authoritative: some take the first, some take the last. A message filter may
+		/// therefore evaluate one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedCc                                  = 17,
+
+		/// <summary>
+		/// The message contained more than one Bcc header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one Bcc header field. When more than one is present,
+		/// agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may
+		/// therefore evaluate one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedBcc                                 = 18,
+
+		/// <summary>
+		/// The message contained more than one Message-Id header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one Message-Id header field. When more than one is
+		/// present, agents disagree about which instance is authoritative: some take the first, some take the last. An attacker
+		/// can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM
+		/// validates one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedMessageId                           = 19,
+
+		/// <summary>
+		/// The message contained more than one In-Reply-To header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one In-Reply-To header field. When more than one is
+		/// present, agents disagree about which instance is authoritative, which may cause the message to be threaded
+		/// inconsistently between mail clients.
+		/// </remarks>
+		RepeatedInReplyTo                           = 20,
+
+		/// <summary>
+		/// The message contained more than one References header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one References header field. When more than one is
+		/// present, agents disagree about which instance is authoritative, which may cause the message to be threaded
+		/// inconsistently between mail clients.
+		/// </remarks>
+		RepeatedReferences                          = 21,
+
+		/// <summary>
+		/// The message contained more than one Subject header field.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specification permits at most one Subject header field. When more than one is present,
+		/// agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may
+		/// therefore evaluate one instance while the mail client displays another.
+		/// </remarks>
+		RepeatedSubject                             = 22,
+
+		/// <summary>
+		/// The message contained more than one Return-Path header field.
+		/// </summary>
+		/// <remarks>
+		/// Legitimate messages can contain more than one Return-Path header field, but it is more often an error. All but the
+		/// topmost instance should be disregarded, because the topmost was added nearest to the mailbox that received the
+		/// message.
+		/// </remarks>
+		RepeatedReturnPath                          = 23,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-Date header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-Date header field per block of resent
+		/// header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentDate                          = 24,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-From header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-From header field per block of resent
+		/// header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentFrom                          = 25,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-Sender header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-Sender header field per block of resent
+		/// header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentSender                        = 26,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-To header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-To header field per block of resent
+		/// header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentTo                            = 27,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-Cc header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-Cc header field per block of resent
+		/// header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentCc                            = 28,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-Bcc header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-Bcc header field per block of resent
+		/// header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentBcc                           = 29,
+
+		/// <summary>
+		/// A block of resent header fields contained more than one Resent-Message-Id header field.
+		/// </summary>
+		/// <remarks>
+		/// <para>The Internet Message Format specification permits at most one Resent-Message-Id header field per block of
+		/// resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the
+		/// message.</para>
+		/// <para>Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any
+		/// other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly
+		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
+		/// resending history is displayed.</para>
+		/// </remarks>
+		RepeatedResentMessageId                     = 30,
+
+		#endregion
+
+		#region Content Headers
+
+		/// <summary>
+		/// A Content-Type header value was not valid.
+		/// </summary>
+		/// <remarks>
+		/// <para>This indicates that the Content-Type header was not properly formatted and could not be parsed.
+		/// Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME
+		/// part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different
+		/// MIME parser implementations.</para>
+		/// </remarks>
+		InvalidContentType                          = 31,
+
+		/// <summary>
+		/// A Content-Transfer-Encoding header value was not valid.
+		/// </summary>
+		/// <remarks>
+		/// This indicates that the Content-Transfer-Encoding header did not contain a valid value and could not be parsed.
+		/// </remarks>
+		InvalidContentTransferEncoding              = 32,
+
+		/// <summary>
+		/// A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value.
+		/// </summary>
+		/// <remarks>
+		/// <para>The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify
+		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
+		/// <note type="note">The only permissible Content-Transfer-Encoding values for a message/rfc822 part are
+		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
+		/// </remarks>
+		IllegalMessageRfc822ContentTransferEncoding = 33,
+
+		/// <summary>
+		/// A Content-Transfer-Encoding header for a multipart contained an illegal value.
+		/// </summary>
+		/// <remarks>
+		/// <para>The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify
+		/// any encoding that transforms the content in any way (such as <c>quoted-printable</c> or <c>base64</c>).</para>
+		/// <note type="note">The only permissible Content-Transfer-Encoding values for a multipart are
+		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
+		/// </remarks>
+		IllegalMultipartContentTransferEncoding     = 34,
+
+		/// <summary>
+		/// A boundary parameter was missing from a multipart Content-Type header.
+		/// </summary>
+		/// <remarks>
+		/// The MIME specifications require that each multipart Content-Type header include a boundary parameter.
+		/// A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among
 		/// different MIME parser implementations.
 		/// </remarks>
-		InvalidQuotedPrintableEncoding              = 25,
+		MissingMultipartBoundaryParameter           = 35,
 
 		/// <summary>
-		/// The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.
+		/// A boundary parameter in a multipart Content-Type header was not valid.
 		/// </summary>
 		/// <remarks>
-		/// A soft line break in quoted-printable content is represented by an equal sign (=) character followed immediately by a
-		/// &lt;CR&gt;&lt;LF&gt; sequence. This error indicates that an equal sign was immediately followed by an incomplete
-		/// &lt;CR&gt;&lt;LF&gt; sequence which can lead to decoding issues and inconsistent behavior among different MIME parser
-		/// implementations.
-		/// </remarks>
-		InvalidQuotedPrintableSoftBreak             = 26,
-
-		/// <summary>
-		/// The uuencoded content of a MIME part contained non-whitespace content before the begin marker.
-		/// </summary>
-		/// <remarks>
-		/// UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content
-		/// before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		InvalidUUEncodePretext                      = 27,
-
-		/// <summary>
-		/// The uuencoded content of a MIME part had an invalid file mode in the begin marker.
-		/// </summary>
-		/// <remarks>
-		/// The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to
-		/// decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		InvalidUUEncodeFileMode                     = 28,
-
-		/// <summary>
-		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
-		/// </summary>
-		/// <remarks>
-		/// Incorrect line lengths and/or invalid characters in uuencoded content can lead to decoding issues and inconsistent behavior
+		/// A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by
+		/// the MIME specifications. Invalid boundary parameters can lead to ambiguity and inconsistent behavior
 		/// among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedContent                     = 29,
+		InvalidMultipartBoundaryParameter           = 36,
 
-		/// <summary>
-		/// The uuencoded content of a MIME part had an invalid encoded line length.
-		/// </summary>
-		/// <remarks>
-		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. This length must be between 0 and
-		/// 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can
-		/// lead to decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		InvalidUUEncodedLineLength                  = 30,
+		#endregion
 
-		/// <summary>
-		/// The uuencoded content of a MIME part contained an incomplete encoded line.
-		/// </summary>
-		/// <remarks>
-		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to
-		/// decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		IncompleteUUEncodedLine                     = 31,
-
-		/// <summary>
-		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
-		/// </summary>
-		/// <remarks>
-		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
-		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		InvalidUUEncodedLineExtraData               = 32,
-
-		/// <summary>
-		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.
-		/// </summary>
-		/// <remarks>
-		/// UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker
-		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		InvalidUUEncodeEndMarker                    = 33,
-
-		/// <summary>
-		/// The uuencoded content of a MIME part did not properly end.
-		/// </summary>
-		/// <remarks>
-		/// UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers
-		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
-		/// </remarks>
-		IncompleteUUEncodedContent                  = 34,
+		#region Address Syntax
 
 		/// <summary>
 		/// An address contained more angle brackets than the one pair that delimits an angle-addr.
@@ -414,7 +498,7 @@ namespace MimeKit {
 		/// extras all arrive at the same mailbox. It is still a departure from the <c>angle-addr</c> production, and usually
 		/// indicates a mailer that has wrapped an address which was already wrapped.
 		/// </remarks>
-		ExcessiveAngleBracketsInAddress             = 35,
+		ExcessiveAngleBracketsInAddress             = 37,
 
 		/// <summary>
 		/// An address had an opening angle bracket without a closing one, or a closing bracket without an opening one.
@@ -424,7 +508,7 @@ namespace MimeKit {
 		/// <c>user@example.org&gt;</c>. Recovering from an unbalanced bracket requires guessing where the address was meant to
 		/// end, and parsers that guess differently will extract different addresses.
 		/// </remarks>
-		UnbalancedAngleBracketsInAddress            = 36,
+		UnbalancedAngleBracketsInAddress            = 38,
 
 		/// <summary>
 		/// An address contained a quoted-string that was never closed.
@@ -434,7 +518,7 @@ namespace MimeKit {
 		/// quote absorbs everything that follows it, so any addresses later in the same header may be swallowed and silently
 		/// lost rather than merely misparsed.
 		/// </remarks>
-		UnbalancedQuotesInAddress                   = 37,
+		UnbalancedQuotesInAddress                   = 39,
 
 		/// <summary>
 		/// An address contained an unbalanced parenthesis in a comment.
@@ -443,7 +527,7 @@ namespace MimeKit {
 		/// Section 7.1.4 of rfc7103 describes address values such as <c>Name (unbalanced &lt;user@example.com&gt;</c>. As with an
 		/// unclosed quote, an unclosed comment absorbs the remainder of the header, so addresses that follow it may be lost.
 		/// </remarks>
-		UnbalancedParenthesesInAddress              = 38,
+		UnbalancedParenthesesInAddress              = 40,
 
 		/// <summary>
 		/// The display-name of an address contained a special character that should have been quoted.
@@ -453,7 +537,7 @@ namespace MimeKit {
 		/// <c>user@example.com &lt;user@example.com&gt;</c> are not valid. The comma case is the most damaging, because a parser
 		/// that does not special-case it will split the one address into two.
 		/// </remarks>
-		UnquotedDisplayName                         = 39,
+		UnquotedDisplayName                         = 41,
 
 		/// <summary>
 		/// The local-part of an address was not a valid dot-atom or quoted-string.
@@ -463,7 +547,7 @@ namespace MimeKit {
 		/// <c>first.</c> are not valid. Receiving systems differ over whether to reject such an address, strip the offending
 		/// dots, or pass the local-part through verbatim.
 		/// </remarks>
-		InvalidLocalPart                            = 40,
+		InvalidLocalPart                            = 42,
 
 		/// <summary>
 		/// Two addresses in an address list were not separated by a comma.
@@ -473,7 +557,7 @@ namespace MimeKit {
 		/// whether this is two addresses or one address with a malformed display-name, and the two readings produce different
 		/// sets of recipients.
 		/// </remarks>
-		MissingAddressSeparator                     = 41,
+		MissingAddressSeparator                     = 43,
 
 		/// <summary>
 		/// An address list contained a comma that did not separate two addresses.
@@ -483,7 +567,7 @@ namespace MimeKit {
 		/// leading or trailing commas. The empty entries are not addresses and are typically ignored, but their presence usually
 		/// indicates that the generating software dropped an address it intended to include.
 		/// </remarks>
-		ExtraneousCommaInAddressList                = 42,
+		ExtraneousCommaInAddressList                = 44,
 
 		/// <summary>
 		/// An address used the obsolete source route syntax.
@@ -494,7 +578,7 @@ namespace MimeKit {
 		/// is meant to be ignored, but software that does not recognize the syntax may mistake the first domain in the route for
 		/// the address domain.
 		/// </remarks>
-		ObsoleteRouteAddress                        = 43,
+		ObsoleteRouteAddress                        = 45,
 
 		/// <summary>
 		/// An address consisted of a local-part with no domain.
@@ -503,7 +587,7 @@ namespace MimeKit {
 		/// Section 7.1.7 of rfc7103 describes "naked" local-parts such as <c>username</c>. Such an address is only meaningful
 		/// relative to some implied domain, so different systems will complete it differently, or not at all.
 		/// </remarks>
-		AddressWithoutDomain                        = 44,
+		AddressWithoutDomain                        = 46,
 
 		/// <summary>
 		/// The domain of an address used the obsolete syntax that allows comments and whitespace between its parts.
@@ -513,7 +597,7 @@ namespace MimeKit {
 		/// dots of a domain, as in <c>user@example (comment) .com</c>. A conforming domain is a single dot-atom, so software
 		/// that does not implement the obsolete grammar will read a different domain than software that does.
 		/// </remarks>
-		ObsoleteDomainSyntax                        = 45,
+		ObsoleteDomainSyntax                        = 47,
 
 		/// <summary>
 		/// The domain of an address ended with a dot.
@@ -523,7 +607,7 @@ namespace MimeKit {
 		/// domain grammar in rfc5322. Parsers that strip it and parsers that retain it will disagree about whether two
 		/// otherwise identical addresses are equal.
 		/// </remarks>
-		TrailingDotInDomain                         = 46,
+		TrailingDotInDomain                         = 48,
 
 		/// <summary>
 		/// A domain-literal contained whitespace.
@@ -533,7 +617,7 @@ namespace MimeKit {
 		/// as in <c>user@[ 127.0.0.1 ]</c>. Parsers that strip the whitespace and parsers that preserve or reject it will not
 		/// agree on the address.
 		/// </remarks>
-		WhitespaceInDomainLiteral                   = 47,
+		WhitespaceInDomainLiteral                   = 49,
 
 		/// <summary>
 		/// An address contained 8-bit bytes that were not valid UTF-8.
@@ -544,7 +628,7 @@ namespace MimeKit {
 		/// will produce a different address than one that rejects the header, which may result in mail being delivered to the
 		/// wrong mailbox.
 		/// </remarks>
-		Invalid8BitAddress                          = 48,
+		Invalid8BitAddress                          = 50,
 
 		/// <summary>
 		/// An address group was not terminated with a semi-colon.
@@ -553,7 +637,7 @@ namespace MimeKit {
 		/// The group syntax in section 3.4 of rfc5322 requires a terminating <c>;</c>, as in <c>Friends: a@example.com;</c>.
 		/// Without it, a parser must guess where the group ends, and addresses that follow the group may be absorbed into it.
 		/// </remarks>
-		MissingGroupTerminator                      = 49,
+		MissingGroupTerminator                      = 51,
 
 		/// <summary>
 		/// An address did not conform to the address syntax defined by rfc5322.
@@ -564,7 +648,7 @@ namespace MimeKit {
 		/// repair what they accept, so an address that only some implementations can read may resolve to different mailboxes,
 		/// or to none at all, depending on which software handles the message.
 		/// </remarks>
-		NonConformantAddress                        = 50,
+		NonConformantAddress                        = 52,
 
 		/// <summary>
 		/// An address contained a null byte.
@@ -578,7 +662,7 @@ namespace MimeKit {
 		/// each be made to see a different mailbox from the same header. Note that this is reported in addition to
 		/// <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null byte appeared on.</para>
 		/// </remarks>
-		NullByteInAddress                           = 51,
+		NullByteInAddress                           = 53,
 
 		/// <summary>
 		/// A line break appeared inside an address token where folding is not permitted.
@@ -593,7 +677,7 @@ namespace MimeKit {
 		/// fails, implementations differ on whether to unfold, reject or truncate the address, so the recipient that is
 		/// finally used may not be the one an auditor sees.</para>
 		/// </remarks>
-		LineBreakInAddress                          = 52,
+		LineBreakInAddress                          = 54,
 
 		/// <summary>
 		/// An address contained a control character.
@@ -607,7 +691,7 @@ namespace MimeKit {
 		/// terminal-based mail client may be interpreted there rather than displayed. Null bytes and line breaks are
 		/// reported separately as <see cref="NullByteInAddress"/> and <see cref="LineBreakInAddress"/>.</para>
 		/// </remarks>
-		ControlCharacterInAddress                   = 53,
+		ControlCharacterInAddress                   = 55,
 
 		/// <summary>
 		/// An address group had an empty name.
@@ -618,6 +702,191 @@ namespace MimeKit {
 		/// as in <c>To: :;</c>, therefore has no name for a client to display, and parsers disagree over whether to treat
 		/// the colon as a group at all or as a stray character in an ordinary address.
 		/// </remarks>
-		EmptyGroupName                              = 54,
+		EmptyGroupName                              = 56,
+
+		#endregion
+
+		#region Body Structure
+
+		/// <summary>
+		/// An empty line separating the headers from the body was missing.
+		/// </summary>
+		/// <remarks>
+		/// The Internet Message Format specifications require that an empty line separate the headers from
+		/// the body of a message. This empty line serves as a clear delimiter between the headers and the
+		/// body, allowing MIME parsers to correctly identify where the headers end and the body begins.
+		/// A missing body separator can lead to ambiguity when parsing the message.
+		/// </remarks>
+		MissingBodySeparator                        = 57,
+
+		/// <summary>
+		/// A multipart boundary was missing.
+		/// </summary>
+		/// <remarks>
+		/// When a multipart does not contain any boundary markers within its content, it can lead to ambiguity
+		/// and inconsistent behavior among different MIME parser implementations which may opt to treat the content
+		/// as a single part rather than a multipart message.
+		/// </remarks>
+		MissingMultipartBoundary                    = 58,
+
+		#endregion
+
+		#region Base64 Encoding
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part ended with an incomplete quantum.
+		/// </summary>
+		/// <remarks>
+		/// The MIME specifications require base64 encoded content be a multiple of 4 bytes (a "quantum") in length. An
+		/// incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or
+		/// otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		IncompleteBase64Quantum                     = 59,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained invalid characters.
+		/// </summary>
+		/// <remarks>
+		/// Invalid characters within base64 content can lead to decoding issues and inconsistent behavior among different MIME
+		/// parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these
+		/// characters and continue decoding.
+		/// </remarks>
+		InvalidBase64Character                      = 60,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained invalid padding.
+		/// </summary>
+		/// <remarks>
+		/// Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME
+		/// parser implementations. Some base64 decoders will ignore extraneous '=' padding characters if any are found within
+		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
+		/// soon as they are encountered.
+		/// </remarks>
+		InvalidBase64Padding                        = 61,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained characters after the padding.
+		/// </summary>
+		/// <remarks>
+		/// Base64 characters found after padding (<c>'='</c>) in a base64 encoded block are not allowed by the MIME specifications
+		/// and can lead to inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		Base64CharactersAfterPadding                = 62,
+
+		/// <summary>
+		/// The base64 encoded content of a MIME part contained an obsolete comment.
+		/// </summary>
+		/// <remarks>
+		/// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments delimited by the <c>'*'</c> character in what
+		/// later became known as "base64 encoding". This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the
+		/// first MIME specification) explicitly disallowed it, but some mailers may generate such content. Since the vast
+		/// majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead
+		/// to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		ObsoleteBase64Comment                       = 63,
+
+		#endregion
+
+		#region Quoted-Printable Encoding
+
+		/// <summary>
+		/// The quoted-printable encoded content of a MIME part contained an invalid hex sequence after an '=' character.
+		/// </summary>
+		/// <remarks>
+		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
+		/// different MIME parser implementations.
+		/// </remarks>
+		InvalidQuotedPrintableEncoding              = 64,
+
+		/// <summary>
+		/// The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.
+		/// </summary>
+		/// <remarks>
+		/// A soft line break in quoted-printable content is represented by an equal sign (=) character followed immediately by a
+		/// &lt;CR&gt;&lt;LF&gt; sequence. This error indicates that an equal sign was immediately followed by an incomplete
+		/// &lt;CR&gt;&lt;LF&gt; sequence which can lead to decoding issues and inconsistent behavior among different MIME parser
+		/// implementations.
+		/// </remarks>
+		InvalidQuotedPrintableSoftBreak             = 65,
+
+		#endregion
+
+		#region UUEncode Encoding
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained non-whitespace content before the begin marker.
+		/// </summary>
+		/// <remarks>
+		/// UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content
+		/// before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodePretext                      = 66,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part had an invalid file mode in the begin marker.
+		/// </summary>
+		/// <remarks>
+		/// The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to
+		/// decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodeFileMode                     = 67,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
+		/// </summary>
+		/// <remarks>
+		/// Incorrect line lengths and/or invalid characters in uuencoded content can lead to decoding issues and inconsistent
+		/// behavior
+		/// among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodedContent                     = 68,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part had an invalid encoded line length.
+		/// </summary>
+		/// <remarks>
+		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. This length must be between 0 and
+		/// 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can
+		/// lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodedLineLength                  = 69,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained an incomplete encoded line.
+		/// </summary>
+		/// <remarks>
+		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to
+		/// decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		IncompleteUUEncodedLine                     = 70,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
+		/// </summary>
+		/// <remarks>
+		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
+		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodedLineExtraData               = 71,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.
+		/// </summary>
+		/// <remarks>
+		/// UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker
+		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		InvalidUUEncodeEndMarker                    = 72,
+
+		/// <summary>
+		/// The uuencoded content of a MIME part did not properly end.
+		/// </summary>
+		/// <remarks>
+		/// UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers
+		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
+		/// </remarks>
+		IncompleteUUEncodedContent                  = 73,
+
+		#endregion
 	}
 }

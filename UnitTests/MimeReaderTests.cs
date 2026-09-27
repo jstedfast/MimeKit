@@ -1265,40 +1265,40 @@ This is the second inner message body.
 		}
 
 		[Test]
-		public void TestMimeComplianceMultipleContentTransferEncodings ()
+		public void TestMimeComplianceRepeatedContentTransferEncoding ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, 8, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.RepeatedContentTransferEncoding, 8, 1)
 			};
 
 			AssertMimeComplianceViolations ("multiple-content-transfer-encodings.eml", issues);
 		}
 
 		[Test]
-		public Task TestMimeComplianceMultipleContentTransferEncodingsAsync ()
+		public Task TestMimeComplianceRepeatedContentTransferEncodingAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTransferEncodings, 8, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.RepeatedContentTransferEncoding, 8, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("multiple-content-transfer-encodings.eml", issues);
 		}
 
 		[Test]
-		public void TestMimeComplianceMultipleContentTypes ()
+		public void TestMimeComplianceRepeatedContentType ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, 7, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.RepeatedContentType, 7, 1)
 			};
 
 			AssertMimeComplianceViolations ("multiple-content-types.eml", issues);
 		}
 
 		[Test]
-		public Task TestMimeComplianceMultipleContentTypesAsync ()
+		public Task TestMimeComplianceRepeatedContentTypeAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MultipleContentTypes, 7, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.RepeatedContentType, 7, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("multiple-content-types.eml", issues);

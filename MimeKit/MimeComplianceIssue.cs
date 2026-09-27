@@ -74,7 +74,7 @@ namespace MimeKit {
 		/// </exception>
 		public MimeComplianceIssue (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber)
 		{
-			if (violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.EmptyGroupName)
+			if (violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.IncompleteUUEncodedContent)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
 			Violation = violation;
@@ -347,10 +347,20 @@ namespace MimeKit {
 			// Note: Duplicate Content-Type and Content-Transfer-Encoding headers and null bytes are
 			// the classic MIME "content smuggling" vectors. In each case, a content scanner and an
 			// end-user's mail client can be made to disagree about the content of the message.
-			case MimeComplianceViolation.MultipleContentTypes:
-			case MimeComplianceViolation.MultipleContentTransferEncodings:
+			case MimeComplianceViolation.RepeatedContentType:
+			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
+			// Note: A repeated originator field is the same class of attack applied to the message
+			// rather than to a MIME part. An authentication mechanism such as DKIM may cover one
+			// instance while the mail client renders another, so the message a filter judges to be
+			// safe is not the message the recipient is shown.
+			case MimeComplianceViolation.RepeatedDate:
+			case MimeComplianceViolation.RepeatedFrom:
+			case MimeComplianceViolation.RepeatedSender:
+			case MimeComplianceViolation.RepeatedReplyTo:
+			case MimeComplianceViolation.RepeatedMessageId:
+			case MimeComplianceViolation.RepeatedReturnPath:
 				return MimeComplianceSeverity.Critical;
 
 			// Ambiguity or corruption that different MIME parsers may resolve differently.
@@ -383,6 +393,14 @@ namespace MimeKit {
 			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
 			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
+			// Note: A repeated recipient or subject field cannot be used to defeat an
+			// authentication mechanism the way a repeated originator field can, but a filter and a
+			// mail client can still be made to disagree about who a message was addressed to or
+			// what it claims to be about.
+			case MimeComplianceViolation.RepeatedTo:
+			case MimeComplianceViolation.RepeatedCc:
+			case MimeComplianceViolation.RepeatedBcc:
+			case MimeComplianceViolation.RepeatedSubject:
 				return MimeComplianceSeverity.Major;
 
 			// Note: Obsolete-but-well-defined syntax and defects that MimeKit normalizes away. The
@@ -397,6 +415,18 @@ namespace MimeKit {
 			// address begins and ends. Discarding the extras is trivial and every implementation
 			// that does so arrives at the same mailbox.
 			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
+			// Note: These affect only how a message is threaded or how its resending history is
+			// displayed. Resent fields in particular are strictly informational and must not be
+			// used when processing replies, so a repeated one cannot change where a reply is sent.
+			case MimeComplianceViolation.RepeatedInReplyTo:
+			case MimeComplianceViolation.RepeatedReferences:
+			case MimeComplianceViolation.RepeatedResentDate:
+			case MimeComplianceViolation.RepeatedResentFrom:
+			case MimeComplianceViolation.RepeatedResentSender:
+			case MimeComplianceViolation.RepeatedResentTo:
+			case MimeComplianceViolation.RepeatedResentCc:
+			case MimeComplianceViolation.RepeatedResentBcc:
+			case MimeComplianceViolation.RepeatedResentMessageId:
 				return MimeComplianceSeverity.Minor;
 
 			// Note: Ambiguity over where an address begins and ends, or over which mailbox it names.
@@ -472,13 +502,13 @@ namespace MimeKit {
 			// Note: When the Content-Type cannot be parsed, parsers fall back to different defaults,
 			// which is a classic way of getting a scanner to skip content that a client will render.
 			case MimeComplianceViolation.InvalidContentType:
-			case MimeComplianceViolation.MultipleContentTypes:
+			case MimeComplianceViolation.RepeatedContentType:
 				return Interop | Security;
 
 			// Note: As above, but an unrecognized or duplicated encoding also means the content may
 			// be decoded incorrectly (or not at all), so content can be lost as well.
 			case MimeComplianceViolation.InvalidContentTransferEncoding:
-			case MimeComplianceViolation.MultipleContentTransferEncodings:
+			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return Interop | DataLoss | Security;
 
 			// Note: Encoding a message/rfc822 or multipart body part hides its internal structure
@@ -607,6 +637,33 @@ namespace MimeKit {
 			case MimeComplianceViolation.EmptyGroupName:
 				return Interop;
 
+			// Note: RFC 5322 section 3.6 limits each of these header fields to one occurrence. A
+			// message that repeats one can be made to present different originators, recipients or
+			// subjects to a filter than it presents to the recipient.
+			case MimeComplianceViolation.RepeatedDate:
+			case MimeComplianceViolation.RepeatedFrom:
+			case MimeComplianceViolation.RepeatedSender:
+			case MimeComplianceViolation.RepeatedReplyTo:
+			case MimeComplianceViolation.RepeatedTo:
+			case MimeComplianceViolation.RepeatedCc:
+			case MimeComplianceViolation.RepeatedBcc:
+			case MimeComplianceViolation.RepeatedMessageId:
+			case MimeComplianceViolation.RepeatedSubject:
+			case MimeComplianceViolation.RepeatedReturnPath:
+				return Interop | Security;
+
+			// Note: These affect only threading and the display of the resending history.
+			case MimeComplianceViolation.RepeatedInReplyTo:
+			case MimeComplianceViolation.RepeatedReferences:
+			case MimeComplianceViolation.RepeatedResentDate:
+			case MimeComplianceViolation.RepeatedResentFrom:
+			case MimeComplianceViolation.RepeatedResentSender:
+			case MimeComplianceViolation.RepeatedResentTo:
+			case MimeComplianceViolation.RepeatedResentCc:
+			case MimeComplianceViolation.RepeatedResentBcc:
+			case MimeComplianceViolation.RepeatedResentMessageId:
+				return Interop;
+
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -631,32 +688,8 @@ namespace MimeKit {
 				return "A bare linefeed character was found in a MIME part or message header.";
 			case MimeComplianceViolation.BareLinefeedInBody:
 				return "A bare linefeed character was found in the body of the message.";
-			case MimeComplianceViolation.InvalidHeader:
-				return "A MIME part or message header contained control (or whitespace) characters in the field name.";
-			case MimeComplianceViolation.IncompleteHeader:
-				return "A MIME part or message header ended prematurely at the end of the stream.";
-			case MimeComplianceViolation.InvalidContentType:
-				return "A Content-Type header value was not valid.";
-			case MimeComplianceViolation.MultipleContentTypes:
-				return "A MIME part contained multiple Content-Type headers.";
-			case MimeComplianceViolation.InvalidContentTransferEncoding:
-				return "A Content-Transfer-Encoding header value was not valid.";
-			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
-				return "A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value.";
-			case MimeComplianceViolation.IllegalMultipartContentTransferEncoding:
-				return "A Content-Transfer-Encoding header for a multipart contained an illegal value.";
-			case MimeComplianceViolation.MultipleContentTransferEncodings:
-				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
 			case MimeComplianceViolation.OversizedLine:
 				return "A line was found that was longer than the SMTP limit of 1000 characters.";
-			case MimeComplianceViolation.MissingBodySeparator:
-				return "An empty line separating the headers from the body was missing.";
-			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
-				return "A boundary parameter was missing from a multipart Content-Type header.";
-			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
-				return "A boundary parameter in a multipart Content-Type header was not valid.";
-			case MimeComplianceViolation.MissingMultipartBoundary:
-				return "A multipart boundary was missing.";
 			case MimeComplianceViolation.Unexpected8BitBytesInHeader:
 				return "A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected.";
 			case MimeComplianceViolation.Unexpected8BitBytesInBody:
@@ -665,36 +698,64 @@ namespace MimeKit {
 				return "A MIME part or message header contained illegal null (0x00) bytes.";
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 				return "A MIME part's body contained null (0x00) bytes without specifying a binary transfer encoding.";
-			case MimeComplianceViolation.IncompleteBase64Quantum:
-				return "The base64 encoded content of a MIME part ended with an incomplete quantum.";
-			case MimeComplianceViolation.InvalidBase64Character:
-				return "The base64 encoded content of a MIME part contained invalid characters.";
-			case MimeComplianceViolation.InvalidBase64Padding:
-				return "The base64 encoded content of a MIME part contained invalid padding.";
-			case MimeComplianceViolation.Base64CharactersAfterPadding:
-				return "The base64 encoded content of a MIME part contained characters after the padding.";
-			case MimeComplianceViolation.ObsoleteBase64Comment:
-				return "The base64 encoded content of a MIME part contained an obsolete comment.";
-			case MimeComplianceViolation.InvalidQuotedPrintableEncoding:
-				return "The quoted-printable encoded content of a MIME part contained an invalid hex sequence after an '=' character.";
-			case MimeComplianceViolation.InvalidQuotedPrintableSoftBreak:
-				return "The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.";
-			case MimeComplianceViolation.InvalidUUEncodePretext:
-				return "The uuencoded content of a MIME part contained non-whitespace content before the begin marker.";
-			case MimeComplianceViolation.InvalidUUEncodeFileMode:
-				return "The uuencoded content of a MIME part had an invalid file mode in the begin marker.";
-			case MimeComplianceViolation.InvalidUUEncodedContent:
-				return "The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.";
-			case MimeComplianceViolation.InvalidUUEncodedLineLength:
-				return "The uuencoded content of a MIME part had an invalid encoded line length.";
-			case MimeComplianceViolation.IncompleteUUEncodedLine:
-				return "The uuencoded content of a MIME part contained an incomplete encoded line.";
-			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
-				return "The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.";
-			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
-				return "The uuencoded content of a MIME part contained non-whitespace content after the end marker.";
-			case MimeComplianceViolation.IncompleteUUEncodedContent:
-				return "The uuencoded content of a MIME part did not properly end.";
+			case MimeComplianceViolation.InvalidHeader:
+				return "A MIME part or message header contained control (or whitespace) characters in the field name.";
+			case MimeComplianceViolation.IncompleteHeader:
+				return "A MIME part or message header ended prematurely at the end of the stream.";
+			case MimeComplianceViolation.RepeatedContentType:
+				return "A MIME part contained multiple Content-Type headers.";
+			case MimeComplianceViolation.RepeatedContentTransferEncoding:
+				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
+			case MimeComplianceViolation.RepeatedDate:
+				return "The message contained more than one Date header field.";
+			case MimeComplianceViolation.RepeatedFrom:
+				return "The message contained more than one From header field.";
+			case MimeComplianceViolation.RepeatedSender:
+				return "The message contained more than one Sender header field.";
+			case MimeComplianceViolation.RepeatedReplyTo:
+				return "The message contained more than one Reply-To header field.";
+			case MimeComplianceViolation.RepeatedTo:
+				return "The message contained more than one To header field.";
+			case MimeComplianceViolation.RepeatedCc:
+				return "The message contained more than one Cc header field.";
+			case MimeComplianceViolation.RepeatedBcc:
+				return "The message contained more than one Bcc header field.";
+			case MimeComplianceViolation.RepeatedMessageId:
+				return "The message contained more than one Message-Id header field.";
+			case MimeComplianceViolation.RepeatedInReplyTo:
+				return "The message contained more than one In-Reply-To header field.";
+			case MimeComplianceViolation.RepeatedReferences:
+				return "The message contained more than one References header field.";
+			case MimeComplianceViolation.RepeatedSubject:
+				return "The message contained more than one Subject header field.";
+			case MimeComplianceViolation.RepeatedReturnPath:
+				return "The message contained more than one Return-Path header field.";
+			case MimeComplianceViolation.RepeatedResentDate:
+				return "A block of resent header fields contained more than one Resent-Date header field.";
+			case MimeComplianceViolation.RepeatedResentFrom:
+				return "A block of resent header fields contained more than one Resent-From header field.";
+			case MimeComplianceViolation.RepeatedResentSender:
+				return "A block of resent header fields contained more than one Resent-Sender header field.";
+			case MimeComplianceViolation.RepeatedResentTo:
+				return "A block of resent header fields contained more than one Resent-To header field.";
+			case MimeComplianceViolation.RepeatedResentCc:
+				return "A block of resent header fields contained more than one Resent-Cc header field.";
+			case MimeComplianceViolation.RepeatedResentBcc:
+				return "A block of resent header fields contained more than one Resent-Bcc header field.";
+			case MimeComplianceViolation.RepeatedResentMessageId:
+				return "A block of resent header fields contained more than one Resent-Message-Id header field.";
+			case MimeComplianceViolation.InvalidContentType:
+				return "A Content-Type header value was not valid.";
+			case MimeComplianceViolation.InvalidContentTransferEncoding:
+				return "A Content-Transfer-Encoding header value was not valid.";
+			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
+				return "A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value.";
+			case MimeComplianceViolation.IllegalMultipartContentTransferEncoding:
+				return "A Content-Transfer-Encoding header for a multipart contained an illegal value.";
+			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
+				return "A boundary parameter was missing from a multipart Content-Type header.";
+			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
+				return "A boundary parameter in a multipart Content-Type header was not valid.";
 			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
 				return "An address contained more angle brackets than the one pair that delimits an angle-addr.";
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
@@ -735,6 +796,40 @@ namespace MimeKit {
 				return "An address contained a control character.";
 			case MimeComplianceViolation.EmptyGroupName:
 				return "An address group had an empty name.";
+			case MimeComplianceViolation.MissingBodySeparator:
+				return "An empty line separating the headers from the body was missing.";
+			case MimeComplianceViolation.MissingMultipartBoundary:
+				return "A multipart boundary was missing.";
+			case MimeComplianceViolation.IncompleteBase64Quantum:
+				return "The base64 encoded content of a MIME part ended with an incomplete quantum.";
+			case MimeComplianceViolation.InvalidBase64Character:
+				return "The base64 encoded content of a MIME part contained invalid characters.";
+			case MimeComplianceViolation.InvalidBase64Padding:
+				return "The base64 encoded content of a MIME part contained invalid padding.";
+			case MimeComplianceViolation.Base64CharactersAfterPadding:
+				return "The base64 encoded content of a MIME part contained characters after the padding.";
+			case MimeComplianceViolation.ObsoleteBase64Comment:
+				return "The base64 encoded content of a MIME part contained an obsolete comment.";
+			case MimeComplianceViolation.InvalidQuotedPrintableEncoding:
+				return "The quoted-printable encoded content of a MIME part contained an invalid hex sequence after an '=' character.";
+			case MimeComplianceViolation.InvalidQuotedPrintableSoftBreak:
+				return "The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.";
+			case MimeComplianceViolation.InvalidUUEncodePretext:
+				return "The uuencoded content of a MIME part contained non-whitespace content before the begin marker.";
+			case MimeComplianceViolation.InvalidUUEncodeFileMode:
+				return "The uuencoded content of a MIME part had an invalid file mode in the begin marker.";
+			case MimeComplianceViolation.InvalidUUEncodedContent:
+				return "The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.";
+			case MimeComplianceViolation.InvalidUUEncodedLineLength:
+				return "The uuencoded content of a MIME part had an invalid encoded line length.";
+			case MimeComplianceViolation.IncompleteUUEncodedLine:
+				return "The uuencoded content of a MIME part contained an incomplete encoded line.";
+			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
+				return "The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.";
+			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
+				return "The uuencoded content of a MIME part contained non-whitespace content after the end marker.";
+			case MimeComplianceViolation.IncompleteUUEncodedContent:
+				return "The uuencoded content of a MIME part did not properly end.";
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -759,32 +854,8 @@ namespace MimeKit {
 				return "The Internet Message Format specification requires that all lines be terminated with a <CR><LF> sequence. Messages that deviate from this requirement may not be processed correctly by some mail software.";
 			case MimeComplianceViolation.BareLinefeedInBody:
 				return "The Internet Message Format specification requires that all lines be terminated with a <CR><LF> sequence. Messages that deviate from this requirement may not be processed correctly by some mail software.";
-			case MimeComplianceViolation.InvalidHeader:
-				return "The Internet Message Format specification requires that all header field names be composed of printable US-ASCII characters and must not contain control characters or whitespace characters. Inclusion of these characters can lead to divergent behavior among various MIME parsers, resulting in differences in handling.";
-			case MimeComplianceViolation.IncompleteHeader:
-				return "This usually indicates that the message was truncated somewhere in transit and may be a sign that a MIME parser implementation earlier in transit failed to properly handle certain edge cases such as a null (0x00) byte in the message header.";
-			case MimeComplianceViolation.InvalidContentType:
-				return "This indicates that the Content-Type header was not properly formatted and could not be parsed. Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.MultipleContentTypes:
-				return "The MIME specifications require that each MIME part contain only one Content-Type header. Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Type headers as their \"source of truth\".";
-			case MimeComplianceViolation.InvalidContentTransferEncoding:
-				return "This indicates that the Content-Transfer-Encoding header did not contain a valid value and could not be parsed.";
-			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
-				return "The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify any encoding that transforms the content in any way (such as quoted-printable or base64).";
-			case MimeComplianceViolation.IllegalMultipartContentTransferEncoding:
-				return "The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify any encoding that transforms the content in any way (such as quoted-printable or base64).";
-			case MimeComplianceViolation.MultipleContentTransferEncodings:
-				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
 			case MimeComplianceViolation.OversizedLine:
 				return "This indicates that a line was longer than the SMTP limit of 1000 characters.";
-			case MimeComplianceViolation.MissingBodySeparator:
-				return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";
-			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
-				return "The MIME specifications require that each multipart Content-Type header include a boundary parameter. A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
-				return "A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by the MIME specifications. Invalid boundary parameters can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.MissingMultipartBoundary:
-				return "When a multipart does not contain any boundary markers within its content, it can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may opt to treat the content as a single part rather than a multipart message.";
 			case MimeComplianceViolation.Unexpected8BitBytesInHeader:
 				return "Older Internet Message Format specifications require that headers are strictly US-ASCII while the newer Internationalized Email Headers specification allows for UTF-8. Header values that are not US-ASCII should be encoded using the encoding mechanism described in the MIME specification and/or should be valid UTF-8 as allowed in the Internationalized Email Headers specification.";
 			case MimeComplianceViolation.Unexpected8BitBytesInBody:
@@ -793,36 +864,64 @@ namespace MimeKit {
 				return "Null (0x00) bytes in a message header can be used by malicious actors to prevent some MIME parsers, such as those written in languages like C or C++ which tend to use the null byte to mark the end of a buffer, from discovering content after the null byte. This technique can be used to smuggle viruses or other malicious content past content scanners.";
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 				return "Null (0x00) bytes in a message body can be used by malicious actors to prevent some MIME parsers, such as those written in languages like C or C++ which tend to use the null byte to mark the end of a buffer, from discovering content after the null byte. This technique can be used to smuggle viruses or other malicious content past content scanners.";
-			case MimeComplianceViolation.IncompleteBase64Quantum:
-				return "The MIME specifications require base64 encoded content be a multiple of 4 bytes (a \"quantum\") in length. An incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidBase64Character:
-				return "Invalid characters within base64 content can lead to decoding issues and inconsistent behavior among different MIME parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these characters and continue decoding.";
-			case MimeComplianceViolation.InvalidBase64Padding:
-				return "Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME parser implementations. Some base64 decoders will ignore extraneous '=' padding characters if any are found within the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as soon as they are encountered.";
-			case MimeComplianceViolation.Base64CharactersAfterPadding:
-				return "Base64 characters found after padding ('=') in a base64 encoded block are not allowed by the MIME specifications and can lead to inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.ObsoleteBase64Comment:
-				return "RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments delimited by the '*' character in what later became known as \"base64 encoding\". This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly disallowed it, but some mailers may generate such content. Since the vast majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidQuotedPrintableEncoding:
-				return "Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidQuotedPrintableSoftBreak:
-				return "A soft line break in quoted-printable content is represented by an equal sign (=) character followed immediately by a <CR><LF> sequence. This error indicates that an equal sign was immediately followed by an incomplete <CR><LF> sequence which can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidUUEncodePretext:
-				return "UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidUUEncodeFileMode:
-				return "The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidUUEncodedContent:
-				return "Incorrect line lengths and/or invalid characters in uuencoded content can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidUUEncodedLineLength:
-				return "Each line in UUEncoding has a specific length encoded in the first byte of the line. This length must be between 0 and 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.IncompleteUUEncodedLine:
-				return "Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
-				return "Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
-				return "UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
-			case MimeComplianceViolation.IncompleteUUEncodedContent:
-				return "UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidHeader:
+				return "The Internet Message Format specification requires that all header field names be composed of printable US-ASCII characters and must not contain control characters or whitespace characters. Inclusion of these characters can lead to divergent behavior among various MIME parsers, resulting in differences in handling.";
+			case MimeComplianceViolation.IncompleteHeader:
+				return "This usually indicates that the message was truncated somewhere in transit and may be a sign that a MIME parser implementation earlier in transit failed to properly handle certain edge cases such as a null (0x00) byte in the message header.";
+			case MimeComplianceViolation.RepeatedContentType:
+				return "The MIME specifications require that each MIME part contain only one Content-Type header. Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Type headers as their \"source of truth\".";
+			case MimeComplianceViolation.RepeatedContentTransferEncoding:
+				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
+			case MimeComplianceViolation.RepeatedDate:
+				return "The Internet Message Format specification permits at most one Date header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedFrom:
+				return "The Internet Message Format specification permits at most one From header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedSender:
+				return "The Internet Message Format specification permits at most one Sender header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedReplyTo:
+				return "The Internet Message Format specification permits at most one Reply-To header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedTo:
+				return "The Internet Message Format specification permits at most one To header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may therefore evaluate one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedCc:
+				return "The Internet Message Format specification permits at most one Cc header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may therefore evaluate one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedBcc:
+				return "The Internet Message Format specification permits at most one Bcc header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may therefore evaluate one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedMessageId:
+				return "The Internet Message Format specification permits at most one Message-Id header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. An attacker can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedInReplyTo:
+				return "The Internet Message Format specification permits at most one In-Reply-To header field. When more than one is present, agents disagree about which instance is authoritative, which may cause the message to be threaded inconsistently between mail clients.";
+			case MimeComplianceViolation.RepeatedReferences:
+				return "The Internet Message Format specification permits at most one References header field. When more than one is present, agents disagree about which instance is authoritative, which may cause the message to be threaded inconsistently between mail clients.";
+			case MimeComplianceViolation.RepeatedSubject:
+				return "The Internet Message Format specification permits at most one Subject header field. When more than one is present, agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may therefore evaluate one instance while the mail client displays another.";
+			case MimeComplianceViolation.RepeatedReturnPath:
+				return "Legitimate messages can contain more than one Return-Path header field, but it is more often an error. All but the topmost instance should be disregarded, because the topmost was added nearest to the mailbox that received the message.";
+			case MimeComplianceViolation.RepeatedResentDate:
+				return "The Internet Message Format specification permits at most one Resent-Date header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.RepeatedResentFrom:
+				return "The Internet Message Format specification permits at most one Resent-From header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.RepeatedResentSender:
+				return "The Internet Message Format specification permits at most one Resent-Sender header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.RepeatedResentTo:
+				return "The Internet Message Format specification permits at most one Resent-To header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.RepeatedResentCc:
+				return "The Internet Message Format specification permits at most one Resent-Cc header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.RepeatedResentBcc:
+				return "The Internet Message Format specification permits at most one Resent-Bcc header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.RepeatedResentMessageId:
+				return "The Internet Message Format specification permits at most one Resent-Message-Id header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+			case MimeComplianceViolation.InvalidContentType:
+				return "This indicates that the Content-Type header was not properly formatted and could not be parsed. Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidContentTransferEncoding:
+				return "This indicates that the Content-Transfer-Encoding header did not contain a valid value and could not be parsed.";
+			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
+				return "The MIME specifications do not allow message/rfc822 Content-Transfer-Encoding headers to specify any encoding that transforms the content in any way (such as quoted-printable or base64).";
+			case MimeComplianceViolation.IllegalMultipartContentTransferEncoding:
+				return "The MIME specifications do not allow multipart Content-Transfer-Encoding headers to specify any encoding that transforms the content in any way (such as quoted-printable or base64).";
+			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
+				return "The MIME specifications require that each multipart Content-Type header include a boundary parameter. A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
+				return "A boundary parameter in a multipart Content-Type header must be a valid boundary string as defined by the MIME specifications. Invalid boundary parameters can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
 			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
 				return "Section 7.1.2 of rfc7103 describes address values such as \"<<user@example.com>>\" and notes that they can safely be interpreted as the same address with a single pair of brackets. Unlike an unbalanced bracket, a repeated one leaves no doubt about where the address begins and ends, so implementations that discard the extras all arrive at the same mailbox. It is still a departure from the angle-addr production, and usually indicates a mailer that has wrapped an address which was already wrapped.";
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
@@ -863,6 +962,40 @@ namespace MimeKit {
 				return "The atom, quoted-string and domain-literal productions in rfc5322 are all built from printable characters and whitespace, so a control character such as ESC or DEL can only have been introduced deliberately or by a mangled encoding. Control characters are stripped by some implementations and preserved by others, so the address may name a different mailbox depending on which software resolves it, and an escape sequence that survives into a log or a terminal-based mail client may be interpreted there rather than displayed.";
 			case MimeComplianceViolation.EmptyGroupName:
 				return "The group syntax in section 3.4 of rfc5322 is display-name \":\" [group-list] \";\", and a display-name is a phrase, which requires at least one word. A group introduced by a bare colon therefore has no name for a client to display, and parsers disagree over whether to treat the colon as introducing a group at all or as a stray character in an ordinary address.";
+			case MimeComplianceViolation.MissingBodySeparator:
+				return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";
+			case MimeComplianceViolation.MissingMultipartBoundary:
+				return "When a multipart does not contain any boundary markers within its content, it can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may opt to treat the content as a single part rather than a multipart message.";
+			case MimeComplianceViolation.IncompleteBase64Quantum:
+				return "The MIME specifications require base64 encoded content be a multiple of 4 bytes (a \"quantum\") in length. An incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidBase64Character:
+				return "Invalid characters within base64 content can lead to decoding issues and inconsistent behavior among different MIME parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these characters and continue decoding.";
+			case MimeComplianceViolation.InvalidBase64Padding:
+				return "Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME parser implementations. Some base64 decoders will ignore extraneous '=' padding characters if any are found within the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as soon as they are encountered.";
+			case MimeComplianceViolation.Base64CharactersAfterPadding:
+				return "Base64 characters found after padding ('=') in a base64 encoded block are not allowed by the MIME specifications and can lead to inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.ObsoleteBase64Comment:
+				return "RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments delimited by the '*' character in what later became known as \"base64 encoding\". This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly disallowed it, but some mailers may generate such content. Since the vast majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidQuotedPrintableEncoding:
+				return "Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidQuotedPrintableSoftBreak:
+				return "A soft line break in quoted-printable content is represented by an equal sign (=) character followed immediately by a <CR><LF> sequence. This error indicates that an equal sign was immediately followed by an incomplete <CR><LF> sequence which can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidUUEncodePretext:
+				return "UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidUUEncodeFileMode:
+				return "The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidUUEncodedContent:
+				return "Incorrect line lengths and/or invalid characters in uuencoded content can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidUUEncodedLineLength:
+				return "Each line in UUEncoding has a specific length encoded in the first byte of the line. This length must be between 0 and 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.IncompleteUUEncodedLine:
+				return "Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidUUEncodedLineExtraData:
+				return "Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.InvalidUUEncodeEndMarker:
+				return "UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.IncompleteUUEncodedContent:
+				return "UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
