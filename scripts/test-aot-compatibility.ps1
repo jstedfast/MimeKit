@@ -1,5 +1,13 @@
 $rootDirectory = Split-Path $PSScriptRoot -Parent
 $publishOutput = dotnet publish $rootDirectory/AotCompatibility/AotCompatibility.csproj -nodeReuse:false /p:UseSharedCompilation=false /p:ExposeExperimentalFeatures=true
+$publishExitCode = $LastExitCode
+
+if ($publishExitCode -ne 0)
+{
+    Write-Host $publishOutput
+    Write-Host "Failed to publish the AotCompatibility test app. Exit code is:", $publishExitCode
+    Exit 1
+}
 
 $actualWarningCount = 0
 
@@ -13,27 +21,30 @@ foreach ($line in $($publishOutput -split "`r`n"))
     }
 }
 
-pushd $rootDirectory/AotCompatibility/bin/Release/net8.0/win-x64/publish
+Push-Location $rootDirectory/AotCompatibility/bin/Release/net10.0/win-x64/publish
 
 Write-Host "Executing test App..."
 ./AotCompatibility.exe
+$appExitCode = $LastExitCode
 Write-Host "Finished executing test App"
 
-if ($LastExitCode -ne 0)
-{
-  Write-Host "There was an error while executing AotCompatibility Test App. LastExitCode is:", $LastExitCode
-}
+Pop-Location
 
-popd
+$testPassed = 0
+
+if ($appExitCode -ne 0)
+{
+    $testPassed = 1
+    Write-Host "There was an error while executing AotCompatibility Test App. LastExitCode is:", $appExitCode
+}
 
 Write-Host "Actual warning count is:", $actualWarningCount
 $expectedWarningCount = 0
 
-$testPassed = 0
 if ($actualWarningCount -ne $expectedWarningCount)
 {
     $testPassed = 1
-    Write-Host "Actual warning count:", actualWarningCount, "is not as expected. Expected warning count is:", $expectedWarningCount
+    Write-Host "Actual warning count:", $actualWarningCount, "is not as expected. Expected warning count is:", $expectedWarningCount
 }
 
 Exit $testPassed

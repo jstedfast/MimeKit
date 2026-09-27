@@ -27,6 +27,7 @@
 using System.Text;
 
 using MimeKit;
+using MimeKit.Cryptography;
 
 namespace AotCompatibility {
     class Program
@@ -43,6 +44,7 @@ namespace AotCompatibility {
 
             try {
                 Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
+                CryptographyModule.Initialize ();
 
                 var path = Path.Combine (dir, "smime", "thunderbird-signed.txt");
                 var message = MimeMessage.Load (path);
