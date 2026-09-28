@@ -836,5 +836,61 @@ namespace UnitTests {
 			Assert.That (mailbox.Select (i => i.Violation), Is.Not.EquivalentTo (group.Select (i => i.Violation)),
 				"A group name and a display-name that are both shaped like an address report identically.");
 		}
+
+		// Note: An unterminated token consumes the rest of the header, so recipients disappear from
+		// the parsed list with nothing raising an error. That is data loss rather than the ambiguity
+		// the other malformed-address violations describe, which is why these rate Critical.
+		[TestCase ("\"unterminated@example.com", MimeComplianceViolation.UnbalancedQuotesInAddress)]
+		[TestCase ("user@example.com (unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("a@example.com, \"unterminated, b@example.com", MimeComplianceViolation.UnbalancedQuotesInAddress)]
+		[TestCase ("a@example.com, (unterminated, b@example.com", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		public void TestUnterminatedTokenIsCritical (string value, MimeComplianceViolation expected)
+		{
+			var issues = Validate ("To", value);
+			var issue = issues.Single (i => i.Violation == expected);
+
+			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Critical));
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.DataLoss), Is.True);
+		}
+
+		// Note: This pins the behaviour that justifies the Critical rating above. If recovery is
+		// ever improved so that recipients survive an unterminated token, the severity should be
+		// revisited rather than this test simply being updated to match.
+		[TestCase ("a@example.com, \"unterminated, b@example.com", 1)]
+		[TestCase ("a@example.com, \"unterminated, b@example.com, c@example.com", 1)]
+		[TestCase ("a@example.com, (unterminated, b@example.com", 0)]
+		[TestCase ("user@example.com (unterminated", 0)]
+		public void TestUnterminatedTokenSilentlyDropsRecipients (string value, int surviving)
+		{
+			var text = $"To: {value}\r\nSubject: test\r\n\r\nbody\r\n";
+
+			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
+				var message = MimeMessage.Load (stream);
+
+				Assert.That (message.To.Count, Is.EqualTo (surviving),
+					$"\"{value}\" should yield {surviving} recipient(s): [{string.Join (" | ", message.To)}]");
+				Assert.That (message.Subject, Is.EqualTo ("test"),
+					"The rest of the message still parses, which is what makes the loss silent.");
+			}
+		}
+
+		// Note: An unclosed comment is the more destructive of the two, because it discards even the
+		// addresses that were already parsed ahead of it, where an unclosed quote keeps them.
+		[Test]
+		public void TestUnterminatedCommentDiscardsEarlierRecipientsButUnterminatedQuoteDoesNot ()
+		{
+			Assert.That (Recipients ("a@example.com, \"unterminated, b@example.com"), Is.Not.Empty,
+				"An unclosed quote should not discard the address in front of it.");
+			Assert.That (Recipients ("a@example.com, (unterminated, b@example.com"), Is.Empty,
+				"An unclosed comment currently discards the address in front of it.");
+
+			static InternetAddressList Recipients (string value)
+			{
+				var text = $"To: {value}\r\nSubject: test\r\n\r\nbody\r\n";
+
+				using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false))
+					return MimeMessage.Load (stream).To;
+			}
+		}
 	}
 }

@@ -436,8 +436,6 @@ namespace MimeKit {
 
 			// Note: Ambiguity over where an address begins and ends, or over which mailbox it names.
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
-			case MimeComplianceViolation.UnbalancedQuotesInAddress:
-			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
 			case MimeComplianceViolation.UnquotedDisplayName:
 			case MimeComplianceViolation.InvalidLocalPart:
 			case MimeComplianceViolation.MissingAddressSeparator:
@@ -462,6 +460,15 @@ namespace MimeKit {
 			// read different mailboxes, or different message boundaries, out of the same header.
 			case MimeComplianceViolation.NullByteInAddress:
 			case MimeComplianceViolation.LineBreakInAddress:
+			// Note: An unterminated token consumes the rest of the header, so recipients are dropped
+			// from the parsed list without an error being raised anywhere. A trailing unterminated
+			// comment empties the field outright, and an unterminated comment mid-list discards even
+			// the addresses that were already parsed ahead of it. Unlike the ambiguity violations
+			// above, where implementations disagree about which mailbox a header names, here the
+			// address is simply gone while the surrounding headers still parse and the message looks
+			// intact.
+			case MimeComplianceViolation.UnbalancedQuotesInAddress:
+			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
 				return MimeComplianceSeverity.Critical;
 
 			case MimeComplianceViolation.ControlCharacterInAddress:
@@ -970,9 +977,9 @@ namespace MimeKit {
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
 				return "Section 7.1.3 of rfc7103 describes address values such as \"Name <user@example.com\" and \"user@example.org>\". Recovering from an unbalanced bracket requires guessing where the address was meant to end, and parsers that guess differently will extract different addresses.";
 			case MimeComplianceViolation.UnbalancedQuotesInAddress:
-				return "Section 7.1.6 of rfc7103 describes address values such as \"\\\"Unterminated <user@example.com>\". An unclosed quote absorbs everything that follows it, so any addresses later in the same header may be swallowed and silently lost rather than merely misparsed.";
+				return "Section 7.1.6 of rfc7103 describes address values such as \"\\\"Unterminated <user@example.com>\". An unclosed quote absorbs everything that follows it, so addresses later in the same header are swallowed and silently lost rather than merely misparsed. No error is raised: the remaining headers still parse, so the message appears intact while carrying fewer recipients than its author wrote.";
 			case MimeComplianceViolation.UnbalancedParenthesesInAddress:
-				return "Section 7.1.4 of rfc7103 describes address values such as \"Name (unbalanced <user@example.com>\". As with an unclosed quote, an unclosed comment absorbs the remainder of the header, so addresses that follow it may be lost.";
+				return "Section 7.1.4 of rfc7103 describes address values such as \"Name (unbalanced <user@example.com>\". An unclosed comment absorbs the remainder of the header, and is more destructive than an unclosed quote: the field evaluates to no addresses at all, discarding even those that appeared before the comment began. A trailing unterminated comment is enough to empty an otherwise valid recipient list, and nothing reports an error.";
 			case MimeComplianceViolation.UnquotedDisplayName:
 				return "An unquoted display-name may only contain atoms, so values such as \"Doe, John <jdoe@example.com>\" and \"user@example.com <user@example.com>\" are not valid. The comma case is the most damaging, because a parser that does not special-case it will split the one address into two.";
 			case MimeComplianceViolation.AddressInDisplayName:

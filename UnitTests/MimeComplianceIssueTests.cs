@@ -294,6 +294,12 @@ namespace UnitTests {
 				MimeComplianceViolation.NullByteInAddress,
 				MimeComplianceViolation.LineBreakInAddress,
 
+				// Note: These two are data loss rather than ambiguity. An unterminated token eats
+				// the rest of the header, so recipients vanish from the parsed list with no error
+				// raised anywhere and the rest of the message still parsing normally.
+				MimeComplianceViolation.UnbalancedQuotesInAddress,
+				MimeComplianceViolation.UnbalancedParenthesesInAddress,
+
 				// Note: Repeating one of these lets a filter or a DKIM verifier act on one instance
 				// while the mail client displays another.
 				MimeComplianceViolation.RepeatedDate,

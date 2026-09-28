@@ -515,8 +515,9 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Section 7.1.6 of rfc7103 describes address values such as <c>"Unterminated &lt;user@example.com&gt;</c>. An unclosed
-		/// quote absorbs everything that follows it, so any addresses later in the same header may be swallowed and silently
-		/// lost rather than merely misparsed.
+		/// quote absorbs everything that follows it, so addresses later in the same header are swallowed and silently lost
+		/// rather than merely misparsed. No error is raised: the remaining headers still parse, so the message appears
+		/// intact while carrying fewer recipients than its author wrote.
 		/// </remarks>
 		UnbalancedQuotesInAddress                   = 39,
 
@@ -524,8 +525,10 @@ namespace MimeKit {
 		/// An address contained an unbalanced parenthesis in a comment.
 		/// </summary>
 		/// <remarks>
-		/// Section 7.1.4 of rfc7103 describes address values such as <c>Name (unbalanced &lt;user@example.com&gt;</c>. As with an
-		/// unclosed quote, an unclosed comment absorbs the remainder of the header, so addresses that follow it may be lost.
+		/// Section 7.1.4 of rfc7103 describes address values such as <c>Name (unbalanced &lt;user@example.com&gt;</c>. An
+		/// unclosed comment absorbs the remainder of the header, and is more destructive than an unclosed quote: the field
+		/// evaluates to no addresses at all, discarding even those that appeared before the comment began. A trailing
+		/// unterminated comment is enough to empty an otherwise valid recipient list, and nothing reports an error.
 		/// </remarks>
 		UnbalancedParenthesesInAddress              = 40,
 
