@@ -61,6 +61,7 @@ namespace MimeKit {
 		// been parsed. This stays null for the overwhelming majority of values, which contain none.
 		List<int>? iso2022;
 		bool reportedControlCharacter;
+		bool reportedStrayCarriageReturn;
 		bool reportedIso2022LocalPart;
 
 		/// <summary>
@@ -204,7 +205,9 @@ namespace MimeKit {
 		/// <para>Each class is reported once, at its first occurrence. A linefeed is deliberately
 		/// excluded: folding whitespace is legal between address tokens, so a line break can only be
 		/// judged in context and is handled during parsing instead. A carriage return with no linefeed
-		/// after it is not excluded, because it cannot be part of a fold in any context.</para>
+		/// after it is not excluded, because it cannot be part of a fold in any context; it is
+		/// reported as <see cref="MimeComplianceViolation.LineBreakInAddress"/> rather than as a
+		/// control character, since what makes it dangerous is that it is half of a line break.</para>
 		/// <para>ISO-2022 shift and escape sequences are recorded rather than reported. Inside a
 		/// local-part they are a legacy Japanese mailer convention rather than an arbitrary control
 		/// character, and telling the two apart needs the parse, so the decision is deferred to
@@ -231,9 +234,22 @@ namespace MimeKit {
 					// Note: Step over the rest of the sequence so that its intermediate and final
 					// bytes are not considered again.
 					i += length - 1;
-				} else if (IsControlCharacter (i) && !reportedControlCharacter) {
-					Log (MimeComplianceViolation.ControlCharacterInAddress, i);
-					reportedControlCharacter = true;
+				} else if (IsControlCharacter (i)) {
+					// Note: A carriage return reaching here is one with no linefeed after it, which is
+					// the primitive a header injection is built from: a transport that normalizes it
+					// to CRLF turns it into a header split. Describing it as a line break rather than
+					// as a generic control character keeps it at the same severity as the folded form
+					// in CheckLineBreak, which is the far more benign of the two and would otherwise
+					// outrank it.
+					if (text[i] == (byte) '\r') {
+						if (!reportedStrayCarriageReturn) {
+							Log (MimeComplianceViolation.LineBreakInAddress, i);
+							reportedStrayCarriageReturn = true;
+						}
+					} else if (!reportedControlCharacter) {
+						Log (MimeComplianceViolation.ControlCharacterInAddress, i);
+						reportedControlCharacter = true;
+					}
 				}
 			}
 		}
@@ -377,7 +393,8 @@ namespace MimeKit {
 				// Note: A carriage return with no linefeed after it has already been reported by
 				// ScanForControlCharacters, which owns it because it is illegal regardless of where
 				// it appears. The token still has to resume across it, but the same byte must not be
-				// described twice, so keep looking for a genuine line break instead.
+				// described twice, so keep looking for a genuine line break instead. Both paths now
+				// report LineBreakInAddress, so this only avoids logging that violation twice.
 				if (text[i] == (byte) '\r' && (i + 1 >= endIndex || text[i + 1] != (byte) '\n'))
 					continue;
 
@@ -972,6 +989,7 @@ namespace MimeKit {
 
 			iso2022?.Clear ();
 			reportedControlCharacter = false;
+			reportedStrayCarriageReturn = false;
 			reportedIso2022LocalPart = false;
 
 			// Note: The raw value still carries the line terminator that ended the header (and any

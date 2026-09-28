@@ -344,6 +344,11 @@ namespace UnitTests {
 		// obs-NO-WS-CTL excludes CR and LF, so a lone carriage return is illegal under every tier of
 		// the grammar. That includes inside a quoted-string or a comment, where folding is otherwise
 		// legal and where nothing was reported at all before.
+		//
+		// Note: It is described as a line break rather than as a generic control character because
+		// what makes it dangerous is that it is half of one: a transport that normalizes it to CRLF
+		// turns it into a header split. Reporting it as a control character ranked it below the
+		// folded form in CheckLineBreak, which is the more benign of the two.
 		[TestCase ("us\rer@example.com", TestName = "TestLoneCarriageReturn_DotAtom")]
 		[TestCase ("us\r er@example.com", TestName = "TestLoneCarriageReturn_BeforeSpace")]
 		[TestCase ("user@exa\rmple.com", TestName = "TestLoneCarriageReturn_Domain")]
@@ -351,17 +356,38 @@ namespace UnitTests {
 		[TestCase ("\"Jo\rhn\" <j@example.com>", TestName = "TestLoneCarriageReturn_QuotedDisplayName")]
 		[TestCase ("(a\rb) user@example.com", TestName = "TestLoneCarriageReturn_Comment")]
 		[TestCase ("user@[192.168\r.0.1]", TestName = "TestLoneCarriageReturn_DomainLiteral")]
-		public void TestLoneCarriageReturnIsAControlCharacter (string value)
+		public void TestLoneCarriageReturnIsALineBreak (string value)
 		{
 			var issues = Validate ("To", value);
 
-			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.ControlCharacterInAddress));
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.LineBreakInAddress));
 
-			// Note: It is a control character rather than a line break, and it must not be described
+			// Note: It is a line break rather than a control character, and it must not be described
 			// as both.
-			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.LineBreakInAddress));
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.ControlCharacterInAddress));
 			Assert.That (issues, Has.Count.EqualTo (1),
 				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		// Note: A bare linefeed never reaches the address validator: MimeReader treats it as a line
+		// terminator first and reports BareLinefeedInHeader, which already carries the Security
+		// category for the SMTP smuggling it enables. This pins that division of labour so the
+		// carriage-return handling above is not later extended to cover it as well.
+		[Test]
+		public void TestBareLinefeedIsReportedByTheReaderRatherThanTheAddressValidator ()
+		{
+			var text = "To: \"a\nb\"@example.com\r\nSubject: test\r\n\r\nbody\r\n";
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+			}
+
+			Assert.That (logger.Issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.BareLinefeedInHeader));
+			Assert.That (logger.Issues.Any (i => (i.Categories & MimeComplianceCategories.Security) != 0), Is.True,
+				"A bare linefeed should be reported as a security issue.");
 		}
 
 		[Test]
@@ -547,7 +573,7 @@ namespace UnitTests {
 		[TestCase ("To", "us..er@example.com", MimeComplianceViolation.InvalidLocalPart, 8)]
 		[TestCase ("To", "user@example.com.", MimeComplianceViolation.TrailingDotInDomain, 22)]
 		[TestCase ("Cc", "a@example.com b@example.com", MimeComplianceViolation.MissingAddressSeparator, 19)]
-		[TestCase ("Bcc", "\"Jo\rhn\" <j@example.com>", MimeComplianceViolation.ControlCharacterInAddress, 9)]
+		[TestCase ("Bcc", "\"Jo\rhn\" <j@example.com>", MimeComplianceViolation.LineBreakInAddress, 9)]
 		public void TestViolationColumnNumber (string field, string value, MimeComplianceViolation violation, int column)
 		{
 			// Note: The column is one-based and is relative to the start of the physical line, which
