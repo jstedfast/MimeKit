@@ -504,6 +504,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.ObsoleteDomainSyntax, Interop },
 				{ MimeComplianceViolation.TrailingDotInDomain, Interop },
 				{ MimeComplianceViolation.WhitespaceInDomainLiteral, Interop },
+				{ MimeComplianceViolation.InvalidCharacterInDomainLiteral, Interop | DataLoss },
 				{ MimeComplianceViolation.Invalid8BitAddress, Interop | DataLoss },
 				{ MimeComplianceViolation.MissingGroupTerminator, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.NonConformantAddress, Interop },

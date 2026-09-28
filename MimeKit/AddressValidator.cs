@@ -590,6 +590,7 @@ namespace MimeKit {
 			// skip over the opening '['
 			index++;
 
+			bool reportedInvalidCharacter = false;
 			bool reportedWhiteSpace = false;
 
 			while (index < endIndex && text[index] != (byte) ']') {
@@ -598,6 +599,12 @@ namespace MimeKit {
 				if (text[index].IsWhitespace () && !reportedWhiteSpace && !IsControlCharacter (index)) {
 					Log (MimeComplianceViolation.WhitespaceInDomainLiteral, index);
 					reportedWhiteSpace = true;
+				} else if ((text[index] == (byte) '[' || text[index] == (byte) '\\') && !reportedInvalidCharacter) {
+					// Note: These are the only two characters dtext excludes that can reach this loop. A ']'
+					// ends it, control characters and invalid 8-bit bytes have already been reported by their
+					// character class, and rfc6532 adds the remaining 8-bit bytes to dtext.
+					Log (MimeComplianceViolation.InvalidCharacterInDomainLiteral, index);
+					reportedInvalidCharacter = true;
 				}
 
 				index++;

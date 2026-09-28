@@ -52,6 +52,7 @@ namespace UnitTests {
 			MimeComplianceViolation.ObsoleteDomainSyntax,
 			MimeComplianceViolation.TrailingDotInDomain,
 			MimeComplianceViolation.WhitespaceInDomainLiteral,
+			MimeComplianceViolation.InvalidCharacterInDomainLiteral,
 			MimeComplianceViolation.Invalid8BitAddress,
 			MimeComplianceViolation.MissingGroupTerminator,
 			MimeComplianceViolation.NonConformantAddress,
@@ -122,6 +123,8 @@ namespace UnitTests {
 		[TestCase ("localuser", MimeComplianceViolation.AddressWithoutDomain)]
 		[TestCase ("user@example.com.", MimeComplianceViolation.TrailingDotInDomain)]
 		[TestCase ("user@[192.168 .0.1]", MimeComplianceViolation.WhitespaceInDomainLiteral)]
+		[TestCase ("user@[10.0.0.1[]", MimeComplianceViolation.InvalidCharacterInDomainLiteral)]
+		[TestCase ("user@[10.0.0.1\\]", MimeComplianceViolation.InvalidCharacterInDomainLiteral)]
 		[TestCase ("Friends: a@example.com, b@example.com", MimeComplianceViolation.MissingGroupTerminator)]
 		public void TestNonConformantAddressesAreReported (string value, MimeComplianceViolation expected)
 		{
@@ -481,6 +484,33 @@ namespace UnitTests {
 		{
 			// Note: 0xC0 0x20 is not a valid UTF-8 sequence, so rfc6532 gives it no interpretation.
 			AssertViolation ("us\u00c0 er@example.com", MimeComplianceViolation.Invalid8BitAddress);
+		}
+
+		// Note: An invalid dtext character is reported only for '[' and '\'. A control character or
+		// an invalid 8-bit byte inside a domain-literal is described by its character class instead,
+		// which is the same rule ValidateDomainLiteral already applies to a lone carriage return.
+		[TestCase ("user@[10.0.0.1\u0001]", MimeComplianceViolation.ControlCharacterInAddress)]
+		[TestCase ("user@[10.0.0.1\u00c0 ]", MimeComplianceViolation.Invalid8BitAddress)]
+		public void TestDomainLiteralCharacterClassBeatsPosition (string value, MimeComplianceViolation expected)
+		{
+			var violations = Validate ("To", value).Select (i => i.Violation).ToList ();
+
+			Assert.That (violations, Has.Member (expected));
+			Assert.That (violations, Has.None.EqualTo (MimeComplianceViolation.InvalidCharacterInDomainLiteral));
+		}
+
+		// Note: The address is unrecoverable, but a domain-literal still has a defined end -- the
+		// next ']' -- so the damage is bounded by the address that contains it. An unterminated
+		// quote or comment has no defined end at all and takes the rest of the header with it,
+		// which is the distinction behind Major here and Critical there.
+		[Test]
+		public void TestInvalidCharacterInDomainLiteralIsMajorDataLoss ()
+		{
+			var issue = Validate ("To", "user@[10.0.0.1[]")
+				.Single (i => i.Violation == MimeComplianceViolation.InvalidCharacterInDomainLiteral);
+
+			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Major));
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.DataLoss), Is.True);
 		}
 
 		[Test]

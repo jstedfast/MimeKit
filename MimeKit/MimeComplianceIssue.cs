@@ -441,6 +441,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.MissingAddressSeparator:
 			case MimeComplianceViolation.AmbiguousMailboxBoundary:
 			case MimeComplianceViolation.AddressWithoutDomain:
+			case MimeComplianceViolation.InvalidCharacterInDomainLiteral:
 			case MimeComplianceViolation.Invalid8BitAddress:
 			case MimeComplianceViolation.MissingGroupTerminator:
 			case MimeComplianceViolation.NonConformantAddress:
@@ -637,6 +638,7 @@ namespace MimeKit {
 			// them names, so two implementations can extract genuinely different recipient lists.
 			case MimeComplianceViolation.UnquotedDisplayName:
 			case MimeComplianceViolation.MissingAddressSeparator:
+			case MimeComplianceViolation.InvalidCharacterInDomainLiteral:
 			case MimeComplianceViolation.Invalid8BitAddress:
 				return Interop | DataLoss;
 
@@ -831,6 +833,8 @@ namespace MimeKit {
 				return "The domain of an address ended with a dot.";
 			case MimeComplianceViolation.WhitespaceInDomainLiteral:
 				return "A domain-literal contained whitespace.";
+			case MimeComplianceViolation.InvalidCharacterInDomainLiteral:
+				return "A domain-literal contained a character that the domain-literal syntax does not permit.";
 			case MimeComplianceViolation.Invalid8BitAddress:
 				return "An address contained 8-bit bytes that were not valid UTF-8.";
 			case MimeComplianceViolation.MissingGroupTerminator:
@@ -1005,6 +1009,8 @@ namespace MimeKit {
 				return "A trailing dot, as in \"user@example.com.\", denotes a fully qualified domain in the DNS but is not part of the domain grammar in rfc5322. Parsers that strip it and parsers that retain it will disagree about whether two otherwise identical addresses are equal.";
 			case MimeComplianceViolation.WhitespaceInDomainLiteral:
 				return "The dtext rule in section 3.4.1 of rfc5322 does not permit whitespace inside the brackets of a domain-literal, as in \"user@[ 127.0.0.1 ]\". Parsers that strip the whitespace and parsers that preserve or reject it will not agree on the address.";
+			case MimeComplianceViolation.InvalidCharacterInDomainLiteral:
+				return "The dtext rule in section 3.4.1 of rfc5322 excludes '[', ']' and '\\' from the contents of a domain-literal, as in \"user@[10.0.0.1[]\". Because ']' is the only thing that can end a domain-literal, an unescapable bracket leaves no way to tell where the author intended the address to end, and the domain cannot be recovered from what was written. Control characters and invalid 8-bit bytes inside a domain-literal are reported as ControlCharacterInAddress and Invalid8BitAddress instead, and rfc6532 adds the remaining 8-bit bytes to dtext.";
 			case MimeComplianceViolation.Invalid8BitAddress:
 				return "The internationalized address syntax in rfc6532 extends the address grammar to UTF-8 and to nothing else, so 8-bit bytes that are not valid UTF-8 have no defined interpretation. A parser that falls back to a single-byte charset will produce a different address than one that rejects the header, which may result in mail being delivered to the wrong mailbox.";
 			case MimeComplianceViolation.MissingGroupTerminator:
