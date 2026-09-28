@@ -669,5 +669,50 @@ namespace UnitTests {
 			Assert.That (Validate ("To", ""), Is.Empty);
 			Assert.That (Validate ("To", "   "), Is.Empty);
 		}
+
+		// Note: A byte that no address production can consume - '[' outside a domain-literal, for
+		// example - used to be re-parsed rather than stepped over. The address-list loop reported a
+		// missing separator and re-entered the parser at the same byte, which re-walked the token and
+		// described it a second time before the no-progress guard broke the spin. Each byte must be
+		// described once.
+		[TestCase ("a[b@example.com", TestName = "TestDescribedOnce_OpenBracket")]
+		[TestCase ("a]b@example.com", TestName = "TestDescribedOnce_CloseBracket")]
+		[TestCase ("a@example.com ] b@example.com", TestName = "TestDescribedOnce_BetweenAddresses")]
+		[TestCase ("a@example.com ]] b@example.com", TestName = "TestDescribedOnce_RunBetweenAddresses")]
+		[TestCase ("Group: a[b@example.com;", TestName = "TestDescribedOnce_InGroup")]
+		public void TestEachByteIsDescribedOnlyOnce (string value)
+		{
+			var issues = Validate ("To", value);
+			var duplicates = issues
+				.GroupBy (i => (i.Violation, i.StreamOffset))
+				.Where (g => g.Count () > 1)
+				.Select (g => $"{g.Key.Violation} x{g.Count ()} @ {g.Key.StreamOffset}")
+				.ToList ();
+
+			Assert.That (duplicates, Is.Empty,
+				$"Duplicate issues reported: {string.Join (", ", duplicates)}");
+		}
+
+		// Note: Stepping over the offending bytes must not swallow them, must not swallow the address
+		// that follows, and must stop at a list separator rather than consuming it.
+		[Test]
+		public void TestByteThatCannotBeginAnAddressIsStillReported ()
+		{
+			var issues = Validate ("To", "a@example.com ] b@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.MissingAddressSeparator));
+		}
+
+		[Test]
+		public void TestSkippingUnparsableBytesStopsAtTheSeparator ()
+		{
+			// Note: A trailing comma is an empty final element, so it is reported. That report is
+			// only reachable if the skip stopped at the comma instead of consuming it, which makes
+			// it the observable proof that a separator survives the skip.
+			var issues = Validate ("To", "a@example.com ],");
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.ExtraneousCommaInAddressList),
+				$"The comma should still be seen as a separator, but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
 	}
 }

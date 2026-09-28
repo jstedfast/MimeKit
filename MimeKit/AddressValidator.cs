@@ -423,6 +423,49 @@ namespace MimeKit {
 			return c.IsAtom () || c == 0 || c == 0x7f || (c < 0x20 && c != (byte) '\t' && c != (byte) '\r' && c != (byte) '\n');
 		}
 
+		/// <summary>
+		/// Determine whether a byte could begin an address, once the list separators and any
+		/// preceding CFWS have been dealt with by the caller.
+		/// </summary>
+		/// <remarks>
+		/// This is not a grammar production but a progress guarantee. An address is a phrase, an
+		/// addr-spec or an angle-addr, so it begins with atom text, a quoted-string or a '&lt;'. The
+		/// '.', '@' and ':' are not legal starts either, but each of them is consumed by the
+		/// productions that report them, so they are admitted here to leave that reporting alone. Any
+		/// other byte is one no production can consume, which makes re-entering the parser at it a
+		/// guaranteed no-op.
+		/// </remarks>
+		static bool CanBeginAddress (byte c)
+		{
+			return IsAtomOrControl (c) || c == (byte) '"' || c == (byte) '<' || c == (byte) '.' || c == (byte) '@' || c == (byte) ':';
+		}
+
+		/// <summary>
+		/// Determine whether a byte delimits the elements of an address list or a group.
+		/// </summary>
+		static bool IsAddressListSeparator (byte c)
+		{
+			return c == (byte) ',' || c == (byte) ';';
+		}
+
+		/// <summary>
+		/// Advance to the next byte either address-list loop could make progress on.
+		/// </summary>
+		/// <remarks>
+		/// Both loops report a missing separator and then re-enter the parser at the offending byte,
+		/// on the assumption that a new address begins there. When the byte is one no production can
+		/// consume, that assumption is wrong: the previous address stopped precisely because of it,
+		/// and re-entering re-walks the same token, describing it a second time before the
+		/// no-progress guard breaks the spin. Skipping the whole run of such bytes keeps each one
+		/// described once and keeps a run from tripping that guard repeatedly. The run stops at a
+		/// list separator, which the loops consume themselves and which must not be swallowed.
+		/// </remarks>
+		void SkipToNextPossibleAddress ()
+		{
+			while (index < endIndex && !IsAddressListSeparator (text[index]) && !CanBeginAddress (text[index]))
+				index++;
+		}
+
 		bool SkipAtom ()
 		{
 			int start = index;
@@ -833,6 +876,7 @@ namespace MimeKit {
 
 				if (text[index] != (byte) ',') {
 					Log (MimeComplianceViolation.MissingAddressSeparator, index);
+					SkipToNextPossibleAddress ();
 					continue;
 				}
 
@@ -1069,6 +1113,7 @@ namespace MimeKit {
 
 				if (text[index] != (byte) ',') {
 					Log (MimeComplianceViolation.MissingAddressSeparator, index);
+					SkipToNextPossibleAddress ();
 					continue;
 				}
 
