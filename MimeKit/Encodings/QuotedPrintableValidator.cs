@@ -106,16 +106,27 @@ namespace MimeKit.Encodings {
 			while (inptr < inend) {
 				switch (state) {
 				case QpValidatorState.PassThrough:
+					// Note: The bulk of quoted-printable content consists of literal characters that are
+					// simply passed through, so use a vectorized search to locate the next byte that the
+					// validator actually needs to inspect.
 					while (inptr < inend) {
-						c = *inptr++;
+						int index = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr)).IndexOfAny ((byte) '=', (byte) '\n');
+
+						if (index == -1) {
+							inptr = inend;
+							break;
+						}
+
+						c = inptr[index];
+						inptr += index + 1;
 
 						if (c == '=') {
 							state = QpValidatorState.EqualSign;
 							break;
-						} else if (c == '\n') {
-							lineBeginOffset = streamOffset + (inptr - input);
-							lineNumber++;
 						}
+
+						lineBeginOffset = streamOffset + (inptr - input);
+						lineNumber++;
 					}
 					break;
 				case QpValidatorState.EqualSign:

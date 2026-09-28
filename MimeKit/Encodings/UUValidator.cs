@@ -140,18 +140,23 @@ namespace MimeKit.Encodings {
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe void SkipToLineFeed (ref byte* inptr, byte* inend)
+		{
+			int index = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr)).IndexOf ((byte) '\n');
+			int count = index < 0 ? (int) (inend - inptr) : index;
+
+			streamOffset += count;
+			inptr += count;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		unsafe bool ScanBeginMarker (ref byte* inptr, byte* inend)
 		{
 			while (inptr < inend) {
 				if (state == UUValidatorState.ExpectBegin) {
 					if (nsaved != 0 && nsaved != (byte) '\n') {
-						byte* start = inptr;
-
 						// skip ahead to the next line...
-						while (inptr < inend && *inptr != (byte) '\n')
-							inptr++;
-
-						streamOffset += (int) (inptr - start);
+						SkipToLineFeed (ref inptr, inend);
 
 						if (inptr == inend) {
 							nsaved = *(inptr - 1);
@@ -320,12 +325,7 @@ namespace MimeKit.Encodings {
 				}
 
 				if (state == UUValidatorState.FileName) {
-					byte* start = inptr;
-
-					while (inptr < inend && *inptr != (byte) '\n')
-						inptr++;
-
-					streamOffset += (int) (inptr - start);
+					SkipToLineFeed (ref inptr, inend);
 
 					if (inptr == inend) {
 						// need to keep reading until we hit the end of the line
@@ -362,6 +362,43 @@ namespace MimeKit.Encodings {
 
 				if (state == UUValidatorState.Payload) {
 					while (inptr < inend) {
+						// Note: Every byte in the 33..96 range is a valid payload character and the uulen
+						// octet states exactly how many of them the line is supposed to contain, so a run
+						// of them can be consumed in bulk. This avoids having to do the range check and
+						// the quantum bookkeeping one byte at a time.
+						if (!eoln && uulen > 0) {
+							int remaining = (int) (inend - inptr);
+							int count;
+
+#if NET8_0_OR_GREATER
+							int index = new ReadOnlySpan<byte> (inptr, remaining).IndexOfAnyExceptInRange ((byte) 33, (byte) 96);
+
+							count = index < 0 ? remaining : index;
+#else
+							count = 0;
+
+							while (count < remaining && inptr[count] >= 33 && inptr[count] <= 96)
+								count++;
+#endif
+
+							// Each group of 4 characters encodes 3 octets, so this is the number of
+							// characters still needed in order to complete the current line.
+							int needed = (4 * ((uulen + 2) / 3)) - nsaved;
+
+							if (count > needed)
+								count = needed;
+
+							if (count > 0) {
+								int groups = (nsaved + count) / 4;
+
+								nsaved = (byte) ((nsaved + count) % 4);
+								uulen = (byte) (uulen >= 3 * groups ? uulen - 3 * groups : 0);
+								streamOffset += count;
+								inptr += count;
+								continue;
+							}
+						}
+
 						if (*inptr == (byte) '\r') {
 							SkipByte (ref inptr);
 							continue;

@@ -1,4 +1,4 @@
-//
+﻿//
 // Base64Validator.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
@@ -41,6 +42,38 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	class Base64Validator : IEncodingValidator
 	{
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<byte> Base64Alphabet = SearchValues.Create ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"u8);
+#endif
+
+		// Classifications for each possible input byte. Combining the base64 alphabet, the padding
+		// character, the line breaks and the whitespace into a single table means that the inner loop
+		// only needs one table lookup per byte instead of a lookup plus a chain of comparisons.
+		const byte Alphabet = 0;
+		const byte Padding = 1;
+		const byte LineFeed = 2;
+		const byte Whitespace = 3;
+		const byte Comment = 4;
+
+		static ReadOnlySpan<byte> base64_class => new byte[256] {
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  3,  2,  5,  5,  3,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  3,  5,  5,  5,  5,  5,  5,  5,  5,  5,  4,  0,  5,  5,  5,  0,
+			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  5,  5,  1,  5,  5,
+			  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  5,  5,  5,  5,
+			  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+			  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+			  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5
+		};
+
 		readonly IMimeComplianceLogger logger;
 		readonly MimeComplianceContext context;
 		long lineBeginOffset;
@@ -96,70 +129,84 @@ namespace MimeKit.Encodings {
 		{
 			byte* inend = input + length;
 			byte* inptr = input;
+			uint n = total;
 
 			if (padding == 0) {
 				while (inptr < inend) {
+#if NET8_0_OR_GREATER
+					// The overwhelming majority of the content consists of base64 alphabet characters,
+					// so use a vectorized search to skip over them in bulk.
+					int index = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr)).IndexOfAnyExcept (Base64Alphabet);
+
+					if (index == -1) {
+						n += (uint) (inend - inptr);
+						inptr = inend;
+						break;
+					}
+
+					n += (uint) index;
+					inptr += index;
+#endif
 					byte c = *inptr++;
-					byte rank = Unsafe.Add (ref table, c);
+					byte category = Unsafe.Add (ref table, c);
 
-					if (rank == 0xFF) {
-						// The current byte is outside of the base64 alphabet, but could be whitespace (which we will treat as valid).
-						if (c == (byte) '\n') {
-							lineBeginOffset = streamOffset + 1;
-							lineNumber++;
-						} else if (c == (byte) '*') {
-							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
-							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
-							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
-						} else if (!c.IsWhitespace ()) {
-							// This is an invalid base64 character.
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
-						}
-					} else if (c == (byte) '=') {
+					if (category == Alphabet) {
+						n++;
+					} else if (category == LineFeed) {
+						lineBeginOffset = streamOffset + (inptr - input);
+						lineNumber++;
+					} else if (category == Whitespace) {
+						// Whitespace is not part of the encoding, but is harmless.
+					} else if (category == Padding) {
 						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
-						if (total % 4 < 2) {
+						if (n % 4 < 2) {
 							// Padding is only valid in the last 2 positions of the final quantum.
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
+							Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset + (inptr - input) - 1);
 							invalid = true;
-							return;
+						} else {
+							padding = 1;
+							n++;
 						}
-
-						streamOffset++;
-						padding = 1;
-						total++;
 						break;
+					} else if (category == Comment) {
+						// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
+						// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
+						// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
+						Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset + (inptr - input) - 1);
 					} else {
-						total++;
+						// This is an invalid base64 character.
+						Log (MimeComplianceViolation.InvalidBase64Character, streamOffset + (inptr - input) - 1);
 					}
-
-					streamOffset++;
 				}
 			}
 
-			while (inptr < inend) {
+			while (!invalid && inptr < inend) {
 				byte c = *inptr++;
+				byte category = Unsafe.Add (ref table, c);
 
-				if (c == (byte) '\n') {
-					lineBeginOffset = streamOffset + 1;
+				if (category == LineFeed) {
+					lineBeginOffset = streamOffset + (inptr - input);
 					lineNumber++;
-				} else if (c == (byte) '=') {
-					padding++;
-					total++;
+				} else if (category == Padding) {
+					n++;
 
-					if (padding > 2) {
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
+					if (++padding > 2) {
+						Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset + (inptr - input) - 1);
 						invalid = true;
-						break;
 					}
-				} else if (!c.IsWhitespace ()) {
-					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
+				} else if (category != Whitespace) {
+					Log (MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset + (inptr - input) - 1);
 					invalid = true;
-					break;
 				}
-
-				streamOffset++;
 			}
+
+			streamOffset += length;
+			total = n;
+		}
+
+		void Log (MimeComplianceViolation violation, long offset)
+		{
+			logger.Log (new MimeComplianceIssue (context, violation, offset, lineNumber, GetColumnNumber (offset)));
 		}
 
 		/// <summary>
@@ -186,7 +233,7 @@ namespace MimeKit.Encodings {
 				return;
 
 			fixed (byte* inbuf = buffer) {
-				ref byte table = ref MemoryMarshal.GetReference (Base64Decoder.base64_rank);
+				ref byte table = ref MemoryMarshal.GetReference (base64_class);
 
 				Validate (ref table, inbuf + startIndex, length);
 			}
@@ -201,7 +248,7 @@ namespace MimeKit.Encodings {
 		public void Flush ()
 		{
 			if (!invalid && total % 4 != 0)
-				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
+				Log (MimeComplianceViolation.IncompleteBase64Quantum, streamOffset);
 		}
 	}
 }
