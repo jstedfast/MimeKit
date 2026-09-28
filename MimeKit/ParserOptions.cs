@@ -26,7 +26,6 @@
 
 using System;
 using System.Text;
-using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -47,7 +46,7 @@ namespace MimeKit {
 	{
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> (MimeUtils.OrdinalIgnoreCase);
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorArgs) };
-		static ICryptographicEntityFactory? CryptographicEntityFactory;
+		static volatile ICryptographicEntityFactory? CryptographicEntityFactory;
 
 		/// <summary>
 		/// The default parser options.
@@ -311,7 +310,7 @@ namespace MimeKit {
 
 		internal static void Register (ICryptographicEntityFactory factory)
 		{
-			Volatile.Write (ref CryptographicEntityFactory, factory);
+			CryptographicEntityFactory = factory;
 		}
 
 		internal MimeEntity CreateEntity (ContentType contentType, List<Header> headers, bool hasBodySeparator, bool toplevel, int depth)
@@ -354,7 +353,7 @@ namespace MimeKit {
 				if (subtype.Equals ("report", StringComparison.OrdinalIgnoreCase))
 					return new MultipartReport (args);
 
-				var cryptoFactory = Volatile.Read (ref CryptographicEntityFactory);
+				var cryptoFactory = CryptographicEntityFactory;
 				if (cryptoFactory is not null) {
 					// multipart/encrypted
 					if (subtype.Equals ("encrypted", StringComparison.OrdinalIgnoreCase))
@@ -401,7 +400,7 @@ namespace MimeKit {
 						return new TextRfc822Headers (args);
 				}
 			} else if (type.Equals ("application", StringComparison.OrdinalIgnoreCase)) {
-				var cryptoFactory = Volatile.Read (ref CryptographicEntityFactory);
+				var cryptoFactory = CryptographicEntityFactory;
 				if (cryptoFactory is not null) {
 					// application/pkcs7-mime
 					if (subtype.Equals ("pkcs7-mime", StringComparison.OrdinalIgnoreCase) ||
