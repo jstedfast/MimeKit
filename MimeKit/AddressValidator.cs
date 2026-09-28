@@ -123,11 +123,9 @@ namespace MimeKit {
 						break;
 				} else if (text[index] == (byte) '(') {
 					depth++;
-				} else if (text[index] == (byte) ')') {
-					if (--depth == 0) {
-						index++;
-						return true;
-					}
+				} else if (text[index] == (byte) ')' && --depth == 0) {
+					index++;
+					return true;
 				}
 
 				index++;
@@ -208,11 +206,9 @@ namespace MimeKit {
 						Log (MimeComplianceViolation.NullByteInAddress, i);
 						reportedNull = true;
 					}
-				} else if (IsControlCharacter (i)) {
-					if (!reportedControl) {
-						Log (MimeComplianceViolation.ControlCharacterInAddress, i);
-						reportedControl = true;
-					}
+				} else if (IsControlCharacter (i) && !reportedControl) {
+					Log (MimeComplianceViolation.ControlCharacterInAddress, i);
+					reportedControl = true;
 				}
 
 				if (reportedNull && reportedControl)
