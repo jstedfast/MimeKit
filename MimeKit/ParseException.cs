@@ -59,7 +59,6 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="info"/> is <see langword="null"/>.
 		/// </exception>
-		[Obsolete ("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
 		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
 			TokenIndex = info.GetInt32 ("TokenIndex");
@@ -113,9 +112,6 @@ namespace MimeKit {
 		/// <paramref name="info"/> is <see langword="null"/>.
 		/// </exception>
 		[SecurityCritical]
-#if NET8_0_OR_GREATER
-		[Obsolete ("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
-#endif
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData (info, context);
