@@ -860,6 +860,13 @@ namespace UnitTests {
 		[TestCase ("a@example.com, \"unterminated, b@example.com, c@example.com", 1)]
 		[TestCase ("a@example.com, (unterminated, b@example.com", 0)]
 		[TestCase ("user@example.com (unterminated", 0)]
+		// Note: These two sit either side of the line an unclosed quote draws. The first is the
+		// example given in section 7.1.6 of rfc7103 and loses nothing, because the angle-addr the
+		// quote swallows is still recognized; the second differs only in its angle brackets and
+		// loses the mailbox entirely. The violation cannot tell the two apart, which is why the
+		// severity is set by the second.
+		[TestCase ("\"Joe <joe@example.com>", 1)]
+		[TestCase ("\"Joe joe@example.com", 0)]
 		public void TestUnterminatedTokenSilentlyDropsRecipients (string value, int surviving)
 		{
 			var text = $"To: {value}\r\nSubject: test\r\n\r\nbody\r\n";
