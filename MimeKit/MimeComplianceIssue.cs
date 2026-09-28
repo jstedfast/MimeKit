@@ -47,26 +47,6 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MimeComplianceIssue"/> struct.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MimeComplianceIssue"/> without any column information that will be
-		/// rated for the specified context.
-		/// </remarks>
-		/// <param name="context">The context that the message is being used in.</param>
-		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
-		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
-		/// <param name="lineNumber">The one-based line number where the violation was found.</param>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="context"/> is not a valid <see cref="MimeComplianceContext"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.</para>
-		/// </exception>
-		public MimeComplianceIssue (MimeComplianceContext context, MimeComplianceViolation violation, long streamOffset, int lineNumber) : this (context, violation, streamOffset, lineNumber, 0)
-		{
-		}
-
-		/// <summary>
-		/// Initialize a new instance of the <see cref="MimeComplianceIssue"/> struct.
-		/// </summary>
-		/// <remarks>
 		/// Creates a new <see cref="MimeComplianceIssue"/> that will be rated for the specified context.
 		/// </remarks>
 		/// <param name="context">The context that the message is being used in.</param>

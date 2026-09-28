@@ -63,6 +63,7 @@ namespace MimeKit.Encodings {
 
 		readonly IMimeComplianceLogger logger;
 		readonly MimeComplianceContext context;
+		long lineBeginOffset;
 		long streamOffset;
 		int lineNumber;
 		UUValidatorState state;
@@ -86,8 +87,17 @@ namespace MimeKit.Encodings {
 		{
 			this.logger = logger;
 			this.context = context;
+			this.lineBeginOffset = streamOffset;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
+		}
+
+		// Note: The validator only ever tracks the offset that the current line begins at. The column
+		// is worked out from the offset being reported rather than from the cursor, because not every
+		// violation is reported at the exact position that the cursor happens to be sitting at.
+		int GetColumnNumber (long offset)
+		{
+			return (int) (offset - lineBeginOffset) + 1;
 		}
 
 		/// <summary>
@@ -108,8 +118,10 @@ namespace MimeKit.Encodings {
 
 			streamOffset++;
 
-			if (c == (byte) '\n')
+			if (c == (byte) '\n') {
+				lineBeginOffset = streamOffset;
 				lineNumber++;
+			}
 
 			return c;
 		}
@@ -121,8 +133,10 @@ namespace MimeKit.Encodings {
 
 			streamOffset++;
 
-			if (c == (byte) '\n')
+			if (c == (byte) '\n') {
+				lineBeginOffset = streamOffset;
 				lineNumber++;
+			}
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -155,7 +169,7 @@ namespace MimeKit.Encodings {
 						// only lines containing whitespace are allowed before the begin marker
 						if (!nsaved.IsWhitespace ()) {
 							if (!invalidPretext) {
-								logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber));
+								logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 								invalidPretext = true;
 							}
 							state = UUValidatorState.ExpectBegin;
@@ -174,7 +188,7 @@ namespace MimeKit.Encodings {
 					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'e') {
 						if (!invalidPretext) {
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 							invalidPretext = true;
 						}
 						state = UUValidatorState.ExpectBegin;
@@ -190,7 +204,7 @@ namespace MimeKit.Encodings {
 					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'g') {
 						if (!invalidPretext) {
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 							invalidPretext = true;
 						}
 						state = UUValidatorState.ExpectBegin;
@@ -206,7 +220,7 @@ namespace MimeKit.Encodings {
 					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'i') {
 						if (!invalidPretext) {
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 							invalidPretext = true;
 						}
 						state = UUValidatorState.ExpectBegin;
@@ -222,7 +236,7 @@ namespace MimeKit.Encodings {
 					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) 'n') {
 						if (!invalidPretext) {
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 							invalidPretext = true;
 						}
 						state = UUValidatorState.ExpectBegin;
@@ -238,7 +252,7 @@ namespace MimeKit.Encodings {
 					nsaved = ReadByte (ref inptr);
 					if (nsaved != (byte) ' ') {
 						if (!invalidPretext) {
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodePretext, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 							invalidPretext = true;
 						}
 						state = UUValidatorState.ExpectBegin;
@@ -262,7 +276,7 @@ namespace MimeKit.Encodings {
 
 					if (!invalidFileMode && nsaved > 4) {
 						// file mode is too long
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset - nsaved + 4, lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset - nsaved + 4, lineNumber, GetColumnNumber (streamOffset - nsaved + 4)));
 						invalidFileMode = true;
 					}
 
@@ -271,7 +285,7 @@ namespace MimeKit.Encodings {
 
 					if (!invalidFileMode && nsaved < 3) {
 						// file mode is too short
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 						invalidFileMode = true;
 					}
 
@@ -279,7 +293,7 @@ namespace MimeKit.Encodings {
 					while (inptr < inend && *inptr != (byte) ' ') {
 						if (!invalidFileMode) {
 							// invalid character in file mode
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 							invalidFileMode = true;
 						}
 
@@ -356,7 +370,7 @@ namespace MimeKit.Encodings {
 						if (*inptr == (byte) '\n') {
 							if (uulen > 0) {
 								// incomplete line
-								logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteUUEncodedLine, streamOffset, lineNumber));
+								logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteUUEncodedLine, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 							}
 
 							SkipByte (ref inptr);
@@ -378,7 +392,7 @@ namespace MimeKit.Encodings {
 
 							if (uulen > 45) {
 								// invalid line length
-								logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset, lineNumber));
+								logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedLineLength, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 							}
 
 							SkipByte (ref inptr);
@@ -389,7 +403,7 @@ namespace MimeKit.Encodings {
 
 						if (c < 33 || c > 96) {
 							// invalid character in uuencoded payload
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedContent, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedContent, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 						}
 
 						if (uulen > 0) {
@@ -410,7 +424,7 @@ namespace MimeKit.Encodings {
 							}
 						} else {
 							// extra data beyond the end of the uuencoded line
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedLineExtraData, streamOffset - 1, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedLineExtraData, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 						}
 					}
 				}
@@ -421,7 +435,7 @@ namespace MimeKit.Encodings {
 					byte c = *inptr;
 
 					if (!c.IsWhitespace ())
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 
 					SkipByte (ref inptr);
 
@@ -434,7 +448,7 @@ namespace MimeKit.Encodings {
 
 			if (state == UUValidatorState.EndedNewLine && inptr < inend) {
 				if (*inptr != (byte) 'e') {
-					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber));
+					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 					state = UUValidatorState.Invalid;
 					return;
 				}
@@ -445,7 +459,7 @@ namespace MimeKit.Encodings {
 
 			if (state == UUValidatorState.E && inptr < inend) {
 				if (*inptr != (byte) 'n') {
-					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber));
+					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 					state = UUValidatorState.Invalid;
 					return;
 				}
@@ -456,7 +470,7 @@ namespace MimeKit.Encodings {
 
 			if (state == UUValidatorState.En && inptr < inend) {
 				if (*inptr != (byte) 'd') {
-					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber));
+					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 					state = UUValidatorState.Invalid;
 					return;
 				}
@@ -468,7 +482,7 @@ namespace MimeKit.Encodings {
 			if (state == UUValidatorState.End) {
 				while (inptr < inend) {
 					if (!(*inptr).IsWhitespace ()) {
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeEndMarker, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 						state = UUValidatorState.Invalid;
 						return;
 					}
@@ -515,7 +529,7 @@ namespace MimeKit.Encodings {
 		public void Flush ()
 		{
 			if (state < UUValidatorState.End)
-				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteUUEncodedContent, streamOffset, lineNumber));
+				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteUUEncodedContent, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 		}
 	}
 }

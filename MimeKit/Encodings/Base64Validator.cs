@@ -43,6 +43,7 @@ namespace MimeKit.Encodings {
 	{
 		readonly IMimeComplianceLogger logger;
 		readonly MimeComplianceContext context;
+		long lineBeginOffset;
 		long streamOffset;
 		int lineNumber;
 		int padding;
@@ -63,8 +64,17 @@ namespace MimeKit.Encodings {
 		{
 			this.logger = logger;
 			this.context = context;
+			this.lineBeginOffset = streamOffset;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
+		}
+
+		// Note: The validator only ever tracks the offset that the current line begins at. The column
+		// is worked out from the offset being reported rather than from the cursor, because not every
+		// violation is reported at the exact position that the cursor happens to be sitting at.
+		int GetColumnNumber (long offset)
+		{
+			return (int) (offset - lineBeginOffset) + 1;
 		}
 
 		/// <summary>
@@ -95,21 +105,22 @@ namespace MimeKit.Encodings {
 					if (rank == 0xFF) {
 						// The current byte is outside of the base64 alphabet, but could be whitespace (which we will treat as valid).
 						if (c == (byte) '\n') {
+							lineBeginOffset = streamOffset + 1;
 							lineNumber++;
 						} else if (c == (byte) '*') {
 							// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
 							// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
 							// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.ObsoleteBase64Comment, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 						} else if (!c.IsWhitespace ()) {
 							// This is an invalid base64 character.
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Character, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 						}
 					} else if (c == (byte) '=') {
 						// An '=' char is a valid base64 character, but is special and indicates the end of the content (other than additional padding).
 						if (total % 4 < 2) {
 							// Padding is only valid in the last 2 positions of the final quantum.
-							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber));
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 							invalid = true;
 							return;
 						}
@@ -130,18 +141,19 @@ namespace MimeKit.Encodings {
 				byte c = *inptr++;
 
 				if (c == (byte) '\n') {
+					lineBeginOffset = streamOffset + 1;
 					lineNumber++;
 				} else if (c == (byte) '=') {
 					padding++;
 					total++;
 
 					if (padding > 2) {
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidBase64Padding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 						invalid = true;
 						break;
 					}
 				} else if (!c.IsWhitespace ()) {
-					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber));
+					logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.Base64CharactersAfterPadding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 					invalid = true;
 					break;
 				}
@@ -189,7 +201,7 @@ namespace MimeKit.Encodings {
 		public void Flush ()
 		{
 			if (!invalid && total % 4 != 0)
-				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber));
+				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.IncompleteBase64Quantum, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 		}
 	}
 }

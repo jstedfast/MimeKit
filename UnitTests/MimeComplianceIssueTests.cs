@@ -51,13 +51,13 @@ namespace UnitTests {
 		[Test]
 		public void TestConstructorRejectsViolationsThatAreNotReportable ()
 		{
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.None, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.None, 0, 1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.None, 0, 1, 1));
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, (MimeComplianceViolation) (-1), 0, 1));
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, (MimeComplianceViolation) 999, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, (MimeComplianceViolation) (-1), 0, 1, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, (MimeComplianceViolation) 999, 0, 1, 0));
 
 			foreach (var violation in AllViolations)
-				Assert.DoesNotThrow (() => new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 0, 1), $"{violation} should be constructible.");
+				Assert.DoesNotThrow (() => new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 0, 1, 0), $"{violation} should be constructible.");
 		}
 
 		[Test]
@@ -65,7 +65,7 @@ namespace UnitTests {
 		{
 			const MimeComplianceContext invalid = (MimeComplianceContext) 99;
 
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (invalid, MimeComplianceViolation.InvalidHeader, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (invalid, MimeComplianceViolation.InvalidHeader, 0, 1, 0));
 			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (invalid, MimeComplianceViolation.InvalidHeader, 0, 1, 1));
 		}
 
@@ -74,15 +74,15 @@ namespace UnitTests {
 		{
 			// Note: BareLinefeedInHeader is one of the handful of violations that is rated lower when
 			// the message comes from local storage rather than off the wire.
-			var transport = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 100, 5);
-			var storage = new MimeComplianceIssue (MimeComplianceContext.Storage, MimeComplianceViolation.BareLinefeedInHeader, 100, 5);
+			var transport = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 100, 5, 0);
+			var storage = new MimeComplianceIssue (MimeComplianceContext.Storage, MimeComplianceViolation.BareLinefeedInHeader, 100, 5, 0);
 
 			Assert.That (transport.Severity, Is.EqualTo (MimeComplianceSeverity.Major), "Transport");
 			Assert.That (storage.Severity, Is.EqualTo (MimeComplianceSeverity.Minor), "Storage");
 
 			foreach (var violation in AllViolations) {
 				foreach (var context in Enum.GetValues<MimeComplianceContext> ()) {
-					var issue = new MimeComplianceIssue (context, violation, 0, 1);
+					var issue = new MimeComplianceIssue (context, violation, 0, 1, 0);
 
 					Assert.That (issue.Severity, Is.EqualTo (MimeComplianceIssue.GetSeverity (violation, context)), $"{violation} ({context})");
 				}
@@ -350,7 +350,7 @@ namespace UnitTests {
 		public void TestGetSeverityThrowsOnInvalidContext ()
 		{
 			var invalid = (MimeComplianceContext) 9999;
-			var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 0, 1);
+			var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 0, 1, 0);
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetSeverity (MimeComplianceViolation.BareLinefeedInHeader, invalid));
 			Assert.Throws<ArgumentOutOfRangeException> (() => issue.GetSeverity (invalid));
@@ -360,7 +360,7 @@ namespace UnitTests {
 		public void TestInstanceGetSeverityMatchesStatic ()
 		{
 			foreach (var violation in AllViolations) {
-				var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 0, 1);
+				var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 0, 1, 0);
 
 				foreach (var context in Enum.GetValues<MimeComplianceContext> ())
 					Assert.That (issue.GetSeverity (context), Is.EqualTo (MimeComplianceIssue.GetSeverity (violation, context)), $"{violation} ({context})");
@@ -564,12 +564,12 @@ namespace UnitTests {
 		public void TestPropertiesMatchStaticMethods ()
 		{
 			foreach (var violation in AllViolations) {
-				var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 123, 4);
+				var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 123, 4, 0);
 
 				Assert.That (issue.Violation, Is.EqualTo (violation));
 				Assert.That (issue.StreamOffset, Is.EqualTo (123));
 				Assert.That (issue.LineNumber, Is.EqualTo (4));
-				Assert.That (issue.ColumnNumber, Is.EqualTo (0), "ColumnNumber should default to 0 (unknown).");
+				Assert.That (issue.ColumnNumber, Is.EqualTo (0), "ColumnNumber");
 				Assert.That (issue.Description, Is.EqualTo (MimeComplianceIssue.GetDescription (violation)));
 				Assert.That (issue.Remarks, Is.EqualTo (MimeComplianceIssue.GetRemarks (violation)));
 				Assert.That (issue.Severity, Is.EqualTo (MimeComplianceIssue.GetSeverity (violation)));
@@ -580,7 +580,7 @@ namespace UnitTests {
 		[Test]
 		public void TestToString ()
 		{
-			var withoutColumn = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 42, 7);
+			var withoutColumn = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 42, 7, 0);
 			var withColumn = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 42, 7, 13);
 
 			Assert.That (withoutColumn.ToString (), Is.EqualTo ("BareLinefeedInHeader at line 7 (offset 42)"));
