@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 using MimeKit.Utils;
 
@@ -53,6 +54,14 @@ namespace MimeKit {
 		int startIndex;
 		int endIndex;
 		int index;
+
+		// Note: The positions of the ISO-2022 shift and escape sequences that ScanForControlCharacters
+		// found. They are held back rather than reported where they are found because how they should
+		// be described depends on where they turn out to be, which is not known until the value has
+		// been parsed. This stays null for the overwhelming majority of values, which contain none.
+		List<int>? iso2022;
+		bool reportedControlCharacter;
+		bool reportedIso2022LocalPart;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AddressValidator"/> class.
@@ -196,11 +205,18 @@ namespace MimeKit {
 		/// excluded: folding whitespace is legal between address tokens, so a line break can only be
 		/// judged in context and is handled during parsing instead. A carriage return with no linefeed
 		/// after it is not excluded, because it cannot be part of a fold in any context.</para>
+		/// <para>ISO-2022 shift and escape sequences are recorded rather than reported. Inside a
+		/// local-part they are a legacy Japanese mailer convention rather than an arbitrary control
+		/// character, and telling the two apart needs the parse, so the decision is deferred to
+		/// <see cref="CheckIso2022LocalPart"/> and <see cref="ReportUnattributedIso2022Sequences"/>.</para>
 		/// </remarks>
 		void ScanForControlCharacters ()
 		{
-			bool reportedNull = false, reportedControl = false;
+			bool reportedNull = false;
 
+			// Note: This no longer stops as soon as one of each class has been reported, because every
+			// ISO-2022 sequence has to be recorded in order to be attributed later. Header values are
+			// short enough that scanning the rest of one costs nothing worth saving.
 			for (int i = startIndex; i < endIndex; i++) {
 				byte c = text[i];
 
@@ -209,13 +225,113 @@ namespace MimeKit {
 						Log (MimeComplianceViolation.NullByteInAddress, i);
 						reportedNull = true;
 					}
-				} else if (IsControlCharacter (i) && !reportedControl) {
-					Log (MimeComplianceViolation.ControlCharacterInAddress, i);
-					reportedControl = true;
-				}
+				} else if (IsIso2022Sequence (i, out int length)) {
+					(iso2022 ??= new List<int> ()).Add (i);
 
-				if (reportedNull && reportedControl)
-					break;
+					// Note: Step over the rest of the sequence so that its intermediate and final
+					// bytes are not considered again.
+					i += length - 1;
+				} else if (IsControlCharacter (i) && !reportedControlCharacter) {
+					Log (MimeComplianceViolation.ControlCharacterInAddress, i);
+					reportedControlCharacter = true;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Determine whether an ISO-2022 shift or escape sequence begins at the given index, and if so,
+		/// how many bytes long it is.
+		/// </summary>
+		/// <remarks>
+		/// <para>An escape is only recognized as a character set designation when it is followed by at
+		/// least one intermediate byte in the <c>0x20..0x2f</c> range and then a final byte in the
+		/// <c>0x30..0x7e</c> range, which is the shape of every ISO-2022 designation sequence: the
+		/// <c>ESC ( B</c> and <c>ESC $ B</c> of rfc1468, the <c>ESC $ ( D</c> and <c>ESC . A</c> added by
+		/// rfc1554, and the <c>ESC $ ) C</c> of rfc1557 among them.</para>
+		/// <para>Requiring an intermediate byte is what keeps an escape that merely happens to precede a
+		/// letter from being mistaken for a designation. Such an escape is an ordinary control character
+		/// and is reported as one.</para>
+		/// <para>Shift-out and shift-in are recognized on their own. ISO-2022-JP proper has no use for
+		/// them, but the Korean and Chinese variants use them to switch between the designated sets, and
+		/// neither byte has any other meaning in a header.</para>
+		/// </remarks>
+		bool IsIso2022Sequence (int i, out int length)
+		{
+			byte c = text[i];
+
+			if (c == 0x0e || c == 0x0f) {
+				length = 1;
+				return true;
+			}
+
+			length = 0;
+
+			if (c != 0x1b)
+				return false;
+
+			int j = i + 1;
+
+			while (j < endIndex && text[j] >= 0x20 && text[j] <= 0x2f)
+				j++;
+
+			if (j == i + 1 || j >= endIndex || text[j] < 0x30 || text[j] > 0x7e)
+				return false;
+
+			length = (j - i) + 1;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Attribute any recorded ISO-2022 sequences that fall within the given range to the local-part
+		/// that occupies it.
+		/// </summary>
+		/// <remarks>
+		/// Sequences claimed here are struck from the pending set so that the same bytes are not also
+		/// described as control characters by <see cref="ReportUnattributedIso2022Sequences"/>.
+		/// </remarks>
+		/// <param name="start">The start of the local-part.</param>
+		/// <param name="end">The end of the local-part.</param>
+		void CheckIso2022LocalPart (int start, int end)
+		{
+			if (iso2022 is null)
+				return;
+
+			for (int i = 0; i < iso2022.Count; i++) {
+				int at = iso2022[i];
+
+				if (at < start || at >= end)
+					continue;
+
+				iso2022[i] = -1;
+
+				if (!reportedIso2022LocalPart) {
+					Log (MimeComplianceViolation.Iso2022SequenceInLocalPart, at);
+					reportedIso2022LocalPart = true;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Report the first ISO-2022 sequence that did not turn out to be inside a local-part as the
+		/// control character that it is.
+		/// </summary>
+		/// <remarks>
+		/// This has to run after the parse, because nothing before it can say where a sequence ended up,
+		/// but it runs on every exit path so that the finding still survives a parse that gave up early.
+		/// </remarks>
+		void ReportUnattributedIso2022Sequences ()
+		{
+			if (iso2022 is null || reportedControlCharacter)
+				return;
+
+			for (int i = 0; i < iso2022.Count; i++) {
+				if (iso2022[i] < 0)
+					continue;
+
+				Log (MimeComplianceViolation.ControlCharacterInAddress, iso2022[i]);
+				reportedControlCharacter = true;
+				break;
 			}
 		}
 
@@ -447,22 +563,35 @@ namespace MimeKit {
 			bool reportedLineBreak = false;
 
 			do {
+				int localPartStart = index;
+				bool closed;
+
 				// local-part = dot-atom / quoted-string
 				if (index < endIndex && text[index] == (byte) '"') {
 					int quoted = index;
 
-					if (!SkipQuoted ())
-						return;
+					closed = SkipQuoted ();
 
 					// Note: Section 3.2.4 of rfc5322 does permit FWS inside a quoted-string, so this
 					// one is reported despite being legal. A quoted local-part is rare enough that
 					// implementations get it wrong, and both MimeKit and Exchange have mishandled a
 					// line break here, so the divergence this violation exists to report is real
 					// whether or not the grammar allows the construct.
-					CheckLineBreak (quoted, index, ref reportedLineBreak);
+					if (closed)
+						CheckLineBreak (quoted, index, ref reportedLineBreak);
 				} else {
+					closed = true;
+
 					ValidateDotAtom (MimeComplianceViolation.InvalidLocalPart);
 				}
+
+				// Note: The local-part is attributed as soon as its token has been consumed, rather
+				// than once the whole addr-spec is known, so that the attribution survives a
+				// quoted-string that was never closed and so that trailing comments are excluded.
+				CheckIso2022LocalPart (localPartStart, index);
+
+				if (!closed)
+					return;
 
 				int beforeCFWS = index;
 
@@ -841,6 +970,10 @@ namespace MimeKit {
 			endIndex = startIndex + length;
 			index = startIndex;
 
+			iso2022?.Clear ();
+			reportedControlCharacter = false;
+			reportedIso2022LocalPart = false;
+
 			// Note: The raw value still carries the line terminator that ended the header (and any
 			// trailing folding whitespace). That is not part of the address list, and leaving it in
 			// makes a trailing token look as though it were followed by folding whitespace.
@@ -857,6 +990,22 @@ namespace MimeKit {
 			if (!Utf8.IsValid (new ReadOnlySpan<byte> (buffer, startIndex, length)))
 				Log (MimeComplianceViolation.Invalid8BitAddress, startIndex);
 
+			ValidateAddressList ();
+
+			// Note: This has to run after the parse, because until then there is no telling which of
+			// the recorded ISO-2022 sequences landed in a local-part.
+			ReportUnattributedIso2022Sequences ();
+		}
+
+		/// <summary>
+		/// Validate the address-list that the validator has been positioned over.
+		/// </summary>
+		/// <remarks>
+		/// This is split out from <see cref="Validate"/> so that the caller can always run the
+		/// post-parse passes, no matter which of the early returns below ends the parse.
+		/// </remarks>
+		void ValidateAddressList ()
+		{
 			bool any = false;
 
 			do {

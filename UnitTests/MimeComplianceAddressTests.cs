@@ -55,6 +55,7 @@ namespace UnitTests {
 			MimeComplianceViolation.NullByteInAddress,
 			MimeComplianceViolation.LineBreakInAddress,
 			MimeComplianceViolation.ControlCharacterInAddress,
+			MimeComplianceViolation.Iso2022SequenceInLocalPart,
 			MimeComplianceViolation.EmptyGroupName
 		};
 
@@ -250,9 +251,87 @@ namespace UnitTests {
 				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
 		}
 
-		[Test]
-		public void TestTabIsNotAControlCharacter ()
+		// Note: ISO-2022-JP and its relatives switch character sets with escape sequences such as
+		// "ESC $ B" and, in the Korean and Chinese variants, with shift-out and shift-in. Japanese
+		// mailers have historically used these inside a local-part to carry Japanese text in a mailbox
+		// name, long before rfc6532 gave addresses a defined way to be non-ASCII. That is a legacy
+		// convention rather than damage or an injection attempt, so it is reported on its own.
+		[TestCase ("\"\u001b$BF|K\u001b(B\"@example.com", TestName = "TestIso2022InLocalPart_QuotedString")]
+		[TestCase ("Nihongo <\"\u001b$BF|K\u001b(B\"@example.com>", TestName = "TestIso2022InLocalPart_AngleAddr")]
+		// Note: The second byte of a JIS X 0208 pair may be a backslash, which then has to be written
+		// as a quoted-pair in order to survive the quoted-string grammar. This is the shape that
+		// Exchange sees in the wild.
+		[TestCase ("\"test\u001b$BF|K\\\\8l%a!<%k%F%9%H\u001b(B123\"@iso2022.jp", TestName = "TestIso2022InLocalPart_EscapedJisByte")]
+		[TestCase ("\u000eF|K\u000f@example.com", TestName = "TestIso2022InLocalPart_ShiftOutShiftIn")]
+		public void TestIso2022SequenceInLocalPart (string value)
 		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.Iso2022SequenceInLocalPart));
+
+			// Note: The same bytes must not also be described as an arbitrary control character.
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.ControlCharacterInAddress));
+			Assert.That (issues, Has.Count.EqualTo (1),
+				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		// Note: Outside of a local-part there is no legacy convention to defer to, so a well-formed
+		// ISO-2022 sequence is just a control character in an address.
+		//
+		// Note: The display-name is quoted, and the other two cases use shift-out and shift-in rather
+		// than an escape sequence, because the parser has no knowledge of ISO-2022 and the '(' of an
+		// unquoted "ESC ( B" would open a comment. That is a real consequence of the construct, but it
+		// is not what these cases are here to measure.
+		[TestCase ("\"\u001b$BF|K\u001b(B\" <user@example.com>", TestName = "TestIso2022OutsideLocalPart_DisplayName")]
+		[TestCase ("user@exa\u000eF|K\u000fmple.com", TestName = "TestIso2022OutsideLocalPart_Domain")]
+		[TestCase ("(\u000eF|K\u000f) user@example.com", TestName = "TestIso2022OutsideLocalPart_Comment")]
+		public void TestIso2022SequenceOutsideLocalPart (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.ControlCharacterInAddress));
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.Iso2022SequenceInLocalPart));
+			Assert.That (issues, Has.Count.EqualTo (1),
+				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		// Note: An escape that merely happens to precede a letter is not a character set designation.
+		// Every ISO-2022 designation sequence has at least one intermediate byte in the 0x20..0x2f
+		// range between the escape and its final byte, and without one this is an ordinary control
+		// character.
+		[TestCase ("us\u001ber@example.com", TestName = "TestNotIso2022_NoIntermediate")]
+		[TestCase ("us\u001b\u001ber@example.com", TestName = "TestNotIso2022_EscapeFollowedByEscape")]
+		public void TestIncompleteEscapeSequenceIsAControlCharacter (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.ControlCharacterInAddress));
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.Iso2022SequenceInLocalPart));
+		}
+
+		// Note: The parser has no knowledge of ISO-2022, so the '(' of an unquoted "ESC ( B" opens a
+		// comment exactly as it would anywhere else in an address, and the comment then runs to the end
+		// of the value. That is the intended outcome rather than an oversight: the alternative would be
+		// to treat '(' as ordinary text whenever an escape happens to precede it, which would let a
+		// genuinely unterminated comment go unreported. Mailers that use this convention quote the
+		// local-part, which is what makes the second byte of a JIS pair survive in the first place.
+		[Test]
+		public void TestUnquotedIso2022LocalPartOpensAComment ()
+		{
+			var issues = Validate ("To", "\u001b$BF|K\u001b(B@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.UnbalancedParenthesesInAddress));
+
+			// Note: The escapes are not attributed to a local-part, because the parse never produced
+			// one, so they fall through to being reported as the control characters that they are.
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.ControlCharacterInAddress));
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.Iso2022SequenceInLocalPart));
+			Assert.That (issues, Has.Count.EqualTo (2),
+				$"Expected exactly two violations but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		[Test]
+		public void TestTabIsNotAControlCharacter ()		{
 			// Note: Tab is whitespace, not a control character, so it must not be reported as one
 			// even where it appears somewhere the grammar does not allow whitespace.
 			var issues = Validate ("To", "us\ter@example.com");

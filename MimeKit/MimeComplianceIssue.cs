@@ -459,6 +459,12 @@ namespace MimeKit {
 			case MimeComplianceViolation.ControlCharacterInAddress:
 				return MimeComplianceSeverity.Major;
 
+			// Note: Unlike an arbitrary control character, this is a deliberate legacy convention
+			// rather than damage or an injection attempt, so it is rated alongside the other obsolete
+			// address syntax rather than alongside ControlCharacterInAddress.
+			case MimeComplianceViolation.Iso2022SequenceInLocalPart:
+				return MimeComplianceSeverity.Minor;
+
 			case MimeComplianceViolation.EmptyGroupName:
 				return MimeComplianceSeverity.Minor;
 
@@ -639,6 +645,9 @@ namespace MimeKit {
 			case MimeComplianceViolation.ControlCharacterInAddress:
 				return Interop | Security;
 
+			case MimeComplianceViolation.Iso2022SequenceInLocalPart:
+				return Interop;
+
 			case MimeComplianceViolation.EmptyGroupName:
 				return Interop;
 
@@ -799,6 +808,8 @@ namespace MimeKit {
 				return "A line break appeared inside a local-part or domain.";
 			case MimeComplianceViolation.ControlCharacterInAddress:
 				return "An address contained a control character.";
+			case MimeComplianceViolation.Iso2022SequenceInLocalPart:
+				return "The local-part of an address contained an ISO-2022 shift or escape sequence.";
 			case MimeComplianceViolation.EmptyGroupName:
 				return "An address group had an empty name.";
 			case MimeComplianceViolation.MissingBodySeparator:
@@ -965,6 +976,8 @@ namespace MimeKit {
 				return "Folding whitespace is permitted around the tokens of an address, but the dot-atom-text production in section 3.2.3 of rfc5322 admits none inside a local-part or domain, so a line break within one of those tokens cannot be produced by a conforming mailer. It is most often seen when an application has concatenated unvalidated input into a header, which is the header injection technique described in section 5 of rfc5321: the attacker supplies a line break in the hope that some component in the chain will treat what follows as a new header or a new command. Even where that fails, implementations differ on whether to unfold, reject or truncate the address, so the recipient that is finally used may not be the one an auditor sees. A line break inside a quoted local-part is also reported, even though section 3.2.4 of rfc5322 permits folding whitespace inside a quoted-string, because a quoted local-part is rare enough that implementations mishandle it in practice.";
 			case MimeComplianceViolation.ControlCharacterInAddress:
 				return "The atom, quoted-string and domain-literal productions in rfc5322 are all built from printable characters and whitespace, so a control character such as ESC or DEL can only have been introduced deliberately or by a mangled encoding. Control characters are stripped by some implementations and preserved by others, so the address may name a different mailbox depending on which software resolves it, and an escape sequence that survives into a log or a terminal-based mail client may be interpreted there rather than displayed.";
+			case MimeComplianceViolation.Iso2022SequenceInLocalPart:
+				return "ISO-2022-JP and its relatives switch between character sets using escape sequences such as \"ESC $ B\", and, in the Korean and Chinese variants, using the shift-out and shift-in control characters. Japanese mailers have historically used these inside the local-part of an addr-spec in order to carry Japanese text in a mailbox name, a practice that predates and is entirely separate from the internationalized address syntax defined by rfc6532. This is reported separately from ControlCharacterInAddress because the two call for different handling: an arbitrary control character in an address is either damage or an injection attempt, whereas a well-formed ISO-2022 sequence in a local-part is a deliberate legacy convention that a receiving system may wish to decode rather than strip. It remains a violation either way, because implementations that strip the escapes and implementations that preserve them will not agree on which mailbox the address names. The construct is particularly awkward inside a quoted local-part, because the second byte of a JIS X 0208 pair may be a backslash or a double-quote, which then has to be written as a quoted-pair in order to survive the quoted-string grammar.";
 			case MimeComplianceViolation.EmptyGroupName:
 				return "The group syntax in section 3.4 of rfc5322 is display-name \":\" [group-list] \";\", and a display-name is a phrase, which requires at least one word. A group introduced by a bare colon therefore has no name for a client to display, and parsers disagree over whether to treat the colon as introducing a group at all or as a stray character in an ordinary address.";
 			case MimeComplianceViolation.MissingBodySeparator:
