@@ -41,8 +41,11 @@ namespace UnitTests {
 			MimeComplianceViolation.UnbalancedQuotesInAddress,
 			MimeComplianceViolation.UnbalancedParenthesesInAddress,
 			MimeComplianceViolation.UnquotedDisplayName,
+			MimeComplianceViolation.AddressInDisplayName,
+			MimeComplianceViolation.AddressInGroupDisplayName,
 			MimeComplianceViolation.InvalidLocalPart,
 			MimeComplianceViolation.MissingAddressSeparator,
+			MimeComplianceViolation.AmbiguousMailboxBoundary,
 			MimeComplianceViolation.ExtraneousCommaInAddressList,
 			MimeComplianceViolation.ObsoleteRouteAddress,
 			MimeComplianceViolation.AddressWithoutDomain,
@@ -713,6 +716,125 @@ namespace UnitTests {
 
 			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.ExtraneousCommaInAddressList),
 				$"The comma should still be seen as a separator, but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		// Note: An angle-addr on either side of a missing separator makes the recovery genuinely
+		// ambiguous, because the grammar allows everything in front of an angle-addr to be read as
+		// its display-name. A parser that recovers that way sees one mailbox where a parser that
+		// splits sees two, and the two disagree about which mailbox the address names.
+		[TestCase ("<spoofer@example.com> <impersonated@example.com>")]
+		[TestCase ("<spoofer@example.com> impersonated@example.com")]
+		[TestCase ("<spoofer@example.com> \"Real User\" <impersonated@example.com>")]
+		[TestCase ("<spoofer@example.com> Real User <impersonated@example.com>")]
+		[TestCase ("<spoofer@example.com> Friends: impersonated@example.com;")]
+		[TestCase ("John <a@example.com> Jane <b@example.com>")]
+		[TestCase ("Friends: a@example.com; <impersonated@example.com>")]
+		public void TestMissingSeparatorBesideAnAngleAddrIsAmbiguous (string value)
+		{
+			AssertViolation (value, MimeComplianceViolation.MissingAddressSeparator);
+			AssertViolation (value, MimeComplianceViolation.AmbiguousMailboxBoundary);
+		}
+
+		// Note: Two bare addr-specs have no grammatical relationship to each other, so folding them
+		// into a single mailbox requires a production rfc5322 does not offer. Parsers may still
+		// differ over how many mailboxes to recover, but that is a disagreement about count rather
+		// than identity. Reporting the ambiguity here would attach a security signal to the ordinary
+		// missing comma, which is exactly what keeping the two violations separate is meant to avoid.
+		[TestCase ("a@example.com b@example.com")]
+		[TestCase ("a@example.com b@example.com c@example.com")]
+		public void TestMissingSeparatorBetweenBareAddressesIsNotAmbiguous (string value)
+		{
+			AssertViolation (value, MimeComplianceViolation.MissingAddressSeparator);
+
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.AmbiguousMailboxBoundary),
+				$"\"{value}\" has no conformant single-mailbox reading, so it should not be reported as ambiguous.");
+		}
+
+		// Note: A display-name that is itself an address is legal rfc5322, so nothing here is
+		// malformed. The report exists because software that shows the display-name in place of the
+		// address shows a mailbox that will not receive the reply.
+		[TestCase ("\"admin@example.com\" <attacker@example.org>")]
+		[TestCase ("admin@example.com <attacker@example.org>")]
+		[TestCase ("\"<admin@example.com>\" <attacker@example.org>")]
+		[TestCase ("\"admin@example.com (Administrator)\" <attacker@example.org>")]
+		[TestCase ("\"(admin@example.com)\" <attacker@example.org>")]
+		public void TestAddressShapedDisplayNameIsReported (string value)
+		{
+			AssertViolation (value, MimeComplianceViolation.AddressInDisplayName);
+		}
+
+		[TestCase ("\"admin@example.com\": attacker@example.org;")]
+		[TestCase ("admin@example.com: attacker@example.org;")]
+		public void TestAddressShapedGroupDisplayNameIsReported (string value)
+		{
+			AssertViolation (value, MimeComplianceViolation.AddressInGroupDisplayName);
+		}
+
+		// Note: A display-name is free-form text, so an '@' in it is only a signal when it sits
+		// between atom text and a dotted domain the way an addr-spec does.
+		[TestCase ("\"Real User\" <user@example.com>")]
+		[TestCase ("\"admin at example.com\" <user@example.com>")]
+		[TestCase ("\"Bob @ Work\" <user@example.com>")]
+		[TestCase ("\"@channel\" <user@example.com>")]
+		[TestCase ("\"admin@localhost\" <user@example.com>")]
+		[TestCase ("Friends: a@example.com;")]
+		public void TestOrdinaryDisplayNameIsNotReportedAsAnAddress (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.AddressInDisplayName),
+				$"\"{value}\" is not shaped like an address.");
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.AddressInGroupDisplayName),
+				$"\"{value}\" is not shaped like an address.");
+		}
+
+		// Note: These report different things about the same header, so an input that is both
+		// malformed and misleading must produce both. UnquotedDisplayName describes the syntax;
+		// AddressInDisplayName describes what the value will be mistaken for.
+		[Test]
+		public void TestUnquotedAddressShapedDisplayNameIsReportedTwice ()
+		{
+			var issues = Validate ("To", "admin@example.com <attacker@example.org>");
+			var violations = issues.Select (i => i.Violation).ToList ();
+
+			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.UnquotedDisplayName));
+			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.AddressInDisplayName));
+		}
+
+		// Note: The quoted form breaks no rule, so it is rated as a hint. The category is what a
+		// transport filters on, not the severity.
+		[Test]
+		public void TestAddressShapedDisplayNameIsAMinorSecurityIssue ()
+		{
+			var issues = Validate ("To", "\"admin@example.com\" <attacker@example.org>");
+			var issue = issues.Single (i => i.Violation == MimeComplianceViolation.AddressInDisplayName);
+
+			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Minor));
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.Security), Is.True);
+		}
+
+		[Test]
+		public void TestAmbiguousMailboxBoundaryIsASecurityIssue ()
+		{
+			var issues = Validate ("To", "<spoofer@example.com> <impersonated@example.com>");
+			var issue = issues.Single (i => i.Violation == MimeComplianceViolation.AmbiguousMailboxBoundary);
+
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.Security), Is.True);
+		}
+
+		// Note: A group name labels a list, a display-name labels a mailbox, and software that
+		// mistakes either for the address it is shown beside is making a different mistake with a
+		// different remedy. A consumer must be able to tell them apart without re-parsing.
+		[Test]
+		public void TestAddressShapedGroupNameAndDisplayNameAreDistinguishable ()
+		{
+			var mailbox = Validate ("To", "admin@example.com <attacker@example.org>");
+			var group = Validate ("To", "admin@example.com: attacker@example.org;");
+
+			Assert.That (mailbox.Select (i => i.Violation), Is.Not.EquivalentTo (group.Select (i => i.Violation)),
+				"A group name and a display-name that are both shaped like an address report identically.");
 		}
 	}
 }

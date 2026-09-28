@@ -441,11 +441,19 @@ namespace MimeKit {
 			case MimeComplianceViolation.UnquotedDisplayName:
 			case MimeComplianceViolation.InvalidLocalPart:
 			case MimeComplianceViolation.MissingAddressSeparator:
+			case MimeComplianceViolation.AmbiguousMailboxBoundary:
 			case MimeComplianceViolation.AddressWithoutDomain:
 			case MimeComplianceViolation.Invalid8BitAddress:
 			case MimeComplianceViolation.MissingGroupTerminator:
 			case MimeComplianceViolation.NonConformantAddress:
 				return MimeComplianceSeverity.Major;
+
+			// Note: The input is legal rfc5322, so this rates as a hint rather than as damage. The
+			// harm is entirely in what software does with the display-name, which is why the
+			// severity is low but the Security category still applies.
+			case MimeComplianceViolation.AddressInDisplayName:
+			case MimeComplianceViolation.AddressInGroupDisplayName:
+				return MimeComplianceSeverity.Minor;
 
 			// Note: Both of these are injection primitives rather than mere syntax errors. A null
 			// byte truncates the address for anything that treats it as a C string, and a line break
@@ -624,6 +632,19 @@ namespace MimeKit {
 			case MimeComplianceViolation.Invalid8BitAddress:
 				return Interop | DataLoss;
 
+			// Note: The two readings of an ambiguous boundary disagree about which mailbox the
+			// address names, not merely about how many there are, so a filter and a mail client can
+			// be made to act on different addresses in the same header.
+			case MimeComplianceViolation.AmbiguousMailboxBoundary:
+				return Interop | Security;
+
+			// Note: Nothing is lost and nothing is ambiguous to a conforming parser. The harm is
+			// that software which displays the display-name in place of the address, or the group
+			// name in place of its members, shows a mailbox that will not receive the reply.
+			case MimeComplianceViolation.AddressInDisplayName:
+			case MimeComplianceViolation.AddressInGroupDisplayName:
+				return Security;
+
 			// Note: Syntax that another implementation may read differently, or repair differently,
 			// but with no reading under which an address goes missing.
 			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
@@ -780,10 +801,16 @@ namespace MimeKit {
 				return "An address contained an unbalanced parenthesis in a comment.";
 			case MimeComplianceViolation.UnquotedDisplayName:
 				return "The display-name of an address contained a special character that should have been quoted.";
+			case MimeComplianceViolation.AddressInDisplayName:
+				return "The display-name of a mailbox was itself shaped like an address.";
+			case MimeComplianceViolation.AddressInGroupDisplayName:
+				return "The display-name of an address group was itself shaped like an address.";
 			case MimeComplianceViolation.InvalidLocalPart:
 				return "The local-part of an address was not a valid dot-atom or quoted-string.";
 			case MimeComplianceViolation.MissingAddressSeparator:
 				return "Two addresses in an address list were not separated by a comma.";
+			case MimeComplianceViolation.AmbiguousMailboxBoundary:
+				return "An address list contained two addresses whose boundary was ambiguous.";
 			case MimeComplianceViolation.ExtraneousCommaInAddressList:
 				return "An address list contained a comma that did not separate two addresses.";
 			case MimeComplianceViolation.ObsoleteRouteAddress:
@@ -948,10 +975,16 @@ namespace MimeKit {
 				return "Section 7.1.4 of rfc7103 describes address values such as \"Name (unbalanced <user@example.com>\". As with an unclosed quote, an unclosed comment absorbs the remainder of the header, so addresses that follow it may be lost.";
 			case MimeComplianceViolation.UnquotedDisplayName:
 				return "An unquoted display-name may only contain atoms, so values such as \"Doe, John <jdoe@example.com>\" and \"user@example.com <user@example.com>\" are not valid. The comma case is the most damaging, because a parser that does not special-case it will split the one address into two.";
+			case MimeComplianceViolation.AddressInDisplayName:
+				return "A display-name such as the one in \"\\\"admin@example.com\\\" <attacker@example.org>\" is legal, but software that shows the display-name in place of the address will present a mailbox that will not receive the reply. The address that rfc5322 defines as authoritative is the one inside the angle brackets.";
+			case MimeComplianceViolation.AddressInGroupDisplayName:
+				return "A group name such as the one in \"\\\"admin@example.com\\\": attacker@example.org;\" is legal, but software that shows the group name in place of its members will present a mailbox that is not in the group. A group name is a label, not a recipient.";
 			case MimeComplianceViolation.InvalidLocalPart:
 				return "A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as \"first..last\" and \"first.\" are not valid. Receiving systems differ over whether to reject such an address, strip the offending dots, or pass the local-part through verbatim.";
 			case MimeComplianceViolation.MissingAddressSeparator:
 				return "Section 7.1.5 of rfc7103 describes address lists such as \"a@example.com b@example.com\". A parser must guess whether this is two addresses or one address with a malformed display-name, and the two readings produce different sets of recipients.";
+			case MimeComplianceViolation.AmbiguousMailboxBoundary:
+				return "A list such as \"<attacker@example.org> <admin@example.com>\" contains an angle-addr on at least one side of a missing separator, so a parser that recovers by treating the leading text as a display-name will read a single mailbox where a parser that recovers by splitting will read two. Unlike an ordinary missing comma, the two readings do not merely differ in how many addresses they produce, they disagree about which mailbox the address belongs to.";
 			case MimeComplianceViolation.ExtraneousCommaInAddressList:
 				return "Section 7.1.5 of rfc7103 describes address lists such as \"a@example.com,,,b@example.com\", as well as lists with leading or trailing commas. The empty entries are not addresses and are typically ignored, but their presence usually indicates that the generating software dropped an address it intended to include.";
 			case MimeComplianceViolation.ObsoleteRouteAddress:

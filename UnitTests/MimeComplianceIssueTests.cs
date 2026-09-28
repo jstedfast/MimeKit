@@ -263,6 +263,11 @@ namespace UnitTests {
 				MimeComplianceViolation.WhitespaceInDomainLiteral,
 				MimeComplianceViolation.EmptyGroupName,
 
+				// Note: These two describe conformant input, so there is no defect to rate. The
+				// severity is low on purpose and the Security category carries the signal.
+				MimeComplianceViolation.AddressInDisplayName,
+				MimeComplianceViolation.AddressInGroupDisplayName,
+
 				// Note: Repeating either of these can only cause the message to be threaded
 				// inconsistently, and resent fields are strictly informational.
 				MimeComplianceViolation.RepeatedInReplyTo,
@@ -482,8 +487,11 @@ namespace UnitTests {
 				{ MimeComplianceViolation.UnbalancedQuotesInAddress, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.UnbalancedParenthesesInAddress, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.UnquotedDisplayName, Interop | DataLoss },
+				{ MimeComplianceViolation.AddressInDisplayName, Security },
+				{ MimeComplianceViolation.AddressInGroupDisplayName, Security },
 				{ MimeComplianceViolation.InvalidLocalPart, Interop },
 				{ MimeComplianceViolation.MissingAddressSeparator, Interop | DataLoss },
+				{ MimeComplianceViolation.AmbiguousMailboxBoundary, Interop | Security },
 				{ MimeComplianceViolation.ExtraneousCommaInAddressList, Interop },
 				{ MimeComplianceViolation.ObsoleteRouteAddress, Interop },
 				{ MimeComplianceViolation.AddressWithoutDomain, Interop },

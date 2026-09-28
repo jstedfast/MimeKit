@@ -466,6 +466,69 @@ namespace MimeKit {
 				index++;
 		}
 
+		/// <summary>
+		/// Report a missing address separator, along with the ambiguity it creates when an angle-addr
+		/// is involved.
+		/// </summary>
+		/// <remarks>
+		/// An ordinary missing comma, as in <c>a@example.com b@example.com</c>, leaves two bare
+		/// addr-specs with no grammatical relationship to each other: a display-name only appears in
+		/// a name-addr, which requires angle brackets, so no conformant reading folds the left token
+		/// into the right one. Parsers may still disagree about how many mailboxes to recover, but a
+		/// parser that recovers a single mailbox has to invent a production the grammar does not
+		/// offer. An angle-addr on either side of the gap is different: <c>phrase angle-addr</c> is a
+		/// real production, so reading everything in front of the angle-addr as its display-name is a
+		/// legitimate application of the grammar rather than a departure from it. Both readings are
+		/// then defensible and they disagree about which mailbox the address names rather than merely
+		/// about how many there are. That is what makes it worth reporting separately from the syntax
+		/// error.
+		/// </remarks>
+		void LogMissingAddressSeparator (int addressStart)
+		{
+			Log (MimeComplianceViolation.MissingAddressSeparator, index);
+
+			if (text[index] == (byte) '<' || ContainsAngleAddr (addressStart, index))
+				Log (MimeComplianceViolation.AmbiguousMailboxBoundary, index);
+		}
+
+		/// <summary>
+		/// Determine whether the given range contains a '&lt;' that opens an angle-addr.
+		/// </summary>
+		/// <remarks>
+		/// Quoted-strings and comments are skipped, because a '&lt;' inside either of them is
+		/// ordinary text rather than the start of an angle-addr.
+		/// </remarks>
+		bool ContainsAngleAddr (int start, int end)
+		{
+			for (int i = start; i < end; i++) {
+				if (text[i] == (byte) '"') {
+					for (i++; i < end; i++) {
+						if (text[i] == (byte) '\\')
+							i++;
+						else if (text[i] == (byte) '"')
+							break;
+					}
+				} else if (text[i] == (byte) '(') {
+					int depth = 1;
+
+					for (i++; i < end && depth > 0; i++) {
+						if (text[i] == (byte) '\\')
+							i++;
+						else if (text[i] == (byte) '(')
+							depth++;
+						else if (text[i] == (byte) ')')
+							depth--;
+					}
+
+					i--;
+				} else if (text[i] == (byte) '<') {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		bool SkipAtom ()
 		{
 			int start = index;
@@ -875,7 +938,7 @@ namespace MimeKit {
 				}
 
 				if (text[index] != (byte) ',') {
-					Log (MimeComplianceViolation.MissingAddressSeparator, index);
+					LogMissingAddressSeparator (before);
 					SkipToNextPossibleAddress ();
 					continue;
 				}
@@ -920,6 +983,8 @@ namespace MimeKit {
 				if (!hasContent) {
 					// A display-name is a phrase, which requires at least one word.
 					Log (MimeComplianceViolation.EmptyGroupName, start);
+				} else if (ContainsAddrspec (start, index)) {
+					Log (MimeComplianceViolation.AddressInGroupDisplayName, start);
 				}
 
 				ValidateGroup (unquotedSpecial, specialIndex);
@@ -929,6 +994,9 @@ namespace MimeKit {
 			if (c == (byte) '<') {
 				if (unquotedSpecial)
 					Log (MimeComplianceViolation.UnquotedDisplayName, specialIndex);
+
+				if (hasContent && ContainsAddrspec (start, index))
+					Log (MimeComplianceViolation.AddressInDisplayName, start);
 
 				ValidateAngleAddr ();
 				return true;
@@ -981,6 +1049,97 @@ namespace MimeKit {
 			}
 
 			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a phrase used as a display-name is itself shaped like an addr-spec.
+		/// </summary>
+		/// <remarks>
+		/// This looks inside quoted-strings, because <c>"admin@example.com" &lt;attacker@example.org&gt;</c>
+		/// is the whole point: the quoting makes the value legal, not innocuous. Comments are skipped,
+		/// and an '@' only counts when it has atom text immediately before it and a dotted domain
+		/// immediately after it, so that phrases such as <c>Bob @ Work</c> and <c>@channel</c> are not
+		/// mistaken for addresses.
+		/// </remarks>
+		bool ContainsAddrspec (int start, int end)
+		{
+			bool precededByAtom = false;
+			bool quoted = false;
+			int i = start;
+
+			while (i < end) {
+				byte c = text[i];
+
+				if (c == (byte) '"') {
+					quoted = !quoted;
+					precededByAtom = false;
+					i++;
+					continue;
+				}
+
+				if (c == (byte) '(' && !quoted) {
+					int depth = 1;
+
+					for (i++; i < end && depth > 0; i++) {
+						if (text[i] == (byte) '\\')
+							i++;
+						else if (text[i] == (byte) '(')
+							depth++;
+						else if (text[i] == (byte) ')')
+							depth--;
+					}
+
+					precededByAtom = false;
+					continue;
+				}
+
+				if (c == (byte) '\\' && i + 1 < end)
+					c = text[++i];
+
+				if (c == (byte) '@' && precededByAtom && IsDottedDomain (i + 1, end))
+					return true;
+
+				precededByAtom = c.IsAtom ();
+				i++;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determine whether a dot-atom containing at least one dot begins at the given offset.
+		/// </summary>
+		/// <remarks>
+		/// Requiring a dot keeps a local-part followed by a bare word, such as <c>user@work</c>, from
+		/// being read as an address. That is deliberately conservative: a display-name is free-form
+		/// text, so the cost of a false positive is higher than the cost of missing a domain that no
+		/// public mail system would route to anyway.
+		/// </remarks>
+		bool IsDottedDomain (int i, int end)
+		{
+			bool atom = false, dot = false, atomAfterDot = false;
+
+			while (i < end) {
+				byte c = text[i];
+
+				if (c.IsAtom ()) {
+					atom = true;
+
+					if (dot)
+						atomAfterDot = true;
+				} else if (c == (byte) '.') {
+					if (!atom)
+						return false;
+
+					dot = true;
+				} else {
+					break;
+				}
+
+				i++;
+			}
+
+			return atom && dot && atomAfterDot;
 		}
 
 		/// <summary>
@@ -1112,7 +1271,7 @@ namespace MimeKit {
 					break;
 
 				if (text[index] != (byte) ',') {
-					Log (MimeComplianceViolation.MissingAddressSeparator, index);
+					LogMissingAddressSeparator (before);
 					SkipToNextPossibleAddress ();
 					continue;
 				}
