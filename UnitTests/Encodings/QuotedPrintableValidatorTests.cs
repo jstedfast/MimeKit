@@ -1,4 +1,4 @@
-﻿//
+//
 // QuotedPrintableValidatorTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new QuotedPrintableValidator (nullComplianceLogger, 0, 1));
+			AssertArgumentExceptions (new QuotedPrintableValidator (nullComplianceLogger, MimeComplianceContext.Transport, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new QuotedPrintableValidator (nullComplianceLogger, 0, 1);
+			var validator = new QuotedPrintableValidator (nullComplianceLogger, MimeComplianceContext.Transport, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.QuotedPrintable));
 		}
@@ -55,7 +55,7 @@ namespace UnitTests.Encodings {
 		{
 			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (logger, new QuotedPrintableValidator (logger, 0, 1), "wikipedia.qp", wikipedia_unix, bufferSize);
+			TestValidator (logger, new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1), "wikipedia.qp", wikipedia_unix, bufferSize);
 		}
 
 		[TestCase (4096)]
@@ -66,7 +66,7 @@ namespace UnitTests.Encodings {
 		{
 			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (logger, new QuotedPrintableValidator (logger, 0, 1), "wikipedia.qp", wikipedia_dos, bufferSize);
+			TestValidator (logger, new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1), "wikipedia.qp", wikipedia_dos, bufferSize);
 		}
 
 		[TestCase ("=XA", 1)]
@@ -77,7 +77,7 @@ namespace UnitTests.Encodings {
 			string text = $"This is some quoted printable text with an invalid {hex} sequence.";
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new QuotedPrintableValidator (logger, 0, 1);
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
@@ -94,7 +94,7 @@ namespace UnitTests.Encodings {
 			const string text = "This is some quoted printable text with an invalid =\rsoft break";
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new QuotedPrintableValidator (logger, 0, 1);
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
@@ -112,7 +112,7 @@ namespace UnitTests.Encodings {
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new QuotedPrintableValidator (logger, 0, 1);
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();

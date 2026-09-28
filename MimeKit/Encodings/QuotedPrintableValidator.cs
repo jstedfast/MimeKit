@@ -1,4 +1,4 @@
-﻿//
+//
 // QuotedPrintableValidator.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -49,6 +49,7 @@ namespace MimeKit.Encodings {
 		}
 
 		readonly IMimeComplianceLogger logger;
+		readonly MimeComplianceContext context;
 		long streamOffset;
 		int lineNumber;
 		QpValidatorState state;
@@ -60,11 +61,13 @@ namespace MimeKit.Encodings {
 		/// Creates a new quoted-printable validator.
 		/// </remarks>
 		/// <param name="logger">The compliance logger.</param>
+		/// <param name="context">The context that the message is being used in.</param>
 		/// <param name="streamOffset">The current stream offset.</param>
 		/// <param name="lineNumber">The current line number.</param>
-		public QuotedPrintableValidator (IMimeComplianceLogger logger, long streamOffset, int lineNumber)
+		public QuotedPrintableValidator (IMimeComplianceLogger logger, MimeComplianceContext context, long streamOffset, int lineNumber)
 		{
 			this.logger = logger;
+			this.context = context;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
 		}
@@ -115,7 +118,7 @@ namespace MimeKit.Encodings {
 						state = QpValidatorState.PassThrough;
 						lineNumber++;
 					} else {
-						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber));
 						state = QpValidatorState.PassThrough;
 					}
 
@@ -126,7 +129,7 @@ namespace MimeKit.Encodings {
 						lineNumber++;
 						inptr++;
 					} else {
-						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber));
 					}
 
 					state = QpValidatorState.PassThrough;
@@ -135,7 +138,7 @@ namespace MimeKit.Encodings {
 					c = *inptr;
 
 					if (!c.IsXDigit ()) {
-						logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber));
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber));
 
 						if (c == '\n')
 							lineNumber++;
@@ -185,9 +188,9 @@ namespace MimeKit.Encodings {
 		{
 			// Note: the only valid state to end on is the pass-through state.
 			if (state == QpValidatorState.EqualSign || state == QpValidatorState.DecodeByte)
-				logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber));
+				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber));
 			else if (state == QpValidatorState.SoftBreak)
-				logger.Log (new MimeComplianceIssue (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber));
+				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber));
 		}
 	}
 }

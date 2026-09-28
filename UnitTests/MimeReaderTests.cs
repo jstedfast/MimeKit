@@ -1,4 +1,4 @@
-﻿//
+//
 // MimeReaderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -1042,7 +1042,7 @@ Content-Type: text/plain; charset=us-ascii
 This is the message body.
 ";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceStatus.InvalidMimeVersion, 5, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceStatus.InvalidMimeVersion, 5, 1)
 			};
 
 			AssertMimeComplianceIssues (text, issues);
@@ -1061,7 +1061,7 @@ Content-Type: text/plain; charset=us-ascii
 This is the message body.
 ";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceStatus.InvalidMimeVersion, 5, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceStatus.InvalidMimeVersion, 5, 1)
 			};
 
 			return AssertMimeComplianceIssuesAsync (text, issues);
@@ -1107,8 +1107,8 @@ This is the second inner message body.
 ";
 			var issues = new MimeComplianceIssue[] {
 				// FIXME: MissingMimeVersion issues are reported with the offset/lineNumber of the start of the message. Should it use a different offset/lineNumber?
-				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 1, 1),
-				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 15, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceStatus.MissingMimeVersion, 1, 1),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceStatus.MissingMimeVersion, 15, 1)
 			};
 
 			AssertMimeComplianceIssues (text, issues);
@@ -1154,8 +1154,8 @@ This is the second inner message body.
 ";
 			var issues = new MimeComplianceIssue[] {
 				// FIXME: MissingMimeVersion issues are reported with the offset/lineNumber of the start of the message. Should it use a different offset/lineNumber?
-				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 1, 1),
-				new MimeComplianceIssue (MimeComplianceStatus.MissingMimeVersion, 15, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceStatus.MissingMimeVersion, 1, 1),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceStatus.MissingMimeVersion, 15, 1)
 			};
 
 			return AssertMimeComplianceIssuesAsync (text, issues);

@@ -39,9 +39,10 @@ namespace MimeKit {
 	/// <see cref="MimeComplianceViolation.OversizedLine"/>. Every other violation is rated the
 	/// same in both contexts.</para>
 	/// <note type="note">This does not change which violations are reported, only how severe they
-	/// are considered to be. Use
+	/// are considered to be. Set <see cref="MimeReader.ComplianceContext"/> before parsing so that
+	/// <see cref="MimeComplianceIssue.Severity"/> is rated for the correct context, or use
 	/// <see cref="MimeComplianceIssue.GetSeverity(MimeComplianceViolation,MimeComplianceContext)"/>
-	/// to rate a violation for a particular context.</note>
+	/// to rate a violation for a particular context after the fact.</note>
 	/// </remarks>
 	public enum MimeComplianceContext
 	{
@@ -52,8 +53,7 @@ namespace MimeKit {
 		/// <para>The message is being sent or received via a protocol such as SMTP, POP3 or IMAP,
 		/// where the Internet Message Format requirements apply in full. Lines must be terminated
 		/// with a &lt;CR&gt;&lt;LF&gt; sequence and must not exceed the SMTP line length limit.</para>
-		/// <para>This is the stricter of the two contexts and is the one assumed by
-		/// <see cref="MimeComplianceIssue.Severity"/>.</para>
+		/// <para>This is the stricter of the two contexts and is the default.</para>
 		/// </remarks>
 		Transport,
 

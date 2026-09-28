@@ -1,4 +1,4 @@
-﻿//
+//
 // MimeComplianceIssueTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -45,18 +45,69 @@ namespace UnitTests {
 			var issue = default (MimeComplianceIssue);
 
 			Assert.That (issue.Violation, Is.EqualTo (MimeComplianceViolation.None));
+			Assert.That (issue.Context, Is.EqualTo (MimeComplianceContext.Transport), "Context");
 		}
 
 		[Test]
 		public void TestConstructorRejectsViolationsThatAreNotReportable ()
 		{
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceViolation.None, 0, 1));
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceViolation.None, 0, 1, 1));
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue ((MimeComplianceViolation) (-1), 0, 1));
-			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue ((MimeComplianceViolation) 999, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.None, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.None, 0, 1, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, (MimeComplianceViolation) (-1), 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, (MimeComplianceViolation) 999, 0, 1));
 
 			foreach (var violation in AllViolations)
-				Assert.DoesNotThrow (() => new MimeComplianceIssue (violation, 0, 1), $"{violation} should be constructible.");
+				Assert.DoesNotThrow (() => new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 0, 1), $"{violation} should be constructible.");
+		}
+
+		[Test]
+		public void TestConstructorRejectsInvalidContexts ()
+		{
+			const MimeComplianceContext invalid = (MimeComplianceContext) 99;
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (invalid, MimeComplianceViolation.InvalidHeader, 0, 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (invalid, MimeComplianceViolation.InvalidHeader, 0, 1, 1));
+		}
+
+		[Test]
+		public void TestSeverityIsRatedForTheIssueContext ()
+		{
+			// Note: BareLinefeedInHeader is one of the handful of violations that is rated lower when
+			// the message comes from local storage rather than off the wire.
+			var transport = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 100, 5);
+			var storage = new MimeComplianceIssue (MimeComplianceContext.Storage, MimeComplianceViolation.BareLinefeedInHeader, 100, 5);
+
+			Assert.That (transport.Severity, Is.EqualTo (MimeComplianceSeverity.Major), "Transport");
+			Assert.That (storage.Severity, Is.EqualTo (MimeComplianceSeverity.Minor), "Storage");
+
+			foreach (var violation in AllViolations) {
+				foreach (var context in Enum.GetValues<MimeComplianceContext> ()) {
+					var issue = new MimeComplianceIssue (context, violation, 0, 1);
+
+					Assert.That (issue.Severity, Is.EqualTo (MimeComplianceIssue.GetSeverity (violation, context)), $"{violation} ({context})");
+				}
+			}
+		}
+
+		[Test]
+		public void TestMimeReaderComplianceContextIsRecordedOnIssues ()
+		{
+			var text = "To: a@example.com\nSubject: test\r\n\r\nbody\r\n";
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new MimeReader (stream) {
+					ComplianceLogger = logger,
+					ComplianceContext = MimeComplianceContext.Storage
+				};
+
+				reader.ReadMessage ();
+			}
+
+			var issue = logger.Issues.First (i => i.Violation == MimeComplianceViolation.BareLinefeedInHeader);
+
+			Assert.That (issue.Context, Is.EqualTo (MimeComplianceContext.Storage), "Context");
+			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Minor), "Severity");
 		}
 
 		[Test]
@@ -95,8 +146,8 @@ namespace UnitTests {
 		[Test]
 		public void TestEquality ()
 		{
-			var issue = new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 3);
-			var same = new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 3);
+			var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 100, 5, 3);
+			var same = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 100, 5, 3);
 
 			Assert.That (issue.Equals (same), Is.True, "Equals");
 			Assert.That (issue.Equals ((object) same), Is.True, "Equals (object)");
@@ -109,10 +160,11 @@ namespace UnitTests {
 
 			// Note: Each of these differs from `issue` in exactly one field.
 			var others = new [] {
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 100, 5, 3),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 101, 5, 3),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 6, 3),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 100, 5, 4)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.IncompleteHeader, 100, 5, 3),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 101, 5, 3),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 100, 6, 3),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 100, 5, 4),
+				new MimeComplianceIssue (MimeComplianceContext.Storage, MimeComplianceViolation.InvalidHeader, 100, 5, 3)
 			};
 
 			foreach (var other in others) {
@@ -298,7 +350,7 @@ namespace UnitTests {
 		public void TestGetSeverityThrowsOnInvalidContext ()
 		{
 			var invalid = (MimeComplianceContext) 9999;
-			var issue = new MimeComplianceIssue (MimeComplianceViolation.BareLinefeedInHeader, 0, 1);
+			var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 0, 1);
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => MimeComplianceIssue.GetSeverity (MimeComplianceViolation.BareLinefeedInHeader, invalid));
 			Assert.Throws<ArgumentOutOfRangeException> (() => issue.GetSeverity (invalid));
@@ -308,7 +360,7 @@ namespace UnitTests {
 		public void TestInstanceGetSeverityMatchesStatic ()
 		{
 			foreach (var violation in AllViolations) {
-				var issue = new MimeComplianceIssue (violation, 0, 1);
+				var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 0, 1);
 
 				foreach (var context in Enum.GetValues<MimeComplianceContext> ())
 					Assert.That (issue.GetSeverity (context), Is.EqualTo (MimeComplianceIssue.GetSeverity (violation, context)), $"{violation} ({context})");
@@ -512,7 +564,7 @@ namespace UnitTests {
 		public void TestPropertiesMatchStaticMethods ()
 		{
 			foreach (var violation in AllViolations) {
-				var issue = new MimeComplianceIssue (violation, 123, 4);
+				var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, violation, 123, 4);
 
 				Assert.That (issue.Violation, Is.EqualTo (violation));
 				Assert.That (issue.StreamOffset, Is.EqualTo (123));
@@ -528,8 +580,8 @@ namespace UnitTests {
 		[Test]
 		public void TestToString ()
 		{
-			var withoutColumn = new MimeComplianceIssue (MimeComplianceViolation.BareLinefeedInHeader, 42, 7);
-			var withColumn = new MimeComplianceIssue (MimeComplianceViolation.BareLinefeedInHeader, 42, 7, 13);
+			var withoutColumn = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 42, 7);
+			var withColumn = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.BareLinefeedInHeader, 42, 7, 13);
 
 			Assert.That (withoutColumn.ToString (), Is.EqualTo ("BareLinefeedInHeader at line 7 (offset 42)"));
 			Assert.That (withColumn.ToString (), Is.EqualTo ("BareLinefeedInHeader at line 7, column 13 (offset 42)"));

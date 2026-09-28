@@ -1,4 +1,4 @@
-﻿//
+//
 // AddressValidator.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -45,6 +45,7 @@ namespace MimeKit {
 	class AddressValidator
 	{
 		readonly IMimeComplianceLogger logger;
+		readonly MimeComplianceContext context;
 		readonly long streamOffset;
 		readonly int lineNumber;
 		readonly int columnNumber;
@@ -60,12 +61,14 @@ namespace MimeKit {
 		/// Creates a new address validator.
 		/// </remarks>
 		/// <param name="logger">The compliance logger.</param>
+		/// <param name="context">The context that the message is being used in.</param>
 		/// <param name="streamOffset">The stream offset of the start of the value being validated.</param>
 		/// <param name="lineNumber">The line number of the start of the value being validated.</param>
 		/// <param name="columnNumber">The one-based column number of the start of the value being validated.</param>
-		public AddressValidator (IMimeComplianceLogger logger, long streamOffset, int lineNumber, int columnNumber)
+		public AddressValidator (IMimeComplianceLogger logger, MimeComplianceContext context, long streamOffset, int lineNumber, int columnNumber)
 		{
 			this.logger = logger;
+			this.context = context;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
 			this.columnNumber = columnNumber;
@@ -91,7 +94,7 @@ namespace MimeKit {
 			// that preceded it on the same line.
 			int column = lineBegin < 0 ? columnNumber + (at - startIndex) : (at - lineBegin) + 1;
 
-			logger.Log (new MimeComplianceIssue (violation, streamOffset + (at - startIndex), line, column));
+			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + (at - startIndex), line, column));
 		}
 
 		bool SkipWhiteSpace ()

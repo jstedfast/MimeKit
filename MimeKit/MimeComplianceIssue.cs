@@ -1,4 +1,4 @@
-﻿//
+//
 // MimeComplianceIssue.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -47,15 +47,19 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MimeComplianceIssue"/> struct.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MimeComplianceIssue"/> without any column information.
+		/// Creates a new <see cref="MimeComplianceIssue"/> without any column information that will be
+		/// rated for the specified context.
 		/// </remarks>
+		/// <param name="context">The context that the message is being used in.</param>
 		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
 		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
 		/// <param name="lineNumber">The one-based line number where the violation was found.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.
+		/// <para><paramref name="context"/> is not a valid <see cref="MimeComplianceContext"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.</para>
 		/// </exception>
-		public MimeComplianceIssue (MimeComplianceViolation violation, long streamOffset, int lineNumber) : this (violation, streamOffset, lineNumber, 0)
+		public MimeComplianceIssue (MimeComplianceContext context, MimeComplianceViolation violation, long streamOffset, int lineNumber) : this (context, violation, streamOffset, lineNumber, 0)
 		{
 		}
 
@@ -63,24 +67,45 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="MimeComplianceIssue"/> struct.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="MimeComplianceIssue"/>.
+		/// Creates a new <see cref="MimeComplianceIssue"/> that will be rated for the specified context.
 		/// </remarks>
+		/// <param name="context">The context that the message is being used in.</param>
 		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
 		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
 		/// <param name="lineNumber">The one-based line number where the violation was found.</param>
 		/// <param name="columnNumber">The one-based column number where the violation was found, or <c>0</c> if unknown.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.
+		/// <para><paramref name="context"/> is not a valid <see cref="MimeComplianceContext"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.</para>
 		/// </exception>
-		public MimeComplianceIssue (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber)
+		public MimeComplianceIssue (MimeComplianceContext context, MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber)
 		{
+			if (context != MimeComplianceContext.Transport && context != MimeComplianceContext.Storage)
+				throw new ArgumentOutOfRangeException (nameof (context));
+
 			if (violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.IncompleteUUEncodedContent)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
+			Context = context;
 			Violation = violation;
 			StreamOffset = streamOffset;
 			LineNumber = lineNumber;
 			ColumnNumber = columnNumber;
+		}
+
+		/// <summary>
+		/// Get the context that the message is being used in.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the context that the message is being used in, which determines how
+		/// <see cref="Severity"/> rates the violation.</para>
+		/// <para>When an issue is reported by <see cref="MimeReader"/>, this is the value of
+		/// <see cref="MimeReader.ComplianceContext"/> at the time that the violation was detected.</para>
+		/// </remarks>
+		/// <value>The context.</value>
+		public MimeComplianceContext Context {
+			get;
 		}
 
 		/// <summary>
@@ -132,14 +157,14 @@ namespace MimeKit {
 		/// Get the severity of the MIME compliance violation.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets how much practical harm the violation is likely to cause, assuming the message
-		/// is being transmitted over the network.</para>
-		/// <para>Use <see cref="GetSeverity(MimeComplianceContext)"/> instead if the message was read
-		/// from a local message store, where a few violations are routine and harmless.</para>
+		/// <para>Gets how much practical harm the violation is likely to cause when the message is
+		/// used in <see cref="Context"/>.</para>
+		/// <para>Use <see cref="GetSeverity(MimeComplianceContext)"/> to rate the violation for a
+		/// different context than the one that the issue was reported for.</para>
 		/// </remarks>
 		/// <value>The severity.</value>
 		public MimeComplianceSeverity Severity {
-			get { return GetSeverity (Violation, MimeComplianceContext.Transport); }
+			get { return GetSeverity (Violation, Context); }
 		}
 
 		/// <summary>
@@ -147,8 +172,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Gets how much practical harm the violation is likely to cause when the message is used in
-		/// the specified context. Use this instead of <see cref="Severity"/> when the message came
-		/// from a local message store rather than from the network.
+		/// the specified context. Use this instead of <see cref="Severity"/> to rate the violation
+		/// for a different context than the one that the issue was reported for.
 		/// </remarks>
 		/// <returns>The severity.</returns>
 		/// <param name="context">The context that the message is being used in.</param>
@@ -223,7 +248,7 @@ namespace MimeKit {
 		/// <see cref="MimeComplianceIssue"/>; otherwise, <see langword="false" />.</returns>
 		public bool Equals (MimeComplianceIssue other)
 		{
-			return other.Violation == Violation && other.StreamOffset == StreamOffset &&
+			return other.Context == Context && other.Violation == Violation && other.StreamOffset == StreamOffset &&
 				other.LineNumber == LineNumber && other.ColumnNumber == ColumnNumber;
 		}
 
@@ -251,7 +276,7 @@ namespace MimeKit {
 		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
 		{
-			return Violation.GetHashCode () ^ StreamOffset.GetHashCode () ^ LineNumber ^ ColumnNumber;
+			return Context.GetHashCode () ^ Violation.GetHashCode () ^ StreamOffset.GetHashCode () ^ LineNumber ^ ColumnNumber;
 		}
 
 		/// <summary>
