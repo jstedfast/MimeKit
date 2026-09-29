@@ -89,6 +89,12 @@ namespace MimeKit {
 		int scanLine;
 		int scanLineBegin;
 
+		// Note: The extent of a phrase that has already been scanned, and which any later scan
+		// beginning inside it is guaranteed to agree with. See RecordPhraseExtent().
+		bool skippedComment;
+		int phraseFrom;
+		int phraseEnd;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AddressValidator"/> class.
 		/// </summary>
@@ -195,6 +201,8 @@ namespace MimeKit {
 
 				if (index >= endIndex || text[index] != (byte) '(')
 					return true;
+
+				skippedComment = true;
 
 				if (!SkipComment ())
 					return false;
@@ -937,6 +945,33 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Remember how far a phrase scan reached, if a later scan can be trusted to agree with it.
+		/// </summary>
+		/// <remarks>
+		/// <para>A phrase scan runs forward until it finds something that could terminate a
+		/// display-name, so a list of bare addr-specs with nothing separating them re-scans the whole
+		/// remainder of the value once per address, which costs O(length squared).</para>
+		/// <para>When the region just scanned contained no quoted-string, no domain-literal and no
+		/// comment, every byte in it is one the scan walked straight over rather than skipped as a
+		/// unit, so a scan beginning anywhere inside it must walk over the rest of those same bytes
+		/// and stop in the same place. That makes the extent reusable.</para>
+		/// <para>The extent is only recorded when the terminator is neither '&lt;' nor ':', because
+		/// those are the only two that make <see cref="ValidateAddress"/> look at what the phrase
+		/// contained rather than merely how far it ran, and the recorded extent deliberately says
+		/// nothing about the contents.</para>
+		/// </remarks>
+		/// <param name="start">The index the phrase scan began at.</param>
+		/// <param name="simple">Whether the scanned region contained no quoted-string, domain-literal or comment.</param>
+		/// <param name="reusableTerminator">Whether the scan stopped on something other than '&lt;' or ':'.</param>
+		void RecordPhraseExtent (int start, bool simple, bool reusableTerminator)
+		{
+			if (simple && reusableTerminator && index > start) {
+				phraseFrom = start;
+				phraseEnd = index;
+			}
+		}
+
+		/// <summary>
 		/// Scan a phrase, recording whether it contained a character that would have had to be quoted.
 		/// </summary>
 		/// <remarks>
@@ -949,25 +984,36 @@ namespace MimeKit {
 		/// <param name="hasContent">Whether the phrase contained anything at all besides comments and whitespace.</param>
 		bool ScanPhrase (out bool unquotedSpecial, out int specialIndex, out bool hasContent)
 		{
+			int start = index;
+			bool simple = true;
+
 			unquotedSpecial = false;
 			specialIndex = -1;
 			hasContent = false;
+			skippedComment = false;
 
 			do {
 				if (!SkipCFWS ())
 					return false;
 
-				if (index >= endIndex)
+				if (skippedComment)
+					simple = false;
+
+				if (index >= endIndex) {
+					RecordPhraseExtent (start, simple, true);
 					return true;
+				}
 
 				byte c = text[index];
 
 				if (c == (byte) '"') {
 					hasContent = true;
+					simple = false;
 
 					if (!SkipQuoted ())
 						return false;
 				} else if (c == (byte) '<' || c == (byte) ':' || c == (byte) ',' || c == (byte) ';' || c == (byte) '>') {
+					RecordPhraseExtent (start, simple, c != (byte) '<' && c != (byte) ':');
 					return true;
 				} else if (c == (byte) '@' || c == (byte) '.') {
 					hasContent = true;
@@ -980,6 +1026,7 @@ namespace MimeKit {
 					index++;
 				} else if (c == (byte) '[') {
 					hasContent = true;
+					simple = false;
 
 					if (!unquotedSpecial) {
 						unquotedSpecial = true;
@@ -1096,9 +1143,17 @@ namespace MimeKit {
 		bool ValidateAddress (bool inGroup)
 		{
 			int start = index;
+			bool unquotedSpecial = false;
+			bool hasContent = true;
+			int specialIndex = -1;
 
-			if (!ScanPhrase (out bool unquotedSpecial, out int specialIndex, out bool hasContent))
+			if (start >= phraseFrom && start < phraseEnd) {
+				// Note: The phrase ahead has already been scanned and is known to end here. See
+				// RecordPhraseExtent() for why this is safe and why ':' and '<' cannot reach it.
+				index = phraseEnd;
+			} else if (!ScanPhrase (out unquotedSpecial, out specialIndex, out hasContent)) {
 				return false;
+			}
 
 			if (index >= endIndex) {
 				// The whole token was an addr-spec rather than a display-name.
@@ -1345,6 +1400,8 @@ namespace MimeKit {
 			scanIndex = startIndex;
 			scanLine = lineNumber;
 			scanLineBegin = -1;
+			phraseFrom = -1;
+			phraseEnd = -1;
 
 			// Note: The raw value still carries the line terminator that ended the header (and any
 			// trailing folding whitespace). That is not part of the address list, and leaving it in

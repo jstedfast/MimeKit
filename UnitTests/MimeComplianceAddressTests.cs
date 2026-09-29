@@ -825,6 +825,47 @@ namespace UnitTests {
 			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.MissingAddressSeparator));
 		}
 
+		// Note: A phrase scan runs forward until it finds a display-name terminator, so a list with
+		// no separators in it is scanned again from each successive address. The validator remembers
+		// how far the previous scan reached in order to avoid repeating it, but only when the region
+		// held nothing that the scan skips as a unit -- a quoted-string, a domain-literal or a
+		// comment -- because a scan starting inside one of those would read it as ordinary text.
+		// These pin each of those shapes so that a lapse in the bookkeeping cannot quietly change
+		// which byte a violation is attributed to.
+		[TestCase ("a@example.com b@example.com c@example.com", new [] { 14, 28 }, TestName = "TestMissingSeparator_ThreeBareAddrspecs")]
+		[TestCase ("a@example.com b@[192.168.0.1] c@example.com", new [] { 14, 30 }, TestName = "TestMissingSeparator_AcrossADomainLiteral")]
+		[TestCase ("a@example.com (why) b@example.com", new [] { 20 }, TestName = "TestMissingSeparator_AcrossAComment")]
+		[TestCase ("\"q\" a@example.com b@example.com", new [] { 18 }, TestName = "TestMissingSeparator_AfterAQuotedString")]
+		[TestCase ("a@example.com b@example.com, c@example.com d@example.com", new [] { 14, 43 }, TestName = "TestMissingSeparator_SeparatorsInOnlySomePlaces")]
+		public void TestMissingSeparatorIsAttributedToEachGap (string value, int[] offsets)
+		{
+			// Note: The offsets above are relative to the start of the value, so shift them past the
+			// "To: " that Validate() puts in front of it.
+			var expected = offsets.Select (offset => offset + 4);
+			var issues = Validate ("To", value)
+				.Where (issue => issue.Violation == MimeComplianceViolation.MissingAddressSeparator)
+				.ToList ();
+
+			Assert.That (issues.Select (issue => issue.StreamOffset), Is.EqualTo (expected),
+				$"Wrong gaps reported for \"{value}\".");
+		}
+
+		[Test]
+		public void TestRescanDoesNotLeakPastADisplayNameTerminator ()
+		{
+			// Note: The remembered extent says how far a phrase ran, not what it contained, so it must
+			// never be consulted on the two terminators that make the contents matter. Both of these
+			// end in a name-addr whose display-name is the whole run in front of it.
+			foreach (var value in new [] { "a@example.com b@example.com <c@example.com>", "a@example.com b@example.com c@example.com <d@example.com>" }) {
+				var issues = Validate ("To", value);
+
+				Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] {
+					MimeComplianceViolation.UnquotedDisplayName,
+					MimeComplianceViolation.AddressInDisplayName
+				}), $"Wrong violations for \"{value}\".");
+			}
+		}
+
 		[Test]
 		public void TestEmptyAddressHeaderIsSilent ()
 		{
