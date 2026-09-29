@@ -25,7 +25,6 @@
 //
 
 using System;
-using System.Collections.Generic;
 #if NET8_0_OR_GREATER
 using System.Buffers;
 #endif
@@ -73,16 +72,19 @@ namespace MimeKit {
 		int endIndex;
 		int index;
 
-		// Note: The positions of the ISO-2022 shift and escape sequences that ScanForControlCharacters
-		// found. They are held back rather than reported where they are found because how they should
-		// be described depends on where they turn out to be, which is not known until the value has
-		// been parsed. This stays null for the overwhelming majority of values, which contain none.
-		List<int>? iso2022;
+		// Note: The position of the first ISO-2022 shift or escape sequence that has not yet turned out
+		// to be inside a local-part, or -1 once none are left. Sequences are held back rather than
+		// reported where they are found because how one should be described depends on where it turns
+		// out to be, which is not known until the value has been parsed. Only the first survivor is
+		// ever reported, and local-parts are visited in increasing order, so a cursor that moves
+		// forward as each is claimed is all the bookkeeping that is needed.
+		int iso2022Cursor;
 
-		// Note: The positions of the null bytes that ScanForControlCharacters found, held back for the
-		// same reason as the ISO-2022 sequences above: a null in a display-name is described differently
-		// from one in an addr-spec, and which it is cannot be known until the value has been parsed.
-		List<int>? nulls;
+		// Note: The position of the first null byte that has not yet turned out to be inside a
+		// display-name, or -1 once none are left. Held back and advanced for the same reasons as the
+		// ISO-2022 cursor above: a null in a display-name is described differently from one in an
+		// addr-spec, and which it is cannot be known until the value has been parsed.
+		int nullCursor;
 		bool reportedControlCharacter;
 		bool reportedStrayCarriageReturn;
 		bool reportedIso2022LocalPart;
@@ -279,9 +281,10 @@ namespace MimeKit {
 		/// </remarks>
 		void ScanForControlCharacters ()
 		{
-			// Note: This no longer stops as soon as one of each class has been reported, because every
-			// ISO-2022 sequence has to be recorded in order to be attributed later. Header values are
-			// short enough that scanning the rest of one costs nothing worth saving.
+			// Note: Only the position of the first null byte and of the first ISO-2022 sequence is kept.
+			// Each class is reported at most once, and the cursors are advanced by searching forward
+			// again if the token they land in turns out to account for them, so there is nothing to be
+			// gained by remembering the rest.
 			for (int i = startIndex; i < endIndex; i++) {
 #if NET8_0_OR_GREATER
 				// Note: Nothing below has anything to say about a byte outside ControlCharacters, and
@@ -297,9 +300,11 @@ namespace MimeKit {
 				byte c = text[i];
 
 				if (c == 0) {
-					(nulls ??= new List<int> ()).Add (i);
+					if (nullCursor < 0)
+						nullCursor = i;
 				} else if (IsIso2022Sequence (i, out int length)) {
-					(iso2022 ??= new List<int> ()).Add (i);
+					if (iso2022Cursor < 0)
+						iso2022Cursor = i;
 
 					// Note: Step over the rest of the sequence so that its intermediate and final
 					// bytes are not considered again.
@@ -369,33 +374,77 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Attribute any recorded ISO-2022 sequences that fall within the given range to the local-part
-		/// that occupies it.
+		/// Find the next ISO-2022 shift or escape sequence beginning at or after <paramref name="from"/>
+		/// and before <paramref name="limit"/>, or -1 if there is none.
 		/// </summary>
 		/// <remarks>
-		/// Sequences claimed here are struck from the pending set so that the same bytes are not also
+		/// No sequence can begin inside another, because the intermediate and final bytes of one are
+		/// drawn from ranges that contain none of the bytes that can start one, so it is safe to begin
+		/// looking from an arbitrary position.
+		/// </remarks>
+		int NextIso2022Sequence (int from, int limit)
+		{
+			while (from < limit) {
+				int at = new ReadOnlySpan<byte> (text, from, limit - from).IndexOfAny ((byte) 0x0e, (byte) 0x0f, (byte) 0x1b);
+
+				if (at < 0)
+					break;
+
+				from += at;
+
+				if (IsIso2022Sequence (from, out int length))
+					return from;
+
+				from += Math.Max (length, 1);
+			}
+
+			return -1;
+		}
+
+		/// <summary>
+		/// Find the next null byte at or after <paramref name="from"/> and before
+		/// <paramref name="limit"/>, or -1 if there is none.
+		/// </summary>
+		int NextNullByte (int from, int limit)
+		{
+			if (from >= limit)
+				return -1;
+
+			int at = new ReadOnlySpan<byte> (text, from, limit - from).IndexOf ((byte) 0);
+
+			return at < 0 ? -1 : from + at;
+		}
+
+		/// <summary>
+		/// Attribute any ISO-2022 sequence that falls within the given range to the local-part that
+		/// occupies it.
+		/// </summary>
+		/// <remarks>
+		/// A sequence claimed here is struck from the pending set so that the same bytes are not also
 		/// described as control characters by <see cref="ReportUnattributedIso2022Sequences"/>.
 		/// </remarks>
 		/// <param name="start">The start of the local-part.</param>
 		/// <param name="end">The end of the local-part.</param>
 		void CheckIso2022LocalPart (int start, int end)
 		{
-			if (iso2022 is null)
+			if (iso2022Cursor < 0)
 				return;
 
-			for (int i = 0; i < iso2022.Count; i++) {
-				int at = iso2022[i];
+			// Note: Only the first local-part sequence is reported, so once one has been found the
+			// range no longer needs to be examined at all.
+			if (!reportedIso2022LocalPart) {
+				int at = NextIso2022Sequence (start, end);
 
-				if (at < start || at >= end)
-					continue;
-
-				iso2022[i] = -1;
-
-				if (!reportedIso2022LocalPart) {
+				if (at >= 0) {
 					Log (MimeComplianceViolation.Iso2022SequenceInLocalPart, at);
 					reportedIso2022LocalPart = true;
 				}
 			}
+
+			// Note: Local-parts are visited in increasing order, so a pending sequence that this one
+			// accounts for can never be wanted again and the cursor only ever moves forward.
+			if (iso2022Cursor >= start && iso2022Cursor < end)
+				iso2022Cursor = NextIso2022Sequence (end, endIndex);
 		}
 
 		/// <summary>
@@ -408,47 +457,43 @@ namespace MimeKit {
 		/// </remarks>
 		void ReportUnattributedIso2022Sequences ()
 		{
-			if (iso2022 is null || reportedControlCharacter)
+			if (iso2022Cursor < 0 || reportedControlCharacter)
 				return;
 
-			for (int i = 0; i < iso2022.Count; i++) {
-				if (iso2022[i] < 0)
-					continue;
-
-				Log (MimeComplianceViolation.ControlCharacterInAddress, iso2022[i]);
-				reportedControlCharacter = true;
-				break;
-			}
+			Log (MimeComplianceViolation.ControlCharacterInAddress, iso2022Cursor);
+			reportedControlCharacter = true;
 		}
 
 		/// <summary>
-		/// Attribute any recorded null bytes that fall within the given range to the display-name that
-		/// occupies it.
+		/// Attribute any null byte that falls within the given range to the display-name that occupies
+		/// it.
 		/// </summary>
 		/// <remarks>
-		/// Null bytes claimed here are struck from the pending set so that the same bytes are not also
-		/// described as addr-spec nulls by <see cref="ReportUnattributedNullBytes"/>.
+		/// A null byte claimed here is struck from the pending set so that the same byte is not also
+		/// described as an addr-spec null by <see cref="ReportUnattributedNullBytes"/>.
 		/// </remarks>
 		/// <param name="start">The start of the display-name.</param>
 		/// <param name="end">The end of the display-name.</param>
 		void CheckNullBytesInDisplayName (int start, int end)
 		{
-			if (nulls is null)
+			if (nullCursor < 0)
 				return;
 
-			for (int i = 0; i < nulls.Count; i++) {
-				int at = nulls[i];
+			// Note: Only the first display-name null is reported, so once one has been found the range
+			// no longer needs to be examined at all.
+			if (!reportedNullByteInDisplayName) {
+				int at = NextNullByte (start, end);
 
-				if (at < start || at >= end)
-					continue;
-
-				nulls[i] = -1;
-
-				if (!reportedNullByteInDisplayName) {
+				if (at >= 0) {
 					Log (MimeComplianceViolation.NullByteInDisplayName, at);
 					reportedNullByteInDisplayName = true;
 				}
 			}
+
+			// Note: Display-names are visited in increasing order, so a pending null that this one
+			// accounts for can never be wanted again and the cursor only ever moves forward.
+			if (nullCursor >= start && nullCursor < end)
+				nullCursor = NextNullByte (end, endIndex);
 		}
 
 		/// <summary>
@@ -463,17 +508,11 @@ namespace MimeKit {
 		/// </remarks>
 		void ReportUnattributedNullBytes ()
 		{
-			if (nulls is null || reportedNullByteInAddress)
+			if (nullCursor < 0 || reportedNullByteInAddress)
 				return;
 
-			for (int i = 0; i < nulls.Count; i++) {
-				if (nulls[i] < 0)
-					continue;
-
-				Log (MimeComplianceViolation.NullByteInAddress, nulls[i]);
-				reportedNullByteInAddress = true;
-				break;
-			}
+			Log (MimeComplianceViolation.NullByteInAddress, nullCursor);
+			reportedNullByteInAddress = true;
 		}
 
 		/// <summary>
@@ -1417,8 +1456,8 @@ namespace MimeKit {
 			endIndex = startIndex + length;
 			index = startIndex;
 
-			iso2022?.Clear ();
-			nulls?.Clear ();
+			iso2022Cursor = -1;
+			nullCursor = -1;
 			reportedControlCharacter = false;
 			reportedStrayCarriageReturn = false;
 			reportedIso2022LocalPart = false;

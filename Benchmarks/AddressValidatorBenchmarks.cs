@@ -73,6 +73,7 @@ namespace Benchmarks {
 		readonly byte[] ExtraneousCommas;
 		readonly byte[] UnbalancedAngleBrackets;
 		readonly byte[] ControlCharacters;
+		readonly byte[] NullBytes;
 		readonly byte[] Iso2022Sequences;
 
 		public AddressValidatorBenchmarks ()
@@ -106,10 +107,11 @@ namespace Benchmarks {
 
 			UnbalancedAngleBrackets = Encode (Join (", ", 500, i => $"<<u{i}@example.com>"));
 
-			// Note: Control characters and ISO-2022 sequences are recorded during an up-front scan
-			// and attributed to a token later, so these exercise the paths that allocate.
+			// Note: Control characters, null bytes and ISO-2022 sequences are recorded during an
+			// up-front scan and attributed to a token later, so these exercise the paths that allocate.
 			ControlCharacters = Encode (Join (", ", 100, i => $"a\u0001b {i} <u{i}@example.com>"));
-			Iso2022Sequences = Encode (Join (", ", 100, i => $"\u001b$B{i}\u001b(B@example.com"));
+			NullBytes = Encode (Join (", ", 500, i => $"a\0b {i} <u{i}@example.com>"));
+			Iso2022Sequences = Encode (Join (", ", 500, i => $"\u001b$B{i}\u001b(B@example.com"));
 		}
 
 		static string Join (string separator, int count, Func<int, string> selector)
@@ -210,6 +212,12 @@ namespace Benchmarks {
 		public void ControlCharactersValidate ()
 		{
 			Validate (ControlCharacters);
+		}
+
+		[Benchmark]
+		public void NullBytesValidate ()
+		{
+			Validate (NullBytes);
 		}
 
 		[Benchmark]
