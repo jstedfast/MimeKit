@@ -81,6 +81,14 @@ namespace MimeKit {
 		// an unquoted special in whatever token it interrupted.
 		bool inGroupList;
 
+		// Note: Where the last call to Log finished working out a position, so that the next one can
+		// resume from there instead of counting the lines over again from the start of the value.
+		// Violations come out in increasing order of position almost always, and a value that
+		// produces a lot of them would otherwise cost O(length x violations) just to describe.
+		int scanIndex;
+		int scanLine;
+		int scanLineBegin;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AddressValidator"/> class.
 		/// </summary>
@@ -107,21 +115,31 @@ namespace MimeKit {
 			// Note: Header values are short and violations are rare, so the position is worked out on
 			// demand rather than tracked on every advance, which would be easy to get subtly wrong.
 			// The column falls out of the same scan that counts the lines.
-			int line = lineNumber;
-			int lineBegin = -1;
+			if (at < scanIndex) {
+				// Note: A violation behind the last one, such as a group terminator reported at the
+				// ':' that opened the group once the end of the value has been reached. Rare enough
+				// that starting the scan over costs less than remembering where every line began.
+				scanIndex = startIndex;
+				scanLine = lineNumber;
+				scanLineBegin = -1;
+			}
 
-			for (int i = startIndex; i < at && i < endIndex; i++) {
+			int end = Math.Min (at, endIndex);
+
+			for (int i = scanIndex; i < end; i++) {
 				if (text[i] == (byte) '\n') {
-					line++;
-					lineBegin = i + 1;
+					scanLine++;
+					scanLineBegin = i + 1;
 				}
 			}
 
+			scanIndex = end;
+
 			// Note: Until the value has been folded, the column is still relative to the field name
 			// that preceded it on the same line.
-			int column = lineBegin < 0 ? columnNumber + (at - startIndex) : (at - lineBegin) + 1;
+			int column = scanLineBegin < 0 ? columnNumber + (at - startIndex) : (at - scanLineBegin) + 1;
 
-			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + (at - startIndex), line, column));
+			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + (at - startIndex), scanLine, column));
 		}
 
 		bool SkipWhiteSpace ()
@@ -1324,6 +1342,9 @@ namespace MimeKit {
 			reportedNullByteInAddress = false;
 			damagedLocalPart = false;
 			inGroupList = false;
+			scanIndex = startIndex;
+			scanLine = lineNumber;
+			scanLineBegin = -1;
 
 			// Note: The raw value still carries the line terminator that ended the header (and any
 			// trailing folding whitespace). That is not part of the address list, and leaving it in
