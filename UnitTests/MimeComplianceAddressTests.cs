@@ -117,6 +117,14 @@ namespace UnitTests {
 		[TestCase ("user@ex ample <user@example.com>", MimeComplianceViolation.UnquotedDisplayName)]
 		[TestCase ("us..er@example.com", MimeComplianceViolation.InvalidLocalPart)]
 		[TestCase ("user.@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("a[b@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("a]b@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("a)b@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("a\\b@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("a b@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("a;b@example.com", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("<abc<def@example.com>", MimeComplianceViolation.InvalidLocalPart)]
+		[TestCase ("<a;b@example.com>", MimeComplianceViolation.InvalidLocalPart)]
 		[TestCase ("a@example.com b@example.com", MimeComplianceViolation.MissingAddressSeparator)]
 		[TestCase ("a@example.com,, b@example.com", MimeComplianceViolation.ExtraneousCommaInAddressList)]
 		[TestCase ("a@example.com,", MimeComplianceViolation.ExtraneousCommaInAddressList)]
@@ -722,6 +730,64 @@ namespace UnitTests {
 
 			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.InvalidLocalPart));
 			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.ObsoleteRouteAddress));
+		}
+
+		// Note: An unquoted special ends the local-part where it appears, leaving the rest of the
+		// address with no production that can consume it. The damage is the character itself, so it is
+		// reported once and does not cascade into list-level violations describing a missing comma or
+		// an ambiguous boundary that the sender never created.
+		[TestCase ("a[b@example.com")]
+		[TestCase ("a]b@example.com")]
+		[TestCase ("a)b@example.com")]
+		[TestCase ("a\\b@example.com")]
+		[TestCase ("a b@example.com")]
+		[TestCase ("a;b@example.com")]
+		public void TestDamagedLocalPartDoesNotCascade (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] { MimeComplianceViolation.InvalidLocalPart }),
+				$"Expected only InvalidLocalPart for \"{value}\" but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		[Test]
+		public void TestDamagedLocalPartIsReportedAtTheOffendingCharacter ()
+		{
+			var issues = Validate ("To", "a[b@example.com");
+			var issue = issues.Single ();
+
+			// "To: a" is five bytes, so the '[' is the sixth.
+			Assert.That (issue.StreamOffset, Is.EqualTo (5));
+		}
+
+		[Test]
+		public void TestDamagedLocalPartDoesNotSuppressOtherAddresses ()
+		{
+			// Note: Only the damaged element is reported; the well-formed neighbours on either side of
+			// it stay silent, and resynchronization does not lose them.
+			var issues = Validate ("To", "a@example.com, x[y@example.com, c@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] { MimeComplianceViolation.InvalidLocalPart }));
+		}
+
+		[Test]
+		public void TestSemicolonOnlyDelimitsInsideAGroup ()
+		{
+			// Note: rfc5322 address-list is comma-separated, so outside a group there is nothing for a
+			// ';' to delimit and it damages whatever token it interrupts. Inside a group-list it is the
+			// terminator, so the same bytes describe an address that simply has no domain.
+			AssertViolation ("a;b@example.com", MimeComplianceViolation.InvalidLocalPart);
+			AssertViolation ("Friends: a;b@example.com;", MimeComplianceViolation.AddressWithoutDomain);
+		}
+
+		[Test]
+		public void TestMissingSeparatorSurvivesAnUndamagedLocalPart ()
+		{
+			// Note: Suppression is keyed to the local-part being damaged, so a genuine missing comma
+			// between two well-formed addresses is still reported.
+			var issues = Validate ("To", "a@example.com b@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.MissingAddressSeparator));
 		}
 
 		[Test]

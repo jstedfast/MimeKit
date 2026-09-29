@@ -1,4 +1,4 @@
-//
+﻿//
 // AddressValidator.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -70,6 +70,16 @@ namespace MimeKit {
 		bool reportedIso2022LocalPart;
 		bool reportedNullByteInDisplayName;
 		bool reportedNullByteInAddress;
+
+		// Note: Whether the address currently being scanned was cut short by a damaged local-part.
+		// Set by LogDamagedLocalPart and cleared at the start of each address, it tells the list loops
+		// that the character the scan stopped on has already been accounted for.
+		bool damagedLocalPart;
+
+		// Note: Whether scanning is inside a group-list. A ';' ends a group, but rfc5322 address-list
+		// is comma-separated only, so outside a group there is nothing for a ';' to delimit and it is
+		// an unquoted special in whatever token it interrupted.
+		bool inGroupList;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AddressValidator"/> class.
@@ -552,6 +562,31 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Report a local-part that was cut short by a character no addr-spec production can contain.
+		/// </summary>
+		/// <remarks>
+		/// <para>The local-part ended somewhere other than at an <c>@</c>, a list delimiter or the end of
+		/// the value, which means an unquoted special landed inside it: <c>a[b@example.com</c>,
+		/// <c>a\b@example.com</c>, <c>a b@example.com</c>. Quoting it, as section 3.4.1 of rfc5322
+		/// requires, would have made all of these legal.</para>
+		/// <para>This also suppresses the missing-separator report for the address, because the two
+		/// findings are mutually exclusive descriptions of the same character rather than two faults.
+		/// The scan stops mid-token, so the character it stopped on is whatever damaged the local-part,
+		/// not the place a comma was left out -- there is no second address for a comma to have
+		/// separated.</para>
+		/// <para>Resynchronization steps over that character when it is a list separator, since
+		/// <see cref="SkipToNextPossibleAddress"/> halts on one and would otherwise hand the same
+		/// already-reported byte back to the list loop as the start of another address. Anything else
+		/// it can skip on its own.</para>
+		/// </remarks>
+		/// <param name="at">The offset of the character that ended the local-part.</param>
+		void LogDamagedLocalPart (int at)
+		{
+			Log (MimeComplianceViolation.InvalidLocalPart, at);
+			damagedLocalPart = true;
+		}
+
+		/// <summary>
 		/// Determine whether the given range contains a '&lt;' that opens an angle-addr.
 		/// </summary>
 		/// <remarks>
@@ -804,10 +839,10 @@ namespace MimeKit {
 			if (index >= endIndex || text[index] != (byte) '@') {
 				// Note: An addr-spec with no domain. Inside an angle-addr this is still a naked
 				// local-part; outside of one it is section 7.1.7 of rfc7103.
-				if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) ';' || (inAngleAddr && text[index] == (byte) '>'))
+				if (index >= endIndex || text[index] == (byte) ',' || (inGroupList && text[index] == (byte) ';') || (inAngleAddr && text[index] == (byte) '>'))
 					Log (MimeComplianceViolation.AddressWithoutDomain, start);
 				else
-					Log (MimeComplianceViolation.NonConformantAddress, index);
+					LogDamagedLocalPart (index);
 
 				return;
 			}
@@ -962,6 +997,19 @@ namespace MimeKit {
 			// skip over the ':'
 			index++;
 
+			bool wasInGroupList = inGroupList;
+
+			inGroupList = true;
+
+			try {
+				ValidateGroupList (start);
+			} finally {
+				inGroupList = wasInGroupList;
+			}
+		}
+
+		void ValidateGroupList (int start)
+		{
 			do {
 				if (!SkipCFWS ())
 					return;
@@ -982,6 +1030,8 @@ namespace MimeKit {
 				}
 
 				int before = index;
+
+				damagedLocalPart = false;
 
 				if (!ValidateAddress (true))
 					return;
@@ -1005,7 +1055,11 @@ namespace MimeKit {
 				}
 
 				if (text[index] != (byte) ',') {
-					LogMissingAddressSeparator (before);
+					if (!damagedLocalPart)
+						LogMissingAddressSeparator (before);
+					else if (IsAddressListSeparator (text[index]))
+						index++;
+
 					SkipToNextPossibleAddress ();
 					continue;
 				}
@@ -1268,6 +1322,8 @@ namespace MimeKit {
 			reportedIso2022LocalPart = false;
 			reportedNullByteInDisplayName = false;
 			reportedNullByteInAddress = false;
+			damagedLocalPart = false;
+			inGroupList = false;
 
 			// Note: The raw value still carries the line terminator that ended the header (and any
 			// trailing folding whitespace). That is not part of the address list, and leaving it in
@@ -1328,6 +1384,8 @@ namespace MimeKit {
 
 				int before = index;
 
+				damagedLocalPart = false;
+
 				if (!ValidateAddress (false))
 					return;
 
@@ -1347,7 +1405,11 @@ namespace MimeKit {
 					break;
 
 				if (text[index] != (byte) ',') {
-					LogMissingAddressSeparator (before);
+					if (!damagedLocalPart)
+						LogMissingAddressSeparator (before);
+					else if (IsAddressListSeparator (text[index]))
+						index++;
+
 					SkipToNextPossibleAddress ();
 					continue;
 				}

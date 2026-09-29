@@ -996,7 +996,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.AddressInGroupDisplayName:
 				return "A group name such as the one in \"\\\"admin@example.com\\\": attacker@example.org;\" is legal, but software that shows the group name in place of its members will present a mailbox that is not in the group. A group name is a label, not a recipient.";
 			case MimeComplianceViolation.InvalidLocalPart:
-				return "A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as \"first..last\" and \"first.\" are not valid. Receiving systems differ over whether to reject such an address, strip the offending dots, or pass the local-part through verbatim.";
+				return "A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as \"first..last\" and \"first.\" are not valid. This is also reported when an unquoted special appears inside the local-part, as in \"a[b@example.com\" or \"a b@example.com\": section 3.4.1 of rfc5322 admits such characters only inside a quoted-string, so the local-part ends at the offending character and the rest of the address is left with no production that can consume it. Receiving systems differ over whether to reject such an address, strip the offending characters, or pass the local-part through verbatim.";
 			case MimeComplianceViolation.MissingAddressSeparator:
 				return "Section 7.1.5 of rfc7103 describes address lists such as \"a@example.com b@example.com\". A parser must guess whether this is two addresses or one address with a malformed display-name, and the two readings produce different sets of recipients.";
 			case MimeComplianceViolation.AmbiguousMailboxBoundary:

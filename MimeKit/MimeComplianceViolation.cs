@@ -568,9 +568,14 @@ namespace MimeKit {
 		/// The local-part of an address was not a valid dot-atom or quoted-string.
 		/// </summary>
 		/// <remarks>
-		/// A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as <c>first..last</c> and
-		/// <c>first.</c> are not valid. Receiving systems differ over whether to reject such an address, strip the offending
-		/// dots, or pass the local-part through verbatim.
+		/// <para>A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as
+		/// <c>first..last</c> and <c>first.</c> are not valid.</para>
+		/// <para>This is also reported when an unquoted special appears inside the local-part, as in
+		/// <c>a[b@example.com</c> or <c>a b@example.com</c>. Section 3.4.1 of rfc5322 admits such characters
+		/// only inside a quoted-string, so the local-part ends at the offending character and the rest of
+		/// the address is left with no production that can consume it.</para>
+		/// <para>Receiving systems differ over whether to reject such an address, strip the offending
+		/// characters, or pass the local-part through verbatim.</para>
 		/// </remarks>
 		InvalidLocalPart                            = 44,
 
