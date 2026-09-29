@@ -69,6 +69,7 @@ namespace MimeKit.Encodings {
 		UUValidatorState state;
 		bool invalidPretext;
 		bool invalidFileMode;
+		bool reportedExtraData;
 		bool eoln;
 		byte nsaved;
 		byte uulen;
@@ -418,6 +419,7 @@ namespace MimeKit.Encodings {
 						if (eoln) {
 							// first octet on a line is the uulen octet
 							eoln = false;
+							reportedExtraData = false;
 
 							if (*inptr == (byte) '`') {
 								state = UUValidatorState.Ended;
@@ -459,7 +461,12 @@ namespace MimeKit.Encodings {
 
 								nsaved = 0;
 							}
-						} else {
+						} else if (!reportedExtraData) {
+							// Note: Report only the first extra octet on each line. The count of extra
+							// octets is attacker-controlled, so logging every one of them would let a
+							// crafted part emit an issue per byte of content and swamp the report.
+							reportedExtraData = true;
+
 							// extra data beyond the end of the uuencoded line
 							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedLineExtraData, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 						}

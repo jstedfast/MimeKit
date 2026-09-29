@@ -142,6 +142,20 @@ namespace UnitTests.Encodings {
 			AssertInvalidInput (text, issues);
 		}
 
+		// Note: The number of extra octets on a line is attacker-controlled, so this pins that the
+		// violation is reported once per malformed line rather than once per extra octet.
+		[Test]
+		public void TestValidateExtraLineDataReportedOncePerLine ()
+		{
+			const string text = "begin 644 t.txt\r\n#86)CXXXXXXXX\r\n#86)CYYYY\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('X'), 2, 6),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('Y'), 3, 6)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
+
 		[Test]
 		public void TestValidateInvalidDataAfterEnd ()
 		{
