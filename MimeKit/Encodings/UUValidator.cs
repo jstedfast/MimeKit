@@ -69,6 +69,12 @@ namespace MimeKit.Encodings {
 		UUValidatorState state;
 		bool invalidPretext;
 		bool invalidFileMode;
+		// Note: These latch their corresponding violation so that it is reported at most once per
+		// uuencoded line. The number of malformed octets on a line is attacker-controlled, so
+		// reporting every one of them would let a crafted part emit an issue per byte of content,
+		// swamping every other finding in the report. They are instance fields rather than locals
+		// because a malformed line can span multiple Write() calls.
+		bool reportedInvalidContent;
 		bool reportedExtraData;
 		bool eoln;
 		byte nsaved;
@@ -419,6 +425,7 @@ namespace MimeKit.Encodings {
 						if (eoln) {
 							// first octet on a line is the uulen octet
 							eoln = false;
+							reportedInvalidContent = false;
 							reportedExtraData = false;
 
 							if (*inptr == (byte) '`') {
@@ -440,7 +447,9 @@ namespace MimeKit.Encodings {
 
 						byte c = ReadByte (ref inptr);
 
-						if (c < 33 || c > 96) {
+						if ((c < 33 || c > 96) && !reportedInvalidContent) {
+							reportedInvalidContent = true;
+
 							// invalid character in uuencoded payload
 							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodedContent, streamOffset - 1, lineNumber, GetColumnNumber (streamOffset - 1)));
 						}
@@ -462,9 +471,6 @@ namespace MimeKit.Encodings {
 								nsaved = 0;
 							}
 						} else if (!reportedExtraData) {
-							// Note: Report only the first extra octet on each line. The count of extra
-							// octets is attacker-controlled, so logging every one of them would let a
-							// crafted part emit an issue per byte of content and swamp the report.
 							reportedExtraData = true;
 
 							// extra data beyond the end of the uuencoded line
