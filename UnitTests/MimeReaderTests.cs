@@ -1340,6 +1340,47 @@ This is the second inner message body.
 			return AssertMimeComplianceViolationsAsync ("raw-utf8-header.eml", issues);
 		}
 
+		// Note: The 8-bit bytes live on a folded continuation line rather than on the line that
+		// starts the header. The violation is still attributed to the beginning of the header,
+		// because the value can only be validated once it has been unfolded in its entirety.
+		[Test]
+		public void TestMimeComplianceUnexpected8BitBytesInFoldedHeader ()
+		{
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
+			};
+
+			AssertMimeComplianceViolations ("8bit-folded-header.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceUnexpected8BitBytesInFoldedHeaderAsync ()
+		{
+			var issues = new ExpectedMimeComplianceIssue[] {
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1)
+			};
+
+			return AssertMimeComplianceViolationsAsync ("8bit-folded-header.eml", issues);
+		}
+
+		// Note: UTF-8 is legal in headers per rfc6532, so a folded continuation line containing
+		// valid UTF-8 must not be reported even though it is not US-ASCII.
+		[Test]
+		public void TestMimeComplianceValid8BitBytesInFoldedHeader ()
+		{
+			var issues = Array.Empty<ExpectedMimeComplianceIssue> ();
+
+			AssertMimeComplianceViolations ("utf8-folded-header.eml", issues);
+		}
+
+		[Test]
+		public Task TestMimeComplianceValid8BitBytesInFoldedHeaderAsync ()
+		{
+			var issues = Array.Empty<ExpectedMimeComplianceIssue> ();
+
+			return AssertMimeComplianceViolationsAsync ("utf8-folded-header.eml", issues);
+		}
+
 		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInBody ()
 		{
