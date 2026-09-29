@@ -57,6 +57,7 @@ namespace UnitTests {
 			MimeComplianceViolation.MissingGroupTerminator,
 			MimeComplianceViolation.NonConformantAddress,
 			MimeComplianceViolation.NullByteInAddress,
+			MimeComplianceViolation.NullByteInDisplayName,
 			MimeComplianceViolation.LineBreakInAddress,
 			MimeComplianceViolation.ControlCharacterInAddress,
 			MimeComplianceViolation.Iso2022SequenceInLocalPart,
@@ -141,8 +142,6 @@ namespace UnitTests {
 
 		// Note: A null byte is never legal in a header, but it is reported separately when it occurs
 		// in an address because it truncates the address for anything that treats it as a C string.
-		[TestCase ("\"Jo\0hn\" <j@example.com>")]
-		[TestCase ("Jo\0hn <j@example.com>")]
 		[TestCase ("us\0er@example.com")]
 		[TestCase ("user@exa\0mple.com")]
 		[TestCase ("<us\0er@example.com>")]
@@ -159,6 +158,34 @@ namespace UnitTests {
 				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
 		}
 
+		// Note: A null byte in a display-name truncates what is displayed rather than what is routed,
+		// so it is described separately from one in an addr-spec.
+		[TestCase ("\"Jo\0hn\" <j@example.com>")]
+		[TestCase ("Jo\0hn <j@example.com>")]
+		[TestCase ("Gro\0up: a@example.com;")]
+		[TestCase ("\"Gro\0up\": a@example.com;")]
+		public void TestNullByteInDisplayName (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.NullByteInDisplayName));
+
+			Assert.That (issues, Has.Count.EqualTo (1),
+				$"Expected exactly one violation but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		[Test]
+		public void TestNullByteInDisplayNameDoesNotHideOneInTheAddress ()
+		{
+			// Note: The two describe different halves of the address, so neither substitutes for the
+			// other when both are present.
+			var issues = Validate ("To", "Jo\0hn <j\0oe@example.com>");
+			var violations = issues.Select (i => i.Violation).ToList ();
+
+			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.NullByteInDisplayName));
+			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.NullByteInAddress));
+		}
+
 		[Test]
 		public void TestInjectionPrimitivesAreCritical ()
 		{
@@ -166,6 +193,7 @@ namespace UnitTests {
 			// requirements of the channel, so they are rated the same in both contexts.
 			var violations = new [] {
 				MimeComplianceViolation.NullByteInAddress,
+				MimeComplianceViolation.NullByteInDisplayName,
 				MimeComplianceViolation.LineBreakInAddress
 			};
 

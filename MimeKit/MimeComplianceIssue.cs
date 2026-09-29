@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeComplianceIssue.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -460,6 +460,7 @@ namespace MimeKit {
 			// input concatenated into a header produces. In each case two components can be made to
 			// read different mailboxes, or different message boundaries, out of the same header.
 			case MimeComplianceViolation.NullByteInAddress:
+			case MimeComplianceViolation.NullByteInDisplayName:
 			case MimeComplianceViolation.LineBreakInAddress:
 			// Note: An unterminated token consumes the rest of the header value, so whatever follows
 			// it is not parsed as an address and nothing reports an error. An unterminated quote can
@@ -670,6 +671,7 @@ namespace MimeKit {
 				return Interop;
 
 			case MimeComplianceViolation.NullByteInAddress:
+			case MimeComplianceViolation.NullByteInDisplayName:
 			case MimeComplianceViolation.LineBreakInAddress:
 				return Interop | DataLoss | Security;
 
@@ -843,6 +845,8 @@ namespace MimeKit {
 				return "An address did not conform to the address syntax defined by rfc5322.";
 			case MimeComplianceViolation.NullByteInAddress:
 				return "An address contained a null byte.";
+			case MimeComplianceViolation.NullByteInDisplayName:
+				return "The display-name of an address or group contained a null byte.";
 			case MimeComplianceViolation.LineBreakInAddress:
 				return "A line break appeared inside a local-part or domain.";
 			case MimeComplianceViolation.ControlCharacterInAddress:
@@ -1019,8 +1023,10 @@ namespace MimeKit {
 				return "This is the general case, used when an address departs from the grammar in a way that none of the more specific violations describes. Receiving systems differ widely in how much malformed syntax they will accept and in how they repair what they accept, so an address that only some implementations can read may resolve to different mailboxes, or to none at all, depending on which software handles the message.";
 			case MimeComplianceViolation.NullByteInAddress:
 				return "A null byte is not permitted anywhere in a header, but inside an address it is more dangerous than elsewhere. Software written in or interfacing with C treats a null as a string terminator, so an address such as \"us<NUL>er@example.com\" may be read as the complete address \"us\" by one component and as \"user@example.com\" by another. That disagreement is the point of the construct: a filter, an audit log and the delivering agent can each be made to see a different mailbox from the same header. This is reported in addition to UnexpectedNullBytesInHeader, which identifies only the line that the null byte appeared on.";
-			case MimeComplianceViolation.LineBreakInAddress:
-				return "Folding whitespace is permitted around the tokens of an address, but the dot-atom-text production in section 3.2.3 of rfc5322 admits none inside a local-part or domain, so a line break within one of those tokens cannot be produced by a conforming mailer. It is most often seen when an application has concatenated unvalidated input into a header, which is the header injection technique described in section 5 of rfc5321: the attacker supplies a line break in the hope that some component in the chain will treat what follows as a new header or a new command. Even where that fails, implementations differ on whether to unfold, reject or truncate the address, so the recipient that is finally used may not be the one an auditor sees. A line break inside a quoted local-part is also reported, even though section 3.2.4 of rfc5322 permits folding whitespace inside a quoted-string, because a quoted local-part is rare enough that implementations mishandle it in practice.";
+							case MimeComplianceViolation.NullByteInDisplayName:
+								return "This is reported instead of NullByteInAddress when the null falls in a display-name rather than in an addr-spec, because the two call for different handling: a display-name is presentation and can be discarded without affecting delivery, whereas an addr-spec cannot. The danger is correspondingly different rather than smaller. The mailbox is unambiguous, but a client that stops at the null shows a different name than one that does not, so \"Bank<NUL>evil\" can be made to read as \"Bank\" in the message list and as something else in a filter or an audit log. This is reported in addition to UnexpectedNullBytesInHeader, which identifies only the line that the null byte appeared on.";
+							case MimeComplianceViolation.LineBreakInAddress:
+								return "Folding whitespace is permitted around the tokens of an address, but the dot-atom-text production in section 3.2.3 of rfc5322 admits none inside a local-part or domain, so a line break within one of those tokens cannot be produced by a conforming mailer. It is most often seen when an application has concatenated unvalidated input into a header, which is the header injection technique described in section 5 of rfc5321: the attacker supplies a line break in the hope that some component in the chain will treat what follows as a new header or a new command. Even where that fails, implementations differ on whether to unfold, reject or truncate the address, so the recipient that is finally used may not be the one an auditor sees. A line break inside a quoted local-part is also reported, even though section 3.2.4 of rfc5322 permits folding whitespace inside a quoted-string, because a quoted local-part is rare enough that implementations mishandle it in practice.";
 			case MimeComplianceViolation.ControlCharacterInAddress:
 				return "The atom, quoted-string and domain-literal productions in rfc5322 are all built from printable characters and whitespace, so a control character such as ESC or DEL can only have been introduced deliberately or by a mangled encoding. Control characters are stripped by some implementations and preserved by others, so the address may name a different mailbox depending on which software resolves it, and an escape sequence that survives into a log or a terminal-based mail client may be interpreted there rather than displayed.";
 			case MimeComplianceViolation.Iso2022SequenceInLocalPart:

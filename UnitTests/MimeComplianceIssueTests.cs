@@ -292,6 +292,7 @@ namespace UnitTests {
 				MimeComplianceViolation.UnexpectedNullBytesInHeader,
 				MimeComplianceViolation.UnexpectedNullBytesInBody,
 				MimeComplianceViolation.NullByteInAddress,
+				MimeComplianceViolation.NullByteInDisplayName,
 				MimeComplianceViolation.LineBreakInAddress,
 
 				// Note: These two are data loss rather than ambiguity. An unterminated token eats
@@ -509,6 +510,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.MissingGroupTerminator, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.NonConformantAddress, Interop },
 				{ MimeComplianceViolation.NullByteInAddress, Interop | DataLoss | Security },
+				{ MimeComplianceViolation.NullByteInDisplayName, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.LineBreakInAddress, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.ControlCharacterInAddress, Interop | Security },
 				{ MimeComplianceViolation.Iso2022SequenceInLocalPart, Interop },

@@ -60,9 +60,16 @@ namespace MimeKit {
 		// be described depends on where they turn out to be, which is not known until the value has
 		// been parsed. This stays null for the overwhelming majority of values, which contain none.
 		List<int>? iso2022;
+
+		// Note: The positions of the null bytes that ScanForControlCharacters found, held back for the
+		// same reason as the ISO-2022 sequences above: a null in a display-name is described differently
+		// from one in an addr-spec, and which it is cannot be known until the value has been parsed.
+		List<int>? nulls;
 		bool reportedControlCharacter;
 		bool reportedStrayCarriageReturn;
 		bool reportedIso2022LocalPart;
+		bool reportedNullByteInDisplayName;
+		bool reportedNullByteInAddress;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AddressValidator"/> class.
@@ -212,11 +219,12 @@ namespace MimeKit {
 		/// local-part they are a legacy Japanese mailer convention rather than an arbitrary control
 		/// character, and telling the two apart needs the parse, so the decision is deferred to
 		/// <see cref="CheckIso2022LocalPart"/> and <see cref="ReportUnattributedIso2022Sequences"/>.</para>
+		/// <para>Null bytes are recorded rather than reported for the same reason: one in a display-name
+		/// is described differently from one in an addr-spec, so the decision is deferred to
+		/// <see cref="CheckNullBytesInDisplayName"/> and <see cref="ReportUnattributedNullBytes"/>.</para>
 		/// </remarks>
 		void ScanForControlCharacters ()
 		{
-			bool reportedNull = false;
-
 			// Note: This no longer stops as soon as one of each class has been reported, because every
 			// ISO-2022 sequence has to be recorded in order to be attributed later. Header values are
 			// short enough that scanning the rest of one costs nothing worth saving.
@@ -224,10 +232,7 @@ namespace MimeKit {
 				byte c = text[i];
 
 				if (c == 0) {
-					if (!reportedNull) {
-						Log (MimeComplianceViolation.NullByteInAddress, i);
-						reportedNull = true;
-					}
+					(nulls ??= new List<int> ()).Add (i);
 				} else if (IsIso2022Sequence (i, out int length)) {
 					(iso2022 ??= new List<int> ()).Add (i);
 
@@ -347,6 +352,61 @@ namespace MimeKit {
 
 				Log (MimeComplianceViolation.ControlCharacterInAddress, iso2022[i]);
 				reportedControlCharacter = true;
+				break;
+			}
+		}
+
+		/// <summary>
+		/// Attribute any recorded null bytes that fall within the given range to the display-name that
+		/// occupies it.
+		/// </summary>
+		/// <remarks>
+		/// Null bytes claimed here are struck from the pending set so that the same bytes are not also
+		/// described as addr-spec nulls by <see cref="ReportUnattributedNullBytes"/>.
+		/// </remarks>
+		/// <param name="start">The start of the display-name.</param>
+		/// <param name="end">The end of the display-name.</param>
+		void CheckNullBytesInDisplayName (int start, int end)
+		{
+			if (nulls is null)
+				return;
+
+			for (int i = 0; i < nulls.Count; i++) {
+				int at = nulls[i];
+
+				if (at < start || at >= end)
+					continue;
+
+				nulls[i] = -1;
+
+				if (!reportedNullByteInDisplayName) {
+					Log (MimeComplianceViolation.NullByteInDisplayName, at);
+					reportedNullByteInDisplayName = true;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Report the first null byte that did not turn out to be inside a display-name as an addr-spec
+		/// null byte.
+		/// </summary>
+		/// <remarks>
+		/// This has to run after the parse, because nothing before it can say where a null byte ended
+		/// up, but it runs on every exit path so that the finding still survives a parse that gave up
+		/// early. A null byte that the parse never reached is reported here too: it is not in any
+		/// display-name, and the addr-spec description is the more serious of the two.
+		/// </remarks>
+		void ReportUnattributedNullBytes ()
+		{
+			if (nulls is null || reportedNullByteInAddress)
+				return;
+
+			for (int i = 0; i < nulls.Count; i++) {
+				if (nulls[i] < 0)
+					continue;
+
+				Log (MimeComplianceViolation.NullByteInAddress, nulls[i]);
+				reportedNullByteInAddress = true;
 				break;
 			}
 		}
@@ -994,6 +1054,8 @@ namespace MimeKit {
 					Log (MimeComplianceViolation.AddressInGroupDisplayName, start);
 				}
 
+				CheckNullBytesInDisplayName (start, index);
+
 				ValidateGroup (unquotedSpecial, specialIndex);
 				return true;
 			}
@@ -1004,6 +1066,8 @@ namespace MimeKit {
 
 				if (hasContent && ContainsAddrspec (start, index))
 					Log (MimeComplianceViolation.AddressInDisplayName, start);
+
+				CheckNullBytesInDisplayName (start, index);
 
 				ValidateAngleAddr ();
 				return true;
@@ -1198,9 +1262,12 @@ namespace MimeKit {
 			index = startIndex;
 
 			iso2022?.Clear ();
+			nulls?.Clear ();
 			reportedControlCharacter = false;
 			reportedStrayCarriageReturn = false;
 			reportedIso2022LocalPart = false;
+			reportedNullByteInDisplayName = false;
+			reportedNullByteInAddress = false;
 
 			// Note: The raw value still carries the line terminator that ended the header (and any
 			// trailing folding whitespace). That is not part of the address list, and leaving it in
@@ -1220,9 +1287,11 @@ namespace MimeKit {
 
 			ValidateAddressList ();
 
-			// Note: This has to run after the parse, because until then there is no telling which of
-			// the recorded ISO-2022 sequences landed in a local-part.
+			// Note: These have to run after the parse, because until then there is no telling which of
+			// the recorded ISO-2022 sequences landed in a local-part, or which null bytes landed in a
+			// display-name.
 			ReportUnattributedIso2022Sequences ();
+			ReportUnattributedNullBytes ();
 		}
 
 		/// <summary>
