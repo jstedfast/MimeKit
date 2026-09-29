@@ -63,15 +63,30 @@ namespace MimeKit {
 
 		// Note: The complement of IsAtomOrControl, which is what SkipAtom stops on. It is derived from
 		// that method rather than written out so that the two cannot drift apart.
-		static readonly SearchValues<byte> NotAtomOrControl = SearchValues.Create (BuildNotAtomOrControl ());
+		static readonly SearchValues<byte> NotAtomOrControl = SearchValues.Create (Complement (IsAtomOrControl));
 
-		static byte[] BuildNotAtomOrControl ()
+		// Note: The complement of the bytes a phrase can be built out of, which is where an unquoted
+		// special begins, and the complement of folding whitespace, which is where a phrase's first
+		// word begins. Both are derived from the same predicates the token scan uses.
+		static readonly SearchValues<byte> NotPhraseText = SearchValues.Create (Complement (c => IsAtomOrControl (c) || c.IsWhitespace ()));
+		static readonly SearchValues<byte> NotWhiteSpace = SearchValues.Create (Complement (c => c.IsWhitespace ()));
+
+		// Note: The bytes that decide the shape of a phrase: the ones that open a quoted-string, a
+		// comment or a domain-literal, and the ones that can terminate the phrase. Everything else --
+		// atom text, whitespace, '@', '.' and the bytes no production can consume -- is passed over
+		// without changing the outcome, so finding the first of these answers "is this token a bare
+		// addr-spec?" in a single vectorized scan.
+		static readonly SearchValues<byte> PhraseStructure = SearchValues.Create ([
+			(byte) '"', (byte) '(', (byte) '[', (byte) '<', (byte) ':', (byte) ',', (byte) ';', (byte) '>'
+		]);
+
+		static byte[] Complement (Func<byte, bool> predicate)
 		{
 			var bytes = new byte[256];
 			int n = 0;
 
 			for (int c = 0; c < 256; c++) {
-				if (!IsAtomOrControl ((byte) c))
+				if (!predicate ((byte) c))
 					bytes[n++] = (byte) c;
 			}
 
@@ -1065,6 +1080,81 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Try to scan a phrase without walking it token by token, returning <see langword="false"/> if
+		/// it holds something that only the full scan can make sense of.
+		/// </summary>
+		/// <remarks>
+		/// <para>A leading token has to be scanned before it is known whether it is a display-name or an
+		/// addr-spec, and <see cref="ScanPhrase"/> pays for that by walking every token in it. Almost
+		/// none of that walk is load-bearing: of everything it looks at, only a quoted-string, a comment
+		/// or a domain-literal can hide the terminator, and only '&lt;' and ':' select a path that reads
+		/// what it recorded along the way.</para>
+		/// <para>So the first byte from either of those two groups decides everything. If it opens a
+		/// quoted-string, a comment or a domain-literal, this gives up and the full scan runs. If it is
+		/// a ',', ';' or '&gt;' -- or there is none at all -- the phrase is really an addr-spec, which
+		/// <see cref="ValidateAddrspec"/> is about to re-read from the beginning anyway, so nothing more
+		/// needs to be worked out here. Otherwise the phrase is a display-name made only of atoms,
+		/// whitespace and unquoted specials, and both findings about it can be had from a further scan
+		/// apiece rather than from a walk.</para>
+		/// </remarks>
+		/// <param name="unquotedSpecial">Whether the phrase contained a character that would have had to be quoted.</param>
+		/// <param name="specialIndex">The index of the first such character.</param>
+		/// <param name="hasContent">Whether the phrase contained anything at all besides comments and whitespace.</param>
+		bool TryScanPhrase (out bool unquotedSpecial, out int specialIndex, out bool hasContent)
+		{
+			unquotedSpecial = false;
+			specialIndex = -1;
+			hasContent = false;
+
+#if NET8_0_OR_GREATER
+			int start = index;
+			var remaining = new ReadOnlySpan<byte> (text, index, endIndex - index);
+			int at = remaining.IndexOfAny (PhraseStructure);
+
+			if (at < 0) {
+				index = endIndex;
+				skippedComment = false;
+				RecordPhraseExtent (start, true, true);
+				return true;
+			}
+
+			byte c = text[index + at];
+
+			if (c == (byte) '"' || c == (byte) '(' || c == (byte) '[')
+				return false;
+
+			index += at;
+			skippedComment = false;
+
+			if (c != (byte) '<' && c != (byte) ':') {
+				// Note: A ',', ';' or '>' means the phrase was an addr-spec, and ValidateAddress reads
+				// none of the findings below on those paths. They are left at their defaults rather
+				// than computed so that the common case costs a single scan.
+				RecordPhraseExtent (start, true, true);
+				return true;
+			}
+
+			var phrase = remaining.Slice (0, at);
+			int special = phrase.IndexOfAny (NotPhraseText);
+
+			if (special >= 0) {
+				unquotedSpecial = true;
+				specialIndex = start + special;
+				hasContent = true;
+			} else {
+				hasContent = phrase.IndexOfAny (NotWhiteSpace) >= 0;
+			}
+
+			// Note: RecordPhraseExtent is deliberately not called. A '<' or ':' terminator makes the
+			// extent unusable as a memo; see RecordPhraseExtent for why.
+
+			return true;
+#else
+			return false;
+#endif
+		}
+
+		/// <summary>
 		/// Scan a phrase, recording whether it contained a character that would have had to be quoted.
 		/// </summary>
 		/// <remarks>
@@ -1244,7 +1334,7 @@ namespace MimeKit {
 				// Note: The phrase ahead has already been scanned and is known to end here. See
 				// RecordPhraseExtent() for why this is safe and why ':' and '<' cannot reach it.
 				index = phraseEnd;
-			} else if (!ScanPhrase (out unquotedSpecial, out specialIndex, out hasContent)) {
+			} else if (!TryScanPhrase (out unquotedSpecial, out specialIndex, out hasContent) && !ScanPhrase (out unquotedSpecial, out specialIndex, out hasContent)) {
 				return false;
 			}
 
