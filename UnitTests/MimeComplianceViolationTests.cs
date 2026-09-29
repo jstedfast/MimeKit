@@ -38,6 +38,13 @@ namespace UnitTests {
 		// A new violation must take the next unused value. It does not have to be declared last --
 		// the enumeration groups members by subject matter -- but it must never reuse a value, be
 		// given a value in the middle, or cause an existing member to be renumbered.
+		//
+		// The one exception is a violation that has not yet shipped in a release. Nothing can have
+		// been compiled or persisted against a value that was never published, so an unreleased
+		// member may be inserted into its subject-matter group and the members after it renumbered
+		// to match. Update this table in the same commit; it is what makes such a change deliberate
+		// rather than accidental. Once the enumeration ships, the rule above applies without
+		// exception and grouping gives way to appending.
 		static readonly Dictionary<MimeComplianceViolation, int> ExpectedValues = new () {
 			{ MimeComplianceViolation.None, 0 },
 			{ MimeComplianceViolation.BareLinefeedInHeader, 1 },
