@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Runtime.CompilerServices;
 
 using MimeKit;
@@ -41,6 +42,7 @@ namespace Benchmarks.Encodings {
 		const int ChunkSize = 4096;
 
 		readonly byte[] QuotedPrintableData, Base64Data, UUEncodedData;
+		readonly byte[] UUInvalidContentData, UUExtraLineData, UUSingleLongLineData;
 		readonly NullMimeComplianceLogger logger = new NullMimeComplianceLogger ();
 
 		public EncodingValidatorBenchmarks ()
@@ -54,6 +56,37 @@ namespace Benchmarks.Encodings {
 			// comparable with the base64 and uuencoded content, so quoted-printable encode a
 			// repeated copy of the original text in order to get a similarly sized document.
 			QuotedPrintableData = GetQuotedPrintableData (Path.Combine (dataDir, "wikipedia.txt"), 512);
+
+			// Note: The validators are the first thing to see untrusted content, so the malformed
+			// cases matter as much as the well-formed ones. These are all sized to match photo.uu
+			// so that they can be compared directly against UUValidate.
+			UUInvalidContentData = GetMalformedUUEncodedData (UUEncodedData.Length, 60, 0, 'a');
+			UUExtraLineData = GetMalformedUUEncodedData (UUEncodedData.Length, 0, 60, 'B');
+			UUSingleLongLineData = GetMalformedUUEncodedData (UUEncodedData.Length, UUEncodedData.Length, 0, 'a');
+		}
+
+		// Note: Builds a uuencoded document whose payload lines each carry `invalid` octets outside
+		// the valid 33..96 payload range followed by `extra` octets beyond the declared line length.
+		// Passing an `invalid` count larger than a line can hold yields a single very long line,
+		// which is the shape an attacker would use to maximize the validator's workload.
+		static byte[] GetMalformedUUEncodedData (int size, int invalid, int extra, char fill)
+		{
+			var builder = new StringBuilder ("begin 644 photo.jpg\r\n");
+
+			while (builder.Length < size) {
+				// 'M' declares 45 octets, which is a full 60 character line.
+				builder.Append ('M');
+				builder.Append (fill, invalid > 0 ? invalid : 60);
+
+				if (extra > 0)
+					builder.Append (fill, extra);
+
+				builder.Append ("\r\n");
+			}
+
+			builder.Append ("`\r\nend\r\n");
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
 		}
 
 		static byte[] GetQuotedPrintableData (string path, int repeat)
@@ -115,6 +148,24 @@ namespace Benchmarks.Encodings {
 		public void UUValidate ()
 		{
 			Validate (UUEncodedData, new UUValidator (logger, MimeComplianceContext.Transport, 0, 1));
+		}
+
+		[Benchmark]
+		public void UUValidateInvalidContent ()
+		{
+			Validate (UUInvalidContentData, new UUValidator (logger, MimeComplianceContext.Transport, 0, 1));
+		}
+
+		[Benchmark]
+		public void UUValidateExtraLineData ()
+		{
+			Validate (UUExtraLineData, new UUValidator (logger, MimeComplianceContext.Transport, 0, 1));
+		}
+
+		[Benchmark]
+		public void UUValidateSingleLongLine ()
+		{
+			Validate (UUSingleLongLineData, new UUValidator (logger, MimeComplianceContext.Transport, 0, 1));
 		}
 	}
 }

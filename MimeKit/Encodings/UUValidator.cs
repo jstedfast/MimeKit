@@ -373,33 +373,60 @@ namespace MimeKit.Encodings {
 						// octet states exactly how many of them the line is supposed to contain, so a run
 						// of them can be consumed in bulk. This avoids having to do the range check and
 						// the quantum bookkeeping one byte at a time.
-						if (!eoln && uulen > 0) {
+						// Note: When uulen is 0, the rest of the line is data beyond the declared length.
+						// Unless that has already been reported, each of those octets has to go through the
+						// per-octet path, so there is nothing to gain from scanning ahead here.
+						if (!eoln && (uulen > 0 || reportedExtraData)) {
 							int remaining = (int) (inend - inptr);
 							int count;
 
+							// Note: Once the content violation has been reported for this line, the octets
+							// that follow no longer need to be classified: the quantum bookkeeping below is
+							// the same whether or not an octet is a valid payload character, so the scan can
+							// run to the end of the line instead of stopping on every invalid octet. Without
+							// this, a line of invalid octets re-enters the scan once per byte having made no
+							// progress.
 #if NET8_0_OR_GREATER
-							int index = new ReadOnlySpan<byte> (inptr, remaining).IndexOfAnyExceptInRange ((byte) 33, (byte) 96);
+							var span = new ReadOnlySpan<byte> (inptr, remaining);
+							int index = reportedInvalidContent
+								? span.IndexOfAny ((byte) '\r', (byte) '\n')
+								: span.IndexOfAnyExceptInRange ((byte) 33, (byte) 96);
 
 							count = index < 0 ? remaining : index;
 #else
 							count = 0;
 
-							while (count < remaining && inptr[count] >= 33 && inptr[count] <= 96)
-								count++;
+							if (reportedInvalidContent) {
+								while (count < remaining && inptr[count] != (byte) '\r' && inptr[count] != (byte) '\n')
+									count++;
+							} else {
+								while (count < remaining && inptr[count] >= 33 && inptr[count] <= 96)
+									count++;
+							}
 #endif
 
-							// Each group of 4 characters encodes 3 octets, so this is the number of
-							// characters still needed in order to complete the current line.
-							int needed = (4 * ((uulen + 2) / 3)) - nsaved;
+							if (uulen > 0) {
+								// Each group of 4 characters encodes 3 octets, so this is the number of
+								// characters still needed in order to complete the current line.
+								int needed = (4 * ((uulen + 2) / 3)) - nsaved;
 
-							if (count > needed)
-								count = needed;
+								if (count > needed)
+									count = needed;
 
-							if (count > 0) {
-								int groups = (nsaved + count) / 4;
+								if (count > 0) {
+									int groups = (nsaved + count) / 4;
 
-								nsaved = (byte) ((nsaved + count) % 4);
-								uulen = (byte) (uulen >= 3 * groups ? uulen - 3 * groups : 0);
+									nsaved = (byte) ((nsaved + count) % 4);
+									uulen = (byte) (uulen >= 3 * groups ? uulen - 3 * groups : 0);
+									streamOffset += count;
+									inptr += count;
+									continue;
+								}
+							} else if (count > 0) {
+								// Note: Everything left on this line is data beyond the declared length and
+								// that has already been reported, so it can be skipped outright. The per-octet
+								// path leaves nsaved alone once uulen reaches 0, so there is no bookkeeping
+								// to preserve here.
 								streamOffset += count;
 								inptr += count;
 								continue;
