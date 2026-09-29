@@ -797,6 +797,47 @@ namespace UnitTests {
 			Assert.That (Validate ("To", "   "), Is.Empty);
 		}
 
+		// Note: A ';' outside a group terminates nothing, so it is a stray group terminator rather
+		// than a missing comma. It used to be described twice: once by the address-list loop, which
+		// took it for a separator that was never written, and again by the loop's own report for a
+		// terminator with no group. The second is the accurate one -- nothing is missing, something
+		// extra is present -- so the first was dropped.
+		[TestCase ("a@example.com;", TestName = "TestStrayTerminator_Trailing")]
+		[TestCase ("a@example.com ;", TestName = "TestStrayTerminator_TrailingAfterSpace")]
+		[TestCase ("a@example.com, b@example.com;", TestName = "TestStrayTerminator_AfterAList")]
+		[TestCase ("<a@example.com>;", TestName = "TestStrayTerminator_AfterAngleAddr")]
+		[TestCase ("A <a@example.com>;", TestName = "TestStrayTerminator_AfterNameAddr")]
+		[TestCase ("Friends: a@example.com;;", TestName = "TestStrayTerminator_PastAClosedGroup")]
+		public void TestStrayGroupTerminatorIsReportedOnce (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] { MimeComplianceViolation.NonConformantAddress }),
+				$"Expected a single report for \"{value}\" but got: {string.Join (", ", issues.Select (i => $"{i.Violation}@{i.StreamOffset}"))}");
+		}
+
+		[Test]
+		public void TestStrayGroupTerminatorIsNotAnAmbiguousBoundary ()
+		{
+			// Note: The ambiguity report rides along with the missing-separator report and fires when
+			// an angle-addr sits beside the gap. A trailing ';' has no address after it, so there is
+			// no boundary for two parsers to disagree about.
+			var issues = Validate ("To", "<a@example.com>;");
+
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.AmbiguousMailboxBoundary));
+		}
+
+		[Test]
+		public void TestAddressAfterAGroupStillReportsAMissingSeparator ()
+		{
+			// Note: Here the ';' closes the group and is consumed by it, so the byte that stops the
+			// list loop is the start of the next address. rfc5322 requires a comma between a group
+			// and whatever follows it, and that comma really is missing.
+			var issues = Validate ("To", "Friends: a@example.com; b@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] { MimeComplianceViolation.MissingAddressSeparator }));
+		}
+
 		// Note: A byte that no address production can consume - '[' outside a domain-literal, for
 		// example - used to be re-parsed rather than stepped over. The address-list loop reported a
 		// missing separator and re-entered the parser at the same byte, which re-walked the token and

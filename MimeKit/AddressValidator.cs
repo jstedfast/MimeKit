@@ -1405,10 +1405,22 @@ namespace MimeKit {
 					break;
 
 				if (text[index] != (byte) ',') {
-					if (!damagedLocalPart)
+					if (damagedLocalPart) {
+						// The offending character has been reported already. Step over it if it is
+						// a list separator, which SkipToNextPossibleAddress halts on rather than
+						// skips past.
+						if (IsAddressListSeparator (text[index]))
+							index++;
+					} else if (text[index] == (byte) ';') {
+						// A ';' does not separate the elements of an address-list, it terminates a
+						// group, and there is no group open here. Reporting a missing comma would
+						// describe the same byte a second time and in the wrong terms: nothing is
+						// missing, something extra is present. The top of the loop has a report for
+						// exactly that and consumes the byte, so leave it to do both.
+						continue;
+					} else {
 						LogMissingAddressSeparator (before);
-					else if (IsAddressListSeparator (text[index]))
-						index++;
+					}
 
 					SkipToNextPossibleAddress ();
 					continue;
