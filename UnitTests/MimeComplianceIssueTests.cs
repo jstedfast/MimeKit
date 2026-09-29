@@ -70,6 +70,48 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestConstructorRejectsInvalidPositionKinds ()
+		{
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 0, 1, 1, (MimeCompliancePositionKind) (-1)));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 0, 1, 1, (MimeCompliancePositionKind) 99));
+
+			foreach (var positionKind in Enum.GetValues<MimeCompliancePositionKind> ())
+				Assert.DoesNotThrow (() => new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 0, 1, 1, positionKind), $"{positionKind} should be constructible.");
+		}
+
+		[Test]
+		public void TestPositionKindDefaultsToExact ()
+		{
+			// Note: The overload without a position kind is the one used by callers that have the
+			// exact position in hand, so anything less precise has to be stated explicitly.
+			var issue = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidHeader, 100, 5, 3);
+
+			Assert.That (issue.PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact));
+			Assert.That (default (MimeComplianceIssue).PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "default");
+		}
+
+		[Test]
+		public void TestPositionKindParticipatesInEquality ()
+		{
+			var exact = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.Unexpected8BitBytesInHeader, 100, 5, 1, MimeCompliancePositionKind.Exact);
+			var lineStart = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.Unexpected8BitBytesInHeader, 100, 5, 1, MimeCompliancePositionKind.LineStart);
+			var elementStart = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.Unexpected8BitBytesInHeader, 100, 5, 1, MimeCompliancePositionKind.ElementStart);
+
+			// Note: These differ only by position kind. Without it folded into equality, an issue
+			// pointing at a byte and an issue pointing at the header containing it would compare equal.
+			Assert.That (exact, Is.Not.EqualTo (lineStart), "Exact vs LineStart");
+			Assert.That (exact, Is.Not.EqualTo (elementStart), "Exact vs ElementStart");
+			Assert.That (lineStart, Is.Not.EqualTo (elementStart), "LineStart vs ElementStart");
+			Assert.That (exact != lineStart, Is.True, "operator !=");
+
+			var same = new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.Unexpected8BitBytesInHeader, 100, 5, 1, MimeCompliancePositionKind.ElementStart);
+
+			Assert.That (elementStart, Is.EqualTo (same), "matching issues");
+			Assert.That (elementStart == same, Is.True, "operator ==");
+			Assert.That (elementStart.GetHashCode (), Is.EqualTo (same.GetHashCode ()), "GetHashCode");
+		}
+
+		[Test]
 		public void TestSeverityIsRatedForTheIssueContext ()
 		{
 			// Note: BareLinefeedInHeader is one of the handful of violations that is rated lower when
@@ -108,6 +150,41 @@ namespace UnitTests {
 
 			Assert.That (issue.Context, Is.EqualTo (MimeComplianceContext.Storage), "Context");
 			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Minor), "Severity");
+		}
+
+		[Test]
+		public void TestMimeReaderRecordsWhatThePositionRefersTo ()
+		{
+			// Note: A bare linefeed is found at a known byte, so its position is exact. The 8-bit
+			// bytes below are only validated once the whole (potentially folded) value has been
+			// gathered, so that position is the start of the header instead.
+			var text = new List<byte> ();
+			void Add (string s) => text.AddRange (Encoding.ASCII.GetBytes (s));
+
+			Add ("From: a@example.com\nSubject: Fwd:\r\n\t");
+			text.AddRange (new byte[] { 0xEF, 0xD4, 0xCB });    // koi8-r, which is not valid UTF-8
+			Add ("\r\nTo: b@example.com\r\nX-Long: " + new string ('x', 1100) + "\r\n\r\nbody\r\n");
+
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var stream = new MemoryStream (text.ToArray (), false)) {
+				var reader = new MimeReader (stream) {
+					ComplianceLogger = logger
+				};
+
+				reader.ReadMessage ();
+			}
+
+			var bareLinefeed = logger.Issues.First (i => i.Violation == MimeComplianceViolation.BareLinefeedInHeader);
+			var eightBit = logger.Issues.First (i => i.Violation == MimeComplianceViolation.Unexpected8BitBytesInHeader);
+			var oversized = logger.Issues.First (i => i.Violation == MimeComplianceViolation.OversizedLine);
+
+			Assert.That (bareLinefeed.PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "BareLinefeedInHeader");
+			Assert.That (eightBit.PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "Unexpected8BitBytesInHeader");
+			Assert.That (oversized.PositionKind, Is.EqualTo (MimeCompliancePositionKind.LineStart), "OversizedLine");
+
+			// The 8-bit bytes are on line 3, but the header they belong to starts on line 2.
+			Assert.That (eightBit.LineNumber, Is.EqualTo (2), "Unexpected8BitBytesInHeader LineNumber");
 		}
 
 		[Test]

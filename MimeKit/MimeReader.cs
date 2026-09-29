@@ -1388,7 +1388,7 @@ namespace MimeKit {
 			lineBeginOffset = GetOffset (index);
 
 			if (ComplianceLogger != null && (lineBeginOffset - prevLineBeginOffset) > SmtpMaxLineLength)
-				ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.OversizedLine, prevLineBeginOffset, lineNumber, 1));
+				ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.OversizedLine, prevLineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
 
 			lineNumber++;
 		}
@@ -1708,14 +1708,14 @@ namespace MimeKit {
 				ulong bit = 1UL << index;
 
 				if ((seenMessageHeaders & bit) != 0)
-					ComplianceLogger!.Log (new MimeComplianceIssue (ComplianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1));
+					ComplianceLogger!.Log (new MimeComplianceIssue (ComplianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				else
 					seenMessageHeaders |= bit;
 			} else {
 				ulong bit = 1UL << index;
 
 				if ((seenResentHeaders & bit) != 0)
-					ComplianceLogger!.Log (new MimeComplianceIssue (ComplianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1));
+					ComplianceLogger!.Log (new MimeComplianceIssue (ComplianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				else
 					seenResentHeaders |= bit;
 			}
@@ -1738,14 +1738,14 @@ namespace MimeKit {
 			case HeaderId.ContentTransferEncoding:
 				if (!currentEncoding.HasValue) {
 					if (!MimeUtils.TryParse (header.Value, out ContentEncoding encoding)) {
-						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidContentTransferEncoding, beginOffset, beginLineNumber, 1));
+						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidContentTransferEncoding, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 					}
 
 					currentEncoding = encoding;
 					currentEncodingOffset = beginOffset;
 					currentEncodingLineNumber = beginLineNumber;
 				} else if (ComplianceLogger != null) {
-					ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.RepeatedContentTransferEncoding, beginOffset, beginLineNumber, 1));
+					ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.RepeatedContentTransferEncoding, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				}
 				break;
 			case HeaderId.ContentLength:
@@ -1758,7 +1758,7 @@ namespace MimeKit {
 				if (currentContentType is null) {
 					// FIXME: do we really need all this fallback stuff for parameters? I doubt it.
 					if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type is null) {
-						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidContentType, beginOffset, beginLineNumber, 1));
+						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidContentType, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 						// if 'type' is null, then it means that even the mime-type was unintelligible
 						type = new ContentType ("application", "octet-stream");
@@ -1777,7 +1777,7 @@ namespace MimeKit {
 					currentContentTypeOffset = beginOffset;
 					currentContentTypeLineNumber = beginLineNumber;
 				} else if (ComplianceLogger != null) {
-					ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.RepeatedContentType, beginOffset, beginLineNumber, 1));
+					ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.RepeatedContentType, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				}
 				break;
 			}
@@ -1870,7 +1870,7 @@ namespace MimeKit {
 					}
 
 					if ((detected & ByteDetectionResults.DetectedNulls) != 0) {
-						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.UnexpectedNullBytesInHeader, lineBeginOffset, lineNumber, 1));
+						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.UnexpectedNullBytesInHeader, lineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
 						byteOptions &= ~ByteDetectionOptions.DetectNulls;
 					}
 				} else {
@@ -2054,7 +2054,7 @@ namespace MimeKit {
 						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.UnexpectedNullBytesInHeader, beginOffset + index, beginLineNumber, index + 1));
 
 					if (!Utf8.IsValid (fieldSpan))
-						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1));
+						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				} else {
 					bool isAddressHeader = IsAddressHeader (header.Id);
 
@@ -2062,7 +2062,7 @@ namespace MimeKit {
 					// serious) Invalid8BitAddress violation instead, since 8-bit bytes in an address may
 					// change which mailbox it names rather than merely how it displays.
 					if (!ascii && !isAddressHeader && !Utf8.IsValid (value))
-						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1));
+						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 					if (isAddressHeader && value.Length > 0) {
 						// Note: beginOffset is the start of the header, and therefore the start of a line,
@@ -2132,7 +2132,7 @@ namespace MimeKit {
 					}
 
 					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1));
+					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 					state = MimeParserState.Content;
 					break;
@@ -2170,7 +2170,7 @@ namespace MimeKit {
 
 						// Note: If a boundary was discovered, then the state will be updated to MimeParserState.Boundary.
 						if (state == MimeParserState.Boundary) {
-							ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1));
+							ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 							break;
 						}
 
@@ -2189,7 +2189,7 @@ namespace MimeKit {
 						// 2. Error: Invalid *first* header and it was not a valid mbox marker
 						// 3. MessageHeaders or Headers: let it fall through and treat it as an invalid headers
 						if (state != MimeParserState.MessageHeaders && state != MimeParserState.Headers) {
-							ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1));
+							ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 							break;
 						}
 
@@ -2198,7 +2198,7 @@ namespace MimeKit {
 						// Fall through and act as if we're consuming a header.
 					}
 
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1));
+					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
@@ -2499,7 +2499,7 @@ namespace MimeKit {
 			if (IsMultipart (contentType)) {
 				if (encoding.HasValue && encoding != ContentEncoding.SevenBit && encoding != ContentEncoding.EightBit) {
 					// Note: multiparts are only allowed to have a Content-Transfer-Encoding of 7bit or 8bit
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMultipartContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, 1));
+					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMultipartContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 					// Note: Even though this is illegally encoded, ParserOptions.CreateEntity() still returns
 					// a new Multipart in these cases so we need to be consistent.
@@ -2510,7 +2510,7 @@ namespace MimeKit {
 			} else if (IsMessagePart (contentType)) {
 				if (encoding.HasValue && ParserOptions.IsEncoded (encoding.Value)) {
 					// Note: message/rfc822 (and similar) parts are not supposed to be encoded
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, 1));
+					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 					return MimeEntityType.MimePart;
 				}
@@ -2607,7 +2607,7 @@ namespace MimeKit {
 							var offset = GetOffset ((int) (inptr - inbuf));
 
 							if ((offset - lineBeginOffset) > SmtpMaxLineLength)
-								ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.OversizedLine, lineBeginOffset, lineNumber, 1));
+								ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.OversizedLine, lineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
 						}
 
 						incomplete = false;
@@ -2787,10 +2787,10 @@ namespace MimeKit {
 					inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
 
 					if ((detected & ByteDetectionResults.Detected8Bit) != 0)
-						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber, 1));
+						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 					if ((detected & ByteDetectionResults.DetectedNulls) != 0)
-						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.UnexpectedNullBytesInBody, beginOffset, beginLineNumber, 1));
+						ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.UnexpectedNullBytesInBody, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				} else {
 					inptr = ParseUtils.EndOfLine (start, inend + 1);
 				}
@@ -2991,7 +2991,7 @@ namespace MimeKit {
 			long endOffset;
 
 			if (marker is null) {
-				ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber, 1));
+				ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 				// Note: this will scan all content into the preamble...
 				MultipartScanPreamble (inbuf, byteOptions, cancellationToken);
@@ -3003,7 +3003,7 @@ namespace MimeKit {
 
 			// Note: MimeReader can handle invalid boundary markers (but those with '\n' will fail to match, resulting in all content being treated as preamble).
 			if (ComplianceLogger != null && !IsValidBoundary (marker))
-				ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber, 1));
+				ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
 			PushBoundary (marker);
 

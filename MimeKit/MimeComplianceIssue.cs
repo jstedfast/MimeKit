@@ -59,7 +59,30 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.</para>
 		/// </exception>
-		public MimeComplianceIssue (MimeComplianceContext context, MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber)
+		public MimeComplianceIssue (MimeComplianceContext context, MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber) : this (context, violation, streamOffset, lineNumber, columnNumber, MimeCompliancePositionKind.Exact)
+		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="MimeComplianceIssue"/> struct.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="MimeComplianceIssue"/> that will be rated for the specified context.
+		/// </remarks>
+		/// <param name="context">The context that the message is being used in.</param>
+		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
+		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
+		/// <param name="lineNumber">The one-based line number where the violation was found.</param>
+		/// <param name="columnNumber">The one-based column number where the violation was found, or <c>0</c> if unknown.</param>
+		/// <param name="positionKind">What the position refers to.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <para><paramref name="context"/> is not a valid <see cref="MimeComplianceContext"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="violation"/> is not a valid <see cref="MimeComplianceViolation"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="positionKind"/> is not a valid <see cref="MimeCompliancePositionKind"/>.</para>
+		/// </exception>
+		public MimeComplianceIssue (MimeComplianceContext context, MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber, MimeCompliancePositionKind positionKind)
 		{
 			if (context != MimeComplianceContext.Transport && context != MimeComplianceContext.Storage)
 				throw new ArgumentOutOfRangeException (nameof (context));
@@ -67,11 +90,15 @@ namespace MimeKit {
 			if (violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.IncompleteUUEncodedContent)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
+			if (positionKind < MimeCompliancePositionKind.Exact || positionKind > MimeCompliancePositionKind.ElementStart)
+				throw new ArgumentOutOfRangeException (nameof (positionKind));
+
 			Context = context;
 			Violation = violation;
 			StreamOffset = streamOffset;
 			LineNumber = lineNumber;
 			ColumnNumber = columnNumber;
+			PositionKind = positionKind;
 		}
 
 		/// <summary>
@@ -130,6 +157,20 @@ namespace MimeKit {
 		/// </remarks>
 		/// <value>The column number.</value>
 		public int ColumnNumber {
+			get;
+		}
+
+		/// <summary>
+		/// Get what the position of the issue refers to.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets whether <see cref="LineNumber"/> and <see cref="ColumnNumber"/> identify the
+		/// offending byte itself or merely the start of the line or element that contains it.</para>
+		/// <para>A tool that renders diagnostics can use this to decide whether it needs to search
+		/// for the offending byte, and how far.</para>
+		/// </remarks>
+		/// <value>What the position refers to.</value>
+		public MimeCompliancePositionKind PositionKind {
 			get;
 		}
 
@@ -229,7 +270,7 @@ namespace MimeKit {
 		public bool Equals (MimeComplianceIssue other)
 		{
 			return other.Context == Context && other.Violation == Violation && other.StreamOffset == StreamOffset &&
-				other.LineNumber == LineNumber && other.ColumnNumber == ColumnNumber;
+				other.LineNumber == LineNumber && other.ColumnNumber == ColumnNumber && other.PositionKind == PositionKind;
 		}
 
 		/// <summary>
@@ -256,7 +297,7 @@ namespace MimeKit {
 		/// and data structures such as a hash table.</returns>
 		public override int GetHashCode ()
 		{
-			return Context.GetHashCode () ^ Violation.GetHashCode () ^ StreamOffset.GetHashCode () ^ LineNumber ^ ColumnNumber;
+			return Context.GetHashCode () ^ Violation.GetHashCode () ^ StreamOffset.GetHashCode () ^ LineNumber ^ ColumnNumber ^ PositionKind.GetHashCode ();
 		}
 
 		/// <summary>
