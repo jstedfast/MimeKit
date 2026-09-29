@@ -60,6 +60,25 @@ namespace MimeKit {
 			0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
 			0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x7f
 		]);
+
+		// Note: The complement of IsAtomOrControl, which is what SkipAtom stops on. It is derived from
+		// that method rather than written out so that the two cannot drift apart.
+		static readonly SearchValues<byte> NotAtomOrControl = SearchValues.Create (BuildNotAtomOrControl ());
+
+		static byte[] BuildNotAtomOrControl ()
+		{
+			var bytes = new byte[256];
+			int n = 0;
+
+			for (int c = 0; c < 256; c++) {
+				if (!IsAtomOrControl ((byte) c))
+					bytes[n++] = (byte) c;
+			}
+
+			Array.Resize (ref bytes, n);
+
+			return bytes;
+		}
 #endif
 
 		readonly IMimeComplianceLogger logger;
@@ -722,8 +741,14 @@ namespace MimeKit {
 		{
 			int start = index;
 
+#if NET8_0_OR_GREATER
+			int at = new ReadOnlySpan<byte> (text, index, endIndex - index).IndexOfAny (NotAtomOrControl);
+
+			index = at < 0 ? endIndex : index + at;
+#else
 			while (index < endIndex && IsAtomOrControl (text[index]))
 				index++;
+#endif
 
 			return index > start;
 		}
