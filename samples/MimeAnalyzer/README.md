@@ -65,9 +65,9 @@ Adding `-r` appends the rationale behind each rule, and the categories it falls 
 
 ```
 $ MimeAnalyzer -r raw-koi8r-header.eml
-raw-koi8r-header.eml:3:1: note: A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected. [Unexpected8BitBytesInHeader]
+raw-koi8r-header.eml:3:10: note: A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected. [Unexpected8BitBytesInHeader]
 3 | Subject: \xEF\xD4\xCB\xD5\xC4\xC1 \xCF\xCE \xD0\xCF\xD1\xD7\xC9\xCC\xD3\xD1?
-  | ^
+  |          ^
   | = categories: Interoperability, DataLoss
   | = Older Internet Message Format specifications require that headers are strictly US-ASCII
   | = while the newer Internationalized Email Headers specification allows for UTF-8. Header
@@ -122,6 +122,44 @@ Severity is mapped onto the familiar diagnostic levels:
 | `Critical` | `error` | red |
 | `Major` | `warning` | yellow |
 | `Minor` | `note` | cyan |
+
+### Narrowing an approximate position
+
+Not every violation can be pinned to a single byte while parsing. Some describe an element as a
+whole — an unparsable `Content-Type`, a repeated header — and others could only be narrowed
+further by re-scanning input the parser has already moved past. Making every parse pay for that
+would be a poor trade when most callers never look at the positions.
+
+So each issue also carries a `PositionKind` saying what its position actually refers to:
+
+| `MimeCompliancePositionKind` | Meaning |
+| ---------------------------- | ------- |
+| `Exact` | the position *is* the offending byte |
+| `LineStart` | the violation is somewhere on this line |
+| `ElementStart` | the violation is somewhere in this header or body part |
+
+This lets the cost be shifted to the tool, which pays it only for the issues it actually prints.
+`SourceText.TryLocateOffendingByte` does exactly that: for the 8-bit and null-byte violations it
+scans forward from the reported position for the first byte to blame, then maps that back onto a
+line and column.
+
+The difference is easiest to see on a *folded* header, where the parser reports the start of the
+header but the bad bytes are on a continuation line:
+
+```
+8bit-folded-header.eml:4:2: note: A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected. [Unexpected8BitBytesInHeader]
+4 |         \xEF\xD4\xCB\xD5\xC4\xC1 folded
+  |         ^
+```
+
+Without narrowing, that diagnostic would point at column 1 of line 3 — at the `Subject:` field
+name, a line above the actual problem.
+
+Note that for the 8-bit violations the sample looks for the first **non-ASCII** byte rather than
+the byte where UTF-8 validation fails. The two are not the same: in koi8-r text such as
+`EF D4 CB`, `0xEF` opens what *looks* like a three-byte UTF-8 sequence, so where validation gives
+up depends on how the following bytes happen to combine and the caret can land mid-run. The first
+non-ASCII byte is where the charset mistake actually begins.
 
 ### Rendering the source line
 
