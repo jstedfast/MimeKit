@@ -26,6 +26,9 @@
 
 using System;
 using System.Collections.Generic;
+#if NET8_0_OR_GREATER
+using System.Buffers;
+#endif
 
 using MimeKit.Utils;
 
@@ -45,6 +48,21 @@ namespace MimeKit {
 	/// </remarks>
 	class AddressValidator
 	{
+#if NET8_0_OR_GREATER
+		// Note: Every byte that ScanForControlCharacters has anything to say about: a null, a
+		// shift-out, a shift-in or an escape introducing an ISO-2022 sequence, a carriage return, and
+		// any other C0 or delete character. Tab and linefeed are excluded because folding whitespace
+		// is legal between address tokens. Nothing at or above 0x20 belongs here -- in particular the
+		// 8-bit range is untouched, since rfc6532 makes it ordinary address text -- so a value of
+		// real-world mail almost never contains one of these and the whole scan collapses into a
+		// handful of vector comparisons.
+		static readonly SearchValues<byte> ControlCharacters = SearchValues.Create ([
+			0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, /* 0x09 tab */ /* 0x0a linefeed */ 0x0b,
+			0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+			0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x7f
+		]);
+#endif
+
 		readonly IMimeComplianceLogger logger;
 		readonly MimeComplianceContext context;
 		readonly long streamOffset;
@@ -265,6 +283,17 @@ namespace MimeKit {
 			// ISO-2022 sequence has to be recorded in order to be attributed later. Header values are
 			// short enough that scanning the rest of one costs nothing worth saving.
 			for (int i = startIndex; i < endIndex; i++) {
+#if NET8_0_OR_GREATER
+				// Note: Nothing below has anything to say about a byte outside ControlCharacters, and
+				// a header value of ordinary mail consists of nothing else, so jump straight to the
+				// next byte that could matter rather than examining each one.
+				int next = new ReadOnlySpan<byte> (text, i, endIndex - i).IndexOfAny (ControlCharacters);
+
+				if (next < 0)
+					break;
+
+				i += next;
+#endif
 				byte c = text[i];
 
 				if (c == 0) {
