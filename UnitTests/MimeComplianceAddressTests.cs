@@ -467,6 +467,41 @@ namespace UnitTests {
 			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.EmptyGroupName));
 		}
 
+		// Note: group-list is optional in rfc5322, so a group with no members is conformant and an
+		// empty group is the established way to write a recipient header that names nobody -- either
+		// because the recipients were blind-copied or because a submission agent removed them.
+		// "undisclosed-recipients:;" is the spelling nearly everything uses, but the convention is in
+		// the empty group rather than in that particular name, so none of these may report anything.
+		// Whitespace is allowed on both sides of the ':' and the ';' because CFWS is allowed
+		// everywhere in the production.
+		[TestCase ("undisclosed-recipients:;", TestName = "TestUndisclosedRecipients_Canonical")]
+		[TestCase ("undisclosed-recipients: ;", TestName = "TestUndisclosedRecipients_SpaceBeforeTerminator")]
+		[TestCase ("undisclosed-recipients :;", TestName = "TestUndisclosedRecipients_SpaceBeforeColon")]
+		[TestCase ("undisclosed-recipients : ;", TestName = "TestUndisclosedRecipients_SpacesAround")]
+		[TestCase ("undisclosed-recipients:; ", TestName = "TestUndisclosedRecipients_TrailingSpace")]
+		[TestCase ("Undisclosed recipients:;", TestName = "TestUndisclosedRecipients_Unhyphenated")]
+		[TestCase ("\"undisclosed-recipients\":;", TestName = "TestUndisclosedRecipients_Quoted")]
+		[TestCase ("(a comment) undisclosed-recipients:;", TestName = "TestUndisclosedRecipients_Commented")]
+		[TestCase ("Friends:;", TestName = "TestUndisclosedRecipients_AnyEmptyGroup")]
+		[TestCase ("a@example.com, undisclosed-recipients:;", TestName = "TestUndisclosedRecipients_LastInAList")]
+		[TestCase ("undisclosed-recipients:;, a@example.com", TestName = "TestUndisclosedRecipients_FirstInAList")]
+		public void TestEmptyGroupIsSilent (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues, Is.Empty,
+				$"\"{value}\" should report nothing but got: {string.Join (", ", issues.Select (i => $"{i.Violation}@{i.StreamOffset}"))}");
+		}
+
+		// Note: The convention is an empty group, not a licence to skip the terminator or to add a
+		// second one. Both of these are still malformed and must keep reporting.
+		[TestCase ("undisclosed-recipients:", MimeComplianceViolation.MissingGroupTerminator)]
+		[TestCase ("undisclosed-recipients:;;", MimeComplianceViolation.NonConformantAddress)]
+		public void TestMalformedEmptyGroupIsStillReported (string value, MimeComplianceViolation expected)
+		{
+			AssertViolation (value, expected);
+		}
+
 		[Test]
 		public void TestUnquotedCommaInDisplayName ()
 		{
