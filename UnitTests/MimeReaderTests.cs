@@ -740,6 +740,68 @@ ABC
 			}
 		}
 
+		// Note: The body of this message ends every other line with a bare linefeed instead of a
+		// CRLF sequence. Each of those linefeeds is on a different line of the body, which is what
+		// makes this a regression test: MimeReader.ScanContent () does not update inputIndex until
+		// it has finished scanning the buffer, so calculating the position of the linefeed from
+		// inputIndex (rather than from the current scan pointer) reported the start of the body for
+		// every linefeed and, once the line tracking had advanced past that point, a negative column.
+		const string BareLinefeedsInBodyText = "From: mimekit@example.org\r\n" +
+			"To: mimekit@example.org\r\n" +
+			"Subject: bare linefeeds in the body\r\n" +
+			"\r\n" +
+			"This line is properly terminated.\r\n" +
+			"This line is not.\n" +
+			"Another properly terminated line.\r\n" +
+			"And this one is not either.\n";
+
+		static void AssertBareLinefeedsInBody (TestMimeComplianceLogger logger)
+		{
+			const string firstLine = "This line is not.";
+			const string secondLine = "And this one is not either.";
+
+			var firstOffset = BareLinefeedsInBodyText.IndexOf (firstLine, StringComparison.Ordinal) + firstLine.Length;
+			var secondOffset = BareLinefeedsInBodyText.IndexOf (secondLine, StringComparison.Ordinal) + secondLine.Length;
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (2), "ComplianceViolations");
+
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.BareLinefeedInBody), "Violation #1");
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (firstOffset), "StreamOffset #1");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (6), "LineNumber #1");
+			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (firstLine.Length + 1), "ColumnNumber #1");
+
+			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.BareLinefeedInBody), "Violation #2");
+			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (secondOffset), "StreamOffset #2");
+			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (8), "LineNumber #2");
+			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (secondLine.Length + 1), "ColumnNumber #2");
+		}
+
+		[Test]
+		public void TestBareLinefeedsInBodyPositions ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (BareLinefeedsInBodyText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertBareLinefeedsInBody (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestBareLinefeedsInBodyPositionsAsync ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (BareLinefeedsInBodyText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertBareLinefeedsInBody (logger);
+			}
+		}
+
 		static byte[] ReadAllBytes (string path)
 		{
 			using (var stream = File.OpenRead (path)) {

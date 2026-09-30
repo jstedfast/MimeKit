@@ -2587,7 +2587,11 @@ namespace MimeKit {
 					if (length > 0 && *(inptr - 1) == (byte) '\r') {
 						formats[(int) NewLineFormat.Dos] = true;
 					} else {
-						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.BareLinefeedInBody, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+						// Note: inputIndex is not updated until the end of this method, so the position of the
+						// linefeed has to be calculated from inptr rather than from inputIndex.
+						int linefeedIndex = (int) (inptr - inbuf);
+
+						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.BareLinefeedInBody, GetOffset (linefeedIndex), lineNumber, GetColumnNumber (linefeedIndex)));
 						formats[(int) NewLineFormat.Unix] = true;
 					}
 
