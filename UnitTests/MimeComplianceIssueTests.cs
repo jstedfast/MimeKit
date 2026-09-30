@@ -580,6 +580,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.ObsoleteRouteAddress, Interop },
 				{ MimeComplianceViolation.AddressWithoutDomain, Interop },
 				{ MimeComplianceViolation.ObsoleteDomainSyntax, Interop },
+				{ MimeComplianceViolation.InvalidDomain, Interop },
 				{ MimeComplianceViolation.TrailingDotInDomain, Interop },
 				{ MimeComplianceViolation.WhitespaceInDomainLiteral, Interop },
 				{ MimeComplianceViolation.InvalidCharacterInDomainLiteral, Interop | DataLoss },

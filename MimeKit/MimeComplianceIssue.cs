@@ -479,6 +479,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
 			case MimeComplianceViolation.UnquotedDisplayName:
 			case MimeComplianceViolation.InvalidLocalPart:
+			case MimeComplianceViolation.InvalidDomain:
 			case MimeComplianceViolation.MissingAddressSeparator:
 			case MimeComplianceViolation.AmbiguousMailboxBoundary:
 			case MimeComplianceViolation.AddressWithoutDomain:
@@ -702,6 +703,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
 			case MimeComplianceViolation.InvalidLocalPart:
+			case MimeComplianceViolation.InvalidDomain:
 			case MimeComplianceViolation.AddressWithoutDomain:
 			case MimeComplianceViolation.ObsoleteRouteAddress:
 			case MimeComplianceViolation.ExtraneousCommaInAddressList:
@@ -872,6 +874,8 @@ namespace MimeKit {
 				return "An address consisted of a local-part with no domain.";
 			case MimeComplianceViolation.ObsoleteDomainSyntax:
 				return "The domain of an address used the obsolete syntax that allows comments and whitespace between its parts.";
+			case MimeComplianceViolation.InvalidDomain:
+				return "The domain of an address was not a valid dot-atom.";
 			case MimeComplianceViolation.TrailingDotInDomain:
 				return "The domain of an address ended with a dot.";
 			case MimeComplianceViolation.WhitespaceInDomainLiteral:
@@ -1050,6 +1054,8 @@ namespace MimeKit {
 				return "Section 7.1.7 of rfc7103 describes \"naked\" local-parts such as \"username\". Such an address is only meaningful relative to some implied domain, so different systems will complete it differently, or not at all.";
 			case MimeComplianceViolation.ObsoleteDomainSyntax:
 				return "The obs-domain syntax described in section 4.4 of rfc5322 allows folding whitespace and comments around the dots of a domain, as in \"user@example (comment) .com\". A conforming domain is a single dot-atom, so software that does not implement the obsolete grammar will read a different domain than software that does.";
+			case MimeComplianceViolation.InvalidDomain:
+				return "A dot-atom may not contain two consecutive dots or begin with a dot, so domains such as \"example..com\" and \".example.com\" are not valid. A domain that merely ends with a dot is reported as TrailingDotInDomain instead, because a trailing dot is the fully qualified form of a domain name in the DNS and is far more likely to be deliberate. Receiving systems differ over whether to reject such an address, collapse the empty labels, or pass the domain through verbatim.";
 			case MimeComplianceViolation.TrailingDotInDomain:
 				return "A trailing dot, as in \"user@example.com.\", denotes a fully qualified domain in the DNS but is not part of the domain grammar in rfc5322. Parsers that strip it and parsers that retain it will disagree about whether two otherwise identical addresses are equal.";
 			case MimeComplianceViolation.WhitespaceInDomainLiteral:

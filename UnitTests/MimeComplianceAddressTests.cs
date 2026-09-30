@@ -50,6 +50,7 @@ namespace UnitTests {
 			MimeComplianceViolation.ObsoleteRouteAddress,
 			MimeComplianceViolation.AddressWithoutDomain,
 			MimeComplianceViolation.ObsoleteDomainSyntax,
+			MimeComplianceViolation.InvalidDomain,
 			MimeComplianceViolation.TrailingDotInDomain,
 			MimeComplianceViolation.WhitespaceInDomainLiteral,
 			MimeComplianceViolation.InvalidCharacterInDomainLiteral,
@@ -131,6 +132,8 @@ namespace UnitTests {
 		[TestCase ("<@hop.example.com:user@example.com>", MimeComplianceViolation.ObsoleteRouteAddress)]
 		[TestCase ("localuser", MimeComplianceViolation.AddressWithoutDomain)]
 		[TestCase ("user@example.com.", MimeComplianceViolation.TrailingDotInDomain)]
+		[TestCase ("user@example..com", MimeComplianceViolation.InvalidDomain)]
+		[TestCase ("user@.example.com", MimeComplianceViolation.InvalidDomain)]
 		[TestCase ("user@[192.168 .0.1]", MimeComplianceViolation.WhitespaceInDomainLiteral)]
 		[TestCase ("user@[10.0.0.1[]", MimeComplianceViolation.InvalidCharacterInDomainLiteral)]
 		[TestCase ("user@[10.0.0.1\\]", MimeComplianceViolation.InvalidCharacterInDomainLiteral)]
@@ -675,7 +678,10 @@ namespace UnitTests {
 		}
 
 		[TestCase ("To", "us..er@example.com", MimeComplianceViolation.InvalidLocalPart, 8)]
-		[TestCase ("To", "user@example.com.", MimeComplianceViolation.TrailingDotInDomain, 22)]
+		[TestCase ("To", "user@example.com.", MimeComplianceViolation.TrailingDotInDomain, 21)]
+		[TestCase ("To", "user@example..com", MimeComplianceViolation.InvalidDomain, 18)]
+		[TestCase ("To", "user@.example.com", MimeComplianceViolation.InvalidDomain, 10)]
+		[TestCase ("To", "user@example..com.", MimeComplianceViolation.InvalidDomain, 18)]
 		[TestCase ("Cc", "a@example.com b@example.com", MimeComplianceViolation.MissingAddressSeparator, 19)]
 		[TestCase ("Bcc", "\"Jo\rhn\" <j@example.com>", MimeComplianceViolation.LineBreakInAddress, 9)]
 		public void TestViolationColumnNumber (string field, string value, MimeComplianceViolation violation, int column)
@@ -783,6 +789,40 @@ namespace UnitTests {
 
 			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] { MimeComplianceViolation.InvalidLocalPart }),
 				$"Expected only InvalidLocalPart for \"{value}\" but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		// Note: An empty domain label is reported where it occurs, and the rest of the domain is still
+		// consumed, so it does not cascade into violations describing a missing comma or a damaged
+		// local-part that the sender never wrote.
+		[TestCase ("user@example..com")]
+		[TestCase ("user@.example.com")]
+		[TestCase ("user@example...com")]
+		[TestCase ("user@example..com, b@example.com")]
+		public void TestEmptyDomainLabelDoesNotCascade (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues, Is.Not.Empty, $"Expected InvalidDomain for \"{value}\"");
+			Assert.That (issues.Select (i => i.Violation), Has.All.EqualTo (MimeComplianceViolation.InvalidDomain),
+				$"Expected only InvalidDomain for \"{value}\" but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		[Test]
+		public void TestEmptyDomainLabelIsDistinctFromATrailingDot ()
+		{
+			// Note: "user@example..com." has an empty label between "example" and "com" as well as a
+			// trailing dot, and each is reported at its own position rather than the empty label being
+			// mistaken for the trailing dot and the rest of the domain being left unparsed.
+			var issues = Validate ("To", "user@example..com.");
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] {
+				MimeComplianceViolation.InvalidDomain,
+				MimeComplianceViolation.TrailingDotInDomain
+			}));
+
+			// "To: user@example." is seventeen bytes, so the second dot is the eighteenth.
+			Assert.That (issues[0].ColumnNumber, Is.EqualTo (18), "InvalidDomain ColumnNumber");
+			Assert.That (issues[1].ColumnNumber, Is.EqualTo (22), "TrailingDotInDomain ColumnNumber");
 		}
 
 		[Test]

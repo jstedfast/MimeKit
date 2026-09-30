@@ -859,9 +859,19 @@ namespace MimeKit {
 			bool reportedLineBreak = false;
 
 			do {
+				int atomStart = index;
+
 				if (!SkipAtom ()) {
-					Log (MimeComplianceViolation.NonConformantAddress, start);
-					return;
+					// An empty element: either two dots in a row or a dot at the start of the domain.
+					// Note: Unlike ValidateDotAtom(), a dot at the *end* of the domain is reported as
+					// TrailingDotInDomain below, so the only way to get here is with a dot that is
+					// followed by another dot or that begins the domain.
+					if (atomStart >= endIndex || text[atomStart] != (byte) '.') {
+						Log (MimeComplianceViolation.NonConformantAddress, start);
+						return;
+					}
+
+					Log (MimeComplianceViolation.InvalidDomain, atomStart);
 				}
 
 				// Note: A conforming domain is a single dot-atom, which admits no comments or folding
@@ -887,6 +897,7 @@ namespace MimeKit {
 				}
 
 				// skip over the '.'
+				int dot = index;
 				index++;
 
 				beforeCFWS = index;
@@ -900,8 +911,10 @@ namespace MimeKit {
 				if (obsolete)
 					Log (MimeComplianceViolation.ObsoleteDomainSyntax, beforeCFWS);
 
-				if (index >= endIndex || !IsAtomOrControl (text[index])) {
-					Log (MimeComplianceViolation.TrailingDotInDomain, index);
+				if (index >= endIndex || (!IsAtomOrControl (text[index]) && text[index] != (byte) '.')) {
+					// Note: The dot itself is the violation, so it is reported at the dot rather than
+					// at whatever follows it (which, for the common case, is the end of the domain).
+					Log (MimeComplianceViolation.TrailingDotInDomain, dot);
 					return;
 				}
 			} while (true);

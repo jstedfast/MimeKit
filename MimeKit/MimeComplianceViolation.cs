@@ -642,6 +642,20 @@ namespace MimeKit {
 		ObsoleteDomainSyntax                        = 50,
 
 		/// <summary>
+		/// The domain of an address was not a valid dot-atom.
+		/// </summary>
+		/// <remarks>
+		/// <para>A dot-atom may not contain two consecutive dots or begin with a dot, so domains such as
+		/// <c>example..com</c> and <c>.example.com</c> are not valid.</para>
+		/// <para>A domain that merely ends with a dot is reported as <see cref="TrailingDotInDomain"/>
+		/// instead, because a trailing dot is the fully qualified form of a domain name in the DNS and is
+		/// far more likely to be deliberate.</para>
+		/// <para>Receiving systems differ over whether to reject such an address, collapse the empty
+		/// labels, or pass the domain through verbatim.</para>
+		/// </remarks>
+		InvalidDomain                               = 51,
+
+		/// <summary>
 		/// The domain of an address ended with a dot.
 		/// </summary>
 		/// <remarks>
@@ -649,7 +663,7 @@ namespace MimeKit {
 		/// domain grammar in rfc5322. Parsers that strip it and parsers that retain it will disagree about whether two
 		/// otherwise identical addresses are equal.
 		/// </remarks>
-		TrailingDotInDomain                         = 51,
+		TrailingDotInDomain                         = 52,
 
 		/// <summary>
 		/// A domain-literal contained whitespace.
@@ -659,7 +673,7 @@ namespace MimeKit {
 		/// as in <c>user@[ 127.0.0.1 ]</c>. Parsers that strip the whitespace and parsers that preserve or reject it will not
 		/// agree on the address.
 		/// </remarks>
-		WhitespaceInDomainLiteral                   = 52,
+		WhitespaceInDomainLiteral                   = 53,
 
 		/// <summary>
 		/// A domain-literal contained a character that the domain-literal syntax does not permit.
@@ -672,7 +686,7 @@ namespace MimeKit {
 		/// <see cref="ControlCharacterInAddress"/> and <see cref="Invalid8BitAddress"/> instead, and rfc6532 adds the remaining
 		/// 8-bit bytes to <c>dtext</c>.
 		/// </remarks>
-		InvalidCharacterInDomainLiteral             = 53,
+		InvalidCharacterInDomainLiteral             = 54,
 
 		/// <summary>
 		/// An address contained 8-bit bytes that were not valid UTF-8.
@@ -683,7 +697,7 @@ namespace MimeKit {
 		/// will produce a different address than one that rejects the header, which may result in mail being delivered to the
 		/// wrong mailbox.
 		/// </remarks>
-		Invalid8BitAddress                          = 54,
+		Invalid8BitAddress                          = 55,
 
 		/// <summary>
 		/// An address group was not terminated with a semi-colon.
@@ -692,7 +706,7 @@ namespace MimeKit {
 		/// The group syntax in section 3.4 of rfc5322 requires a terminating <c>;</c>, as in <c>Friends: a@example.com;</c>.
 		/// Without it, a parser must guess where the group ends, and addresses that follow the group may be absorbed into it.
 		/// </remarks>
-		MissingGroupTerminator                      = 55,
+		MissingGroupTerminator                      = 56,
 
 		/// <summary>
 		/// An address did not conform to the address syntax defined by rfc5322.
@@ -703,7 +717,7 @@ namespace MimeKit {
 		/// repair what they accept, so an address that only some implementations can read may resolve to different mailboxes,
 		/// or to none at all, depending on which software handles the message.
 		/// </remarks>
-		NonConformantAddress                        = 56,
+		NonConformantAddress                        = 57,
 
 		/// <summary>
 		/// An address contained a null byte.
@@ -717,7 +731,7 @@ namespace MimeKit {
 		/// each be made to see a different mailbox from the same header. Note that this is reported in addition to
 		/// <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null byte appeared on.</para>
 		/// </remarks>
-		NullByteInAddress                           = 57,
+		NullByteInAddress                           = 58,
 
 		/// <summary>
 		/// The display-name of an address or group contained a null byte.
@@ -732,7 +746,7 @@ namespace MimeKit {
 		/// reported in addition to <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null
 		/// byte appeared on.</para>
 		/// </remarks>
-		NullByteInDisplayName                       = 58,
+		NullByteInDisplayName                       = 59,
 
 		/// <summary>
 		/// A line break appeared inside a local-part or domain.
@@ -751,7 +765,7 @@ namespace MimeKit {
 		/// implementations mishandle it in practice, so the divergence in the recipient finally used is real regardless of
 		/// what the grammar allows.</note>
 		/// </remarks>
-		LineBreakInAddress                          = 59,
+		LineBreakInAddress                          = 60,
 
 		/// <summary>
 		/// An address contained a control character.
@@ -765,7 +779,7 @@ namespace MimeKit {
 		/// terminal-based mail client may be interpreted there rather than displayed. Null bytes and line breaks are
 		/// reported separately as <see cref="NullByteInAddress"/> and <see cref="LineBreakInAddress"/>.</para>
 		/// </remarks>
-		ControlCharacterInAddress                   = 60,
+		ControlCharacterInAddress                   = 61,
 
 		/// <summary>
 		/// The local-part of an address contained an ISO-2022 shift or escape sequence.
@@ -793,7 +807,7 @@ namespace MimeKit {
 		/// that use this convention quote the <c>local-part</c> in any case, since that is what allows a <c>\</c> or a
 		/// <c>"</c> occurring as the second byte of a JIS X 0208 pair to be written as a <c>quoted-pair</c>.</para>
 		/// </remarks>
-		Iso2022SequenceInLocalPart                  = 61,
+		Iso2022SequenceInLocalPart                  = 62,
 
 		/// <summary>
 		/// An address group had an empty name.
@@ -804,7 +818,7 @@ namespace MimeKit {
 		/// as in <c>To: :;</c>, therefore has no name for a client to display, and parsers disagree over whether to treat
 		/// the colon as a group at all or as a stray character in an ordinary address.
 		/// </remarks>
-		EmptyGroupName                              = 62,
+		EmptyGroupName                              = 63,
 
 		#endregion
 
@@ -819,7 +833,7 @@ namespace MimeKit {
 		/// body, allowing MIME parsers to correctly identify where the headers end and the body begins.
 		/// A missing body separator can lead to ambiguity when parsing the message.
 		/// </remarks>
-		MissingBodySeparator                        = 63,
+		MissingBodySeparator                        = 64,
 
 		/// <summary>
 		/// A multipart boundary was missing.
@@ -829,7 +843,7 @@ namespace MimeKit {
 		/// and inconsistent behavior among different MIME parser implementations which may opt to treat the content
 		/// as a single part rather than a multipart message.
 		/// </remarks>
-		MissingMultipartBoundary                    = 64,
+		MissingMultipartBoundary                    = 65,
 
 		#endregion
 
@@ -843,7 +857,7 @@ namespace MimeKit {
 		/// incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or
 		/// otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteBase64Quantum                     = 65,
+		IncompleteBase64Quantum                     = 66,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid characters.
@@ -853,7 +867,7 @@ namespace MimeKit {
 		/// parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these
 		/// characters and continue decoding.
 		/// </remarks>
-		InvalidBase64Character                      = 66,
+		InvalidBase64Character                      = 67,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid padding.
@@ -864,7 +878,7 @@ namespace MimeKit {
 		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
 		/// soon as they are encountered.
 		/// </remarks>
-		InvalidBase64Padding                        = 67,
+		InvalidBase64Padding                        = 68,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained characters after the padding.
@@ -873,7 +887,7 @@ namespace MimeKit {
 		/// Base64 characters found after padding (<c>'='</c>) in a base64 encoded block are not allowed by the MIME specifications
 		/// and can lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		Base64CharactersAfterPadding                = 68,
+		Base64CharactersAfterPadding                = 69,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained an obsolete comment.
@@ -885,7 +899,7 @@ namespace MimeKit {
 		/// majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead
 		/// to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		ObsoleteBase64Comment                       = 69,
+		ObsoleteBase64Comment                       = 70,
 
 		#endregion
 
@@ -898,7 +912,7 @@ namespace MimeKit {
 		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
 		/// different MIME parser implementations.
 		/// </remarks>
-		InvalidQuotedPrintableEncoding              = 70,
+		InvalidQuotedPrintableEncoding              = 71,
 
 		/// <summary>
 		/// The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.
@@ -909,7 +923,7 @@ namespace MimeKit {
 		/// &lt;CR&gt;&lt;LF&gt; sequence which can lead to decoding issues and inconsistent behavior among different MIME parser
 		/// implementations.
 		/// </remarks>
-		InvalidQuotedPrintableSoftBreak             = 71,
+		InvalidQuotedPrintableSoftBreak             = 72,
 
 		#endregion
 
@@ -922,7 +936,7 @@ namespace MimeKit {
 		/// UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content
 		/// before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodePretext                      = 72,
+		InvalidUUEncodePretext                      = 73,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had an invalid file mode in the begin marker.
@@ -931,7 +945,7 @@ namespace MimeKit {
 		/// The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to
 		/// decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodeFileMode                     = 73,
+		InvalidUUEncodeFileMode                     = 74,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
@@ -941,7 +955,7 @@ namespace MimeKit {
 		/// behavior
 		/// among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedContent                     = 74,
+		InvalidUUEncodedContent                     = 75,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had an invalid encoded line length.
@@ -951,7 +965,7 @@ namespace MimeKit {
 		/// 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can
 		/// lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineLength                  = 75,
+		InvalidUUEncodedLineLength                  = 76,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained an incomplete encoded line.
@@ -960,7 +974,7 @@ namespace MimeKit {
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to
 		/// decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteUUEncodedLine                     = 76,
+		IncompleteUUEncodedLine                     = 77,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
@@ -969,7 +983,7 @@ namespace MimeKit {
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
 		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineExtraData               = 77,
+		InvalidUUEncodedLineExtraData               = 78,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.
@@ -978,7 +992,7 @@ namespace MimeKit {
 		/// UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodeEndMarker                    = 78,
+		InvalidUUEncodeEndMarker                    = 79,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part did not properly end.
@@ -987,7 +1001,7 @@ namespace MimeKit {
 		/// UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteUUEncodedContent                  = 79,
+		IncompleteUUEncodedContent                  = 80,
 
 		#endregion
 	}
