@@ -42,7 +42,9 @@ namespace UnitTests {
 			MimeComplianceViolation.UnbalancedParenthesesInAddress,
 			MimeComplianceViolation.UnquotedDisplayName,
 			MimeComplianceViolation.AddressInDisplayName,
+			MimeComplianceViolation.UnquotedAddressInDisplayName,
 			MimeComplianceViolation.AddressInGroupDisplayName,
+			MimeComplianceViolation.UnquotedAddressInGroupDisplayName,
 			MimeComplianceViolation.InvalidLocalPart,
 			MimeComplianceViolation.MissingAddressSeparator,
 			MimeComplianceViolation.AmbiguousMailboxBoundary,
@@ -87,6 +89,14 @@ namespace UnitTests {
 
 			Assert.That (issues.Select (issue => issue.Violation), Has.Some.EqualTo (expected),
 				$"Expected {expected} for \"{value}\" but got: {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		static void AssertNoViolation (string value, MimeComplianceViolation unexpected)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (issue => issue.Violation), Has.None.EqualTo (unexpected),
+				$"Did not expect {unexpected} for \"{value}\".");
 		}
 
 		[TestCase ("user@example.com")]
@@ -901,7 +911,7 @@ namespace UnitTests {
 
 				Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new [] {
 					MimeComplianceViolation.UnquotedDisplayName,
-					MimeComplianceViolation.AddressInDisplayName
+					MimeComplianceViolation.UnquotedAddressInDisplayName
 				}), $"Wrong violations for \"{value}\".");
 			}
 		}
@@ -1033,11 +1043,10 @@ namespace UnitTests {
 				$"\"{value}\" has no conformant single-mailbox reading, so it should not be reported as ambiguous.");
 		}
 
-		// Note: A display-name that is itself an address is legal rfc5322, so nothing here is
+		// Note: A quoted display-name that is itself an address is legal rfc5322, so nothing here is
 		// malformed. The report exists because software that shows the display-name in place of the
 		// address shows a mailbox that will not receive the reply.
 		[TestCase ("\"admin@example.com\" <attacker@example.org>")]
-		[TestCase ("admin@example.com <attacker@example.org>")]
 		[TestCase ("\"<admin@example.com>\" <attacker@example.org>")]
 		[TestCase ("\"admin@example.com (Administrator)\" <attacker@example.org>")]
 		[TestCase ("\"(admin@example.com)\" <attacker@example.org>")]
@@ -1046,11 +1055,27 @@ namespace UnitTests {
 			AssertViolation (value, MimeComplianceViolation.AddressInDisplayName);
 		}
 
+		// Note: The unquoted form is not legal rfc5322, so it is a distinct violation: a parser is
+		// free to end the phrase at the '@', which changes how many mailboxes the header names.
+		[TestCase ("admin@example.com <attacker@example.org>")]
+		[TestCase ("admin@example.com (Administrator) <attacker@example.org>")]
+		public void TestUnquotedAddressShapedDisplayNameIsReported (string value)
+		{
+			AssertViolation (value, MimeComplianceViolation.UnquotedAddressInDisplayName);
+			AssertNoViolation (value, MimeComplianceViolation.AddressInDisplayName);
+		}
+
 		[TestCase ("\"admin@example.com\": attacker@example.org;")]
-		[TestCase ("admin@example.com: attacker@example.org;")]
 		public void TestAddressShapedGroupDisplayNameIsReported (string value)
 		{
 			AssertViolation (value, MimeComplianceViolation.AddressInGroupDisplayName);
+		}
+
+		[TestCase ("admin@example.com: attacker@example.org;")]
+		public void TestUnquotedAddressShapedGroupDisplayNameIsReported (string value)
+		{
+			AssertViolation (value, MimeComplianceViolation.UnquotedAddressInGroupDisplayName);
+			AssertNoViolation (value, MimeComplianceViolation.AddressInGroupDisplayName);
 		}
 
 		// Note: A display-name is free-form text, so an '@' in it is only a signal when it sits
@@ -1067,13 +1092,17 @@ namespace UnitTests {
 
 			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.AddressInDisplayName),
 				$"\"{value}\" is not shaped like an address.");
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.UnquotedAddressInDisplayName),
+				$"\"{value}\" is not shaped like an address.");
 			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.AddressInGroupDisplayName),
+				$"\"{value}\" is not shaped like an address.");
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.UnquotedAddressInGroupDisplayName),
 				$"\"{value}\" is not shaped like an address.");
 		}
 
 		// Note: These report different things about the same header, so an input that is both
 		// malformed and misleading must produce both. UnquotedDisplayName describes the syntax;
-		// AddressInDisplayName describes what the value will be mistaken for.
+		// UnquotedAddressInDisplayName describes what the value will be mistaken for.
 		[Test]
 		public void TestUnquotedAddressShapedDisplayNameIsReportedTwice ()
 		{
@@ -1081,7 +1110,7 @@ namespace UnitTests {
 			var violations = issues.Select (i => i.Violation).ToList ();
 
 			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.UnquotedDisplayName));
-			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.AddressInDisplayName));
+			Assert.That (violations, Has.Some.EqualTo (MimeComplianceViolation.UnquotedAddressInDisplayName));
 		}
 
 		// Note: The quoted form breaks no rule, so it is rated as a hint. The category is what a
@@ -1094,6 +1123,43 @@ namespace UnitTests {
 
 			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Minor));
 			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.Security), Is.True);
+		}
+
+		// Note: Dropping the quotes turns a legal-but-misleading phrase into one that a conformant
+		// parser may split at the '@', so the two readings disagree about who the recipients are.
+		// That is an interoperability and data-loss problem on top of the spoofing risk, which is
+		// why the unquoted form outranks the quoted one.
+		[Test]
+		public void TestUnquotedAddressShapedDisplayNameIsAMajorIssue ()
+		{
+			var issues = Validate ("To", "admin@example.com <attacker@example.org>");
+			var issue = issues.Single (i => i.Violation == MimeComplianceViolation.UnquotedAddressInDisplayName);
+
+			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Major));
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.Security), Is.True);
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.Interoperability), Is.True);
+			Assert.That (issue.Categories.HasFlag (MimeComplianceCategories.DataLoss), Is.True);
+
+			var quoted = Validate ("To", "\"admin@example.com\" <attacker@example.org>")
+				.Single (i => i.Violation == MimeComplianceViolation.AddressInDisplayName);
+
+			Assert.That (issue.Severity, Is.GreaterThan (quoted.Severity),
+				"The unquoted form must outrank the quoted one.");
+		}
+
+		[Test]
+		public void TestUnquotedAddressShapedGroupDisplayNameIsAMajorIssue ()
+		{
+			var issues = Validate ("To", "admin@example.com: attacker@example.org;");
+			var issue = issues.Single (i => i.Violation == MimeComplianceViolation.UnquotedAddressInGroupDisplayName);
+
+			Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Major));
+
+			var quoted = Validate ("To", "\"admin@example.com\": attacker@example.org;")
+				.Single (i => i.Violation == MimeComplianceViolation.AddressInGroupDisplayName);
+
+			Assert.That (issue.Severity, Is.GreaterThan (quoted.Severity),
+				"The unquoted form must outrank the quoted one.");
 		}
 
 		[Test]

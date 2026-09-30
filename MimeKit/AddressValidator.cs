@@ -1373,8 +1373,11 @@ namespace MimeKit {
 				if (!hasContent) {
 					// A display-name is a phrase, which requires at least one word.
 					Log (MimeComplianceViolation.EmptyGroupName, start);
-				} else if (ContainsAddrspec (start, index)) {
-					Log (MimeComplianceViolation.AddressInGroupDisplayName, start);
+				} else if (ContainsAddrspec (start, index, out bool quotedAddrspec)) {
+					// Note: The quoted form is legal rfc5322 and merely misleading, but the unquoted
+					// form also leaves a parser free to end the phrase at the '@', so the two are
+					// reported as distinct violations.
+					Log (quotedAddrspec ? MimeComplianceViolation.AddressInGroupDisplayName : MimeComplianceViolation.UnquotedAddressInGroupDisplayName, start);
 				}
 
 				CheckNullBytesInDisplayName (start, index);
@@ -1387,8 +1390,8 @@ namespace MimeKit {
 				if (unquotedSpecial)
 					Log (MimeComplianceViolation.UnquotedDisplayName, specialIndex);
 
-				if (hasContent && ContainsAddrspec (start, index))
-					Log (MimeComplianceViolation.AddressInDisplayName, start);
+				if (hasContent && ContainsAddrspec (start, index, out bool quotedAddrspec))
+					Log (quotedAddrspec ? MimeComplianceViolation.AddressInDisplayName : MimeComplianceViolation.UnquotedAddressInDisplayName, start);
 
 				CheckNullBytesInDisplayName (start, index);
 
@@ -1455,11 +1458,20 @@ namespace MimeKit {
 		/// immediately after it, so that phrases such as <c>Bob @ Work</c> and <c>@channel</c> are not
 		/// mistaken for addresses.
 		/// </remarks>
-		bool ContainsAddrspec (int start, int end)
+		/// <returns><see langword="true" /> if the phrase is shaped like an addr-spec; otherwise, <see langword="false" />.</returns>
+		/// <param name="start">The index of the first byte of the phrase.</param>
+		/// <param name="end">The index just past the last byte of the phrase.</param>
+		/// <param name="quotedAddrspec">
+		/// <see langword="true" /> if the addr-spec was inside a quoted-string, making the phrase legal
+		/// rfc5322; otherwise, <see langword="false" />.
+		/// </param>
+		bool ContainsAddrspec (int start, int end, out bool quotedAddrspec)
 		{
 			bool precededByAtom = false;
 			bool quoted = false;
 			int i = start;
+
+			quotedAddrspec = false;
 
 			while (i < end) {
 				byte c = text[i];
@@ -1490,8 +1502,10 @@ namespace MimeKit {
 				if (c == (byte) '\\' && i + 1 < end)
 					c = text[++i];
 
-				if (c == (byte) '@' && precededByAtom && IsDottedDomain (i + 1, end))
+				if (c == (byte) '@' && precededByAtom && IsDottedDomain (i + 1, end)) {
+					quotedAddrspec = quoted;
 					return true;
+				}
 
 				precededByAtom = c.IsAtom ();
 				i++;

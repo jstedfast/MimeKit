@@ -478,6 +478,8 @@ namespace MimeKit {
 			// Note: Ambiguity over where an address begins and ends, or over which mailbox it names.
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
 			case MimeComplianceViolation.UnquotedDisplayName:
+			case MimeComplianceViolation.UnquotedAddressInDisplayName:
+			case MimeComplianceViolation.UnquotedAddressInGroupDisplayName:
 			case MimeComplianceViolation.InvalidLocalPart:
 			case MimeComplianceViolation.InvalidDomain:
 			case MimeComplianceViolation.MissingAddressSeparator:
@@ -489,9 +491,10 @@ namespace MimeKit {
 			case MimeComplianceViolation.NonConformantAddress:
 				return MimeComplianceSeverity.Major;
 
-			// Note: The input is legal rfc5322, so this rates as a hint rather than as damage. The
+			// Note: The input is legal rfc5322, so these rate as a hint rather than as damage. The
 			// harm is entirely in what software does with the display-name, which is why the
-			// severity is low but the Security category still applies.
+			// severity is low but the Security category still applies. The unquoted forms are not
+			// legal and are rated Major above.
 			case MimeComplianceViolation.AddressInDisplayName:
 			case MimeComplianceViolation.AddressInGroupDisplayName:
 				return MimeComplianceSeverity.Minor;
@@ -698,6 +701,13 @@ namespace MimeKit {
 			case MimeComplianceViolation.AddressInGroupDisplayName:
 				return Security;
 
+			// Note: The unquoted forms carry the same spoofing risk, but because the phrase ends at
+			// the unquoted special rather than at the quote, a parser can also disagree about how
+			// many addresses the header contains and which mailboxes they name.
+			case MimeComplianceViolation.UnquotedAddressInDisplayName:
+			case MimeComplianceViolation.UnquotedAddressInGroupDisplayName:
+				return Interop | DataLoss | Security;
+
 			// Note: Syntax that another implementation may read differently, or repair differently,
 			// but with no reading under which an address goes missing.
 			case MimeComplianceViolation.ExcessiveAngleBracketsInAddress:
@@ -858,8 +868,12 @@ namespace MimeKit {
 				return "The display-name of an address contained a special character that should have been quoted.";
 			case MimeComplianceViolation.AddressInDisplayName:
 				return "The display-name of a mailbox was itself shaped like an address.";
+			case MimeComplianceViolation.UnquotedAddressInDisplayName:
+				return "The unquoted display-name of a mailbox was itself shaped like an address.";
 			case MimeComplianceViolation.AddressInGroupDisplayName:
 				return "The display-name of an address group was itself shaped like an address.";
+			case MimeComplianceViolation.UnquotedAddressInGroupDisplayName:
+				return "The unquoted display-name of an address group was itself shaped like an address.";
 			case MimeComplianceViolation.InvalidLocalPart:
 				return "The local-part of an address was not a valid dot-atom or quoted-string.";
 			case MimeComplianceViolation.MissingAddressSeparator:
@@ -1038,8 +1052,12 @@ namespace MimeKit {
 				return "An unquoted display-name may only contain atoms, so values such as \"Doe, John <jdoe@example.com>\" and \"user@example.com <user@example.com>\" are not valid. The comma case is the most damaging, because a parser that does not special-case it will split the one address into two.";
 			case MimeComplianceViolation.AddressInDisplayName:
 				return "A display-name such as the one in \"\\\"admin@example.com\\\" <attacker@example.org>\" is legal, but software that shows the display-name in place of the address will present a mailbox that will not receive the reply. The address that rfc5322 defines as authoritative is the one inside the angle brackets.";
+			case MimeComplianceViolation.UnquotedAddressInDisplayName:
+				return "A display-name such as the one in \"admin@example.com <attacker@example.org>\" carries the same spoofing risk as its quoted form, but is not legal rfc5322: a display-name is a phrase, and '@' may only appear inside a quoted-string. A parser that ends the phrase at the '@' sees a naked local-part followed by a second mailbox, so the header can be read as naming either one address or two.";
 			case MimeComplianceViolation.AddressInGroupDisplayName:
 				return "A group name such as the one in \"\\\"admin@example.com\\\": attacker@example.org;\" is legal, but software that shows the group name in place of its members will present a mailbox that is not in the group. A group name is a label, not a recipient.";
+			case MimeComplianceViolation.UnquotedAddressInGroupDisplayName:
+				return "A group name such as the one in \"admin@example.com: attacker@example.org;\" carries the same spoofing risk as its quoted form, but is not legal rfc5322: a group name is a phrase, and '@' may only appear inside a quoted-string. A parser that ends the phrase at the '@' sees a naked local-part rather than the name of a group, so the header can be read as naming a mailbox that is not one of the group's members.";
 			case MimeComplianceViolation.InvalidLocalPart:
 				return "A dot-atom may not contain two consecutive dots or end with a dot, so local-parts such as \"first..last\" and \"first.\" are not valid. This is also reported when an unquoted special appears inside the local-part, as in \"a[b@example.com\" or \"a b@example.com\": section 3.4.1 of rfc5322 admits such characters only inside a quoted-string, so the local-part ends at the offending character and the rest of the address is left with no production that can consume it. Receiving systems differ over whether to reject such an address, strip the offending characters, or pass the local-part through verbatim.";
 			case MimeComplianceViolation.MissingAddressSeparator:
