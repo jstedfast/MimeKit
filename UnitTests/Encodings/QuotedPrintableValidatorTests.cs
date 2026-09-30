@@ -105,6 +105,94 @@ namespace UnitTests.Encodings {
 			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
 		}
 
+		// Note: These violations are reported at most once per line so that a crafted part cannot emit
+		// an issue for every couple of bytes of content. "=~" is the densest form the abuse can take:
+		// each pair logs an issue in the EqualSign state and then returns to the pass-through state.
+		[Test]
+		public void TestValidateInvalidHexSequenceReportedOncePerLine ()
+		{
+			const string text = "=~=~=~=~\r\n=~=~=~=~\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (2));
+
+			for (int i = 0; i < logger.Issues.Count; i++) {
+				Assert.That (logger.Issues[i].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
+				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (i * 10 + 1));
+				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (i + 1));
+				Assert.That (logger.Issues[i].ColumnNumber, Is.EqualTo (2));
+			}
+		}
+
+		// Note: This covers the same throttling for the DecodeByte state, where the octet following a
+		// valid hex digit turns out not to be one.
+		[Test]
+		public void TestValidateInvalidHexDigitReportedOncePerLine ()
+		{
+			const string text = "=A~=A~=A~\r\n=A~=A~=A~\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (2));
+
+			for (int i = 0; i < logger.Issues.Count; i++) {
+				Assert.That (logger.Issues[i].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
+				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (i * 11 + 2));
+				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (i + 1));
+				Assert.That (logger.Issues[i].ColumnNumber, Is.EqualTo (3));
+			}
+		}
+
+		[Test]
+		public void TestValidateInvalidSoftBreakReportedOncePerLine ()
+		{
+			const string text = "=\r=\r=\r\r\n=\r=\r=\r\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (2));
+
+			for (int i = 0; i < logger.Issues.Count; i++) {
+				Assert.That (logger.Issues[i].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak));
+				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (i * 8 + 2));
+				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (i + 1));
+				Assert.That (logger.Issues[i].ColumnNumber, Is.EqualTo (3));
+			}
+		}
+
+		// Note: The two violations latch independently, so a line that trips both still reports both.
+		[Test]
+		public void TestValidateInvalidHexSequenceAndSoftBreakOnSameLine ()
+		{
+			const string text = "=~=\r~\r\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (2));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (1));
+			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak));
+			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (4));
+			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (1));
+		}
+
 		[TestCase ("invalid trailing =", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
 		[TestCase ("invalid trailing =A", MimeComplianceViolation.InvalidQuotedPrintableEncoding)]
 		[TestCase ("invalid trailing =\r", MimeComplianceViolation.InvalidQuotedPrintableSoftBreak)]

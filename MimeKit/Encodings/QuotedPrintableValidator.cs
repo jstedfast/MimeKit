@@ -55,6 +55,13 @@ namespace MimeKit.Encodings {
 		int lineNumber;
 		QpValidatorState state;
 
+		// Note: Each of these violations is reported at most once per line. Reporting every occurrence
+		// of them would let a crafted part emit an issue for every couple of bytes of content (content
+		// such as "=~=~=~..." logs once per two octets), swamping every other finding in the report.
+		// They are instance fields rather than locals because a line can span multiple Write() calls.
+		bool reportedInvalidEncoding;
+		bool reportedInvalidSoftBreak;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="QuotedPrintableValidator"/> class.
 		/// </summary>
@@ -127,6 +134,8 @@ namespace MimeKit.Encodings {
 
 						lineBeginOffset = streamOffset + (inptr - input);
 						lineNumber++;
+						reportedInvalidEncoding = false;
+						reportedInvalidSoftBreak = false;
 					}
 					break;
 				case QpValidatorState.EqualSign:
@@ -140,8 +149,15 @@ namespace MimeKit.Encodings {
 						state = QpValidatorState.PassThrough;
 						lineBeginOffset = streamOffset + (inptr - input) + 1;
 						lineNumber++;
+						reportedInvalidEncoding = false;
+						reportedInvalidSoftBreak = false;
 					} else {
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
+						if (!reportedInvalidEncoding) {
+							reportedInvalidEncoding = true;
+
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
+						}
+
 						state = QpValidatorState.PassThrough;
 					}
 
@@ -152,7 +168,11 @@ namespace MimeKit.Encodings {
 						inptr++;
 						lineBeginOffset = streamOffset + (inptr - input);
 						lineNumber++;
-					} else {
+						reportedInvalidEncoding = false;
+						reportedInvalidSoftBreak = false;
+					} else if (!reportedInvalidSoftBreak) {
+						reportedInvalidSoftBreak = true;
+
 						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
 					}
 
@@ -162,11 +182,17 @@ namespace MimeKit.Encodings {
 					c = *inptr;
 
 					if (!c.IsXDigit ()) {
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
+						if (!reportedInvalidEncoding) {
+							reportedInvalidEncoding = true;
+
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
+						}
 
 						if (c == '\n') {
 							lineBeginOffset = streamOffset + (inptr - input) + 1;
 							lineNumber++;
+							reportedInvalidEncoding = false;
+							reportedInvalidSoftBreak = false;
 						}
 					}
 
