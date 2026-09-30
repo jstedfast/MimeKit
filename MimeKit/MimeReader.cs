@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeReader.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -91,6 +91,7 @@ namespace MimeKit {
 		long currentContentTypeOffset;
 
 		ContentEncoding? currentEncoding;
+		int currentEncodingColumnNumber;
 		int currentEncodingLineNumber;
 		long currentEncodingOffset;
 
@@ -1721,6 +1722,55 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Get the position of the first byte of a header's value.
+		/// </summary>
+		/// <remarks>
+		/// Violations that are a property of a header's value (rather than of the header as a whole)
+		/// can be reported at an exact position without re-scanning the input, because the raw value
+		/// and the position of the header that contains it are both known. Any folding whitespace
+		/// between the ':' and the value is skipped, so the position is that of the value itself even
+		/// when the header has been folded onto a subsequent line.
+		/// </remarks>
+		static long GetHeaderValueOffset (Header header, long beginOffset, int beginLineNumber, out int lineNumber, out int columnNumber)
+		{
+			// Note: A header always begins at column 1 of the line that it starts on, so the byte
+			// immediately following the ':' is at column rawField.Length + 2.
+			int startColumn = header.RawField.Length + 2;
+			long startOffset = beginOffset + header.RawField.Length + 1;
+			var rawValue = header.RawValue;
+			int index = 0;
+
+			lineNumber = beginLineNumber;
+			columnNumber = startColumn;
+
+			while (index < rawValue.Length) {
+				byte c = rawValue[index];
+
+				if (c == (byte) '\n') {
+					lineNumber++;
+					columnNumber = 1;
+				} else if (c == (byte) ' ' || c == (byte) '\t' || c == (byte) '\r') {
+					columnNumber++;
+				} else {
+					break;
+				}
+
+				index++;
+			}
+
+			if (index == rawValue.Length) {
+				// The value is empty (or consists entirely of whitespace), so skipping it would point at
+				// the header that follows. Point at the byte immediately after the ':' instead.
+				lineNumber = beginLineNumber;
+				columnNumber = startColumn;
+
+				return startOffset;
+			}
+
+			return startOffset + index;
+		}
+
 		void UpdateHeaderState (Header header, long beginOffset, int beginLineNumber)
 		{
 			var rawValue = header.RawValue;
@@ -1737,13 +1787,15 @@ namespace MimeKit {
 			switch (header.Id) {
 			case HeaderId.ContentTransferEncoding:
 				if (!currentEncoding.HasValue) {
+					// Note: The Content-Transfer-Encoding violations are all properties of the value, so
+					// record its position for the ones that are not detected until the entity is created.
+					currentEncodingOffset = GetHeaderValueOffset (header, beginOffset, beginLineNumber, out currentEncodingLineNumber, out currentEncodingColumnNumber);
+
 					if (!MimeUtils.TryParse (header.Value, out ContentEncoding encoding)) {
-						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidContentTransferEncoding, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+						ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, currentEncodingColumnNumber));
 					}
 
 					currentEncoding = encoding;
-					currentEncodingOffset = beginOffset;
-					currentEncodingLineNumber = beginLineNumber;
 				} else if (ComplianceLogger != null) {
 					ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.RepeatedContentTransferEncoding, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 				}
@@ -2125,6 +2177,7 @@ namespace MimeKit {
 			currentEncoding = null;
 			currentEncodingOffset = -1;
 			currentEncodingLineNumber = -1;
+			currentEncodingColumnNumber = 1;
 
 			OnHeadersBegin (headerBlockBegin, headersBeginLineNumber, cancellationToken);
 
@@ -2528,7 +2581,7 @@ namespace MimeKit {
 			if (IsMultipart (contentType)) {
 				if (encoding.HasValue && encoding != ContentEncoding.SevenBit && encoding != ContentEncoding.EightBit) {
 					// Note: multiparts are only allowed to have a Content-Transfer-Encoding of 7bit or 8bit
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMultipartContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMultipartContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, currentEncodingColumnNumber));
 
 					// Note: Even though this is illegally encoded, ParserOptions.CreateEntity() still returns
 					// a new Multipart in these cases so we need to be consistent.
@@ -2539,7 +2592,7 @@ namespace MimeKit {
 			} else if (IsMessagePart (contentType)) {
 				if (encoding.HasValue && ParserOptions.IsEncoded (encoding.Value)) {
 					// Note: message/rfc822 (and similar) parts are not supposed to be encoded
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, currentEncodingOffset, currentEncodingLineNumber, currentEncodingColumnNumber));
 
 					return MimeEntityType.MimePart;
 				}

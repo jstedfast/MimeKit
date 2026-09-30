@@ -1,4 +1,4 @@
-//
+﻿//
 // AsyncMimeParser.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -150,6 +150,7 @@ namespace MimeKit {
 			currentEncoding = null;
 			currentEncodingOffset = -1;
 			currentEncodingLineNumber = -1;
+			currentEncodingColumnNumber = 1;
 
 			await OnHeadersBeginAsync (headerBlockBegin, headersBeginLineNumber, cancellationToken).ConfigureAwait (false);
 

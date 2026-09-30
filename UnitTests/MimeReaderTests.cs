@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeReaderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -1080,7 +1080,7 @@ ABC
 		public void TestMimeComplianceInvalidContentTransferEncodingBasic ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 28)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-transfer-encoding-basic.eml", issues);
@@ -1090,7 +1090,7 @@ ABC
 		public Task TestMimeComplianceInvalidContentTransferEncodingBasicAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidContentTransferEncoding, 7, 28)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-transfer-encoding-basic.eml", issues);
@@ -1100,7 +1100,7 @@ ABC
 		public void TestMimeComplianceInvalidContentTransferEncodingMultipart ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 28)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-transfer-encoding-multipart.eml", issues);
@@ -1110,7 +1110,7 @@ ABC
 		public Task TestMimeComplianceInvalidContentTransferEncodingMultipartAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMultipartContentTransferEncoding, 10, 28)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-transfer-encoding-multipart.eml", issues);
@@ -1120,7 +1120,7 @@ ABC
 		public void TestMimeComplianceInvalidContentTransferEncodingRfc822 ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 28)
 			};
 
 			AssertMimeComplianceViolations ("invalid-content-transfer-encoding-rfc822.eml", issues);
@@ -1130,10 +1130,63 @@ ABC
 		public Task TestMimeComplianceInvalidContentTransferEncodingRfc822Async ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, 7, 28)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-content-transfer-encoding-rfc822.eml", issues);
+		}
+
+		// Note: The Content-Transfer-Encoding value of this message is folded onto the line following
+		// the ':'. This is a regression test for the position of the Content-Transfer-Encoding
+		// violations, which is the start of the value rather than the start of the header, so skipping
+		// the folding whitespace has to keep track of the line number as well as the column.
+		const string FoldedContentTransferEncodingText = "From: mimekit@example.org\r\n" +
+			"To: mimekit@example.org\r\n" +
+			"Subject: folded Content-Transfer-Encoding\r\n" +
+			"MIME-Version: 1.0\r\n" +
+			"Content-Type: message/rfc822\r\n" +
+			"Content-Transfer-Encoding:\r\n" +
+			"\tbase64\r\n" +
+			"\r\n" +
+			"VGhpcyBpcyB0aGUgcmZjODIyIG1lc3NhZ2UgYm9keS4K\r\n";
+
+		static void AssertFoldedContentTransferEncoding (TestMimeComplianceLogger logger)
+		{
+			var offset = FoldedContentTransferEncodingText.IndexOf ("base64", StringComparison.Ordinal);
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
+
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding), "Violation");
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (offset), "StreamOffset");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (7), "LineNumber");
+			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (2), "ColumnNumber");
+			Assert.That (logger.Issues[0].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "PositionKind");
+		}
+
+		[Test]
+		public void TestFoldedContentTransferEncodingPosition ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (FoldedContentTransferEncodingText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertFoldedContentTransferEncoding (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestFoldedContentTransferEncodingPositionAsync ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (FoldedContentTransferEncodingText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertFoldedContentTransferEncoding (logger);
+			}
 		}
 
 		[Test]
