@@ -1026,5 +1026,25 @@ namespace MimeKit {
 		IncompleteUUEncodedContent                  = 82,
 
 		#endregion
+
+		#region Diagnostics
+
+		/// <summary>
+		/// Too many compliance issues were detected and the remainder were suppressed.
+		/// </summary>
+		/// <remarks>
+		/// <para>This is not a defect in the message being parsed. It is reported when
+		/// <see cref="MimeReader.MaxComplianceIssuesPerViolation"/> is configured and some violation has
+		/// reached its limit, meaning that further occurrences of it were not passed on to the logger and
+		/// that the report is therefore incomplete.</para>
+		/// <para>It is reported at most once per parse operation, at the position of the first suppressed
+		/// issue.</para>
+		/// <para>Unlike every other member, this does not take the next unused value. It is not a MIME
+		/// defect and does not belong in the catalogue of them, so it is deliberately parked at the end
+		/// of the range, leaving the defect values contiguous and free to grow.</para>
+		/// </remarks>
+		TooManyComplianceIssues                     = int.MaxValue,
+
+		#endregion
 	}
 }

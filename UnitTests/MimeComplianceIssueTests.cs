@@ -192,7 +192,9 @@ namespace UnitTests {
 		{
 			// Note: The MimeComplianceIssue constructor range check is written in terms of the largest
 			// defined violation. If a new violation is appended, the check must be updated to match.
-			var max = Enum.GetValues<MimeComplianceViolation> ().Max ();
+			// TooManyComplianceIssues is excluded because it sits outside that contiguous range and the
+			// constructor checks for it separately.
+			var max = Enum.GetValues<MimeComplianceViolation> ().Where (v => v != MimeComplianceViolation.TooManyComplianceIssues).Max ();
 
 			Assert.That (max, Is.EqualTo (MimeComplianceViolation.IncompleteUUEncodedContent));
 		}
@@ -566,6 +568,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, Interop | DataLoss },
 				{ MimeComplianceViolation.InvalidUUEncodeEndMarker, Interop },
 				{ MimeComplianceViolation.IncompleteUUEncodedContent, DataLoss },
+				{ MimeComplianceViolation.TooManyComplianceIssues, Security },
 				{ MimeComplianceViolation.ExcessiveAngleBracketsInAddress, Interop },
 				{ MimeComplianceViolation.UnbalancedAngleBracketsInAddress, Interop },
 				{ MimeComplianceViolation.UnbalancedQuotesInAddress, Interop | DataLoss | Security },

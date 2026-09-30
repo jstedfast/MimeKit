@@ -32,12 +32,12 @@ namespace MimeKit {
 	/// <para>Implementations of this interface are intended to capture and record information about MIME
 	/// compliance issues detected during parsing. This can be used for diagnostics, auditing, or
 	/// reporting purposes in systems that process MIME data.</para>
-	/// <para>No limit is placed on how many issues a single message, or even a single header, may
-	/// produce. A malformed message is not obliged to be malformed in only a few places, and the
-	/// parser has no basis on which to decide that a caller has heard enough, so the number of issues
-	/// is bounded only by the size of the input. An implementation that retains issues rather than
-	/// summarizing them should impose whatever limit suits it, particularly when the messages being
-	/// parsed are untrusted.</para>
+	/// <para>No limit is placed by default on how many issues a single message, or even a single
+	/// header, may produce. A malformed message is not obliged to be malformed in only a few places,
+	/// so the number of issues is bounded only by the size of the input. When the messages being
+	/// parsed are untrusted, set <see cref="MimeReader.MaxComplianceIssuesPerViolation"/> to bound
+	/// the report. An implementation that retains issues rather than summarizing them should impose
+	/// its own limit as well, since it cannot assume that every caller configures one.</para>
 	/// </remarks>
 	public interface IMimeComplianceLogger
 	{

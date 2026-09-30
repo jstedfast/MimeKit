@@ -87,7 +87,9 @@ namespace MimeKit {
 			if (context != MimeComplianceContext.Transport && context != MimeComplianceContext.Storage)
 				throw new ArgumentOutOfRangeException (nameof (context));
 
-			if (violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.IncompleteUUEncodedContent)
+			// Note: TooManyComplianceIssues is not part of the contiguous range of defects, so it is
+			// checked separately.
+			if ((violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.IncompleteUUEncodedContent) && violation != MimeComplianceViolation.TooManyComplianceIssues)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
 			if (positionKind < MimeCompliancePositionKind.Exact || positionKind > MimeCompliancePositionKind.ElementStart)
@@ -531,6 +533,13 @@ namespace MimeKit {
 			case MimeComplianceViolation.EmptyGroupName:
 				return MimeComplianceSeverity.Minor;
 
+			// Note: This is not a defect in the message, but a consumer that only looks at Major and
+			// above still needs to be told that the report it is looking at is incomplete. Rating it
+			// any lower would let a flood of minor issues hide the truncation as well as the
+			// violations the truncation suppressed.
+			case MimeComplianceViolation.TooManyComplianceIssues:
+				return MimeComplianceSeverity.Major;
+
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -764,6 +773,13 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedResentMessageId:
 				return Interop;
 
+			// Note: The message did not cause this, so no category describes harm that the message does.
+			// Security applies all the same: a suppressed report is a blind spot, and hiding a violation
+			// from whatever is inspecting the message is exactly what an attacker would want out of a
+			// flood of cheap ones.
+			case MimeComplianceViolation.TooManyComplianceIssues:
+				return Security;
+
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -948,6 +964,8 @@ namespace MimeKit {
 				return "The uuencoded content of a MIME part contained non-whitespace content after the end marker.";
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
 				return "The uuencoded content of a MIME part did not properly end.";
+			case MimeComplianceViolation.TooManyComplianceIssues:
+				return "Too many compliance issues were detected and the remainder were suppressed.";
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}
@@ -1132,6 +1150,8 @@ namespace MimeKit {
 				return "UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
 			case MimeComplianceViolation.IncompleteUUEncodedContent:
 				return "UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers can lead to decoding issues and inconsistent behavior among different MIME parser implementations.";
+			case MimeComplianceViolation.TooManyComplianceIssues:
+				return "A limit was placed on how many times each violation may be reported and some violation reached it, so the remaining occurrences of that violation were not reported. Other violations continue to be reported until they reach the limit themselves, but the report as a whole is no longer a complete account of what is wrong with the message.";
 			default:
 				throw new ArgumentOutOfRangeException (nameof (violation));
 			}

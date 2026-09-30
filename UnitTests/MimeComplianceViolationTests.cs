@@ -129,6 +129,7 @@ namespace UnitTests {
 			{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, 80 },
 			{ MimeComplianceViolation.InvalidUUEncodeEndMarker, 81 },
 			{ MimeComplianceViolation.IncompleteUUEncodedContent, 82 },
+			{ MimeComplianceViolation.TooManyComplianceIssues, int.MaxValue },
 		};
 
 		[Test]
@@ -164,7 +165,9 @@ namespace UnitTests {
 			// Note: A new violation does not have to be declared last -- members are grouped by subject
 			// matter so that the enumeration reads well -- but it must take the next unused value.
 			// Relax this only if a violation is ever deliberately retired, leaving a permanent gap.
-			var values = Enum.GetValues<MimeComplianceViolation> ().Select (v => (int) v).ToList ();
+			// TooManyComplianceIssues is not a MIME defect and is parked at the end of the range on
+			// purpose, so that the defect values stay contiguous and free to grow.
+			var values = Enum.GetValues<MimeComplianceViolation> ().Where (v => v != MimeComplianceViolation.TooManyComplianceIssues).Select (v => (int) v).ToList ();
 
 			Assert.That (values.Min (), Is.EqualTo (0), "The first violation should have the value 0.");
 			Assert.That (values.Max (), Is.EqualTo (values.Count - 1), "The values should be contiguous, so a new violation must take the next unused value rather than reusing or displacing an existing one.");
