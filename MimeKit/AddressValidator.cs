@@ -176,9 +176,9 @@ namespace MimeKit {
 			// demand rather than tracked on every advance, which would be easy to get subtly wrong.
 			// The column falls out of the same scan that counts the lines.
 			if (at < scanIndex) {
-				// Note: A violation behind the last one, such as a group terminator reported at the
-				// ':' that opened the group once the end of the value has been reached. Rare enough
-				// that starting the scan over costs less than remembering where every line began.
+				// Note: A violation behind the last one, such as an unbalanced quote reported at the
+				// opening '"' once the end of the value has been reached. Rare enough that starting
+				// the scan over costs less than remembering where every line began.
 				scanIndex = startIndex;
 				scanLine = lineNumber;
 				scanLineBegin = -1;
@@ -1253,8 +1253,6 @@ namespace MimeKit {
 			if (unquotedSpecial)
 				Log (MimeComplianceViolation.UnquotedDisplayName, specialIndex);
 
-			int start = index;
-
 			// skip over the ':'
 			index++;
 
@@ -1263,13 +1261,13 @@ namespace MimeKit {
 			inGroupList = true;
 
 			try {
-				ValidateGroupList (start);
+				ValidateGroupList ();
 			} finally {
 				inGroupList = wasInGroupList;
 			}
 		}
 
-		void ValidateGroupList (int start)
+		void ValidateGroupList ()
 		{
 			do {
 				if (!SkipCFWS ())
@@ -1329,7 +1327,11 @@ namespace MimeKit {
 				index++;
 			} while (true);
 
-			Log (MimeComplianceViolation.MissingGroupTerminator, start);
+			// Note: This is only reached by breaking out of the loop above, which happens once the end
+			// of the value has been reached, so endIndex is where the missing ';' belongs. Pointing at
+			// the insertion point rather than at the ':' that opened the group is what tells a reader
+			// how much of the value the group swallowed.
+			Log (MimeComplianceViolation.MissingGroupTerminator, endIndex);
 		}
 
 		/// <summary>

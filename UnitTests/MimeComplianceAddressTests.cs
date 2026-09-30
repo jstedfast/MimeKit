@@ -693,6 +693,13 @@ namespace UnitTests {
 		[TestCase ("To", "user@.example.com", MimeComplianceViolation.InvalidDomain, 10)]
 		[TestCase ("To", "user@example..com.", MimeComplianceViolation.InvalidDomain, 18)]
 		[TestCase ("Cc", "a@example.com b@example.com", MimeComplianceViolation.MissingAddressSeparator, 19)]
+		// Note: A group is only reported as unterminated once the end of the value has been reached,
+		// so the caret marks where the missing ';' belongs rather than the ':' that opened the group.
+		// Trailing whitespace is not part of the value, so the caret lands right after the last
+		// address rather than at the end of the line.
+		[TestCase ("To", "Friends: a@example.com, b@example.com", MimeComplianceViolation.MissingGroupTerminator, 42)]
+		[TestCase ("To", "undisclosed-recipients:", MimeComplianceViolation.MissingGroupTerminator, 28)]
+		[TestCase ("To", "Friends: a@example.com  ", MimeComplianceViolation.MissingGroupTerminator, 27)]
 		[TestCase ("Bcc", "\"Jo\rhn\" <j@example.com>", MimeComplianceViolation.LineBreakInAddress, 9)]
 		public void TestViolationColumnNumber (string field, string value, MimeComplianceViolation violation, int column)
 		{
@@ -715,6 +722,29 @@ namespace UnitTests {
 
 			// Note: The column and the stream offset must name the same byte.
 			Assert.That (issue.StreamOffset, Is.EqualTo (issue.ColumnNumber - 1), "StreamOffset");
+		}
+
+		[Test]
+		public void TestMissingGroupTerminatorPositionInFoldedHeader ()
+		{
+			// Note: The group runs to the end of the value, so the insertion point for the missing
+			// ';' is on the continuation line rather than on the line the ':' appeared on.
+			var text = "To: Friends: a@example.com,\r\n\tb@example.com\r\n\r\nbody\r\n";
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+			}
+
+			var issue = logger.Issues.Single (i => i.Violation == MimeComplianceViolation.MissingGroupTerminator);
+
+			Assert.That (issue.LineNumber, Is.EqualTo (2), "LineNumber");
+
+			// Note: "\tb@example.com" - the tab is column 1, so the byte after the address is column 15.
+			Assert.That (issue.ColumnNumber, Is.EqualTo (15), "ColumnNumber");
+			Assert.That (issue.StreamOffset, Is.EqualTo (text.IndexOf ("\r\n\r\n")), "StreamOffset");
 		}
 
 		[Test]
