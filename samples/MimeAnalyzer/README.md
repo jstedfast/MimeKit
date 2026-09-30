@@ -88,6 +88,35 @@ MimeAnalyzer ../../UnitTests/TestData/compliance/incomplete-header.eml \
 
 When more than one file is given, each is analyzed and summarized independently.
 
+## The bundled sample message
+
+Each file in that corpus isolates a single violation. `noncompliant.eml`, next to this README,
+is the opposite: one message that packs in as many different violations as a single message can
+plausibly hold — roughly sixty issues spanning every category and all three severities.
+
+```
+MimeAnalyzer noncompliant.eml
+```
+
+It is a `multipart/mixed` whose headers contain a dozen malformed addresses, repeated `Date` and
+`Subject` fields, a header field name containing a space, raw koi8-r bytes, a bare linefeed, an
+oversized line, and a preamble that is not 7-bit clean. Its child parts then cover the body-side
+rules: repeated `Content-Type`/`Content-Transfer-Encoding` headers, 8-bit and null bytes in the
+body, broken base64, quoted-printable and uuencoded content, an illegal transfer encoding on a
+`message/rfc822` part and on a nested multipart, an unparsable `Content-Type`, a missing and an
+unusable `boundary` parameter, a header that is never terminated, and a multipart that is never
+closed.
+
+Because it deliberately contains NUL bytes, 8-bit bytes in several charsets, a bare linefeed and
+a line over 1000 characters long, it is not a file that survives hand-editing. It is generated
+instead by `gen-sample.ps1`:
+
+```
+pwsh ./gen-sample.ps1
+```
+
+Edit that script rather than the `.eml` when you want to add or change a case.
+
 ## How it works
 
 Compliance validation is exposed on `MimeReader`, the low-level scanner that `MimeParser` is
