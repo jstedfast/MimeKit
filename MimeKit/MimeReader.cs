@@ -1802,7 +1802,18 @@ namespace MimeKit {
 				Array.Resize (ref headerBuffer, NextAllocSize (size));
 		}
 
-		unsafe bool TryDetectInvalidHeader (byte* inbuf, out bool invalid, out int fieldNameLength, out int headerFieldLength)
+		/// <summary>
+		/// Scan ahead to determine whether the header field name is valid.
+		/// </summary>
+		/// <param name="inbuf">The input buffer.</param>
+		/// <param name="invalid">Whether the field name contains a blank or a control character.</param>
+		/// <param name="invalidIndex">
+		/// The index, relative to <see cref="inputIndex"/>, of the byte that made the field name invalid.
+		/// Only meaningful when <paramref name="invalid"/> is <see langword="true" />.
+		/// </param>
+		/// <param name="fieldNameLength">The length of the field name, excluding any blanks before the ':'.</param>
+		/// <param name="headerFieldLength">The length of the header field, up to (but excluding) the ':'.</param>
+		unsafe bool TryDetectInvalidHeader (byte* inbuf, out bool invalid, out int invalidIndex, out int fieldNameLength, out int headerFieldLength)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -1812,15 +1823,26 @@ namespace MimeKit {
 			*inend = (byte) ':';
 
 			fieldNameLength = 0;
+			invalidIndex = 0;
 
 			while (*inptr != (byte) ':') {
 				// Blank spaces are allowed between the field name and the ':', but field names themselves are not allowed to contain spaces.
 				if (IsBlank (*inptr)) {
-					if (fieldNameLength == 0)
+					if (!blanks) {
 						fieldNameLength = (int) (inptr - start);
-					blanks = true;
+
+						// Note: If a non-blank follows, this blank is what makes the field name invalid,
+						// so remember it now. Scanning for it again later would mean re-reading input
+						// that the parser has already moved past.
+						invalidIndex = fieldNameLength;
+						blanks = true;
+					}
 				} else if (blanks || IsControl (*inptr)) {
 					headerFieldLength = (int) (inptr - start);
+
+					if (!blanks)
+						invalidIndex = headerFieldLength;
+
 					invalid = true;
 					return true;
 				}
@@ -2115,6 +2137,7 @@ namespace MimeKit {
 				int left = inputEnd - inputIndex;
 				int headerFieldLength;
 				int fieldNameLength;
+				int invalidIndex;
 				bool invalid;
 
 				headerIndex = 0;
@@ -2146,12 +2169,13 @@ namespace MimeKit {
 				}
 
 				// Scan ahead a bit to see if this looks like an invalid header.
-				while (!TryDetectInvalidHeader (inbuf, out invalid, out fieldNameLength, out headerFieldLength)) {
+				while (!TryDetectInvalidHeader (inbuf, out invalid, out invalidIndex, out fieldNameLength, out headerFieldLength)) {
 					int atleast = (inputEnd - inputIndex) + 1;
 
 					if (ReadAhead (atleast, 0, cancellationToken) < atleast) {
 						// Not enough input to even find the ':'... mark as invalid and continue?
 						invalid = true;
+						invalidIndex = -1;
 						break;
 					}
 				}
@@ -2198,7 +2222,12 @@ namespace MimeKit {
 						// Fall through and act as if we're consuming a header.
 					}
 
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					if (ComplianceLogger != null) {
+						if (invalidIndex >= 0)
+							ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset + invalidIndex, beginLineNumber, invalidIndex + 1));
+						else
+							ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					}
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;

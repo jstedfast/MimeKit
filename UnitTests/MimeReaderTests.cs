@@ -982,7 +982,7 @@ ABC
 		public void TestMimeComplianceInvalidHeaderFieldNameWithSpace ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 1, MimeCompliancePositionKind.ElementStart),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 10),
 			};
 
 			AssertMimeComplianceViolations ("invalid-header-field-with-space.eml", issues);
@@ -992,10 +992,68 @@ ABC
 		public Task TestMimeComplianceInvalidHeaderFieldNameWithSpaceAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 1, MimeCompliancePositionKind.ElementStart),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.InvalidHeader, 7, 10),
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-header-field-with-space.eml", issues);
+		}
+
+		// Note: The field names of the last 2 headers in this message are invalid. The first contains
+		// a space and the second contains a control character. This is a regression test: the reported
+		// position of an InvalidHeader used to always be the start of the header rather than the
+		// offending character within the field name.
+		const string InvalidHeaderFieldNamesText = "From: mimekit@example.org\r\n" +
+			"To: mimekit@example.org\r\n" +
+			"Subject: invalid header field names\r\n" +
+			"X-Invalid Header: the field name contains a space\r\n" +
+			"X-Ctl\u0001Header: the field name contains a control character\r\n" +
+			"\r\n" +
+			"This is the body.\r\n";
+
+		static void AssertInvalidHeaderFieldNames (TestMimeComplianceLogger logger)
+		{
+			var spaceOffset = InvalidHeaderFieldNamesText.IndexOf ("X-Invalid Header", StringComparison.Ordinal) + "X-Invalid".Length;
+			var controlOffset = InvalidHeaderFieldNamesText.IndexOf ("X-Ctl\u0001Header", StringComparison.Ordinal) + "X-Ctl".Length;
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (2), "ComplianceViolations");
+
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidHeader), "Violation #1");
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (spaceOffset), "StreamOffset #1");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (4), "LineNumber #1");
+			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (10), "ColumnNumber #1");
+			Assert.That (logger.Issues[0].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "PositionKind #1");
+
+			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.InvalidHeader), "Violation #2");
+			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (controlOffset), "StreamOffset #2");
+			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (5), "LineNumber #2");
+			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (6), "ColumnNumber #2");
+			Assert.That (logger.Issues[1].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "PositionKind #2");
+		}
+
+		[Test]
+		public void TestInvalidHeaderFieldNamePositions ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (InvalidHeaderFieldNamesText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertInvalidHeaderFieldNames (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestInvalidHeaderFieldNamePositionsAsync ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (InvalidHeaderFieldNamesText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertInvalidHeaderFieldNames (logger);
+			}
 		}
 
 		[Test]

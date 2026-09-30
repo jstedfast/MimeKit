@@ -162,6 +162,7 @@ namespace MimeKit {
 				int left = inputEnd - inputIndex;
 				int headerFieldLength;
 				int fieldNameLength;
+				int invalidIndex;
 				bool invalid;
 
 				headerIndex = 0;
@@ -196,7 +197,7 @@ namespace MimeKit {
 				do {
 					unsafe {
 						fixed (byte* inbuf = input) {
-							if (TryDetectInvalidHeader (inbuf, out invalid, out fieldNameLength, out headerFieldLength))
+							if (TryDetectInvalidHeader (inbuf, out invalid, out invalidIndex, out fieldNameLength, out headerFieldLength))
 								break;
 						}
 					}
@@ -206,6 +207,7 @@ namespace MimeKit {
 					if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) < atleast) {
 						// Not enough input to even find the ':'... mark as invalid and continue?
 						invalid = true;
+						invalidIndex = -1;
 						break;
 					}
 				} while (true);
@@ -266,7 +268,12 @@ namespace MimeKit {
 						// Fall through and act as if we're consuming a header.
 					}
 
-					ComplianceLogger?.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					if (ComplianceLogger != null) {
+						if (invalidIndex >= 0)
+							ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset + invalidIndex, beginLineNumber, invalidIndex + 1));
+						else
+							ComplianceLogger.Log (new MimeComplianceIssue (ComplianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					}
 
 					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
