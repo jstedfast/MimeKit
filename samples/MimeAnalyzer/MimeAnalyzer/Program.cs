@@ -37,8 +37,12 @@ namespace MimeAnalyzerExample
 	/// An <see cref="IMimeComplianceLogger"/> that collects the issues reported by the parser.
 	/// </summary>
 	/// <remarks>
-	/// The parser places no limit on how many issues a message may produce, so a logger that
-	/// retains them needs a limit of its own. See the remarks on <see cref="IMimeComplianceLogger"/>.
+	/// <para>The parser places no limit by default on how many issues a message may produce, so a
+	/// logger that retains them needs a limit of its own. See the remarks on
+	/// <see cref="IMimeComplianceLogger"/>.</para>
+	/// <para>This is a belt-and-braces limit: <see cref="MimeReader.MaxComplianceIssuesPerViolation"/>
+	/// bounds the report at the source, but a logger cannot assume that every caller configures
+	/// it.</para>
 	/// </remarks>
 	class ComplianceCollector : IMimeComplianceLogger
 	{
@@ -56,7 +60,8 @@ namespace MimeAnalyzerExample
 		}
 
 		/// <summary>
-		/// Get whether collection stopped early because the limit was reached.
+		/// Get whether the report is incomplete, either because the parser suppressed issues or
+		/// because this collector reached its own limit.
 		/// </summary>
 		public bool Truncated {
 			get; private set;
@@ -64,6 +69,16 @@ namespace MimeAnalyzerExample
 
 		public void Log (in MimeComplianceIssue issue)
 		{
+			// Note: This is not a defect in the message, it is the parser saying that it stopped
+			// reporting some violation. It is recorded as truncation rather than shown as a
+			// diagnostic, because it has no source construct to point at and counting it as a
+			// warning would inflate the summary -- and, under --werror, the exit code -- for a
+			// message that may be perfectly fine apart from being verbosely wrong in one place.
+			if (issue.Violation == MimeComplianceViolation.TooManyComplianceIssues) {
+				Truncated = true;
+				return;
+			}
+
 			if (issues.Count < limit)
 				issues.Add (issue);
 			else
@@ -559,6 +574,7 @@ namespace MimeAnalyzerExample
 		public bool Color = true;
 		public bool Quiet;
 		public int MaxIssues = 1000;
+		public int MaxIssuesPerViolation;
 	}
 
 	static class Program
@@ -585,6 +601,10 @@ namespace MimeAnalyzerExample
 			Console.WriteLine ("  -r, --remarks                  Print the detailed explanation of each issue.");
 			Console.WriteLine ("  -W, --werror                   Report every issue as an error.");
 			Console.WriteLine ("      --max-issues <n>           Stop collecting after n issues. Default: 1000.");
+			Console.WriteLine ("      --max-per-violation <n>    Ask the parser to report each violation at most n");
+			Console.WriteLine ("                                 times. Recommended for untrusted messages, which");
+			Console.WriteLine ("                                 can be built to produce issues in bulk.");
+			Console.WriteLine ("                                 Default: 0, meaning no limit.");
 			Console.WriteLine ("      --no-caret                 Do not quote the offending source line.");
 			Console.WriteLine ("      --no-color                 Disable colored output.");
 			Console.WriteLine ("  -q, --quiet                    Only print the per-file summary.");
@@ -661,6 +681,11 @@ namespace MimeAnalyzerExample
 					if (!int.TryParse (max, out options.MaxIssues) || options.MaxIssues < 1)
 						throw new FormatException (string.Format ("Invalid issue limit: {0}", max));
 					break;
+				case "--max-per-violation":
+					var maxPerViolation = GetArgument (args, ref i, arg);
+					if (!int.TryParse (maxPerViolation, out options.MaxIssuesPerViolation) || options.MaxIssuesPerViolation < 0)
+						throw new FormatException (string.Format ("Invalid per-violation limit: {0}", maxPerViolation));
+					break;
 				case "-r":
 				case "--remarks":
 					options.ShowRemarks = true;
@@ -711,7 +736,8 @@ namespace MimeAnalyzerExample
 			using (var stream = File.OpenRead (fileName)) {
 				var reader = new MimeReader (stream) {
 					ComplianceContext = options.Context,
-					ComplianceLogger = collector
+					ComplianceLogger = collector,
+					MaxComplianceIssuesPerViolation = options.MaxIssuesPerViolation
 				};
 
 				// Note: MimeReader only scans the message, it does not construct a MimeMessage, so

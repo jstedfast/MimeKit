@@ -31,6 +31,7 @@ Each argument is an individual message file, parsed with `MimeFormat.Default`.
 | `-r`, `--remarks` | Print the detailed explanation of each issue. |
 | `-W`, `--werror` | Report every issue as an error. |
 | `--max-issues <n>` | Stop collecting after `n` issues. Default: 1000. |
+| `--max-per-violation <n>` | Ask the parser to report each violation at most `n` times. Default: 0, meaning no limit. |
 | `--no-caret` | Do not quote the offending source line. |
 | `--no-color` | Disable colored output. |
 | `-q`, `--quiet` | Only print the per-file summary. |
@@ -129,7 +130,8 @@ var collector = new ComplianceCollector (maxIssues);
 using (var stream = File.OpenRead (fileName)) {
     var reader = new MimeReader (stream) {
         ComplianceContext = context,
-        ComplianceLogger = collector
+        ComplianceLogger = collector,
+        MaxComplianceIssuesPerViolation = maxPerViolation
     };
 
     reader.ReadMessage ();
@@ -137,8 +139,21 @@ using (var stream = File.OpenRead (fileName)) {
 ```
 
 `ComplianceCollector` implements `IMimeComplianceLogger`, whose single `Log (in MimeComplianceIssue)`
-method is called for each violation found. MimeKit places no limit on how many issues it will
-report, so a logger that retains them has to impose its own cap — hence the `--max-issues` option.
+method is called for each violation found. By default MimeKit places no limit on how many issues it
+will report, and the number is bounded only by the size of the message — a message built for the
+purpose can produce one issue every few bytes. There are two defenses, and the sample uses both:
+
+* `MimeReader.MaxComplianceIssuesPerViolation` (`--max-per-violation`) bounds the report at the
+  source. The budget is per violation rather than a single total, so that a flood of one cheap
+  violation cannot push a more interesting one out of the report. When a budget runs out, a single
+  `TooManyComplianceIssues` issue is reported so the report is never silently incomplete.
+* The collector's own cap (`--max-issues`), because a logger cannot assume that every caller
+  configures the first one.
+
+`ComplianceCollector` does not print `TooManyComplianceIssues` as a diagnostic: it has no source
+construct to point at, and counting it as a warning would inflate the summary — and, under
+`--werror`, the exit code — for a message that may be fine apart from being verbosely wrong in one
+place. It is reported as the `issue limit reached` note instead.
 
 Each `MimeComplianceIssue` carries a `Severity`, a set of `Categories`, a one-based `LineNumber`,
 and a one-based `ColumnNumber` (or `0` when the column is unknown, in which case the sample
