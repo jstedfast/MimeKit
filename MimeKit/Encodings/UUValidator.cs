@@ -374,8 +374,9 @@ namespace MimeKit.Encodings {
 						// of them can be consumed in bulk. This avoids having to do the range check and
 						// the quantum bookkeeping one byte at a time.
 						// Note: When uulen is 0, the rest of the line is data beyond the declared length.
-						// Unless that has already been reported, each of those octets has to go through the
-						// per-octet path, so there is nothing to gain from scanning ahead here.
+						// Unless that has already been reported, the first of those octets has to go
+						// through the per-octet path in order to report it, so there is nothing to gain
+						// from scanning ahead here.
 						if (!eoln && (uulen > 0 || reportedExtraData)) {
 							int remaining = (int) (inend - inptr);
 							int count;
@@ -386,9 +387,13 @@ namespace MimeKit.Encodings {
 							// run to the end of the line instead of stopping on every invalid octet. Without
 							// this, a line of invalid octets re-enters the scan once per byte having made no
 							// progress.
+							// Note: The same applies once the extra data has been reported. The octets past
+							// the declared length are not payload, so stopping the scan on the invalid ones
+							// would only make the report depend on what the trailing garbage happens to
+							// look like.
 #if NET8_0_OR_GREATER
 							var span = new ReadOnlySpan<byte> (inptr, remaining);
-							int index = reportedInvalidContent
+							int index = reportedInvalidContent || reportedExtraData
 								? span.IndexOfAny ((byte) '\r', (byte) '\n')
 								: span.IndexOfAnyExceptInRange ((byte) 33, (byte) 96);
 
@@ -396,7 +401,7 @@ namespace MimeKit.Encodings {
 #else
 							count = 0;
 
-							if (reportedInvalidContent) {
+							if (reportedInvalidContent || reportedExtraData) {
 								while (count < remaining && inptr[count] != (byte) '\r' && inptr[count] != (byte) '\n')
 									count++;
 							} else {
@@ -474,7 +479,11 @@ namespace MimeKit.Encodings {
 
 						byte c = ReadByte (ref inptr);
 
-						if ((c < 33 || c > 96) && !reportedInvalidContent) {
+						// Note: Octets past the declared length are not payload, so they are reported as
+						// extra data below rather than being classified here. Reporting both would put
+						// two violations on the same octet and would make the report depend on whether
+						// the trailing garbage happens to start with a valid payload character.
+						if (uulen > 0 && (c < 33 || c > 96) && !reportedInvalidContent) {
 							reportedInvalidContent = true;
 
 							// invalid character in uuencoded payload

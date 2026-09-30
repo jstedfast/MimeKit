@@ -130,13 +130,31 @@ namespace UnitTests.Encodings {
 			AssertInvalidInput (text, issues);
 		}
 
+		// Note: The 'x' is the first octet past the declared length, so it is reported as extra data
+		// rather than as invalid content. An octet that is not payload is not classified as payload.
 		[Test]
 		public void TestValidateExtraLineData ()
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedContent, text.IndexOf ('x'), 2, 61), // 'x' is an invalid character
 				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('x'), 2, 61)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
+
+		// Note: Whatever the extra data looks like, the line reports exactly one violation at the
+		// first octet past the declared length. Before, a tail that began with a valid payload
+		// character let the scan run on to the first invalid one and report it a second time, and a
+		// tail that began with an invalid one put two violations on the same octet.
+		[TestCase ("E~~~")]
+		[TestCase ("~~~~")]
+		[TestCase ("EFGH")]
+		public void TestValidateExtraLineDataIsReportedRegardlessOfItsContents (string extra)
+		{
+			string text = $"begin 644 t.txt\r\n#ABCD{extra}\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf (extra[0]), 2, 6)
 			};
 
 			AssertInvalidInput (text, issues);
