@@ -82,6 +82,13 @@ namespace MimeKit.Encodings {
 		int padding;
 		uint total;
 		bool invalid;
+		// Note: These latch their corresponding violation so that it is reported at most once per
+		// line. The number of invalid octets on a line is attacker-controlled, so reporting every one
+		// of them would let a crafted part emit an issue per byte of content, swamping every other
+		// finding in the report. They are instance fields rather than locals because a malformed line
+		// can span multiple Write() calls.
+		bool reportedInvalidCharacter;
+		bool reportedComment;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Validator"/> class.
@@ -155,6 +162,8 @@ namespace MimeKit.Encodings {
 					} else if (category == LineFeed) {
 						lineBeginOffset = streamOffset + (inptr - input);
 						lineNumber++;
+						reportedInvalidCharacter = false;
+						reportedComment = false;
 					} else if (category == Whitespace) {
 						// Whitespace is not part of the encoding, but is harmless.
 					} else if (category == Padding) {
@@ -172,10 +181,18 @@ namespace MimeKit.Encodings {
 						// RFC 1113 (a Privacy Enhanced Mail specification) allowed for comments in what later became known as "base64 encoding".
 						// This was obsoleted in RFC 1421 (which replaced RFC 1113) and RFC 1341 (the first MIME specification) explicitly
 						// disallowed it, but some mailers may generate such content. Detect it and report it as a compliance violation.
-						Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset + (inptr - input) - 1);
+						if (!reportedComment) {
+							reportedComment = true;
+
+							Log (MimeComplianceViolation.ObsoleteBase64Comment, streamOffset + (inptr - input) - 1);
+						}
 					} else {
 						// This is an invalid base64 character.
-						Log (MimeComplianceViolation.InvalidBase64Character, streamOffset + (inptr - input) - 1);
+						if (!reportedInvalidCharacter) {
+							reportedInvalidCharacter = true;
+
+							Log (MimeComplianceViolation.InvalidBase64Character, streamOffset + (inptr - input) - 1);
+						}
 					}
 				}
 			}
