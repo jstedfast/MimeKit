@@ -1614,11 +1614,45 @@ namespace MimeKit.Tnef {
 			if ((propertyCount = ReadInt32 ()) < 0) {
 				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
 				propertyCount = 0;
+			} else {
+				// Every property consists of at least a 16-bit type and a 16-bit identifier, so a property
+				// count larger than this cannot possibly fit within the remainder of the attribute.
+				int max = GetBytesRemaining () / 4;
+
+				if (propertyCount > max) {
+					reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+					propertyCount = max;
+				}
 			}
 
 			propertyIndex = 0;
 			valueCount = 0;
 			valueIndex = 0;
+		}
+
+		int GetBytesRemaining ()
+		{
+			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+
+			return (int) Math.Max (attrEndOffset - reader.StreamOffset, 0);
+		}
+
+		int GetMinimumValueLength ()
+		{
+			switch (propertyTag.ValueTnefType) {
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.Double:
+			case TnefPropertyType.I8:
+			case TnefPropertyType.AppTime:
+			case TnefPropertyType.SysTime:
+				return 8;
+			case TnefPropertyType.ClassId:
+				return 16;
+			default:
+				// Note: PT_UNSPECIFIED and PT_NULL values do not consume any space at all, but we still
+				// need a non-zero minimum in order to be able to bound the value count.
+				return 4;
+			}
 		}
 
 		int ReadValueCount ()
@@ -1628,6 +1662,14 @@ namespace MimeKit.Tnef {
 			if ((count = ReadInt32 ()) < 0) {
 				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
 				return 0;
+			}
+
+			// Do not trust a value count that cannot possibly fit within the remainder of the attribute.
+			int max = GetBytesRemaining () / GetMinimumValueLength ();
+
+			if (count > max) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
+				count = max;
 			}
 
 			return count;
@@ -1659,6 +1701,15 @@ namespace MimeKit.Tnef {
 			if ((rowCount = ReadInt32 ()) < 0) {
 				reader.SetComplianceError (TnefComplianceStatus.InvalidRowCount);
 				rowCount = 0;
+			} else {
+				// Every row consists of at least a 32-bit property count, so a row count larger than this
+				// cannot possibly fit within the remainder of the attribute.
+				int max = GetBytesRemaining () / 4;
+
+				if (rowCount > max) {
+					reader.SetComplianceError (TnefComplianceStatus.InvalidRowCount);
+					rowCount = max;
+				}
 			}
 
 			propertyCount = 0;

@@ -159,5 +159,74 @@ namespace UnitTests.Tnef {
 				}
 			}
 		}
+
+		[Test]
+		public void TestOverflowingPropertyCount ()
+		{
+			// Each property needs at least 4 bytes, so a property count of int.MaxValue cannot possibly
+			// be honored. The reader must clamp it rather than spin.
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MapiProperties, new byte[] { 0xff, 0xff, 0xff, 0x7f });
+
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+
+			using (var stream = builder.ToStream ()) {
+				Assert.DoesNotThrow (() => status = ReadAllValues (stream));
+			}
+
+			Assert.That (status & TnefComplianceStatus.InvalidPropertyLength, Is.EqualTo (TnefComplianceStatus.InvalidPropertyLength), "ComplianceStatus");
+		}
+
+		[Test]
+		public void TestOverflowingValueCount ()
+		{
+			// A multi-valued property with a value count of int.MaxValue cannot possibly be honored.
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, (TnefPropertyType) (0x1000 | (int) TnefPropertyType.Unicode));
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (tag);
+			properties.WriteValueCount (int.MaxValue);
+
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+
+			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
+			Assert.That (status & TnefComplianceStatus.InvalidAttributeValue, Is.EqualTo (TnefComplianceStatus.InvalidAttributeValue), "ComplianceStatus");
+		}
+
+		[Test]
+		public void TestOverflowingRowCount ()
+		{
+			// Each recipient table row needs at least a 4-byte property count.
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.RecipientTable, new byte[] { 0xff, 0xff, 0xff, 0x7f });
+
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+
+			using (var stream = builder.ToStream ()) {
+				Assert.DoesNotThrow (() => {
+					using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+						while (reader.ReadNextAttribute ()) {
+							if (reader.AttributeTag != TnefAttributeTag.RecipientTable)
+								continue;
+
+							var prop = reader.TnefPropertyReader;
+
+							while (prop.ReadNextRow ()) {
+								while (prop.ReadNextProperty ())
+									prop.ReadValue ();
+							}
+						}
+
+						status = reader.ComplianceStatus;
+					}
+				});
+			}
+
+			Assert.That (status & TnefComplianceStatus.InvalidRowCount, Is.EqualTo (TnefComplianceStatus.InvalidRowCount), "ComplianceStatus");
+		}
 	}
 }
