@@ -639,6 +639,7 @@ namespace MimeKit.Tnef {
 					break;
 				}
 			} catch (EndOfStreamException) {
+				reader.SetComplianceError (TnefComplianceStatus.StreamTruncated);
 				return false;
 			}
 

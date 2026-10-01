@@ -61,6 +61,27 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		// Reads only the properties of the first attMsgProps attribute and returns the
+		// compliance status *before* the reader moves on to the next attribute.
+		static TnefComplianceStatus ReadPropertiesOfFirstMapiAttribute (MemoryStream stream)
+		{
+			using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+				while (reader.ReadNextAttribute ()) {
+					if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
+						continue;
+
+					var prop = reader.TnefPropertyReader;
+
+					while (prop.ReadNextProperty ())
+						prop.ReadValue ();
+
+					break;
+				}
+
+				return reader.ComplianceStatus;
+			}
+		}
+
 		[Test]
 		public void TestOutOfRangeAppTime ()
 		{
@@ -227,6 +248,55 @@ namespace UnitTests.Tnef {
 			}
 
 			Assert.That (status & TnefComplianceStatus.InvalidRowCount, Is.EqualTo (TnefComplianceStatus.InvalidRowCount), "ComplianceStatus");
+		}
+
+		[Test]
+		public void TestTruncatedPropertyHeaderIsReportedAsTruncated ()
+		{
+			// ReadNextProperty() swallowed the EndOfStreamException without recording why it
+			// stopped reading properties.
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.Importance, TnefPropertyType.Long), 1);
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, 2);
+
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			int length = builder.ToArray ().Length;
+
+			using (var stream = builder.ToStream (length - 2)) {
+				Assert.DoesNotThrow (() => status = ReadPropertiesOfFirstMapiAttribute (stream));
+			}
+
+			Assert.That (status & TnefComplianceStatus.StreamTruncated, Is.EqualTo (TnefComplianceStatus.StreamTruncated), "ComplianceStatus");
+		}
+
+		[Test]
+		public void TestTruncatedMultiValuedPropertyDoesNotThrow ()
+		{
+			// Note: ReadNextValue() intentionally does *not* report StreamTruncated here --
+			// hitting the end of the stream while looking for another value is how reading
+			// normally terminates for real-world TNEF streams.
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, (TnefPropertyType) (0x1000 | (int) TnefPropertyType.Unicode));
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (tag);
+			properties.WriteValueCount (2);
+			properties.WriteUnicodeValue ("hi");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			int length = builder.ToArray ().Length;
+
+			using (var stream = builder.ToStream (length - 2)) {
+				Assert.DoesNotThrow (() => ReadPropertiesOfFirstMapiAttribute (stream));
+			}
 		}
 	}
 }
