@@ -127,5 +127,28 @@ namespace UnitTests.Tnef {
 			Assert.That (message.From.Mailboxes.Count (), Is.EqualTo (1), "From");
 			Assert.That (message.From.Mailboxes.First ().Address, Is.EqualTo ("real@example.com"));
 		}
+
+		[Test]
+		public void TestEmbeddedMessageAttachmentShorterThanTheObjectHeader ()
+		{
+			// Note: an attachMethod of EmbeddedMessage means that the first 16 bytes of the
+			// attachment data are an OLE object header, but nothing guarantees that the
+			// attachment data is actually at least 16 bytes long.
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.AttachLongFilename, TnefPropertyType.Unicode), "embedded.msg");
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachMethod, TnefPropertyType.Long), (int) TnefAttachMethod.EmbeddedMessage);
+			properties.WriteBinaryProperty (new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Object), new byte[] { 1, 2, 3, 4 });
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[14]);
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
+
+			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+		}
 	}
 }

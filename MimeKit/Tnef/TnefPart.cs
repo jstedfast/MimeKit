@@ -589,8 +589,10 @@ namespace MimeKit.Tnef {
 							if (attachMethod == TnefAttachMethod.EmbeddedMessage) {
 								attachment.ContentTransferEncoding = ContentEncoding.Base64;
 								attachment = PromoteToTnefPart (attachment);
-								count -= 16;
-								index = 16;
+
+								// Note: the first 16 bytes are an OLE object header.
+								index = Math.Min (16, count);
+								count -= index;
 							} else if (attachment.ContentType.IsMimeType ("text", "*")) {
 								filter.Flush (attachData, index, count, out _, out _);
 								attachment.ContentTransferEncoding = filter.GetBestEncoding (EncodingConstraint.SevenBit);
