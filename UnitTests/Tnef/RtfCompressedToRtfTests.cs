@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System.Buffers.Binary;
 using System.Text;
 
 using MimeKit.Tnef;
@@ -164,6 +165,44 @@ namespace UnitTests.Tnef {
 			var text = Encoding.ASCII.GetString (output);
 
 			Assert.That (text, Is.EqualTo (expected));
+		}
+
+		static byte[] CompressedRtfHeader (int compressedSize, int uncompressedSize)
+		{
+			var header = new byte[16];
+
+			BinaryPrimitives.WriteInt32LittleEndian (header.AsSpan (0, 4), compressedSize);
+			BinaryPrimitives.WriteInt32LittleEndian (header.AsSpan (4, 4), uncompressedSize);
+			header[8] = (byte) 'L'; header[9] = (byte) 'Z'; header[10] = (byte) 'F'; header[11] = (byte) 'u';
+
+			return header;
+		}
+
+		[Test]
+		public void TestRtfCompressedToRtfOverflowingUncompressedSize ()
+		{
+			// The COMPSIZE and RAWSIZE header fields are untrusted; the difference between them must not
+			// be allowed to overflow when estimating the size of the output buffer.
+			var input = CompressedRtfHeader (12, int.MinValue);
+			var filter = new RtfCompressedToRtf ();
+
+			Assert.DoesNotThrow (() => filter.Flush (input, 0, input.Length, out _, out _));
+		}
+
+		[Test]
+		public void TestRtfCompressedToRtfHugeUncompressedSize ()
+		{
+			// A RAWSIZE of 1GB must not cause us to allocate a 1GB output buffer up front.
+			var input = CompressedRtfHeader (12, 0x40000000);
+			var filter = new RtfCompressedToRtf ();
+
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+
+			Assert.DoesNotThrow (() => filter.Flush (input, 0, input.Length, out _, out _));
+
+			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
+
+			Assert.That (allocated, Is.LessThan (16 * 1024 * 1024), "allocated");
 		}
 	}
 }

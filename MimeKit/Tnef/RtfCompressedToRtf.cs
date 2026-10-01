@@ -52,6 +52,10 @@ namespace MimeKit.Tnef {
 			Complete,
 		}
 
+		// The maximum number of bytes that we will pre-allocate for the output buffer based on the
+		// (untrusted) RAWSIZE and COMPSIZE header fields.
+		const int MaxEstimatedOutputSize = 1024 * 1024;
+
 		readonly byte[] dict = new byte[4096];
 		readonly Crc32 crc32 = new Crc32 ();
 		FilterState state;
@@ -229,10 +233,13 @@ namespace MimeKit.Tnef {
 				return input;
 			}
 
-			int extra = Math.Abs (uncompressedSize - compressedSize);
-			int estimatedSize = (endIndex - index) + extra;
+			// Note: Both compressedSize and uncompressedSize come from the (untrusted) header, so use 64-bit
+			// arithmetic to avoid overflowing and clamp the estimate to a sane upper bound so that a bogus
+			// size cannot force an enormous allocation. The output buffer will grow on demand if needed.
+			long extra = Math.Abs ((long) uncompressedSize - compressedSize);
+			long estimatedSize = Math.Min ((endIndex - index) + extra, MaxEstimatedOutputSize);
 
-			EnsureOutputSize (Math.Max (estimatedSize, 4096), false);
+			EnsureOutputSize ((int) Math.Max (estimatedSize, 4096), false);
 			outputLength = 0;
 			outputIndex = 0;
 
