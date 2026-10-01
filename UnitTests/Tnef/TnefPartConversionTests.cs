@@ -150,5 +150,75 @@ namespace UnitTests.Tnef {
 
 			Assert.DoesNotThrow (() => ConvertToMessage (builder));
 		}
+
+		[Test]
+		public void TestMessagePropertiesWithUnexpectedTypesDoNotThrow ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Importance, TnefPropertyType.Unicode), "high");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Priority, TnefPropertyType.Unicode), "urgent");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Sensitivity, TnefPropertyType.Unicode), "private");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+		}
+
+		[Test]
+		public void TestRecipientTableWithUnexpectedTypesDoNotThrow ()
+		{
+			var row = new TnefMapiPropertyBuilder ();
+
+			row.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.RecipientType, TnefPropertyType.Unicode), "to");
+			row.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.DisplayName, TnefPropertyType.Long), 1234);
+			row.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.TransmitableDisplayName, TnefPropertyType.Long), 1234);
+			row.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.RecipientDisplayName, TnefPropertyType.Long), 1234);
+			row.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.EmailAddress, TnefPropertyType.Long), 1234);
+			row.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.SmtpAddress, TnefPropertyType.Long), 1234);
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteRecipientTable (row);
+
+			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+		}
+
+		[Test]
+		public void TestAttachmentPropertiesWithUnexpectedTypesDoNotThrow ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachLongFilename, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachFilename, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachContentLocation, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachContentBase, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachContentId, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachDisposition, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachMimeTag, TnefPropertyType.Long), 1234);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.DisplayName, TnefPropertyType.Long), 1234);
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.AttachMethod, TnefPropertyType.Unicode), "by-value");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.AttachFlags, TnefPropertyType.Unicode), "none");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.AttachSize, TnefPropertyType.Unicode), "1234");
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Long), 1234);
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[14]);
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
+
+			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+		}
 	}
 }

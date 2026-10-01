@@ -140,6 +140,24 @@ namespace UnitTests.Tnef {
 
 			return WriteAttribute (level, tag, properties.ToArray (count), length);
 		}
+
+		/// <summary>
+		/// Append an attRecipTable attribute consisting of the specified rows of MAPI properties.
+		/// </summary>
+		public TnefBuilder WriteRecipientTable (params TnefMapiPropertyBuilder[] rows)
+		{
+			var payload = new MemoryStream ();
+
+			payload.Write (Int32Payload (rows.Length), 0, 4);
+
+			foreach (var row in rows) {
+				var bytes = row.ToArray ();
+
+				payload.Write (bytes, 0, bytes.Length);
+			}
+
+			return WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.RecipientTable, payload.ToArray ());
+		}
 	}
 
 	/// <summary>

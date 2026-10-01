@@ -106,6 +106,100 @@ namespace MimeKit.Tnef {
 			visitor.VisitTnefPart (this);
 		}
 
+		static bool IsTextValue (TnefPropertyReader prop, bool allowBinary = false)
+		{
+			switch (prop.PropertyTag.ValueTnefType) {
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+				return true;
+			case TnefPropertyType.Binary:
+				return allowBinary;
+			default:
+				return false;
+			}
+		}
+
+		static bool TryReadValueAsString (TnefPropertyReader prop, [NotNullWhen (true)] out string? value, bool allowBinary = false)
+		{
+			if (!IsTextValue (prop, allowBinary)) {
+				value = null;
+				return false;
+			}
+
+			value = prop.ReadValueAsString ();
+
+			return value != null;
+		}
+
+		static bool TryReadValueAsUri (TnefPropertyReader prop, [NotNullWhen (true)] out Uri? value)
+		{
+			if (!IsTextValue (prop)) {
+				value = null;
+				return false;
+			}
+
+			value = prop.ReadValueAsUri ();
+
+			return value != null;
+		}
+
+		static bool IsNumericValue (TnefPropertyReader prop)
+		{
+			switch (prop.PropertyTag.ValueTnefType) {
+			case TnefPropertyType.Boolean:
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.Double:
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+			case TnefPropertyType.R4:
+			case TnefPropertyType.I2:
+			case TnefPropertyType.I8:
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		static bool TryReadValueAsInt32 (TnefPropertyReader prop, out int value)
+		{
+			if (!IsNumericValue (prop)) {
+				value = 0;
+				return false;
+			}
+
+			value = prop.ReadValueAsInt32 ();
+
+			return true;
+		}
+
+		static bool TryReadValueAsInt64 (TnefPropertyReader prop, out long value)
+		{
+			if (!IsNumericValue (prop)) {
+				value = 0;
+				return false;
+			}
+
+			value = prop.ReadValueAsInt64 ();
+
+			return true;
+		}
+
+		static bool TryReadValueAsBytes (TnefPropertyReader prop, [NotNullWhen (true)] out byte[]? value)
+		{
+			switch (prop.PropertyTag.ValueTnefType) {
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object:
+			case TnefPropertyType.ClassId:
+				value = prop.ReadValueAsBytes ();
+				return value != null;
+			default:
+				value = null;
+				return false;
+			}
+		}
+
 		static void ExtractRecipientTable (TnefReader reader, MimeMessage message)
 		{
 			var prop = reader.TnefPropertyReader;
@@ -121,30 +215,35 @@ namespace MimeKit.Tnef {
 				while (prop.ReadNextProperty ()) {
 					switch (prop.PropertyTag.Id) {
 					case TnefPropertyId.RecipientType:
-						int recipientType = prop.ReadValueAsInt32 ();
-						switch (recipientType) {
-						case 1: list = message.To; break;
-						case 2: list = message.Cc; break;
-						case 3: list = message.Bcc; break;
+						if (TryReadValueAsInt32 (prop, out int recipientType)) {
+							switch (recipientType) {
+							case 1: list = message.To; break;
+							case 2: list = message.Cc; break;
+							case 3: list = message.Bcc; break;
+							}
 						}
 						break;
 					case TnefPropertyId.TransmitableDisplayName:
-						transmitableDisplayName = prop.ReadValueAsString ();
+						if (TryReadValueAsString (prop, out var transmitable))
+							transmitableDisplayName = transmitable;
 						break;
 					case TnefPropertyId.RecipientDisplayName:
-						recipientDisplayName = prop.ReadValueAsString ();
+						if (TryReadValueAsString (prop, out var recipientName))
+							recipientDisplayName = recipientName;
 						break;
 					case TnefPropertyId.DisplayName:
-						displayName = prop.ReadValueAsString ();
+						if (TryReadValueAsString (prop, out var name))
+							displayName = name;
 						break;
 					case TnefPropertyId.EmailAddress:
-						if (string.IsNullOrEmpty (addr))
-							addr = prop.ReadValueAsString ();
+						if (string.IsNullOrEmpty (addr) && TryReadValueAsString (prop, out var emailAddress))
+							addr = emailAddress;
 						break;
 					case TnefPropertyId.SmtpAddress:
 						// The SmtpAddress, if it exists, should take precedence over the EmailAddress
 						// (since the SmtpAddress is meant to be used in the RCPT TO command).
-						addr = prop.ReadValueAsString ();
+						if (TryReadValueAsString (prop, out var smtpAddress))
+							addr = smtpAddress;
 						break;
 					}
 				}
@@ -272,9 +371,8 @@ namespace MimeKit.Tnef {
 			while (prop.ReadNextProperty ()) {
 				switch (prop.PropertyTag.Id) {
 				case TnefPropertyId.InternetMessageId:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						message.MessageId = prop.ReadValueAsString ();
+					if (TryReadValueAsString (prop, out var internetMessageId)) {
+						message.MessageId = internetMessageId;
 						msgid = true;
 					}
 					break;
@@ -285,89 +383,57 @@ namespace MimeKit.Tnef {
 					// implementations use the Message-Id string, so if this property
 					// value looks like a Message-Id, then us it as one (unless we get a
 					// InternetMessageId property, in which case we use that instead.
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						if (!msgid) {
-							var value = prop.ReadValueAsString ();
-
-							if (value.Length > 5 && value[0] == '<' && value[value.Length - 1] == '>' && value.IndexOf ('@') != -1)
-								message.MessageId = value;
-						}
+					if (!msgid && TryReadValueAsString (prop, out var value, true)) {
+						if (value.Length > 5 && value[0] == '<' && value[value.Length - 1] == '>' && value.IndexOf ('@') != -1)
+							message.MessageId = value;
 					}
 					break;
 				case TnefPropertyId.Subject:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						message.Subject = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var subject))
+						message.Subject = subject;
 					break;
 				case TnefPropertyId.SubjectPrefix:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						subjectPrefix = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var prefix))
+						subjectPrefix = prefix;
 					break;
 				case TnefPropertyId.NormalizedSubject:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						normalizedSubject = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var normalized))
+						normalizedSubject = normalized;
 					break;
 				case TnefPropertyId.SenderName:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						sender.Name = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var senderName))
+						sender.Name = senderName;
 					break;
 				case TnefPropertyId.SenderEmailAddress:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						sender.Addr = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var senderAddr))
+						sender.Addr = senderAddr;
 					break;
 				case TnefPropertyId.SenderSearchKey:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						sender.SearchKey = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var senderSearchKey, true))
+						sender.SearchKey = senderSearchKey;
 					break;
 				case TnefPropertyId.SenderAddrtype:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						sender.AddrType = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var senderAddrType))
+						sender.AddrType = senderAddrType;
 					break;
 				case TnefPropertyId.ReceivedByName:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						recipient.Name = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var recipientName))
+						recipient.Name = recipientName;
 					break;
 				case TnefPropertyId.ReceivedByEmailAddress:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						recipient.Addr = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var recipientAddr))
+						recipient.Addr = recipientAddr;
 					break;
 				case TnefPropertyId.ReceivedBySearchKey:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
-						recipient.SearchKey = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var recipientSearchKey, true))
+						recipient.SearchKey = recipientSearchKey;
 					break;
 				case TnefPropertyId.ReceivedByAddrtype:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode) {
-						recipient.AddrType = prop.ReadValueAsString ();
-					}
+					if (TryReadValueAsString (prop, out var recipientAddrType))
+						recipient.AddrType = recipientAddrType;
 					break;
 				case TnefPropertyId.RtfCompressed:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+					if (IsTextValue (prop, true)) {
 						var converter = new RtfCompressedToRtf ();
 						var content = new MemoryBlockStream ();
 
@@ -390,9 +456,7 @@ namespace MimeKit.Tnef {
 					}
 					break;
 				case TnefPropertyId.BodyHtml:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+					if (IsTextValue (prop, true)) {
 						Encoding encoding;
 						string text;
 
@@ -410,9 +474,7 @@ namespace MimeKit.Tnef {
 					}
 					break;
 				case TnefPropertyId.Body:
-					if (prop.PropertyTag.ValueTnefType == TnefPropertyType.String8 ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Unicode ||
-						prop.PropertyTag.ValueTnefType == TnefPropertyType.Binary) {
+					if (IsTextValue (prop, true)) {
 						Encoding encoding;
 
 						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
@@ -430,28 +492,34 @@ namespace MimeKit.Tnef {
 					break;
 				case TnefPropertyId.Importance:
 					// https://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
-					switch (prop.ReadValueAsInt32 ()) {
-					case 2: message.Importance = MessageImportance.High; break;
-					case 1: message.Importance = MessageImportance.Normal; break;
-					case 0: message.Importance = MessageImportance.Low; break;
+					if (TryReadValueAsInt32 (prop, out int importance)) {
+						switch (importance) {
+						case 2: message.Importance = MessageImportance.High; break;
+						case 1: message.Importance = MessageImportance.Normal; break;
+						case 0: message.Importance = MessageImportance.Low; break;
+						}
 					}
 					break;
 				case TnefPropertyId.Priority:
 					// https://msdn.microsoft.com/en-us/library/ee159473(v=exchg.80).aspx
-					switch (prop.ReadValueAsInt32 ()) {
-					case  1: message.Priority = MessagePriority.Urgent; break;
-					case  0: message.Priority = MessagePriority.Normal; break;
-					case -1: message.Priority = MessagePriority.NonUrgent; break;
+					if (TryReadValueAsInt32 (prop, out int priority)) {
+						switch (priority) {
+						case  1: message.Priority = MessagePriority.Urgent; break;
+						case  0: message.Priority = MessagePriority.Normal; break;
+						case -1: message.Priority = MessagePriority.NonUrgent; break;
+						}
 					}
 					break;
 				case TnefPropertyId.Sensitivity:
 					// https://msdn.microsoft.com/en-us/library/ee217353(v=exchg.80).aspx
 					// https://tools.ietf.org/html/rfc2156#section-5.3.4
-					switch (prop.ReadValueAsInt32 ()) {
-					case 1: message.Headers[HeaderId.Sensitivity] = "Personal"; break;
-					case 2: message.Headers[HeaderId.Sensitivity] = "Private"; break;
-					case 3: message.Headers[HeaderId.Sensitivity] = "Company-Confidential"; break;
-					case 0: message.Headers.Remove (HeaderId.Sensitivity); break;
+					if (TryReadValueAsInt32 (prop, out int sensitivity)) {
+						switch (sensitivity) {
+						case 1: message.Headers[HeaderId.Sensitivity] = "Personal"; break;
+						case 2: message.Headers[HeaderId.Sensitivity] = "Private"; break;
+						case 3: message.Headers[HeaderId.Sensitivity] = "Company-Confidential"; break;
+						case 0: message.Headers.Remove (HeaderId.Sensitivity); break;
+						}
 					}
 					break;
 				}
@@ -501,7 +569,7 @@ namespace MimeKit.Tnef {
 			bool dispose = false;
 			string[] mimeType;
 			byte[]? attachData;
-			string text;
+			string? text;
 
 			try {
 				do {
@@ -525,59 +593,70 @@ namespace MimeKit.Tnef {
 						while (prop.ReadNextProperty ()) {
 							switch (prop.PropertyTag.Id) {
 							case TnefPropertyId.AttachLongFilename:
-								attachment.FileName = prop.ReadValueAsString ();
+								if (TryReadValueAsString (prop, out var longFileName))
+									attachment.FileName = longFileName;
 								break;
 							case TnefPropertyId.AttachFilename:
-								attachment.FileName ??= prop.ReadValueAsString ();
+								if (attachment.FileName is null && TryReadValueAsString (prop, out var fileName))
+									attachment.FileName = fileName;
 								break;
 							case TnefPropertyId.AttachContentLocation:
-								attachment.ContentLocation = prop.ReadValueAsUri ();
+								if (TryReadValueAsUri (prop, out var contentLocation))
+									attachment.ContentLocation = contentLocation;
 								break;
 							case TnefPropertyId.AttachContentBase:
-								attachment.ContentBase = prop.ReadValueAsUri ();
+								if (TryReadValueAsUri (prop, out var contentBase))
+									attachment.ContentBase = contentBase;
 								break;
 							case TnefPropertyId.AttachContentId:
-								text = prop.ReadValueAsString ();
+								if (TryReadValueAsString (prop, out text)) {
+									var buffer = CharsetUtils.UTF8.GetBytes (text);
+									int index = 0;
 
-								var buffer = CharsetUtils.UTF8.GetBytes (text);
-								int index = 0;
-
-								if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
-									attachment.ContentId = msgid;
+									if (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
+										attachment.ContentId = msgid;
+								}
 								break;
 							case TnefPropertyId.AttachDisposition:
-								text = prop.ReadValueAsString ();
-								if (ContentDisposition.TryParse (text, out ContentDisposition? disposition))
+								if (TryReadValueAsString (prop, out text) && ContentDisposition.TryParse (text, out ContentDisposition? disposition))
 									attachment.ContentDisposition = disposition;
 								break;
 							case TnefPropertyId.AttachData:
-								attachData = prop.ReadValueAsBytes ();
+								TryReadValueAsBytes (prop, out attachData);
 								break;
 							case TnefPropertyId.AttachMethod:
-								attachMethod = (TnefAttachMethod) prop.ReadValueAsInt32 ();
+								if (TryReadValueAsInt32 (prop, out int method))
+									attachMethod = (TnefAttachMethod) method;
 								break;
 							case TnefPropertyId.AttachMimeTag:
-								mimeType = prop.ReadValueAsString ().Split ('/');
-								if (mimeType.Length == 2) {
-									attachment.ContentType.MediaType = mimeType[0].Trim ();
-									attachment.ContentType.MediaSubtype = mimeType[1].Trim ();
+								if (TryReadValueAsString (prop, out text)) {
+									mimeType = text.Split ('/');
+									if (mimeType.Length == 2) {
+										attachment.ContentType.MediaType = mimeType[0].Trim ();
+										attachment.ContentType.MediaSubtype = mimeType[1].Trim ();
+									}
 								}
 								break;
 							case TnefPropertyId.AttachFlags:
-								flags = (TnefAttachFlags) prop.ReadValueAsInt32 ();
-								if ((flags & TnefAttachFlags.RenderedInBody) != 0) {
-									if (attachment.ContentDisposition is null)
-										attachment.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
-									else
-										attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
+								if (TryReadValueAsInt32 (prop, out int attachFlags)) {
+									flags = (TnefAttachFlags) attachFlags;
+									if ((flags & TnefAttachFlags.RenderedInBody) != 0) {
+										if (attachment.ContentDisposition is null)
+											attachment.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
+										else
+											attachment.ContentDisposition.Disposition = ContentDisposition.Inline;
+									}
 								}
 								break;
 							case TnefPropertyId.AttachSize:
-								attachment.ContentDisposition ??= new ContentDisposition ();
-								attachment.ContentDisposition.Size = prop.ReadValueAsInt64 ();
+								if (TryReadValueAsInt64 (prop, out long size)) {
+									attachment.ContentDisposition ??= new ContentDisposition ();
+									attachment.ContentDisposition.Size = size;
+								}
 								break;
 							case TnefPropertyId.DisplayName:
-								attachment.ContentType.Name = prop.ReadValueAsString ();
+								if (TryReadValueAsString (prop, out var displayName))
+									attachment.ContentType.Name = displayName;
 								break;
 							}
 						}
