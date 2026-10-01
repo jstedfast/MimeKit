@@ -58,6 +58,7 @@ namespace MimeKit.Tnef {
 		int codepage;
 		int version;
 		bool seenAttachmentLevel;
+		bool invalidSignature;
 		bool closed;
 		bool eos;
 
@@ -373,8 +374,15 @@ namespace MimeKit.Tnef {
 			try {
 				// read the TNEFSignature
 				int signature = ReadInt32 ();
-				if (signature != TnefSignature)
+				if (signature != TnefSignature) {
 					SetComplianceError (TnefComplianceStatus.InvalidTnefSignature);
+
+					// Note: If the signature is wrong, then this is not a TNEF stream and so there
+					// is nothing meaningful left to parse. Behave as if we've reached the end of
+					// the stream.
+					invalidSignature = true;
+					return;
+				}
 
 				// read the LegacyKey (ignore this value)
 				AttachmentKey = ReadInt16 ();
@@ -651,7 +659,10 @@ namespace MimeKit.Tnef {
 		/// Advance to the next attribute in the TNEF stream.
 		/// </summary>
 		/// <remarks>
-		/// Advances to the next attribute in the TNEF stream.
+		/// <para>Advances to the next attribute in the TNEF stream.</para>
+		/// <para>If the TNEF stream did not begin with a valid TNEF signature, then there is
+		/// nothing meaningful to parse and so this method will always return
+		/// <see langword="false" />.</para>
 		/// </remarks>
 		/// <returns><see langword="true" /> if there is another attribute available to be read; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="TnefException">
@@ -660,6 +671,9 @@ namespace MimeKit.Tnef {
 		public bool ReadNextAttribute ()
 		{
 			CheckDisposed ();
+
+			if (invalidSignature)
+				return false;
 
 			if (AttributeRawValueStreamOffset != 0 && !SkipAttributeRawValue ())
 				return false;

@@ -56,6 +56,37 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		[Test]
+		public void TestInvalidSignatureBehavesAsEndOfStream ()
+		{
+			var builder = new TnefBuilder (signature: 0x12345678);
+
+			builder.WriteTnefVersion ();
+			builder.WriteMessageClass ("IPM.Note");
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidTnefSignature, Is.EqualTo (TnefComplianceStatus.InvalidTnefSignature), "ComplianceStatus");
+					Assert.That (reader.ReadNextAttribute (), Is.False, "ReadNextAttribute");
+					Assert.That (reader.ReadNextAttribute (), Is.False, "ReadNextAttribute (again)");
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidSignatureThrowsInStrictMode ()
+		{
+			var builder = new TnefBuilder (signature: 0x12345678);
+
+			builder.WriteTnefVersion ();
+
+			using (var stream = builder.ToStream ()) {
+				var ex = Assert.Throws<TnefException> (() => new TnefReader (stream, 0, TnefComplianceMode.Strict));
+
+				Assert.That (ex!.Error, Is.EqualTo (TnefComplianceStatus.InvalidTnefSignature));
+			}
+		}
+
 		[TestCase (TnefAttributeTag.OemCodepage)]
 		[TestCase (TnefAttributeTag.TnefVersion)]
 		public void TestTruncatedPeekedAttributeDoesNotThrow (TnefAttributeTag tag)
