@@ -872,7 +872,6 @@ namespace MimeKit.Tnef {
 		bool TryGetPropertyValueLength (out int length)
 		{
 			switch (propertyTag.ValueTnefType) {
-			case TnefPropertyType.Unspecified:
 			case TnefPropertyType.Null:
 				length = 0;
 				break;
@@ -912,7 +911,12 @@ namespace MimeKit.Tnef {
 				length = 8;
 				break;
 			default:
+				// Note: PT_UNSPECIFIED is only meaningful in a property tag that is used to
+				// *request* a property. Like any other unknown property type, the length of
+				// the value is unknowable, so there is no way to skip over it in order to get
+				// at the next property.
 				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
+				valueIndex = valueCount = 0;
 				length = 0;
 
 				return false;

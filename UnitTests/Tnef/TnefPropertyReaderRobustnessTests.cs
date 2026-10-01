@@ -61,6 +61,27 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		// Enumerates the properties of the first attMsgProps attribute without reading any
+		// of the values.
+		static TnefComplianceStatus ReadPropertiesWithoutValues (MemoryStream stream)
+		{
+			using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+				while (reader.ReadNextAttribute ()) {
+					if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
+						continue;
+
+					var prop = reader.TnefPropertyReader;
+
+					while (prop.ReadNextProperty ())
+						;
+
+					break;
+				}
+
+				return reader.ComplianceStatus;
+			}
+		}
+
 		// Reads only the properties of the first attMsgProps attribute and returns the
 		// compliance status *before* the reader moves on to the next attribute.
 		static TnefComplianceStatus ReadPropertiesOfFirstMapiAttribute (MemoryStream stream)
@@ -80,6 +101,37 @@ namespace UnitTests.Tnef {
 
 				return reader.ComplianceStatus;
 			}
+		}
+
+		[Test]
+		public void TestUnspecifiedPropertyType ()
+		{
+			// PT_UNSPECIFIED is only meaningful in a property tag that is used to *request* a
+			// property - the length of such a value is unknowable, so it cannot be skipped over.
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unspecified);
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (tag);
+
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+
+			Assert.DoesNotThrow (() => status = ReadPropertiesWithoutValues (BuildMessageProperties (properties)));
+			Assert.That (status & TnefComplianceStatus.UnsupportedPropertyType, Is.EqualTo (TnefComplianceStatus.UnsupportedPropertyType), "ComplianceStatus");
+		}
+
+		[Test]
+		public void TestNullPropertyType ()
+		{
+			// PT_NULL is a valid property type that simply has no value.
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Null);
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (tag);
+
+			TnefComplianceStatus status = TnefComplianceStatus.UnsupportedPropertyType;
+
+			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
+			Assert.That (status & TnefComplianceStatus.UnsupportedPropertyType, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
 		}
 
 		[Test]
