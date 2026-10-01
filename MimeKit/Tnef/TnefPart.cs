@@ -252,7 +252,7 @@ namespace MimeKit.Tnef {
 						}
 					}
 
-					encoding = Encoding.GetEncoding (codepage);
+					encoding = CharsetUtils.GetEncodingOrDefault (codepage, TnefPropertyReader.DefaultEncoding);
 
 					return encoding.GetString (rawValue, 0, rawLength);
 				}
@@ -416,7 +416,7 @@ namespace MimeKit.Tnef {
 						Encoding encoding;
 
 						if (prop.PropertyTag.ValueTnefType != TnefPropertyType.Unicode)
-							encoding = Encoding.GetEncoding (reader.MessageCodepage);
+							encoding = CharsetUtils.GetEncodingOrDefault (reader.MessageCodepage, TnefPropertyReader.DefaultEncoding);
 						else
 							encoding = CharsetUtils.UTF8;
 

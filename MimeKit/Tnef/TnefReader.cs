@@ -30,6 +30,8 @@ using System.Text;
 using System.Globalization;
 using System.Buffers.Binary;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF reader.
@@ -164,7 +166,10 @@ namespace MimeKit.Tnef {
 					ComplianceStatus |= TnefComplianceStatus.InvalidMessageCodepage;
 					if (ComplianceMode == TnefComplianceMode.Strict)
 						throw new TnefException (TnefComplianceStatus.InvalidMessageCodepage, string.Format (CultureInfo.InvariantCulture, "Invalid message codepage: {0}", value), ex);
-					codepage = 1252;
+
+					// Note: TnefPropertyReader.DefaultEncoding is windows-1252 if the host can provide it and
+					// iso-8859-1 (or us-ascii) if it cannot, so this is always a codepage that we can resolve.
+					codepage = TnefPropertyReader.DefaultEncoding.CodePage;
 				}
 			}
 		}
@@ -221,6 +226,9 @@ namespace MimeKit.Tnef {
 		/// <para>When reading a TNEF stream using the <see cref="TnefComplianceMode.Loose"/> mode,
 		/// however, compliance issues are accumulated in the <see cref="ComplianceMode"/>
 		/// property, but exceptions are not raised unless the stream is too corrupted to continue.</para>
+		/// <para>If <paramref name="defaultMessageCodepage"/> cannot be resolved by the host (which is
+		/// common on non-Windows platforms unless the application has registered the
+		/// <c>System.Text.Encoding.CodePages</c> provider), a fallback encoding will be used instead.</para>
 		/// </remarks>
 		/// <param name="inputStream">The input stream.</param>
 		/// <param name="defaultMessageCodepage">The default message codepage.</param>
@@ -229,10 +237,7 @@ namespace MimeKit.Tnef {
 		/// <paramref name="inputStream"/> is <see langword="null"/>.
 		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="defaultMessageCodepage"/> is not a valid codepage.
-		/// </exception>
-		/// <exception cref="System.NotSupportedException">
-		/// <paramref name="defaultMessageCodepage"/> is not a supported codepage.
+		/// <paramref name="defaultMessageCodepage"/> is negative.
 		/// </exception>
 		/// <exception cref="TnefException">
 		/// The TNEF stream is corrupted or invalid.
@@ -246,11 +251,13 @@ namespace MimeKit.Tnef {
 				throw new ArgumentOutOfRangeException (nameof (defaultMessageCodepage));
 
 			if (defaultMessageCodepage != 0) {
-				// make sure that this codepage is valid...
-				var encoding = Encoding.GetEncoding (defaultMessageCodepage);
-				codepage = encoding.CodePage;
+				// Note: If the host cannot provide the requested codepage (which is common on Linux, where
+				// most Windows codepages are unavailable unless the application has registered the
+				// System.Text.Encoding.CodePages provider), fall back to the default encoding rather than
+				// failing to parse the TNEF stream at all.
+				codepage = CharsetUtils.GetEncodingOrDefault (defaultMessageCodepage, TnefPropertyReader.DefaultEncoding).CodePage;
 			} else {
-				codepage = 1252;
+				codepage = TnefPropertyReader.DefaultEncoding.CodePage;
 			}
 
 			TnefPropertyReader = new TnefPropertyReader (this);

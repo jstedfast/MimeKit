@@ -29,6 +29,8 @@ using System.IO;
 using System.Text;
 using System.Buffers;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF property reader.
@@ -38,7 +40,11 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	public class TnefPropertyReader
 	{
-		static readonly Encoding DefaultEncoding = Encoding.GetEncoding (1252);
+		// Note: Windows-1252 is not one of the encodings that .NET Core provides out of the box, so unless the
+		// consuming application has registered the System.Text.Encoding.CodePages provider, Encoding.GetEncoding()
+		// will throw. Since MimeKit deliberately does not register that provider on behalf of the application, we
+		// need to fall back to something sane (iso-8859-1 agrees with windows-1252 everywhere except 0x80-0x9F).
+		internal static readonly Encoding DefaultEncoding = CharsetUtils.GetEncodingOrDefault (1252, CharsetUtils.Latin1);
 
 		TnefPropertyTag propertyTag;
 		readonly TnefReader reader;
@@ -475,13 +481,8 @@ namespace MimeKit.Tnef {
 		{
 			int codepage = reader.MessageCodepage;
 
-			if (codepage != 0 && codepage != 1252) {
-				try {
-					return Encoding.GetEncoding (codepage);
-				} catch {
-					return DefaultEncoding;
-				}
-			}
+			if (codepage != 0 && codepage != DefaultEncoding.CodePage)
+				return CharsetUtils.GetEncodingOrDefault (codepage, DefaultEncoding);
 
 			return DefaultEncoding;
 		}
