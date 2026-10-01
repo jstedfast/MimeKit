@@ -167,8 +167,8 @@ namespace MimeKit.Tnef {
 			[MemberNotNullWhen (true, nameof (SearchKey))]
 			bool CanUseSearchKey {
 				get {
-					return SearchKey != null && SearchKey.Equals ("SMTP", StringComparison.OrdinalIgnoreCase) &&
-						SearchKey.Length > AddrType.Length && SearchKey.StartsWith (AddrType, StringComparison.Ordinal) &&
+					return SearchKey != null && AddrType.Equals ("SMTP", StringComparison.OrdinalIgnoreCase) &&
+						SearchKey.Length > AddrType.Length && SearchKey.StartsWith (AddrType, StringComparison.OrdinalIgnoreCase) &&
 						SearchKey[AddrType.Length] == ':';
 				}
 			}
