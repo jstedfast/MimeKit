@@ -49,6 +49,8 @@ namespace MimeKit.Tnef {
 
 		TnefPropertyTag propertyTag;
 		readonly TnefReader reader;
+		int textValueEndOffset;
+		Decoder? textDecoder;
 		TnefNameId propertyName;
 		int rawValueOffset;
 		int rawValueLength;
@@ -779,6 +781,9 @@ namespace MimeKit.Tnef {
 		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> characters starting
 		/// at the specified <paramref name="offset"/>.</para>
 		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The attribute or property value cannot be read as text.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -793,21 +798,25 @@ namespace MimeKit.Tnef {
 			if (count < 0 || count > (buffer.Length - offset))
 				throw new ArgumentOutOfRangeException (nameof (count));
 
-			if (reader.StreamOffset == RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
 			Encoding? encoding = null;
 
-			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
+			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Unicode:
-					ReadInt32 ();
 					encoding = Encoding.Unicode;
 					break;
 				case TnefPropertyType.String8:
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
-					ReadInt32 ();
+					encoding = GetMessageEncoding ();
+					break;
+				}
+			} else {
+				switch (reader.AttributeType) {
+				case TnefAttributeType.Triples:
+				case TnefAttributeType.String:
+				case TnefAttributeType.Text:
+				case TnefAttributeType.Byte:
 					encoding = GetMessageEncoding ();
 					break;
 				}
@@ -816,7 +825,33 @@ namespace MimeKit.Tnef {
 			if (encoding is null)
 				throw new InvalidOperationException ();
 
-			int valueEndOffset = RawValueStreamOffset + RawValueLength;
+			// Note: the length prefix of a variable-length property value is only consumed once,
+			// when the first chunk of the value is read.
+			if (reader.StreamOffset == RawValueStreamOffset) {
+				int valueEnd = RawValueStreamOffset + RawValueLength;
+
+				if (propertyCount > 0) {
+					switch (propertyTag.ValueTnefType) {
+					case TnefPropertyType.Unicode:
+					case TnefPropertyType.String8:
+					case TnefPropertyType.Binary:
+					case TnefPropertyType.Object:
+						int length = ReadInt32 ();
+
+						// Note: the raw value length includes the 4 bytes of padding needed to align
+						// the end of the value on a 4-byte boundary, so clamp the end of the text to
+						// the actual length of the value.
+						if (length >= 0)
+							valueEnd = Math.Min (valueEnd, reader.StreamOffset + length);
+						break;
+					}
+				}
+
+				textValueEndOffset = valueEnd;
+				textDecoder = encoding.GetDecoder ();
+			}
+
+			int valueEndOffset = textValueEndOffset;
 			int valueLeft = valueEndOffset - reader.StreamOffset;
 			int n = Math.Min (valueLeft, count);
 
@@ -828,7 +863,7 @@ namespace MimeKit.Tnef {
 			n = reader.ReadAttributeRawValue (bytes, 0, n);
 
 			var flush = reader.StreamOffset >= valueEndOffset;
-			var decoder = encoding.GetDecoder ();
+			var decoder = textDecoder ?? encoding.GetDecoder ();
 
 			return decoder.GetChars (bytes, 0, n, buffer, offset, flush);
 		}
@@ -1722,6 +1757,8 @@ namespace MimeKit.Tnef {
 		internal void Load ()
 		{
 			propertyTag = TnefPropertyTag.Null;
+			textValueEndOffset = 0;
+			textDecoder = null;
 			rawValueOffset = 0;
 			rawValueLength = 0;
 			propertyCount = 0;
