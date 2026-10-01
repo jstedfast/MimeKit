@@ -476,6 +476,42 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		// Note: PidTagMessageClass is a dot-delimited ASCII string. Peek at the raw value (without
+		// consuming it) in order to verify that it at least looks like one.
+		void CheckMessageClass ()
+		{
+			// Note: [MS-OXCMSG] limits PidTagMessageClass to 255 characters.
+			const int MaxMessageClassLength = 255;
+
+			if (AttributeRawValueLength <= 0 || AttributeRawValueLength > MaxMessageClassLength) {
+				SetComplianceError (TnefComplianceStatus.InvalidMessageClass);
+				return;
+			}
+
+			int n = ReadAhead (AttributeRawValueLength);
+
+			while (n < AttributeRawValueLength && !eos)
+				n = ReadAhead (AttributeRawValueLength);
+
+			if (n < AttributeRawValueLength) {
+				SetComplianceError (TnefComplianceStatus.InvalidMessageClass);
+				return;
+			}
+
+			for (int i = 0; i < AttributeRawValueLength; i++) {
+				byte c = input[inputIndex + i];
+
+				// Note: a single nul-terminator is allowed at the end of the value.
+				if (c == 0 && i + 1 == AttributeRawValueLength)
+					break;
+
+				if (c < 0x20 || c > 0x7e) {
+					SetComplianceError (TnefComplianceStatus.InvalidMessageClass);
+					return;
+				}
+			}
+		}
+
 		void CheckAttributeTag ()
 		{
 			switch (AttributeTag) {
@@ -497,11 +533,9 @@ namespace MimeKit.Tnef {
 			case TnefAttributeTag.Delegate:
 			case TnefAttributeTag.From:
 			case TnefAttributeTag.MapiProperties:
-			case TnefAttributeTag.MessageClass:
 			case TnefAttributeTag.MessageId:
 			case TnefAttributeTag.MessageStatus:
 			case TnefAttributeTag.Null:
-			case TnefAttributeTag.OriginalMessageClass:
 			case TnefAttributeTag.Owner:
 			case TnefAttributeTag.ParentId:
 			case TnefAttributeTag.Priority:
@@ -512,6 +546,10 @@ namespace MimeKit.Tnef {
 				break;
 			case TnefAttributeTag.AttachRenderData:
 				TnefPropertyReader.AttachMethod = TnefAttachMethod.ByValue;
+				break;
+			case TnefAttributeTag.MessageClass:
+			case TnefAttributeTag.OriginalMessageClass:
+				CheckMessageClass ();
 				break;
 			case TnefAttributeTag.OemCodepage:
 				if (AttributeRawValueLength >= 4)

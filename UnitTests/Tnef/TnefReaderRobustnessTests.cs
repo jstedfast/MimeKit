@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
+
 using MimeKit.Tnef;
 
 namespace UnitTests.Tnef {
@@ -163,6 +165,157 @@ namespace UnitTests.Tnef {
 
 					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidAttributeValue, Is.EqualTo (TnefComplianceStatus.InvalidAttributeValue), "ComplianceStatus");
 					Assert.That (reader.TnefVersion, Is.EqualTo (0), "TnefVersion");
+				}
+			}
+		}
+
+		[Test]
+		public void TestValidMessageClassIsCompliant ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Schedule.Meeting.Request");
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					while (reader.ReadNextAttribute ())
+						;
+
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
+				}
+			}
+		}
+
+		[Test]
+		public void TestEmptyMessageClassIsReported ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageClass, Array.Empty<byte> ());
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					while (reader.ReadNextAttribute ())
+						;
+
+					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidMessageClass, Is.EqualTo (TnefComplianceStatus.InvalidMessageClass), "ComplianceStatus");
+				}
+			}
+		}
+
+		[TestCase (TnefAttributeTag.MessageClass)]
+		[TestCase (TnefAttributeTag.OriginalMessageClass)]
+		public void TestNonAsciiMessageClassIsReported (TnefAttributeTag tag)
+		{
+			// PidTagMessageClass is a dot-delimited ASCII string; binary garbage is not one.
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, tag, new byte[] { 0x49, 0x50, 0x4d, 0x01, 0xff, 0x00 });
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					while (reader.ReadNextAttribute ())
+						;
+
+					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidMessageClass, Is.EqualTo (TnefComplianceStatus.InvalidMessageClass), "ComplianceStatus");
+				}
+			}
+		}
+
+		[Test]
+		public void TestMaximumLengthMessageClassIsCompliant ()
+		{
+			// [MS-OXCMSG] limits PidTagMessageClass to 255 characters.
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteMessageClass ("IPM." + new string ('A', 250));
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					while (reader.ReadNextAttribute ())
+						;
+
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
+				}
+			}
+		}
+
+		[Test]
+		public void TestOversizedMessageClassIsReported ()
+		{
+			// A message class that is too large to peek at is itself a violation - PidTagMessageClass
+			// is a short, dot-delimited ASCII string.
+			var payload = new byte[4096];
+
+			for (int i = 0; i < payload.Length; i++)
+				payload[i] = (byte) 'A';
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageClass, payload);
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					while (reader.ReadNextAttribute ())
+						;
+
+					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidMessageClass, Is.EqualTo (TnefComplianceStatus.InvalidMessageClass), "ComplianceStatus");
+				}
+			}
+		}
+
+		[Test]
+		public void TestInvalidMessageClassThrowsInStrictMode ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageClass, new byte[] { 0x00, 0x00, 0x00, 0x00 });
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
+					var ex = Assert.Throws<TnefException> (() => {
+						while (reader.ReadNextAttribute ())
+							;
+					});
+
+					Assert.That (ex.Error, Is.EqualTo (TnefComplianceStatus.InvalidMessageClass), "Error");
+				}
+			}
+		}
+
+		[Test]
+		public void TestMessageClassValueIsStillReadable ()
+		{
+			// Validating the message class must not consume any of the attribute's raw value.
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteMessageClass ("IPM.Note");
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
+					string messageClass = null;
+
+					while (reader.ReadNextAttribute ()) {
+						if (reader.AttributeTag != TnefAttributeTag.MessageClass)
+							continue;
+
+						var buffer = new byte[reader.AttributeRawValueLength];
+
+						reader.ReadAttributeRawValue (buffer, 0, buffer.Length);
+
+						messageClass = Encoding.ASCII.GetString (buffer, 0, buffer.Length - 1);
+					}
+
+					Assert.That (messageClass, Is.EqualTo ("IPM.Note"), "MessageClass");
+					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
 				}
 			}
 		}
