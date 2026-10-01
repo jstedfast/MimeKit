@@ -552,7 +552,18 @@ namespace MimeKit.Tnef {
 
 			UpdateChecksum (input, inputIndex, 4);
 
-			var result = BitConverter.ToSingle (input, inputIndex);
+			float result;
+
+			if (BitConverter.IsLittleEndian) {
+				result = BitConverter.ToSingle (input, inputIndex);
+			} else {
+				var bytes = new byte[4];
+
+				for (int i = 0; i < 4; i++)
+					bytes[i] = input[inputIndex + (3 - i)];
+
+				result = BitConverter.ToSingle (bytes, 0);
+			}
 
 			inputIndex += 4;
 
@@ -566,7 +577,18 @@ namespace MimeKit.Tnef {
 
 			UpdateChecksum (input, inputIndex, 8);
 
-			var result = BitConverter.ToDouble (input, inputIndex);
+			double result;
+
+			if (BitConverter.IsLittleEndian) {
+				result = BitConverter.ToDouble (input, inputIndex);
+			} else {
+				var bytes = new byte[8];
+
+				for (int i = 0; i < 8; i++)
+					bytes[i] = input[inputIndex + (7 - i)];
+
+				result = BitConverter.ToDouble (bytes, 0);
+			}
 
 			inputIndex += 8;
 

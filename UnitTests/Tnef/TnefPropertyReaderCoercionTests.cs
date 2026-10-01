@@ -32,6 +32,8 @@ namespace UnitTests.Tnef {
 	{
 		static readonly TnefPropertyTag Int16Tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.I2);
 		static readonly TnefPropertyTag BooleanTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Boolean);
+		static readonly TnefPropertyTag DoubleTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Double);
+		static readonly TnefPropertyTag FloatTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.R4);
 
 		/// <summary>
 		/// Build a TNEF stream containing a single message-level MAPI property with the specified
@@ -157,6 +159,54 @@ namespace UnitTests.Tnef {
 			}
 
 			Assert.Fail ("Failed to locate the attTnefVersion attribute.");
+		}
+
+		static TnefReader ReadSingleProperty (TnefMapiPropertyBuilder properties)
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			var reader = new TnefReader (builder.ToStream (), 0, TnefComplianceMode.Loose);
+
+			while (reader.ReadNextAttribute ()) {
+				if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
+					continue;
+
+				if (reader.TnefPropertyReader.ReadNextProperty ())
+					return reader;
+			}
+
+			reader.Dispose ();
+
+			throw new InvalidOperationException ("Failed to locate the property.");
+		}
+
+		[Test]
+		public void TestReadDoubleValue ()
+		{
+			// PT_DOUBLE is stored in little-endian byte order on the wire.
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteDoubleProperty (DoubleTag, Math.PI);
+
+			using var reader = ReadSingleProperty (properties);
+
+			Assert.That (reader.TnefPropertyReader.ReadValueAsDouble (), Is.EqualTo (Math.PI));
+		}
+
+		[Test]
+		public void TestReadFloatValue ()
+		{
+			// PT_R4 is stored in little-endian byte order on the wire.
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteProperty (FloatTag, BitConverter.GetBytes (1.5f));
+
+			using var reader = ReadSingleProperty (properties);
+
+			Assert.That (reader.TnefPropertyReader.ReadValueAsFloat (), Is.EqualTo (1.5f));
 		}
 	}
 }
