@@ -261,13 +261,19 @@ namespace MimeKit.Tnef {
 		/// Get the embedded TNEF message reader.
 		/// </summary>
 		/// <remarks>
-		/// Gets the embedded TNEF message reader.
+		/// <para>Gets the embedded TNEF message reader.</para>
+		/// <para>If the embedded message is nested more deeply than <see cref="TnefReader.MaxNestingDepth"/>
+		/// allows, the <see cref="TnefComplianceStatus.NestingTooDeep"/> compliance error is recorded and the
+		/// returned reader will behave as if it has already reached the end of the stream.</para>
 		/// </remarks>
 		/// <returns>The embedded TNEF message reader.</returns>
 		/// <exception cref="System.InvalidOperationException">
 		/// <para>The property does not contain any more values.</para>
 		/// <para>-or-</para>
 		/// <para>The property value is not an embedded message.</para>
+		/// </exception>
+		/// <exception cref="TnefException">
+		/// The TNEF data is corrupt or invalid.
 		/// </exception>
 		public TnefReader GetEmbeddedMessageReader ()
 		{
@@ -284,7 +290,17 @@ namespace MimeKit.Tnef {
 					index += n;
 			} while (n > 0);
 
-			return new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode);
+			var embedded = new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode) {
+				MaxNestingDepth = reader.MaxNestingDepth,
+				NestingDepth = reader.NestingDepth + 1
+			};
+
+			if (embedded.NestingDepth > reader.MaxNestingDepth) {
+				embedded.Stop ();
+				reader.SetComplianceError (TnefComplianceStatus.NestingTooDeep);
+			}
+
+			return embedded;
 		}
 
 		/// <summary>

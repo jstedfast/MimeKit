@@ -47,6 +47,14 @@ namespace MimeKit.Tnef {
 		const int BlockSize = 4096;
 		const int PadSize = 0;
 
+		/// <summary>
+		/// The default maximum nesting depth of embedded TNEF messages.
+		/// </summary>
+		/// <remarks>
+		/// The default maximum nesting depth of embedded TNEF messages.
+		/// </remarks>
+		public const int DefaultMaxNestingDepth = 32;
+
 		// I/O buffering
 		readonly byte[] input = new byte[ReadAheadSize + BlockSize + PadSize];
 		const int inputStart = ReadAheadSize;
@@ -57,8 +65,9 @@ namespace MimeKit.Tnef {
 		int checksum;
 		int codepage;
 		int version;
+		int maxNestingDepth = DefaultMaxNestingDepth;
 		bool seenAttachmentLevel;
-		bool invalidSignature;
+		bool stopped;
 		bool closed;
 		bool eos;
 
@@ -146,6 +155,39 @@ namespace MimeKit.Tnef {
 
 		internal Stream InputStream {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Get or set the maximum nesting depth of embedded TNEF messages that the reader should accept.
+		/// </summary>
+		/// <remarks>
+		/// <para>This option exists in order to define the maximum recursive depth of embedded TNEF
+		/// messages that <see cref="TnefPropertyReader.GetEmbeddedMessageReader"/> should accept before
+		/// assuming that the TNEF stream is maliciously formed. If the value is set too large, then it
+		/// is possible that a maliciously formed set of deeply nested embedded messages could cause a
+		/// stack overflow.</para>
+		/// <para>Once the limit has been exceeded, the <see cref="TnefComplianceStatus.NestingTooDeep"/>
+		/// compliance error is recorded and the embedded message reader behaves as if it has already
+		/// reached the end of the stream.</para>
+		/// </remarks>
+		/// <value>The maximum nesting depth. The default value is <see cref="DefaultMaxNestingDepth"/>.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxNestingDepth {
+			get { return maxNestingDepth; }
+			set {
+				if (value < 0)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxNestingDepth = value;
+			}
+		}
+
+		// The nesting depth of this reader. A reader created for the top-level TNEF stream has a
+		// nesting depth of 0.
+		internal int NestingDepth {
+			get; set;
 		}
 
 		/// <summary>
@@ -380,7 +422,7 @@ namespace MimeKit.Tnef {
 					// Note: If the signature is wrong, then this is not a TNEF stream and so there
 					// is nothing meaningful left to parse. Behave as if we've reached the end of
 					// the stream.
-					invalidSignature = true;
+					stopped = true;
 					return;
 				}
 
@@ -389,6 +431,13 @@ namespace MimeKit.Tnef {
 			} catch (EndOfStreamException) {
 				SetComplianceError (TnefComplianceStatus.StreamTruncated);
 			}
+		}
+
+		// Prevents the reader from parsing anything further; ReadNextAttribute() will behave as if
+		// the end of the stream has been reached.
+		internal void Stop ()
+		{
+			stopped = true;
 		}
 
 		void CheckAttributeLevel ()
@@ -672,7 +721,7 @@ namespace MimeKit.Tnef {
 		{
 			CheckDisposed ();
 
-			if (invalidSignature)
+			if (stopped)
 				return false;
 
 			if (AttributeRawValueStreamOffset != 0 && !SkipAttributeRawValue ())

@@ -45,6 +45,7 @@ namespace UnitTests.Tnef {
 					Assert.Throws<ArgumentNullException> (() => reader.ReadAttributeRawValue (null, 0, buffer.Length));
 					Assert.Throws<ArgumentOutOfRangeException> (() => reader.ReadAttributeRawValue (buffer, -1, buffer.Length));
 					Assert.Throws<ArgumentOutOfRangeException> (() => reader.ReadAttributeRawValue (buffer, 0, -1));
+					Assert.Throws<ArgumentOutOfRangeException> (() => reader.MaxNestingDepth = -1);
 				}
 			}
 		}
