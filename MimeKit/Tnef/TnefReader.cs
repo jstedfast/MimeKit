@@ -72,12 +72,17 @@ namespace MimeKit.Tnef {
 		bool eos;
 
 		/// <summary>
-		/// Get the attachment key value.
+		/// Get the legacy key value from the TNEF stream header.
 		/// </summary>
 		/// <remarks>
-		/// Gets the attachment key value.
+		/// <para>Gets the legacy key value from the TNEF stream header.</para>
+		/// <para>This is the <c>LegacyKey</c> field of the TNEF stream header as defined in
+		/// <a href="https://learn.microsoft.com/openspecs/exchange_server_protocols/ms-oxtnef/">[MS-OXTNEF]</a>.
+		/// It is a value chosen by the producer in order to associate the TNEF stream with the message that
+		/// contains it and has no meaning to a consumer, so it is ignored by the reader and exposed only for
+		/// diagnostic purposes.</para>
 		/// </remarks>
-		/// <value>The attachment key value.</value>
+		/// <value>The legacy key value.</value>
 		public short AttachmentKey {
 			get; private set;
 		}
