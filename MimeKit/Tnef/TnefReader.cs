@@ -432,10 +432,16 @@ namespace MimeKit.Tnef {
 				TnefPropertyReader.AttachMethod = TnefAttachMethod.ByValue;
 				break;
 			case TnefAttributeTag.OemCodepage:
-				MessageCodepage = PeekInt32 ();
+				if (AttributeRawValueLength >= 4)
+					MessageCodepage = PeekInt32 ();
+				else
+					SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
 				break;
 			case TnefAttributeTag.TnefVersion:
-				TnefVersion = PeekInt32 ();
+				if (AttributeRawValueLength >= 4)
+					TnefVersion = PeekInt32 ();
+				else
+					SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
 				break;
 			default:
 				SetComplianceError (TnefComplianceStatus.InvalidAttribute);
@@ -613,19 +619,16 @@ namespace MimeKit.Tnef {
 				AttributeRawValueLength = ReadInt32 ();
 				AttributeRawValueStreamOffset = StreamOffset;
 				checksum = 0;
-			} catch (EndOfStreamException) {
-				SetComplianceError (TnefComplianceStatus.StreamTruncated);
-				return false;
-			}
 
-			CheckAttributeTag ();
+				if (AttributeRawValueLength < 0) {
+					SetComplianceError (TnefComplianceStatus.InvalidAttributeLength);
+					return false;
+				}
 
-			if (AttributeRawValueLength < 0) {
-				SetComplianceError (TnefComplianceStatus.InvalidAttributeLength);
-				return false;
-			}
+				// Note: CheckAttributeTag() peeks at the attribute value for attOemCodepage and
+				// attTnefVersion, so it needs to be inside of this try block.
+				CheckAttributeTag ();
 
-			try {
 				TnefPropertyReader.Load ();
 			} catch (EndOfStreamException) {
 				SetComplianceError (TnefComplianceStatus.StreamTruncated);
@@ -684,7 +687,8 @@ namespace MimeKit.Tnef {
 			int dataEndOffset = AttributeRawValueStreamOffset + AttributeRawValueLength;
 			int dataLeft = dataEndOffset - StreamOffset;
 
-			if (dataLeft == 0)
+			// Note: dataLeft can be negative if something has over-read the attribute value.
+			if (dataLeft <= 0)
 				return 0;
 
 			int inputLeft = inputEnd - inputIndex;
