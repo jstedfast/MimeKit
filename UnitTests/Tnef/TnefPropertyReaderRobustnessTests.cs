@@ -249,7 +249,7 @@ namespace UnitTests.Tnef {
 				Assert.DoesNotThrow (() => status = ReadAllValues (stream));
 			}
 
-			Assert.That (status & TnefComplianceStatus.InvalidPropertyLength, Is.EqualTo (TnefComplianceStatus.InvalidPropertyLength), "ComplianceStatus");
+			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
 		}
 
 		[Test]
@@ -265,7 +265,7 @@ namespace UnitTests.Tnef {
 			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
 
 			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.InvalidAttributeValue, Is.EqualTo (TnefComplianceStatus.InvalidAttributeValue), "ComplianceStatus");
+			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
 		}
 
 		[Test]
@@ -299,7 +299,25 @@ namespace UnitTests.Tnef {
 				});
 			}
 
-			Assert.That (status & TnefComplianceStatus.InvalidRowCount, Is.EqualTo (TnefComplianceStatus.InvalidRowCount), "ComplianceStatus");
+			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
+		}
+
+		[Test]
+		public void TestPropertyValueLongerThanAttribute ()
+		{
+			// The declared value length reaches beyond the end of the enclosing attribute, which is a
+			// structural containment violation rather than a nonsensical length.
+			var tag = new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Binary);
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (tag);
+			properties.WriteValueCount (1);
+			properties.WriteVariableLengthValue (new byte[] { 1, 2, 3, 4 }, 1024);
+
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+
+			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
+			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
 		}
 
 		[Test]

@@ -386,7 +386,7 @@ namespace MimeKit.Tnef {
 			string? message = null;
 
 			switch (error) {
-			case TnefComplianceStatus.AttributeOverflow:        message = "Too many attributes."; break;
+			case TnefComplianceStatus.AttributeOverflow:        message = "Attribute overflow."; break;
 			case TnefComplianceStatus.InvalidAttribute:         message = "Invalid attribute."; break;
 			case TnefComplianceStatus.InvalidAttributeChecksum: message = "Invalid attribute checksum."; break;
 			case TnefComplianceStatus.InvalidAttributeLength:   message = "Invalid attribute length."; break;

@@ -41,7 +41,8 @@ namespace MimeKit.Tnef {
 		Compliant                = 0,
 
 		/// <summary>
-		/// The TNEF stream has too many attributes.
+		/// The TNEF stream has one or more properties or values that claim more space than
+		/// remains in the attribute that contains them.
 		/// </summary>
 		AttributeOverflow        = 1 << 0,
 

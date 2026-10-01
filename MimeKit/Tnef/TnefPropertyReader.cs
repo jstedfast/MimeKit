@@ -349,7 +349,7 @@ namespace MimeKit.Tnef {
 			long valueEndOffset = (long) RawValueStreamOffset + RawValueLength;
 
 			if (valueEndOffset > attrEndOffset) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+				reader.SetComplianceError (TnefComplianceStatus.AttributeOverflow);
 				return false;
 			}
 
@@ -377,7 +377,7 @@ namespace MimeKit.Tnef {
 			long available = Math.Max (attrEndOffset - reader.StreamOffset, 0);
 
 			if (count > available) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+				reader.SetComplianceError (TnefComplianceStatus.AttributeOverflow);
 				count = (int) available;
 			}
 
@@ -1676,7 +1676,7 @@ namespace MimeKit.Tnef {
 				int max = GetBytesRemaining () / 4;
 
 				if (propertyCount > max) {
-					reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+					reader.SetComplianceError (TnefComplianceStatus.AttributeOverflow);
 					propertyCount = max;
 				}
 			}
@@ -1724,7 +1724,7 @@ namespace MimeKit.Tnef {
 			int max = GetBytesRemaining () / GetMinimumValueLength ();
 
 			if (count > max) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
+				reader.SetComplianceError (TnefComplianceStatus.AttributeOverflow);
 				count = max;
 			}
 
@@ -1763,7 +1763,7 @@ namespace MimeKit.Tnef {
 				int max = GetBytesRemaining () / 4;
 
 				if (rowCount > max) {
-					reader.SetComplianceError (TnefComplianceStatus.InvalidRowCount);
+					reader.SetComplianceError (TnefComplianceStatus.AttributeOverflow);
 					rowCount = max;
 				}
 			}

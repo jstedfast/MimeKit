@@ -122,8 +122,6 @@ namespace UnitTests.Tnef {
 		[TestCase (int.MaxValue - 1)]
 		[TestCase (int.MaxValue - 2)]
 		[TestCase (int.MaxValue - 3)]   // exercises padding arithmetic near the int boundary
-		[TestCase (0x40000000)]
-		[TestCase (1024 * 1024)]
 		public void TestOversizedValueLengthIsRejected (int declaredLength)
 		{
 			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, declaredLength, new byte[] { 1, 2, 3, 4 });
@@ -138,6 +136,30 @@ namespace UnitTests.Tnef {
 
 			Assert.That (status.HasFlag (TnefComplianceStatus.InvalidPropertyLength), Is.True,
 				"an oversized property length should be recorded as a compliance error");
+
+			// Whatever happens, we must never have materialized a buffer larger than the input.
+			if (bytes != null)
+				Assert.That (bytes.Length, Is.LessThanOrEqualTo (tnef.Length), "allocated buffer is larger than the entire input stream");
+		}
+
+		// A value length that is not nonsensical in isolation, but which reaches beyond the end of the
+		// enclosing attribute, is a structural containment violation.
+		[TestCase (0x40000000)]
+		[TestCase (1024 * 1024)]
+		public void TestValueLengthBeyondAttributeIsRejected (int declaredLength)
+		{
+			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, declaredLength, new byte[] { 1, 2, 3, 4 });
+
+			Assert.That (tnef.Length, Is.LessThan (128), "the crafted TNEF stream should be tiny");
+
+			byte[] bytes = null;
+			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			bool readProperty = false;
+
+			Assert.DoesNotThrow (() => bytes = ReadFirstPropertyAsBytes (tnef, out status, out readProperty));
+
+			Assert.That (status.HasFlag (TnefComplianceStatus.AttributeOverflow), Is.True,
+				"a property value that overflows the attribute should be recorded as a compliance error");
 
 			// Whatever happens, we must never have materialized a buffer larger than the input.
 			if (bytes != null)
