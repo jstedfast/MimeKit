@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Buffers;
+using System.Buffers.Binary;
 
 using MimeKit.Utils;
 
@@ -428,14 +429,37 @@ namespace MimeKit.Tnef {
 		{
 			var appTime = ReadDouble ();
 
-			return DateTime.FromOADate (appTime);
+			try {
+				return DateTime.FromOADate (appTime);
+			} catch (ArgumentException ex) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidDate, ex);
+				return default (DateTime);
+			}
 		}
 
 		DateTime ReadSysTime ()
 		{
 			var fileTime = ReadInt64 ();
 
-			return DateTime.FromFileTime (fileTime);
+			try {
+				return DateTime.FromFileTime (fileTime);
+			} catch (ArgumentOutOfRangeException ex) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidDate, ex);
+				return default (DateTime);
+			}
+		}
+
+		Guid ReadGuid ()
+		{
+			var bytes = ReadBytes (16);
+
+			// Note: ReadBytes() clamps the request to the number of bytes remaining in the attribute
+			// (recording an InvalidPropertyLength compliance error if it has to do so), so we may get
+			// back fewer than the 16 bytes needed to construct a Guid.
+			if (bytes.Length < 16)
+				return Guid.Empty;
+
+			return new Guid (bytes);
 		}
 
 		static int GetPaddedLength (int length)
@@ -526,15 +550,23 @@ namespace MimeKit.Tnef {
 
 		DateTime ReadAttrDateTime ()
 		{
-			int year = ReadInt16 ();
-			int month = ReadInt16 ();
-			int day = ReadInt16 ();
-			int hour = ReadInt16 ();
-			int minute = ReadInt16 ();
-			int second = ReadInt16 ();
-			#pragma warning disable IDE0059
-			int dow = ReadInt16 ();
-			#pragma warning restore IDE0059
+			// The TNEF date structure is 7 16-bit values: year, month, day, hour, minute, second and
+			// day-of-week. Read it via ReadBytes() so that a truncated attribute cannot cause us to
+			// read into the attribute that follows.
+			var bytes = ReadBytes (14);
+
+			if (bytes.Length < 14) {
+				reader.SetComplianceError (TnefComplianceStatus.InvalidDate);
+				return default (DateTime);
+			}
+
+			int year = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (0, 2));
+			int month = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (2, 2));
+			int day = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (4, 2));
+			int hour = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (6, 2));
+			int minute = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (8, 2));
+			int second = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (10, 2));
+			//int dow = BinaryPrimitives.ReadInt16LittleEndian (bytes.AsSpan (12, 2));
 
 			try {
 				return new DateTime (year, month, day, hour, minute, second);
@@ -546,7 +578,7 @@ namespace MimeKit.Tnef {
 
 		void LoadPropertyName ()
 		{
-			var guid = new Guid (ReadBytes (16));
+			var guid = ReadGuid ();
 			var kind = (TnefNameIdKind) ReadInt32 ();
 
 			if (kind == TnefNameIdKind.Name) {
@@ -936,7 +968,7 @@ namespace MimeKit.Tnef {
 				value = ReadByteArray ();
 				break;
 			case TnefPropertyType.ClassId:
-				value = new Guid (ReadBytes (16));
+				value = ReadGuid ();
 				break;
 			case TnefPropertyType.Object:
 				value = ReadByteArray ();
@@ -1286,7 +1318,7 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.ClassId:
-					guid = new Guid (ReadBytes (16));
+					guid = ReadGuid ();
 					break;
 				default:
 					throw new InvalidOperationException ();

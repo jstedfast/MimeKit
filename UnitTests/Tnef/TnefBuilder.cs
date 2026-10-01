@@ -133,5 +133,190 @@ namespace UnitTests.Tnef {
 
 			return new MemoryStream (buffer, 0, length, false, true);
 		}
+
+		public TnefBuilder WriteMapiProperties (TnefAttributeLevel level, TnefMapiPropertyBuilder properties, int? count = null, int? length = null)
+		{
+			var tag = level == TnefAttributeLevel.Attachment ? TnefAttributeTag.Attachment : TnefAttributeTag.MapiProperties;
+
+			return WriteAttribute (level, tag, properties.ToArray (count), length);
+		}
+	}
+
+	/// <summary>
+	/// A test-only builder for the MAPI property payload of an attMsgProps or attAttachment attribute.
+	/// </summary>
+	class TnefMapiPropertyBuilder
+	{
+		readonly MemoryStream stream = new MemoryStream ();
+		int count;
+
+		public int Count {
+			get { return count; }
+		}
+
+		void WriteInt16 (short value)
+		{
+			stream.WriteByte ((byte) (value & 0xFF));
+			stream.WriteByte ((byte) ((value >> 8) & 0xFF));
+		}
+
+		void WriteInt32 (int value)
+		{
+			stream.WriteByte ((byte) (value & 0xFF));
+			stream.WriteByte ((byte) ((value >> 8) & 0xFF));
+			stream.WriteByte ((byte) ((value >> 16) & 0xFF));
+			stream.WriteByte ((byte) ((value >> 24) & 0xFF));
+		}
+
+		void WriteInt64 (long value)
+		{
+			WriteInt32 ((int) (value & 0xFFFFFFFF));
+			WriteInt32 ((int) ((value >> 32) & 0xFFFFFFFF));
+		}
+
+		void WritePropertyTag (TnefPropertyTag tag)
+		{
+			WriteInt16 ((short) tag.TnefType);
+			WriteInt16 ((short) tag.Id);
+		}
+
+		/// <summary>
+		/// Write a property tag (and, if the property is named, its name) without any value.
+		/// </summary>
+		public TnefMapiPropertyBuilder WritePropertyHeader (TnefPropertyTag tag, Guid? guid = null, string name = null, int? nameId = null)
+		{
+			WritePropertyTag (tag);
+
+			if (tag.IsNamed) {
+				var bytes = (guid ?? Guid.Empty).ToByteArray ();
+
+				stream.Write (bytes, 0, bytes.Length);
+
+				if (name != null) {
+					WriteInt32 (0); // TnefNameIdKind.Name
+					WriteUnicodeValue (name);
+				} else {
+					WriteInt32 (1); // TnefNameIdKind.Id
+					WriteInt32 (nameId ?? 0);
+				}
+			}
+
+			count++;
+
+			return this;
+		}
+
+		/// <summary>
+		/// Write a length-prefixed, 4-byte aligned value.
+		/// </summary>
+		public TnefMapiPropertyBuilder WriteVariableLengthValue (byte[] value, int? length = null)
+		{
+			WriteInt32 (length ?? value.Length);
+			stream.Write (value, 0, value.Length);
+
+			for (int i = value.Length; (i % 4) != 0; i++)
+				stream.WriteByte (0);
+
+			return this;
+		}
+
+		public TnefMapiPropertyBuilder WriteUnicodeValue (string value)
+		{
+			var bytes = Encoding.Unicode.GetBytes (value + "\0");
+
+			return WriteVariableLengthValue (bytes);
+		}
+
+		/// <summary>
+		/// Write a complete single-valued property with a raw (already encoded) value.
+		/// </summary>
+		public TnefMapiPropertyBuilder WriteProperty (TnefPropertyTag tag, byte[] rawValue)
+		{
+			WritePropertyHeader (tag);
+			stream.Write (rawValue, 0, rawValue.Length);
+
+			return this;
+		}
+
+		public TnefMapiPropertyBuilder WriteInt32Property (TnefPropertyTag tag, int value)
+		{
+			WritePropertyHeader (tag);
+			WriteInt32 (value);
+
+			return this;
+		}
+
+		public TnefMapiPropertyBuilder WriteInt64Property (TnefPropertyTag tag, long value)
+		{
+			WritePropertyHeader (tag);
+			WriteInt64 (value);
+
+			return this;
+		}
+
+		public TnefMapiPropertyBuilder WriteDoubleProperty (TnefPropertyTag tag, double value)
+		{
+			WritePropertyHeader (tag);
+			WriteInt64 (BitConverter.DoubleToInt64Bits (value));
+
+			return this;
+		}
+
+		public TnefMapiPropertyBuilder WriteStringProperty (TnefPropertyTag tag, string value, Encoding encoding = null)
+		{
+			WritePropertyHeader (tag);
+
+			var bytes = (encoding ?? Encoding.Unicode).GetBytes (value + "\0");
+
+			// Note: string properties are written as a count of values followed by each value.
+			WriteInt32 (1);
+
+			return WriteVariableLengthValue (bytes);
+		}
+
+		public TnefMapiPropertyBuilder WriteBinaryProperty (TnefPropertyTag tag, byte[] value, int? length = null)
+		{
+			WritePropertyHeader (tag);
+			WriteInt32 (1);
+
+			return WriteVariableLengthValue (value, length);
+		}
+
+		public TnefMapiPropertyBuilder WriteGuidProperty (TnefPropertyTag tag, Guid guid)
+		{
+			WritePropertyHeader (tag);
+
+			var bytes = guid.ToByteArray ();
+
+			stream.Write (bytes, 0, bytes.Length);
+
+			return this;
+		}
+
+		/// <summary>
+		/// Write a multi-valued property header followed by an explicit value count.
+		/// </summary>
+		public TnefMapiPropertyBuilder WriteValueCount (int valueCount)
+		{
+			WriteInt32 (valueCount);
+
+			return this;
+		}
+
+		public byte[] ToArray (int? propertyCount = null)
+		{
+			var properties = stream.ToArray ();
+			var buffer = new byte[4 + properties.Length];
+			int n = propertyCount ?? count;
+
+			buffer[0] = (byte) (n & 0xFF);
+			buffer[1] = (byte) ((n >> 8) & 0xFF);
+			buffer[2] = (byte) ((n >> 16) & 0xFF);
+			buffer[3] = (byte) ((n >> 24) & 0xFF);
+
+			Buffer.BlockCopy (properties, 0, buffer, 4, properties.Length);
+
+			return buffer;
+		}
 	}
 }
