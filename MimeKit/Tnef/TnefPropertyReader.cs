@@ -933,10 +933,10 @@ namespace MimeKit.Tnef {
 				break;
 			case TnefPropertyType.I2:
 				// 2 bytes for the short followed by 2 bytes of padding
-				value = (short) (ReadInt32 () & 0xFFFF);
+				value = (short) ReadInt32 ();
 				break;
 			case TnefPropertyType.Boolean:
-				value = (ReadInt32 () & 0xFF) != 0;
+				value = (ReadInt32 () & 0xFFFF) != 0;
 				break;
 			case TnefPropertyType.Currency:
 			case TnefPropertyType.I8:
@@ -1047,10 +1047,10 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFF) != 0;
+					value = (ReadInt32 () & 0xFFFF) != 0;
 					break;
 				case TnefPropertyType.I2:
-					value = (ReadInt32 () & 0xFFFF) != 0;
+					value = (short) ReadInt32 () != 0;
 					break;
 				case TnefPropertyType.Error:
 				case TnefPropertyType.Long:
@@ -1196,10 +1196,10 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFF);
+					value = (ReadInt32 () & 0xFFFF);
 					break;
 				case TnefPropertyType.I2:
-					value = (ReadInt32 () & 0xFFFF);
+					value = (short) ReadInt32 ();
 					break;
 				case TnefPropertyType.Error:
 				case TnefPropertyType.Long:
@@ -1257,10 +1257,10 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFF);
+					value = (ReadInt32 () & 0xFFFF);
 					break;
 				case TnefPropertyType.I2:
-					value = (ReadInt32 () & 0xFFFF);
+					value = (short) ReadInt32 ();
 					break;
 				case TnefPropertyType.Error:
 				case TnefPropertyType.Long:
@@ -1355,10 +1355,10 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Boolean:
-					value = (short) (ReadInt32 () & 0xFF);
+					value = (short) (ReadInt32 () & 0xFFFF);
 					break;
 				case TnefPropertyType.I2:
-					value = (short) (ReadInt32 () & 0xFFFF);
+					value = (short) ReadInt32 ();
 					break;
 				case TnefPropertyType.Error:
 				case TnefPropertyType.Long:
@@ -1416,10 +1416,10 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Boolean:
-					value = ReadInt32 () & 0xFF;
+					value = ReadInt32 () & 0xFFFF;
 					break;
 				case TnefPropertyType.I2:
-					value = ReadInt32 () & 0xFFFF;
+					value = (short) ReadInt32 ();
 					break;
 				case TnefPropertyType.Error:
 				case TnefPropertyType.Long:
@@ -1477,10 +1477,10 @@ namespace MimeKit.Tnef {
 			if (propertyCount > 0) {
 				switch (propertyTag.ValueTnefType) {
 				case TnefPropertyType.Boolean:
-					value = ReadInt32 () & 0xFF;
+					value = ReadInt32 () & 0xFFFF;
 					break;
 				case TnefPropertyType.I2:
-					value = ReadInt32 () & 0xFFFF;
+					value = (short) ReadInt32 ();
 					break;
 				case TnefPropertyType.Error:
 				case TnefPropertyType.Long:
