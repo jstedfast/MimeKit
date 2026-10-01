@@ -57,6 +57,7 @@ namespace MimeKit.Tnef {
 		int checksum;
 		int codepage;
 		int version;
+		bool seenAttachmentLevel;
 		bool closed;
 		bool eos;
 
@@ -386,11 +387,35 @@ namespace MimeKit.Tnef {
 		{
 			switch (AttributeLevel) {
 			case TnefAttributeLevel.Attachment:
+				// Note: Once the attachment-level attributes have begun, it is no longer
+				// legal for the TNEF stream to go back to the message level.
+				seenAttachmentLevel = true;
+				break;
 			case TnefAttributeLevel.Message:
+				if (seenAttachmentLevel)
+					SetComplianceError (TnefComplianceStatus.InvalidAttributeLevel);
 				break;
 			default:
 				SetComplianceError (TnefComplianceStatus.InvalidAttributeLevel);
 				break;
+			}
+		}
+
+		// Returns true if the specified attribute is allowed to appear at the attachment level.
+		static bool IsAttachmentLevelAttribute (TnefAttributeTag tag)
+		{
+			switch (tag) {
+			case TnefAttributeTag.AttachCreateDate:
+			case TnefAttributeTag.AttachData:
+			case TnefAttributeTag.Attachment:
+			case TnefAttributeTag.AttachMetaFile:
+			case TnefAttributeTag.AttachModifyDate:
+			case TnefAttributeTag.AttachRenderData:
+			case TnefAttributeTag.AttachTitle:
+			case TnefAttributeTag.AttachTransportFilename:
+				return true;
+			default:
+				return false;
 			}
 		}
 
@@ -445,7 +470,18 @@ namespace MimeKit.Tnef {
 				break;
 			default:
 				SetComplianceError (TnefComplianceStatus.InvalidAttribute);
-				break;
+				return;
+			}
+
+			// Note: attNull is allowed at either level.
+			if (AttributeTag == TnefAttributeTag.Null)
+				return;
+
+			if (IsAttachmentLevelAttribute (AttributeTag)) {
+				if (AttributeLevel != TnefAttributeLevel.Attachment)
+					SetComplianceError (TnefComplianceStatus.InvalidAttributeLevel);
+			} else if (AttributeLevel == TnefAttributeLevel.Attachment) {
+				SetComplianceError (TnefComplianceStatus.InvalidAttributeLevel);
 			}
 		}
 
