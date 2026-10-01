@@ -1157,7 +1157,7 @@ namespace MimeKit.Tnef {
 					bytes = ReadAttrBytes ();
 					break;
 				default:
-					throw new ArgumentOutOfRangeException ();
+					throw new InvalidOperationException ();
 				}
 			}
 

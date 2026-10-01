@@ -136,5 +136,27 @@ namespace UnitTests.Tnef {
 
 			Assert.That (reader.TnefPropertyReader.ReadValue (), Is.EqualTo (true));
 		}
+
+		[Test]
+		public void TestReadAttributeValueAsBytesThrowsInvalidOperationException ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+
+			using var reader = new TnefReader (builder.ToStream (), 0, TnefComplianceMode.Loose);
+
+			while (reader.ReadNextAttribute ()) {
+				if (reader.AttributeTag != TnefAttributeTag.TnefVersion)
+					continue;
+
+				var prop = reader.TnefPropertyReader;
+
+				Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsBytes ());
+				return;
+			}
+
+			Assert.Fail ("Failed to locate the attTnefVersion attribute.");
+		}
 	}
 }
