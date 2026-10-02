@@ -51,7 +51,7 @@ namespace UnitTests.Tnef {
 
 						Assert.Throws<NotSupportedException> (() => tnef.Write (buffer, 0, buffer.Length));
 						Assert.Throws<NotSupportedException> (() => tnef.Seek (0, SeekOrigin.End));
-						Assert.Throws<NotSupportedException> (() => tnef.Flush ());
+						Assert.DoesNotThrow (() => tnef.Flush ());
 						Assert.Throws<NotSupportedException> (() => tnef.SetLength (1024));
 
 						Assert.Throws<NotSupportedException> (() => { var x = tnef.Position; });
@@ -308,6 +308,29 @@ namespace UnitTests.Tnef {
 			var buffer = new byte[64];
 
 			Assert.Throws<ObjectDisposedException> (() => value.Read (buffer, 0, buffer.Length));
+			Assert.Throws<ObjectDisposedException> (() => value.Flush ());
+		}
+
+		[Test]
+		public void TestFlushIsANoOp ()
+		{
+			// Flushing a read-only stream is conventionally a no-op rather than an error, so that
+			// TnefReaderStream can be dropped into a generic stream pipeline that flushes what it is given.
+			var payload = CreatePayload (32);
+
+			using var stream = new MemoryStream (BuildBinaryPropertyStream (payload), false);
+			using var reader = new TnefReader (stream);
+			using var value = OpenValueStream (reader, TnefPropertyId.RecordKey);
+
+			Assert.DoesNotThrow (() => value.Flush (), "Flush");
+			Assert.DoesNotThrowAsync (() => value.FlushAsync (), "FlushAsync");
+
+			// Flushing must not have disturbed the value.
+			var buffer = new byte[64];
+			int nread = value.Read (buffer, 0, buffer.Length);
+
+			Assert.That (nread, Is.EqualTo (payload.Length), "nread");
+			Assert.That (buffer.AsSpan (0, nread).ToArray (), Is.EqualTo (payload), "payload");
 		}
 
 		[Test]

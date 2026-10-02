@@ -229,14 +229,16 @@ namespace MimeKit.Tnef {
 		/// to the underlying device.
 		/// </summary>
 		/// <remarks>
-		/// The <see cref="TnefReaderStream"/> does not support writing.
+		/// Since the <see cref="TnefReaderStream"/> is read-only, there is nothing to flush.
 		/// </remarks>
-		/// <exception cref="System.NotSupportedException">
-		/// The stream does not support writing.
+		/// <exception cref="System.ObjectDisposedException">
+		/// The stream has been disposed.
 		/// </exception>
 		public override void Flush ()
 		{
-			throw new NotSupportedException ("The stream does not support writing.");
+			CheckDisposed ();
+
+			// nothing to do...
 		}
 
 		/// <summary>
