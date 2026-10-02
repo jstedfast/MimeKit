@@ -648,13 +648,15 @@ namespace UnitTests.Tnef {
 					Assert.That (reader.TnefVersion, Is.EqualTo (65536), "TnefVersion");
 					break;
 				case TnefAttributeTag.OemCodepage:
-					int codepage = prop.ReadValueAsInt32 ();
-					try {
-						var encoding = Encoding.GetEncoding (codepage);
-						//Console.WriteLine ("Message Attribute: OemCodepage = {0}", encoding.HeaderName);
-					} catch {
-						//Console.WriteLine ("Message Attribute: OemCodepage = {0}", codepage);
-					}
+					// Note: attOemCodepage is declared as atpByte, so its value is an opaque blob
+					// rather than a scalar. The blob begins with the primary codepage DWORD.
+					var oemCodepage = prop.ReadValueAsBytes ();
+
+					Assert.That (oemCodepage.Length, Is.GreaterThanOrEqualTo (4), "OemCodepage length");
+
+					int codepage = BitConverter.ToInt32 (oemCodepage, 0);
+
+					Assert.That (codepage, Is.EqualTo (reader.MessageCodepage), "MessageCodepage");
 					break;
 				default:
 					//Console.WriteLine ("Message Attribute (unhandled): {0} = {1}", reader.AttributeTag, prop.ReadValue ());

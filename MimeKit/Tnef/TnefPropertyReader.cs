@@ -233,12 +233,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <value>The type of the value.</value>
 		public Type ValueType {
-			get {
-				if (propertyCount > 0)
-					return GetPropertyValueType ();
-
-				return GetAttributeValueType ();
-			}
+			get { return GetPropertyValueType (); }
 		}
 
 		internal TnefPropertyReader (TnefReader tnef)
@@ -596,6 +591,63 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		/// <summary>
+		/// Get the <see cref="TnefPropertyType"/> that describes the current value.
+		/// </summary>
+		/// <remarks>
+		/// When the reader is positioned on a MAPI property, this is simply the property tag's value
+		/// type. When it is positioned on a plain TNEF attribute, the attribute's type is mapped onto
+		/// the equivalent MAPI property type so that the ReadValueAs*() methods accept and reject the
+		/// same set of types at both levels.
+		/// </remarks>
+		TnefPropertyType ValueTnefType {
+			get {
+				if (propertyCount > 0)
+					return propertyTag.ValueTnefType;
+
+				switch (reader.AttributeType) {
+				case TnefAttributeType.Short:
+				case TnefAttributeType.Word:   return TnefPropertyType.I2;
+				case TnefAttributeType.Long:
+				case TnefAttributeType.DWord:  return TnefPropertyType.Long;
+				case TnefAttributeType.String:
+				case TnefAttributeType.Text:   return TnefPropertyType.String8;
+				case TnefAttributeType.Date:   return TnefPropertyType.SysTime;
+				case TnefAttributeType.Triples:
+				case TnefAttributeType.Byte:   return TnefPropertyType.Binary;
+				default:                       return TnefPropertyType.Unspecified;
+				}
+			}
+		}
+
+		short ReadI2Value ()
+		{
+			// Note: PT_I2 values are padded out to 4 bytes whereas atpShort and atpWord attribute
+			// values are only 2 bytes wide.
+			return propertyCount > 0 ? (short) ReadInt32 () : ReadInt16 ();
+		}
+
+		byte[] ReadBinaryValue ()
+		{
+			// Note: variable length property values are length-prefixed and padded out to a multiple
+			// of 4 bytes whereas an attribute value occupies the entire attribute payload.
+			return propertyCount > 0 ? ReadByteArray () : ReadAttrBytes ();
+		}
+
+		string ReadStringValue ()
+		{
+			// Note: variable length property values are length-prefixed and padded out to a multiple
+			// of 4 bytes whereas an attribute value occupies the entire attribute payload.
+			return propertyCount > 0 ? ReadString () : ReadAttrString ();
+		}
+
+		DateTime ReadSysTimeValue ()
+		{
+			// Note: PT_SYSTIME values are FILETIMEs whereas atpDate attribute values use the 14-byte
+			// TNEF date structure.
+			return propertyCount > 0 ? ReadSysTime () : ReadAttrDateTime ();
+		}
+
 		void LoadPropertyName ()
 		{
 			var guid = ReadGuid ();
@@ -945,7 +997,7 @@ namespace MimeKit.Tnef {
 
 		Type GetPropertyValueType ()
 		{
-			switch (propertyTag.ValueTnefType) {
+			switch (ValueTnefType) {
 			case TnefPropertyType.I2:       return typeof (short);
 			case TnefPropertyType.Boolean:  return typeof (bool);
 			case TnefPropertyType.Currency: return typeof (long);
@@ -965,33 +1017,16 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		Type GetAttributeValueType ()
-		{
-			switch (reader.AttributeType) {
-			case TnefAttributeType.Triples: return typeof (byte[]);
-			case TnefAttributeType.String:  return typeof (string);
-			case TnefAttributeType.Text:    return typeof (string);
-			case TnefAttributeType.Date:    return typeof (DateTime);
-			case TnefAttributeType.Short:   return typeof (short);
-			case TnefAttributeType.Long:    return typeof (int);
-			case TnefAttributeType.Byte:    return typeof (byte[]);
-			case TnefAttributeType.Word:    return typeof (short);
-			case TnefAttributeType.DWord:   return typeof (int);
-			default:                        return typeof (object);
-			}
-		}
-
 		object? ReadPropertyValue ()
 		{
 			object? value;
 
-			switch (propertyTag.ValueTnefType) {
+			switch (ValueTnefType) {
 			case TnefPropertyType.Null:
 				value = null;
 				break;
 			case TnefPropertyType.I2:
-				// 2 bytes for the short followed by 2 bytes of padding
-				value = (short) ReadInt32 ();
+				value = ReadI2Value ();
 				break;
 			case TnefPropertyType.Boolean:
 				value = (ReadInt32 () & 0xFFFF) != 0;
@@ -1014,22 +1049,22 @@ namespace MimeKit.Tnef {
 				value = ReadAppTime ();
 				break;
 			case TnefPropertyType.SysTime:
-				value = ReadSysTime ();
+				value = ReadSysTimeValue ();
 				break;
 			case TnefPropertyType.Unicode:
 				value = ReadUnicodeString ();
 				break;
 			case TnefPropertyType.String8:
-				value = ReadString ();
+				value = ReadStringValue ();
 				break;
 			case TnefPropertyType.Binary:
-				value = ReadByteArray ();
+				value = ReadBinaryValue ();
 				break;
 			case TnefPropertyType.ClassId:
 				value = ReadGuid ();
 				break;
 			case TnefPropertyType.Object:
-				value = ReadByteArray ();
+				value = ReadBinaryValue ();
 				break;
 			default:
 				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
@@ -1060,26 +1095,7 @@ namespace MimeKit.Tnef {
 			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
 				throw new InvalidOperationException ();
 
-			if (propertyCount > 0)
-				return ReadPropertyValue ();
-
-			object? value = null;
-
-			switch (reader.AttributeType) {
-			case TnefAttributeType.Triples: value = ReadAttrBytes (); break;
-			case TnefAttributeType.String: value = ReadAttrString (); break;
-			case TnefAttributeType.Text:   value = ReadAttrString (); break;
-			case TnefAttributeType.Date:   value = ReadAttrDateTime (); break;
-			case TnefAttributeType.Short:  value = ReadInt16 (); break;
-			case TnefAttributeType.Long:   value = ReadInt32 (); break;
-			case TnefAttributeType.Byte:   value = ReadAttrBytes (); break;
-			case TnefAttributeType.Word:   value = ReadInt16 (); break;
-			case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-			}
-
-			valueIndex++;
-
-			return value;
+			return ReadPropertyValue ();
 		}
 
 		/// <summary>
@@ -1102,34 +1118,23 @@ namespace MimeKit.Tnef {
 
 			bool value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFFFF) != 0;
-					break;
-				case TnefPropertyType.I2:
-					value = (short) ReadInt32 () != 0;
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 () != 0;
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 () != 0;
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 () != 0; break;
-				case TnefAttributeType.Long:   value = ReadInt32 () != 0; break;
-				case TnefAttributeType.Word:   value = ReadInt16 () != 0; break;
-				case TnefAttributeType.DWord:  value = ReadInt32 () != 0; break;
-				case TnefAttributeType.Byte:   value = ReadByte () != 0; break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Boolean:
+				value = (ReadInt32 () & 0xFFFF) != 0;
+				break;
+			case TnefPropertyType.I2:
+				value = ReadI2Value () != 0;
+				break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+				value = ReadInt32 () != 0;
+				break;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8:
+				value = ReadInt64 () != 0;
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1157,31 +1162,18 @@ namespace MimeKit.Tnef {
 
 			byte[] bytes;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode:
-				case TnefPropertyType.String8:
-				case TnefPropertyType.Binary:
-				case TnefPropertyType.Object:
-					bytes = ReadByteArray ();
-					break;
-				case TnefPropertyType.ClassId:
-					bytes = ReadBytes (16);
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Triples:
-				case TnefAttributeType.String:
-				case TnefAttributeType.Text:
-				case TnefAttributeType.Byte:
-					bytes = ReadAttrBytes ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object:
+				bytes = ReadBinaryValue ();
+				break;
+			case TnefPropertyType.ClassId:
+				bytes = ReadBytes (16);
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1211,20 +1203,14 @@ namespace MimeKit.Tnef {
 
 			DateTime value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.AppTime:
-					value = ReadAppTime ();
-					break;
-				case TnefPropertyType.SysTime:
-					value = ReadSysTime ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else if (reader.AttributeType == TnefAttributeType.Date) {
-				value = ReadAttrDateTime ();
-			} else {
+			switch (ValueTnefType) {
+			case TnefPropertyType.AppTime:
+				value = ReadAppTime ();
+				break;
+			case TnefPropertyType.SysTime:
+				value = ReadSysTimeValue ();
+				break;
+			default:
 				throw new InvalidOperationException ();
 			}
 
@@ -1253,40 +1239,29 @@ namespace MimeKit.Tnef {
 
 			double value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFFFF);
-					break;
-				case TnefPropertyType.I2:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadDouble (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Boolean:
+				value = ReadInt32 () & 0xFFFF;
+				break;
+			case TnefPropertyType.I2:
+				value = ReadI2Value ();
+				break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+				value = ReadInt32 ();
+				break;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8:
+				value = ReadInt64 ();
+				break;
+			case TnefPropertyType.Double:
+				value = ReadDouble ();
+				break;
+			case TnefPropertyType.R4:
+				value = ReadSingle ();
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1314,40 +1289,29 @@ namespace MimeKit.Tnef {
 
 			float value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFFFF);
-					break;
-				case TnefPropertyType.I2:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (float) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadSingle (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Boolean:
+				value = ReadInt32 () & 0xFFFF;
+				break;
+			case TnefPropertyType.I2:
+				value = ReadI2Value ();
+				break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+				value = ReadInt32 ();
+				break;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8:
+				value = ReadInt64 ();
+				break;
+			case TnefPropertyType.Double:
+				value = (float) ReadDouble ();
+				break;
+			case TnefPropertyType.R4:
+				value = ReadSingle ();
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1375,15 +1339,11 @@ namespace MimeKit.Tnef {
 
 			Guid guid;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.ClassId:
-					guid = ReadGuid ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
+			switch (ValueTnefType) {
+			case TnefPropertyType.ClassId:
+				guid = ReadGuid ();
+				break;
+			default:
 				throw new InvalidOperationException ();
 			}
 
@@ -1412,40 +1372,29 @@ namespace MimeKit.Tnef {
 
 			short value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (short) (ReadInt32 () & 0xFFFF);
-					break;
-				case TnefPropertyType.I2:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = (short) ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (short) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = (short) ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = (short) ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = (short) ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadInt16 (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Boolean:
+				value = (short) (ReadInt32 () & 0xFFFF);
+				break;
+			case TnefPropertyType.I2:
+				value = ReadI2Value ();
+				break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+				value = (short) ReadInt32 ();
+				break;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8:
+				value = (short) ReadInt64 ();
+				break;
+			case TnefPropertyType.Double:
+				value = (short) ReadDouble ();
+				break;
+			case TnefPropertyType.R4:
+				value = (short) ReadSingle ();
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1473,40 +1422,29 @@ namespace MimeKit.Tnef {
 
 			int value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = ReadInt32 () & 0xFFFF;
-					break;
-				case TnefPropertyType.I2:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = (int) ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (int) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = (int) ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadInt32 (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Boolean:
+				value = ReadInt32 () & 0xFFFF;
+				break;
+			case TnefPropertyType.I2:
+				value = ReadI2Value ();
+				break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+				value = ReadInt32 ();
+				break;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8:
+				value = (int) ReadInt64 ();
+				break;
+			case TnefPropertyType.Double:
+				value = (int) ReadDouble ();
+				break;
+			case TnefPropertyType.R4:
+				value = (int) ReadSingle ();
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1534,40 +1472,29 @@ namespace MimeKit.Tnef {
 
 			long value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = ReadInt32 () & 0xFFFF;
-					break;
-				case TnefPropertyType.I2:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (long) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = (long) ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadInt64 (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Boolean:
+				value = ReadInt32 () & 0xFFFF;
+				break;
+			case TnefPropertyType.I2:
+				value = ReadI2Value ();
+				break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long:
+				value = ReadInt32 ();
+				break;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8:
+				value = ReadInt64 ();
+				break;
+			case TnefPropertyType.Double:
+				value = (long) ReadDouble ();
+				break;
+			case TnefPropertyType.R4:
+				value = (long) ReadSingle ();
+				break;
+			default:
+				throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
@@ -1595,20 +1522,11 @@ namespace MimeKit.Tnef {
 
 			string value;
 
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode: value = ReadUnicodeString (); break;
-				case TnefPropertyType.String8: value = ReadString (); break;
-				case TnefPropertyType.Binary:  value = ReadString (); break;
-				default: throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.String: value = ReadAttrString (); break;
-				case TnefAttributeType.Text:   value = ReadAttrString (); break;
-				case TnefAttributeType.Byte:   value = ReadAttrString (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (ValueTnefType) {
+			case TnefPropertyType.Unicode: value = ReadUnicodeString (); break;
+			case TnefPropertyType.String8: value = ReadStringValue (); break;
+			case TnefPropertyType.Binary:  value = ReadStringValue (); break;
+			default: throw new InvalidOperationException ();
 			}
 
 			valueIndex++;
