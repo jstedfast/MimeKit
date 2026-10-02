@@ -500,7 +500,8 @@ namespace MimeKit.Tnef {
 				n = ReadAhead (AttributeRawValueLength);
 
 			if (n < AttributeRawValueLength) {
-				SetComplianceError (TnefComplianceStatus.InvalidMessageClass);
+				// Note: the stream ended before the value did. That is a truncated stream, not an invalid
+				// message class, and the attribute value/checksum handling will report it as such.
 				return;
 			}
 

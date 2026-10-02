@@ -448,5 +448,23 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		// In Strict mode a truncated stream must surface as a TnefException, not as a raw EndOfStreamException.
+		[Test]
+		public void TestTruncatedStreamsThrowTnefExceptionInStrictMode ()
+		{
+			var complete = BuildTruncationTestStream (out var boundaries);
+
+			for (int length = 0; length < complete.Length; length++) {
+				if (boundaries.Contains (length))
+					continue;
+
+				var ex = Assert.Throws<TnefException> (() => {
+					using var reader = new TnefReader (new MemoryStream (complete, 0, length, false), 0, TnefComplianceMode.Strict);
+					TnefPart.ExtractTnefMessage (reader).Dispose ();
+				}, $"truncated to {length}");
+
+				Assert.That (ex!.Error, Is.EqualTo (TnefComplianceStatus.StreamTruncated), $"truncated to {length}");
+			}
+		}
 	}
 }
