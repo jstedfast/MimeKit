@@ -150,7 +150,9 @@ namespace UnitTests.Tnef {
 			properties.WriteVariableLengthValue (new byte[] { 0x41, 0x00, 0x42, 0x00 }, 0x7FFFFF00, false);
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: 0x7FFFFFFF);
 
-			using var reader = new TnefReader (builder.ToStream ()) { ComplianceLogger = logger };
+			// Note: Lift the limits so that the bogus length is not rejected up front and the chunked read path is exercised.
+			var options = new TnefOptions { MaxPropertyValueLength = int.MaxValue, MaxTotalDataBytes = long.MaxValue };
+			using var reader = new TnefReader (builder.ToStream (), options) { ComplianceLogger = logger };
 
 			Assert.That (reader.Read (), Is.True);
 			var prop = reader.GetPropertyReader ();
@@ -172,7 +174,9 @@ namespace UnitTests.Tnef {
 			properties.WriteVariableLengthValue (new byte[] { 0x41, 0x00, 0x42, 0x00 }, 0x7FFFFF00, false);
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: 0x7FFFFFFF);
 
-			using var reader = new TnefReader (builder.ToStream ()) { ComplianceLogger = logger };
+			// Note: Lift the limits so that the bogus length is not rejected up front and the chunked read path is exercised.
+			var options = new TnefOptions { MaxPropertyValueLength = int.MaxValue, MaxTotalDataBytes = long.MaxValue };
+			using var reader = new TnefReader (builder.ToStream (), options) { ComplianceLogger = logger };
 
 			Assert.That (await reader.ReadAsync (), Is.True);
 			var prop = reader.GetPropertyReader ();

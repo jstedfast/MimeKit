@@ -46,6 +46,25 @@ namespace MimeKit.Tnef {
 		public const int DefaultMaxNestingDepth = 32;
 
 		/// <summary>
+		/// The default maximum length of a single value that will be read into memory.
+		/// </summary>
+		/// <remarks>
+		/// <para>The default maximum length, in bytes, of a single value that will be read into memory (32 MB).</para>
+		/// <para>This is larger than any value that can fit within a message that is subject to the 25-35 MB
+		/// message size limits that are common for SMTP servers.</para>
+		/// </remarks>
+		public const int DefaultMaxPropertyValueLength = 32 * 1024 * 1024;
+
+		/// <summary>
+		/// The default maximum number of bytes of value data that will be read into memory.
+		/// </summary>
+		/// <remarks>
+		/// <para>The default maximum number of bytes of value data that will be read into memory for a single
+		/// TNEF stream, including any embedded messages (64 MB).</para>
+		/// </remarks>
+		public const long DefaultMaxTotalDataBytes = 64L * 1024 * 1024;
+
+		/// <summary>
 		/// The default TNEF options.
 		/// </summary>
 		/// <remarks>
@@ -56,6 +75,8 @@ namespace MimeKit.Tnef {
 
 		int defaultCodepage;
 		int maxNestingDepth = DefaultMaxNestingDepth;
+		int maxPropertyValueLength = DefaultMaxPropertyValueLength;
+		long maxTotalDataBytes = DefaultMaxTotalDataBytes;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TnefOptions"/> class.
@@ -115,6 +136,68 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
+		/// Get or set the maximum length of a single value that will be read into memory.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum length, in bytes, of a single attribute or property value that will be read
+		/// into memory by methods such as <see cref="TnefReader.ReadValueAsBytes(System.Threading.CancellationToken)"/>,
+		/// <see cref="TnefPropertyReader.ReadValue(System.Threading.CancellationToken)"/> and
+		/// <see cref="TnefPropertyReader.ReadPropertySet(System.Threading.CancellationToken)"/>.</para>
+		/// <para>When a value is longer than this limit, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/>
+		/// issue is reported and the value is skipped. The methods that return a single value return an empty value
+		/// instead, and <see cref="TnefPropertyReader.ReadProperty(System.Threading.CancellationToken)"/> returns a
+		/// <see cref="TnefProperty"/> without any values.</para>
+		/// <para>The limit does not apply to values that are read using <see cref="TnefReader.OpenValueStream"/>,
+		/// <see cref="TnefPropertyReader.OpenValueStream"/> or <see cref="TnefPropertyReader.OpenEmbeddedMessage"/>,
+		/// since those values are not buffered in memory.</para>
+		/// <para>The default limit is suitable for messages that are subject to the 25-35 MB message size limits that
+		/// are common for SMTP servers. Applications that accept larger messages should increase it.</para>
+		/// </remarks>
+		/// <value>The maximum value length. The default is <see cref="DefaultMaxPropertyValueLength"/>.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxPropertyValueLength {
+			get { return maxPropertyValueLength; }
+			set {
+				if (value < 0)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxPropertyValueLength = value;
+			}
+		}
+
+		/// <summary>
+		/// Get or set the maximum number of bytes of value data that will be read into memory.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum total number of bytes of attribute and property values that will be read into
+		/// memory for a single TNEF stream, including the values of any embedded messages. This protects against
+		/// maliciously formed streams that contain a large number of values that are each smaller than
+		/// <see cref="MaxPropertyValueLength"/>.</para>
+		/// <para>Once the limit has been reached, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported for each additional string, binary or object value that would be read into memory and the value is
+		/// skipped as described for <see cref="MaxPropertyValueLength"/>. Fixed-width values are still read.</para>
+		/// <para>The limit does not apply to values that are read using <see cref="TnefReader.OpenValueStream"/>,
+		/// <see cref="TnefPropertyReader.OpenValueStream"/> or <see cref="TnefPropertyReader.OpenEmbeddedMessage"/>.</para>
+		/// <para>The default limit is suitable for messages that are subject to the 25-35 MB message size limits that
+		/// are common for SMTP servers. Applications that accept larger messages should increase it.</para>
+		/// </remarks>
+		/// <value>The maximum number of bytes. The default is <see cref="DefaultMaxTotalDataBytes"/>.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public long MaxTotalDataBytes {
+			get { return maxTotalDataBytes; }
+			set {
+				if (value < 0)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxTotalDataBytes = value;
+			}
+		}
+
+		/// <summary>
 		/// Clone an instance of <see cref="TnefOptions"/>.
 		/// </summary>
 		/// <remarks>
@@ -126,7 +209,9 @@ namespace MimeKit.Tnef {
 		{
 			return new TnefOptions {
 				defaultCodepage = defaultCodepage,
-				maxNestingDepth = maxNestingDepth
+				maxNestingDepth = maxNestingDepth,
+				maxPropertyValueLength = maxPropertyValueLength,
+				maxTotalDataBytes = maxTotalDataBytes
 			};
 		}
 	}

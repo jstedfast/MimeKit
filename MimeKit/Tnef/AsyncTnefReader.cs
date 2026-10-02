@@ -26,8 +26,10 @@
 
 using System;
 using System.IO;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace MimeKit.Tnef {
 	public sealed partial class TnefReader
@@ -123,10 +125,39 @@ namespace MimeKit.Tnef {
 			return nread;
 		}
 
-		internal async Task<byte[]> ReadValueBytesAsync (int count, TnefPropertyTag propertyTag, CancellationToken cancellationToken)
+		async Task<byte[]> ReadUnverifiedValueBytesAsync (int count, CancellationToken cancellationToken)
+		{
+			var chunks = new List<byte[]> ();
+			int nread = 0;
+
+			try {
+				while (nread < count) {
+					int requested = Math.Min (MaxUnverifiedAllocation, count - nread);
+					var chunk = ArrayPool<byte>.Shared.Rent (MaxUnverifiedAllocation);
+
+					chunks.Add (chunk);
+
+					int n = await ReadValueDataFullyAsync (chunk, 0, requested, cancellationToken).ConfigureAwait (false);
+
+					nread += n;
+
+					if (n < requested)
+						break;
+				}
+
+				return JoinChunks (chunks, nread);
+			} finally {
+				ReturnChunks (chunks);
+			}
+		}
+
+		internal async Task<byte[]?> ReadValueBytesAsync (int count, TnefPropertyTag propertyTag, CancellationToken cancellationToken)
 		{
 			if (count == 0)
 				return Array.Empty<byte> ();
+
+			if (!TryReserveValueBytes (count, propertyTag))
+				return null;
 
 			byte[] buffer;
 			int nread;
@@ -134,28 +165,17 @@ namespace MimeKit.Tnef {
 			if (CanAllocate (count)) {
 				buffer = new byte[count];
 				nread = await ReadValueDataFullyAsync (buffer, 0, count, cancellationToken).ConfigureAwait (false);
+
+				if (nread < count)
+					Array.Resize (ref buffer, nread);
 			} else {
-				buffer = new byte[MaxUnverifiedAllocation];
-				nread = 0;
-
-				while (nread < count) {
-					if (nread == buffer.Length)
-						Array.Resize (ref buffer, (int) Math.Min ((long) buffer.Length * 2, count));
-
-					int n = await ReadValueDataAsync (buffer, nread, buffer.Length - nread, cancellationToken).ConfigureAwait (false);
-
-					if (n == 0)
-						break;
-
-					nread += n;
-				}
+				buffer = await ReadUnverifiedValueBytesAsync (count, cancellationToken).ConfigureAwait (false);
+				nread = buffer.Length;
 			}
 
 			if (nread < count) {
+				root.dataBytesRemaining += count - nread;
 				SetTruncated (propertyTag);
-				Array.Resize (ref buffer, nread);
-			} else if (buffer.Length > nread) {
-				Array.Resize (ref buffer, nread);
 			}
 
 			return buffer;
@@ -428,6 +448,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// <para>Asynchronously reads the current attribute's raw value.</para>
 		/// <para>The value may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/>
+		/// issue is reported and an empty array is returned. Use <see cref="OpenValueStream"/> to read large values.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -445,11 +468,11 @@ namespace MimeKit.Tnef {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public Task<byte[]> ReadValueAsBytesAsync (CancellationToken cancellationToken = default)
+		public async Task<byte[]> ReadValueAsBytesAsync (CancellationToken cancellationToken = default)
 		{
 			ClaimValue (ValueClaim.Raw);
 
-			return ReadValueBytesAsync ((int) ValueRemaining, TnefPropertyTag.Null, cancellationToken);
+			return await ReadValueBytesAsync ((int) ValueRemaining, TnefPropertyTag.Null, cancellationToken).ConfigureAwait (false) ?? Array.Empty<byte> ();
 		}
 	}
 }

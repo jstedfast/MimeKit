@@ -76,6 +76,8 @@ namespace UnitTests.Tnef {
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => options.DefaultCodepage = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxNestingDepth = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxPropertyValueLength = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxTotalDataBytes = -1);
 
 			using var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"));
 			using var reader = new TnefReader (stream);

@@ -221,10 +221,10 @@ namespace UnitTests.Tnef {
 				stream.Write (bytes, 0, bytes.Length);
 
 				if (name != null) {
-					WriteInt32 (0); // TnefNameIdKind.Name
+					WriteInt32 ((int) TnefNameIdKind.Name);
 					WriteUnicodeValue (name);
 				} else {
-					WriteInt32 (1); // TnefNameIdKind.Id
+					WriteInt32 ((int) TnefNameIdKind.Id);
 					WriteInt32 (nameId ?? 0);
 				}
 			}

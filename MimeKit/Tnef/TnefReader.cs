@@ -27,9 +27,11 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers;
 using System.Numerics;
 using System.Threading;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -85,6 +87,7 @@ namespace MimeKit.Tnef {
 		readonly byte[] input = new byte[BufferSize];
 		readonly byte[] scalar = new byte[16];
 		readonly TnefOptions options;
+		readonly TnefReader root;
 		readonly bool skipIidPrefix;
 		readonly long baseOffset;
 		readonly bool leaveOpen;
@@ -99,6 +102,9 @@ namespace MimeKit.Tnef {
 		int inputIndex, inputEnd;
 		long position;
 		bool eos;
+
+		// Note: Only the root reader's budget is used. Embedded readers share it.
+		long dataBytesRemaining;
 
 		ReaderState state;
 		bool seenAttachmentLevel;
@@ -139,8 +145,10 @@ namespace MimeKit.Tnef {
 				throw new ArgumentNullException (nameof (stream));
 
 			this.options = options ?? TnefOptions.Default;
+			dataBytesRemaining = this.options.MaxTotalDataBytes;
 			this.leaveOpen = leaveOpen;
 			this.stream = stream;
+			root = this;
 
 			if (this.options.DefaultCodepage != 0) {
 				// Note: If the host cannot provide the requested codepage (which is common on Linux, where
@@ -160,6 +168,7 @@ namespace MimeKit.Tnef {
 		TnefReader (TnefReader parent, Stream stream, long baseOffset)
 		{
 			options = parent.options;
+			root = parent.root;
 			depth = parent.depth + 1;
 			encoding = parent.encoding;
 			codepage = parent.codepage;
@@ -675,12 +684,80 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		// Reserves room in the data budget for a value that is about to be read into memory. If the value is too
+		// large, the violation is reported and false is returned.
+		internal bool TryReserveValueBytes (long count, TnefPropertyTag propertyTag)
+		{
+			if (count <= options.MaxPropertyValueLength && count <= root.dataBytesRemaining) {
+				root.dataBytesRemaining -= count;
+				return true;
+			}
+
+			Log (TnefComplianceViolation.DataSizeLimitExceeded, LocalOffset, propertyTag);
+
+			return false;
+		}
+
+		// Reads the specified number of value bytes into chunks rented from the shared pool and then copies them
+		// into a single array of the exact size, so that a bogus length cannot force a huge allocation and so that
+		// no intermediate large-object-heap garbage is created while the array is grown.
+		byte[] ReadUnverifiedValueBytes (int count, CancellationToken cancellationToken)
+		{
+			var chunks = new List<byte[]> ();
+			int nread = 0;
+
+			try {
+				while (nread < count) {
+					int requested = Math.Min (MaxUnverifiedAllocation, count - nread);
+					var chunk = ArrayPool<byte>.Shared.Rent (MaxUnverifiedAllocation);
+
+					chunks.Add (chunk);
+
+					int n = ReadValueDataFully (chunk, 0, requested, cancellationToken);
+
+					nread += n;
+
+					if (n < requested)
+						break;
+				}
+
+				return JoinChunks (chunks, nread);
+			} finally {
+				ReturnChunks (chunks);
+			}
+		}
+
+		static byte[] JoinChunks (List<byte[]> chunks, int length)
+		{
+			var buffer = new byte[length];
+			int index = 0;
+
+			for (int i = 0; i < chunks.Count && index < length; i++) {
+				int n = Math.Min (MaxUnverifiedAllocation, length - index);
+
+				Buffer.BlockCopy (chunks[i], 0, buffer, index, n);
+				index += n;
+			}
+
+			return buffer;
+		}
+
+		static void ReturnChunks (List<byte[]> chunks)
+		{
+			for (int i = 0; i < chunks.Count; i++)
+				ArrayPool<byte>.Shared.Return (chunks[i]);
+		}
+
 		// Reads the specified number of value bytes. If the stream ends first, the truncation is reported
-		// and the bytes that were available are returned.
-		internal byte[] ReadValueBytes (int count, TnefPropertyTag propertyTag, CancellationToken cancellationToken)
+		// and the bytes that were available are returned. If the value is larger than the options allow,
+		// the violation is reported, the value is left unread and null is returned.
+		internal byte[]? ReadValueBytes (int count, TnefPropertyTag propertyTag, CancellationToken cancellationToken)
 		{
 			if (count == 0)
 				return Array.Empty<byte> ();
+
+			if (!TryReserveValueBytes (count, propertyTag))
+				return null;
 
 			byte[] buffer;
 			int nread;
@@ -688,28 +765,17 @@ namespace MimeKit.Tnef {
 			if (CanAllocate (count)) {
 				buffer = new byte[count];
 				nread = ReadValueDataFully (buffer, 0, count, cancellationToken);
+
+				if (nread < count)
+					Array.Resize (ref buffer, nread);
 			} else {
-				buffer = new byte[MaxUnverifiedAllocation];
-				nread = 0;
-
-				while (nread < count) {
-					if (nread == buffer.Length)
-						Array.Resize (ref buffer, (int) Math.Min ((long) buffer.Length * 2, count));
-
-					int n = ReadValueData (buffer, nread, buffer.Length - nread, cancellationToken);
-
-					if (n == 0)
-						break;
-
-					nread += n;
-				}
+				buffer = ReadUnverifiedValueBytes (count, cancellationToken);
+				nread = buffer.Length;
 			}
 
 			if (nread < count) {
+				root.dataBytesRemaining += count - nread;
 				SetTruncated (propertyTag);
-				Array.Resize (ref buffer, nread);
-			} else if (buffer.Length > nread) {
-				Array.Resize (ref buffer, nread);
 			}
 
 			return buffer;
@@ -1350,6 +1416,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// <para>Reads the current attribute's raw value.</para>
 		/// <para>The value may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/>
+		/// issue is reported and an empty array is returned. Use <see cref="OpenValueStream"/> to read large values.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1371,7 +1440,7 @@ namespace MimeKit.Tnef {
 		{
 			ClaimValue (ValueClaim.Raw);
 
-			return ReadValueBytes ((int) ValueRemaining, TnefPropertyTag.Null, cancellationToken);
+			return ReadValueBytes ((int) ValueRemaining, TnefPropertyTag.Null, cancellationToken) ?? Array.Empty<byte> ();
 		}
 
 		/// <summary>

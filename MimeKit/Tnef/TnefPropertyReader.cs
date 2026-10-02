@@ -29,6 +29,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -742,10 +743,18 @@ namespace MimeKit.Tnef {
 
 					var bytes = reader.ReadValueBytes (length, tag, cancellationToken);
 
-					if (!CheckFilled (bytes.Length == length) || !CheckFilled (reader.Skip (GetPadding (length), cancellationToken)))
-						return false;
+					if (bytes is null) {
+						// Note: The name is too large to read into memory, so skip it.
+						if (!CheckFilled (reader.Skip (length + GetPadding (length), cancellationToken)))
+							return false;
 
-					name = new TnefNameId (guid, DecodeUnicode (bytes));
+						name = new TnefNameId (guid, string.Empty);
+					} else {
+						if (!CheckFilled (bytes.Length == length) || !CheckFilled (reader.Skip (GetPadding (length), cancellationToken)))
+							return false;
+
+						name = new TnefNameId (guid, DecodeUnicode (bytes));
+					}
 				} else {
 					Log (TnefComplianceViolation.InvalidNamedPropertyKind, offset);
 					name = new TnefNameId (guid, 0);
@@ -1251,6 +1260,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// <para>Reads any string, binary, object or <see cref="TnefPropertyType.ClassId"/> value as a byte array.</para>
 		/// <para>Variable-length values may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
 		/// </remarks>
 		/// <returns>The value as a byte array.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1279,7 +1291,7 @@ namespace MimeKit.Tnef {
 
 			ClaimVariableValue ("a byte array");
 
-			return reader.ReadValueBytes (VariableLength, tag, cancellationToken);
+			return reader.ReadValueBytes (VariableLength, tag, cancellationToken) ?? Array.Empty<byte> ();
 		}
 
 		void ClaimStringValue ()
@@ -1298,8 +1310,11 @@ namespace MimeKit.Tnef {
 			ClaimVariableValue ("a string");
 		}
 
-		string DecodeString (byte[] bytes)
+		string DecodeString (byte[]? bytes)
 		{
+			if (bytes is null)
+				return string.Empty;
+
 			if (tag.ValueTnefType == TnefPropertyType.Unicode)
 				return DecodeUnicode (bytes);
 
@@ -1314,6 +1329,9 @@ namespace MimeKit.Tnef {
 		/// <para><see cref="TnefPropertyType.String8"/> and <see cref="TnefPropertyType.Binary"/> values are decoded using
 		/// the <see cref="TnefReader.Codepage"/>.</para>
 		/// <para>The value may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
 		/// </remarks>
 		/// <returns>The value as a string.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1367,14 +1385,14 @@ namespace MimeKit.Tnef {
 			return true;
 		}
 
-		object DecodeVariableValue (byte[] bytes)
+		object DecodeVariableValue (byte[]? bytes)
 		{
 			switch (tag.ValueTnefType) {
 			case TnefPropertyType.Unicode:
 			case TnefPropertyType.String8:
 				return DecodeString (bytes);
 			default:
-				return bytes;
+				return bytes ?? Array.Empty<byte> ();
 			}
 		}
 
@@ -1387,6 +1405,9 @@ namespace MimeKit.Tnef {
 		/// been scaled by 1/10000, since [MS-OXCDATA] defines PtypCurrency as a 64-bit signed integer with 4 digits to
 		/// the right of the decimal point.</para>
 		/// <para>Variable-length values may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -1483,6 +1504,237 @@ namespace MimeKit.Tnef {
 			var stream = new TnefReaderStream (reader, dataEnd, tag);
 
 			return reader.CreateEmbeddedReader (stream, dataStart, tag);
+		}
+
+		// Checks that the reader is positioned on a property whose values have not been read.
+		void CheckUnreadProperty ()
+		{
+			CheckGeneration ();
+
+			if (!hasProperty)
+				throw new InvalidOperationException ("The reader is not positioned on a property.");
+
+			if (valueIndex > 0 || consumed)
+				throw new InvalidOperationException ("The property's values have already been read.");
+		}
+
+		static Array CreateValueArray (TnefPropertyType type, int length)
+		{
+			switch (type) {
+			case TnefPropertyType.I2: return new short[length];
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return new int[length];
+			case TnefPropertyType.R4: return new float[length];
+			case TnefPropertyType.Double: return new double[length];
+			case TnefPropertyType.Currency: return new decimal[length];
+			case TnefPropertyType.AppTime:
+			case TnefPropertyType.SysTime: return new DateTime[length];
+			case TnefPropertyType.Boolean: return new bool[length];
+			case TnefPropertyType.I8: return new long[length];
+			case TnefPropertyType.ClassId: return new Guid[length];
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Unicode: return new string[length];
+			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object: return new byte[length][];
+			default: return new object?[length];
+			}
+		}
+
+		// Shrinks the array of values when the property had fewer values than it claimed.
+		Array TrimValueArray (Array values, int count)
+		{
+			if (count == values.Length)
+				return values;
+
+			var trimmed = CreateValueArray (tag.ValueTnefType, count);
+			Array.Copy (values, trimmed, count);
+
+			return trimmed;
+		}
+
+		TnefProperty CreateProperty (int count, object? value)
+		{
+			return new TnefProperty (tag, name, count, value, reader.Encoding);
+		}
+
+		/// <summary>
+		/// Read the current property.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads all of the values of the current property into a <see cref="TnefProperty"/> whose values can be
+		/// read any number of times.</para>
+		/// <para>This method must be called before any of the property's variable-length values have been read and
+		/// before the reader has been advanced to any of its other values.</para>
+		/// <para>Binary values are read into memory. Use <see cref="OpenValueStream"/> to read large values, such as
+		/// attachment data, without buffering them.</para>
+		/// <para>If any value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and the property is returned without any values (its <see cref="TnefProperty.Count"/> is <c>0</c>).</para>
+		/// </remarks>
+		/// <returns>The property.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a property.</para>
+		/// <para>-or-</para>
+		/// <para>Some of the property's values have already been read.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public TnefProperty ReadProperty (CancellationToken cancellationToken = default)
+		{
+			CheckUnreadProperty ();
+
+			return ReadPropertyCore (cancellationToken);
+		}
+
+		// Note: Returned by ReadCurrentValue when the value was too large to read into memory.
+		static readonly object SkippedValue = new object ();
+
+		// Note: Unless the stream is known to contain enough data, the array of values for a multi-valued property starts
+		// out at this size and grows as values are actually read, so that a bogus value count cannot force a huge allocation.
+		const int MaxUnverifiedValueCount = 1024;
+
+		object? ReadCurrentValue (CancellationToken cancellationToken)
+		{
+			if (TryGetFixedValue (out var value))
+				return value;
+
+			consumed = true;
+
+			var bytes = reader.ReadValueBytes (VariableLength, tag, cancellationToken);
+
+			return bytes is null ? SkippedValue : DecodeVariableValue (bytes);
+		}
+
+		Array CreateMultiValueArray ()
+		{
+			int width = GetFixedWidth (tag.ValueTnefType);
+			int length = valueCount;
+
+			if (length > MaxUnverifiedValueCount && !reader.CanAllocate ((long) length * (width > 0 ? width : 4)))
+				length = MaxUnverifiedValueCount;
+
+			return CreateValueArray (tag.ValueTnefType, length);
+		}
+
+		Array GrowValueArray (Array values)
+		{
+			int length = (int) Math.Min ((long) values.Length * 2, valueCount);
+			var grown = CreateValueArray (tag.ValueTnefType, length);
+
+			Array.Copy (values, grown, values.Length);
+
+			return grown;
+		}
+
+		TnefProperty ReadPropertyCore (CancellationToken cancellationToken)
+		{
+			object? value;
+
+			if (!tag.IsMultiValued) {
+				if (!hasValue || (value = ReadCurrentValue (cancellationToken)) == SkippedValue)
+					return CreateProperty (0, null);
+
+				return CreateProperty (1, value);
+			}
+
+			var values = CreateMultiValueArray ();
+			int count = 0;
+
+			if (hasValue) {
+				do {
+					if ((value = ReadCurrentValue (cancellationToken)) == SkippedValue)
+						return CreateProperty (0, null);
+
+					if (count == values.Length)
+						values = GrowValueArray (values);
+
+					values.SetValue (value, count++);
+				} while (count < valueCount && AdvanceValue (cancellationToken));
+			}
+
+			return CreateProperty (count, TrimValueArray (values, count));
+		}
+
+		/// <summary>
+		/// Read the remaining properties.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads all of the properties that follow the current property (or, if the reader has not yet been
+		/// positioned on a property, all of the properties) into a <see cref="TnefPropertySet"/>.</para>
+		/// <para>For a <see cref="TnefAttributeTag.RecipientTable"/> attribute, only the properties of the current row
+		/// are read. Use <see cref="ReadRowsAsPropertySets(CancellationToken)"/> to read every row.</para>
+		/// <para>Binary values are read into memory. Use <see cref="OpenValueStream"/> to read large values, such as
+		/// attachment data, without buffering them.</para>
+		/// <para>If any value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and the property is returned without any values (its <see cref="TnefProperty.Count"/> is <c>0</c>).</para>
+		/// </remarks>
+		/// <returns>The properties.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public TnefPropertySet ReadPropertySet (CancellationToken cancellationToken = default)
+		{
+			CheckGeneration ();
+
+			var properties = new TnefPropertySet ();
+
+			while (ReadNextPropertyCore (cancellationToken))
+				properties.Add (ReadPropertyCore (cancellationToken));
+
+			return properties;
+		}
+
+		/// <summary>
+		/// Read the remaining rows of a table.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads the properties of each of the remaining rows of a <see cref="TnefAttributeTag.RecipientTable"/>
+		/// attribute. Any unread properties of the current row are skipped.</para>
+		/// <para>For attributes that do not contain a table, an empty list is returned.</para>
+		/// </remarks>
+		/// <returns>The properties of each row.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public IReadOnlyList<TnefPropertySet> ReadRowsAsPropertySets (CancellationToken cancellationToken = default)
+		{
+			var rows = new List<TnefPropertySet> ();
+
+			while (ReadNextRow (cancellationToken))
+				rows.Add (ReadPropertySet (cancellationToken));
+
+			return rows;
 		}
 	}
 }

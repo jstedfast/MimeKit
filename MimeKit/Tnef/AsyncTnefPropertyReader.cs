@@ -27,6 +27,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace MimeKit.Tnef {
 	public sealed partial class TnefPropertyReader
@@ -133,10 +134,18 @@ namespace MimeKit.Tnef {
 
 					var bytes = await reader.ReadValueBytesAsync (length, tag, cancellationToken).ConfigureAwait (false);
 
-					if (!CheckFilled (bytes.Length == length) || !CheckFilled (await reader.SkipAsync (GetPadding (length), cancellationToken).ConfigureAwait (false)))
-						return false;
+					if (bytes is null) {
+						// Note: The name is too large to read into memory, so skip it.
+						if (!CheckFilled (await reader.SkipAsync (length + GetPadding (length), cancellationToken).ConfigureAwait (false)))
+							return false;
 
-					name = new TnefNameId (guid, DecodeUnicode (bytes));
+						name = new TnefNameId (guid, string.Empty);
+					} else {
+						if (!CheckFilled (bytes.Length == length) || !CheckFilled (await reader.SkipAsync (GetPadding (length), cancellationToken).ConfigureAwait (false)))
+							return false;
+
+						name = new TnefNameId (guid, DecodeUnicode (bytes));
+					}
 				} else {
 					Log (TnefComplianceViolation.InvalidNamedPropertyKind, offset);
 					name = new TnefNameId (guid, 0);
@@ -284,6 +293,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// <para>Reads any string, binary, object or <see cref="TnefPropertyType.ClassId"/> value as a byte array.</para>
 		/// <para>Variable-length values may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
 		/// </remarks>
 		/// <returns>The value as a byte array.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -312,7 +324,12 @@ namespace MimeKit.Tnef {
 
 			ClaimVariableValue ("a byte array");
 
-			return reader.ReadValueBytesAsync (VariableLength, tag, cancellationToken);
+			return ReadVariableBytesAsync (cancellationToken);
+		}
+
+		async Task<byte[]> ReadVariableBytesAsync (CancellationToken cancellationToken)
+		{
+			return await reader.ReadValueBytesAsync (VariableLength, tag, cancellationToken).ConfigureAwait (false) ?? Array.Empty<byte> ();
 		}
 
 		/// <summary>
@@ -323,6 +340,9 @@ namespace MimeKit.Tnef {
 		/// <para><see cref="TnefPropertyType.String8"/> and <see cref="TnefPropertyType.Binary"/> values are decoded using
 		/// the <see cref="TnefReader.Codepage"/>.</para>
 		/// <para>The value may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
 		/// </remarks>
 		/// <returns>The value as a string.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -361,6 +381,9 @@ namespace MimeKit.Tnef {
 		/// <para>A <see cref="TnefPropertyType.Currency"/> value is returned as a <see cref="decimal"/> that has already
 		/// been scaled by 1/10000.</para>
 		/// <para>Variable-length values may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -390,6 +413,158 @@ namespace MimeKit.Tnef {
 			var bytes = await reader.ReadValueBytesAsync (VariableLength, tag, cancellationToken).ConfigureAwait (false);
 
 			return DecodeVariableValue (bytes);
+		}
+
+		async Task<object?> ReadCurrentValueAsync (CancellationToken cancellationToken)
+		{
+			if (TryGetFixedValue (out var value))
+				return value;
+
+			consumed = true;
+
+			var bytes = await reader.ReadValueBytesAsync (VariableLength, tag, cancellationToken).ConfigureAwait (false);
+
+			return bytes is null ? SkippedValue : DecodeVariableValue (bytes);
+		}
+
+		async Task<TnefProperty> ReadPropertyCoreAsync (CancellationToken cancellationToken)
+		{
+			object? value;
+
+			if (!tag.IsMultiValued) {
+				if (!hasValue || (value = await ReadCurrentValueAsync (cancellationToken).ConfigureAwait (false)) == SkippedValue)
+					return CreateProperty (0, null);
+
+				return CreateProperty (1, value);
+			}
+
+			var values = CreateMultiValueArray ();
+			int count = 0;
+
+			if (hasValue) {
+				do {
+					if ((value = await ReadCurrentValueAsync (cancellationToken).ConfigureAwait (false)) == SkippedValue)
+						return CreateProperty (0, null);
+
+					if (count == values.Length)
+						values = GrowValueArray (values);
+
+					values.SetValue (value, count++);
+				} while (count < valueCount && await AdvanceValueAsync (cancellationToken).ConfigureAwait (false));
+			}
+
+			return CreateProperty (count, TrimValueArray (values, count));
+		}
+
+		/// <summary>
+		/// Asynchronously read the current property.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads all of the values of the current property into a <see cref="TnefProperty"/> whose values can be
+		/// read any number of times.</para>
+		/// <para>This method must be called before any of the property's variable-length values have been read and
+		/// before the reader has been advanced to any of its other values.</para>
+		/// <para>Binary values are read into memory. Use <see cref="OpenValueStream"/> to read large values, such as
+		/// attachment data, without buffering them.</para>
+		/// <para>If any value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and the property is returned without any values (its <see cref="TnefProperty.Count"/> is <c>0</c>).</para>
+		/// </remarks>
+		/// <returns>The property.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a property.</para>
+		/// <para>-or-</para>
+		/// <para>Some of the property's values have already been read.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task<TnefProperty> ReadPropertyAsync (CancellationToken cancellationToken = default)
+		{
+			CheckUnreadProperty ();
+
+			return ReadPropertyCoreAsync (cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously read the remaining properties.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads all of the properties that follow the current property (or, if the reader has not yet been
+		/// positioned on a property, all of the properties) into a <see cref="TnefPropertySet"/>.</para>
+		/// <para>For a <see cref="TnefAttributeTag.RecipientTable"/> attribute, only the properties of the current row
+		/// are read. Use <see cref="ReadRowsAsPropertySetsAsync(CancellationToken)"/> to read every row.</para>
+		/// <para>Binary values are read into memory. Use <see cref="OpenValueStream"/> to read large values, such as
+		/// attachment data, without buffering them.</para>
+		/// <para>If any value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and the property is returned without any values (its <see cref="TnefProperty.Count"/> is <c>0</c>).</para>
+		/// </remarks>
+		/// <returns>The properties.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task<TnefPropertySet> ReadPropertySetAsync (CancellationToken cancellationToken = default)
+		{
+			CheckGeneration ();
+
+			var properties = new TnefPropertySet ();
+
+			while (await ReadNextPropertyCoreAsync (cancellationToken).ConfigureAwait (false))
+				properties.Add (await ReadPropertyCoreAsync (cancellationToken).ConfigureAwait (false));
+
+			return properties;
+		}
+
+		/// <summary>
+		/// Asynchronously read the remaining rows of a table.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads the properties of each of the remaining rows of a <see cref="TnefAttributeTag.RecipientTable"/>
+		/// attribute. Any unread properties of the current row are skipped.</para>
+		/// <para>For attributes that do not contain a table, an empty list is returned.</para>
+		/// </remarks>
+		/// <returns>The properties of each row.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task<IReadOnlyList<TnefPropertySet>> ReadRowsAsPropertySetsAsync (CancellationToken cancellationToken = default)
+		{
+			var rows = new List<TnefPropertySet> ();
+
+			while (await ReadNextRowAsync (cancellationToken).ConfigureAwait (false))
+				rows.Add (await ReadPropertySetAsync (cancellationToken).ConfigureAwait (false));
+
+			return rows;
 		}
 	}
 }
