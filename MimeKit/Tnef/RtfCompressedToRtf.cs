@@ -63,7 +63,6 @@ namespace MimeKit.Tnef {
 		int compressedSize;
 		short dictWriteOffset;
 		short dictReadOffset;
-		short dictEndOffset;
 		byte flagCount;
 		byte flags;
 		int checksum;
@@ -78,7 +77,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public RtfCompressedToRtf ()
 		{
-			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
+			dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 			DictionaryInitializer.CopyTo (dict);
 		}
 
@@ -275,7 +274,6 @@ namespace MimeKit.Tnef {
 					OutputBuffer[outputLength++] = value;
 					dict[dictWriteOffset++] = value;
 
-					dictEndOffset = Math.Max (dictWriteOffset, dictEndOffset);
 					dictWriteOffset = (short) (dictWriteOffset % 4096);
 
 					if ((flagCount++ % 8) != 0) {
@@ -311,7 +309,6 @@ namespace MimeKit.Tnef {
 						OutputBuffer[outputLength++] = value;
 						dict[dictWriteOffset++] = value;
 
-						dictEndOffset = Math.Max (dictWriteOffset, dictEndOffset);
 						dictWriteOffset = (short) (dictWriteOffset % 4096);
 					}
 
@@ -340,7 +337,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public override void Reset ()
 		{
-			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
+			dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 			DictionaryInitializer.CopyTo (dict);
 			state = FilterState.CompressedSize;
 			CompressionMode = RtfCompressionMode.Unknown;
