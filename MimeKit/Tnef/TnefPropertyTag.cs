@@ -2204,6 +2204,14 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag InternetArticleNumber = new TnefPropertyTag (TnefPropertyId.InternetArticleNumber, TnefPropertyType.Long);
 
 		/// <summary>
+		/// The MAPI property PR_INTERNET_CPID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_INTERNET_CPID.
+		/// </remarks>
+		public static readonly TnefPropertyTag InternetCodepage = new TnefPropertyTag (TnefPropertyId.InternetCodepage, TnefPropertyType.Long);
+
+		/// <summary>
 		/// The MAPI property PR_INTERNET_CONTROL.
 		/// </summary>
 		/// <remarks>
@@ -2218,14 +2226,6 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_INTERNET_CONTROL.
 		/// </remarks>
 		public static readonly TnefPropertyTag InternetControlW = new TnefPropertyTag (TnefPropertyId.InternetControl, TnefPropertyType.Unicode);
-
-		/// <summary>
-		/// The MAPI property PR_INTERNET_CPID.
-		/// </summary>
-		/// <remarks>
-		/// The MAPI property PR_INTERNET_CPID.
-		/// </remarks>
-		public static readonly TnefPropertyTag InternetCPID = new TnefPropertyTag (TnefPropertyId.InternetCPID, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_INTERNET_DISTRIBUTION.

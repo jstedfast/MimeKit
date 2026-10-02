@@ -318,7 +318,7 @@ namespace UnitTests.Tnef {
 					Assert.That (type, Is.EqualTo (typeof (DateTime)));
 					value = prop.ReadValueAsDateTime ();
 					break;
-				case TnefPropertyId.InternetCPID:
+				case TnefPropertyId.InternetCodepage:
 					Assert.That (type, Is.EqualTo (typeof (int)));
 					value = prop.ReadValueAsInt32 ();
 					break;

@@ -1025,14 +1025,14 @@ namespace MimeKit.Tnef {
 		InternetArticleNumber                    = 0x0E23,
 
 		/// <summary>
+		/// The MAPI property PR_INTERNET_CPID.
+		/// </summary>
+		InternetCodepage                         = 0x3FDE,
+
+		/// <summary>
 		/// The MAPI property PR_INTERNET_CONTROL.
 		/// </summary>
 		InternetControl                          = 0x1031,
-
-		/// <summary>
-		/// The MAPI property PR_INTERNET_CPID.
-		/// </summary>
-		InternetCPID                             = 0x3FDE,
 
 		/// <summary>
 		/// The MAPI property PR_INTERNET_DISTRIBUTION.
