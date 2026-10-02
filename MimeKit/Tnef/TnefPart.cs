@@ -358,6 +358,20 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		// MimeMessage.MessageId rejects anything it cannot parse, but the value here comes straight out
+		// of a TNEF stream and may be arbitrary. Validate it the same way the setter does so that a
+		// malformed property is dropped rather than failing the whole conversion.
+		static bool IsValidMessageId (string value)
+		{
+			if (string.IsNullOrEmpty (value))
+				return false;
+
+			var buffer = Encoding.UTF8.GetBytes (value);
+			int index = 0;
+
+			return ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out _);
+		}
+
 		static void ExtractMapiProperties (TnefReader reader, MimeMessage message, MultipartAlternative alternatives)
 		{
 			var prop = reader.TnefPropertyReader;
@@ -371,7 +385,7 @@ namespace MimeKit.Tnef {
 			while (prop.ReadNextProperty ()) {
 				switch (prop.PropertyTag.Id) {
 				case TnefPropertyId.InternetMessageId:
-					if (TryReadValueAsString (prop, out var internetMessageId)) {
+					if (TryReadValueAsString (prop, out var internetMessageId) && IsValidMessageId (internetMessageId)) {
 						message.MessageId = internetMessageId;
 						msgid = true;
 					}
@@ -384,7 +398,7 @@ namespace MimeKit.Tnef {
 					// value looks like a Message-Id, then us it as one (unless we get a
 					// InternetMessageId property, in which case we use that instead.
 					if (!msgid && TryReadValueAsString (prop, out var value, true)) {
-						if (value.Length > 5 && value[0] == '<' && value[value.Length - 1] == '>' && value.IndexOf ('@') != -1)
+						if (value.Length > 5 && value[0] == '<' && value[value.Length - 1] == '>' && value.IndexOf ('@') != -1 && IsValidMessageId (value))
 							message.MessageId = value;
 					}
 					break;

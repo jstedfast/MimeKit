@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefPartConversionTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -219,6 +219,83 @@ namespace UnitTests.Tnef {
 			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
 
 			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+		}
+
+		// A corrupt or hostile TNEF stream can carry anything at all in PidTagInternetMessageId, and
+		// MimeMessage.MessageId rejects a value it cannot parse. Converting a message must not propagate
+		// that rejection to the caller as an ArgumentException.
+		[TestCase ("this is not a message id")]
+		[TestCase ("")]
+		[TestCase ("<>")]
+		[TestCase ("<@>")]
+		[TestCase ("@@@@@")]
+		[TestCase ("<unterminated@example.com")]
+		[TestCase ("no-angle-brackets@example.com")]
+		public void TestInvalidInternetMessageIdDoesNotThrow (string messageId)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.InternetMessageId, TnefPropertyType.Unicode), messageId);
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "Subject");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			MimeMessage message = null;
+
+			Assert.DoesNotThrow (() => message = ConvertToMessage (builder), "ConvertToMessage");
+
+			// The rest of the message still has to survive.
+			Assert.That (message.Subject, Is.EqualTo ("Subject"), "Subject");
+		}
+
+		[Test]
+		public void TestValidInternetMessageIdIsStillUsed ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.InternetMessageId, TnefPropertyType.Unicode), "<valid.id@example.com>");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			var message = ConvertToMessage (builder);
+
+			Assert.That (message.MessageId, Is.EqualTo ("valid.id@example.com"), "MessageId");
+		}
+
+		// PidTagTnefCorrelationKey is only used as a Message-Id when it looks like one, but "looks like
+		// one" is a three character heuristic that plenty of invalid values satisfy.
+		[TestCase ("<@@@@@>")]
+		[TestCase ("<   @   >")]
+		[TestCase ("<a@b c@d>")]
+		public void TestInvalidTnefCorrelationKeyDoesNotThrow (string correlationKey)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.TnefCorrelationKey, TnefPropertyType.Unicode), correlationKey);
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "Subject");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			MimeMessage message = null;
+
+			Assert.DoesNotThrow (() => message = ConvertToMessage (builder), "ConvertToMessage");
+
+			Assert.That (message.Subject, Is.EqualTo ("Subject"), "Subject");
 		}
 	}
 }
