@@ -297,5 +297,47 @@ namespace UnitTests.Tnef {
 
 			Assert.That (message.Subject, Is.EqualTo ("Subject"), "Subject");
 		}
+
+		// A TNEF stream that is cut short mid-value must not fail the whole conversion. ConvertToMessage ()
+		// is a best effort API with no documented exception for a truncated stream, so it has to return
+		// whatever was successfully extracted up to the point the bytes ran out.
+		[Test]
+		public void TestTruncatedStreamsConvertWithoutThrowing ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "The Subject");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.InternetMessageId, TnefPropertyType.Unicode), "<id@example.com>");
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.Importance, TnefPropertyType.Long), 2);
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.Priority, TnefPropertyType.Long), 1);
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Body, TnefPropertyType.Unicode), "The body of the message.");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			var complete = builder.ToArray ();
+
+			// Every truncation offset is a distinct "the stream ended in the middle of this field" case.
+			for (int length = 0; length < complete.Length; length++) {
+				var truncated = new byte[length];
+
+				Buffer.BlockCopy (complete, 0, truncated, 0, length);
+
+				using var part = new TnefPart { Content = new MimeContent (new MemoryStream (truncated, false)) };
+
+				Assert.DoesNotThrow (() => part.ConvertToMessage ().Dispose (), $"truncated to {length}");
+			}
+
+			// And the untruncated stream still has to produce everything.
+			using var whole = new TnefPart { Content = new MimeContent (new MemoryStream (complete, false)) };
+			using var message = whole.ConvertToMessage ();
+
+			Assert.That (message.Subject, Is.EqualTo ("The Subject"), "Subject");
+			Assert.That (message.MessageId, Is.EqualTo ("id@example.com"), "MessageId");
+		}
 	}
 }

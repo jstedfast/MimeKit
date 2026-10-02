@@ -741,6 +741,9 @@ namespace MimeKit.Tnef {
 						break;
 					}
 				} while (reader.ReadNextAttribute ());
+			} catch (EndOfStreamException) {
+				// The stream was truncated in the middle of a value. Keep the attachments that were
+				// successfully extracted rather than failing the whole conversion.
 			} finally {
 				if (dispose)
 					attachment!.Dispose ();
@@ -781,6 +784,9 @@ namespace MimeKit.Tnef {
 						break;
 					}
 				}
+			} catch (EndOfStreamException) {
+				// The stream was truncated in the middle of a value. Keep whatever was successfully
+				// extracted rather than failing the whole conversion.
 			} catch {
 				alternatives.Dispose ();
 				message.Dispose ();
