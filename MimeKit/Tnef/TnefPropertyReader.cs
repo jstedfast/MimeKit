@@ -460,7 +460,9 @@ namespace MimeKit.Tnef {
 			var fileTime = ReadInt64 ();
 
 			try {
-				return DateTime.FromFileTime (fileTime);
+				// Note: [MS-OXCDATA] defines PtypTime as a FILETIME, which is the number of
+				// 100-nanosecond intervals since January 1, 1601 in Coordinated Universal Time.
+				return DateTime.FromFileTimeUtc (fileTime);
 			} catch (ArgumentOutOfRangeException ex) {
 				reader.SetComplianceError (TnefComplianceStatus.InvalidDate, ex);
 				return default (DateTime);
@@ -1191,7 +1193,9 @@ namespace MimeKit.Tnef {
 		/// Read the value as a date and time.
 		/// </summary>
 		/// <remarks>
-		/// Reads any date and time attribute or property value as a <see cref="DateTime"/>.
+		/// <para>Reads any date and time attribute or property value as a <see cref="DateTime"/>.</para>
+		/// <para>Values of type <see cref="TnefPropertyType.SysTime"/> are FILETIME values and are
+		/// therefore returned with a <see cref="DateTime.Kind"/> of <see cref="DateTimeKind.Utc"/>.</para>
 		/// </remarks>
 		/// <returns>The value as a date and time.</returns>
 		/// <exception cref="System.InvalidOperationException">

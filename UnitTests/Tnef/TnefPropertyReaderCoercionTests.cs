@@ -34,6 +34,7 @@ namespace UnitTests.Tnef {
 		static readonly TnefPropertyTag BooleanTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Boolean);
 		static readonly TnefPropertyTag DoubleTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Double);
 		static readonly TnefPropertyTag FloatTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.R4);
+		static readonly TnefPropertyTag SysTimeTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime);
 
 		/// <summary>
 		/// Build a TNEF stream containing a single message-level MAPI property with the specified
@@ -207,6 +208,43 @@ namespace UnitTests.Tnef {
 			using var reader = ReadSingleProperty (properties);
 
 			Assert.That (reader.TnefPropertyReader.ReadValueAsFloat (), Is.EqualTo (1.5f));
+		}
+
+		[Test]
+		public void TestReadSysTimeValueIsUtc ()
+		{
+			// PT_SYSTIME is a FILETIME, which [MS-OXCDATA] defines as the number of 100-nanosecond
+			// intervals since January 1, 1601 *in Coordinated Universal Time*, so the decoded value
+			// must not be shifted into the local timezone of whatever host happens to be parsing
+			// the stream.
+			var expected = new DateTime (2024, 3, 17, 9, 45, 12, DateTimeKind.Utc);
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt64Property (SysTimeTag, expected.ToFileTimeUtc ());
+
+			using var reader = ReadSingleProperty (properties);
+
+			var value = reader.TnefPropertyReader.ReadValueAsDateTime ();
+
+			Assert.That (value.Kind, Is.EqualTo (DateTimeKind.Utc), "Kind");
+			Assert.That (value, Is.EqualTo (expected), "Value");
+		}
+
+		[Test]
+		public void TestReadSysTimeValueAsValueIsUtc ()
+		{
+			var expected = new DateTime (2024, 3, 17, 9, 45, 12, DateTimeKind.Utc);
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt64Property (SysTimeTag, expected.ToFileTimeUtc ());
+
+			using var reader = ReadSingleProperty (properties);
+
+			var value = reader.TnefPropertyReader.ReadValue ();
+
+			Assert.That (value, Is.InstanceOf<DateTime> ());
+			Assert.That (((DateTime) value).Kind, Is.EqualTo (DateTimeKind.Utc), "Kind");
+			Assert.That (value, Is.EqualTo (expected), "Value");
 		}
 	}
 }
