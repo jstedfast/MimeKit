@@ -1360,6 +1360,15 @@ namespace MimeKit.Tnef {
 		MiddleName                               = 0x3A44,
 
 		/// <summary>
+		/// The MAPI property PR_MIME_SKELETON (PidTagMimeSkeleton).
+		/// </summary>
+		/// <remarks>
+		/// Contains the top-level MIME message headers, all MIME body part headers, and the body part content that has
+		/// not already been converted to Message object properties ([MS-OXCMSG] section 2.2.1.28).
+		/// </remarks>
+		MimeSkeleton                             = 0x64F0,
+
+		/// <summary>
 		/// The MAPI property PR_MINI_ICON.
 		/// </summary>
 		MiniIcon                                 = 0x0FFC,
