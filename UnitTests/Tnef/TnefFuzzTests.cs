@@ -152,6 +152,13 @@ namespace UnitTests.Tnef {
 		/// Drive the reader and assert that nothing other than a <see cref="TnefException"/> escapes,
 		/// that it terminates, and that it does not allocate unreasonably.
 		/// </summary>
+		/// <remarks>
+		/// <para><see cref="TnefPropertyReader.ReadValue"/> and its typed siblings document
+		/// <see cref="EndOfStreamException"/> as part of their contract, so the strategies that call them
+		/// directly are allowed to raise it. <see cref="TnefPart.ConvertToMessage"/> is held to the
+		/// stricter rule, because it is the API a content conversion pipeline actually calls and it has
+		/// no documented exception for a truncated stream.</para>
+		/// </remarks>
 		public static void AssertInvariants (DriveStrategy strategy, byte[] data, TnefComplianceMode mode, string what)
 		{
 			var allocatedBefore = GC.GetAllocatedBytesForCurrentThread ();
@@ -161,6 +168,8 @@ namespace UnitTests.Tnef {
 				Drive (strategy, data, mode);
 			} catch (TnefException) {
 				// This is the only exception the reader is allowed to raise.
+			} catch (EndOfStreamException) when (strategy != DriveStrategy.ConvertToMessage) {
+				// Documented on the TnefPropertyReader value accessors.
 			} catch (Exception ex) {
 				Assert.Fail ($"{what} ({strategy}, {mode}) threw {ex.GetType ().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
 			} finally {
