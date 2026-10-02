@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefPropertyValueCountTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -27,25 +27,11 @@
 using MimeKit.Tnef;
 
 namespace UnitTests.Tnef {
-	/// <summary>
-	/// Tests the handling of malformed MAPI property value counts.
-	/// </summary>
-	/// <remarks>
-	/// When <see cref="TnefPropertyReader.ReadNextProperty"/> returns <see langword="true" />, the
-	/// caller must always be able to read the value. A property with a value count of zero cannot
-	/// satisfy that contract, so it must not be reported as an available property.
-	/// </remarks>
 	[TestFixture]
 	public class TnefPropertyValueCountTests
 	{
-		static MemoryStream BuildProperty (TnefPropertyType type, int valueCount, int trailing = 32)
+		static MemoryStream BuildPropertyStream (TnefMapiPropertyBuilder properties)
 		{
-			var properties = new TnefMapiPropertyBuilder ();
-
-			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.Subject, type));
-			properties.WriteValueCount (valueCount);
-			properties.WriteRaw (new byte[trailing]);
-
 			var builder = new TnefBuilder ();
 
 			builder.WriteTnefVersion ();
@@ -54,124 +40,152 @@ namespace UnitTests.Tnef {
 			return builder.ToStream ();
 		}
 
-		static TnefPropertyReader ReadFirstProperty (MemoryStream stream, TnefReader reader, out bool available)
+		static TnefPropertyReader ReadFirstProperty (MemoryStream stream, TestTnefComplianceLogger logger)
 		{
-			available = false;
+			var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-			while (reader.ReadNextAttribute ()) {
-				if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
+			while (reader.Read ()) {
+				if (reader.Tag != TnefAttributeTag.MapiProperties)
 					continue;
 
-				var prop = reader.TnefPropertyReader;
+				var prop = reader.GetPropertyReader ();
 
-				available = prop.ReadNextProperty ();
+				Assert.That (prop.ReadNextProperty (), Is.True, "ReadNextProperty");
 
 				return prop;
 			}
 
+			reader.Dispose ();
+			throw new InvalidOperationException ("Failed to locate the MAPI properties attribute.");
+		}
+
+		static async Task<TnefPropertyReader> ReadFirstPropertyAsync (MemoryStream stream, TestTnefComplianceLogger logger)
+		{
+			var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+			while (await reader.ReadAsync ()) {
+				if (reader.Tag != TnefAttributeTag.MapiProperties)
+					continue;
+
+				var prop = reader.GetPropertyReader ();
+
+				Assert.That (await prop.ReadNextPropertyAsync (), Is.True, "ReadNextPropertyAsync");
+
+				return prop;
+			}
+
+			reader.Dispose ();
 			throw new InvalidOperationException ("Failed to locate the MAPI properties attribute.");
 		}
 
 		[Test]
-		public void TestSingleValuedPropertyWithZeroValueCountIsNotReported ()
+		public void TestSingleValuedPropertyWithZeroValueCountIsReportedButHasNoValue ()
 		{
-			using (var stream = BuildProperty (TnefPropertyType.Unicode, 0)) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					ReadFirstProperty (stream, reader, out var available);
+			var properties = new TnefMapiPropertyBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
-					Assert.That (available, Is.False, "ReadNextProperty");
-					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidPropertyLength,
-						Is.EqualTo (TnefComplianceStatus.InvalidPropertyLength), "ComplianceStatus");
-				}
-			}
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode));
+			properties.WriteValueCount (0);
+
+			using var stream = BuildPropertyStream (properties);
+			var prop = ReadFirstProperty (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (0), "ValueCount");
+			Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsString ());
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidValueCount));
 		}
 
 		[Test]
-		public void TestSingleValuedPropertyWithZeroValueCountThrowsInStrictMode ()
+		public async Task TestSingleValuedPropertyWithZeroValueCountIsReportedButHasNoValueAsync ()
 		{
-			using (var stream = BuildProperty (TnefPropertyType.Unicode, 0)) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
-					Assert.Throws<TnefException> (() => ReadFirstProperty (stream, reader, out _));
-				}
-			}
+			var properties = new TnefMapiPropertyBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode));
+			properties.WriteValueCount (0);
+
+			using var stream = BuildPropertyStream (properties);
+			var prop = await ReadFirstPropertyAsync (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (0), "ValueCount");
+			Assert.ThrowsAsync<InvalidOperationException> (async () => await prop.ReadValueAsStringAsync ());
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidValueCount));
 		}
 
 		[Test]
-		public void TestSingleValuedPropertyWithExcessiveValueCountIsClamped ()
+		public void TestMultiValuedPropertyWithZeroValueCountDoesNotHideNextProperty ()
 		{
-			using (var stream = BuildProperty (TnefPropertyType.Unicode, 5)) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					var prop = ReadFirstProperty (stream, reader, out var available);
+			var properties = new TnefMapiPropertyBuilder ();
+			var multiTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Long | TnefPropertyType.MultiValued);
+			var logger = new TestTnefComplianceLogger ();
 
-					Assert.That (available, Is.True, "ReadNextProperty");
-					Assert.That (prop.ValueCount, Is.EqualTo (1), "ValueCount");
-					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidPropertyLength,
-						Is.EqualTo (TnefComplianceStatus.InvalidPropertyLength), "ComplianceStatus");
-				}
-			}
+			properties.WritePropertyHeader (multiTag);
+			properties.WriteValueCount (0);
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 7);
+
+			using var stream = BuildPropertyStream (properties);
+			var prop = ReadFirstProperty (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (0), "ValueCount");
+			Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt32 ());
+			Assert.That (prop.ReadNextProperty (), Is.True, "ReadNextProperty");
+			Assert.That (prop.Tag, Is.EqualTo (TnefPropertyTag.Importance), "Tag");
+			Assert.That (prop.ReadValueAsInt32 (), Is.EqualTo (7), "Value");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
 		}
 
 		[Test]
-		public void TestMultiValuedPropertyWithZeroValueCountIsNotReported ()
+		public async Task TestMultiValuedPropertyWithZeroValueCountDoesNotHideNextPropertyAsync ()
 		{
-			using (var stream = BuildProperty (TnefPropertyType.Unicode | TnefPropertyType.MultiValued, 0)) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					ReadFirstProperty (stream, reader, out var available);
+			var properties = new TnefMapiPropertyBuilder ();
+			var multiTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Long | TnefPropertyType.MultiValued);
+			var logger = new TestTnefComplianceLogger ();
 
-					Assert.That (available, Is.False, "ReadNextProperty");
-				}
-			}
+			properties.WritePropertyHeader (multiTag);
+			properties.WriteValueCount (0);
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 7);
+
+			using var stream = BuildPropertyStream (properties);
+			var prop = await ReadFirstPropertyAsync (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (0), "ValueCount");
+			Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt32 ());
+			Assert.That (await prop.ReadNextPropertyAsync (), Is.True, "ReadNextPropertyAsync");
+			Assert.That (prop.Tag, Is.EqualTo (TnefPropertyTag.Importance), "Tag");
+			Assert.That (prop.ReadValueAsInt32 (), Is.EqualTo (7), "Value");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
 		}
 
 		[Test]
 		public void TestSingleValuedPropertyWithOneValueIsUnaffected ()
 		{
 			var properties = new TnefMapiPropertyBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "This is the subject");
 
-			var builder = new TnefBuilder ();
+			using var stream = BuildPropertyStream (properties);
+			var prop = ReadFirstProperty (stream, logger);
 
-			builder.WriteTnefVersion ();
-			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
-
-			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
-					var prop = ReadFirstProperty (stream, reader, out var available);
-
-					Assert.That (available, Is.True, "ReadNextProperty");
-					Assert.That (prop.ValueCount, Is.EqualTo (1), "ValueCount");
-					Assert.That (prop.ReadValueAsString (), Is.EqualTo ("This is the subject"), "ReadValueAsString");
-					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
-				}
-			}
+			Assert.That (prop.ValueCount, Is.EqualTo (1), "ValueCount");
+			Assert.That (prop.ReadValueAsString (), Is.EqualTo ("This is the subject"), "ReadValueAsString");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
 		}
 
-		/// <summary>
-		/// Whenever ReadNextProperty returns true, ReadValue must not throw.
-		/// </summary>
 		[Test]
-		public void TestReadNextPropertyAlwaysYieldsAReadableValue ()
+		public async Task TestSingleValuedPropertyWithOneValueIsUnaffectedAsync ()
 		{
-			foreach (var test in TnefFuzzTests.MalformedCases ()) {
-				using (var stream = new MemoryStream (test.Data, false)) {
-					using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-						try {
-							while (reader.ReadNextAttribute ()) {
-								var prop = reader.TnefPropertyReader;
+			var properties = new TnefMapiPropertyBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
-								while (prop.ReadNextProperty ()) {
-									Assert.That (prop.ValueCount, Is.GreaterThan (0), $"{test.Name}: ValueCount");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "This is the subject");
 
-									prop.ReadValue ();
-								}
-							}
-						} catch (TnefException) {
-							// Expected for malformed input.
-						}
-					}
-				}
-			}
+			using var stream = BuildPropertyStream (properties);
+			var prop = await ReadFirstPropertyAsync (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (1), "ValueCount");
+			Assert.That (await prop.ReadValueAsStringAsync (), Is.EqualTo ("This is the subject"), "ReadValueAsStringAsync");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
 		}
 	}
 }

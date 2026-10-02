@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefStreamOffsetTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -78,6 +78,10 @@ namespace UnitTests.Tnef {
 
 			public long TotalLength {
 				get { return boundaries[6]; }
+			}
+
+			public long SecondAttributeOffset {
+				get { return boundaries[3]; }
 			}
 
 			byte ByteAt (long offset)
@@ -178,18 +182,44 @@ namespace UnitTests.Tnef {
 			const long secondPayloadLength = 1000000000;
 
 			using var stream = new HugeTnefStream (firstPayloadLength, secondPayloadLength);
-			using var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
+			var logger = new TestTnefComplianceLogger ();
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-			int attributes = 0;
+			Assert.That (reader.Read (), Is.True, "first attribute");
+			Assert.That (reader.StreamOffset, Is.EqualTo (6), "first StreamOffset");
+			Assert.That (reader.StreamOffset, Is.GreaterThanOrEqualTo (0), "StreamOffset must never go negative");
 
-			while (reader.ReadNextAttribute ()) {
-				Assert.That (reader.StreamOffset, Is.GreaterThanOrEqualTo (0), "StreamOffset must never go negative");
-				attributes++;
-			}
+			Assert.That (reader.Read (), Is.True, "second attribute");
+			Assert.That (reader.StreamOffset, Is.EqualTo (stream.SecondAttributeOffset), "second StreamOffset");
+			Assert.That (reader.StreamOffset, Is.GreaterThanOrEqualTo (0), "StreamOffset must never go negative");
 
-			Assert.That (attributes, Is.EqualTo (2), "attribute count");
-			Assert.That (reader.StreamOffset, Is.EqualTo (stream.TotalLength), "StreamOffset");
-			Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
+			Assert.That (reader.Read (), Is.False, "end of stream");
+			Assert.That (stream.Position, Is.EqualTo (stream.TotalLength), "stream Position");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
+		}
+
+		[Test]
+		[Explicit ("Reads 2.6GB through the parser; too slow for the default test run.")]
+		public async Task TestStreamOffsetDoesNotWrapPastTwoGigabytesAsync ()
+		{
+			const long firstPayloadLength = 1600000000;
+			const long secondPayloadLength = 1000000000;
+
+			using var stream = new HugeTnefStream (firstPayloadLength, secondPayloadLength);
+			var logger = new TestTnefComplianceLogger ();
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+			Assert.That (await reader.ReadAsync (), Is.True, "first attribute");
+			Assert.That (reader.StreamOffset, Is.EqualTo (6), "first StreamOffset");
+			Assert.That (reader.StreamOffset, Is.GreaterThanOrEqualTo (0), "StreamOffset must never go negative");
+
+			Assert.That (await reader.ReadAsync (), Is.True, "second attribute");
+			Assert.That (reader.StreamOffset, Is.EqualTo (stream.SecondAttributeOffset), "second StreamOffset");
+			Assert.That (reader.StreamOffset, Is.GreaterThanOrEqualTo (0), "StreamOffset must never go negative");
+
+			Assert.That (await reader.ReadAsync (), Is.False, "end of stream");
+			Assert.That (stream.Position, Is.EqualTo (stream.TotalLength), "stream Position");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
 		}
 	}
 }

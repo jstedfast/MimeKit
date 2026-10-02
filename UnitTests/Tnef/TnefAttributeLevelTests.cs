@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefAttributeLevelTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -32,16 +32,32 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefAttributeLevelTests
 	{
-		static TnefComplianceStatus GetComplianceStatus (TnefBuilder builder)
+		static List<TnefComplianceIssue> ReadComplianceIssues (TnefBuilder builder)
 		{
-			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					while (reader.ReadNextAttribute ())
-						;
+			var logger = new TestTnefComplianceLogger ();
 
-					return reader.ComplianceStatus;
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					while (reader.Read ())
+						;
 				}
 			}
+
+			return logger.Issues;
+		}
+
+		static async Task<List<TnefComplianceIssue>> ReadComplianceIssuesAsync (TnefBuilder builder)
+		{
+			var logger = new TestTnefComplianceLogger ();
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					while (await reader.ReadAsync ())
+						;
+				}
+			}
+
+			return logger.Issues;
 		}
 
 		[Test]
@@ -57,7 +73,23 @@ namespace UnitTests.Tnef {
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachTitle, Encoding.ASCII.GetBytes ("file.txt\0"));
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachData, new byte[] { 1, 2, 3, 4 });
 
-			Assert.That (GetComplianceStatus (builder), Is.EqualTo (TnefComplianceStatus.Compliant));
+			Assert.That (ReadComplianceIssues (builder), Is.Empty);
+		}
+
+		[Test]
+		public async Task TestValidAttributeLevelsAreCompliantAsync ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, Encoding.ASCII.GetBytes ("This is the subject\0"));
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 });
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachTitle, Encoding.ASCII.GetBytes ("file.txt\0"));
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachData, new byte[] { 1, 2, 3, 4 });
+
+			Assert.That (await ReadComplianceIssuesAsync (builder), Is.Empty);
 		}
 
 		[Test]
@@ -70,9 +102,18 @@ namespace UnitTests.Tnef {
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 });
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, Encoding.ASCII.GetBytes ("This is the subject\0"));
 
-			var status = GetComplianceStatus (builder);
+			Assert.That (ReadComplianceIssues (builder).Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.MessageAttributeAfterAttachment));
+		}
 
-			Assert.That (status & TnefComplianceStatus.InvalidAttributeLevel, Is.EqualTo (TnefComplianceStatus.InvalidAttributeLevel));
+		[Test]
+		public async Task TestMessageLevelAttributeAfterAttachmentLevelAttributeAsync ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 });
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, Encoding.ASCII.GetBytes ("This is the subject\0"));
+
+			Assert.That ((await ReadComplianceIssuesAsync (builder)).Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.MessageAttributeAfterAttachment));
 		}
 
 		[TestCase (TnefAttributeTag.AttachRenderData)]
@@ -85,9 +126,20 @@ namespace UnitTests.Tnef {
 
 			builder.WriteAttribute (TnefAttributeLevel.Message, tag, new byte[] { 0, 0, 0, 0 });
 
-			var status = GetComplianceStatus (builder);
+			Assert.That (ReadComplianceIssues (builder).Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.AttributeLevelMismatch));
+		}
 
-			Assert.That (status & TnefComplianceStatus.InvalidAttributeLevel, Is.EqualTo (TnefComplianceStatus.InvalidAttributeLevel));
+		[TestCase (TnefAttributeTag.AttachRenderData)]
+		[TestCase (TnefAttributeTag.AttachData)]
+		[TestCase (TnefAttributeTag.AttachTitle)]
+		[TestCase (TnefAttributeTag.Attachment)]
+		public async Task TestAttachmentAttributeAtMessageLevelAsync (TnefAttributeTag tag)
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteAttribute (TnefAttributeLevel.Message, tag, new byte[] { 0, 0, 0, 0 });
+
+			Assert.That ((await ReadComplianceIssuesAsync (builder)).Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.AttributeLevelMismatch));
 		}
 
 		[TestCase (TnefAttributeTag.Subject)]
@@ -100,25 +152,58 @@ namespace UnitTests.Tnef {
 
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, tag, new byte[] { 0, 0, 0, 0 });
 
-			var status = GetComplianceStatus (builder);
-
-			Assert.That (status & TnefComplianceStatus.InvalidAttributeLevel, Is.EqualTo (TnefComplianceStatus.InvalidAttributeLevel));
+			Assert.That (ReadComplianceIssues (builder).Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.AttributeLevelMismatch));
 		}
 
-		[Test]
-		public void TestInvalidAttributeLevelThrowsInStrictMode ()
+		[TestCase (TnefAttributeTag.Subject)]
+		[TestCase (TnefAttributeTag.MessageClass)]
+		[TestCase (TnefAttributeTag.MapiProperties)]
+		[TestCase (TnefAttributeTag.RecipientTable)]
+		public async Task TestMessageAttributeAtAttachmentLevelAsync (TnefAttributeTag tag)
 		{
 			var builder = new TnefBuilder ();
 
-			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.Subject, Encoding.ASCII.GetBytes ("This is the subject\0"));
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, tag, new byte[] { 0, 0, 0, 0 });
+
+			Assert.That ((await ReadComplianceIssuesAsync (builder)).Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.AttributeLevelMismatch));
+		}
+
+		[Test]
+		public void TestInvalidAttributeLevelIsLoggedAndDoesNotThrow ()
+		{
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			builder.WriteAttribute ((TnefAttributeLevel) 0x7f, TnefAttributeTag.Subject, Encoding.ASCII.GetBytes ("This is the subject\0"));
 
 			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
-					var ex = Assert.Throws<TnefException> (() => reader.ReadNextAttribute ());
-
-					Assert.That (ex!.Error, Is.EqualTo (TnefComplianceStatus.InvalidAttributeLevel));
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					Assert.DoesNotThrow (() => {
+						while (reader.Read ())
+							;
+					});
 				}
 			}
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidAttributeLevel));
+		}
+
+		[Test]
+		public async Task TestInvalidAttributeLevelIsLoggedAndDoesNotThrowAsync ()
+		{
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			builder.WriteAttribute ((TnefAttributeLevel) 0x7f, TnefAttributeTag.Subject, Encoding.ASCII.GetBytes ("This is the subject\0"));
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					while (await reader.ReadAsync ())
+						;
+				}
+			}
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidAttributeLevel));
 		}
 	}
 }

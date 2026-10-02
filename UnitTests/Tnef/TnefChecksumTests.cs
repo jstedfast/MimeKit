@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefChecksumTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -54,18 +54,41 @@ namespace UnitTests.Tnef {
 			foreach (var length in PayloadLengths) {
 				var payload = CreatePayload (length, length);
 				var builder = new TnefBuilder ();
+				var logger = new TestTnefComplianceLogger ();
 
 				builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, payload);
 
 				using var stream = builder.ToStream ();
-				using var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
+				using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-				Assert.That (reader.ReadNextAttribute (), Is.True, $"ReadNextAttribute (length = {length})");
+				Assert.That (reader.Read (), Is.True, $"Read (length = {length})");
 
-				while (reader.ReadNextAttribute ())
+				while (reader.Read ())
 					;
 
-				Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), $"ComplianceStatus (length = {length})");
+				Assert.That (logger.Issues, Is.Empty, $"Issues (length = {length})");
+			}
+		}
+
+		[Test]
+		public async Task TestAttributeChecksumAcceptsEveryPayloadLengthAsync ()
+		{
+			foreach (var length in PayloadLengths) {
+				var payload = CreatePayload (length, length);
+				var builder = new TnefBuilder ();
+				var logger = new TestTnefComplianceLogger ();
+
+				builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, payload);
+
+				using var stream = builder.ToStream ();
+				using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+				Assert.That (await reader.ReadAsync (), Is.True, $"ReadAsync (length = {length})");
+
+				while (await reader.ReadAsync ())
+					;
+
+				Assert.That (logger.Issues, Is.Empty, $"Issues (length = {length})");
 			}
 		}
 
@@ -77,29 +100,67 @@ namespace UnitTests.Tnef {
 			foreach (var length in PayloadLengths) {
 				var payload = CreatePayload (length, length);
 				var builder = new TnefBuilder ();
+				var logger = new TestTnefComplianceLogger ();
 
 				builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, payload);
 
 				using var stream = builder.ToStream ();
-				using var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
+				using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-				Assert.That (reader.ReadNextAttribute (), Is.True, $"ReadNextAttribute (length = {length})");
+				Assert.That (reader.Read (), Is.True, $"Read (length = {length})");
 
 				// Note: reading in 73-byte chunks splits the payload at offsets that are not a
 				// multiple of the vector width.
 				int total = 0, n;
 
-				while ((n = reader.ReadAttributeRawValue (buffer, 0, buffer.Length)) > 0) {
-					Assert.That (payload.Skip (total).Take (n), Is.EqualTo (buffer.Take (n)), $"content at {total} (length = {length})");
-					total += n;
+				using (var value = reader.OpenValueStream ()) {
+					while ((n = value.Read (buffer, 0, buffer.Length)) > 0) {
+						Assert.That (payload.Skip (total).Take (n), Is.EqualTo (buffer.Take (n)), $"content at {total} (length = {length})");
+						total += n;
+					}
 				}
 
 				Assert.That (total, Is.EqualTo (length), $"bytes read (length = {length})");
 
-				while (reader.ReadNextAttribute ())
+				while (reader.Read ())
 					;
 
-				Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), $"ComplianceStatus (length = {length})");
+				Assert.That (logger.Issues, Is.Empty, $"Issues (length = {length})");
+			}
+		}
+
+		[Test]
+		public async Task TestAttributeChecksumAcceptsEveryPayloadLengthWhenValueIsReadAsync ()
+		{
+			var buffer = new byte[73];
+
+			foreach (var length in PayloadLengths) {
+				var payload = CreatePayload (length, length);
+				var builder = new TnefBuilder ();
+				var logger = new TestTnefComplianceLogger ();
+
+				builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, payload);
+
+				using var stream = builder.ToStream ();
+				using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+				Assert.That (await reader.ReadAsync (), Is.True, $"ReadAsync (length = {length})");
+
+				int total = 0, n;
+
+				using (var value = reader.OpenValueStream ()) {
+					while ((n = await value.ReadAsync (buffer, 0, buffer.Length)) > 0) {
+						Assert.That (payload.Skip (total).Take (n), Is.EqualTo (buffer.Take (n)), $"content at {total} (length = {length})");
+						total += n;
+					}
+				}
+
+				Assert.That (total, Is.EqualTo (length), $"bytes read (length = {length})");
+
+				while (await reader.ReadAsync ())
+					;
+
+				Assert.That (logger.Issues, Is.Empty, $"Issues (length = {length})");
 			}
 		}
 
@@ -109,6 +170,7 @@ namespace UnitTests.Tnef {
 			foreach (var length in PayloadLengths) {
 				var payload = CreatePayload (length, length);
 				var builder = new TnefBuilder ();
+				var logger = new TestTnefComplianceLogger ();
 				short checksum = 0;
 
 				for (int i = 0; i < payload.Length; i++)
@@ -117,12 +179,12 @@ namespace UnitTests.Tnef {
 				builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, payload, checksum: (short) (checksum + 1));
 
 				using var stream = builder.ToStream ();
-				using var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
+				using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-				while (reader.ReadNextAttribute ())
+				while (reader.Read ())
 					;
 
-				Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.InvalidAttributeChecksum), $"ComplianceStatus (length = {length})");
+				Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.AttributeChecksumMismatch), $"Violation (length = {length})");
 			}
 		}
 
@@ -131,6 +193,7 @@ namespace UnitTests.Tnef {
 		{
 			// Note: 0xFF * 1024 = 261120, which is 3 full wraps past 65536.
 			var payload = new byte[1024];
+			var logger = new TestTnefComplianceLogger ();
 
 			for (int i = 0; i < payload.Length; i++)
 				payload[i] = 0xFF;
@@ -140,12 +203,12 @@ namespace UnitTests.Tnef {
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, payload);
 
 			using var stream = builder.ToStream ();
-			using var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose);
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-			while (reader.ReadNextAttribute ())
+			while (reader.Read ())
 				;
 
-			Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
 		}
 	}
 }

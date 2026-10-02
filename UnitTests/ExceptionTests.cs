@@ -179,7 +179,7 @@ namespace UnitTests {
 		public void TestTnefException ()
 		{
 			try {
-				var expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message", new Exception ("InnerException"));
+				var expected = new TnefException (TnefComplianceViolation.InvalidAttributeLength, "Message", new Exception ("InnerException"));
 
 				using (var stream = new MemoryStream ()) {
 					var formatter = new BinaryFormatter ();
@@ -187,10 +187,10 @@ namespace UnitTests {
 					stream.Position = 0;
 
 					var ex = (TnefException) formatter.Deserialize (stream);
-					Assert.That (ex.Error, Is.EqualTo (expected.Error), "Unexpected Error.");
+					Assert.That (ex.Violation, Is.EqualTo (expected.Violation), "Unexpected Violation.");
 				}
 
-				expected = new TnefException (TnefComplianceStatus.AttributeOverflow, "Message");
+				expected = new TnefException (TnefComplianceViolation.InvalidAttributeLength, "Message");
 
 				using (var stream = new MemoryStream ()) {
 					var formatter = new BinaryFormatter ();
@@ -198,7 +198,7 @@ namespace UnitTests {
 					stream.Position = 0;
 
 					var ex = (TnefException) formatter.Deserialize (stream);
-					Assert.That (ex.Error, Is.EqualTo (expected.Error), "Unexpected Error.");
+					Assert.That (ex.Violation, Is.EqualTo (expected.Violation), "Unexpected Violation.");
 				}
 			} catch (NotSupportedException) {
 				Assert.Ignore ("BinaryFormatter is no longer supported in .NET Core.");

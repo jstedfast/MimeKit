@@ -24,8 +24,6 @@
 // THE SOFTWARE.
 //
 
-using System.Collections.Generic;
-
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// An interface for a MIME part containing Microsoft TNEF data.
@@ -37,36 +35,5 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	public interface ITnefPart : IMimePart
 	{
-		/// <summary>
-		/// Convert the TNEF content into a <see cref="MimeMessage"/>.
-		/// </summary>
-		/// <remarks>
-		/// TNEF data often contains properties that map to <see cref="MimeMessage"/>
-		/// headers. TNEF data also often contains file attachments which will be
-		/// mapped to MIME parts.
-		/// </remarks>
-		/// <returns>A message representing the TNEF data in MIME format.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="IMimePart.Content"/> property is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="ITnefPart"/> has been disposed.
-		/// </exception>
-		MimeMessage ConvertToMessage ();
-
-		/// <summary>
-		/// Extract the embedded attachments from the TNEF data.
-		/// </summary>
-		/// <remarks>
-		/// Parses the TNEF data and extracts all the embedded file attachments.
-		/// </remarks>
-		/// <returns>The attachments.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// The <see cref="IMimePart.Content"/> property is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="ITnefPart"/> has been disposed.
-		/// </exception>
-		IEnumerable<MimeEntity> ExtractAttachments ();
 	}
 }

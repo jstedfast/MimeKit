@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefPropertyReaderRobustnessTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -30,138 +30,168 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefPropertyReaderRobustnessTests
 	{
-		static readonly TnefPropertyTag AppTimeTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.AppTime);
-		static readonly TnefPropertyTag SysTimeTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime);
-		static readonly TnefPropertyTag ClassIdTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.ClassId);
-
-		static MemoryStream BuildMessageProperties (TnefMapiPropertyBuilder properties, int? count = null, int? length = null)
+		static MemoryStream BuildMessageProperties (TnefMapiPropertyBuilder properties, int? count = null)
 		{
 			var builder = new TnefBuilder ();
 
 			builder.WriteTnefVersion ();
-			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, count, length);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, count);
 
 			return builder.ToStream ();
 		}
 
-		static TnefComplianceStatus ReadAllValues (MemoryStream stream)
+		static void DrainProperty (TnefPropertyReader prop)
 		{
-			using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-				while (reader.ReadNextAttribute ()) {
-					if (reader.AttributeTag != TnefAttributeTag.MapiProperties && reader.AttributeTag != TnefAttributeTag.Attachment)
-						continue;
+			if (prop.ValueCount == 0)
+				return;
 
-					var prop = reader.TnefPropertyReader;
-
-					while (prop.ReadNextProperty ())
-						prop.ReadValue ();
-				}
-
-				return reader.ComplianceStatus;
-			}
+			do {
+				prop.ReadValue ();
+			} while (prop.ReadNextValue ());
 		}
 
-		// Enumerates the properties of the first attMsgProps attribute without reading any
-		// of the values.
-		static TnefComplianceStatus ReadPropertiesWithoutValues (MemoryStream stream)
+		static async Task DrainPropertyAsync (TnefPropertyReader prop)
 		{
-			using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-				while (reader.ReadNextAttribute ()) {
-					if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
-						continue;
+			if (prop.ValueCount == 0)
+				return;
 
-					var prop = reader.TnefPropertyReader;
-
-					while (prop.ReadNextProperty ())
-						;
-
-					break;
-				}
-
-				return reader.ComplianceStatus;
-			}
+			do {
+				await prop.ReadValueAsync ();
+			} while (await prop.ReadNextValueAsync ());
 		}
 
-		// Reads only the properties of the first attMsgProps attribute and returns the
-		// compliance status *before* the reader moves on to the next attribute.
-		static TnefComplianceStatus ReadPropertiesOfFirstMapiAttribute (MemoryStream stream)
+		static TestTnefComplianceLogger ReadAllValues (MemoryStream stream)
 		{
-			using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-				while (reader.ReadNextAttribute ()) {
-					if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
-						continue;
+			var logger = new TestTnefComplianceLogger ();
 
-					var prop = reader.TnefPropertyReader;
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-					while (prop.ReadNextProperty ())
-						prop.ReadValue ();
+			while (reader.Read ()) {
+				if (reader.Tag != TnefAttributeTag.MapiProperties && reader.Tag != TnefAttributeTag.Attachment)
+					continue;
 
-					break;
-				}
+				var prop = reader.GetPropertyReader ();
 
-				return reader.ComplianceStatus;
+				while (prop.ReadNextProperty ())
+					DrainProperty (prop);
 			}
+
+			return logger;
+		}
+
+		static async Task<TestTnefComplianceLogger> ReadAllValuesAsync (MemoryStream stream)
+		{
+			var logger = new TestTnefComplianceLogger ();
+
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+			while (await reader.ReadAsync ()) {
+				if (reader.Tag != TnefAttributeTag.MapiProperties && reader.Tag != TnefAttributeTag.Attachment)
+					continue;
+
+				var prop = reader.GetPropertyReader ();
+
+				while (await prop.ReadNextPropertyAsync ())
+					await DrainPropertyAsync (prop);
+			}
+
+			return logger;
 		}
 
 		[Test]
 		public void TestUnspecifiedPropertyType ()
 		{
-			// PT_UNSPECIFIED is only meaningful in a property tag that is used to *request* a
-			// property - the length of such a value is unknowable, so it cannot be skipped over.
-			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unspecified);
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WritePropertyHeader (tag);
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unspecified));
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadPropertiesWithoutValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.UnsupportedPropertyType, Is.EqualTo (TnefComplianceStatus.UnsupportedPropertyType), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.UnsupportedPropertyType));
+		}
+
+		[Test]
+		public async Task TestUnspecifiedPropertyTypeAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unspecified));
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.UnsupportedPropertyType));
 		}
 
 		[Test]
 		public void TestNullPropertyType ()
 		{
-			// PT_NULL is a valid property type that simply has no value.
-			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Null);
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WritePropertyHeader (tag);
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Null));
 
-			TnefComplianceStatus status = TnefComplianceStatus.UnsupportedPropertyType;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.UnsupportedPropertyType, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.No.Member (TnefComplianceViolation.UnsupportedPropertyType));
+		}
+
+		[Test]
+		public async Task TestNullPropertyTypeAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Null));
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.No.Member (TnefComplianceViolation.UnsupportedPropertyType));
 		}
 
 		[Test]
 		public void TestOutOfRangeAppTime ()
 		{
-			// DateTime.FromOADate() throws ArgumentException for values outside of the OLE Automation
-			// date range; this must be reported as an InvalidDate compliance error instead.
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WriteDoubleProperty (AppTimeTag, 1e30);
+			properties.WriteDoubleProperty (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.AppTime), 1e30);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.InvalidDate, Is.EqualTo (TnefComplianceStatus.InvalidDate), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidDate));
+		}
+
+		[Test]
+		public async Task TestOutOfRangeAppTimeAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteDoubleProperty (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.AppTime), 1e30);
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidDate));
 		}
 
 		[Test]
 		public void TestOutOfRangeSysTime ()
 		{
-			// DateTime.FromFileTime() throws ArgumentOutOfRangeException for FILETIME values that do
-			// not map onto a valid DateTime.
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WriteInt64Property (SysTimeTag, long.MaxValue);
+			properties.WriteInt64Property (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime), long.MaxValue);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.InvalidDate, Is.EqualTo (TnefComplianceStatus.InvalidDate), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidDate));
+		}
+
+		[Test]
+		public async Task TestOutOfRangeSysTimeAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt64Property (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime), long.MaxValue);
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidDate));
 		}
 
 		[Test]
@@ -169,204 +199,305 @@ namespace UnitTests.Tnef {
 		{
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WriteInt64Property (SysTimeTag, -1);
+			properties.WriteInt64Property (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime), -1);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.InvalidDate, Is.EqualTo (TnefComplianceStatus.InvalidDate), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidDate));
+		}
+
+		[Test]
+		public async Task TestNegativeSysTimeAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt64Property (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime), -1);
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidDate));
 		}
 
 		[Test]
 		public void TestTruncatedClassIdValue ()
 		{
-			// new Guid (byte[]) throws ArgumentException when ReadBytes() clamps the request to the
-			// number of bytes that actually remain in the attribute.
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WriteProperty (ClassIdTag, new byte[8]);
+			properties.WriteProperty (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.ClassId), new byte[8]);
 
 			Assert.DoesNotThrow (() => ReadAllValues (BuildMessageProperties (properties)));
 		}
 
 		[Test]
+		public async Task TestTruncatedClassIdValueAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteProperty (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.ClassId), new byte[8]);
+
+			await ReadAllValuesAsync (BuildMessageProperties (properties));
+		}
+
+		[Test]
 		public void TestTruncatedNamedPropertyGuid ()
 		{
-			// LoadPropertyName() reads a 16-byte GUID; a truncated attribute must not throw.
 			var builder = new TnefBuilder ();
-			var payload = new byte[] {
-				0x01, 0x00, 0x00, 0x00, // property count = 1
-				0x1f, 0x00, 0x00, 0x80, // PT_UNICODE, id = 0x8000 (named)
-				0x00, 0x01, 0x02, 0x03  // only 4 bytes of the 16-byte GUID
-			};
+			var payload = new byte[] { 1, 0, 0, 0, 0x1f, 0, 0, 0x80, 0, 1, 2, 3 };
 
 			builder.WriteTnefVersion ();
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MapiProperties, payload);
 
-			using (var stream = builder.ToStream ()) {
-				Assert.DoesNotThrow (() => ReadAllValues (stream));
-			}
+			Assert.DoesNotThrow (() => ReadAllValues (builder.ToStream ()));
+		}
+
+		[Test]
+		public async Task TestTruncatedNamedPropertyGuidAsync ()
+		{
+			var builder = new TnefBuilder ();
+			var payload = new byte[] { 1, 0, 0, 0, 0x1f, 0, 0, 0x80, 0, 1, 2, 3 };
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MapiProperties, payload);
+
+			await ReadAllValuesAsync (builder.ToStream ());
 		}
 
 		[Test]
 		public void TestTruncatedDateAttribute ()
 		{
-			// The TNEF date structure is 7 WORDs; a shorter attribute must not cause us to read
-			// into the following attribute.
 			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			builder.WriteTnefVersion ();
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.DateSent, new byte[] { 0xe9, 0x07, 0x01, 0x00 });
 			builder.WriteMessageClass ("IPM.Note");
 
-			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.DoesNotThrow (() => {
-						while (reader.ReadNextAttribute ()) {
-							if (reader.AttributeType == TnefAttributeType.Date)
-								reader.TnefPropertyReader.ReadValue ();
-						}
-					});
+			using var reader = new TnefReader (builder.ToStream ()) { ComplianceLogger = logger };
 
-					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidDate, Is.EqualTo (TnefComplianceStatus.InvalidDate), "ComplianceStatus");
-				}
-			}
+			Assert.That (reader.Read (), Is.True);
+			Assert.That (reader.Read (), Is.True);
+			Assert.DoesNotThrow (() => reader.ReadValueAsDateTime ());
+			Assert.That (reader.Read (), Is.True, "next attribute");
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.MessageClass));
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidAttributeValue));
+		}
+
+		[Test]
+		public async Task TestTruncatedDateAttributeAsync ()
+		{
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.DateSent, new byte[] { 0xe9, 0x07, 0x01, 0x00 });
+			builder.WriteMessageClass ("IPM.Note");
+
+			using var reader = new TnefReader (builder.ToStream ()) { ComplianceLogger = logger };
+
+			Assert.That (await reader.ReadAsync (), Is.True);
+			Assert.That (await reader.ReadAsync (), Is.True);
+			await reader.ReadValueAsDateTimeAsync ();
+			Assert.That (await reader.ReadAsync (), Is.True, "next attribute");
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.MessageClass));
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidAttributeValue));
 		}
 
 		[Test]
 		public void TestOverflowingPropertyCount ()
 		{
-			// Each property needs at least 4 bytes, so a property count of int.MaxValue cannot possibly
-			// be honored. The reader must clamp it rather than spin.
 			var builder = new TnefBuilder ();
 
 			builder.WriteTnefVersion ();
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MapiProperties, new byte[] { 0xff, 0xff, 0xff, 0x7f });
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (builder.ToStream ());
 
-			using (var stream = builder.ToStream ()) {
-				Assert.DoesNotThrow (() => status = ReadAllValues (stream));
-			}
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidPropertyCount));
+		}
 
-			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
+		[Test]
+		public async Task TestOverflowingPropertyCountAsync ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MapiProperties, new byte[] { 0xff, 0xff, 0xff, 0x7f });
+
+			var logger = await ReadAllValuesAsync (builder.ToStream ());
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidPropertyCount));
 		}
 
 		[Test]
 		public void TestOverflowingValueCount ()
 		{
-			// A multi-valued property with a value count of int.MaxValue cannot possibly be honored.
-			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, (TnefPropertyType) (0x1000 | (int) TnefPropertyType.Unicode));
 			var properties = new TnefMapiPropertyBuilder ();
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
 
 			properties.WritePropertyHeader (tag);
 			properties.WriteValueCount (int.MaxValue);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidValueCount));
+		}
+
+		[Test]
+		public async Task TestOverflowingValueCountAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
+
+			properties.WritePropertyHeader (tag);
+			properties.WriteValueCount (int.MaxValue);
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidValueCount));
 		}
 
 		[Test]
 		public void TestOverflowingRowCount ()
 		{
-			// Each recipient table row needs at least a 4-byte property count.
 			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			builder.WriteTnefVersion ();
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.RecipientTable, new byte[] { 0xff, 0xff, 0xff, 0x7f });
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			using var reader = new TnefReader (builder.ToStream ()) { ComplianceLogger = logger };
 
-			using (var stream = builder.ToStream ()) {
-				Assert.DoesNotThrow (() => {
-					using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-						while (reader.ReadNextAttribute ()) {
-							if (reader.AttributeTag != TnefAttributeTag.RecipientTable)
-								continue;
+			Assert.DoesNotThrow (() => {
+				while (reader.Read ()) {
+					if (reader.Tag != TnefAttributeTag.RecipientTable)
+						continue;
 
-							var prop = reader.TnefPropertyReader;
+					var prop = reader.GetPropertyReader ();
 
-							while (prop.ReadNextRow ()) {
-								while (prop.ReadNextProperty ())
-									prop.ReadValue ();
-							}
-						}
-
-						status = reader.ComplianceStatus;
+					while (prop.ReadNextRow ()) {
+						while (prop.ReadNextProperty ())
+							DrainProperty (prop);
 					}
-				});
+				}
+			});
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidRowCount));
+		}
+
+		[Test]
+		public async Task TestOverflowingRowCountAsync ()
+		{
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.RecipientTable, new byte[] { 0xff, 0xff, 0xff, 0x7f });
+
+			using var reader = new TnefReader (builder.ToStream ()) { ComplianceLogger = logger };
+
+			while (await reader.ReadAsync ()) {
+				if (reader.Tag != TnefAttributeTag.RecipientTable)
+					continue;
+
+				var prop = reader.GetPropertyReader ();
+
+				while (await prop.ReadNextRowAsync ()) {
+					while (await prop.ReadNextPropertyAsync ())
+						await DrainPropertyAsync (prop);
+				}
 			}
 
-			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidRowCount));
 		}
 
 		[Test]
 		public void TestPropertyValueLongerThanAttribute ()
 		{
-			// The declared value length reaches beyond the end of the enclosing attribute, which is a
-			// structural containment violation rather than a nonsensical length.
-			var tag = new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Binary);
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WritePropertyHeader (tag);
+			properties.WritePropertyHeader (TnefPropertyTag.AttachDataBin);
 			properties.WriteValueCount (1);
 			properties.WriteVariableLengthValue (new byte[] { 1, 2, 3, 4 }, 1024);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
+			var logger = ReadAllValues (BuildMessageProperties (properties));
 
-			Assert.DoesNotThrow (() => status = ReadAllValues (BuildMessageProperties (properties)));
-			Assert.That (status & TnefComplianceStatus.AttributeOverflow, Is.EqualTo (TnefComplianceStatus.AttributeOverflow), "ComplianceStatus");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidPropertyLength));
+		}
+
+		[Test]
+		public async Task TestPropertyValueLongerThanAttributeAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (TnefPropertyTag.AttachDataBin);
+			properties.WriteValueCount (1);
+			properties.WriteVariableLengthValue (new byte[] { 1, 2, 3, 4 }, 1024);
+
+			var logger = await ReadAllValuesAsync (BuildMessageProperties (properties));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidPropertyLength));
 		}
 
 		[Test]
 		public void TestTruncatedPropertyHeaderIsReportedAsTruncated ()
 		{
-			// ReadNextProperty() swallowed the EndOfStreamException without recording why it
-			// stopped reading properties.
 			var properties = new TnefMapiPropertyBuilder ();
-
-			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.Importance, TnefPropertyType.Long), 1);
-
 			var builder = new TnefBuilder ();
 
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 1);
 			builder.WriteTnefVersion ();
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, 2);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
-			int length = builder.ToArray ().Length;
+			var logger = ReadAllValues (builder.ToStream (builder.ToArray ().Length - 2));
 
-			using (var stream = builder.ToStream (length - 2)) {
-				Assert.DoesNotThrow (() => status = ReadPropertiesOfFirstMapiAttribute (stream));
-			}
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream));
+		}
 
-			Assert.That (status & TnefComplianceStatus.StreamTruncated, Is.EqualTo (TnefComplianceStatus.StreamTruncated), "ComplianceStatus");
+		[Test]
+		public async Task TestTruncatedPropertyHeaderIsReportedAsTruncatedAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 1);
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, 2);
+
+			var logger = await ReadAllValuesAsync (builder.ToStream (builder.ToArray ().Length - 2));
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream));
 		}
 
 		[Test]
 		public void TestTruncatedMultiValuedPropertyDoesNotThrow ()
 		{
-			// Note: ReadNextValue() intentionally does *not* report StreamTruncated here --
-			// hitting the end of the stream while looking for another value is how reading
-			// normally terminates for real-world TNEF streams.
-			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, (TnefPropertyType) (0x1000 | (int) TnefPropertyType.Unicode));
 			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
 
 			properties.WritePropertyHeader (tag);
 			properties.WriteValueCount (2);
 			properties.WriteUnicodeValue ("hi");
-
-			var builder = new TnefBuilder ();
-
 			builder.WriteTnefVersion ();
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			int length = builder.ToArray ().Length;
+			Assert.DoesNotThrow (() => ReadAllValues (builder.ToStream (builder.ToArray ().Length - 2)));
+		}
 
-			using (var stream = builder.ToStream (length - 2)) {
-				Assert.DoesNotThrow (() => ReadPropertiesOfFirstMapiAttribute (stream));
-			}
+		[Test]
+		public async Task TestTruncatedMultiValuedPropertyDoesNotThrowAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
+
+			properties.WritePropertyHeader (tag);
+			properties.WriteValueCount (2);
+			properties.WriteUnicodeValue ("hi");
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			await ReadAllValuesAsync (builder.ToStream (builder.ToArray ().Length - 2));
 		}
 	}
 }

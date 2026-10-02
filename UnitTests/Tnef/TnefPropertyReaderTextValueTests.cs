@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefPropertyReaderTextValueTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -35,93 +35,126 @@ namespace UnitTests.Tnef {
 		static TnefReader ReadSingleProperty (TnefMapiPropertyBuilder properties)
 		{
 			var builder = new TnefBuilder ();
-
 			builder.WriteTnefVersion ();
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			var reader = new TnefReader (builder.ToStream (), 1252, TnefComplianceMode.Loose);
+			var reader = new TnefReader (builder.ToStream ());
 
-			while (reader.ReadNextAttribute ()) {
-				if (reader.AttributeTag != TnefAttributeTag.MapiProperties)
-					continue;
-
-				if (reader.TnefPropertyReader.ReadNextProperty ())
+			while (reader.Read ()) {
+				if (reader.Tag == TnefAttributeTag.MapiProperties && reader.GetPropertyReader ().ReadNextProperty ())
 					return reader;
 			}
 
 			reader.Dispose ();
-
 			throw new InvalidOperationException ("Failed to locate the property.");
 		}
 
-		static string ReadTextValue (TnefPropertyReader prop)
+		static async Task<TnefReader> ReadSinglePropertyAsync (TnefMapiPropertyBuilder properties)
 		{
-			var buffer = new char[64];
-			var text = new StringBuilder ();
-			int n;
+			var builder = new TnefBuilder ();
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			while ((n = prop.ReadTextValue (buffer, 0, buffer.Length)) > 0)
-				text.Append (buffer, 0, n);
+			var reader = new TnefReader (builder.ToStream ());
 
-			return text.ToString ();
+			while (await reader.ReadAsync ()) {
+				if (reader.Tag == TnefAttributeTag.MapiProperties && await reader.GetPropertyReader ().ReadNextPropertyAsync ())
+					return reader;
+			}
+
+			reader.Dispose ();
+			throw new InvalidOperationException ("Failed to locate the property.");
 		}
 
 		[Test]
-		public void TestReadTextValueUnicodeProperty ()
+		public void TestReadValueAsStringUnicodeProperty ()
 		{
 			var properties = new TnefMapiPropertyBuilder ();
-			var tag = new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode);
 
-			properties.WriteStringProperty (tag, "This is the subject");
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "This is the subject");
 
 			using var reader = ReadSingleProperty (properties);
 
-			Assert.That (ReadTextValue (reader.TnefPropertyReader), Is.EqualTo ("This is the subject\0"));
+			Assert.That (reader.GetPropertyReader ().ReadValueAsString (), Is.EqualTo ("This is the subject"));
 		}
 
 		[Test]
-		public void TestReadTextValueString8Property ()
+		public async Task TestReadValueAsStringUnicodePropertyAsync ()
 		{
 			var properties = new TnefMapiPropertyBuilder ();
-			var tag = new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.String8);
 
-			properties.WriteStringProperty (tag, "Caf\u00e9 au lait", Encoding.GetEncoding (1252));
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "This is the subject");
+
+			using var reader = await ReadSinglePropertyAsync (properties);
+
+			Assert.That (await reader.GetPropertyReader ().ReadValueAsStringAsync (), Is.EqualTo ("This is the subject"));
+		}
+
+		[Test]
+		public void TestReadValueAsStringString8Property ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.String8), "Caf\u00e9 au lait", Encoding.GetEncoding (1252));
 
 			using var reader = ReadSingleProperty (properties);
 
-			Assert.That (ReadTextValue (reader.TnefPropertyReader), Is.EqualTo ("Caf\u00e9 au lait\0"));
+			Assert.That (reader.GetPropertyReader ().ReadValueAsString (), Is.EqualTo ("Caf\u00e9 au lait"));
 		}
 
 		[Test]
-		public void TestReadTextValueNonTextProperty ()
+		public async Task TestReadValueAsStringString8PropertyAsync ()
 		{
 			var properties = new TnefMapiPropertyBuilder ();
-			var tag = new TnefPropertyTag (TnefPropertyId.MessageFlags, TnefPropertyType.Long);
 
-			properties.WriteInt32Property (tag, 1234);
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.String8), "Caf\u00e9 au lait", Encoding.GetEncoding (1252));
 
-			using var reader = ReadSingleProperty (properties);
-			var prop = reader.TnefPropertyReader;
-			var buffer = new char[64];
+			using var reader = await ReadSinglePropertyAsync (properties);
 
-			Assert.Throws<InvalidOperationException> (() => prop.ReadTextValue (buffer, 0, buffer.Length));
+			Assert.That (await reader.GetPropertyReader ().ReadValueAsStringAsync (), Is.EqualTo ("Caf\u00e9 au lait"));
 		}
 
 		[Test]
-		public void TestReadTextValueAttribute ()
+		public void TestReadValueAsStringNonTextProperty ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.MessageFlags, TnefPropertyType.Long), 1234);
+
+			using var reader = ReadSingleProperty (properties);
+			var prop = reader.GetPropertyReader ();
+
+			Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsString ());
+		}
+
+		[Test]
+		public async Task TestReadValueAsStringNonTextPropertyAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.MessageFlags, TnefPropertyType.Long), 1234);
+
+			using var reader = await ReadSinglePropertyAsync (properties);
+			var prop = reader.GetPropertyReader ();
+
+			Assert.ThrowsAsync<InvalidOperationException> (async () => await prop.ReadValueAsStringAsync ());
+		}
+
+		[Test]
+		public void TestReadValueAsStringAttribute ()
 		{
 			var builder = new TnefBuilder ();
 
 			builder.WriteTnefVersion ();
 			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Body, Encoding.ASCII.GetBytes ("This is the body\0"));
 
-			using var reader = new TnefReader (builder.ToStream (), 1252, TnefComplianceMode.Loose);
+			using var reader = new TnefReader (builder.ToStream ());
 
-			while (reader.ReadNextAttribute ()) {
-				if (reader.AttributeTag != TnefAttributeTag.Body)
+			while (reader.Read ()) {
+				if (reader.Tag != TnefAttributeTag.Body)
 					continue;
 
-				Assert.That (ReadTextValue (reader.TnefPropertyReader), Is.EqualTo ("This is the body\0"));
+				Assert.That (reader.ReadValueAsString (), Is.EqualTo ("This is the body"));
 				return;
 			}
 
@@ -129,21 +162,24 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		public void TestReadTextValueArgumentExceptions ()
+		public async Task TestReadValueAsStringAttributeAsync ()
 		{
-			var properties = new TnefMapiPropertyBuilder ();
-			var tag = new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode);
+			var builder = new TnefBuilder ();
 
-			properties.WriteStringProperty (tag, "This is the subject");
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Body, Encoding.ASCII.GetBytes ("This is the body\0"));
 
-			using var reader = ReadSingleProperty (properties);
-			var prop = reader.TnefPropertyReader;
-			var buffer = new char[64];
+			using var reader = new TnefReader (builder.ToStream ());
 
-			Assert.Throws<ArgumentNullException> (() => prop.ReadTextValue (null, 0, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (buffer, -1, 0));
-			Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (buffer, 0, -1));
-			Assert.Throws<ArgumentOutOfRangeException> (() => prop.ReadTextValue (buffer, 0, buffer.Length + 1));
+			while (await reader.ReadAsync ()) {
+				if (reader.Tag != TnefAttributeTag.Body)
+					continue;
+
+				Assert.That (await reader.ReadValueAsStringAsync (), Is.EqualTo ("This is the body"));
+				return;
+			}
+
+			Assert.Fail ("Failed to locate the attBody attribute.");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefCodepageTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -41,50 +41,111 @@ namespace UnitTests.Tnef {
 			// Constructing a TnefReader with a codepage that the host cannot provide must degrade
 			// gracefully rather than throwing. On Linux, *most* Windows codepages are unavailable
 			// unless the consuming application has registered the CodePagesEncodingProvider.
-			using (var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"))) {
-				using (var reader = new TnefReader (stream, UnsupportedCodepage, TnefComplianceMode.Loose)) {
-					Assert.That (reader.MessageCodepage, Is.Not.EqualTo (UnsupportedCodepage), "MessageCodepage");
+			var options = new TnefOptions { DefaultCodepage = UnsupportedCodepage };
 
-					while (reader.ReadNextAttribute ())
+			using (var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"))) {
+				using (var reader = new TnefReader (stream, options)) {
+					Assert.That (reader.Codepage, Is.Not.EqualTo (UnsupportedCodepage), "Codepage");
+
+					while (reader.Read ())
 						;
 				}
 			}
 		}
 
 		[Test]
-		public void TestUnsupportedOemCodepageIsRecoverableInLooseMode ()
+		public async Task TestUnsupportedDefaultMessageCodepageAsync ()
+		{
+			var options = new TnefOptions { DefaultCodepage = UnsupportedCodepage };
+
+			using (var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"))) {
+				using (var reader = new TnefReader (stream, options)) {
+					Assert.That (reader.Codepage, Is.Not.EqualTo (UnsupportedCodepage), "Codepage");
+
+					while (await reader.ReadAsync ())
+						;
+				}
+			}
+		}
+
+		[Test]
+		public void TestUnsupportedOemCodepageIsRecoverable ()
 		{
 			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			builder.WriteTnefVersion ();
 			builder.WriteOemCodepage (UnsupportedCodepage);
 			builder.WriteMessageClass ("IPM.Note");
 
 			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					while (reader.ReadNextAttribute ())
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					while (reader.Read ())
 						;
 
-					Assert.That (reader.ComplianceStatus & TnefComplianceStatus.InvalidMessageCodepage, Is.EqualTo (TnefComplianceStatus.InvalidMessageCodepage), "ComplianceStatus");
-					Assert.That (reader.MessageCodepage, Is.Not.EqualTo (UnsupportedCodepage), "MessageCodepage");
+					Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidMessageCodepage), "Violation");
+					Assert.That (reader.Codepage, Is.Not.EqualTo (UnsupportedCodepage), "Codepage");
 				}
 			}
 		}
 
 		[Test]
-		public void TestUnsupportedOemCodepageThrowsInStrictMode ()
+		public async Task TestUnsupportedOemCodepageIsRecoverableAsync ()
 		{
 			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (UnsupportedCodepage);
+			builder.WriteMessageClass ("IPM.Note");
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					while (await reader.ReadAsync ())
+						;
+
+					Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidMessageCodepage), "Violation");
+					Assert.That (reader.Codepage, Is.Not.EqualTo (UnsupportedCodepage), "Codepage");
+				}
+			}
+		}
+
+		[Test]
+		public void TestUnsupportedOemCodepageDoesNotThrow ()
+		{
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			builder.WriteTnefVersion ();
 			builder.WriteOemCodepage (UnsupportedCodepage);
 
 			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
-					Assert.Throws<TnefException> (() => {
-						while (reader.ReadNextAttribute ())
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					Assert.DoesNotThrow (() => {
+						while (reader.Read ())
 							;
 					});
+
+					Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidMessageCodepage), "Violation");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestUnsupportedOemCodepageDoesNotThrowAsync ()
+		{
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (UnsupportedCodepage);
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger }) {
+					while (await reader.ReadAsync ())
+						;
+
+					Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidMessageCodepage), "Violation");
 				}
 			}
 		}
@@ -92,7 +153,7 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestMessageCodepageIsAlwaysSupported ()
 		{
-			// Whatever MessageCodepage ends up reporting, Encoding.GetEncoding() must be able to
+			// Whatever Codepage ends up reporting, Encoding.GetEncoding() must be able to
 			// resolve it; TnefPart relies on this when decoding PidTagBody and PidTagHtml.
 			var builder = new TnefBuilder ();
 
@@ -100,11 +161,29 @@ namespace UnitTests.Tnef {
 			builder.WriteOemCodepage (UnsupportedCodepage);
 
 			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					while (reader.ReadNextAttribute ())
+				using (var reader = new TnefReader (stream)) {
+					while (reader.Read ())
 						;
 
-					Assert.DoesNotThrow (() => System.Text.Encoding.GetEncoding (reader.MessageCodepage));
+					Assert.DoesNotThrow (() => System.Text.Encoding.GetEncoding (reader.Codepage));
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestMessageCodepageIsAlwaysSupportedAsync ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (UnsupportedCodepage);
+
+			using (var stream = builder.ToStream ()) {
+				using (var reader = new TnefReader (stream)) {
+					while (await reader.ReadAsync ())
+						;
+
+					Assert.DoesNotThrow (() => System.Text.Encoding.GetEncoding (reader.Codepage));
 				}
 			}
 		}

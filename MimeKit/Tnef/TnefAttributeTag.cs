@@ -25,17 +25,58 @@
 //
 
 namespace MimeKit.Tnef {
-	enum TnefAttributeType {
+	/// <summary>
+	/// The type of a TNEF attribute's value.
+	/// </summary>
+	/// <remarks>
+	/// <para>The type of a TNEF attribute's value, as encoded in the high-order word of the
+	/// attribute's <see cref="TnefAttributeTag"/>.</para>
+	/// </remarks>
+	public enum TnefAttributeType {
+		/// <summary>
+		/// The value is a structure of recipient or sender information.
+		/// </summary>
 		Triples = 0x00000000,
+
+		/// <summary>
+		/// The value is a null-terminated string of 8-bit characters.
+		/// </summary>
 		String  = 0x00010000,
+
+		/// <summary>
+		/// The value is a block of 8-bit text.
+		/// </summary>
 		Text    = 0x00020000,
+
+		/// <summary>
+		/// The value is a 14-byte date structure.
+		/// </summary>
 		Date    = 0x00030000,
+
+		/// <summary>
+		/// The value is a 16-bit integer.
+		/// </summary>
 		Short   = 0x00040000,
+
+		/// <summary>
+		/// The value is a 32-bit integer.
+		/// </summary>
 		Long    = 0x00050000,
+
+		/// <summary>
+		/// The value is a block of binary data.
+		/// </summary>
 		Byte    = 0x00060000,
+
+		/// <summary>
+		/// The value is an unsigned 16-bit integer.
+		/// </summary>
 		Word    = 0x00070000,
-		DWord   = 0x00080000,
-		Max     = 0x00090000
+
+		/// <summary>
+		/// The value is an unsigned 32-bit integer.
+		/// </summary>
+		DWord   = 0x00080000
 	}
 
 	/// <summary>

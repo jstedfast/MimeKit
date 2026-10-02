@@ -30,125 +30,309 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefNestingTests
 	{
-		static readonly Guid IID_IMessage = new Guid ("00020D0B-0000-0000-C000-000000000046");
-
-		static readonly TnefPropertyTag AttachMethodTag = new TnefPropertyTag (TnefPropertyId.AttachMethod, TnefPropertyType.Long);
-		static readonly TnefPropertyTag AttachDataTag = new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Object);
+		static readonly Guid IID_IMessage = new Guid ("00020307-0000-0000-C000-000000000046");
 
 		// Builds a TNEF stream containing a single attachment whose PR_ATTACH_DATA_OBJ property is
 		// an embedded TNEF message.
-		static MemoryStream BuildEmbeddedMessage (byte[] embedded)
+		static byte[] BuildEmbeddedMessageBytes (byte[] embedded)
 		{
 			var value = new byte[16 + embedded.Length];
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
 
 			IID_IMessage.ToByteArray ().CopyTo (value, 0);
 			embedded.CopyTo (value, 16);
 
-			int padding = (4 - (value.Length & 3)) & 3;
-			var payload = new byte[24 + value.Length + padding];
-			int index = 0;
-
-			WriteInt32 (payload, ref index, 2);                                       // property count
-			WriteTag (payload, ref index, AttachMethodTag);                           // PR_ATTACH_METHOD
-			WriteInt32 (payload, ref index, (int) TnefAttachMethod.EmbeddedMessage);
-			WriteTag (payload, ref index, AttachDataTag);                             // PR_ATTACH_DATA_OBJ
-			WriteInt32 (payload, ref index, 1);                                       // value count
-			WriteInt32 (payload, ref index, value.Length);                            // value length
-			value.CopyTo (payload, index);
-
-			var builder = new TnefBuilder ();
+			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) TnefAttachMethod.EmbeddedMessage);
+			properties.WriteBinaryProperty (TnefPropertyTag.AttachDataObj, value);
 
 			builder.WriteTnefVersion ();
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 });
-			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.Attachment, payload);
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
 
-			return builder.ToStream ();
+			return builder.ToArray ();
 		}
 
-		static void WriteInt32 (byte[] buffer, ref int index, int value)
+		static MemoryStream BuildEmbeddedMessage (byte[] embedded)
 		{
-			BitConverter.GetBytes (value).CopyTo (buffer, index);
-			index += 4;
+			return new MemoryStream (BuildEmbeddedMessageBytes (embedded), false);
 		}
 
-		// Note: on the wire, a MAPI property tag is a WORD type followed by a WORD id, which is the
-		// opposite order of the 32-bit integer representation of a TnefPropertyTag.
-		static void WriteTag (byte[] buffer, ref int index, TnefPropertyTag tag)
+		static async Task<bool> ReadAsync (TnefReader reader, bool async)
 		{
-			BitConverter.GetBytes ((short) tag.TnefType).CopyTo (buffer, index);
-			BitConverter.GetBytes ((short) tag.Id).CopyTo (buffer, index + 2);
-			index += 4;
+			return async ? await reader.ReadAsync () : reader.Read ();
 		}
 
-		static TnefReader GetEmbeddedMessageReader (TnefReader reader)
+		static async Task<bool> ReadNextPropertyAsync (TnefPropertyReader reader, bool async)
 		{
-			while (reader.ReadNextAttribute ()) {
-				if (reader.AttributeTag != TnefAttributeTag.Attachment)
+			return async ? await reader.ReadNextPropertyAsync () : reader.ReadNextProperty ();
+		}
+
+		static async Task<TnefReader> GetEmbeddedMessageReaderAsync (TnefReader reader, bool async)
+		{
+			while (await ReadAsync (reader, async)) {
+				if (reader.Tag != TnefAttributeTag.Attachment)
 					continue;
 
-				var prop = reader.TnefPropertyReader;
+				var prop = reader.GetPropertyReader ();
 
-				while (prop.ReadNextProperty ()) {
+				while (await ReadNextPropertyAsync (prop, async)) {
 					if (prop.IsEmbeddedMessage)
-						return prop.GetEmbeddedMessageReader ();
+						return prop.OpenEmbeddedMessage ();
 				}
 			}
 
 			throw new InvalidOperationException ("Failed to locate the embedded message.");
 		}
 
-		[Test]
-		public void TestDefaultMaxNestingDepth ()
+		static int IndexOf (byte[] buffer, byte[] value)
+		{
+			for (int i = 0; i <= buffer.Length - value.Length; i++) {
+				int j = 0;
+
+				while (j < value.Length && buffer[i + j] == value[j])
+					j++;
+
+				if (j == value.Length)
+					return i;
+			}
+
+			return -1;
+		}
+
+		async Task RunDefaultMaxNestingDepthAsync (bool async)
 		{
 			var inner = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			inner.WriteTnefVersion ();
 
-			using (var stream = BuildEmbeddedMessage (inner.ToArray ())) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.That (reader.MaxNestingDepth, Is.EqualTo (TnefReader.DefaultMaxNestingDepth));
+			using var stream = BuildEmbeddedMessage (inner.ToArray ());
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
 
-					using (var embedded = GetEmbeddedMessageReader (reader)) {
-						Assert.That (embedded.MaxNestingDepth, Is.EqualTo (TnefReader.DefaultMaxNestingDepth), "MaxNestingDepth");
-						Assert.That (embedded.ReadNextAttribute (), Is.True, "ReadNextAttribute");
-						Assert.That (reader.ComplianceStatus & TnefComplianceStatus.NestingTooDeep, Is.EqualTo (TnefComplianceStatus.Compliant), "ComplianceStatus");
-					}
-				}
-			}
+			Assert.That (reader.Options.MaxNestingDepth, Is.EqualTo (TnefOptions.DefaultMaxNestingDepth));
+
+			using var embedded = await GetEmbeddedMessageReaderAsync (reader, async);
+
+			Assert.That (embedded.Options.MaxNestingDepth, Is.EqualTo (TnefOptions.DefaultMaxNestingDepth), "MaxNestingDepth");
+			Assert.That (await ReadAsync (embedded, async), Is.True, "Read");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
+		}
+
+		[Test]
+		public void TestDefaultMaxNestingDepth ()
+		{
+			RunDefaultMaxNestingDepthAsync (false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestDefaultMaxNestingDepthAsync ()
+		{
+			await RunDefaultMaxNestingDepthAsync (true);
+		}
+
+		async Task RunMaxNestingDepthExceededAsync (bool async)
+		{
+			var inner = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+			var options = TnefOptions.Default.Clone ();
+
+			options.MaxNestingDepth = 0;
+			inner.WriteTnefVersion ();
+
+			using var stream = BuildEmbeddedMessage (inner.ToArray ());
+			using var reader = new TnefReader (stream, options) { ComplianceLogger = logger };
+			using var embedded = await GetEmbeddedMessageReaderAsync (reader, async);
+
+			Assert.That (embedded.Depth, Is.EqualTo (reader.Depth + 1), "Depth");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.NestingTooDeep), "Violation");
+			Assert.That (await ReadAsync (embedded, async), Is.False, "Read");
 		}
 
 		[Test]
 		public void TestMaxNestingDepthExceeded ()
 		{
+			RunMaxNestingDepthExceededAsync (false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestMaxNestingDepthExceededAsync ()
+		{
+			await RunMaxNestingDepthExceededAsync (true);
+		}
+
+		async Task RunNestedEmbeddedMessageBeyondMaxNestingDepthReturnsEmptyReaderAsync (bool async)
+		{
+			var leaf = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+			var options = TnefOptions.Default.Clone ();
+
+			options.MaxNestingDepth = 1;
+			leaf.WriteTnefVersion ();
+
+			var middle = BuildEmbeddedMessageBytes (leaf.ToArray ());
+			var outer = BuildEmbeddedMessageBytes (middle);
+
+			using var stream = new MemoryStream (outer, false);
+			using var reader = new TnefReader (stream, options) { ComplianceLogger = logger };
+			using var child = await GetEmbeddedMessageReaderAsync (reader, async);
+			using var grandchild = await GetEmbeddedMessageReaderAsync (child, async);
+
+			Assert.That (child.Depth, Is.EqualTo (1), "child Depth");
+			Assert.That (grandchild.Depth, Is.EqualTo (2), "grandchild Depth");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.NestingTooDeep), "Violation");
+			Assert.That (await ReadAsync (grandchild, async), Is.False, "Read");
+		}
+
+		[Test]
+		public void TestNestedEmbeddedMessageBeyondMaxNestingDepthReturnsEmptyReader ()
+		{
+			RunNestedEmbeddedMessageBeyondMaxNestingDepthReturnsEmptyReaderAsync (false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestNestedEmbeddedMessageBeyondMaxNestingDepthReturnsEmptyReaderAsync ()
+		{
+			await RunNestedEmbeddedMessageBeyondMaxNestingDepthReturnsEmptyReaderAsync (true);
+		}
+
+		async Task RunEmbeddedMessageDepthIncrementsAndStreamOffsetIsAbsoluteAsync (bool async)
+		{
 			var inner = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			inner.WriteTnefVersion ();
+			inner.WriteMessageClass ("IPM.Note");
+
+			var embedded = inner.ToArray ();
+			var outer = BuildEmbeddedMessageBytes (embedded);
+			int embeddedOffset = IndexOf (outer, embedded);
+
+			Assert.That (embeddedOffset, Is.GreaterThanOrEqualTo (0), "embeddedOffset");
+
+			using var stream = new MemoryStream (outer, false);
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+			using var child = await GetEmbeddedMessageReaderAsync (reader, async);
+
+			Assert.That (child.Depth, Is.EqualTo (reader.Depth + 1), "Depth");
+			Assert.That (await ReadAsync (child, async), Is.True, "Read");
+			Assert.That (child.Tag, Is.EqualTo (TnefAttributeTag.TnefVersion), "Tag");
+			Assert.That (child.StreamOffset, Is.EqualTo (embeddedOffset + 6), "StreamOffset");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
+		}
+
+		[Test]
+		public void TestEmbeddedMessageDepthIncrementsAndStreamOffsetIsAbsolute ()
+		{
+			RunEmbeddedMessageDepthIncrementsAndStreamOffsetIsAbsoluteAsync (false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestEmbeddedMessageDepthIncrementsAndStreamOffsetIsAbsoluteAsync ()
+		{
+			await RunEmbeddedMessageDepthIncrementsAndStreamOffsetIsAbsoluteAsync (true);
+		}
+
+		// Real-world writers emit PR_ATTACH_DATA_OBJ before PR_ATTACH_METHOD, so the reader must identify
+		// embedded messages by the object's interface identifier rather than the attach method.
+		static byte[] BuildAttachDataBeforeAttachMethodBytes (Guid iid, byte[] data, TnefAttachMethod method)
+		{
+			var value = new byte[16 + data.Length];
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			iid.ToByteArray ().CopyTo (value, 0);
+			data.CopyTo (value, 16);
+
+			properties.WriteBinaryProperty (TnefPropertyTag.AttachDataObj, value);
+			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) method);
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 });
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
+
+			return builder.ToArray ();
+		}
+
+		static async Task<bool> IsAttachDataEmbeddedMessageAsync (TnefReader reader, bool async)
+		{
+			while (await ReadAsync (reader, async)) {
+				if (reader.Tag != TnefAttributeTag.Attachment)
+					continue;
+
+				var prop = reader.GetPropertyReader ();
+
+				while (await ReadNextPropertyAsync (prop, async)) {
+					if (prop.Tag.Id == TnefPropertyId.AttachData)
+						return prop.IsEmbeddedMessage;
+				}
+			}
+
+			throw new InvalidOperationException ("Failed to locate PR_ATTACH_DATA_OBJ.");
+		}
+
+		async Task RunEmbeddedMessageDetectedWhenAttachDataPrecedesAttachMethodAsync (bool async)
+		{
+			var inner = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
 
 			inner.WriteTnefVersion ();
 
-			using (var stream = BuildEmbeddedMessage (inner.ToArray ())) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					reader.MaxNestingDepth = 0;
+			var bytes = BuildAttachDataBeforeAttachMethodBytes (IID_IMessage, inner.ToArray (), TnefAttachMethod.EmbeddedMessage);
 
-					using (var embedded = GetEmbeddedMessageReader (reader)) {
-						Assert.That (reader.ComplianceStatus & TnefComplianceStatus.NestingTooDeep, Is.EqualTo (TnefComplianceStatus.NestingTooDeep), "ComplianceStatus");
-						Assert.That (embedded.ReadNextAttribute (), Is.False, "ReadNextAttribute");
-					}
-				}
-			}
+			using var stream = new MemoryStream (bytes, false);
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+			using var embedded = await GetEmbeddedMessageReaderAsync (reader, async);
+
+			Assert.That (await ReadAsync (embedded, async), Is.True, "Read");
+			Assert.That (embedded.Tag, Is.EqualTo (TnefAttributeTag.TnefVersion), "Tag");
+			Assert.That (await ReadAsync (embedded, async), Is.False, "End of embedded message");
+			Assert.That (logger.Issues, Is.Empty, "Issues");
+		}
+
+		[Test]
+		public void TestEmbeddedMessageDetectedWhenAttachDataPrecedesAttachMethod ()
+		{
+			RunEmbeddedMessageDetectedWhenAttachDataPrecedesAttachMethodAsync (false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestEmbeddedMessageDetectedWhenAttachDataPrecedesAttachMethodAsync ()
+		{
+			await RunEmbeddedMessageDetectedWhenAttachDataPrecedesAttachMethodAsync (true);
+		}
+
+		async Task RunOleObjectNotDetectedAsEmbeddedMessageAsync (bool async)
+		{
+			var IID_IStorage = new Guid ("0000000b-0000-0000-C000-000000000046");
+			var bytes = BuildAttachDataBeforeAttachMethodBytes (IID_IStorage, new byte[32], TnefAttachMethod.Ole);
+
+			using var stream = new MemoryStream (bytes, false);
+			using var reader = new TnefReader (stream);
+
+			Assert.That (await IsAttachDataEmbeddedMessageAsync (reader, async), Is.False);
+		}
+
+		[Test]
+		public void TestOleObjectNotDetectedAsEmbeddedMessage ()
+		{
+			RunOleObjectNotDetectedAsEmbeddedMessageAsync (false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestOleObjectNotDetectedAsEmbeddedMessageAsync ()
+		{
+			await RunOleObjectNotDetectedAsEmbeddedMessageAsync (true);
 		}
 
 		[Test]
 		public void TestMaxNestingDepthCannotBeNegative ()
 		{
-			var builder = new TnefBuilder ();
+			var options = TnefOptions.Default.Clone ();
 
-			builder.WriteTnefVersion ();
-
-			using (var stream = builder.ToStream ()) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Loose)) {
-					Assert.Throws<ArgumentOutOfRangeException> (() => reader.MaxNestingDepth = -1);
-					Assert.That (reader.MaxNestingDepth, Is.EqualTo (TnefReader.DefaultMaxNestingDepth));
-				}
-			}
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxNestingDepth = -1);
+			Assert.That (options.MaxNestingDepth, Is.EqualTo (TnefOptions.DefaultMaxNestingDepth));
 		}
 	}
 }

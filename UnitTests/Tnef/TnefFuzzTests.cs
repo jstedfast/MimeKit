@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefFuzzTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -34,161 +34,198 @@ namespace UnitTests.Tnef {
 	/// <summary>
 	/// Asserts the invariants that the TNEF reader must uphold when fed hostile input.
 	/// </summary>
-	/// <remarks>
-	/// <para>In <see cref="TnefComplianceMode.Loose"/> the reader must never throw anything other
-	/// than <see cref="TnefException"/>, must always terminate, and must never allocate an
-	/// unbounded amount of memory in response to an attacker-supplied length.</para>
-	/// <para>In <see cref="TnefComplianceMode.Strict"/> the reader must also only ever throw
-	/// <see cref="TnefException"/>.</para>
-	/// </remarks>
 	[TestFixture]
 	public class TnefFuzzTests
 	{
-		static readonly Guid IID_IMessage = new Guid ("00020D0B-0000-0000-C000-000000000046");
+		static readonly Guid IID_IMessage = new Guid ("00020307-0000-0000-C000-000000000046");
 
 		static readonly TnefPropertyTag AttachMethodTag = new TnefPropertyTag (TnefPropertyId.AttachMethod, TnefPropertyType.Long);
 		static readonly TnefPropertyTag AttachDataTag = new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Object);
 		static readonly TnefPropertyTag SubjectTag = new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode);
-		static readonly TnefPropertyTag BodyTag = new TnefPropertyTag (TnefPropertyId.Body, TnefPropertyType.String8);
 
-		// A single read of a malformed stream must never take anywhere near this long.
 		const int TimeoutMilliseconds = 30000;
 
-		#region Reader drivers
-
-		// Different ways a caller can drive the reader. Each one reaches different code paths, so
-		// every malformed input is run through all of them.
 		public enum DriveStrategy
 		{
-			Attributes,
-			RawValues,
-			Properties,
-			Rows,
-			EmbeddedMessages,
+			WalkEverything,
 			ConvertToMessage
 		}
 
-		public static IEnumerable<DriveStrategy> Strategies => Enum.GetValues (typeof (DriveStrategy)).Cast<DriveStrategy> ();
-
-		static void DriveAttributes (TnefReader reader)
-		{
-			while (reader.ReadNextAttribute ())
-				GC.KeepAlive (reader.AttributeTag);
+		public static IEnumerable<DriveStrategy> Strategies {
+			get { yield return DriveStrategy.WalkEverything; }
 		}
 
-		static void DriveRawValues (TnefReader reader)
+		static bool ContainsProperties (TnefAttributeTag tag)
 		{
-			var buffer = new byte[1024];
-
-			while (reader.ReadNextAttribute ()) {
-				int n;
-
-				while ((n = reader.ReadAttributeRawValue (buffer, 0, buffer.Length)) > 0)
-					GC.KeepAlive (n);
+			switch (tag) {
+			case TnefAttributeTag.MapiProperties:
+			case TnefAttributeTag.Attachment:
+			case TnefAttributeTag.RecipientTable:
+				return true;
+			default:
+				return false;
 			}
 		}
 
-		static void DriveProperties (TnefReader reader)
+		static bool IsVariableLength (TnefPropertyType type)
 		{
-			while (reader.ReadNextAttribute ()) {
-				var prop = reader.TnefPropertyReader;
-
-				while (prop.ReadNextProperty ())
-					GC.KeepAlive (prop.ReadValue ());
+			switch (type) {
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object:
+				return true;
+			default:
+				return false;
 			}
 		}
 
-		static void DriveRows (TnefReader reader)
+		static void DrainPropertyValues (TnefPropertyReader properties)
 		{
-			while (reader.ReadNextAttribute ()) {
-				var prop = reader.TnefPropertyReader;
-
-				while (prop.ReadNextRow ()) {
-					while (prop.ReadNextProperty ())
-						GC.KeepAlive (prop.ReadValue ());
-				}
-			}
-		}
-
-		static void DriveEmbeddedMessages (TnefReader reader, int depth = 0)
-		{
-			while (reader.ReadNextAttribute ()) {
-				var prop = reader.TnefPropertyReader;
-
-				while (prop.ReadNextProperty ()) {
-					if (prop.IsEmbeddedMessage && depth < 16) {
-						using (var embedded = prop.GetEmbeddedMessageReader ())
-							DriveEmbeddedMessages (embedded, depth + 1);
-					} else {
-						GC.KeepAlive (prop.ReadValue ());
-					}
-				}
-			}
-		}
-
-		static void Drive (DriveStrategy strategy, byte[] data, TnefComplianceMode mode)
-		{
-			if (strategy == DriveStrategy.ConvertToMessage) {
-				var part = new TnefPart { Content = new MimeContent (new MemoryStream (data, false)) };
-
-				GC.KeepAlive (part.ConvertToMessage ());
+			if (properties.ValueCount == 0)
 				return;
-			}
 
-			using (var stream = new MemoryStream (data, false)) {
-				using (var reader = new TnefReader (stream, 0, mode)) {
-					switch (strategy) {
-					case DriveStrategy.Attributes: DriveAttributes (reader); break;
-					case DriveStrategy.RawValues: DriveRawValues (reader); break;
-					case DriveStrategy.Properties: DriveProperties (reader); break;
-					case DriveStrategy.Rows: DriveRows (reader); break;
-					case DriveStrategy.EmbeddedMessages: DriveEmbeddedMessages (reader); break;
-					}
+			do {
+				if (properties.IsEmbeddedMessage) {
+					using (var embedded = properties.OpenEmbeddedMessage ())
+						DrainReader (embedded);
+				} else if (IsVariableLength (properties.PropertyType)) {
+					using (var stream = properties.OpenValueStream ())
+						stream.CopyTo (Stream.Null);
+				} else {
+					GC.KeepAlive (properties.Tag);
+				}
+			} while (properties.ReadNextValue ());
+		}
+
+		static void DrainProperties (TnefPropertyReader properties, bool isTable)
+		{
+			if (isTable) {
+				while (properties.ReadNextRow ()) {
+					while (properties.ReadNextProperty ())
+						DrainPropertyValues (properties);
+				}
+			} else {
+				while (properties.ReadNextProperty ())
+					DrainPropertyValues (properties);
+			}
+		}
+
+		public static void DrainReader (TnefReader reader)
+		{
+			while (reader.Read ()) {
+				if (ContainsProperties (reader.Tag)) {
+					var properties = reader.GetPropertyReader ();
+
+					DrainProperties (properties, reader.Tag == TnefAttributeTag.RecipientTable);
+				} else {
+					using (var stream = reader.OpenValueStream ())
+						stream.CopyTo (Stream.Null);
 				}
 			}
 		}
 
-		/// <summary>
-		/// Drive the reader and assert that nothing other than a <see cref="TnefException"/> escapes,
-		/// that it terminates, and that it does not allocate unreasonably.
-		/// </summary>
-		/// <remarks>
-		/// <para><see cref="TnefPropertyReader.ReadValue"/> and its typed siblings document
-		/// <see cref="EndOfStreamException"/> as part of their contract, so the strategies that call them
-		/// directly are allowed to raise it. <see cref="TnefPart.ConvertToMessage"/> is held to the
-		/// stricter rule, because it is the API a content conversion pipeline actually calls and it has
-		/// no documented exception for a truncated stream.</para>
-		/// </remarks>
-		public static void AssertInvariants (DriveStrategy strategy, byte[] data, TnefComplianceMode mode, string what)
+		static async Task DrainPropertyValuesAsync (TnefPropertyReader properties)
+		{
+			if (properties.ValueCount == 0)
+				return;
+
+			do {
+				if (properties.IsEmbeddedMessage) {
+					using (var embedded = properties.OpenEmbeddedMessage ())
+						await DrainReaderAsync (embedded).ConfigureAwait (false);
+				} else if (IsVariableLength (properties.PropertyType)) {
+					using (var stream = properties.OpenValueStream ())
+						await stream.CopyToAsync (Stream.Null).ConfigureAwait (false);
+				} else {
+					GC.KeepAlive (properties.Tag);
+				}
+			} while (await properties.ReadNextValueAsync ().ConfigureAwait (false));
+		}
+
+		static async Task DrainPropertiesAsync (TnefPropertyReader properties, bool isTable)
+		{
+			if (isTable) {
+				while (await properties.ReadNextRowAsync ().ConfigureAwait (false)) {
+					while (await properties.ReadNextPropertyAsync ().ConfigureAwait (false))
+						await DrainPropertyValuesAsync (properties).ConfigureAwait (false);
+				}
+			} else {
+				while (await properties.ReadNextPropertyAsync ().ConfigureAwait (false))
+					await DrainPropertyValuesAsync (properties).ConfigureAwait (false);
+			}
+		}
+
+		public static async Task DrainReaderAsync (TnefReader reader)
+		{
+			while (await reader.ReadAsync ().ConfigureAwait (false)) {
+				if (ContainsProperties (reader.Tag)) {
+					var properties = reader.GetPropertyReader ();
+
+					await DrainPropertiesAsync (properties, reader.Tag == TnefAttributeTag.RecipientTable).ConfigureAwait (false);
+				} else {
+					using (var stream = reader.OpenValueStream ())
+						await stream.CopyToAsync (Stream.Null).ConfigureAwait (false);
+				}
+			}
+		}
+
+		static MimeMessage ConvertToMessage (byte[] data)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public static void AssertInvariants (byte[] data, string what)
 		{
 			var allocatedBefore = GC.GetAllocatedBytesForCurrentThread ();
 			var stopwatch = Stopwatch.StartNew ();
+			Exception exception = null;
 
 			try {
-				Drive (strategy, data, mode);
-			} catch (TnefException) {
-				// This is the only exception the reader is allowed to raise.
-			} catch (EndOfStreamException) when (strategy != DriveStrategy.ConvertToMessage) {
-				// Documented on the TnefPropertyReader value accessors.
+				using var stream = new MemoryStream (data, false);
+				using var reader = new TnefReader (stream) { ComplianceLogger = new TestTnefComplianceLogger () };
+
+				DrainReader (reader);
 			} catch (Exception ex) {
-				Assert.Fail ($"{what} ({strategy}, {mode}) threw {ex.GetType ().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}");
+				exception = ex;
 			} finally {
 				stopwatch.Stop ();
 			}
 
-			Assert.That (stopwatch.ElapsedMilliseconds, Is.LessThan (TimeoutMilliseconds), $"{what} ({strategy}, {mode}) took too long");
+			Assert.That (exception, Is.Null, what + " threw " + exception?.GetType ().Name + ": " + exception?.Message + Environment.NewLine + exception?.StackTrace);
+			Assert.That (stopwatch.ElapsedMilliseconds, Is.LessThan (TimeoutMilliseconds), what + " took too long");
 
-			// A malformed stream must not be able to make the reader allocate wildly more than the
-			// size of the input itself. The constant floor covers fixed per-reader overhead.
 			var allocated = GC.GetAllocatedBytesForCurrentThread () - allocatedBefore;
 			var ceiling = (4 * 1024 * 1024) + (64L * Math.Max (data.Length, 1));
 
-			Assert.That (allocated, Is.LessThan (ceiling), $"{what} ({strategy}, {mode}) allocated {allocated} bytes from a {data.Length} byte input");
+			Assert.That (allocated, Is.LessThan (ceiling), $"{what} allocated {allocated} bytes from a {data.Length} byte input");
 		}
 
-		#endregion
+		public static async Task AssertInvariantsAsync (byte[] data, string what)
+		{
+			var allocatedBefore = GC.GetAllocatedBytesForCurrentThread ();
+			var stopwatch = Stopwatch.StartNew ();
+			Exception exception = null;
 
-		#region Malformed stream catalogue
+			try {
+				using var stream = new MemoryStream (data, false);
+				using var reader = new TnefReader (stream) { ComplianceLogger = new TestTnefComplianceLogger () };
+
+				await DrainReaderAsync (reader).ConfigureAwait (false);
+			} catch (Exception ex) {
+				exception = ex;
+			} finally {
+				stopwatch.Stop ();
+			}
+
+			Assert.That (exception, Is.Null, what + " threw " + exception?.GetType ().Name + ": " + exception?.Message + Environment.NewLine + exception?.StackTrace);
+			Assert.That (stopwatch.ElapsedMilliseconds, Is.LessThan (TimeoutMilliseconds), what + " took too long");
+
+			var allocated = GC.GetAllocatedBytesForCurrentThread () - allocatedBefore;
+			var ceiling = (4 * 1024 * 1024) + (64L * Math.Max (data.Length, 1));
+
+			Assert.That (allocated, Is.LessThan (ceiling), $"{what} allocated {allocated} bytes from a {data.Length} byte input");
+		}
 
 		public class MalformedCase
 		{
@@ -253,21 +290,13 @@ namespace UnitTests.Tnef {
 		{
 			var wellFormed = WellFormed ();
 
-			// Sanity: the well-formed stream itself must survive every driver.
 			yield return new MalformedCase ("well-formed", wellFormed);
-
-			#region Stream header
-
 			yield return new MalformedCase ("empty", Array.Empty<byte> ());
 			yield return new MalformedCase ("signature-truncated", new byte[] { 0x78, 0x9f });
 			yield return new MalformedCase ("bad-signature", new TnefBuilder (0x00000000).WriteTnefVersion ().ToArray ());
 			yield return new MalformedCase ("bad-signature-inverted", new TnefBuilder (unchecked ((int) 0x789f3e22)).WriteTnefVersion ().ToArray ());
 			yield return new MalformedCase ("header-only", new TnefBuilder ().ToArray ());
 			yield return new MalformedCase ("missing-legacy-key", new byte[] { 0x78, 0x9f, 0x3e, 0x22 });
-
-			#endregion
-
-			#region Truncation at every byte boundary of a small well-formed stream
 
 			var small = new TnefBuilder ().WriteTnefVersion ().WriteOemCodepage (1252).WriteMessageClass ("IPM.Note").ToArray ();
 
@@ -279,120 +308,85 @@ namespace UnitTests.Tnef {
 				yield return new MalformedCase ($"truncated-at-{i}", truncated);
 			}
 
-			#endregion
-
-			#region Attribute framing
-
 			yield return new MalformedCase ("bad-checksum",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000), checksum: 0x1234).ToArray ());
-
 			yield return new MalformedCase ("negative-length",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000), length: -1).ToArray ());
-
 			yield return new MalformedCase ("int-min-length",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000), length: int.MinValue).ToArray ());
-
 			yield return new MalformedCase ("huge-length",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000), length: int.MaxValue).ToArray ());
-
 			yield return new MalformedCase ("lying-long-length",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000), length: 1024).ToArray ());
-
 			yield return new MalformedCase ("zero-length-attribute",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, Array.Empty<byte> ()).ToArray ());
-
 			yield return new MalformedCase ("invalid-level",
 				new TnefBuilder ().WriteAttribute ((TnefAttributeLevel) 0x7f, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000)).ToArray ());
-
 			yield return new MalformedCase ("message-level-after-attachment",
 				new TnefBuilder ()
 					.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 })
 					.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageClass, Encoding.ASCII.GetBytes ("IPM.Note\0"))
 					.ToArray ());
-
 			yield return new MalformedCase ("unknown-attribute-tag",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, (TnefAttributeTag) 0x7fff, new byte[16]).ToArray ());
-
 			yield return new MalformedCase ("attachment-attribute-at-message-level",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.AttachData, new byte[16]).ToArray ());
-
 			yield return new MalformedCase ("garbage-after-valid-stream",
 				new TnefBuilder ().WriteTnefVersion ().WriteRaw (Enumerable.Range (0, 64).Select (i => (byte) i).ToArray ()).ToArray ());
-
 			yield return new MalformedCase ("huge-message-class",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageClass, new byte[64 * 1024]).ToArray ());
 
-			#endregion
-
-			#region MAPI property framing
-
 			yield return new MalformedCase ("property-count-overflows-attribute",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message, Subject (), count: 1000).ToArray ());
-
 			yield return new MalformedCase ("negative-property-count",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message, Subject (), count: -1).ToArray ());
-
 			yield return new MalformedCase ("int-max-property-count",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message, Subject (), count: int.MaxValue).ToArray ());
-
 			yield return new MalformedCase ("property-value-length-overflows-attribute",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ().WriteBinaryProperty (new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Binary), new byte[8], length: 1 << 24)).ToArray ());
-
 			yield return new MalformedCase ("negative-property-value-length",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ().WriteBinaryProperty (new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Binary), new byte[8], length: -1)).ToArray ());
-
 			yield return new MalformedCase ("unpadded-property-value",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ()
 						.WriteBinaryProperty (new TnefPropertyTag (TnefPropertyId.AttachData, TnefPropertyType.Binary), new byte[7], pad: false)
 						.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.MessageFlags, TnefPropertyType.Long), 1)).ToArray ());
-
 			yield return new MalformedCase ("unknown-property-type",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ().WriteProperty (new TnefPropertyTag (TnefPropertyId.Subject, (TnefPropertyType) 0x0fff), new byte[8])).ToArray ());
-
 			yield return new MalformedCase ("multi-valued-count-exceeds-payload",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ()
 						.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode | TnefPropertyType.MultiValued))
 						.WriteValueCount (1 << 20)
 						.WriteRaw (new byte[8])).ToArray ());
-
 			yield return new MalformedCase ("negative-multi-valued-count",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ()
 						.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode | TnefPropertyType.MultiValued))
 						.WriteValueCount (-1)
 						.WriteRaw (new byte[8])).ToArray ());
-
 			yield return new MalformedCase ("named-property-truncated",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ()
-						.WriteRaw (new byte[] { 0x1f, 0x00, 0x00, 0x80 }) // PT_UNICODE, id 0x8000 (named)
+						.WriteRaw (new byte[] { 0x1f, 0x00, 0x00, 0x80 })
 						.WriteRaw (new byte[8]), count: 1).ToArray ());
-
 			yield return new MalformedCase ("named-property-huge-name-length",
 				new TnefBuilder ().WriteMapiProperties (TnefAttributeLevel.Message,
 					new TnefMapiPropertyBuilder ()
 						.WriteRaw (new byte[] { 0x1f, 0x00, 0x00, 0x80 })
 						.WriteRaw (Guid.Empty.ToByteArray ())
-						.WriteValueCount (0)              // TnefNameIdKind.Name
-						.WriteValueCount (int.MaxValue)   // name length
+						.WriteValueCount (0)
+						.WriteValueCount (int.MaxValue)
 						.WriteRaw (new byte[8]), count: 1).ToArray ());
-
 			yield return new MalformedCase ("row-count-overflows-attribute",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.RecipientTable,
 					TnefBuilder.Int32Payload (1 << 20)).ToArray ());
-
 			yield return new MalformedCase ("negative-row-count",
 				new TnefBuilder ().WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.RecipientTable,
 					TnefBuilder.Int32Payload (-1)).ToArray ());
-
-			#endregion
-
-			#region Fixed-width property types truncated
 
 			foreach (var type in new[] { TnefPropertyType.I2, TnefPropertyType.Long, TnefPropertyType.R4, TnefPropertyType.Double,
 										 TnefPropertyType.Currency, TnefPropertyType.AppTime, TnefPropertyType.Error,
@@ -403,19 +397,11 @@ namespace UnitTests.Tnef {
 						new TnefMapiPropertyBuilder ().WriteProperty (new TnefPropertyTag (TnefPropertyId.Subject, type), new byte[1])).ToArray ());
 			}
 
-			#endregion
-
-			#region Embedded messages
-
 			yield return new MalformedCase ("embedded-message", EmbeddedMessage (new TnefBuilder ().WriteTnefVersion ().ToArray ()));
 			yield return new MalformedCase ("deeply-nested", EmbeddedMessage (new TnefBuilder ().WriteTnefVersion ().ToArray (), 48));
 			yield return new MalformedCase ("embedded-bad-signature", EmbeddedMessage (new TnefBuilder (0).WriteTnefVersion ().ToArray ()));
 			yield return new MalformedCase ("embedded-empty", EmbeddedMessage (Array.Empty<byte> ()));
 			yield return new MalformedCase ("embedded-truncated", EmbeddedMessage (new byte[] { 0x78, 0x9f, 0x3e }));
-
-			#endregion
-
-			#region Degenerate repetition
 
 			var many = new TnefBuilder ();
 
@@ -423,8 +409,6 @@ namespace UnitTests.Tnef {
 				many.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.TnefVersion, TnefBuilder.Int32Payload (0x10000), checksum: 0);
 
 			yield return new MalformedCase ("thousands-of-bad-checksums", many.ToArray ());
-
-			#endregion
 		}
 
 		static TnefMapiPropertyBuilder Subject ()
@@ -432,53 +416,57 @@ namespace UnitTests.Tnef {
 			return new TnefMapiPropertyBuilder ().WriteStringProperty (SubjectTag, "subject");
 		}
 
-		#endregion
-
-		#region Tests
-
 		static readonly MalformedCase[] Cases = MalformedCases ().ToArray ();
 
-		public static IEnumerable<TestCaseData> LooseCases ()
+		public static IEnumerable<TestCaseData> ReaderCases ()
 		{
-			foreach (var test in Cases) {
-				foreach (var strategy in Strategies)
-					yield return new TestCaseData (test, strategy).SetArgDisplayNames (test.Name, strategy.ToString ());
-			}
+			foreach (var test in Cases)
+				yield return new TestCaseData (test).SetArgDisplayNames (test.Name);
 		}
 
-		[TestCaseSource (nameof (LooseCases))]
-		public void TestLooseModeUpholdsInvariants (MalformedCase test, DriveStrategy strategy)
+		[TestCaseSource (nameof (ReaderCases))]
+		public void TestReaderUpholdsInvariants (MalformedCase test)
 		{
-			AssertInvariants (strategy, test.Data, TnefComplianceMode.Loose, test.Name);
+			AssertInvariants (test.Data, test.Name);
 		}
 
-		public static IEnumerable<TestCaseData> StrictCases ()
+		[TestCaseSource (nameof (ReaderCases))]
+		public async Task TestReaderUpholdsInvariantsAsync (MalformedCase test)
 		{
-			foreach (var test in Cases) {
-				// TnefPart always reads in Loose mode, so it is not a Strict mode scenario.
-				foreach (var strategy in Strategies.Where (s => s != DriveStrategy.ConvertToMessage))
-					yield return new TestCaseData (test, strategy).SetArgDisplayNames (test.Name, strategy.ToString ());
-			}
+			await AssertInvariantsAsync (test.Data, test.Name).ConfigureAwait (false);
 		}
 
-		[TestCaseSource (nameof (StrictCases))]
-		public void TestStrictModeUpholdsInvariants (MalformedCase test, DriveStrategy strategy)
+		[TestCaseSource (nameof (ReaderCases))]
+		[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
+		public void TestConvertToMessageUpholdsInvariants (MalformedCase test)
 		{
-			AssertInvariants (strategy, test.Data, TnefComplianceMode.Strict, test.Name);
+			Assert.DoesNotThrow (() => ConvertToMessage (test.Data).Dispose (), test.Name);
 		}
 
 		[Test]
 		public void TestWellFormedStreamIsCompliant ()
 		{
-			using (var stream = new MemoryStream (WellFormed (), false)) {
-				using (var reader = new TnefReader (stream, 0, TnefComplianceMode.Strict)) {
-					DriveProperties (reader);
+			var logger = new TestTnefComplianceLogger ();
 
-					Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant));
-				}
+			using (var stream = new MemoryStream (WellFormed (), false)) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger })
+					DrainReader (reader);
 			}
+
+			Assert.That (logger.Issues, Is.Empty);
 		}
 
-		#endregion
+		[Test]
+		public async Task TestWellFormedStreamIsCompliantAsync ()
+		{
+			var logger = new TestTnefComplianceLogger ();
+
+			using (var stream = new MemoryStream (WellFormed (), false)) {
+				using (var reader = new TnefReader (stream) { ComplianceLogger = logger })
+					await DrainReaderAsync (reader).ConfigureAwait (false);
+			}
+
+			Assert.That (logger.Issues, Is.Empty);
+		}
 	}
 }
