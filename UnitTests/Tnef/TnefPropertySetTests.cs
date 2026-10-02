@@ -394,6 +394,10 @@ namespace UnitTests.Tnef {
 			Assert.That (reminder.TryGetInt32 (out var minutes) && minutes == 15, Is.True);
 			Assert.That (reminder.ToString (), Does.Contain ("15"));
 
+			Assert.That (set.TryGetValue (TnefNameId.Keywords, out _), Is.True, "TnefNameId.Keywords");
+			Assert.That (set.TryGetValue (TnefNameId.ReminderDelta, out _), Is.True, "TnefNameId.ReminderDelta");
+			Assert.That (set.TryGetValue (TnefNameId.ReminderTime, out _), Is.False, "TnefNameId.ReminderTime");
+
 			Assert.That (set.TryGetValue (new TnefNameId (guid, 0x8502), out _), Is.False);
 			Assert.That (set.TryGetValue (new TnefNameId (PublicStrings, "keywords"), out _), Is.False, "names are case-sensitive");
 		}
