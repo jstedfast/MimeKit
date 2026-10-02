@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
+
 using MimeKit;
 using MimeKit.Tnef;
 
@@ -379,5 +381,72 @@ namespace UnitTests.Tnef {
 			Assert.That (message.To.Mailboxes.First ().Address, Is.EqualTo ("valid@example.com"), "Address");
 			Assert.That (message.To.Mailboxes.First ().Name, Is.EqualTo ("Valid Recipient"), "Name");
 		}
+
+		static byte[] BuildTruncationTestStream (out HashSet<int> boundaries)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode), "The Subject");
+			properties.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.Importance, TnefPropertyType.Long), 2);
+			properties.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.Body, TnefPropertyType.Unicode), "The body of the message.");
+
+			var attachment = new TnefMapiPropertyBuilder ();
+
+			attachment.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.AttachLongFilename, TnefPropertyType.Unicode), "file.txt");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[14]);
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachData, Encoding.ASCII.GetBytes ("attachment content"));
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, attachment);
+
+			var complete = builder.ToArray ();
+
+			// TNEF has no end marker, so a stream that ends exactly between two attributes is indistinguishable
+			// from a complete stream. Only a cut that lands inside the header or inside an attribute is detectable.
+			boundaries = new HashSet<int> { complete.Length };
+
+			using (var reader = new TnefReader (new MemoryStream (complete, false), 0, TnefComplianceMode.Strict)) {
+				boundaries.Add ((int) reader.StreamOffset);
+
+				while (reader.ReadNextAttribute ())
+					boundaries.Add ((int) (reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength + 2));
+			}
+
+			return complete;
+		}
+
+		// A truncated stream must still convert, but it must not be reported as compliant: a pipeline needs to
+		// know that content may have been lost.
+		[Test]
+		public void TestTruncatedStreamsAreReportedAsTruncated ()
+		{
+			var complete = BuildTruncationTestStream (out var boundaries);
+			int checkedCount = 0;
+
+			for (int length = 0; length < complete.Length; length++) {
+				if (boundaries.Contains (length))
+					continue;
+
+				using var reader = new TnefReader (new MemoryStream (complete, 0, length, false), 0, TnefComplianceMode.Loose);
+				using var message = TnefPart.ExtractTnefMessage (reader);
+
+				Assert.That (reader.ComplianceStatus.HasFlag (TnefComplianceStatus.StreamTruncated), Is.True, $"truncated to {length}: {reader.ComplianceStatus}");
+				checkedCount++;
+			}
+
+			Assert.That (checkedCount, Is.GreaterThan (100), "too few truncation offsets were exercised");
+
+			using (var reader = new TnefReader (new MemoryStream (complete, false), 0, TnefComplianceMode.Loose)) {
+				using var message = TnefPart.ExtractTnefMessage (reader);
+
+				Assert.That (reader.ComplianceStatus, Is.EqualTo (TnefComplianceStatus.Compliant), "complete stream");
+			}
+		}
+
 	}
 }

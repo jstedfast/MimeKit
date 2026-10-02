@@ -743,16 +743,18 @@ namespace MimeKit.Tnef {
 						break;
 					}
 				} while (reader.ReadNextAttribute ());
-			} catch (EndOfStreamException) {
+			} catch (EndOfStreamException ex) {
 				// The stream was truncated in the middle of a value. Keep the attachments that were
-				// successfully extracted rather than failing the whole conversion.
+				// successfully extracted rather than failing the whole conversion, but record that
+				// content may have been lost.
+				reader.SetComplianceError (TnefComplianceStatus.StreamTruncated, ex);
 			} finally {
 				if (dispose)
 					attachment!.Dispose ();
 			}
 		}
 
-		static MimeMessage ExtractTnefMessage (TnefReader reader)
+		internal static MimeMessage ExtractTnefMessage (TnefReader reader)
 		{
 			var alternatives = new MultipartAlternative ();
 			var message = new MimeMessage ();
@@ -761,34 +763,38 @@ namespace MimeKit.Tnef {
 			try {
 				message.Headers.Remove (HeaderId.Date);
 
-				while (reader.ReadNextAttribute ()) {
-					if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
-						break;
+				try {
+					while (reader.ReadNextAttribute ()) {
+						if (reader.AttributeLevel == TnefAttributeLevel.Attachment)
+							break;
 
-					var prop = reader.TnefPropertyReader;
+						var prop = reader.TnefPropertyReader;
 
-					switch (reader.AttributeTag) {
-					case TnefAttributeTag.RecipientTable:
-						ExtractRecipientTable (reader, message);
-						break;
-					case TnefAttributeTag.MapiProperties:
-						ExtractMapiProperties (reader, message, alternatives);
-						break;
-					case TnefAttributeTag.DateSent:
-						message.Date = prop.ReadValueAsDateTime ();
-						break;
-					case TnefAttributeTag.Body:
-						var text = prop.ReadValueAsString ();
+						switch (reader.AttributeTag) {
+						case TnefAttributeTag.RecipientTable:
+							ExtractRecipientTable (reader, message);
+							break;
+						case TnefAttributeTag.MapiProperties:
+							ExtractMapiProperties (reader, message, alternatives);
+							break;
+						case TnefAttributeTag.DateSent:
+							message.Date = prop.ReadValueAsDateTime ();
+							break;
+						case TnefAttributeTag.Body:
+							var text = prop.ReadValueAsString ();
 
-						body = new TextPart ("plain") {
-							Text = text
-						};
-						break;
+							body = new TextPart ("plain") {
+								Text = text
+							};
+							break;
+						}
 					}
+				} catch (EndOfStreamException ex) {
+					// The stream was truncated in the middle of a value. Keep whatever was successfully
+					// extracted rather than failing the whole conversion, but record that content may
+					// have been lost. Note: in Strict mode this throws, which the outer catch cleans up.
+					reader.SetComplianceError (TnefComplianceStatus.StreamTruncated, ex);
 				}
-			} catch (EndOfStreamException) {
-				// The stream was truncated in the middle of a value. Keep whatever was successfully
-				// extracted rather than failing the whole conversion.
 			} catch {
 				alternatives.Dispose ();
 				message.Dispose ();
