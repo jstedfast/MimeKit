@@ -107,6 +107,7 @@ namespace MimeKit.Tnef {
 		long dataBytesRemaining;
 
 		ReaderState state;
+		bool started;
 		bool seenAttachmentLevel;
 		bool truncated;
 		bool disposed;
@@ -181,6 +182,36 @@ namespace MimeKit.Tnef {
 			skipIidPrefix = true;
 			leaveOpen = true;
 			ResetAttribute ();
+		}
+
+		// Creates a reader for a TNEF message that was embedded within the value of a MAPI property of some other
+		// TNEF stream that has already been read into memory (without the IID prefix). Unlike an embedded reader
+		// created by CreateEmbeddedReader, a detached reader has its own data budget.
+		TnefReader (Stream stream, TnefOptions options, int depth, long baseOffset, Encoding encoding, ITnefComplianceLogger? complianceLogger, int maxComplianceIssuesPerViolation)
+		{
+			dataBytesRemaining = options.MaxTotalDataBytes;
+			this.options = options;
+			this.baseOffset = baseOffset;
+			this.encoding = encoding;
+			this.stream = stream;
+			this.depth = depth;
+			codepage = encoding.CodePage;
+			userComplianceLogger = complianceLogger;
+			this.maxComplianceIssuesPerViolation = maxComplianceIssuesPerViolation;
+			UpdateComplianceLogger ();
+			leaveOpen = false;
+			root = this;
+			ResetAttribute ();
+
+			if (depth > options.MaxNestingDepth) {
+				Log (TnefComplianceViolation.NestingTooDeep, 0);
+				state = ReaderState.Done;
+			}
+		}
+
+		internal static TnefReader CreateDetached (Stream stream, TnefOptions options, int depth, long baseOffset, Encoding encoding, ITnefComplianceLogger? complianceLogger, int maxComplianceIssuesPerViolation)
+		{
+			return new TnefReader (stream, options, depth, baseOffset, encoding, complianceLogger, maxComplianceIssuesPerViolation);
 		}
 
 		/// <summary>
@@ -342,7 +373,7 @@ namespace MimeKit.Tnef {
 
 		// Whether the reader has been advanced (i.e. Read() or ReadAsync() has been called at least once).
 		internal bool HasStarted {
-			get { return state != ReaderState.Initial; }
+			get { return started; }
 		}
 
 		internal Encoding Encoding {
@@ -356,6 +387,11 @@ namespace MimeKit.Tnef {
 		// The current offset relative to the start of this reader's stream.
 		internal long LocalOffset {
 			get { return position - (inputEnd - inputIndex); }
+		}
+
+		// The offset of the current attribute's header, relative to the start of this reader's stream.
+		internal long AttributeOffset {
+			get { return attributeOffset; }
 		}
 
 		// The absolute offset of the current position within the outermost TNEF stream.
@@ -379,6 +415,11 @@ namespace MimeKit.Tnef {
 
 		internal int ValueGeneration {
 			get { return valueGeneration; }
+		}
+
+		// Whether the stream was found not to begin with the TNEF signature.
+		internal bool HasInvalidSignature {
+			get; private set;
 		}
 
 		internal bool IsTruncated {
@@ -468,6 +509,7 @@ namespace MimeKit.Tnef {
 			propertyReader = null;
 			claim = ValueClaim.None;
 			scalarLength = -1;
+			dateValue = default;
 			checksum = 0;
 		}
 
@@ -698,6 +740,13 @@ namespace MimeKit.Tnef {
 			return false;
 		}
 
+		// Returns bytes that were reserved by TryReserveValueBytes but never read (e.g. because the stream was truncated).
+		internal void ReleaseValueBytes (long count)
+		{
+			if (count > 0)
+				root.dataBytesRemaining += count;
+		}
+
 		// Reads the specified number of value bytes into chunks rented from the shared pool and then copies them
 		// into a single array of the exact size, so that a bogus length cannot force a huge allocation and so that
 		// no intermediate large-object-heap garbage is created while the array is grown.
@@ -807,6 +856,7 @@ namespace MimeKit.Tnef {
 				// Note: If the signature is wrong, then this is not a TNEF stream and so there is nothing
 				// meaningful left to read.
 				Log (TnefComplianceViolation.InvalidSignature, LocalOffset);
+				HasInvalidSignature = true;
 				return false;
 			}
 
@@ -902,7 +952,7 @@ namespace MimeKit.Tnef {
 		}
 
 		// Returns true if the specified attribute is allowed to appear at the attachment level.
-		static bool IsAttachmentLevelAttribute (TnefAttributeTag tag)
+		internal static bool IsAttachmentLevelAttribute (TnefAttributeTag tag)
 		{
 			switch (tag) {
 			case TnefAttributeTag.AttachCreateDate:
@@ -1089,6 +1139,7 @@ namespace MimeKit.Tnef {
 		{
 			CheckDisposed ();
 
+			started = true;
 			generation++;
 			valueGeneration++;
 			propertyReader = null;

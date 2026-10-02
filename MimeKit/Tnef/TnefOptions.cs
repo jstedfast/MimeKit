@@ -65,6 +65,14 @@ namespace MimeKit.Tnef {
 		public const long DefaultMaxTotalDataBytes = 64L * 1024 * 1024;
 
 		/// <summary>
+		/// The default maximum number of attachments that will be loaded for a single message.
+		/// </summary>
+		/// <remarks>
+		/// The default maximum number of attachments that will be loaded by <see cref="TnefMessage"/> for a single message.
+		/// </remarks>
+		public const int DefaultMaxAttachments = 1024;
+
+		/// <summary>
 		/// The default TNEF options.
 		/// </summary>
 		/// <remarks>
@@ -77,6 +85,7 @@ namespace MimeKit.Tnef {
 		int maxNestingDepth = DefaultMaxNestingDepth;
 		int maxPropertyValueLength = DefaultMaxPropertyValueLength;
 		long maxTotalDataBytes = DefaultMaxTotalDataBytes;
+		int maxAttachments = DefaultMaxAttachments;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TnefOptions"/> class.
@@ -149,7 +158,8 @@ namespace MimeKit.Tnef {
 		/// <see cref="TnefProperty"/> without any values.</para>
 		/// <para>The limit does not apply to values that are read using <see cref="TnefReader.OpenValueStream"/>,
 		/// <see cref="TnefPropertyReader.OpenValueStream"/> or <see cref="TnefPropertyReader.OpenEmbeddedMessage"/>,
-		/// since those values are not buffered in memory.</para>
+		/// since those values are not buffered in memory. It does apply to the message bodies and attachment content that
+		/// are buffered by <see cref="TnefMessage"/>.</para>
 		/// <para>The default limit is suitable for messages that are subject to the 25-35 MB message size limits that
 		/// are common for SMTP servers. Applications that accept larger messages should increase it.</para>
 		/// </remarks>
@@ -179,7 +189,8 @@ namespace MimeKit.Tnef {
 		/// reported for each additional string, binary or object value that would be read into memory and the value is
 		/// skipped as described for <see cref="MaxPropertyValueLength"/>. Fixed-width values are still read.</para>
 		/// <para>The limit does not apply to values that are read using <see cref="TnefReader.OpenValueStream"/>,
-		/// <see cref="TnefPropertyReader.OpenValueStream"/> or <see cref="TnefPropertyReader.OpenEmbeddedMessage"/>.</para>
+		/// <see cref="TnefPropertyReader.OpenValueStream"/> or <see cref="TnefPropertyReader.OpenEmbeddedMessage"/>, but
+		/// it does apply to the message bodies and attachment content that are buffered by <see cref="TnefMessage"/>.</para>
 		/// <para>The default limit is suitable for messages that are subject to the 25-35 MB message size limits that
 		/// are common for SMTP servers. Applications that accept larger messages should increase it.</para>
 		/// </remarks>
@@ -198,6 +209,29 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
+		/// Get or set the maximum number of attachments that will be loaded for a single message.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of attachments that <see cref="TnefMessage"/> will load for a single
+		/// message. Attachments of embedded messages are counted separately.</para>
+		/// <para>When the limit is exceeded, a <see cref="TnefComplianceViolation.TooManyAttachments"/> issue is reported
+		/// and any further attachments are skipped.</para>
+		/// </remarks>
+		/// <value>The maximum number of attachments. The default is <see cref="DefaultMaxAttachments"/>.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxAttachments {
+			get { return maxAttachments; }
+			set {
+				if (value < 0)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxAttachments = value;
+			}
+		}
+
+		/// <summary>
 		/// Clone an instance of <see cref="TnefOptions"/>.
 		/// </summary>
 		/// <remarks>
@@ -211,7 +245,8 @@ namespace MimeKit.Tnef {
 				defaultCodepage = defaultCodepage,
 				maxNestingDepth = maxNestingDepth,
 				maxPropertyValueLength = maxPropertyValueLength,
-				maxTotalDataBytes = maxTotalDataBytes
+				maxTotalDataBytes = maxTotalDataBytes,
+				maxAttachments = maxAttachments
 			};
 		}
 	}

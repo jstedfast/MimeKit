@@ -281,6 +281,14 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		// Whether the reader is positioned on a value.
+		internal bool HasValue {
+			get {
+				CheckGeneration ();
+				return hasValue;
+			}
+		}
+
 		bool IsEmbeddedMessageCore {
 			get {
 				if (!hasValue || tag.Id != TnefPropertyId.AttachData)
