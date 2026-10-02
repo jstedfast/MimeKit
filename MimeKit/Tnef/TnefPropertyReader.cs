@@ -690,7 +690,9 @@ namespace MimeKit.Tnef {
 		/// Advance to the next MAPI property.
 		/// </summary>
 		/// <remarks>
-		/// Advances to the next MAPI property.
+		/// <para>Advances to the next MAPI property.</para>
+		/// <para>A property that does not have at least one value is not reported, so when this method
+		/// returns <see langword="true" />, the value is always readable.</para>
 		/// </remarks>
 		/// <returns><see langword="true" /> if there is another property available to be read; otherwise, <see langword="false" />.</returns>
 		/// <exception cref="TnefException">
@@ -716,6 +718,12 @@ namespace MimeKit.Tnef {
 
 				LoadValueCount ();
 				propertyIndex++;
+
+				// If the property has no values, then there is nothing for the caller to read. Since the
+				// length of a value that does not exist is unknowable, we cannot reliably locate the next
+				// property either, so stop here.
+				if (valueCount == 0)
+					return false;
 
 				if (!TryGetPropertyValueLength (out rawValueLength))
 					return false;
@@ -1699,6 +1707,14 @@ namespace MimeKit.Tnef {
 				case TnefPropertyType.Binary:
 				case TnefPropertyType.Object:
 					valueCount = ReadValueCount ();
+
+					// A property that is not multi-valued must have exactly one value.
+					if (valueCount != 1) {
+						reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
+
+						if (valueCount > 1)
+							valueCount = 1;
+					}
 					break;
 				default:
 					valueCount = 1;
