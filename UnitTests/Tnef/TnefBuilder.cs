@@ -117,6 +117,16 @@ namespace UnitTests.Tnef {
 			};
 		}
 
+		/// <summary>
+		/// Append raw bytes directly to the stream, bypassing all framing.
+		/// </summary>
+		public TnefBuilder WriteRaw (byte[] bytes)
+		{
+			stream.Write (bytes, 0, bytes.Length);
+
+			return this;
+		}
+
 		public byte[] ToArray ()
 		{
 			return stream.ToArray ();
@@ -225,15 +235,30 @@ namespace UnitTests.Tnef {
 		}
 
 		/// <summary>
-		/// Write a length-prefixed, 4-byte aligned value.
+		/// Write a length-prefixed value.
 		/// </summary>
-		public TnefMapiPropertyBuilder WriteVariableLengthValue (byte[] value, int? length = null)
+		/// <param name="value">The value.</param>
+		/// <param name="length">An optional length to write instead of the true value length.</param>
+		/// <param name="pad">If <c>false</c>, omit the 4-byte alignment padding.</param>
+		public TnefMapiPropertyBuilder WriteVariableLengthValue (byte[] value, int? length = null, bool pad = true)
 		{
 			WriteInt32 (length ?? value.Length);
 			stream.Write (value, 0, value.Length);
 
-			for (int i = value.Length; (i % 4) != 0; i++)
-				stream.WriteByte (0);
+			if (pad) {
+				for (int i = value.Length; (i % 4) != 0; i++)
+					stream.WriteByte (0);
+			}
+
+			return this;
+		}
+
+		/// <summary>
+		/// Append raw bytes directly to the property payload, bypassing all framing.
+		/// </summary>
+		public TnefMapiPropertyBuilder WriteRaw (byte[] bytes)
+		{
+			stream.Write (bytes, 0, bytes.Length);
 
 			return this;
 		}
@@ -292,12 +317,12 @@ namespace UnitTests.Tnef {
 			return WriteVariableLengthValue (bytes);
 		}
 
-		public TnefMapiPropertyBuilder WriteBinaryProperty (TnefPropertyTag tag, byte[] value, int? length = null)
+		public TnefMapiPropertyBuilder WriteBinaryProperty (TnefPropertyTag tag, byte[] value, int? length = null, bool pad = true)
 		{
 			WritePropertyHeader (tag);
 			WriteInt32 (1);
 
-			return WriteVariableLengthValue (value, length);
+			return WriteVariableLengthValue (value, length, pad);
 		}
 
 		public TnefMapiPropertyBuilder WriteGuidProperty (TnefPropertyTag tag, Guid guid)
