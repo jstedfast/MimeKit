@@ -438,6 +438,25 @@ namespace MimeKit.Tnef {
 			return reader.ReadDouble ();
 		}
 
+		decimal ReadCurrency ()
+		{
+			// Note: [MS-OXCDATA] defines PtypCurrency as a 64-bit signed integer that has been
+			// scaled by 10000, giving it 4 digits to the right of the decimal point.
+			return decimal.FromOACurrency (ReadInt64 ());
+		}
+
+		long ReadCurrencyAsInt64 ()
+		{
+			// Note: scale in the integer domain so that the result truncates (and, for values
+			// beyond the range of the requested type, wraps) instead of throwing OverflowException.
+			return ReadInt64 () / 10000;
+		}
+
+		double ReadCurrencyAsDouble ()
+		{
+			return ReadInt64 () / 10000.0;
+		}
+
 		DateTime ReadAppTime ()
 		{
 			var appTime = ReadDouble ();
@@ -1000,7 +1019,7 @@ namespace MimeKit.Tnef {
 			switch (ValueTnefType) {
 			case TnefPropertyType.I2:       return typeof (short);
 			case TnefPropertyType.Boolean:  return typeof (bool);
-			case TnefPropertyType.Currency: return typeof (long);
+			case TnefPropertyType.Currency: return typeof (decimal);
 			case TnefPropertyType.I8:       return typeof (long);
 			case TnefPropertyType.Error:    return typeof (int);
 			case TnefPropertyType.Long:     return typeof (int);
@@ -1032,6 +1051,8 @@ namespace MimeKit.Tnef {
 				value = (ReadInt32 () & 0xFFFF) != 0;
 				break;
 			case TnefPropertyType.Currency:
+				value = ReadCurrency ();
+				break;
 			case TnefPropertyType.I8:
 				value = ReadInt64 ();
 				break;
@@ -1081,7 +1102,11 @@ namespace MimeKit.Tnef {
 		/// Read the value.
 		/// </summary>
 		/// <remarks>
-		/// Reads an attribute or property value as its native type.
+		/// <para>Reads an attribute or property value as its native type.</para>
+		/// <para>A <see cref="TnefPropertyType.Currency"/> value is returned as a
+		/// <see cref="System.Decimal"/> that has already been scaled by 1/10000, since
+		/// [MS-OXCDATA] defines PtypCurrency as a 64-bit signed integer with 4 digits to the
+		/// right of the decimal point.</para>
 		/// </remarks>
 		/// <returns>The value.</returns>
 		/// <exception cref="System.InvalidOperationException">
@@ -1251,6 +1276,8 @@ namespace MimeKit.Tnef {
 				value = ReadInt32 ();
 				break;
 			case TnefPropertyType.Currency:
+				value = ReadCurrencyAsDouble ();
+				break;
 			case TnefPropertyType.I8:
 				value = ReadInt64 ();
 				break;
@@ -1301,6 +1328,8 @@ namespace MimeKit.Tnef {
 				value = ReadInt32 ();
 				break;
 			case TnefPropertyType.Currency:
+				value = (float) ReadCurrencyAsDouble ();
+				break;
 			case TnefPropertyType.I8:
 				value = ReadInt64 ();
 				break;
@@ -1384,6 +1413,8 @@ namespace MimeKit.Tnef {
 				value = (short) ReadInt32 ();
 				break;
 			case TnefPropertyType.Currency:
+				value = (short) ReadCurrencyAsInt64 ();
+				break;
 			case TnefPropertyType.I8:
 				value = (short) ReadInt64 ();
 				break;
@@ -1434,6 +1465,8 @@ namespace MimeKit.Tnef {
 				value = ReadInt32 ();
 				break;
 			case TnefPropertyType.Currency:
+				value = (int) ReadCurrencyAsInt64 ();
+				break;
 			case TnefPropertyType.I8:
 				value = (int) ReadInt64 ();
 				break;
@@ -1484,6 +1517,8 @@ namespace MimeKit.Tnef {
 				value = ReadInt32 ();
 				break;
 			case TnefPropertyType.Currency:
+				value = ReadCurrencyAsInt64 ();
+				break;
 			case TnefPropertyType.I8:
 				value = ReadInt64 ();
 				break;

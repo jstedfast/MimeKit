@@ -35,6 +35,7 @@ namespace UnitTests.Tnef {
 		static readonly TnefPropertyTag DoubleTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Double);
 		static readonly TnefPropertyTag FloatTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.R4);
 		static readonly TnefPropertyTag SysTimeTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.SysTime);
+		static readonly TnefPropertyTag CurrencyTag = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Currency);
 
 		/// <summary>
 		/// Build a TNEF stream containing a single message-level MAPI property with the specified
@@ -382,6 +383,67 @@ namespace UnitTests.Tnef {
 			AssertNotReadableAs (TnefAttributeTag.Owner, payload, prop => prop.ReadValueAsBoolean (), "Boolean");
 			AssertNotReadableAs (TnefAttributeTag.Owner, payload, prop => prop.ReadValueAsDateTime (), "DateTime");
 			AssertNotReadableAs (TnefAttributeTag.Owner, payload, prop => prop.ReadValueAsGuid (), "Guid");
+		}
+
+		/// <summary>
+		/// Invoke an accessor on a freshly read PT_CURRENCY property. A property value may only be
+		/// read once, so each accessor needs its own reader.
+		/// </summary>
+		static void WithCurrency (long rawValue, Action<TnefPropertyReader> action)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt64Property (CurrencyTag, rawValue);
+
+			using var reader = ReadSingleProperty (properties);
+
+			action (reader.TnefPropertyReader);
+		}
+
+		[Test]
+		public void TestReadCurrencyValue ()
+		{
+			// Note: PT_CURRENCY values are scaled by 10000, so 123456789 is 12345.6789.
+			const long raw = 123456789;
+
+			WithCurrency (raw, prop => Assert.That (prop.ValueType, Is.EqualTo (typeof (decimal)), "ValueType"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValue (), Is.EqualTo (12345.6789m), "ReadValue"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsDouble (), Is.EqualTo (12345.6789).Within (0.00001), "Double"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsFloat (), Is.EqualTo (12345.6789f).Within (0.01f), "Float"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsInt64 (), Is.EqualTo (12345), "Int64"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsInt32 (), Is.EqualTo (12345), "Int32"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsInt16 (), Is.EqualTo (12345), "Int16"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsBoolean (), Is.True, "Boolean"));
+		}
+
+		[Test]
+		public void TestReadNegativeCurrencyValue ()
+		{
+			const long raw = -25000;
+
+			WithCurrency (raw, prop => Assert.That (prop.ReadValue (), Is.EqualTo (-2.5m), "ReadValue"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsDouble (), Is.EqualTo (-2.5).Within (0.00001), "Double"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsInt32 (), Is.EqualTo (-2), "Int32"));
+			WithCurrency (raw, prop => Assert.That (prop.ReadValueAsBoolean (), Is.True, "Boolean"));
+		}
+
+		[Test]
+		public void TestReadZeroCurrencyValue ()
+		{
+			WithCurrency (0, prop => Assert.That (prop.ReadValue (), Is.EqualTo (0m), "ReadValue"));
+			WithCurrency (0, prop => Assert.That (prop.ReadValueAsBoolean (), Is.False, "Boolean"));
+		}
+
+		[Test]
+		public void TestReadHugeCurrencyValueDoesNotOverflow ()
+		{
+			// The integer accessors truncate rather than throwing, just like every other source type.
+			Assert.DoesNotThrow (() => WithCurrency (long.MaxValue, prop => prop.ReadValueAsInt16 ()), "Int16");
+			Assert.DoesNotThrow (() => WithCurrency (long.MaxValue, prop => prop.ReadValueAsInt32 ()), "Int32");
+			Assert.DoesNotThrow (() => WithCurrency (long.MinValue, prop => prop.ReadValueAsInt16 ()), "Int16 (min)");
+			Assert.DoesNotThrow (() => WithCurrency (long.MinValue, prop => prop.ReadValueAsInt32 ()), "Int32 (min)");
+
+			WithCurrency (long.MaxValue, prop => Assert.That (prop.ReadValueAsInt64 (), Is.EqualTo (long.MaxValue / 10000), "Int64"));
 		}
 	}
 }
