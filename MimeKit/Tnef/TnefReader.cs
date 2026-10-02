@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using System.Numerics;
 using System.Buffers.Binary;
 
 using MimeKit.Utils;
@@ -804,8 +805,36 @@ namespace MimeKit.Tnef {
 
 		void UpdateChecksum (byte[] buffer, int offset, int count)
 		{
-			for (int i = offset; i < offset + count; i++)
-				checksum = (checksum + buffer[i]) & 0xFFFF;
+			// Note: the checksum is the sum of the value bytes modulo 65536. Addition modulo
+			// 65536 is associative, so the sum can be accumulated at full width and masked
+			// once at the end instead of after every byte.
+			int end = offset + count;
+			long sum = checksum;
+			int i = offset;
+
+			if (Vector.IsHardwareAccelerated && count >= Vector<byte>.Count) {
+				// Note: each 32-bit lane accumulates at most 255 per iteration, so it would take
+				// more than 16 million iterations to overflow. The input buffer is far smaller.
+				var vsum = Vector<uint>.Zero;
+				int limit = end - Vector<byte>.Count;
+
+				while (i <= limit) {
+					Vector.Widen (new Vector<byte> (buffer, i), out Vector<ushort> low, out Vector<ushort> high);
+					Vector.Widen (low, out Vector<uint> a, out Vector<uint> b);
+					Vector.Widen (high, out Vector<uint> c, out Vector<uint> d);
+
+					vsum += a + b + c + d;
+					i += Vector<byte>.Count;
+				}
+
+				for (int lane = 0; lane < Vector<uint>.Count; lane++)
+					sum += vsum[lane];
+			}
+
+			while (i < end)
+				sum += buffer[i++];
+
+			checksum = (int) (sum & 0xFFFF);
 		}
 
 		/// <summary>
