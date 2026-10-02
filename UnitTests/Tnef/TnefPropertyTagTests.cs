@@ -104,5 +104,28 @@ namespace UnitTests.Tnef {
 
 			Assert.That (unicode, Is.EqualTo (TnefPropertyTag.NicknameW));
 		}
+
+		static void AssertPropertyTag (TnefPropertyTag tag, TnefPropertyId id, TnefPropertyType type, string name)
+		{
+			Assert.That (tag.Id, Is.EqualTo (id), $"{name}.Id");
+			Assert.That (tag.TnefType, Is.EqualTo (type), $"{name}.TnefType");
+		}
+
+		[Test]
+		public void TestSmtpAndExceptionPropertyTags ()
+		{
+			AssertPropertyTag (TnefPropertyTag.RecordKey, TnefPropertyId.RecordKey, TnefPropertyType.Binary, "RecordKey");
+			AssertPropertyTag (TnefPropertyTag.SenderSmtpAddressA, TnefPropertyId.SenderSmtpAddress, TnefPropertyType.String8, "SenderSmtpAddressA");
+			AssertPropertyTag (TnefPropertyTag.SenderSmtpAddressW, TnefPropertyId.SenderSmtpAddress, TnefPropertyType.Unicode, "SenderSmtpAddressW");
+			AssertPropertyTag (TnefPropertyTag.ExceptionStartTime, TnefPropertyId.ExceptionStartTime, TnefPropertyType.SysTime, "ExceptionStartTime");
+			AssertPropertyTag (TnefPropertyTag.ExceptionEndTime, TnefPropertyId.ExceptionEndTime, TnefPropertyType.SysTime, "ExceptionEndTime");
+
+			Assert.That ((int) TnefPropertyId.RecordKey, Is.EqualTo (0x0FF9), "PR_RECORD_KEY");
+			Assert.That ((int) TnefPropertyId.SenderSmtpAddress, Is.EqualTo (0x5D01), "PR_SENDER_SMTP_ADDRESS");
+			Assert.That ((int) TnefPropertyId.ExceptionStartTime, Is.EqualTo (0x7FFB), "PR_EXCEPTION_STARTTIME");
+			Assert.That ((int) TnefPropertyId.ExceptionEndTime, Is.EqualTo (0x7FFC), "PR_EXCEPTION_ENDTIME");
+
+			Assert.That (TnefPropertyTag.SenderSmtpAddressA.ToUnicode (), Is.EqualTo (TnefPropertyTag.SenderSmtpAddressW), "SenderSmtpAddressA.ToUnicode");
+		}
 	}
 }

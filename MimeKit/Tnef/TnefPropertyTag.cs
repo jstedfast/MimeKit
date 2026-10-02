@@ -1588,6 +1588,22 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag EntryId = new TnefPropertyTag (TnefPropertyId.EntryId, TnefPropertyType.Binary);
 
 		/// <summary>
+		/// The MAPI property PR_EXCEPTION_ENDTIME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_EXCEPTION_ENDTIME.
+		/// </remarks>
+		public static readonly TnefPropertyTag ExceptionEndTime = new TnefPropertyTag (TnefPropertyId.ExceptionEndTime, TnefPropertyType.SysTime);
+
+		/// <summary>
+		/// The MAPI property PR_EXCEPTION_STARTTIME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_EXCEPTION_STARTTIME.
+		/// </remarks>
+		public static readonly TnefPropertyTag ExceptionStartTime = new TnefPropertyTag (TnefPropertyId.ExceptionStartTime, TnefPropertyType.SysTime);
+
+		/// <summary>
 		/// The MAPI property PR_EXPAND_BEGIN_TIME.
 		/// </summary>
 		/// <remarks>
@@ -4421,6 +4437,14 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag RecipientType = new TnefPropertyTag (TnefPropertyId.RecipientType, TnefPropertyType.Long);
 
 		/// <summary>
+		/// The MAPI property PR_RECORD_KEY.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECORD_KEY.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecordKey = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Binary);
+
+		/// <summary>
 		/// The MAPI property PR_REDIRECTION_HISTORY.
 		/// </summary>
 		/// <remarks>
@@ -4867,6 +4891,22 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_SENDER_SEARCH_KEY.
 		/// </remarks>
 		public static readonly TnefPropertyTag SenderSearchKey = new TnefPropertyTag (TnefPropertyId.SenderSearchKey, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </remarks>
+		public static readonly TnefPropertyTag SenderSmtpAddressA = new TnefPropertyTag (TnefPropertyId.SenderSmtpAddress, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </remarks>
+		public static readonly TnefPropertyTag SenderSmtpAddressW = new TnefPropertyTag (TnefPropertyId.SenderSmtpAddress, TnefPropertyType.Unicode);
 
 		/// <summary>
 		/// The MAPI property PR_SEND_INTERNET_ENCODING.
