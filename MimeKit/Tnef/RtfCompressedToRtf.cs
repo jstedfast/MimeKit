@@ -250,7 +250,10 @@ namespace MimeKit.Tnef {
 			outputLength = 0;
 			outputIndex = 0;
 
-			while (index < endIndex && state != FilterState.Complete) {
+			// Note: [MS-OXRTFCP] defines COMPSIZE as the length of the CONTENTS field plus 12, so stop once
+			// that many bytes have been consumed. Without this, data that follows the stream would be
+			// decompressed into the output and folded into the CRC.
+			while (index < endIndex && size < compressedSize && state != FilterState.Complete) {
 				byte value = input[index++];
 
 				crc32.Update (value);

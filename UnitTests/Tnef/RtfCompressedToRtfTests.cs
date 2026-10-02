@@ -221,6 +221,73 @@ namespace UnitTests.Tnef {
 			Assert.That (outputLength, Is.EqualTo (0), "outputLength");
 		}
 
+		static byte[] CompressedRtf (byte[] contents, int? compressedSize = null, int uncompressedSize = 0, int crc = 0)
+		{
+			var buffer = new byte[16 + contents.Length];
+
+			BinaryPrimitives.WriteInt32LittleEndian (buffer.AsSpan (0, 4), compressedSize ?? (contents.Length + 12));
+			BinaryPrimitives.WriteInt32LittleEndian (buffer.AsSpan (4, 4), uncompressedSize);
+			buffer[8] = (byte) 'L'; buffer[9] = (byte) 'Z'; buffer[10] = (byte) 'F'; buffer[11] = (byte) 'u';
+			BinaryPrimitives.WriteInt32LittleEndian (buffer.AsSpan (12, 4), crc);
+			contents.CopyTo (buffer.AsSpan (16));
+
+			return buffer;
+		}
+
+		// The CONTENTS field of the stream used by TestRtfCompressedToRtf (). The final 3 bytes are the
+		// control run that terminates the stream.
+		static readonly byte[] CompressedRtfContents = {
+			0x03, 0x00, (byte) '\n', 0x00, (byte) 'r', (byte) 'c', (byte) 'p', (byte) 'g', (byte) '1', (byte) '2',
+			(byte) '5', (byte) 'B', (byte) '2', (byte) '\n', 0xf3, (byte) ' ', (byte) 'h', (byte) 'e', (byte) 'l',
+			(byte) '\t', 0x00, (byte) ' ', (byte) 'b', (byte) 'w', 0x05, 0xb0, (byte) 'l', (byte) 'd', (byte) '}',
+			(byte) '\n', 0x80, 0x0f, 0xa0
+		};
+
+		[Test]
+		public void TestCompressedRtfStopsAtDeclaredCompressedSize ()
+		{
+			// [MS-OXRTFCP] defines COMPSIZE as the length of the CONTENTS field plus 12, so only the first
+			// 2 bytes of CONTENTS belong to this stream and the rest must not be decompressed.
+			var input = CompressedRtf (CompressedRtfContents, 12 + 2);
+			var filter = new RtfCompressedToRtf ();
+
+			filter.Flush (input, 0, input.Length, out _, out int outputLength);
+
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Compressed), "CompressionMode");
+			Assert.That (outputLength, Is.EqualTo (0), "outputLength");
+		}
+
+		[Test]
+		public void TestCompressedRtfIgnoresDataBeyondCompressedSize ()
+		{
+			// Drop the control run that terminates the stream so that only COMPSIZE can tell us where the
+			// CONTENTS field ends, then append data that is not part of the stream. The decompressed output
+			// and the CRC must both be unaffected by it.
+			var contents = new byte[CompressedRtfContents.Length - 3];
+			Buffer.BlockCopy (CompressedRtfContents, 0, contents, 0, contents.Length);
+
+			var expected = CompressedRtf (contents);
+			var trailing = new byte[expected.Length + 64];
+			Buffer.BlockCopy (expected, 0, trailing, 0, expected.Length);
+
+			for (int i = expected.Length; i < trailing.Length; i++)
+				trailing[i] = (byte) (i & 0xff);
+
+			var filter = new RtfCompressedToRtf ();
+			var output = filter.Flush (expected, 0, expected.Length, out int outputIndex, out int outputLength);
+			var expectedOutput = new byte[outputLength];
+			Buffer.BlockCopy (output, outputIndex, expectedOutput, 0, outputLength);
+			bool expectedCrc = filter.IsValidCrc32;
+
+			filter = new RtfCompressedToRtf ();
+			output = filter.Flush (trailing, 0, trailing.Length, out outputIndex, out outputLength);
+			var actualOutput = new byte[outputLength];
+			Buffer.BlockCopy (output, outputIndex, actualOutput, 0, outputLength);
+
+			Assert.That (actualOutput, Is.EqualTo (expectedOutput), "output");
+			Assert.That (filter.IsValidCrc32, Is.EqualTo (expectedCrc), "IsValidCrc32");
+		}
+
 		[Test]
 		public void TestRtfCompressedToRtfOverflowingUncompressedSize ()
 		{
