@@ -1,0 +1,17 @@
+message
+  From: 
+  Subject: RE: license file
+  Message-Id: <A58643BEDEF7D211BABB0008C75D853F0173A32E@fhpri01.compuware.com>
+  Date: 1999-11-17T20:28:44Z
+  To: "Simpson, Mark" <mark.simpson@numega.com>
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=1066 sha256=2f522487cfb7ad54cea360683d80bca7f6da39e8c1bfa9b723168aa7bca74695
+      text: {\\rtf1\\ansi\\ansicpg1252\\fromtext \\deff0{\\fonttbl\r\n{\\f0\\fswiss Arial;}\r\n{\\f1\\fmodern Courier New;}\r\n{\\f2\\fnil\\fcharset2 Symbol;}\r\n{\\f3\\fmodern\\fcharset0 Courier New;}}\r\n{\\colortbl\\red0\\green0\\blue0;\\red0\\green0\\blue255;}\r\n\\uc1\\pard\\plain\\deftab360 \\f0\\fs20\\...
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=allproductsmar2000.dat
+      Content-Disposition: attachment; creation-date=1999-09-13T15:52:09Z; modification-date=1999-11-17T20:33:34Z; filename=allproductsmar2000.dat; size=3855
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=279 sha256=de2ad5d4e20a2456ad12808dee82af2d0d1236ddf5bd55832581a7886cdcd807

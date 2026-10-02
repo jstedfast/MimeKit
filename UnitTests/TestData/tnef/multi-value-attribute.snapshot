@@ -1,0 +1,15 @@
+message
+  From: 
+  Subject: 
+  Message-Id: <a8de74d7-1e8a-4e2e-abd8-a311ea0cfb88@sv-ex13-prd2.infinera.com>
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=1796 sha256=1feaf9614a5da99b28dc0c6efc0f9ade9d7a07433ed79c8b47484577747de96a
+      text: {\\rtf1\\ansi\\ansicpg1252\\fromhtml1 \\fbidis \\deff0{\\fonttbl\r\n{\\f0\\fswiss Arial;}\r\n{\\f1\\fmodern Courier New;}\r\n{\\f2\\fnil\\fcharset2 Symbol;}\r\n{\\f3\\fmodern\\fcharset0 Courier New;}}\r\n{\\colortbl\\red0\\green0\\blue0;\\red0\\green0\\blue255;}\r\n\\uc1\\pard\\plain\\deftab360 ...
+    MimePart audio/mp3
+      Content-Type: audio/mp3; name=208225__5_seconds__Voice_Mail.mp3
+      Content-Disposition: attachment; modification-date=2014-07-11T18:07:44Z; filename=208225__5_seconds__Voice_Mail.mp3; size=10875
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=10656 sha256=cf2e3cd4175a3acd5cd193623cd8f79fda1c22f4823560213e561851c3fdd4e8

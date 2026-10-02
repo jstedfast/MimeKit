@@ -1,0 +1,31 @@
+message
+  From: 
+  Subject: Y2K problem with Add-DT
+  Message-Id: <41D7BC0B968CD111B6A100805FA774F503F2AAEB@itbne-msg01.incorrect.bhp.com.au>
+  Date: 2000-02-11T22:13:53Z
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=1367 sha256=507cd565d470dc9cb62d2205d818be0f35658a5b7e0052b557dab6f4b63de4ff
+      text: {\\rtf1\\ansi\\ansicpg1252\\fromtext\\deff0{\\fonttbl\r\n{\\f0\\fswiss Arial;}\r\n{\\f1\\fmodern Courier New;}\r\n{\\f2\\fnil\\fcharset2 Symbol;}\r\n{\\f3\\fmodern\\fcharset0 Courier New;}{\\f4\\fswiss\\fcharset0 Arial;}}\r\n{\\colortbl\\red0\\green0\\blue0;\\red0\\green0\\blue255;}\r\n\\uc1\\pa...
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=generpts.src
+      Content-Disposition: attachment; creation-date=2000-02-11T20:51:34Z; modification-date=2000-02-11T20:51:34Z; filename=generpts.src; size=64750
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=61210 sha256=69ebd0e9c298f62d1bcced07a66fce16c43f0e6e0228336e1a56d8df8874b3b9
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=TechlibDEC99.doc
+      Content-Disposition: attachment; creation-date=2000-02-11T22:13:44Z; modification-date=2000-02-11T22:13:44Z; filename=TechlibDEC99.doc; size=33856
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=33792 sha256=d1a592c2e3729270860ec3dcac357799e2667fa9859febd1b258c6ca3612f532
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=TechlibDEC99-JAN00.doc
+      Content-Disposition: attachment; creation-date=2000-02-11T22:13:46Z; modification-date=2000-02-11T22:13:46Z; filename=TechlibDEC99-JAN00.doc; size=34368
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=34304 sha256=360db5c11b1f21c60ffbf7aa040a91f48fdef402663c303cfeddd4ef4a3dc9cd
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=TechlibNOV99.doc
+      Content-Disposition: attachment; creation-date=2000-02-11T22:13:49Z; modification-date=2000-02-11T22:13:49Z; filename=TechlibNOV99.doc; size=33856
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=33792 sha256=b1e6b103cc5a9b759dd0a436d45bba131e69ca06a8b4c99d9beebf76d95cde93

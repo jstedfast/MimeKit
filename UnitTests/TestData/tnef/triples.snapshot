@@ -1,0 +1,15 @@
+message
+  From: Martin Rakhmanoff <rakhmanoff@sundance.spb.ru>
+  Subject: Sample Summary
+  Message-Id: (generated)
+  Date: 2003-05-23T21:26:17Z
+  MultipartAlternative multipart/alternative
+    Content-Type: multipart/alternative; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=247 sha256=8bbeaeb23fc3a13faaccd850e600d78aa01fce545f0ce9759c66a5a47867e29b
+      text: {\\rtf1\\ansi\\ansicpg1251\\deff0\\deflang1049{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}{\\f1\\fswiss\\fcharset204{\\*\\fname Arial;}Arial CYR;}}\r\n{\\*\\generator Riched20 5.40.11.2210;}\\viewkind4\\uc1\\pard\\lang1033\\f0\\fs20 Sample description\\lang1049\\f1\\par\r\n}\r\n\u0000
+    TextPart text/plain
+      Content-Type: text/plain; charset=utf-8
+      content: encoding=Default length=20 sha256=7bd083a2a0823481c6a6bd1109c2c4f54d8a8a324e4c33f39ab0558c1ec57a25
+      text: Sample description\r\n

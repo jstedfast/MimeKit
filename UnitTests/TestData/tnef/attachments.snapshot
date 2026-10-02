@@ -1,0 +1,20 @@
+message
+  From: JGERLAND@SYNACOR.COM
+  Subject: 
+  Message-Id: (generated)
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=443 sha256=5dcd1bdee036cc1c7639bca7f7e96355d80a18f9e366b3be672a3112019d4356
+      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\r\n{\\colortbl ;\\red255\\green0\\blue0;}\r\n{\\*\\generator Riched20 5.40.11.2210;}\\viewkind4\\uc1\\pard\\cf1\\f0\\fs20 Casdasdfasdfasd\\par\r\n\\pard Casdasdfasdfasd\\cf0\\par\r\n\\par\r\n\\pard\\par\r\n...
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=zappa_av1.jpg
+      Content-Disposition: attachment; modification-date=2003-04-07T14:35:38Z; filename=zappa_av1.jpg; size=6548
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=2937 sha256=bea844f30e0fcc20fad419a0d11032a6465da93c1da185a1196949955994409a
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=bookmark.htm
+      Content-Disposition: attachment; modification-date=2003-06-17T14:22:41Z; filename=bookmark.htm; size=85902
+      Content-Transfer-Encoding: base64
+      content: encoding=Default length=85805 sha256=1e08d6e23c75ff80ac992eebc24c2943c7843b7dfee235966b37de5eb4362599
