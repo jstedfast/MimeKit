@@ -129,14 +129,20 @@ namespace UnitTests.Tnef {
 				int n = (int) Math.Min (count, TotalLength - position);
 
 				// Note: the payloads are all zeros, so only the small framing regions need to be
-				// filled in byte by byte.
+				// filled in byte by byte. Skip that loop entirely whenever the requested range
+				// lies wholly within one of the payloads, which is the overwhelmingly common case.
 				Array.Clear (buffer, offset, n);
 
-				for (int i = 0; i < n; i++) {
-					long at = position + i;
+				bool inFirstPayload = position >= boundaries[1] && position + n <= boundaries[2];
+				bool inSecondPayload = position >= boundaries[4] && position + n <= boundaries[5];
 
-					if (at < boundaries[1] || (at >= boundaries[2] && at < boundaries[4]) || at >= boundaries[5])
-						buffer[offset + i] = ByteAt (at);
+				if (!inFirstPayload && !inSecondPayload) {
+					for (int i = 0; i < n; i++) {
+						long at = position + i;
+
+						if (at < boundaries[1] || (at >= boundaries[2] && at < boundaries[4]) || at >= boundaries[5])
+							buffer[offset + i] = ByteAt (at);
+					}
 				}
 
 				position += n;
