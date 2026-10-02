@@ -87,7 +87,8 @@ namespace MimeKit.Tnef {
 		/// </summary>
 		/// <remarks>
 		/// At least 12 bytes from the stream must be processed before this property value will
-		/// be accurate.
+		/// be accurate. Until then, and after a call to <see cref="Reset"/>, the compression mode
+		/// is <see cref="RtfCompressionMode.Unknown"/>.
 		/// </remarks>
 		/// <value>The compression mode.</value>
 		public RtfCompressionMode CompressionMode {
@@ -342,6 +343,8 @@ namespace MimeKit.Tnef {
 			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 			DictionaryInitializer.CopyTo (dict);
 			state = FilterState.CompressedSize;
+			CompressionMode = RtfCompressionMode.Unknown;
+			uncompressedSize = 0;
 			dictReadOffset = 0;
 			compressedSize = 0;
 			crc32.Reset ();

@@ -485,5 +485,48 @@ namespace UnitTests.Tnef {
 			Assert.That (actual, Is.EqualTo (builder.GetDecompressed ()), "decompressed");
 			Assert.That (filter.IsValidCrc32, Is.False, "IsValidCrc32");
 		}
+
+		[Test]
+		public void TestResetClearsTheCompressionMode ()
+		{
+			var builder = new RtfCompressedBuilder ();
+
+			builder.WriteLiterals (Encoding.ASCII.GetBytes ("{\\rtf1 test}"));
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+
+			Decompress (builder.ToArray (), filter);
+
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Compressed), "CompressionMode");
+
+			filter.Reset ();
+
+			// Until the COMPTYPE field of the next stream has been read, the compression mode is not known
+			// and must not still be reporting the mode of the previous stream.
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Unknown), "CompressionMode after Reset");
+		}
+
+		[Test]
+		public void TestFilterCanBeReusedAfterReset ()
+		{
+			var compressed = new RtfCompressedBuilder ();
+
+			compressed.WriteLiterals (Encoding.ASCII.GetBytes ("{\\rtf1 first}"));
+			compressed.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var first = Decompress (compressed.ToArray (), filter);
+
+			Assert.That (first, Is.EqualTo (compressed.GetDecompressed ()), "first");
+			Assert.That (filter.IsValidCrc32, Is.True, "first IsValidCrc32");
+
+			filter.Reset ();
+
+			var second = Decompress (UncompressedRtf (Encoding.ASCII.GetBytes ("{\\rtf1 second}")), filter);
+
+			Assert.That (Encoding.ASCII.GetString (second), Is.EqualTo ("{\\rtf1 second}"), "second");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Uncompressed), "second CompressionMode");
+		}
 	}
 }
