@@ -248,10 +248,12 @@ namespace MimeKit.Tnef {
 					}
 				}
 
-				if (list != null && !string.IsNullOrEmpty (addr)) {
-					var name = recipientDisplayName ?? transmitableDisplayName ?? displayName;
+				// Note: an address that came out of the TNEF stream may be anything at all, so drop the
+				// recipient if it cannot be parsed rather than failing the whole conversion.
+				if (list != null && !string.IsNullOrEmpty (addr) && MailboxAddress.TryParse (addr, out var mailbox)) {
+					mailbox.Name = recipientDisplayName ?? transmitableDisplayName ?? displayName;
 
-					list.Add (new MailboxAddress (name, addr));
+					list.Add (mailbox);
 				}
 			}
 		}

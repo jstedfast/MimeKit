@@ -339,5 +339,45 @@ namespace UnitTests.Tnef {
 			Assert.That (message.Subject, Is.EqualTo ("The Subject"), "Subject");
 			Assert.That (message.MessageId, Is.EqualTo ("id@example.com"), "MessageId");
 		}
+
+		// The recipient table carries attacker controlled strings, and MailboxAddress rejects an address
+		// it cannot parse. Converting a message has to drop an unparsable recipient rather than throwing.
+		[TestCase ("not an address")]
+		[TestCase ("@")]
+		[TestCase ("<")]
+		[TestCase ("a b c@example.com")]
+		[TestCase ("user@")]
+		[TestCase ("user@@example.com")]
+		[TestCase (" ")]
+		public void TestUnparsableRecipientAddressDoesNotThrow (string address)
+		{
+			var row = new TnefMapiPropertyBuilder ();
+
+			row.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.RecipientType, TnefPropertyType.Long), 1);
+			row.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.DisplayName, TnefPropertyType.Unicode), "Display Name");
+			row.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.SmtpAddress, TnefPropertyType.Unicode), address);
+
+			var valid = new TnefMapiPropertyBuilder ();
+
+			valid.WriteInt32Property (new TnefPropertyTag (TnefPropertyId.RecipientType, TnefPropertyType.Long), 1);
+			valid.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.DisplayName, TnefPropertyType.Unicode), "Valid Recipient");
+			valid.WriteStringProperty (new TnefPropertyTag (TnefPropertyId.SmtpAddress, TnefPropertyType.Unicode), "valid@example.com");
+
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+			builder.WriteOemCodepage (1252);
+			builder.WriteMessageClass ("IPM.Note");
+			builder.WriteRecipientTable (row, valid);
+
+			MimeMessage message = null;
+
+			Assert.DoesNotThrow (() => message = ConvertToMessage (builder), "ConvertToMessage");
+
+			// The unparsable recipient is dropped, but the valid one that follows it is not.
+			Assert.That (message.To.Mailboxes.Count (), Is.EqualTo (1), "To");
+			Assert.That (message.To.Mailboxes.First ().Address, Is.EqualTo ("valid@example.com"), "Address");
+			Assert.That (message.To.Mailboxes.First ().Name, Is.EqualTo ("Valid Recipient"), "Name");
+		}
 	}
 }
