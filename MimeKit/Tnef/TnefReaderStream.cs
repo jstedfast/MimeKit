@@ -36,7 +36,7 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	class TnefReaderStream : Stream
 	{
-		readonly int valueEndOffset, dataEndOffset;
+		readonly long valueEndOffset, dataEndOffset;
 		readonly TnefReader reader;
 		bool disposed;
 
@@ -49,7 +49,7 @@ namespace MimeKit.Tnef {
 		/// <param name="tnefReader">The <see cref="TnefReader"/>.</param>
 		/// <param name="dataEndOffset">The end offset of the data.</param>
 		/// <param name="valueEndOffset">The end offset of the container value.</param>
-		public TnefReaderStream (TnefReader tnefReader, int dataEndOffset, int valueEndOffset)
+		public TnefReaderStream (TnefReader tnefReader, long dataEndOffset, long valueEndOffset)
 		{
 			this.valueEndOffset = valueEndOffset;
 			this.dataEndOffset = dataEndOffset;
@@ -170,15 +170,17 @@ namespace MimeKit.Tnef {
 
 			CheckDisposed ();
 
-			int dataLeft = dataEndOffset - reader.StreamOffset;
-			int n = Math.Min (dataLeft, count);
+			long dataLeft = dataEndOffset - reader.StreamOffset;
+			int n = (int) Math.Min (dataLeft, count);
 
 			int nread = n > 0 ? reader.ReadAttributeRawValue (buffer, offset, n) : 0;
 
 			dataLeft -= nread;
 
 			if (dataLeft == 0 && valueEndOffset > reader.StreamOffset) {
-				int valueLeft = valueEndOffset - reader.StreamOffset;
+				// Note: the padding that aligns the end of the value on a 4-byte boundary is at
+				// most 3 bytes, so this allocation is always tiny.
+				int valueLeft = (int) Math.Min (valueEndOffset - reader.StreamOffset, int.MaxValue);
 				var buf = new byte[valueLeft];
 
 				reader.ReadAttributeRawValue (buf, 0, valueLeft);

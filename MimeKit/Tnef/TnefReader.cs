@@ -116,7 +116,7 @@ namespace MimeKit.Tnef {
 		/// Gets the stream offset of the current attribute's raw value.
 		/// </remarks>
 		/// <value>The stream offset of the current attribute's raw value.</value>
-		public int AttributeRawValueStreamOffset {
+		public long AttributeRawValueStreamOffset {
 			get; private set;
 		}
 
@@ -241,8 +241,8 @@ namespace MimeKit.Tnef {
 		/// Gets the current stream offset.
 		/// </remarks>
 		/// <value>The stream offset.</value>
-		public int StreamOffset {
-			get { return (int) (position - (inputEnd - inputIndex)); }
+		public long StreamOffset {
+			get { return position - (inputEnd - inputIndex); }
 		}
 
 		/// <summary>
@@ -695,17 +695,17 @@ namespace MimeKit.Tnef {
 			return result;
 		}
 
-		internal bool Skip (int count)
+		internal bool Skip (long count)
 		{
 			CheckDisposed ();
 
 			if (count <= 0)
 				return true;
 
-			int left = count;
+			long left = count;
 
 			do {
-				int n = Math.Min (inputEnd - inputIndex, left);
+				int n = (int) Math.Min (inputEnd - inputIndex, left);
 
 				UpdateChecksum (input, inputIndex, n);
 				inputIndex += n;
@@ -714,7 +714,7 @@ namespace MimeKit.Tnef {
 				if (left == 0)
 					break;
 
-				if (ReadAhead (left) == 0) {
+				if (ReadAhead ((int) Math.Min (left, int.MaxValue)) == 0) {
 					SetComplianceError (TnefComplianceStatus.StreamTruncated);
 					return false;
 				}
@@ -725,7 +725,7 @@ namespace MimeKit.Tnef {
 
 		bool SkipAttributeRawValue ()
 		{
-			int offset = AttributeRawValueStreamOffset + AttributeRawValueLength;
+			long offset = AttributeRawValueStreamOffset + AttributeRawValueLength;
 			int expected, actual;
 
 			if (!Skip (offset - StreamOffset))
@@ -848,15 +848,15 @@ namespace MimeKit.Tnef {
 
 			CheckDisposed ();
 
-			int dataEndOffset = AttributeRawValueStreamOffset + AttributeRawValueLength;
-			int dataLeft = dataEndOffset - StreamOffset;
+			long dataEndOffset = AttributeRawValueStreamOffset + AttributeRawValueLength;
+			long dataLeft = dataEndOffset - StreamOffset;
 
 			// Note: dataLeft can be negative if something has over-read the attribute value.
 			if (dataLeft <= 0)
 				return 0;
 
 			int inputLeft = inputEnd - inputIndex;
-			int n = Math.Min (dataLeft, count);
+			int n = (int) Math.Min (dataLeft, count);
 
 			if (n > inputLeft && inputLeft < ReadAheadSize) {
 				if ((n = Math.Min (ReadAhead (n), n)) == 0) {

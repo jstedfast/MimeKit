@@ -49,11 +49,11 @@ namespace MimeKit.Tnef {
 
 		TnefPropertyTag propertyTag;
 		readonly TnefReader reader;
-		int textValueEndOffset;
+		long textValueEndOffset;
 		Decoder? textDecoder;
 		TnefNameId propertyName;
-		int rawValueOffset;
 		int rawValueLength;
+		long rawValueOffset;
 		int propertyIndex;
 		int propertyCount;
 		int valueIndex;
@@ -199,7 +199,7 @@ namespace MimeKit.Tnef {
 		/// Gets the raw value stream offset.
 		/// </remarks>
 		/// <value>The raw value stream offset.</value>
-		public int RawValueStreamOffset {
+		public long RawValueStreamOffset {
 			get { return rawValueOffset; }
 		}
 
@@ -313,7 +313,7 @@ namespace MimeKit.Tnef {
 			if (valueIndex >= valueCount)
 				throw new InvalidOperationException ();
 
-			int startOffset = RawValueStreamOffset;
+			long startOffset = RawValueStreamOffset;
 			int length = RawValueLength;
 
 			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
@@ -331,8 +331,8 @@ namespace MimeKit.Tnef {
 
 			valueIndex++;
 
-			int valueEndOffset = startOffset + RawValueLength;
-			int dataEndOffset = startOffset + length;
+			long valueEndOffset = startOffset + RawValueLength;
+			long dataEndOffset = startOffset + length;
 
 			return new TnefReaderStream (reader, dataEndOffset, valueEndOffset);
 		}
@@ -340,8 +340,8 @@ namespace MimeKit.Tnef {
 		bool CheckRawValueLength ()
 		{
 			// Check that the length of the property value does not go beyond the end of the attribute value.
-			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
-			long valueEndOffset = (long) RawValueStreamOffset + RawValueLength;
+			long attrEndOffset = reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			long valueEndOffset = RawValueStreamOffset + RawValueLength;
 
 			if (valueEndOffset > attrEndOffset) {
 				reader.SetComplianceError (TnefComplianceStatus.AttributeOverflow);
@@ -368,7 +368,7 @@ namespace MimeKit.Tnef {
 			// Never allow our caller to request more than the number of bytes that actually remain in the current
 			// attribute. A corrupt or malicious length prefix could otherwise force an enormous allocation
 			// before any data is read, exhausting available memory.
-			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			long attrEndOffset = reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
 			long available = Math.Max (attrEndOffset - reader.StreamOffset, 0);
 
 			if (count > available) {
@@ -780,7 +780,7 @@ namespace MimeKit.Tnef {
 			if (valueIndex >= valueCount || propertyCount == 0)
 				return false;
 
-			int offset = RawValueStreamOffset + RawValueLength;
+			long offset = RawValueStreamOffset + RawValueLength;
 
 			if (reader.StreamOffset < offset && !reader.Skip (offset - reader.StreamOffset))
 				return false;
@@ -843,9 +843,9 @@ namespace MimeKit.Tnef {
 				}
 			}
 
-			int valueEndOffset = RawValueStreamOffset + RawValueLength;
-			int valueLeft = valueEndOffset - reader.StreamOffset;
-			int n = Math.Min (valueLeft, count);
+			long valueEndOffset = RawValueStreamOffset + RawValueLength;
+			long valueLeft = valueEndOffset - reader.StreamOffset;
+			int n = (int) Math.Min (valueLeft, count);
 
 			return n > 0 ? reader.ReadAttributeRawValue (buffer, offset, n) : 0;
 		}
@@ -918,7 +918,7 @@ namespace MimeKit.Tnef {
 			// Note: the length prefix of a variable-length property value is only consumed once,
 			// when the first chunk of the value is read.
 			if (reader.StreamOffset == RawValueStreamOffset) {
-				int valueEnd = RawValueStreamOffset + RawValueLength;
+				long valueEnd = RawValueStreamOffset + RawValueLength;
 
 				if (propertyCount > 0) {
 					switch (propertyTag.ValueTnefType) {
@@ -941,9 +941,9 @@ namespace MimeKit.Tnef {
 				textDecoder = encoding.GetDecoder ();
 			}
 
-			int valueEndOffset = textValueEndOffset;
-			int valueLeft = valueEndOffset - reader.StreamOffset;
-			int n = Math.Min (valueLeft, count);
+			long valueEndOffset = textValueEndOffset;
+			long valueLeft = valueEndOffset - reader.StreamOffset;
+			int n = (int) Math.Min (valueLeft, count);
 
 			if (n <= 0)
 				return 0;
@@ -1645,7 +1645,7 @@ namespace MimeKit.Tnef {
 
 		int GetBytesRemaining ()
 		{
-			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
+			long attrEndOffset = reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
 
 			return (int) Math.Max (attrEndOffset - reader.StreamOffset, 0);
 		}
