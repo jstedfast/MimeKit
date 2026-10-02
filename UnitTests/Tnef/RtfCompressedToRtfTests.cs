@@ -314,5 +314,176 @@ namespace UnitTests.Tnef {
 
 			Assert.That (allocated, Is.LessThan (16 * 1024 * 1024), "allocated");
 		}
+
+		static byte[] Decompress (byte[] input, RtfCompressedToRtf filter, int chunkSize = int.MaxValue)
+		{
+			using var memory = new MemoryStream ();
+			int index = 0;
+
+			while (index < input.Length) {
+				int n = Math.Min (chunkSize, input.Length - index);
+				var output = filter.Filter (input, index, n, out int outputIndex, out int outputLength);
+
+				memory.Write (output, outputIndex, outputLength);
+				index += n;
+			}
+
+			var flushed = filter.Flush (input, 0, 0, out int flushedIndex, out int flushedLength);
+
+			memory.Write (flushed, flushedIndex, flushedLength);
+
+			return memory.ToArray ();
+		}
+
+		[Test]
+		public void TestCompressedRtfRoundTripsLiterals ()
+		{
+			var builder = new RtfCompressedBuilder ();
+			var data = Encoding.ASCII.GetBytes ("{\\rtf1\\ansi hello, world}");
+
+			builder.WriteLiterals (data);
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (), filter);
+
+			Assert.That (actual, Is.EqualTo (builder.GetDecompressed ()), "decompressed");
+			Assert.That (actual, Is.EqualTo (data), "data");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Compressed), "CompressionMode");
+		}
+
+		[Test]
+		public void TestCompressedRtfDictionaryReferencesIntoTheInitializer ()
+		{
+			// The dictionary is pre-loaded with a 207 byte initializer, so a reference may be made before
+			// anything at all has been written to the dictionary.
+			var builder = new RtfCompressedBuilder ();
+
+			builder.WriteReference (0, 6);
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (), filter);
+
+			Assert.That (Encoding.ASCII.GetString (actual), Is.EqualTo ("{\\rtf1"), "decompressed");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+		}
+
+		[Test]
+		public void TestCompressedRtfDictionaryWritesWrapAtFourKilobytes ()
+		{
+			// Writing more than 4096 bytes must wrap the dictionary write offset rather than run off the
+			// end of the dictionary.
+			var random = new Random (42);
+			var data = new byte[10000];
+
+			for (int i = 0; i < data.Length; i++)
+				data[i] = (byte) (0x20 + random.Next (0x5F));
+
+			var builder = new RtfCompressedBuilder ();
+
+			builder.WriteLiterals (data);
+			builder.WriteEndOfStream ();
+
+			Assert.That (builder.DictionaryWriteOffset, Is.EqualTo ((207 + data.Length) % 4096), "DictionaryWriteOffset");
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (), filter);
+
+			Assert.That (actual, Is.EqualTo (data), "decompressed");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+		}
+
+		[Test]
+		public void TestCompressedRtfDictionaryReferenceWrapsAroundTheEnd ()
+		{
+			// A reference that starts near the end of the dictionary must wrap around to the beginning
+			// instead of reading past it.
+			var data = new byte[4096 - 207];
+
+			for (int i = 0; i < data.Length; i++)
+				data[i] = (byte) (0x41 + (i % 26));
+
+			var builder = new RtfCompressedBuilder ();
+
+			builder.WriteLiterals (data);
+
+			// The dictionary is now exactly full and the write offset has wrapped back to 0.
+			Assert.That (builder.DictionaryWriteOffset, Is.EqualTo (0), "DictionaryWriteOffset");
+
+			builder.WriteReference (4090, 17);
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (), filter);
+
+			Assert.That (actual, Is.EqualTo (builder.GetDecompressed ()), "decompressed");
+			Assert.That (actual.Length, Is.EqualTo (data.Length + 17), "length");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+		}
+
+		[Test]
+		public void TestCompressedRtfOverlappingDictionaryReference ()
+		{
+			// A reference is copied one byte at a time and each byte is written back to the dictionary as
+			// it goes, so a run may legitimately overlap the bytes it is producing.
+			var builder = new RtfCompressedBuilder ();
+			int offset = builder.DictionaryWriteOffset;
+
+			builder.WriteLiteral ((byte) 'a');
+			builder.WriteLiteral ((byte) 'b');
+			builder.WriteReference (offset, 10);
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (), filter);
+
+			Assert.That (actual, Is.EqualTo (builder.GetDecompressed ()), "decompressed");
+			Assert.That (Encoding.ASCII.GetString (actual), Is.EqualTo ("abababababab"), "text");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+		}
+
+		[TestCase (1)]
+		[TestCase (2)]
+		[TestCase (3)]
+		[TestCase (7)]
+		public void TestCompressedRtfRoundTripsWhenFedInSmallChunks (int chunkSize)
+		{
+			// Every part of the decompressor has to be resumable, including the 4 byte header fields and
+			// the 2 byte control tokens.
+			var random = new Random (17);
+			var data = new byte[5000];
+
+			for (int i = 0; i < data.Length; i++)
+				data[i] = (byte) (0x20 + random.Next (0x5F));
+
+			var builder = new RtfCompressedBuilder ();
+
+			builder.WriteLiterals (data);
+			builder.WriteReference (207, 17);
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (), filter, chunkSize);
+
+			Assert.That (actual, Is.EqualTo (builder.GetDecompressed ()), "decompressed");
+			Assert.That (filter.IsValidCrc32, Is.True, "IsValidCrc32");
+		}
+
+		[Test]
+		public void TestCompressedRtfWithIncorrectCrcIsInvalid ()
+		{
+			var builder = new RtfCompressedBuilder ();
+
+			builder.WriteLiterals (Encoding.ASCII.GetBytes ("{\\rtf1 test}"));
+			builder.WriteEndOfStream ();
+
+			var filter = new RtfCompressedToRtf ();
+			var actual = Decompress (builder.ToArray (crc: 0x12345678), filter);
+
+			Assert.That (actual, Is.EqualTo (builder.GetDecompressed ()), "decompressed");
+			Assert.That (filter.IsValidCrc32, Is.False, "IsValidCrc32");
+		}
 	}
 }
