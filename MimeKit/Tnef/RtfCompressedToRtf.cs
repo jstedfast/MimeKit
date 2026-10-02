@@ -98,7 +98,11 @@ namespace MimeKit.Tnef {
 		/// Get a value indicating whether the crc32 is valid.
 		/// </summary>
 		/// <remarks>
-		/// Until all data has been processed, this property will always return <see langword="false" />.
+		/// <para>Until all data has been processed, this property will always return <see langword="false" />.</para>
+		/// <para>Note: <a href="https://learn.microsoft.com/openspecs/exchange_server_protocols/ms-oxrtfcp/">[MS-OXRTFCP]</a>
+		/// only defines the CRC for <see cref="RtfCompressionMode.Compressed"/> streams; an
+		/// <see cref="RtfCompressionMode.Uncompressed"/> stream must set the CRC field to <c>0</c>, so no
+		/// checksum is computed over its content.</para>
 		/// </remarks>
 		/// <value><see langword="true" /> if the crc32 is valid; otherwise, <see langword="false" />.</value>
 		public bool IsValidCrc32 {
@@ -185,7 +189,11 @@ namespace MimeKit.Tnef {
 				}
 
 				state = FilterState.UncompressedSize;
-				compressedSize -= 12;
+
+				// Note: [MS-OXRTFCP] defines COMPSIZE as the length of the CONTENTS field plus 12 (the
+				// number of header bytes that follow it), so anything smaller is nonsensical and is
+				// treated as an empty CONTENTS field rather than allowed to go negative.
+				compressedSize = compressedSize >= 12 ? compressedSize - 12 : 0;
 			}
 
 			// read the uncompressed size if we haven't already...
@@ -223,9 +231,8 @@ namespace MimeKit.Tnef {
 			}
 
 			if (CompressionMode != RtfCompressionMode.Compressed) {
-				// the data is not compressed, just keep track of the CRC32 checksum
-				crc32.Update (input, index, endIndex - index);
-
+				// Note: [MS-OXRTFCP] requires the CRC field of an UNCOMPRESSED stream to be 0 and only
+				// defines a checksum over the content of a COMPRESSED stream, so do not accumulate one.
 				outputLength = Math.Max (Math.Min (endIndex - index, compressedSize - size), 0);
 				size += outputLength;
 				outputIndex = index;

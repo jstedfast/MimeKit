@@ -119,7 +119,7 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestRtfCompressedToRtfRaw ()
 		{
-			var input = new byte[] { (byte) '.', 0x00, 0x00, 0x00, (byte) '\"', 0x00, 0x00, 0x00, (byte) 'M', (byte) 'E', (byte) 'L', (byte) 'A', (byte) ' ', 0xdf, 0x12, 0xce, (byte) '{', (byte) '\\', (byte) 'r', (byte) 't', (byte) 'f', (byte) '1', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) 'c', (byte) 'p', (byte) 'g', (byte) '1', (byte) '2', (byte) '5', (byte) '2', (byte) '\\', (byte) 'p', (byte) 'a', (byte) 'r', (byte) 'd', (byte) ' ', (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '}' };
+			var input = new byte[] { (byte) '.', 0x00, 0x00, 0x00, (byte) '\"', 0x00, 0x00, 0x00, (byte) 'M', (byte) 'E', (byte) 'L', (byte) 'A', 0x00, 0x00, 0x00, 0x00, (byte) '{', (byte) '\\', (byte) 'r', (byte) 't', (byte) 'f', (byte) '1', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) 'c', (byte) 'p', (byte) 'g', (byte) '1', (byte) '2', (byte) '5', (byte) '2', (byte) '\\', (byte) 'p', (byte) 'a', (byte) 'r', (byte) 'd', (byte) ' ', (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '}' };
 			const string expected = "{\\rtf1\\ansi\\ansicpg1252\\pard test}";
 			var filter = new RtfCompressedToRtf ();
 			int outputIndex, outputLength;
@@ -140,7 +140,7 @@ namespace UnitTests.Tnef {
 		[Test]
 		public void TestRtfCompressedToRtfRawByteByByte ()
 		{
-			var input = new byte[] { (byte) '.', 0x00, 0x00, 0x00, (byte) '\"', 0x00, 0x00, 0x00, (byte) 'M', (byte) 'E', (byte) 'L', (byte) 'A', (byte) ' ', 0xdf, 0x12, 0xce, (byte) '{', (byte) '\\', (byte) 'r', (byte) 't', (byte) 'f', (byte) '1', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) 'c', (byte) 'p', (byte) 'g', (byte) '1', (byte) '2', (byte) '5', (byte) '2', (byte) '\\', (byte) 'p', (byte) 'a', (byte) 'r', (byte) 'd', (byte) ' ', (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '}' };
+			var input = new byte[] { (byte) '.', 0x00, 0x00, 0x00, (byte) '\"', 0x00, 0x00, 0x00, (byte) 'M', (byte) 'E', (byte) 'L', (byte) 'A', 0x00, 0x00, 0x00, 0x00, (byte) '{', (byte) '\\', (byte) 'r', (byte) 't', (byte) 'f', (byte) '1', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) '\\', (byte) 'a', (byte) 'n', (byte) 's', (byte) 'i', (byte) 'c', (byte) 'p', (byte) 'g', (byte) '1', (byte) '2', (byte) '5', (byte) '2', (byte) '\\', (byte) 'p', (byte) 'a', (byte) 'r', (byte) 'd', (byte) ' ', (byte) 't', (byte) 'e', (byte) 's', (byte) 't', (byte) '}' };
 			const string expected = "{\\rtf1\\ansi\\ansicpg1252\\pard test}";
 			var filter = new RtfCompressedToRtf ();
 			int outputIndex, outputLength;
@@ -176,6 +176,49 @@ namespace UnitTests.Tnef {
 			header[8] = (byte) 'L'; header[9] = (byte) 'Z'; header[10] = (byte) 'F'; header[11] = (byte) 'u';
 
 			return header;
+		}
+
+		static byte[] UncompressedRtf (byte[] rawData, int crc = 0, int? compressedSize = null)
+		{
+			var buffer = new byte[16 + rawData.Length];
+
+			BinaryPrimitives.WriteInt32LittleEndian (buffer.AsSpan (0, 4), compressedSize ?? (rawData.Length + 12));
+			BinaryPrimitives.WriteInt32LittleEndian (buffer.AsSpan (4, 4), rawData.Length);
+			buffer[8] = (byte) 'M'; buffer[9] = (byte) 'E'; buffer[10] = (byte) 'L'; buffer[11] = (byte) 'A';
+			BinaryPrimitives.WriteInt32LittleEndian (buffer.AsSpan (12, 4), crc);
+			rawData.CopyTo (buffer.AsSpan (16));
+
+			return buffer;
+		}
+
+		[Test]
+		public void TestUncompressedRtfWithNonZeroCrcIsInvalid ()
+		{
+			// [MS-OXRTFCP] requires the CRC field of an UNCOMPRESSED stream to be 0.
+			var input = UncompressedRtf (Encoding.ASCII.GetBytes ("{\\rtf1 test}"), 0x12345678);
+			var filter = new RtfCompressedToRtf ();
+
+			filter.Flush (input, 0, input.Length, out _, out _);
+
+			Assert.That (filter.CompressionMode, Is.EqualTo (RtfCompressionMode.Uncompressed), "CompressionMode");
+			Assert.That (filter.IsValidCrc32, Is.False, "IsValidCrc32");
+		}
+
+		[Test]
+		public void TestUndersizedCompressedSizeDoesNotThrow ()
+		{
+			// COMPSIZE is defined as the length of the CONTENTS field plus 12, so a value smaller than 12
+			// is nonsensical and must not drive the bookkeeping negative.
+			var input = UncompressedRtf (Encoding.ASCII.GetBytes ("{\\rtf1 test}"), 0, 3);
+			var filter = new RtfCompressedToRtf ();
+
+			byte[] output = null;
+			int outputIndex = 0, outputLength = 0;
+
+			Assert.DoesNotThrow (() => output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength));
+
+			Assert.That (output, Is.Not.Null, "output");
+			Assert.That (outputLength, Is.EqualTo (0), "outputLength");
 		}
 
 		[Test]
