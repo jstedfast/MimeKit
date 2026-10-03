@@ -1,5 +1,19 @@
 # Release Notes
 
+## MimeKit 5.0.0 (unreleased)
+
+* Redesigned the TNEF API (`MimeKit.Tnef`). This is a breaking change:
+  * `TnefReader` and `TnefPropertyReader` were rewritten against [MS-OXTNEF] and [MS-OXCDATA] with
+    bounded allocations, async equivalents and resilient recovery from corrupt or truncated streams.
+  * `TnefComplianceMode` and `TnefComplianceStatus` were replaced by `TnefOptions`, `ITnefComplianceLogger`
+    and `TnefComplianceViolation`. There is no longer a strict mode that throws on the first violation.
+  * Added a `TnefMessage` object model (`TnefAttachment`, `TnefRecipient`, `TnefMessageBody`,
+    `TnefPropertySet`) loaded via `TnefMessage.Load[Async] ()` or `TnefPart.LoadTnefMessage[Async] ()`.
+  * Replaced `TnefPart.ConvertToMessage ()` and `TnefPart.ExtractAttachments ()` with
+    `TnefMessage.ConvertToMime ()`, which follows [MS-OXCMAIL] (including `PidTagMimeSkeleton`,
+    `PS_INTERNET_HEADERS` and transport `Received` headers) and reports anything it could not
+    represent via `TnefConversionResult.Losses`.
+
 ## MimeKit 4.18.1 (2026-09-19)
 
 * Prevent integer overflows in TnefPropertyReader due to corrupt content.

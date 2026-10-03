@@ -288,13 +288,13 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		public void TestConvertToMessageWithOversizedLength ()
+		public void TestConvertToMimeWithOversizedLength ()
 		{
 			var tnef = CreateTnefStream (int.MaxValue);
 			var part = new TnefPart { Content = new MimeContent (new MemoryStream (tnef, false)) };
 
 			Assert.DoesNotThrow (() => {
-				using var message = ConvertToMessage (part);
+				using var message = ConvertToMime (part);
 				Assert.That (message, Is.Not.Null);
 			});
 		}
@@ -308,6 +308,6 @@ namespace UnitTests.Tnef {
 			Assert.DoesNotThrow (() => part.LoadTnefMessage ().Dispose ());
 		}
 
-		static MimeMessage ConvertToMessage (TnefPart part) => TnefConversionTestHelper.Convert (part);
+		static MimeMessage ConvertToMime (TnefPart part) => TnefConversionTestHelper.Convert (part);
 	}
 }

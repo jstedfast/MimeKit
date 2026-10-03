@@ -45,16 +45,6 @@ namespace UnitTests.Tnef {
 
 		const int TimeoutMilliseconds = 30000;
 
-		public enum DriveStrategy
-		{
-			WalkEverything,
-			ConvertToMessage
-		}
-
-		public static IEnumerable<DriveStrategy> Strategies {
-			get { yield return DriveStrategy.WalkEverything; }
-		}
-
 		static bool ContainsProperties (TnefAttributeTag tag)
 		{
 			switch (tag) {
@@ -170,7 +160,7 @@ namespace UnitTests.Tnef {
 			}
 		}
 
-		static MimeMessage ConvertToMessage (byte[] data)
+		static MimeMessage ConvertToMime (byte[] data)
 		{
 			return TnefConversionTestHelper.ConvertArbitrary (data);
 		}
@@ -437,9 +427,9 @@ namespace UnitTests.Tnef {
 		}
 
 		[TestCaseSource (nameof (ReaderCases))]
-		public void TestConvertToMessageUpholdsInvariants (MalformedCase test)
+		public void TestConvertToMimeUpholdsInvariants (MalformedCase test)
 		{
-			Assert.DoesNotThrow (() => ConvertToMessage (test.Data).Dispose (), test.Name);
+			Assert.DoesNotThrow (() => ConvertToMime (test.Data).Dispose (), test.Name);
 		}
 
 		[Test]

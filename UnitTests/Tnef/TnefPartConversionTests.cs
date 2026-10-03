@@ -33,21 +33,21 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefPartConversionTests
 	{
-		static MimeMessage ConvertToMessage (TnefBuilder builder)
+		static MimeMessage ConvertToMime (TnefBuilder builder)
 		{
 			var part = new TnefPart {
 				Content = new MimeContent (builder.ToStream ())
 			};
 
-			return ConvertToMessage (part);
+			return ConvertToMime (part);
 		}
 
-		static MimeMessage ConvertToMessage (TnefPart part)
+		static MimeMessage ConvertToMime (TnefPart part)
 		{
 			return TnefConversionTestHelper.Convert (part);
 		}
 
-		static MimeMessage ExtractTnefMessage (TnefReader reader)
+		static MimeMessage ConvertToMime (TnefReader reader)
 		{
 			return TnefConversionTestHelper.Convert (reader);
 		}
@@ -68,7 +68,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			var message = ConvertToMessage (builder);
+			var message = ConvertToMime (builder);
 
 			Assert.That (message.From.Mailboxes.Count (), Is.EqualTo (1), "From");
 			Assert.That (message.From.Mailboxes.First ().Address, Is.EqualTo ("sender@example.com"));
@@ -91,7 +91,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			var message = ConvertToMessage (builder);
+			var message = ConvertToMime (builder);
 
 			Assert.That (message.To.Mailboxes.Count (), Is.EqualTo (1), "To");
 			Assert.That (message.To.Mailboxes.First ().Address, Is.EqualTo ("recipient@example.com"));
@@ -113,7 +113,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			var message = ConvertToMessage (builder);
+			var message = ConvertToMime (builder);
 
 			Assert.That (message.From.Mailboxes.Count (), Is.EqualTo (0), "From");
 		}
@@ -134,7 +134,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			var message = ConvertToMessage (builder);
+			var message = ConvertToMime (builder);
 
 			Assert.That (message.From.Mailboxes.Count (), Is.EqualTo (1), "From");
 			Assert.That (message.From.Mailboxes.First ().Address, Is.EqualTo ("real@example.com"));
@@ -160,7 +160,7 @@ namespace UnitTests.Tnef {
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[14]);
 			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
 
-			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+			Assert.DoesNotThrow (() => ConvertToMime (builder));
 		}
 
 		[Test]
@@ -179,7 +179,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+			Assert.DoesNotThrow (() => ConvertToMime (builder));
 		}
 
 		[Test]
@@ -201,7 +201,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteRecipientTable (row);
 
-			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+			Assert.DoesNotThrow (() => ConvertToMime (builder));
 		}
 
 		[Test]
@@ -230,7 +230,7 @@ namespace UnitTests.Tnef {
 			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[14]);
 			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
 
-			Assert.DoesNotThrow (() => ConvertToMessage (builder));
+			Assert.DoesNotThrow (() => ConvertToMime (builder));
 		}
 
 		// A corrupt or hostile TNEF stream can carry anything at all in PidTagInternetMessageId, and
@@ -259,7 +259,7 @@ namespace UnitTests.Tnef {
 
 			MimeMessage message = null;
 
-			Assert.DoesNotThrow (() => message = ConvertToMessage (builder), "ConvertToMessage");
+			Assert.DoesNotThrow (() => message = ConvertToMime (builder), "ConvertToMime");
 
 			// The rest of the message still has to survive.
 			Assert.That (message.Subject, Is.EqualTo ("Subject"), "Subject");
@@ -279,7 +279,7 @@ namespace UnitTests.Tnef {
 			builder.WriteMessageClass ("IPM.Note");
 			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
 
-			var message = ConvertToMessage (builder);
+			var message = ConvertToMime (builder);
 
 			Assert.That (message.MessageId, Is.EqualTo ("valid.id@example.com"), "MessageId");
 		}
@@ -305,14 +305,14 @@ namespace UnitTests.Tnef {
 
 			MimeMessage message = null;
 
-			Assert.DoesNotThrow (() => message = ConvertToMessage (builder), "ConvertToMessage");
+			Assert.DoesNotThrow (() => message = ConvertToMime (builder), "ConvertToMime");
 
 			Assert.That (message.Subject, Is.EqualTo ("Subject"), "Subject");
 		}
 
-		// A TNEF stream that is cut short mid-value must not fail the whole conversion. ConvertToMessage ()
-		// is a best effort API with no documented exception for a truncated stream, so it has to return
-		// whatever was successfully extracted up to the point the bytes ran out.
+		// A TNEF stream that is cut short mid-value must not fail the whole conversion. LoadTnefMessage ()
+		// and ConvertToMime () are best effort APIs with no documented exception for a truncated stream,
+		// so they have to return whatever was successfully extracted up to the point the bytes ran out.
 		[Test]
 		public void TestTruncatedStreamsConvertWithoutThrowing ()
 		{
@@ -341,12 +341,12 @@ namespace UnitTests.Tnef {
 
 				using var part = new TnefPart { Content = new MimeContent (new MemoryStream (truncated, false)) };
 
-				Assert.DoesNotThrow (() => ConvertToMessage (part).Dispose (), $"truncated to {length}");
+				Assert.DoesNotThrow (() => ConvertToMime (part).Dispose (), $"truncated to {length}");
 			}
 
 			// And the untruncated stream still has to produce everything.
 			using var whole = new TnefPart { Content = new MimeContent (new MemoryStream (complete, false)) };
-			using var message = ConvertToMessage (whole);
+			using var message = ConvertToMime (whole);
 
 			Assert.That (message.Subject, Is.EqualTo ("The Subject"), "Subject");
 			Assert.That (message.MessageId, Is.EqualTo ("id@example.com"), "MessageId");
@@ -384,7 +384,7 @@ namespace UnitTests.Tnef {
 
 			MimeMessage message = null;
 
-			Assert.DoesNotThrow (() => message = ConvertToMessage (builder), "ConvertToMessage");
+			Assert.DoesNotThrow (() => message = ConvertToMime (builder), "ConvertToMime");
 
 			// The unparsable recipient is dropped, but the valid one that follows it is not.
 			Assert.That (message.To.Mailboxes.Count (), Is.EqualTo (1), "To");
@@ -443,7 +443,7 @@ namespace UnitTests.Tnef {
 
 				var logger = new TestTnefComplianceLogger ();
 				using var reader = new TnefReader (new MemoryStream (complete, 0, length, false)) { ComplianceLogger = logger };
-				using var message = ExtractTnefMessage (reader);
+				using var message = ConvertToMime (reader);
 
 				Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream), $"truncated to {length}");
 				checkedCount++;
@@ -454,7 +454,7 @@ namespace UnitTests.Tnef {
 			var completeLogger = new TestTnefComplianceLogger ();
 
 			using (var reader = new TnefReader (new MemoryStream (complete, false)) { ComplianceLogger = completeLogger }) {
-				using var message = ExtractTnefMessage (reader);
+				using var message = ConvertToMime (reader);
 
 				Assert.That (completeLogger.Issues, Is.Empty, "complete stream");
 			}

@@ -211,7 +211,7 @@ namespace UnitTests.Tnef {
 			return count;
 		}
 
-		static MimeMessage ConvertToMessage (byte[] data)
+		static MimeMessage ConvertToMime (byte[] data)
 		{
 			return TnefConversionTestHelper.ConvertArbitrary (data);
 		}
@@ -386,13 +386,13 @@ namespace UnitTests.Tnef {
 		}
 
 		[TestCaseSource (nameof (SeedCases))]
-		public void TestMutatedCorpusConvertToMessageUpholdsInvariants (string fileName)
+		public void TestMutatedCorpusConvertToMimeUpholdsInvariants (string fileName)
 		{
 			var seed = File.ReadAllBytes (Path.Combine (CorpusDirectory, fileName));
 			var random = CreateRandom (fileName, 0);
 			var data = Mutate (Mutator.BitFlip, seed, random);
 
-			Assert.DoesNotThrow (() => ConvertToMessage (data).Dispose (), fileName);
+			Assert.DoesNotThrow (() => ConvertToMime (data).Dispose (), fileName);
 		}
 
 		[Test]

@@ -271,14 +271,14 @@ namespace UnitTests.Tnef {
 
 		#region Conversion-level tests
 
-		static MimeMessage ConvertToMessage (string path)
+		static MimeMessage ConvertToMime (string path)
 		{
 			using var stream = File.OpenRead (path);
 
 			return TnefConversionTestHelper.Convert (stream);
 		}
 
-		static MimeMessage ConvertToMessage (TnefPart tnef)
+		static MimeMessage ConvertToMime (TnefPart tnef)
 		{
 			return TnefConversionTestHelper.Convert (tnef);
 		}
@@ -300,7 +300,7 @@ namespace UnitTests.Tnef {
 		static void TestTnefParser (string baseFileName)
 		{
 			var path = Path.Combine (CorpusDirectory, baseFileName);
-			using var message = ConvertToMessage (path + ".tnef");
+			using var message = ConvertToMime (path + ".tnef");
 			var tnefName = Path.GetFileName (path + ".tnef");
 			var names = File.ReadAllLines (path + ".list");
 			var attachments = message.BodyParts.ToList ();
@@ -512,7 +512,7 @@ namespace UnitTests.Tnef {
 			const string expected = "<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=koi8-r\">\r\n<style type=\"text/css\" style=\"display:none;\"><!-- P {margin-top:0;margin-bottom:0;} --></style>\r\n</head>\r\n<body dir=\"ltr\">\r\n<div id=\"divtagdefaultwrapper\" style=\"font-size:12pt;color:#000000;font-family:Calibri,Helvetica,sans-serif;\" dir=\"ltr\">\r\n<p>шостий</p>\r\n<p><br>\r\n</p>\r\n<p>{EMAILSIGNATURE}</p>\r\n<p><br>\r\n</p>\r\n<div id=\"Signature\"><br>\r\n<font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 10pt;\"><br>\r\n<font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 12pt;\"><b>RR Test 1</b></font>\r\n</font>\r\n<p><font color=\"#888888\" face=\"Arial, Helvetica, Helvetica, Geneva, Sans-Serif\" style=\"font-size: 10pt;\">&nbsp;</font></p>\r\n</div>\r\n</div>\r\n</body>\r\n</html>\r\n";
 			using var message = MimeMessage.Load (Path.Combine (CorpusDirectory, "ukr.eml"));
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
-			using var extracted = ConvertToMessage (tnef);
+			using var extracted = ConvertToMime (tnef);
 
 			Assert.That (extracted.Body, Is.InstanceOf<TextPart> ());
 
@@ -532,7 +532,7 @@ namespace UnitTests.Tnef {
 			using var message = MimeMessage.Load (Path.Combine (CorpusDirectory, "rich-text.eml"));
 			var tnef = message.BodyParts.OfType<TnefPart> ().FirstOrDefault ();
 			var mtime = new DateTimeOffset (2018, 12, 15, 10, 17, 38, TimeSpan.Zero);
-			using var extracted = ConvertToMessage (tnef);
+			using var extracted = ConvertToMime (tnef);
 
 			Assert.That (extracted.Subject, Is.Null, "Subject");
 			Assert.That (extracted.Date, Is.EqualTo (DateTimeOffset.MinValue), "Date");

@@ -28,6 +28,7 @@ using System.Text;
 
 using MimeKit;
 using MimeKit.Cryptography;
+using MimeKit.Tnef;
 
 namespace AotCompatibility {
     class Program
@@ -48,6 +49,16 @@ namespace AotCompatibility {
 
                 var path = Path.Combine (dir, "smime", "thunderbird-signed.txt");
                 var message = MimeMessage.Load (path);
+
+                path = Path.Combine (dir, "tnef", "attachments.tnef");
+
+                using (var stream = File.OpenRead (path)) {
+                    using var tnef = TnefMessage.Load (stream);
+                    using var result = tnef.ConvertToMime ();
+
+                    if (result.Message.Attachments.Count () == 0)
+                        throw new InvalidOperationException ("Expected the TNEF message to contain attachments.");
+                }
 
                 return 0;
             } catch (Exception ex) {

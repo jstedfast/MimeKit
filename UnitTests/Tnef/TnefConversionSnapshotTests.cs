@@ -74,10 +74,10 @@ namespace UnitTests.Tnef {
 				Content = new MimeContent (new MemoryStream (tnef, false))
 			};
 
-			return ConvertToMessage (part);
+			return ConvertToMime (part);
 		}
 
-		static MimeMessage ConvertToMessage (TnefPart part)
+		static MimeMessage ConvertToMime (TnefPart part)
 		{
 			return TnefConversionTestHelper.Convert (part);
 		}
