@@ -28,7 +28,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Buffers;
-using System.Numerics;
 using System.Threading;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -571,43 +570,7 @@ namespace MimeKit.Tnef {
 
 		void UpdateChecksum (byte[] buffer, int offset, int count)
 		{
-			// Note: the checksum is the sum of the value bytes modulo 65536. Addition modulo
-			// 65536 is associative, so the sum can be accumulated at full width and masked
-			// once at the end instead of after every byte.
-			int end = offset + count;
-			long sum = checksum;
-			int i = offset;
-
-			if (Vector.IsHardwareAccelerated && count >= Vector<byte>.Count) {
-				// Note: each 32-bit lane accumulates at most 4 * 255 per iteration, so the lanes are
-				// flushed into the 64-bit sum every BlockIterations iterations to rule out overflow no
-				// matter how large the buffer is.
-				const int BlockIterations = 1 << 20;
-				int limit = end - Vector<byte>.Count;
-
-				while (i <= limit) {
-					var vsum = Vector<uint>.Zero;
-					int n = 0;
-
-					while (i <= limit && n < BlockIterations) {
-						Vector.Widen (new Vector<byte> (buffer, i), out Vector<ushort> low, out Vector<ushort> high);
-						Vector.Widen (low, out Vector<uint> a, out Vector<uint> b);
-						Vector.Widen (high, out Vector<uint> c, out Vector<uint> d);
-
-						vsum += a + b + c + d;
-						i += Vector<byte>.Count;
-						n++;
-					}
-
-					for (int lane = 0; lane < Vector<uint>.Count; lane++)
-						sum += vsum[lane];
-				}
-			}
-
-			while (i < end)
-				sum += buffer[i++];
-
-			checksum = (int) (sum & 0xFFFF);
+			checksum = TnefChecksum.Update ((ushort) checksum, buffer, offset, count);
 		}
 
 		// Consumes the specified number of buffered value bytes, copying them into the destination buffer.
@@ -1454,6 +1417,11 @@ namespace MimeKit.Tnef {
 			case TnefAttributeType.Byte:
 				break;
 			default:
+				// Note: [MS-OXTNEF] defines attMessageClass and attOriginalMessageClass as atpWord, but their
+				// values are nul-terminated strings.
+				if (Tag == TnefAttributeTag.MessageClass || Tag == TnefAttributeTag.OriginalMessageClass)
+					break;
+
 				throw new InvalidOperationException (string.Format ("The {0} attribute cannot be read as a string.", Tag));
 			}
 		}

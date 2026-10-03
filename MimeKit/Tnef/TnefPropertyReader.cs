@@ -57,7 +57,7 @@ namespace MimeKit.Tnef {
 	public sealed partial class TnefPropertyReader
 	{
 		// {00020307-0000-0000-C000-000000000046}
-		static readonly Guid IID_IMessage = new Guid (0x00020307, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
+		internal static readonly Guid IID_IMessage = new Guid (0x00020307, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
 
 		// Note: Fixed-width values are decoded from this buffer. The largest fixed-width value is a 16-byte GUID.
 		readonly byte[] scratch = new byte[16];
@@ -390,7 +390,7 @@ namespace MimeKit.Tnef {
 		}
 
 		// Gets the width of a fixed-width value, -1 for a variable-length value, or -2 for an unsupported type.
-		static int GetFixedWidth (TnefPropertyType type)
+		internal static int GetFixedWidth (TnefPropertyType type)
 		{
 			switch (type) {
 			case TnefPropertyType.Null:

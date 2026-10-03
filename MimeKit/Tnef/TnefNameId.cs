@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Globalization;
 
 namespace MimeKit.Tnef {
 	/// <summary>
@@ -828,6 +829,24 @@ namespace MimeKit.Tnef {
 			guid = propertySetGuid;
 			this.name = name;
 			id = 0;
+		}
+
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="TnefNameId"/>.
+		/// </summary>
+		/// <remarks>
+		/// <para>Returns a <see cref="System.String"/> that represents the current <see cref="TnefNameId"/>.</para>
+		/// <para>The string consists of the property set GUID in braces, followed by a colon and either the
+		/// hexadecimal property id (for example, <c>{00062004-0000-0000-c000-000000000046}:0x8083</c>) or the
+		/// property name (for example, <c>{00020329-0000-0000-c000-000000000046}:Keywords</c>).</para>
+		/// </remarks>
+		/// <returns>A <see cref="System.String"/> that represents the current <see cref="TnefNameId"/>.</returns>
+		public override string ToString ()
+		{
+			if (kind == TnefNameIdKind.Id)
+				return guid.ToString ("B") + ":0x" + id.ToString ("X4", CultureInfo.InvariantCulture);
+
+			return guid.ToString ("B") + ":" + name;
 		}
 
 		/// <summary>

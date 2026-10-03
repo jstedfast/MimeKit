@@ -32,6 +32,7 @@ was nothing between it and `ConvertToMessage ()`, and can now use a higher level
 | called `TnefPart.ConvertToMessage ()` or `TnefPart.ExtractAttachments ()` | `TnefPart.LoadTnefMessage ()` + `TnefMessage.ConvertToMime ()` |
 | walked attributes to collect the subject, recipients, bodies or attachments | `TnefMessage` (`Properties`, `Recipients`, `TextBody`/`HtmlBody`/`RtfBody`, `Attachments`) |
 | needed attribute-level detail (offsets, checksums, unknown attributes, streaming) | `TnefReader` + `TnefPropertyReader` |
+| needed to produce TNEF (4.x could not) | `TnefWriter` + `TnefPropertyWriter` (see [Write a TNEF stream](#write-a-tnef-stream)) |
 
 `TnefMessage` buffers bodies and attachment content in memory, subject to the limits in `TnefOptions`.
 `TnefReader` streams and does not buffer.
@@ -635,6 +636,53 @@ using (var tnef = tnefPart.LoadTnefMessage (options)) {
 	// ...
 }
 ```
+
+### Write a TNEF stream
+
+4.x could only read TNEF. 5.0 adds `TnefWriter` (attributes) and `TnefPropertyWriter` (MAPI properties).
+The writer emits the signature, `attTnefVersion` and `attOemCodepage` itself, computes every length,
+count, checksum and padding, and throws `InvalidOperationException` when attributes are written out of
+the order required by [MS-OXTNEF] (message attributes, then `attMsgProps`, then for each attachment
+`attAttachRenderData` ... `attAttachment`).
+
+```csharp
+using (var output = File.Create ("winmail.dat"))
+using (var writer = new TnefWriter (output, 1252)) {
+	writer.WriteAttribute (TnefAttributeTag.MessageClass, "IPM.Note");
+
+	using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)) {
+		properties.WritePropertyTag (TnefPropertyTag.SubjectW);
+		properties.WriteValue ("Quarterly report");
+
+		properties.WritePropertyTag (TnefPropertyTag.RtfCompressed);
+		using (var rtf = properties.OpenRtfCompressedStream ())
+			rtf.Write (rtfBytes, 0, rtfBytes.Length);
+
+		// Named properties are assigned ids (0x8000 and up) by the writer.
+		properties.WritePropertyTag (new TnefNameId (TnefPropertySetGuid.PublicStrings, "Keywords"), TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
+		properties.WriteValue ("finance");
+		properties.WriteValue ("q3");
+	}
+
+	writer.WriteAttribute (TnefAttributeTag.AttachRenderData, renderData);
+
+	using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.Attachment)) {
+		properties.WritePropertyTag (TnefPropertyTag.AttachMethod);
+		properties.WriteValue ((int) TnefAttachMethod.ByValue);
+		properties.WritePropertyTag (TnefPropertyTag.AttachLongFilenameW);
+		properties.WriteValue ("report.pdf");
+		properties.WritePropertyTag (TnefPropertyTag.AttachDataBin);
+
+		using (var content = properties.OpenValueStream ())
+			pdfStream.CopyTo (content);
+	}
+}
+```
+
+Use `TnefPropertyWriter.OpenEmbeddedMessage ()` on an `Object` property (`PidTagAttachDataObject`) to write an
+embedded message, and `TnefPropertyWriter.WriteProperty (TnefProperty)` to copy a property from a
+`TnefMessage` or `TnefPropertySet` unchanged. `TnefWriter` has `WriteAttributeAsync` and `FlushAsync`;
+property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
 
 ## Porting checklist
 

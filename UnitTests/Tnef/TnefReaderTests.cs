@@ -365,6 +365,58 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestReadMessageClassAsString ()
+		{
+			using var stream = new MemoryStream ();
+
+			using (var writer = new TnefWriter (stream, leaveOpen: true)) {
+				writer.WriteAttribute (TnefAttributeTag.MessageClass, "IPM.Note");
+				writer.WriteAttribute (TnefAttributeTag.OriginalMessageClass, "IPM.Note.Original");
+			}
+
+			stream.Position = 0;
+
+			using var reader = new TnefReader (stream);
+
+			do {
+				Assert.That (reader.Read (), Is.True, "Read MessageClass");
+			} while (reader.Tag != TnefAttributeTag.MessageClass);
+
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.MessageClass), "MessageClass Tag");
+			Assert.That (reader.ReadValueAsString (), Is.EqualTo ("IPM.Note"), "MessageClass");
+
+			Assert.That (reader.Read (), Is.True, "Read OriginalMessageClass");
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.OriginalMessageClass), "OriginalMessageClass Tag");
+			Assert.That (reader.ReadValueAsString (), Is.EqualTo ("IPM.Note.Original"), "OriginalMessageClass");
+		}
+
+		[Test]
+		public async Task TestReadMessageClassAsStringAsync ()
+		{
+			using var stream = new MemoryStream ();
+
+			using (var writer = new TnefWriter (stream, leaveOpen: true)) {
+				await writer.WriteAttributeAsync (TnefAttributeTag.MessageClass, "IPM.Note");
+				await writer.WriteAttributeAsync (TnefAttributeTag.OriginalMessageClass, "IPM.Note.Original");
+			}
+
+			stream.Position = 0;
+
+			using var reader = new TnefReader (stream);
+
+			do {
+				Assert.That (await reader.ReadAsync (), Is.True, "Read MessageClass");
+			} while (reader.Tag != TnefAttributeTag.MessageClass);
+
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.MessageClass), "MessageClass Tag");
+			Assert.That (await reader.ReadValueAsStringAsync (), Is.EqualTo ("IPM.Note"), "MessageClass");
+
+			Assert.That (await reader.ReadAsync (), Is.True, "Read OriginalMessageClass");
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.OriginalMessageClass), "OriginalMessageClass Tag");
+			Assert.That (await reader.ReadValueAsStringAsync (), Is.EqualTo ("IPM.Note.Original"), "OriginalMessageClass");
+		}
+
+		[Test]
 		public void TestSecondVariableReadThrows ()
 		{
 			var builder = new TnefBuilder ();

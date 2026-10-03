@@ -1,4 +1,4 @@
-﻿//
+//
 // ArgumentExceptionTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -28,6 +28,7 @@ using System.Reflection;
 
 using MimeKit;
 using MimeKit.IO;
+using MimeKit.Tnef;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
@@ -487,6 +488,83 @@ namespace UnitTests {
 
 					AssertStreamArguments (stream);
 				}
+			}
+		}
+
+		[Test]
+		public void TestTnefWriterArguments ()
+		{
+			using var memory = new MemoryStream ();
+			ArgumentException ex;
+
+			ex = Assert.Throws<ArgumentNullException> (() => new TnefWriter (null));
+			Assert.That (ex.ParamName, Is.EqualTo ("stream"));
+			ex = Assert.Throws<ArgumentOutOfRangeException> (() => new TnefWriter (memory, -1));
+			Assert.That (ex.ParamName, Is.EqualTo ("codepage"));
+
+			using var writer = new TnefWriter (memory, 1252, 0, true);
+			var buffer = new byte[16];
+
+			ex = Assert.Throws<ArgumentNullException> (() => writer.WriteAttribute (TnefAttributeTag.Subject, (string) null));
+			Assert.That (ex.ParamName, Is.EqualTo ("value"));
+			ex = Assert.Throws<ArgumentNullException> (() => writer.WriteAttribute (TnefAttributeTag.AttachData, (byte[]) null));
+			Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
+			ex = Assert.Throws<ArgumentNullException> (() => writer.WriteAttribute (TnefAttributeTag.AttachData, null, 0, 0));
+			Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
+			ex = Assert.Throws<ArgumentOutOfRangeException> (() => writer.WriteAttribute (TnefAttributeTag.AttachData, buffer, -1, 0));
+			Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
+			ex = Assert.Throws<ArgumentOutOfRangeException> (() => writer.WriteAttribute (TnefAttributeTag.AttachData, buffer, 0, buffer.Length + 1));
+			Assert.That (ex.ParamName, Is.EqualTo ("length"));
+			ex = Assert.Throws<ArgumentException> (() => writer.WriteAttribute (TnefAttributeTag.Null, buffer));
+			Assert.That (ex.ParamName, Is.EqualTo ("tag"));
+			ex = Assert.Throws<ArgumentException> (() => writer.OpenAttributeStream (TnefAttributeTag.Null));
+			Assert.That (ex.ParamName, Is.EqualTo ("tag"));
+			ex = Assert.Throws<ArgumentException> (() => writer.OpenPropertyWriter (TnefAttributeTag.Subject));
+			Assert.That (ex.ParamName, Is.EqualTo ("tag"));
+
+			ex = Assert.ThrowsAsync<ArgumentNullException> (() => writer.WriteAttributeAsync (TnefAttributeTag.Subject, (string) null));
+			Assert.That (ex.ParamName, Is.EqualTo ("value"));
+			ex = Assert.ThrowsAsync<ArgumentNullException> (() => writer.WriteAttributeAsync (TnefAttributeTag.AttachData, (byte[]) null));
+			Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
+			ex = Assert.ThrowsAsync<ArgumentNullException> (() => writer.WriteAttributeAsync (TnefAttributeTag.AttachData, null, 0, 0));
+			Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
+			ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => writer.WriteAttributeAsync (TnefAttributeTag.AttachData, buffer, -1, 0));
+			Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
+			ex = Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => writer.WriteAttributeAsync (TnefAttributeTag.AttachData, buffer, 0, buffer.Length + 1));
+			Assert.That (ex.ParamName, Is.EqualTo ("length"));
+
+			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body))
+				AssertStreamArguments (stream);
+
+			using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)) {
+				ex = Assert.Throws<ArgumentException> (() => properties.WritePropertyTag (new TnefPropertyTag (TnefPropertyId.Body, TnefPropertyType.Unspecified)));
+				Assert.That (ex.ParamName, Is.EqualTo ("tag"));
+				ex = Assert.Throws<ArgumentException> (() => properties.WritePropertyTag (new TnefNameId (Guid.Empty, 1), TnefPropertyType.Unspecified));
+				Assert.That (ex.ParamName, Is.EqualTo ("type"));
+				ex = Assert.Throws<ArgumentException> (() => properties.WriteProperty (default));
+				Assert.That (ex.ParamName, Is.EqualTo ("property"));
+
+				properties.WritePropertyTag (TnefPropertyTag.SubjectW);
+				ex = Assert.Throws<ArgumentNullException> (() => properties.WriteValue ((string) null));
+				Assert.That (ex.ParamName, Is.EqualTo ("value"));
+
+				properties.WriteValue ("Subject");
+				properties.WritePropertyTag (new TnefPropertyTag (TnefPropertyId.Body, TnefPropertyType.Binary));
+				ex = Assert.Throws<ArgumentNullException> (() => properties.WriteValue ((byte[]) null));
+				Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
+				ex = Assert.Throws<ArgumentNullException> (() => properties.WriteValue (null, 0, 0));
+				Assert.That (ex.ParamName, Is.EqualTo ("buffer"));
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => properties.WriteValue (buffer, -1, 0));
+				Assert.That (ex.ParamName, Is.EqualTo ("startIndex"));
+				ex = Assert.Throws<ArgumentOutOfRangeException> (() => properties.WriteValue (buffer, 0, buffer.Length + 1));
+				Assert.That (ex.ParamName, Is.EqualTo ("length"));
+
+				using (var stream = properties.OpenValueStream ())
+					AssertStreamArguments (stream);
+
+				properties.WritePropertyTag (TnefPropertyTag.RtfCompressed);
+				using (var stream = properties.OpenRtfCompressedStream ())
+					AssertStreamArguments (stream);
 			}
 		}
 

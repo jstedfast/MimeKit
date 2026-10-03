@@ -89,5 +89,15 @@ namespace UnitTests.Tnef {
 			Assert.That (tnef1 == tnef2, Is.True, "==");
 			Assert.That (tnef1 != tnef2, Is.False, "!=");
 		}
+
+		[Test]
+		public void TestToString ()
+		{
+			var guid = new Guid ("00062004-0000-0000-C000-000000000046");
+
+			Assert.That (new TnefNameId (guid, 0x8083).ToString (), Is.EqualTo ("{00062004-0000-0000-c000-000000000046}:0x8083"), "Id");
+			Assert.That (new TnefNameId (guid, 5).ToString (), Is.EqualTo ("{00062004-0000-0000-c000-000000000046}:0x0005"), "Small Id");
+			Assert.That (TnefNameId.Keywords.ToString (), Is.EqualTo ("{00020329-0000-0000-c000-000000000046}:Keywords"), "Name");
+		}
 	}
 }
