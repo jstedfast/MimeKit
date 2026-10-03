@@ -85,8 +85,9 @@ callers:
 - **Dates.** `PT_SYSTIME` values are UTC (see [TnefPropertyReader](#tnefpropertyreader)), so the Date
   header no longer depends on the time zone of the machine that ran the conversion.
 - **Structure.** When there is more than one body, the bodies become a `multipart/alternative` (plain
-  text, RTF, then HTML). Attachments follow the body in a `multipart/mixed`. A message with no body and
-  one attachment is still wrapped in a `multipart/mixed`.
+  text, RTF, then HTML). The inline attachments that the HTML body references are grouped with the body
+  in a `multipart/related` ([MS-OXCMAIL] 2.1.3.3.6). The other attachments follow in a
+  `multipart/mixed`. A message with no body and one attachment is still wrapped in a `multipart/mixed`.
 - **Inline attachments.** Inline status follows the [MS-OXCMAIL] 2.1.3.4.1 "best body" rules. When the
   best body is RTF, OLE attachments are inline. When there is an HTML body, attachments flagged
   `afRenderedInBody` that the HTML references by `cid:` or `Content-Location` are inline. Inline

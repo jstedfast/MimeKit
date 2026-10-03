@@ -11,30 +11,32 @@ message
   x-c2exchangeserversnames: PM24-EX1
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/html
-      Content-Type: text/html; charset=utf-8
-      content: encoding=Default length=6389 sha256=3d598c5cfca21274e62f15bdd62690e6c83de4d46635ad609679437487fcc2bf
-      text: <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmln...
+    MultipartRelated multipart/related
+      Content-Type: multipart/related; boundary="=-snapshot-boundary-1";\ttype="text/html"
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=6389 sha256=3d598c5cfca21274e62f15bdd62690e6c83de4d46635ad609679437487fcc2bf
+        text: <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmln...
+      MimePart image/png
+        Content-Type: image/png; name=image001.png
+        Content-Transfer-Encoding: base64
+        Content-Disposition: inline; filename=image001.png; creation-date=2014-06-20T10:27:10Z; modification-date=2014-06-20T10:27:10Z
+        Content-Id: <image001.png@01CF8C82.F4A2A290>
+        content: encoding=Default length=3815 sha256=037f9d1fa06bccd31878332853814a43e6ed86b3893770b42b057597b49d19c9
+      MimePart image/png
+        Content-Type: image/png; name=image002.png
+        Content-Transfer-Encoding: base64
+        Content-Disposition: inline; filename=image002.png; creation-date=2014-06-20T10:27:10Z; modification-date=2014-06-20T10:27:10Z
+        Content-Id: <image002.png@01CF8C82.F4A2A290>
+        content: encoding=Default length=3573 sha256=ea179fb97a7e850e58b830f51a1fe411d5a4e5ffb1620c895abe9788cfac6f07
+      MimePart image/png
+        Content-Type: image/png; name=image003.png
+        Content-Transfer-Encoding: base64
+        Content-Disposition: inline; filename=image003.png; creation-date=2014-06-20T10:27:10Z; modification-date=2014-06-20T10:27:10Z
+        Content-Id: <image003.png@01CF8C82.F4A2A290>
+        content: encoding=Default length=3792 sha256=20c51557b9c7ec0a5da9ccfd4c2efb0ff7be72d15b05e1ddecc3d1c69fc8eaa9
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=spaconsole2.cfg
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=spaconsole2.cfg; creation-date=2014-06-20T10:27:02Z; modification-date=2014-06-20T10:27:02Z
       content: encoding=Default length=8387 sha256=4d9639506fa4bf42ede43ffbaa8ed5a8f8fe2338bc2562f9b9aef7970bc4a25e
-    MimePart image/png
-      Content-Type: image/png; name=image001.png
-      Content-Transfer-Encoding: base64
-      Content-Disposition: inline; filename=image001.png; creation-date=2014-06-20T10:27:10Z; modification-date=2014-06-20T10:27:10Z
-      Content-Id: <image001.png@01CF8C82.F4A2A290>
-      content: encoding=Default length=3815 sha256=037f9d1fa06bccd31878332853814a43e6ed86b3893770b42b057597b49d19c9
-    MimePart image/png
-      Content-Type: image/png; name=image002.png
-      Content-Transfer-Encoding: base64
-      Content-Disposition: inline; filename=image002.png; creation-date=2014-06-20T10:27:10Z; modification-date=2014-06-20T10:27:10Z
-      Content-Id: <image002.png@01CF8C82.F4A2A290>
-      content: encoding=Default length=3573 sha256=ea179fb97a7e850e58b830f51a1fe411d5a4e5ffb1620c895abe9788cfac6f07
-    MimePart image/png
-      Content-Type: image/png; name=image003.png
-      Content-Transfer-Encoding: base64
-      Content-Disposition: inline; filename=image003.png; creation-date=2014-06-20T10:27:10Z; modification-date=2014-06-20T10:27:10Z
-      Content-Id: <image003.png@01CF8C82.F4A2A290>
-      content: encoding=Default length=3792 sha256=20c51557b9c7ec0a5da9ccfd4c2efb0ff7be72d15b05e1ddecc3d1c69fc8eaa9

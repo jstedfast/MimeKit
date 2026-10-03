@@ -21,8 +21,8 @@ message
   received-spf: None (protection.outlook.com: bifirm.com does not designate permitted sender hosts)
   spamdiagnosticoutput: 1:23
   spamdiagnosticmetadata: NSPM
-  Multipart multipart/mixed
-    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+  MultipartRelated multipart/related
+    Content-Type: multipart/related; boundary="=-snapshot-boundary-0";\ttype="text/html"
     TextPart text/html
       Content-Type: text/html; charset=iso-8859-1
       content: encoding=Default length=10561 sha256=4827810231cf06061e129e0082f7e922137bc75409915d95a1d64907fa0bae00

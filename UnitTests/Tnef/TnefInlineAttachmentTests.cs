@@ -449,5 +449,134 @@ namespace UnitTests.Tnef {
 		}
 
 		#endregion
+
+		#region multipart/related
+
+		static MimeEntity ConvertBody (TnefBuilder builder)
+		{
+			using (var tnef = TnefMessage.Load (builder.ToStream ()))
+				return tnef.ConvertToMime ().Message.Body;
+		}
+
+		static void AssertRelated (MimeEntity entity, string rootMimeType, params string[] fileNames)
+		{
+			Assert.That (entity, Is.InstanceOf<MultipartRelated> ());
+
+			var related = (MultipartRelated) entity;
+
+			Assert.That (related, Has.Count.EqualTo (1 + fileNames.Length));
+			Assert.That (related[0].ContentType.MimeType, Is.EqualTo (rootMimeType));
+			Assert.That (related.Root, Is.SameAs (related[0]));
+			Assert.That (related.ContentType.Parameters["type"], Is.EqualTo (rootMimeType));
+			Assert.That (related.ContentType.Parameters.Contains ("start"), Is.False, "the root is the first child");
+
+			for (int i = 0; i < fileNames.Length; i++) {
+				Assert.That (related[i + 1], Is.InstanceOf<MimePart> ());
+				Assert.That (((MimePart) related[i + 1]).FileName, Is.EqualTo (fileNames[i]));
+				Assert.That (IsInline (related[i + 1]), Is.True);
+			}
+		}
+
+		[Test]
+		public void TestHtmlBodyAndInlineAttachmentsAreRelated ()
+		{
+			const string html = "<html><body><img src=\"cid:image1@example.com\"><img src=\"cid:image2@example.com\"></body></html>";
+			var builder = CreateMessage (Bodies.Html, html);
+
+			AddAttachment (builder, Flagged ());
+			AddAttachment (builder, new Attachment { Flags = TnefAttachFlags.RenderedInBody, ContentId = "image2@example.com", FileName = "image2.png" });
+
+			AssertRelated (ConvertBody (builder), "text/html", "image.png", "image2.png");
+		}
+
+		[Test]
+		public void TestOtherAttachmentsArePeersOfTheRelated ()
+		{
+			var builder = CreateMessage (Bodies.Html, ReferencingHtml);
+
+			// [MS-OXCMAIL] 2.1.3.3.6: an attachment the HTML does not refer to is a peer of the multipart/related,
+			// and attachment-table order is kept for the peers.
+			AddAttachment (builder, new Attachment { FileName = "first.bin" });
+			AddAttachment (builder, Flagged ());
+			AddAttachment (builder, new Attachment { Flags = TnefAttachFlags.RenderedInBody, ContentId = "image2@example.com", FileName = "image2.png" });
+
+			var body = ConvertBody (builder);
+
+			Assert.That (body, Is.InstanceOf<Multipart> ());
+
+			var mixed = (Multipart) body;
+
+			Assert.That (mixed.ContentType.MimeType, Is.EqualTo ("multipart/mixed"));
+			Assert.That (mixed, Has.Count.EqualTo (3));
+			AssertRelated (mixed[0], "text/html", "image.png");
+			Assert.That (((MimePart) mixed[1]).FileName, Is.EqualTo ("first.bin"));
+			Assert.That (((MimePart) mixed[2]).FileName, Is.EqualTo ("image2.png"));
+			Assert.That (IsInline (mixed[2]), Is.False);
+		}
+
+		[Test]
+		public void TestAlternativeBodyIsTheRootOfTheRelated ()
+		{
+			var builder = CreateMessage (Bodies.Plain | Bodies.Html, ReferencingHtml);
+
+			AddAttachment (builder, Flagged ());
+
+			var body = ConvertBody (builder);
+
+			AssertRelated (body, "multipart/alternative", "image.png");
+
+			var alternative = (MultipartAlternative) ((MultipartRelated) body)[0];
+
+			Assert.That (alternative, Has.Count.EqualTo (2));
+			Assert.That (alternative[0].ContentType.MimeType, Is.EqualTo ("text/plain"));
+			Assert.That (alternative[1].ContentType.MimeType, Is.EqualTo ("text/html"));
+		}
+
+		[Test]
+		public void TestUnreferencedAttachmentsAreNotRelated ()
+		{
+			var builder = CreateMessage (Bodies.Html, ReferencingHtml);
+
+			AddAttachment (builder, Flagged ("other@example.com"));
+
+			var body = ConvertBody (builder);
+
+			Assert.That (body, Is.Not.InstanceOf<MultipartRelated> ());
+			Assert.That (body.ContentType.MimeType, Is.EqualTo ("multipart/mixed"));
+			Assert.That (((Multipart) body)[0].ContentType.MimeType, Is.EqualTo ("text/html"));
+		}
+
+		[Test]
+		public void TestInlineDispositionAloneIsNotRelated ()
+		{
+			var builder = CreateMessage (Bodies.Plain);
+			var attachment = Flagged ();
+
+			attachment.Disposition = "inline";
+			AddAttachment (builder, attachment);
+
+			var body = ConvertBody (builder);
+
+			Assert.That (body.ContentType.MimeType, Is.EqualTo ("multipart/mixed"));
+			Assert.That (IsInline (((Multipart) body)[1]), Is.True);
+		}
+
+		[Test]
+		public void TestRtfBestBodyInlineAttachmentsAreNotRelated ()
+		{
+			var builder = CreateMessage (Bodies.Rtf);
+
+			AddAttachment (builder, new Attachment { Method = TnefAttachMethod.Ole, FileName = "ole.bin" });
+
+			var body = ConvertBody (builder);
+
+			// The OLE attachment is inline ([MS-OXCMAIL] 2.1.3.4.1), but the RTF body refers to it by position rather
+			// than by Content-Id or Content-Location, so there is nothing for a multipart/related to resolve.
+			Assert.That (body.ContentType.MimeType, Is.EqualTo ("multipart/mixed"));
+			Assert.That (((Multipart) body)[0].ContentType.MimeType, Is.EqualTo ("text/rtf"));
+			Assert.That (IsInline (((Multipart) body)[1]), Is.True);
+		}
+
+		#endregion
 	}
 }

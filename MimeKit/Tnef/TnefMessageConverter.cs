@@ -418,7 +418,8 @@ namespace MimeKit.Tnef {
 				// "best body" ([MS-OXBBODY]) and on inline attachments (2.1.3.3.3-2.1.3.3.7), and a writer is expected
 				// to synthesize HTML from RTF. This converter does not synthesize content: every body present in the
 				// TNEF is emitted unchanged, as alternatives ordered from the least to the most preferred
-				// representation (RFC 2046 5.1.4). Inline attachments are not moved into a multipart/related.
+				// representation (RFC 2046 5.1.4). ConvertProperties wraps this entity and the inline attachments that
+				// the HTML body refers to in a multipart/related (2.1.3.3.6).
 				if (tnef.TextBody != null)
 					parts.Add (CreateBodyPart ("plain", tnef.TextBody));
 
@@ -1296,6 +1297,7 @@ namespace MimeKit.Tnef {
 		{
 			var message = new MimeMessage (ParserOptions.Default.Clone ());
 			var attachments = new List<MimeEntity> ();
+			MimeEntity? body = null;
 
 			try {
 				AddReceivedHeaders (message);
@@ -1332,15 +1334,33 @@ namespace MimeKit.Tnef {
 				// Must run last; see AddInternetHeaders.
 				AddInternetHeaders (message);
 
-				var body = CreateBody ();
+				body = CreateBody ();
+				MultipartRelated? related = null;
 
 				// [MS-OXCMAIL] 2.1.3.4: attachments are added in attachment-table order. [MS-OXCMAIL] 2.1.3.3 requires the
 				// body to be the first entity of the multipart/mixed.
 				for (int i = 0; i < tnef.Attachments.Count; i++) {
 					var attachment = CreateAttachment (tnef.Attachments[i], i);
 
-					if (attachment != null)
-						attachments.Add (attachment);
+					if (attachment is null)
+						continue;
+
+					// [MS-OXCMAIL] 2.1.3.3.6: the inline attachments that the HTML body refers to are children of a
+					// multipart/related whose first child is the body; every other attachment is a peer of the
+					// multipart/related. With an RTF best body, the inline (OLE) attachments are not referenced by
+					// Content-Id or Content-Location, so they stay in the multipart/mixed.
+					if (body != null && GetBestBody () != BestBodyFormat.Rtf && IsInline (tnef.Attachments[i])) {
+						if (related is null) {
+							related = new MultipartRelated ();
+							related.Root = body;
+							body = related;
+						}
+
+						related.Add (attachment);
+						continue;
+					}
+
+					attachments.Add (attachment);
 				}
 
 				if (attachments.Count == 0) {
@@ -1357,9 +1377,14 @@ namespace MimeKit.Tnef {
 					attachments.Clear ();
 					message.Body = mixed;
 				}
+
+				body = null;
 			} catch {
 				foreach (var attachment in attachments)
 					attachment.Dispose ();
+
+				// The body (and the multipart/related that holds the inline attachments) is not yet owned by the message.
+				body?.Dispose ();
 
 				message.Dispose ();
 				throw;
