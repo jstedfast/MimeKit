@@ -86,12 +86,15 @@ namespace UnitTests.Tnef {
 			return properties;
 		}
 
-		static void AddEmbeddedMessage (TnefBuilder builder, string subject)
+		static void AddEmbeddedMessage (TnefBuilder builder, string subject, string contentId = null, byte[] embedded = null)
 		{
-			var embeddedProperties = new TnefMapiPropertyBuilder ();
-			embeddedProperties.WriteStringProperty (TnefPropertyTag.SubjectW, subject);
+			if (embedded is null) {
+				var embeddedProperties = new TnefMapiPropertyBuilder ();
+				embeddedProperties.WriteStringProperty (TnefPropertyTag.SubjectW, subject);
 
-			var embedded = CreateMessage (embeddedProperties).ToArray ();
+				embedded = CreateMessage (embeddedProperties).ToArray ();
+			}
+
 			var value = new byte[16 + embedded.Length];
 
 			IID_IMessage.ToByteArray ().CopyTo (value, 0);
@@ -100,6 +103,8 @@ namespace UnitTests.Tnef {
 			var properties = new TnefMapiPropertyBuilder ();
 			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) TnefAttachMethod.EmbeddedMessage);
 			properties.WriteStringProperty (TnefPropertyTag.DisplayNameW, subject);
+			if (contentId != null)
+				properties.WriteStringProperty (TnefPropertyTag.AttachContentIdW, contentId);
 			properties.WriteBinaryProperty (TnefPropertyTag.AttachDataObj, value);
 
 			AddAttachment (builder, properties, null);
@@ -207,6 +212,25 @@ namespace UnitTests.Tnef {
 
 				Assert.That (headers.Contains ("Bad Field"), Is.False);
 				Assert.That (result.Losses.Any (loss => loss.Kind == TnefConversionLossKind.InvalidHeader), Is.True);
+			}
+		}
+
+		[Test]
+		public void TestNonStringInternetHeadersAreReported ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WritePropertyHeader (NamedTag (1, TnefPropertyType.Long), TnefPropertySetGuid.InternetHeaders, "X-Single");
+			properties.WriteRaw (BitConverter.GetBytes (1));
+			properties.WritePropertyHeader (NamedTag (2, TnefPropertyType.Long | TnefPropertyType.MultiValued), TnefPropertySetGuid.InternetHeaders, "X-Multi");
+			properties.WriteValueCount (2);
+			properties.WriteRaw (BitConverter.GetBytes (1));
+			properties.WriteRaw (BitConverter.GetBytes (2));
+
+			using (var result = Convert (CreateMessage (properties))) {
+				Assert.That (result.Message.Headers.Contains ("X-Single"), Is.False);
+				Assert.That (result.Message.Headers.Contains ("X-Multi"), Is.False);
+				Assert.That (result.Losses.Count (loss => loss.Kind == TnefConversionLossKind.InvalidHeader), Is.EqualTo (2));
 			}
 		}
 
@@ -467,6 +491,63 @@ namespace UnitTests.Tnef {
 				Assert.That (part, Is.Not.Null);
 				Assert.That (part.Message.Subject, Is.EqualTo ("Embedded"));
 			}
+		}
+
+		[Test]
+		public void TestInvalidEmbeddedMessageIsPassedThrough ()
+		{
+			var builder = new TnefBuilder ().WriteTnefVersion ();
+
+			AddEmbeddedMessage (builder, "Corrupt", embedded: new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+
+			using (var result = Convert (builder, new TnefConversionOptions { ConvertEmbeddedMessages = true })) {
+				var part = SingleAttachment (result.Message) as TnefPart;
+
+				Assert.That (part, Is.Not.Null);
+				Assert.That (result.Losses.Single ().Kind, Is.EqualTo (TnefConversionLossKind.InvalidEmbeddedMessage));
+			}
+		}
+
+		#endregion
+
+		#region HTML body charset
+
+		static TnefConversionResult ConvertHtml (byte[] html, int internetCodepage)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteInt32Property (TnefPropertyTag.InternetCodepage, internetCodepage);
+			properties.WriteBinaryProperty (TnefPropertyTag.BodyHtmlB, html);
+
+			return Convert (CreateMessage (properties));
+		}
+
+		const string Cyrillic = "\u041f\u0440\u0438\u0432\u0435\u0442";
+
+		[TestCase ("<html><head><meta charset=\"utf-8\"></head><body>{0}</body></html>", 65001)]
+		[TestCase ("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=koi8-r\"></head><body>{0}</body></html>", 20866)]
+		[TestCase ("<html><head><meta name=\"viewport\" content=\"width=device-width\"><meta http-equiv=\"refresh\" content=\"30\"><meta charset=\" \"></head><body>{0}</body></html>", 1251)]
+		public void TestHtmlMetaCharsetIsUsed (string template, int codepage)
+		{
+			var html = Encoding.GetEncoding (codepage).GetBytes (string.Format (template, Cyrillic));
+
+			// PidTagInternetCodepage is only used when the document does not declare a usable charset.
+			using (var result = ConvertHtml (html, 1251))
+				Assert.That (result.Message.HtmlBody, Does.Contain (Cyrillic));
+		}
+
+		[TestCase ("<html><head><meta charset=\"utf-8\"></head><body>{0}</body></html>")]
+		[TestCase ("<html><head><meta charset=\"x-unknown-charset\"></head><body>{0}</body></html>")]
+		[TestCase ("<html><head></head><body><meta charset=\"koi8-r\">{0}</body></html>")]
+		[TestCase ("<html><head><title>t</title></head><meta charset=\"koi8-r\"><body>{0}</body></html>")]
+		public void TestUnusableHtmlMetaCharsetIsIgnored (string template)
+		{
+			// The windows-1251 bytes are not valid UTF-8, the charset is unknown, or the <meta> element is not in the
+			// document's head, so PidTagInternetCodepage is used instead.
+			var html = Encoding.GetEncoding (1251).GetBytes (string.Format (template, Cyrillic));
+
+			using (var result = ConvertHtml (html, 1251))
+				Assert.That (result.Message.HtmlBody, Does.Contain (Cyrillic));
 		}
 
 		#endregion
@@ -771,6 +852,118 @@ X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>
 			using (var result = Convert (CreateMessage (properties))) {
 				Assert.That (result.Losses, Is.Empty);
 				Assert.That (result.Message.Subject, Is.EqualTo ("Property subject"));
+			}
+		}
+
+		const string EmbeddedSkeleton = @"Subject: Skeleton subject
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""boundary""
+
+--boundary
+Content-Type: text/plain; charset=utf-8
+
+--boundary
+Content-Type: message/rfc822
+X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
+
+--boundary--
+";
+
+		[Test]
+		public void TestMimeSkeletonEmbeddedMessageIsFilled ()
+		{
+			var builder = CreateSkeletonMessage (EmbeddedSkeleton, false);
+
+			AddEmbeddedMessage (builder, "Embedded", "embedded@example.com");
+
+			// The skeleton's structure decides that the embedded message is converted, whatever the options say.
+			using (var result = Convert (builder, new TnefConversionOptions { ConvertEmbeddedMessages = false })) {
+				var mixed = (Multipart) result.Message.Body;
+
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (result.Message.Subject, Is.EqualTo ("Skeleton subject"));
+				Assert.That (((TextPart) mixed[0]).Text, Is.EqualTo ("Hello from the body property"));
+				Assert.That (((MessagePart) mixed[1]).Message.Subject, Is.EqualTo ("Embedded"));
+			}
+		}
+
+		[Test]
+		public void TestMimeSkeletonEmbeddedMessageThatIsNotAnEmbeddedMessageFallsBackToProperties ()
+		{
+			var skeleton = EmbeddedSkeleton.Replace ("embedded@example.com", "image@example.com");
+
+			using (var result = Convert (CreateSkeletonMessage (skeleton)))
+				AssertSkeletonFallback (result);
+		}
+
+		[Test]
+		public void TestMimeSkeletonInvalidEmbeddedMessageFallsBackToProperties ()
+		{
+			var builder = CreateSkeletonMessage (EmbeddedSkeleton, false);
+
+			AddEmbeddedMessage (builder, "Corrupt", "embedded@example.com", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+
+			using (var result = Convert (builder)) {
+				AssertSkeletonFallback (result);
+
+				// The loss recorded while trying the skeleton is discarded along with the skeleton.
+				Assert.That (result.Losses.Any (loss => loss.Kind == TnefConversionLossKind.InvalidEmbeddedMessage), Is.False);
+				Assert.That (result.Message.BodyParts.OfType<TnefPart> ().Count (), Is.EqualTo (1));
+			}
+		}
+
+		[Test]
+		public void TestMimeSkeletonWithoutAnAttachmentFallsBackToProperties ()
+		{
+			// The message/rfc822 part does not correspond to an attachment, so the image attachment is not in the skeleton.
+			var skeleton = EmbeddedSkeleton.Replace ("\r\n", "\n").Replace ("X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>\n", string.Empty);
+
+			using (var result = Convert (CreateSkeletonMessage (skeleton)))
+				AssertSkeletonFallback (result);
+		}
+
+		[Test]
+		public void TestMimeSkeletonAttachmentWithoutContentFallsBackToProperties ()
+		{
+			var builder = CreateSkeletonMessage (Skeleton, false);
+
+			AddAttachment (builder, AttachmentProperties ("image.png", "image/png", "image@example.com"), null);
+
+			using (var result = Convert (builder))
+				AssertSkeletonFallback (result);
+		}
+
+		[Test]
+		public void TestMimeSkeletonReportsUnreferencedAttachmentWithoutContent ()
+		{
+			var builder = CreateSkeletonMessage (Skeleton);
+
+			AddAttachment (builder, AttachmentProperties ("missing.bin"), null);
+
+			using (var result = Convert (builder)) {
+				Assert.That (result.Message.Subject, Is.EqualTo ("Skeleton subject"));
+				Assert.That (result.Losses.Single ().Kind, Is.EqualTo (TnefConversionLossKind.AttachmentWithoutContent));
+			}
+		}
+
+		[Test]
+		public void TestMimeSkeletonKeepsPartsThatHaveContent ()
+		{
+			// Parts that already have content in the skeleton are left alone, even if they match an attachment.
+			var skeleton = Skeleton.Replace ("\r\n", "\n")
+				.Replace ("Content-Transfer-Encoding: quoted-printable\n\n", "Content-Transfer-Encoding: quoted-printable\n\nSkeleton text\n")
+				.Replace ("X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>\n\n", "X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>\n\nAQID\n");
+
+			using (var result = Convert (CreateSkeletonMessage (skeleton))) {
+				var related = (MultipartRelated) result.Message.Body;
+
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (((TextPart) related[0]).Text.TrimEnd (), Is.EqualTo ("Skeleton text"));
+
+				using (var memory = new MemoryStream ()) {
+					((MimePart) related[1]).Content.DecodeTo (memory);
+					Assert.That (memory.ToArray (), Is.EqualTo (new byte[] { 1, 2, 3 }));
+				}
 			}
 		}
 

@@ -497,6 +497,95 @@ namespace UnitTests.Tnef {
 		[Test]
 		public Task TestTruncatedDateAsync () => RunTestTruncatedDateAsync (true);
 
+		async Task RunTestMiscLegacyAttributesAsync (bool async)
+		{
+			var start = new DateTime (2024, 5, 1, 9, 0, 0);
+			var end = new DateTime (2024, 5, 1, 10, 0, 0);
+			var modified = new DateTime (2024, 4, 30, 8, 15, 0);
+			var delegateEntryId = new byte[] { 0, 0, 0, 0, 1, 2, 3, 4 };
+			var logger = new TestTnefComplianceLogger ();
+			var builder = new TnefBuilder ();
+
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.From, FromPayload ("Carol", "carol@example.com"));
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.DateStart, DatePayload (start));
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.DateEnd, DatePayload (end));
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.DateModified, DatePayload (modified));
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Delegate, delegateEntryId);
+			// fmsLocal | fmsSubmitted | fmsModified
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageStatus, new byte[] { 0x02 | 0x04 | 0x01 });
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, RenderDataPayload ());
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachTransportFilename, StringPayload ("transport.txt"));
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachMetaFile, new byte[] { 1, 2, 3, 4 });
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachModifyDate, DatePayload (modified));
+
+			using (var message = await LoadAsync (builder, async, null, logger)) {
+				var properties = message.Properties;
+
+				Assert.That (logger.Issues, Is.Empty);
+				Assert.That (properties.GetDateTime (TnefPropertyTag.StartDate), Is.EqualTo (start));
+				Assert.That (properties.GetDateTime (TnefPropertyTag.EndDate), Is.EqualTo (end));
+				Assert.That (properties.GetDateTime (TnefPropertyTag.LastModificationTime), Is.EqualTo (modified));
+				Assert.That (properties.GetBytes (TnefPropertyTag.RcvdRepresentingEntryId), Is.EqualTo (delegateEntryId));
+				Assert.That (properties.GetInt32 (TnefPropertyTag.MessageFlags), Is.EqualTo (0x04 | 0x08));
+
+				// An address without a "TYPE:" prefix has no address type.
+				Assert.That (properties.GetString (TnefPropertyTag.SenderNameW), Is.EqualTo ("Carol"));
+				Assert.That (properties.GetString (TnefPropertyTag.SenderAddrtypeW), Is.Null);
+				Assert.That (properties.GetString (TnefPropertyTag.SenderEmailAddressW), Is.EqualTo ("carol@example.com"));
+				Assert.That (properties.GetBytes (TnefPropertyTag.SenderEntryId), Is.EqualTo (OneOffEntryId ("Carol", string.Empty, "carol@example.com")));
+
+				var attachment = message.Attachments.Single ();
+				Assert.That (attachment.Properties.GetString (TnefPropertyTag.AttachTransportNameW), Is.EqualTo ("transport.txt"));
+				Assert.That (attachment.Properties.GetBytes (TnefPropertyTag.AttachRendering), Is.EqualTo (new byte[] { 1, 2, 3, 4 }));
+				Assert.That (attachment.Properties.GetDateTime (TnefPropertyTag.LastModificationTime), Is.EqualTo (modified));
+			}
+		}
+
+		[Test]
+		public Task TestMiscLegacyAttributes () => RunTestMiscLegacyAttributesAsync (false);
+
+		[Test]
+		public Task TestMiscLegacyAttributesAsync () => RunTestMiscLegacyAttributesAsync (true);
+
+		async Task RunTestMalformedLegacyAddressesAsync (bool async)
+		{
+			var logger = new TestTnefComplianceLogger ();
+			var builder = new TnefBuilder ();
+			var from = FromPayload ("Alice", "SMTP:alice@example.com");
+			var badTrp = (byte[]) from.Clone ();
+			var badLength = (byte[]) from.Clone ();
+
+			// trpidOneOff is the only valid TRP type.
+			badTrp[0] = 0x01;
+
+			// The display name length extends past the end of the value.
+			badLength[4] = 0xFF;
+
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.MessageId, StringPayload ("0G"));
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.From, badTrp);
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.From, badLength);
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, new byte[] { 0x01 });
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Owner, Concat (Int16Payload (1), new byte[] { (byte) 'A' }, Int16Payload (10), new byte[] { (byte) 'B' }));
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, StringPayload ("still loaded"));
+
+			using (var message = await LoadAsync (builder, async, null, logger)) {
+				var properties = message.Properties;
+
+				Assert.That (message.Subject, Is.EqualTo ("still loaded"));
+				Assert.That (properties.GetBytes (TnefPropertyTag.SearchKey), Is.Null);
+				Assert.That (properties.GetBytes (TnefPropertyTag.SenderEntryId), Is.Null);
+				Assert.That (properties.GetBytes (TnefPropertyTag.SentRepresentingEntryId), Is.Null);
+			}
+
+			Assert.That (Violations (logger).Count (v => v == TnefComplianceViolation.InvalidAttributeValue), Is.EqualTo (5));
+		}
+
+		[Test]
+		public Task TestMalformedLegacyAddresses () => RunTestMalformedLegacyAddressesAsync (false);
+
+		[Test]
+		public Task TestMalformedLegacyAddressesAsync () => RunTestMalformedLegacyAddressesAsync (true);
+
 		#endregion
 
 		#region MAPI properties and bodies
@@ -841,6 +930,41 @@ namespace UnitTests.Tnef {
 
 		[Test]
 		public Task TestEmbeddedMessageAsync () => RunTestEmbeddedMessageAsync (true);
+
+		// PidTagAttachMethod usually follows the attachment data, so a Binary PidTagAttachDataBinary value can only be
+		// recognized as an embedded message once all of the attachment's properties have been read.
+		async Task RunTestEmbeddedMessageAsBinaryAsync (bool async)
+		{
+			var inner = CreateEmbeddedMessage ("Inner");
+			var properties = new TnefMapiPropertyBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteBinaryProperty (TnefPropertyTag.AttachDataBin, Concat (IID_IMessage.ToByteArray (), inner));
+			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) TnefAttachMethod.EmbeddedMessage);
+
+			builder.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, StringPayload ("Outer"));
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, RenderDataPayload ());
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
+
+			using (var message = await LoadAsync (builder, async, null, logger)) {
+				var attachment = message.Attachments.Single ();
+
+				Assert.That (attachment.IsEmbeddedMessage, Is.True);
+				Assert.That (attachment.Length, Is.EqualTo (inner.Length));
+
+				using (var embedded = await LoadEmbeddedMessageAsync (attachment, async))
+					Assert.That (embedded.Subject, Is.EqualTo ("Inner"));
+			}
+
+			Assert.That (logger.Issues, Is.Empty);
+		}
+
+		[Test]
+		public Task TestEmbeddedMessageAsBinary () => RunTestEmbeddedMessageAsBinaryAsync (false);
+
+		[Test]
+		public Task TestEmbeddedMessageAsBinaryAsync () => RunTestEmbeddedMessageAsBinaryAsync (true);
 
 		async Task RunTestEmbeddedMessageNestingTooDeepAsync (bool async)
 		{

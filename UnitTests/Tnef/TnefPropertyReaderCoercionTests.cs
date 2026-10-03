@@ -286,5 +286,79 @@ namespace UnitTests.Tnef {
 			Assert.That (await prop.ReadValueAsync (), Is.EqualTo (7));
 			Assert.That (prop.IsValueConsumed, Is.False);
 		}
+
+		#region Fixed-width coercion matrix
+
+		static readonly object Throws = new object ();
+		static readonly Guid ClassIdValue = new Guid ("6ED8DA90-450B-101B-98DA-00AA003F1305");
+		static readonly DateTime AppTimeValue = DateTime.FromOADate (2.0);
+		static readonly DateTime SysTimeValue = new DateTime (2024, 3, 17, 9, 45, 12, DateTimeKind.Utc);
+
+		static readonly string[] Conversions = { "Boolean", "Int16", "Int32", "Int64", "Float", "Double", "DateTime", "Guid", "Bytes" };
+
+		static object Convert (TnefPropertyReader prop, string conversion)
+		{
+			switch (conversion) {
+			case "Boolean": return prop.ReadValueAsBoolean ();
+			case "Int16": return prop.ReadValueAsInt16 ();
+			case "Int32": return prop.ReadValueAsInt32 ();
+			case "Int64": return prop.ReadValueAsInt64 ();
+			case "Float": return prop.ReadValueAsFloat ();
+			case "Double": return prop.ReadValueAsDouble ();
+			case "DateTime": return prop.ReadValueAsDateTime ();
+			case "Guid": return prop.ReadValueAsGuid ();
+			default: return prop.ReadValueAsBytes ();
+			}
+		}
+
+		static IEnumerable<TestCaseData> FixedWidthCoercionCases ()
+		{
+			// Expected results for each of the Conversions, in order.
+			yield return new TestCaseData (TnefPropertyType.I2, BitConverter.GetBytes (2), new object[] { true, 2, 2, 2, 2f, 2d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.Boolean, BitConverter.GetBytes (1), new object[] { true, 1, 1, 1, 1f, 1d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.Long, BitConverter.GetBytes (2), new object[] { true, 2, 2, 2, 2f, 2d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.Error, BitConverter.GetBytes (2), new object[] { true, 2, 2, 2, 2f, 2d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.I8, BitConverter.GetBytes (2L), new object[] { true, 2, 2, 2, 2f, 2d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.Currency, BitConverter.GetBytes (25000L), new object[] { true, 2, 2, 2, 2.5f, 2.5d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.R4, BitConverter.GetBytes (2.5f), new object[] { Throws, 2, 2, 2, 2.5f, 2.5d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.Double, BitConverter.GetBytes (2.5d), new object[] { Throws, 2, 2, 2, 2.5f, 2.5d, Throws, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.AppTime, BitConverter.GetBytes (2.0d), new object[] { Throws, Throws, Throws, Throws, Throws, Throws, AppTimeValue, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.SysTime, BitConverter.GetBytes (SysTimeValue.ToFileTimeUtc ()), new object[] { Throws, Throws, Throws, Throws, Throws, Throws, SysTimeValue, Throws, Throws });
+			yield return new TestCaseData (TnefPropertyType.ClassId, ClassIdValue.ToByteArray (), new object[] { Throws, Throws, Throws, Throws, Throws, Throws, Throws, ClassIdValue, ClassIdValue.ToByteArray () });
+		}
+
+		[TestCaseSource (nameof (FixedWidthCoercionCases))]
+		public void TestFixedWidthCoercionMatrix (TnefPropertyType type, byte[] rawValue, object[] expected)
+		{
+			var tag = new TnefPropertyTag (TnefPropertyId.RecordKey, type);
+
+			for (int i = 0; i < Conversions.Length; i++) {
+				var properties = new TnefMapiPropertyBuilder ();
+				properties.WriteProperty (tag, rawValue);
+
+				using var reader = ReadSingleProperty (properties);
+				var prop = reader.GetPropertyReader ();
+
+				if (expected[i] == Throws)
+					Assert.Throws<InvalidOperationException> (() => Convert (prop, Conversions[i]), Conversions[i]);
+				else
+					Assert.That (Convert (prop, Conversions[i]), Is.EqualTo (expected[i]), Conversions[i]);
+			}
+		}
+
+		[Test]
+		public async Task TestReadClassIdAsBytesAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteProperty (new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.ClassId), ClassIdValue.ToByteArray ());
+
+			using var reader = await ReadSinglePropertyAsync (properties);
+			var prop = reader.GetPropertyReader ();
+
+			Assert.That (await prop.ReadValueAsBytesAsync (), Is.EqualTo (ClassIdValue.ToByteArray ()));
+		}
+
+		#endregion
 	}
 }
