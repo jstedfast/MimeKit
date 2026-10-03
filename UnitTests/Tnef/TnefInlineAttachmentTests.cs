@@ -61,7 +61,7 @@ namespace UnitTests.Tnef {
 			return new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes ("{\\rtf1 Hello}")).WriteEndOfStream ().ToArray ();
 		}
 
-		static TnefBuilder CreateMessage (Bodies bodies, string html = "<html><body>Hello</body></html>", int? nativeBody = null, bool? rtfInSync = null)
+		static TnefBuilder CreateMessage (Bodies bodies, string html = "<html><body>Hello</body></html>", int? nativeBody = null, bool? rtfInSync = null, byte[] rtf = null)
 		{
 			var properties = new TnefMapiPropertyBuilder ();
 			var builder = new TnefBuilder ();
@@ -72,7 +72,7 @@ namespace UnitTests.Tnef {
 				properties.WriteStringProperty (TnefPropertyTag.BodyW, "Hello");
 
 			if ((bodies & Bodies.Rtf) != 0)
-				properties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, CompressedRtf ());
+				properties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, rtf ?? CompressedRtf ());
 
 			if ((bodies & Bodies.Html) != 0)
 				properties.WriteStringProperty (TnefPropertyTag.BodyHtmlW, html);
@@ -342,6 +342,20 @@ namespace UnitTests.Tnef {
 			Assert.That (IsInline (entity), Is.EqualTo (inline));
 		}
 
+		static byte[] UndecodableRtf ()
+		{
+			return new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes ("{\\rtf1 Hello}")).WriteEndOfStream ().ToArray (compressionType: 0x44434241);
+		}
+
+		[Test]
+		public void TestUndecodableRtfIsNotTheBestBody ()
+		{
+			// With a valid RTF body that is in sync, the OLE attachment would be inline (see above).
+			var entity = ConvertSingle (CreateMessage (Bodies.Plain | Bodies.Rtf, rtfInSync: true, rtf: UndecodableRtf ()), new Attachment { Method = TnefAttachMethod.Ole, FileName = "ole.bin" });
+
+			Assert.That (IsInline (entity), Is.False);
+		}
+
 		#endregion
 
 		#region PidTagNativeBody
@@ -358,6 +372,15 @@ namespace UnitTests.Tnef {
 			var entity = ConvertSingle (CreateMessage (Bodies.Plain | Bodies.Rtf | Bodies.Html, ReferencingHtml, nativeBody, true), Flagged ());
 
 			Assert.That (IsInline (entity), Is.EqualTo (inline));
+		}
+
+		[Test]
+		public void TestNativeBodyRtfIsIgnoredWhenRtfIsUndecodable ()
+		{
+			// PidTagNativeBody says RTF, but the RTF body is dropped, so the HTML body is the best body.
+			var entity = ConvertSingle (CreateMessage (Bodies.Plain | Bodies.Rtf | Bodies.Html, ReferencingHtml, 2, true, UndecodableRtf ()), Flagged ());
+
+			Assert.That (IsInline (entity), Is.True);
 		}
 
 		#endregion

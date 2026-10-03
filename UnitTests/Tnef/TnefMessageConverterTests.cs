@@ -471,15 +471,123 @@ namespace UnitTests.Tnef {
 
 		#endregion
 
+		#region Compressed RTF
+
+		const string RtfText = "{\\rtf1 Hello}";
+
+		static byte[] CompressedRtf (int? crc = null, int? compressionType = null)
+		{
+			return new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes (RtfText)).WriteEndOfStream ().ToArray (crc: crc, compressionType: compressionType);
+		}
+
+		static TnefBuilder CreateRtfMessage (byte[] rtf)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (TnefPropertyTag.BodyW, "Hello");
+			properties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, rtf);
+
+			return CreateMessage (properties);
+		}
+
+		[Test]
+		public void TestCompressedRtfBody ()
+		{
+			using (var result = Convert (CreateRtfMessage (CompressedRtf ()))) {
+				var alternative = (MultipartAlternative) result.Message.Body;
+
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (alternative.Count, Is.EqualTo (2));
+				Assert.That (alternative[1].ContentType.MimeType, Is.EqualTo ("text/rtf"));
+				Assert.That (ReadText ((MimePart) alternative[1]), Is.EqualTo (RtfText));
+			}
+		}
+
+		[Test]
+		public void TestUncompressedRtfBody ()
+		{
+			var rtf = new byte[16 + RtfText.Length];
+
+			BitConverter.GetBytes (RtfText.Length + 12).CopyTo (rtf, 0);
+			BitConverter.GetBytes (RtfText.Length).CopyTo (rtf, 4);
+			BitConverter.GetBytes ((int) RtfCompressionMode.Uncompressed).CopyTo (rtf, 8);
+			Encoding.ASCII.GetBytes (RtfText).CopyTo (rtf, 16);
+
+			using (var result = Convert (CreateRtfMessage (rtf))) {
+				var alternative = (MultipartAlternative) result.Message.Body;
+
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (ReadText ((MimePart) alternative[1]), Is.EqualTo (RtfText));
+			}
+		}
+
+		[TestCase (0x44434241)]
+		[TestCase (0)]
+		public void TestUnknownRtfCompressionTypeDropsRtfBody (int compressionType)
+		{
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (compressionType: compressionType)))) {
+				var text = result.Message.Body as TextPart;
+
+				Assert.That (text, Is.Not.Null, "the RTF alternative is dropped, leaving only the plain text body");
+				Assert.That (text.ContentType.MimeType, Is.EqualTo ("text/plain"));
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.InvalidRtfBody }));
+				Assert.That (result.Losses[0].Description, Does.Contain (((uint) compressionType).ToString ("X8")));
+			}
+		}
+
+		[Test]
+		public void TestRtfChecksumMismatchIsReported ()
+		{
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (crc: 0x12345678)))) {
+				var alternative = (MultipartAlternative) result.Message.Body;
+
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.RtfChecksumMismatch }));
+				Assert.That (ReadText ((MimePart) alternative[1]), Is.EqualTo (RtfText), "the RTF body is kept");
+			}
+		}
+
+		[Test]
+		public void TestUnknownRtfCompressionTypeInEmbeddedMessage ()
+		{
+			var embeddedProperties = new TnefMapiPropertyBuilder ();
+			embeddedProperties.WriteStringProperty (TnefPropertyTag.SubjectW, "Embedded");
+			embeddedProperties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, CompressedRtf (compressionType: 0x44434241));
+
+			var embedded = CreateMessage (embeddedProperties).ToArray ();
+			var value = new byte[16 + embedded.Length];
+
+			IID_IMessage.ToByteArray ().CopyTo (value, 0);
+			embedded.CopyTo (value, 16);
+
+			var properties = new TnefMapiPropertyBuilder ();
+			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) TnefAttachMethod.EmbeddedMessage);
+			properties.WriteBinaryProperty (TnefPropertyTag.AttachDataObj, value);
+
+			var builder = new TnefBuilder ().WriteTnefVersion ();
+			AddAttachment (builder, properties, null);
+
+			using (var result = Convert (builder, new TnefConversionOptions { ConvertEmbeddedMessages = true })) {
+				var part = (MessagePart) SingleAttachment (result.Message);
+
+				Assert.That (part.Message.BodyParts.Any (entity => entity.ContentType.IsMimeType ("text", "rtf")), Is.False);
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.InvalidRtfBody }));
+			}
+		}
+
+		#endregion
+
 		#region MIME skeleton
 
-		static TnefBuilder CreateSkeletonMessage (string skeleton, bool includeAttachment = true, string attachmentContentId = "image@example.com")
+		static TnefBuilder CreateSkeletonMessage (string skeleton, bool includeAttachment = true, string attachmentContentId = "image@example.com", byte[] rtf = null)
 		{
 			var properties = new TnefMapiPropertyBuilder ();
 
 			properties.WriteStringProperty (TnefPropertyTag.SubjectW, "Property subject");
 			properties.WriteStringProperty (TnefPropertyTag.BodyW, "Hello from the body property");
 			properties.WriteInt32Property (TnefPropertyTag.Importance, 2);
+
+			if (rtf != null)
+				properties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, rtf);
 			properties.WriteBinaryProperty (TnefPropertyTag.MimeSkeleton, Encoding.ASCII.GetBytes (skeleton.Replace ("\r\n", "\n").Replace ("\n", "\r\n")));
 			properties.WriteStringProperty (TnefPropertyTag.TransportMessageHeadersW, "Received: from transport.example.com; Mon, 1 Jan 2024 00:00:00 +0000\r\n");
 			WriteInternetHeader (properties, 1, "X-Property-Header", "value");
@@ -591,6 +699,54 @@ X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>
 
 			using (var result = Convert (CreateSkeletonMessage (skeleton)))
 				AssertSkeletonFallback (result);
+		}
+
+		const string RtfSkeleton = @"Subject: Skeleton subject
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary=""boundary""
+
+--boundary
+Content-Type: text/rtf
+
+--boundary
+Content-Type: image/png; name=image.png
+Content-Transfer-Encoding: base64
+X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>
+
+--boundary--
+";
+
+		[Test]
+		public void TestMimeSkeletonRtfBodyIsFilled ()
+		{
+			using (var result = Convert (CreateSkeletonMessage (RtfSkeleton, rtf: CompressedRtf ()))) {
+				var related = (MultipartRelated) result.Message.Body;
+
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (ReadText ((MimePart) related[0]), Is.EqualTo (RtfText));
+			}
+		}
+
+		[Test]
+		public void TestMimeSkeletonFallbackRedecodesRtfBody ()
+		{
+			// The skeleton consumes the decoded RTF before the missing attachment makes it fall back.
+			using (var result = Convert (CreateSkeletonMessage (RtfSkeleton, attachmentContentId: "other@example.com", rtf: CompressedRtf ()))) {
+				var rtf = result.Message.BodyParts.OfType<MimePart> ().Single (part => part.ContentType.IsMimeType ("text", "rtf"));
+
+				AssertSkeletonFallback (result);
+				Assert.That (ReadText (rtf), Is.EqualTo (RtfText));
+			}
+		}
+
+		[Test]
+		public void TestMimeSkeletonFallbackKeepsRtfLosses ()
+		{
+			using (var result = Convert (CreateSkeletonMessage (RtfSkeleton, rtf: CompressedRtf (compressionType: 0x44434241)))) {
+				AssertSkeletonFallback (result);
+				Assert.That (result.Losses.Any (loss => loss.Kind == TnefConversionLossKind.InvalidRtfBody), Is.True);
+				Assert.That (result.Message.BodyParts.Any (part => part.ContentType.IsMimeType ("text", "rtf")), Is.False);
+			}
 		}
 
 		[Test]

@@ -52,7 +52,7 @@ namespace MimeKit.Tnef {
 
 		/// <summary>
 		/// An attachment uses an attachment method that refers to content outside of the TNEF stream, such as
-				/// <c>afByReference</c>, and was dropped.
+		/// <c>afByReference</c>, and was dropped.
 		/// </summary>
 		UnsupportedAttachMethod,
 
@@ -69,6 +69,19 @@ namespace MimeKit.Tnef {
 		/// <summary>
 		/// An embedded message could not be loaded and was converted to an ordinary attachment.
 		/// </summary>
-		InvalidEmbeddedMessage
+		InvalidEmbeddedMessage,
+
+		/// <summary>
+		/// The <see cref="TnefPropertyId.RtfCompressed"/> body has a compression type other than
+		/// <see cref="RtfCompressionMode.Compressed"/> or <see cref="RtfCompressionMode.Uncompressed"/>, so it could
+		/// not be decoded and was dropped.
+		/// </summary>
+		InvalidRtfBody,
+
+		/// <summary>
+		/// The CRC of the <see cref="TnefPropertyId.RtfCompressed"/> body does not match its content. The RTF body was
+		/// converted anyway, but may be corrupt.
+		/// </summary>
+		RtfChecksumMismatch
 	}
 }

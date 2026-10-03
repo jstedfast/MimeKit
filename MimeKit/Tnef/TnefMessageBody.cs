@@ -147,6 +147,9 @@ namespace MimeKit.Tnef {
 		/// <para>Opens a stream for reading the decoded content of the body. For a
 		/// <see cref="TnefMessageBodyFormat.CompressedRtf"/> body, this is the decompressed RTF. For any other body, it
 		/// is the same as the raw content returned by <see cref="OpenRead"/>.</para>
+		/// <para>A <see cref="TnefMessageBodyFormat.CompressedRtf"/> body whose compression type is neither
+		/// <see cref="RtfCompressionMode.Compressed"/> nor <see cref="RtfCompressionMode.Uncompressed"/> cannot be
+		/// decoded, so the stream is empty (see <see cref="RtfCompressedToRtf.CompressionMode"/>).</para>
 		/// <para>Each call returns a new, independent stream. The stream must be disposed by the caller, and must not be
 		/// used once the body has been disposed.</para>
 		/// </remarks>

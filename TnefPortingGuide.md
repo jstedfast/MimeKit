@@ -299,6 +299,13 @@ The following types are unchanged apart from additions: `TnefAttachFlags`, `Tnef
 `InternetCPID`), `TnefPropertyTag` (except `InternetCPID` and `Puid`), `TnefPropertyType`,
 `RtfCompressedToRtf` and `RtfCompressionMode`.
 
+One behavioural change applies to `RtfCompressedToRtf`. In 4.x, a stream whose compression type was
+neither `LZFu` nor `MELA` was passed through as if it were uncompressed. In 5.0, such a stream is
+malformed ([MS-OXRTFCP] 2.1.3.1.1), so the filter produces no output. Check `CompressionMode`
+to detect it. `ConvertToMime` drops an RTF body like this and reports a
+`TnefConversionLossKind.InvalidRtfBody` loss. When a compressed RTF body has a CRC mismatch, it is
+still converted, and an `RtfChecksumMismatch` loss is reported.
+
 ## Recipes
 
 All recipes assume `using MimeKit; using MimeKit.Tnef;`.

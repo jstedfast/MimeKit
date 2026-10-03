@@ -101,6 +101,8 @@ namespace MimeKit.Tnef {
 		readonly TnefMessage tnef;
 		readonly bool embedded;
 		HtmlReferences? htmlReferences;
+		MemoryBlockStream? decodedRtf;
+		TnefMessageBody? rtfBody;
 		BestBodyFormat? bestBody;
 		byte[]? buffer;
 
@@ -135,20 +137,29 @@ namespace MimeKit.Tnef {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			// When the TNEF was produced from a MIME message, PidTagMimeSkeleton ([MS-OXCMSG] 2.2.1.28) holds that
-			// message's original headers and structure ([MS-OXCMAIL] 2.4.3.1), which the property path can only
-			// approximate. Prefer it whenever it is usable. When it is, PS_INTERNET_HEADERS and
-			// PidTagTransportMessageHeaders are not consulted, because the skeleton already contains those headers.
-			var skeleton = tnef.Properties.GetBytes (TnefPropertyTag.MimeSkeleton);
+			try {
+				// The RTF body is decoded before anything else, because whether it is usable affects the best body
+				// and therefore which attachments are inline.
+				PrepareRtfBody ();
 
-			if (skeleton != null && skeleton.Length > 0) {
-				var message = ConvertSkeleton (skeleton);
+				// When the TNEF was produced from a MIME message, PidTagMimeSkeleton ([MS-OXCMSG] 2.2.1.28) holds that
+				// message's original headers and structure ([MS-OXCMAIL] 2.4.3.1), which the property path can only
+				// approximate. Prefer it whenever it is usable. When it is, PS_INTERNET_HEADERS and
+				// PidTagTransportMessageHeaders are not consulted, because the skeleton already contains those headers.
+				var skeleton = tnef.Properties.GetBytes (TnefPropertyTag.MimeSkeleton);
 
-				if (message != null)
-					return message;
+				if (skeleton != null && skeleton.Length > 0) {
+					var message = ConvertSkeleton (skeleton);
+
+					if (message != null)
+						return message;
+				}
+
+				return ConvertProperties ();
+			} finally {
+				decodedRtf?.Dispose ();
+				decodedRtf = null;
 			}
-
-			return ConvertProperties ();
 		}
 
 		void AddLoss (TnefConversionLossKind kind, string description)
@@ -312,6 +323,45 @@ namespace MimeKit.Tnef {
 			return body.Encoding ?? fallbackEncoding;
 		}
 
+		MemoryBlockStream DecodeRtf (TnefMessageBody body, out RtfCompressedToRtf filter)
+		{
+			var filtered = new FilteredStream (body.OpenRead ());
+
+			filter = new RtfCompressedToRtf ();
+			filtered.Add (filter);
+
+			return Copy (filtered);
+		}
+
+		void PrepareRtfBody ()
+		{
+			var body = tnef.RtfBody;
+
+			if (body is null)
+				return;
+
+			var content = DecodeRtf (body, out var filter);
+			var mode = filter.CompressionMode;
+
+			if (mode != RtfCompressionMode.Compressed && mode != RtfCompressionMode.Uncompressed) {
+				// [MS-OXRTFCP] 2.1.3.1.1 only defines the COMPRESSED and UNCOMPRESSED values of COMPTYPE, so the content
+				// cannot be interpreted and the filter produces nothing. The body is treated as absent, including when
+				// choosing the best body ([MS-OXBBODY] 2.1.3.1), rather than emitting an empty text/rtf part.
+				content.Dispose ();
+				AddLoss (TnefConversionLossKind.InvalidRtfBody, $"The compressed RTF body has an unknown compression type (0x{(uint) mode:X8}) and was dropped.");
+				return;
+			}
+
+			if (mode == RtfCompressionMode.Compressed && !filter.IsValidCrc32) {
+				// [MS-OXRTFCP] 2.1.3.1.1: the CRC of a COMPRESSED stream is computed from its CONTENTS. A mismatch means
+				// the data was damaged, but what could be decompressed is usually still readable, so it is kept.
+				AddLoss (TnefConversionLossKind.RtfChecksumMismatch, "The CRC of the compressed RTF body does not match its content, so the RTF body may be corrupt.");
+			}
+
+			decodedRtf = content;
+			rtfBody = body;
+		}
+
 		void SetBodyContent (MimePart part, TnefMessageBody body)
 		{
 			MemoryBlockStream content;
@@ -319,8 +369,11 @@ namespace MimeKit.Tnef {
 
 			if (body.Format == TnefMessageBodyFormat.CompressedRtf) {
 				// PidTagRtfCompressed ([MS-OXCMSG] 2.2.1.58.4) is decompressed as specified by [MS-OXRTFCP]. RTF
-				// declares its own character set (\ansicpg), so no MIME charset parameter is added.
-				content = Copy (body.OpenDecodedRead ());
+				// declares its own character set (\ansicpg), so no MIME charset parameter is added. PrepareRtfBody has
+				// normally decoded it already; it only needs to be decoded again if a MIME skeleton that used it was
+				// discarded.
+				content = decodedRtf ?? DecodeRtf (body, out _);
+				decodedRtf = null;
 				charset = null;
 			} else if (body.Tag.ValueTnefType == TnefPropertyType.Unicode) {
 				// PtypString values are UTF-16LE ([MS-OXCDATA] 2.11.1); re-encode as UTF-8 for MIME.
@@ -368,8 +421,8 @@ namespace MimeKit.Tnef {
 				if (tnef.TextBody != null)
 					parts.Add (CreateBodyPart ("plain", tnef.TextBody));
 
-				if (tnef.RtfBody != null)
-					parts.Add (CreateBodyPart ("rtf", tnef.RtfBody));
+				if (rtfBody != null)
+					parts.Add (CreateBodyPart ("rtf", rtfBody));
 
 				if (tnef.HtmlBody != null)
 					parts.Add (CreateBodyPart ("html", tnef.HtmlBody));
@@ -405,10 +458,12 @@ namespace MimeKit.Tnef {
 		BestBodyFormat ComputeBestBody ()
 		{
 			// Step 1: PidTagNativeBody ([MS-OXCMSG] 2.2.1.58.2), if present with one of the values in the table, is the
-			// best body. Any other value falls through to the remaining steps.
+			// best body. Any other value falls through to the remaining steps. So does 2 (RTF) when the RTF body is
+			// absent or could not be decoded (see PrepareRtfBody), since an RTF best body would make OLE attachments
+			// inline in a body that is not emitted.
 			switch (tnef.Properties.GetInt32 (TnefPropertyTag.NativeBody)) {
 			case 1: return BestBodyFormat.PlainText;
-			case 2: return BestBodyFormat.Rtf;
+			case 2 when rtfBody != null: return BestBodyFormat.Rtf;
 			case 3: return BestBodyFormat.Html;
 			}
 
@@ -417,7 +472,7 @@ namespace MimeKit.Tnef {
 			// reduces to "present", and rows 2-5 of the step 3 table are unreachable. RtfInSync is PidTagRtfInSync
 			// ([MS-OXCMSG] 2.2.1.58.5), or FALSE when absent. TnefMessage.HtmlBody also accepts PidTagBodyHtml.
 			bool plain = tnef.TextBody != null;
-			bool rtf = tnef.RtfBody != null;
+			bool rtf = rtfBody != null;
 			bool html = tnef.HtmlBody != null;
 
 			if (!plain && !rtf && !html)
@@ -1318,11 +1373,13 @@ namespace MimeKit.Tnef {
 		{
 			readonly Dictionary<string, TnefAttachment> attachments = new Dictionary<string, TnefAttachment> (StringComparer.Ordinal);
 			readonly HashSet<TnefAttachment> consumed = new HashSet<TnefAttachment> ();
+			readonly TnefMessageBody? rtfBody;
 			readonly TnefMessage tnef;
 			bool text, html, rtf;
 
-			public SkeletonContext (TnefMessage tnef)
+			public SkeletonContext (TnefMessage tnef, TnefMessageBody? rtfBody)
 			{
+				this.rtfBody = rtfBody;
 				this.tnef = tnef;
 
 				BodyContentId = NormalizeContentId (tnef.Properties.GetString (TnefPropertyTag.BodyContentIdW));
@@ -1373,12 +1430,12 @@ namespace MimeKit.Tnef {
 				}
 
 				if (contentType.IsMimeType ("text", "rtf") || contentType.IsMimeType ("application", "rtf")) {
-					if (rtf || tnef.RtfBody is null)
+					if (rtf || rtfBody is null)
 						return null;
 
 					rtf = true;
 
-					return tnef.RtfBody;
+					return rtfBody;
 				}
 
 				return null;
@@ -1527,7 +1584,7 @@ namespace MimeKit.Tnef {
 				if (message.Body is null) {
 					reason = "it does not have a body";
 				} else {
-					var context = new SkeletonContext (tnef);
+					var context = new SkeletonContext (tnef, rtfBody);
 
 					reason = FillSkeleton (message.Body, context);
 

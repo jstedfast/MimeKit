@@ -49,6 +49,31 @@ namespace UnitTests.Tnef {
 			Assert.That (filter.CompressionMode, Is.EqualTo ((RtfCompressionMode) 1145258561), "ComnpressionMode");
 		}
 
+		[TestCase (0x44434241, 1)]
+		[TestCase (0x44434241, 3)]
+		[TestCase (0x44434241, 4096)]
+		[TestCase (0, 4096)]
+		public void TestRtfCompressedToRtfUnknownCompressionTypeDiscardsContent (int compressionType, int chunkSize)
+		{
+			var input = new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes ("{\\rtf1 Hello}")).WriteEndOfStream ().ToArray (compressionType: compressionType);
+			var filter = new RtfCompressedToRtf ();
+			int outputIndex, outputLength, total = 0;
+
+			for (int index = 0; index < input.Length; index += chunkSize) {
+				int length = Math.Min (chunkSize, input.Length - index);
+
+				if (index + length < input.Length)
+					filter.Filter (input, index, length, out outputIndex, out outputLength);
+				else
+					filter.Flush (input, index, length, out outputIndex, out outputLength);
+
+				total += outputLength;
+			}
+
+			Assert.That (total, Is.EqualTo (0), "output");
+			Assert.That (filter.CompressionMode, Is.EqualTo ((RtfCompressionMode) compressionType), "CompressionMode");
+		}
+
 		[Test]
 		public void TestRtfCompressedToRtfInvalidCrc ()
 		{

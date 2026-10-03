@@ -85,9 +85,14 @@ namespace MimeKit.Tnef {
 		/// Get the compression mode.
 		/// </summary>
 		/// <remarks>
-		/// At least 12 bytes from the stream must be processed before this property value will
+		/// <para>At least 12 bytes from the stream must be processed before this property value will
 		/// be accurate. Until then, and after a call to <see cref="Reset"/>, the compression mode
-		/// is <see cref="RtfCompressionMode.Unknown"/>.
+		/// is <see cref="RtfCompressionMode.Unknown"/>.</para>
+		/// <para>Once the header has been processed, this property holds the raw value of the COMPTYPE field.
+		/// <a href="https://learn.microsoft.com/openspecs/exchange_server_protocols/ms-oxrtfcp/">[MS-OXRTFCP]</a>
+		/// only defines <see cref="RtfCompressionMode.Compressed"/> and <see cref="RtfCompressionMode.Uncompressed"/>;
+		/// any other value means that the stream is malformed, and the filter discards its content and produces no
+		/// output.</para>
 		/// </remarks>
 		/// <value>The compression mode.</value>
 		public RtfCompressionMode CompressionMode {
@@ -230,7 +235,17 @@ namespace MimeKit.Tnef {
 				state = FilterState.BeginControlRun;
 			}
 
-			if (CompressionMode != RtfCompressionMode.Compressed) {
+			if (CompressionMode != RtfCompressionMode.Compressed && CompressionMode != RtfCompressionMode.Uncompressed) {
+				// Note: [MS-OXRTFCP] 2.1.3.1.1 defines only the COMPRESSED and UNCOMPRESSED values of COMPTYPE, and
+				// decompression is not defined for any other value. The contents cannot be interpreted, and passing
+				// them through would label arbitrary bytes as RTF, so discard them.
+				outputLength = 0;
+				outputIndex = endIndex;
+
+				return input;
+			}
+
+			if (CompressionMode == RtfCompressionMode.Uncompressed) {
 				// Note: [MS-OXRTFCP] requires the CRC field of an UNCOMPRESSED stream to be 0 and only
 				// defines a checksum over the content of a COMPRESSED stream, so do not accumulate one.
 				outputLength = Math.Max (Math.Min (endIndex - index, compressedSize - size), 0);
