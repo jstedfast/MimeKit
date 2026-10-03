@@ -115,8 +115,9 @@ namespace MimeKit.Tnef {
 
 		TnefMessageConverter (TnefMessage tnef, TnefConversionOptions options, List<TnefConversionLoss> losses, bool embedded, CancellationToken cancellationToken)
 		{
-			// [MS-OXTNEF] 2.1.3.3.2 / 2.1.3.5.1: attOemCodepage is the codepage of the non-Unicode (PtypString8)
-			// strings in the stream, so it is also the best guess for an 8-bit body that does not declare a charset.
+			// [MS-OXTNEF] 2.3.3.2: the message codepage (attOemCodepage, else PidTagInternetCodepage, else the default)
+			// is the codepage of the non-Unicode (PtypString8) strings in the stream, so it is also the best guess for
+			// an 8-bit body that does not declare a charset.
 			fallbackEncoding = CharsetUtils.GetEncodingOrDefault (tnef.Codepage, TnefReader.DefaultEncoding);
 			this.cancellationToken = cancellationToken;
 			this.embedded = embedded;

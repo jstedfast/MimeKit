@@ -587,6 +587,8 @@ namespace MimeKit.Tnef {
 			case TnefPropertyType.Long:
 				if (tag.Id == TnefPropertyId.AttachMethod)
 					reader.AttachMethod = (TnefAttachMethod) BinaryPrimitives.ReadInt32LittleEndian (scratch.AsSpan (0, 4));
+				else if (tag.Id == TnefPropertyId.InternetCodepage && !tag.IsMultiValued && reader.Level == TnefAttributeLevel.Message && reader.Tag == TnefAttributeTag.MapiProperties)
+					reader.SetInternetCodepage (BinaryPrimitives.ReadInt32LittleEndian (scratch.AsSpan (0, 4)));
 				break;
 			}
 		}

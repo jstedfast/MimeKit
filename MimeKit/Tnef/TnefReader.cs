@@ -113,6 +113,7 @@ namespace MimeKit.Tnef {
 		bool disposed;
 		Encoding encoding;
 		int codepage;
+		bool hasOemCodepage;
 
 		// The state of the current attribute.
 		TnefPropertyReader? propertyReader;
@@ -306,7 +307,11 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// <para>Gets the codepage used to decode 8-bit strings.</para>
 		/// <para>The codepage is initially determined by <see cref="TnefOptions.DefaultCodepage"/> and is updated
-		/// when the reader reads a <see cref="TnefAttributeTag.OemCodepage"/> attribute.</para>
+		/// when the reader reads a <see cref="TnefAttributeTag.OemCodepage"/> attribute with a nonzero value. If the
+		/// stream does not specify an <see cref="TnefAttributeTag.OemCodepage"/>, the codepage is instead updated when
+		/// the reader reads the message's <see cref="TnefPropertyId.InternetCodepage"/> property, unless that property
+		/// specifies a UTF-16 or UTF-32 codepage, as described in [MS-OXTNEF] section 2.3.3.2. Only 8-bit strings that
+		/// are read after the codepage has been updated are decoded using the new codepage.</para>
 		/// </remarks>
 		/// <value>The codepage.</value>
 		public int Codepage {
@@ -995,21 +1000,45 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		void SetCodepage (int value)
+		// Applies the value of the attOemCodepage attribute.
+		//
+		// Note: [MS-OXTNEF] 2.3.3.2 specifies that a TNEF reader decodes PtypString8 values using the first of the
+		// following that is available: the MIME charset of the TNEF body part, the attOemCodepage attribute (if it
+		// is present and nonzero), the PidTagInternetCodepage property (if it maps to a codepage that does not
+		// contain embedded zero bytes) and, finally, the default codepage. The application/ms-tnef MIME part never
+		// has a charset parameter, so the attOemCodepage attribute takes precedence.
+		void SetOemCodepage (int value)
 		{
-			if (value == codepage)
+			if (value == 0)
 				return;
 
 			try {
 				encoding = CharsetUtils.GetEncoding (value);
 				codepage = encoding.CodePage;
+				hasOemCodepage = true;
 			} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
+				// Note: Keep using the current (default) encoding.
 				LogAttribute (TnefComplianceViolation.InvalidMessageCodepage);
+			}
+		}
 
-				// Note: DefaultEncoding is windows-1252 if the host can provide it and iso-8859-1 if it
-				// cannot, so this is always an encoding that can be used.
-				encoding = DefaultEncoding;
+		// Applies the value of the message's PidTagInternetCodepage property if the stream has not specified a
+		// (usable) attOemCodepage. See [MS-OXTNEF] 2.3.3.2.
+		internal void SetInternetCodepage (int value)
+		{
+			if (hasOemCodepage || value <= 0 || value == codepage)
+				return;
+
+			switch (value) {
+			case 1200: case 1201: case 12000: case 12001:
+				// Note: UTF-16 and UTF-32 encodings contain embedded zero bytes.
+				return;
+			}
+
+			try {
+				encoding = CharsetUtils.GetEncoding (value);
 				codepage = encoding.CodePage;
+			} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
 			}
 		}
 
@@ -1057,7 +1086,7 @@ namespace MimeKit.Tnef {
 				if (Length < 4)
 					LogAttribute (TnefComplianceViolation.InvalidAttributeValue);
 				else if (peeked)
-					SetCodepage (BinaryPrimitives.ReadInt32LittleEndian (input.AsSpan (inputIndex, 4)));
+					SetOemCodepage (BinaryPrimitives.ReadInt32LittleEndian (input.AsSpan (inputIndex, 4)));
 				break;
 			case TnefAttributeTag.TnefVersion:
 				if (Length < 4)

@@ -102,7 +102,9 @@ namespace MimeKit.Tnef {
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets the codepage to use for decoding 8-bit strings until the TNEF stream specifies
-		/// its own codepage using the <see cref="TnefAttributeTag.OemCodepage"/> attribute.</para>
+		/// its own codepage using a nonzero <see cref="TnefAttributeTag.OemCodepage"/> attribute or, if it has no
+		/// such attribute, the message's <see cref="TnefPropertyId.InternetCodepage"/> property
+		/// (see [MS-OXTNEF] section 2.3.3.2).</para>
 		/// <para>A value of <c>0</c> means windows-1252. If the requested codepage is not available on the
 		/// host (which is common on non-Windows platforms unless the application has registered the
 		/// <c>System.Text.Encoding.CodePages</c> provider), a fallback encoding will be used instead.</para>

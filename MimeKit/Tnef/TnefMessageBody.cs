@@ -41,7 +41,7 @@ namespace MimeKit.Tnef {
 	public sealed class TnefMessageBody : IDisposable
 	{
 		readonly MemoryBlockStream content;
-		readonly Encoding fallbackEncoding;
+		Encoding fallbackEncoding;
 		bool disposed;
 
 		internal TnefMessageBody (TnefMessageBodyFormat format, TnefPropertyTag tag, MemoryBlockStream content, Encoding? encoding, Encoding fallbackEncoding)
@@ -93,6 +93,15 @@ namespace MimeKit.Tnef {
 		/// <value>The text encoding, or <see langword="null"/> if it is not known.</value>
 		public Encoding? Encoding {
 			get; internal set;
+		}
+
+		// Updates the encodings of the body once the message's codepage is known.
+		internal void SetMessageEncoding (Encoding encoding)
+		{
+			if (Tag.ValueTnefType == TnefPropertyType.String8)
+				Encoding = encoding;
+
+			fallbackEncoding = encoding;
 		}
 
 		/// <summary>

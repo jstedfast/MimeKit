@@ -197,6 +197,12 @@ namespace MimeKit.Tnef {
 
 			var set = properties.ToPropertySet ();
 
+			// Note: The codepage may have changed after a body was read if the stream did not specify an
+			// attOemCodepage and the PidTagInternetCodepage property followed the body. See [MS-OXTNEF] 2.3.3.2.
+			textBody?.SetMessageEncoding (reader.Encoding);
+			htmlBody?.SetMessageEncoding (reader.Encoding);
+			rtfBody?.SetMessageEncoding (reader.Encoding);
+
 			if (htmlBody != null && htmlBody.Tag.ValueTnefType == TnefPropertyType.Binary)
 				htmlBody.Encoding = GetInternetEncoding (set);
 

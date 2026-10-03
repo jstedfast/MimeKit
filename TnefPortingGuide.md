@@ -145,7 +145,7 @@ If you only need the raw attachment bytes, skip MIME conversion entirely and use
 | `int ReadAttributeRawValue (byte[], int, int)` | `Stream OpenValueStream ()` then `Read` | |
 | `TnefPropertyReader` property | `GetPropertyReader ()` | Only valid for `MapiProperties`, `Attachment` and `RecipientTable` attributes; throws `InvalidOperationException` otherwise. |
 | `AttachmentKey` (`short`) | `LegacyKey` (`ushort`) | |
-| `MessageCodepage` | `Codepage` | |
+| `MessageCodepage` | `Codepage` | An `attOemCodepage` of `0` is now ignored, and an unsupported one keeps `TnefOptions.DefaultCodepage` rather than switching to windows-1252. If the stream has no `attOemCodepage`, the message's `PidTagInternetCodepage` is used from the point where it is read ([MS-OXTNEF] 2.3.3.2). |
 | `TnefVersion` | Read the `TnefAttributeTag.TnefVersion` attribute with `ReadValueAsInt32 ()`. | A non-`0x00010000` version is reported as `UnsupportedVersion`. |
 | `ComplianceMode` | — | Removed. |
 | `ComplianceStatus` | `ComplianceLogger` | See [Compliance](#compliance-tnefcompliancestatus-and-tnefcompliancemode). |

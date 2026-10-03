@@ -67,9 +67,14 @@ namespace MimeKit.Tnef {
 		/// Get the codepage of the message.
 		/// </summary>
 		/// <remarks>
-		/// Gets the codepage that was used to decode the message's 8-bit strings. This is the codepage specified by the
-		/// <see cref="TnefAttributeTag.OemCodepage"/> attribute or, if the TNEF stream did not contain one,
-		/// <see cref="TnefOptions.DefaultCodepage"/>.
+		/// <para>Gets the codepage that was used to decode the message's 8-bit strings.</para>
+		/// <para>As described in [MS-OXTNEF] section 2.3.3.2, this is the codepage specified by a nonzero
+		/// <see cref="TnefAttributeTag.OemCodepage"/> attribute or, if the TNEF stream did not contain one, the
+		/// codepage specified by the message's <see cref="TnefPropertyId.InternetCodepage"/> property (unless it
+		/// specifies a UTF-16 or UTF-32 codepage) or, failing that, <see cref="TnefOptions.DefaultCodepage"/>.</para>
+		/// <para>When the codepage comes from the <see cref="TnefPropertyId.InternetCodepage"/> property, 8-bit
+		/// strings that preceded that property in the TNEF stream were decoded using
+		/// <see cref="TnefOptions.DefaultCodepage"/>. The 8-bit message bodies always use this codepage.</para>
 		/// </remarks>
 		/// <value>The codepage.</value>
 		public int Codepage {
