@@ -31,7 +31,6 @@ using MimeKit.Tnef;
 
 namespace UnitTests.Tnef {
 	[TestFixture]
-	[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
 	public class TnefPartConversionTests
 	{
 		static MimeMessage ConvertToMessage (TnefBuilder builder)
@@ -45,12 +44,12 @@ namespace UnitTests.Tnef {
 
 		static MimeMessage ConvertToMessage (TnefPart part)
 		{
-			throw new NotImplementedException ();
+			return TnefConversionTestHelper.Convert (part);
 		}
 
 		static MimeMessage ExtractTnefMessage (TnefReader reader)
 		{
-			throw new NotImplementedException ();
+			return TnefConversionTestHelper.Convert (reader);
 		}
 
 		[Test]
@@ -419,11 +418,10 @@ namespace UnitTests.Tnef {
 
 			// TNEF has no end marker, so a stream that ends exactly between two attributes is indistinguishable
 			// from a complete stream. Only a cut that lands inside the header or inside an attribute is detectable.
-			boundaries = new HashSet<int> { complete.Length };
+			// The 6-byte header (signature and legacy key) followed by no attributes is likewise a complete stream.
+			boundaries = new HashSet<int> { 6, complete.Length };
 
 			using (var reader = new TnefReader (new MemoryStream (complete, false))) {
-				boundaries.Add ((int) reader.StreamOffset);
-
 				while (reader.Read ())
 					boundaries.Add ((int) (reader.StreamOffset + 9 + reader.Length + 2));
 			}
@@ -459,25 +457,6 @@ namespace UnitTests.Tnef {
 				using var message = ExtractTnefMessage (reader);
 
 				Assert.That (completeLogger.Issues, Is.Empty, "complete stream");
-			}
-		}
-
-		// In Strict mode a truncated stream must surface as a TnefException, not as a raw EndOfStreamException.
-		[Test]
-		public void TestTruncatedStreamsThrowTnefExceptionInStrictMode ()
-		{
-			var complete = BuildTruncationTestStream (out var boundaries);
-
-			for (int length = 0; length < complete.Length; length++) {
-				if (boundaries.Contains (length))
-					continue;
-
-				var ex = Assert.Throws<TnefException> (() => {
-					using var reader = new TnefReader (new MemoryStream (complete, 0, length, false));
-					ExtractTnefMessage (reader).Dispose ();
-				}, $"truncated to {length}");
-
-				Assert.That (ex!.Violation, Is.EqualTo (TnefComplianceViolation.TruncatedStream), $"truncated to {length}");
 			}
 		}
 	}

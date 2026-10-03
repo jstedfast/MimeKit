@@ -559,6 +559,44 @@ namespace UnitTests.Tnef {
 		[Test]
 		public Task TestReadRowsSkipsCurrentRowAsync () => RunTestReadRowsSkipsCurrentRowAsync (true);
 
+		async Task RunTestReadPropertyWithNoValuesAfterReadingValueAsync (bool async)
+		{
+			var multiValued = new TnefPropertyTag ((TnefPropertyId) 0x6610, TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteStringProperty (TnefPropertyTag.BodyW, "body");
+			properties.WritePropertyHeader (multiValued).WriteValueCount (0);
+			properties.WriteInt32Property (TnefPropertyTag.Priority, 1);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (await ReadAsync (reader, async), Is.True);
+
+			var prop = reader.GetPropertyReader ();
+
+			Assert.That (await ReadNextPropertyAsync (prop, async), Is.True);
+			Assert.That (async ? await prop.ReadValueAsStringAsync () : prop.ReadValueAsString (), Is.EqualTo ("body"));
+
+			// A property with no values must not inherit the "already read" state of the previous property's value.
+			Assert.That (await ReadNextPropertyAsync (prop, async), Is.True);
+			Assert.That (prop.Tag, Is.EqualTo (multiValued));
+
+			var empty = await ReadPropertyAsync (prop, async);
+
+			Assert.That (empty.Count, Is.EqualTo (0));
+
+			Assert.That (await ReadNextPropertyAsync (prop, async), Is.True);
+			Assert.That ((await ReadPropertyAsync (prop, async)).Value, Is.EqualTo (1));
+		}
+
+		[Test]
+		public Task TestReadPropertyWithNoValuesAfterReadingValue () => RunTestReadPropertyWithNoValuesAfterReadingValueAsync (false);
+
+		[Test]
+		public Task TestReadPropertyWithNoValuesAfterReadingValueAsync () => RunTestReadPropertyWithNoValuesAfterReadingValueAsync (true);
+
 		#endregion
 
 		#region Corpus

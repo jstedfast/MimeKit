@@ -1,0 +1,1577 @@
+﻿//
+// TnefMessageConverter.cs
+//
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
+//
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+// Specification map
+// -----------------
+// [MS-OXTNEF] defines the encapsulation that TnefMessage.Load decodes into the Message object model consumed here:
+// message properties come from attMsgProps (2.1.3.3.21) and the legacy message attributes (2.1.3.3.1-20),
+// recipients from attRecipTable (2.1.3.3.22) and attachments from attAttachment (2.1.3.3.23) and the legacy
+// attachment attributes (2.1.3.3.11-15). By the time TnefMessageConverter runs, that work is done.
+//
+// [MS-OXCMAIL] 2.1 ("MIME Generation Algorithm Details") specifies how a MIME writer turns a Message object into
+// MIME, and the property path below follows it:
+//
+//   Header                 Source                                   [MS-OXCMAIL] section
+//   ---------------------  ---------------------------------------  --------------------
+//   Received               PidTagTransportMessageHeaders            2.1.3.2.27
+//   From                   PidTagSentRepresenting* group            2.1.3.1.3
+//   Sender                 PidTagSender* group                      2.1.3.1.4
+//   Date                   PidTagClientSubmitTime                   2.1.3.2.7
+//   Subject                PidTagSubject / prefix + normalized      2.1.3.2.8
+//   Message-ID             PidTagInternetMessageId                  2.1.3.2.11 (correlator fallback: 2.1.3.2.26)
+//   To / Cc / Bcc          recipient table, PidTagRecipientType     2.1.3.1.1, 2.1.3.1.1.1, 2.1.3.1.1.2
+//   In-Reply-To            PidTagInReplyToId                        2.1.3.2.14
+//   References             PidTagInternetReferences                 2.1.3.2.12
+//   Importance             PidTagImportance                         2.1.3.2.5
+//   Priority               PidTagPriority                           (none; MimeKit extension, RFC 2156 values)
+//   Sensitivity            PidTagSensitivity                        2.1.3.2.6
+//   X-Message-Flag         PidLidFlagRequest                        2.1.3.2.25
+//   (arbitrary headers)    PS_INTERNET_HEADERS named properties     2.1.3.2.4
+//
+// Bodies follow 2.1.3.3 and attachments follow 2.1.3.4 (file name 2.1.3.4.2.1, Content-Type and
+// Content-Disposition 2.1.3.4.2.2, Content-ID/Location/Base 2.1.3.4.2.3, transfer encoding 2.1.3.4.2.4, OLE
+// 2.1.3.4.4, embedded messages 2.1.3.4.5). Property semantics are from [MS-OXCMSG] 2.2.1 (message) and 2.2.2
+// (attachment), [MS-OXOMSG] 2.2.1 and [MS-OXPROPS]. Where this converter deliberately departs from a SHOULD or a
+// MAY in [MS-OXCMAIL], the comment at that point says so and why.
+//
+// The MIME skeleton path follows [MS-OXCMAIL] 2.4.3.1 ("MIME Conversion"), which describes how a MIME reader
+// produces PidTagMimeSkeleton ([MS-OXCMSG] 2.2.1.28): the whole original MIME message, with the content removed
+// from the parts that were promoted to the message body or to attachments. A promoted part without a Content-Id is
+// given an X-Exchange-MIME-Skeleton-Content-Id header whose value is promoted to PidTagBodyContentId
+// ([MS-OXCMSG] 2.2.1.58.7) or PidTagAttachContentId ([MS-OXCMSG] 2.2.2.29). Reversing that process is the job of
+// the skeleton path below.
+
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Globalization;
+using System.Collections.Generic;
+
+using MimeKit.IO;
+using MimeKit.Text;
+using MimeKit.Utils;
+using MimeKit.IO.Filters;
+
+namespace MimeKit.Tnef {
+	/// <summary>
+	/// Converts a <see cref="TnefMessage"/> to a <see cref="MimeMessage"/>.
+	/// </summary>
+	/// <remarks>
+	/// <para>If the message has a <see cref="TnefPropertyId.MimeSkeleton"/>, the skeleton is parsed and its empty leaf
+	/// parts are filled in with the message's bodies and attachments. If the skeleton cannot be parsed, or does not
+	/// match the message's bodies and attachments, it is discarded.</para>
+	/// <para>Otherwise, the MIME message is built from the message's properties, as described by [MS-OXCMAIL].</para>
+	/// </remarks>
+	sealed class TnefMessageConverter
+	{
+		// [MS-OXCMAIL] 2.4.3.1: links an empty skeleton part to the body or attachment that supplies its content when the
+		// original part had no Content-Id of its own.
+		const string SkeletonContentIdField = "X-Exchange-MIME-Skeleton-Content-Id";
+		const string MessageFlagField = "X-Message-Flag";
+		const int BufferSize = 4096;
+
+		readonly List<TnefConversionLoss> losses;
+		readonly CancellationToken cancellationToken;
+		readonly TnefConversionOptions options;
+		readonly Encoding fallbackEncoding;
+		readonly TnefMessage tnef;
+		readonly bool embedded;
+		HtmlReferences? htmlReferences;
+		BestBodyFormat? bestBody;
+		byte[]? buffer;
+
+		enum BestBodyFormat {
+			Undefined,
+			PlainText,
+			Rtf,
+			Html
+		}
+
+		TnefMessageConverter (TnefMessage tnef, TnefConversionOptions options, List<TnefConversionLoss> losses, bool embedded, CancellationToken cancellationToken)
+		{
+			// [MS-OXTNEF] 2.1.3.3.2 / 2.1.3.5.1: attOemCodepage is the codepage of the non-Unicode (PtypString8)
+			// strings in the stream, so it is also the best guess for an 8-bit body that does not declare a charset.
+			fallbackEncoding = CharsetUtils.GetEncodingOrDefault (tnef.Codepage, TnefReader.DefaultEncoding);
+			this.cancellationToken = cancellationToken;
+			this.embedded = embedded;
+			this.options = options;
+			this.losses = losses;
+			this.tnef = tnef;
+		}
+
+		public static TnefConversionResult Convert (TnefMessage tnef, TnefConversionOptions options, CancellationToken cancellationToken)
+		{
+			var losses = new List<TnefConversionLoss> ();
+			var message = new TnefMessageConverter (tnef, options, losses, false, cancellationToken).Convert ();
+
+			return new TnefConversionResult (message, losses.AsReadOnly ());
+		}
+
+		MimeMessage Convert ()
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			// When the TNEF was produced from a MIME message, PidTagMimeSkeleton ([MS-OXCMSG] 2.2.1.28) holds that
+			// message's original headers and structure ([MS-OXCMAIL] 2.4.3.1), which the property path can only
+			// approximate. Prefer it whenever it is usable. When it is, PS_INTERNET_HEADERS and
+			// PidTagTransportMessageHeaders are not consulted, because the skeleton already contains those headers.
+			var skeleton = tnef.Properties.GetBytes (TnefPropertyTag.MimeSkeleton);
+
+			if (skeleton != null && skeleton.Length > 0) {
+				var message = ConvertSkeleton (skeleton);
+
+				if (message != null)
+					return message;
+			}
+
+			return ConvertProperties ();
+		}
+
+		void AddLoss (TnefConversionLossKind kind, string description)
+		{
+			losses.Add (new TnefConversionLoss (kind, description));
+		}
+
+		#region Streams
+
+		void CopyTo (Stream source, Stream destination)
+		{
+			buffer ??= new byte[BufferSize];
+
+			int nread;
+
+			while ((nread = source.Read (buffer, 0, buffer.Length)) > 0) {
+				cancellationToken.ThrowIfCancellationRequested ();
+				destination.Write (buffer, 0, nread);
+			}
+		}
+
+		MemoryBlockStream Copy (Stream source)
+		{
+			using (source) {
+				var content = new MemoryBlockStream ();
+
+				try {
+					CopyTo (source, content);
+					content.Position = 0;
+				} catch {
+					content.Dispose ();
+					throw;
+				}
+
+				return content;
+			}
+		}
+
+		MemoryBlockStream Transcode (Stream source, Encoding sourceEncoding, Encoding targetEncoding)
+		{
+			var filtered = new FilteredStream (source);
+
+			filtered.Add (new CharsetFilter (sourceEncoding, targetEncoding));
+
+			return Copy (filtered);
+		}
+
+		ContentEncoding GetBestEncoding (Stream content)
+		{
+			var filter = new BestEncodingFilter ();
+			int nread;
+
+			buffer ??= new byte[BufferSize];
+
+			while ((nread = content.Read (buffer, 0, buffer.Length)) > 0)
+				filter.Filter (buffer, 0, nread, out _, out _);
+
+			filter.Flush (buffer, 0, 0, out _, out _);
+			content.Position = 0;
+
+			return filter.GetBestEncoding (EncodingConstraint.SevenBit);
+		}
+
+		#endregion
+
+		#region Bodies
+
+		// Get the charset declared by the HTML document's <meta> element, if any. ISO-8859-1 is used to tokenize the
+		// document because it maps every byte to a character and so can never fail.
+		static string? GetHtmlMetaCharset (TnefMessageBody body)
+		{
+			using (var stream = body.OpenRead ())
+			using (var reader = new StreamReader (stream, CharsetUtils.Latin1, false)) {
+				var tokenizer = new HtmlTokenizer (reader);
+
+				while (tokenizer.ReadNextToken (out var token)) {
+					if (token.Kind != HtmlTokenKind.Tag)
+						continue;
+
+					var tag = (HtmlTagToken) token;
+
+					if (tag.Id == HtmlTagId.Body || (tag.Id == HtmlTagId.Head && tag.IsEndTag))
+						break;
+
+					if (tag.Id != HtmlTagId.Meta || tag.IsEndTag)
+						continue;
+
+					string? httpEquiv = null;
+					string? content = null;
+					string? charset = null;
+
+					for (int i = 0; i < tag.Attributes.Count; i++) {
+						switch (tag.Attributes[i].Id) {
+						case HtmlAttributeId.HttpEquiv: httpEquiv ??= tag.Attributes[i].Value; break;
+						case HtmlAttributeId.Content: content ??= tag.Attributes[i].Value; break;
+						case HtmlAttributeId.Charset: charset ??= tag.Attributes[i].Value; break;
+						}
+					}
+
+					if (!string.IsNullOrWhiteSpace (charset))
+						return charset!.Trim ();
+
+					if (httpEquiv is null || content is null || !httpEquiv.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase))
+						continue;
+
+					if (ContentType.TryParse (content, out var contentType) && !string.IsNullOrEmpty (contentType.Charset))
+						return contentType.Charset;
+				}
+			}
+
+			return null;
+		}
+
+		bool CanDecode (TnefMessageBody body, int codepage)
+		{
+			Decoder decoder;
+
+			try {
+				decoder = Encoding.GetEncoding (codepage, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback).GetDecoder ();
+			} catch (ArgumentException) {
+				return false;
+			} catch (NotSupportedException) {
+				return false;
+			}
+
+			buffer ??= new byte[BufferSize];
+
+			try {
+				using (var stream = body.OpenRead ()) {
+					int nread;
+
+					while ((nread = stream.Read (buffer, 0, buffer.Length)) > 0) {
+						cancellationToken.ThrowIfCancellationRequested ();
+						decoder.GetCharCount (buffer, 0, nread, false);
+					}
+
+					decoder.GetCharCount (buffer, 0, 0, true);
+				}
+			} catch (DecoderFallbackException) {
+				return false;
+			}
+
+			return true;
+		}
+
+		Encoding GetHtmlEncoding (TnefMessageBody body)
+		{
+			// PidTagHtml is binary ([MS-OXCMSG] 2.2.1.58.9), so its charset is not implied by the property type. The
+			// document's own <meta> declaration is what a browser would use to render it, so it takes precedence
+			// over PidTagInternetCodepage ([MS-OXCMSG] 2.2.1.58.6, surfaced as body.Encoding) — but only if the
+			// content actually decodes in that charset, since a stale declaration is common after editing.
+			var charset = GetHtmlMetaCharset (body);
+
+			if (charset != null) {
+				int codepage = CharsetUtils.GetCodePage (charset);
+
+				if (codepage != -1 && CanDecode (body, codepage))
+					return Encoding.GetEncoding (codepage);
+			}
+
+			return body.Encoding ?? fallbackEncoding;
+		}
+
+		void SetBodyContent (MimePart part, TnefMessageBody body)
+		{
+			MemoryBlockStream content;
+			string? charset;
+
+			if (body.Format == TnefMessageBodyFormat.CompressedRtf) {
+				// PidTagRtfCompressed ([MS-OXCMSG] 2.2.1.58.4) is decompressed as specified by [MS-OXRTFCP]. RTF
+				// declares its own character set (\ansicpg), so no MIME charset parameter is added.
+				content = Copy (body.OpenDecodedRead ());
+				charset = null;
+			} else if (body.Tag.ValueTnefType == TnefPropertyType.Unicode) {
+				// PtypString values are UTF-16LE ([MS-OXCDATA] 2.11.1); re-encode as UTF-8 for MIME.
+				content = Transcode (body.OpenRead (), Encoding.Unicode, CharsetUtils.UTF8);
+				charset = "utf-8";
+			} else {
+				// PtypString8 bodies and PidTagHtml are in PidTagInternetCodepage ([MS-OXCMSG] 2.2.1.58.6) when it is
+				// present, otherwise in the TNEF stream's codepage.
+				var encoding = body.Format == TnefMessageBodyFormat.Html ? GetHtmlEncoding (body) : body.Encoding ?? fallbackEncoding;
+
+				content = Copy (body.OpenRead ());
+				charset = CharsetUtils.GetMimeCharset (encoding);
+			}
+
+			part.Content = new MimeContent (content);
+
+			if (charset != null)
+				part.ContentType.Charset = charset;
+		}
+
+		TextPart CreateBodyPart (string subtype, TnefMessageBody body)
+		{
+			var part = new TextPart (subtype);
+
+			try {
+				SetBodyContent (part, body);
+			} catch {
+				part.Dispose ();
+				throw;
+			}
+
+			return part;
+		}
+
+		MimeEntity? CreateBody ()
+		{
+			var parts = new List<MimeEntity> (3);
+
+			try {
+				// [MS-OXCMAIL] 2.1.3.3: the message body is a single MIME entity. Its exact shape there depends on the
+				// "best body" ([MS-OXBBODY]) and on inline attachments (2.1.3.3.3-2.1.3.3.7), and a writer is expected
+				// to synthesize HTML from RTF. This converter does not synthesize content: every body present in the
+				// TNEF is emitted unchanged, as alternatives ordered from the least to the most preferred
+				// representation (RFC 2046 5.1.4). Inline attachments are not moved into a multipart/related.
+				if (tnef.TextBody != null)
+					parts.Add (CreateBodyPart ("plain", tnef.TextBody));
+
+				if (tnef.RtfBody != null)
+					parts.Add (CreateBodyPart ("rtf", tnef.RtfBody));
+
+				if (tnef.HtmlBody != null)
+					parts.Add (CreateBodyPart ("html", tnef.HtmlBody));
+			} catch {
+				foreach (var part in parts)
+					part.Dispose ();
+				throw;
+			}
+
+			if (parts.Count == 0)
+				return null;
+
+			if (parts.Count == 1)
+				return parts[0];
+
+			var alternative = new MultipartAlternative ();
+
+			foreach (var part in parts)
+				alternative.Add (part);
+
+			return alternative;
+		}
+
+		// [MS-OXBBODY] 2.1.3.1: the Best Body Algorithm. Only the inline-attachment rules of [MS-OXCMAIL] 2.1.3.4.1
+		// depend on the result; it does not change which bodies are emitted (see CreateBody).
+		BestBodyFormat GetBestBody ()
+		{
+			bestBody ??= ComputeBestBody ();
+
+			return bestBody.Value;
+		}
+
+		BestBodyFormat ComputeBestBody ()
+		{
+			// Step 1: PidTagNativeBody ([MS-OXCMSG] 2.2.1.58.2), if present with one of the values in the table, is the
+			// best body. Any other value falls through to the remaining steps.
+			switch (tnef.Properties.GetInt32 (TnefPropertyTag.NativeBody)) {
+			case 1: return BestBodyFormat.PlainText;
+			case 2: return BestBodyFormat.Rtf;
+			case 3: return BestBodyFormat.Html;
+			}
+
+			// Step 2: PlainStatus, RtfStatus and HtmlStatus are NoError when PidTagBody, PidTagRtfCompressed and
+			// PidTagHtml are present. A TNEF stream has no NotEnoughMemory state, so "NoError or NotEnoughMemory"
+			// reduces to "present", and rows 2-5 of the step 3 table are unreachable. RtfInSync is PidTagRtfInSync
+			// ([MS-OXCMSG] 2.2.1.58.5), or FALSE when absent. TnefMessage.HtmlBody also accepts PidTagBodyHtml.
+			bool plain = tnef.TextBody != null;
+			bool rtf = tnef.RtfBody != null;
+			bool html = tnef.HtmlBody != null;
+
+			if (!plain && !rtf && !html)
+				return BestBodyFormat.Undefined;                                    // row 1
+
+			bool rtfInSync = tnef.Properties.GetBoolean (TnefPropertyTag.RtfInSync) ?? false;
+
+			// Step 3, evaluated in the order specified.
+			if (rtf && html)
+				return rtfInSync ? BestBodyFormat.Rtf : BestBodyFormat.Html;       // rows 6 and 7
+
+			if (plain && rtf)
+				return rtfInSync ? BestBodyFormat.Rtf : BestBodyFormat.PlainText;  // rows 8 and 9.1
+
+			if (rtf)
+				return BestBodyFormat.Rtf;                                          // row 9.2
+
+			if (html && !plain)
+				return BestBodyFormat.Html;                                         // row 9.4
+
+			// Row 9.3 (plain text only) and row 10 (no other case fits, which includes plain text and HTML without
+			// RTF) are both plain text. IsInline treats an accompanying HTML body specially.
+			return BestBodyFormat.PlainText;
+		}
+
+		#endregion
+
+		#region Attachments
+
+		static string GetAttachmentLabel (TnefAttachment attachment, int index)
+		{
+			var name = attachment.FileName ?? attachment.Properties.GetString (TnefPropertyTag.DisplayNameW);
+
+			if (!string.IsNullOrEmpty (name))
+				return "\"" + name + "\"";
+
+			return "#" + (index + 1).ToString (CultureInfo.InvariantCulture);
+		}
+
+		// [MS-OXCMAIL] 2.1.3.4.2.2, widened from message/rfc822 to message/* (see CreateAttachment).
+		static bool IsForbiddenAttachmentType (ContentType contentType)
+		{
+			return contentType.IsMimeType ("multipart", "*") ||
+				contentType.IsMimeType ("message", "*") ||
+				contentType.IsMimeType ("application", "applefile") ||
+				contentType.IsMimeType ("application", "mac-binhex40");
+		}
+
+		static bool TryParseMsgId (string? value, out string msgid)
+		{
+			msgid = string.Empty;
+
+			if (string.IsNullOrWhiteSpace (value))
+				return false;
+
+			var buffer = Encoding.UTF8.GetBytes (value);
+			int index = 0;
+
+			// ParseUtils accepts "<>", but an empty msg-id is not valid (RFC 5322 3.6.4) and the MimeMessage and
+			// MimeEntity setters reject it.
+			if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out var id) || string.IsNullOrEmpty (id))
+				return false;
+
+			msgid = id;
+
+			return true;
+		}
+
+		// The Content-Ids and Content-Locations of the afRenderedInBody attachments, and whether the HTML body refers to
+		// each of them ([MS-OXCMAIL] 2.1.3.4.1.2). Only the attachments' own identifiers are stored, so memory use is
+		// bounded by the number of attachments rather than by the size of the HTML.
+		sealed class HtmlReferences
+		{
+			// A Content-Id is a msg-id (RFC 2045 7), whose domain part is case-insensitive. Mail clients are not
+			// consistent about the case of the rest, so the comparison is case-insensitive throughout.
+			readonly Dictionary<string, bool> contentIds = new Dictionary<string, bool> (StringComparer.OrdinalIgnoreCase);
+			readonly Dictionary<string, bool> locations = new Dictionary<string, bool> (StringComparer.Ordinal);
+			int unresolved;
+
+			static string? GetContentIdKey (string? value)
+			{
+				if (value is null)
+					return null;
+
+				value = value.Trim ();
+
+				if (value.Length >= 2 && value[0] == '<' && value[value.Length - 1] == '>')
+					value = value.Substring (1, value.Length - 2).Trim ();
+
+				return value.Length > 0 ? value : null;
+			}
+
+			// PidTagAttachContentLocation, and the absolute URI it resolves to: either itself or, when it is relative,
+			// relative to PidTagAttachContentBase ([MS-OXCMSG] 2.2.2.29).
+			static void GetLocationKeys (TnefAttachment attachment, out string? location, out string? absolute)
+			{
+				absolute = null;
+				location = attachment.Properties.GetString (TnefPropertyTag.AttachContentLocationW)?.Trim ();
+
+				if (string.IsNullOrEmpty (location)) {
+					location = null;
+					return;
+				}
+
+				if (Uri.TryCreate (location, UriKind.Absolute, out var uri)) {
+					absolute = uri.AbsoluteUri;
+					return;
+				}
+
+				var text = attachment.Properties.GetString (TnefPropertyTag.AttachContentBaseW)?.Trim ();
+
+				if (!string.IsNullOrEmpty (text) && Uri.TryCreate (text, UriKind.Absolute, out var baseUri) && Uri.TryCreate (baseUri, location, out uri))
+					absolute = uri.AbsoluteUri;
+			}
+
+			void AddCandidate (Dictionary<string, bool> candidates, string? key)
+			{
+				if (key != null && !candidates.ContainsKey (key)) {
+					candidates.Add (key, false);
+					unresolved++;
+				}
+			}
+
+			public bool AddCandidates (IReadOnlyList<TnefAttachment> attachments)
+			{
+				for (int i = 0; i < attachments.Count; i++) {
+					var attachment = attachments[i];
+
+					if ((attachment.Flags & TnefAttachFlags.RenderedInBody) == 0)
+						continue;
+
+					GetLocationKeys (attachment, out var location, out var absolute);
+					AddCandidate (contentIds, GetContentIdKey (attachment.ContentId));
+					AddCandidate (locations, location);
+					AddCandidate (locations, absolute);
+				}
+
+				return unresolved > 0;
+			}
+
+			void Resolve (Dictionary<string, bool> candidates, string key)
+			{
+				if (candidates.TryGetValue (key, out var found) && !found) {
+					candidates[key] = true;
+					unresolved--;
+				}
+			}
+
+			// Every attribute value is considered, rather than a fixed list of URL attributes (src, href, background,
+			// ...), so that a reference is not missed because it appears in an unexpected attribute. A Content-Id is
+			// referenced by a cid: URL (RFC 2392), whose value is the URL-encoded msg-id without angle brackets.
+			public void Scan (TextReader reader, CancellationToken cancellationToken)
+			{
+				var tokenizer = new HtmlTokenizer (reader);
+
+				while (unresolved > 0 && tokenizer.ReadNextToken (out var token)) {
+					if (token.Kind != HtmlTokenKind.Tag)
+						continue;
+
+					var tag = (HtmlTagToken) token;
+
+					cancellationToken.ThrowIfCancellationRequested ();
+
+					for (int i = 0; i < tag.Attributes.Count; i++) {
+						var value = tag.Attributes[i].Value?.Trim ();
+
+						if (string.IsNullOrEmpty (value))
+							continue;
+
+						if (value!.StartsWith ("cid:", StringComparison.OrdinalIgnoreCase)) {
+							var key = GetContentIdKey (Uri.UnescapeDataString (value.Substring (4)));
+
+							if (key != null)
+								Resolve (contentIds, key);
+						} else if (locations.Count > 0) {
+							Resolve (locations, value);
+
+							if (Uri.TryCreate (value, UriKind.Absolute, out var uri))
+								Resolve (locations, uri.AbsoluteUri);
+						}
+					}
+				}
+			}
+
+			public bool IsReferenced (TnefAttachment attachment)
+			{
+				var key = GetContentIdKey (attachment.ContentId);
+
+				if (key != null && contentIds.TryGetValue (key, out var found) && found)
+					return true;
+
+				GetLocationKeys (attachment, out var location, out var absolute);
+
+				return (location != null && locations.TryGetValue (location, out found) && found) ||
+					(absolute != null && locations.TryGetValue (absolute, out found) && found);
+			}
+		}
+
+		HtmlReferences GetHtmlReferences ()
+		{
+			if (htmlReferences != null)
+				return htmlReferences;
+
+			var body = tnef.HtmlBody;
+
+			htmlReferences = new HtmlReferences ();
+
+			if (body != null && htmlReferences.AddCandidates (tnef.Attachments)) {
+				// Decode the HTML the same way SetBodyContent labels it.
+				var encoding = body.Tag.ValueTnefType == TnefPropertyType.Unicode ? Encoding.Unicode : GetHtmlEncoding (body);
+
+				using (var stream = body.OpenRead ())
+				using (var reader = new StreamReader (stream, encoding, false))
+					htmlReferences.Scan (reader, cancellationToken);
+			}
+
+			return htmlReferences;
+		}
+
+		// [MS-OXCMAIL] 2.1.3.4.1: whether an attachment is rendered inline in the message body, which depends on the best
+		// body ([MS-OXBBODY] 2.1.3.1, see GetBestBody).
+		bool IsInline (TnefAttachment attachment)
+		{
+			// Writers SHOULD NOT treat attached Message objects as inline. This includes an afEmbeddedMessage attachment
+			// that is converted to an ordinary attachment because its content is not a valid embedded message.
+			if (attachment.IsEmbeddedMessage || attachment.Method == TnefAttachMethod.EmbeddedMessage)
+				return false;
+
+			switch (GetBestBody ()) {
+			case BestBodyFormat.Rtf:
+				// [MS-OXCMAIL] 2.1.3.4.1.1: with an RTF best body, all OLE attachments (afOle, [MS-OXCMSG] 2.2.2.9) are
+				// inline, and only OLE attachments are. afRenderedInBody is not consulted.
+				return attachment.Method == TnefAttachMethod.Ole;
+			case BestBodyFormat.PlainText when tnef.HtmlBody != null:
+				// [MS-OXCMAIL] 2.1.3.4.1 says that, with a plain text best body (which includes plain text + HTML without
+				// RTF, [MS-OXBBODY] 2.1.3.1 row 10, and PidTagNativeBody = 1), writers SHOULD ignore afRenderedInBody,
+				// PidTagAttachContentId and PidTagAttachContentLocation. This converter deliberately deviates: the HTML
+				// body is emitted alongside the plain text, so an attachment that it references is still rendered
+				// inline. If the HTML was generated from the plain text it references nothing, so no attachment
+				// becomes inline and the result matches the specified behavior.
+			case BestBodyFormat.Html:
+				// [MS-OXCMAIL] 2.1.3.4.1.2: with an HTML best body, an attachment is inline only if afRenderedInBody
+				// ([MS-OXCMSG] 2.2.2.18, PidTagAttachFlags) is set, it has a PidTagAttachContentId or a
+				// PidTagAttachContentLocation, and the HTML body refers to it. Writers SHOULD NOT rely on the flag alone.
+				if ((attachment.Flags & TnefAttachFlags.RenderedInBody) == 0)
+					return false;
+
+				return GetHtmlReferences ().IsReferenced (attachment);
+			default:
+				// [MS-OXCMAIL] 2.1.3.4.1: with a plain text best body (and no HTML body), writers SHOULD ignore
+				// afRenderedInBody,
+				// PidTagAttachContentId and PidTagAttachContentLocation when deciding whether an attachment is inline,
+				// so none is. Those properties still produce Content-Id and Content-Location headers (2.1.3.4.2.3).
+				// With no body at all (best body Undefined) there is nothing to render an attachment in.
+				return false;
+			}
+		}
+
+		void ApplyAttachmentProperties (MimeEntity entity, TnefAttachment attachment, string label)
+		{
+			var properties = attachment.Properties;
+
+			// [MS-OXCMAIL] 2.1.3.4.2.2: Content-Disposition. PidTagAttachmentDisposition ([MS-OXPROPS]) preserves the
+			// disposition of an attachment that was itself converted from MIME.
+			var text = properties.GetString (TnefPropertyTag.AttachDispositionW);
+
+			if (text != null && ContentDisposition.TryParse (text, out var disposition))
+				entity.ContentDisposition = disposition;
+
+			// [MS-OXCMAIL] 2.1.3.4.1: whether the attachment is rendered inline depends on the best body (see IsInline).
+			// An attachment that is not inline keeps whatever disposition PidTagAttachmentDisposition gave it.
+			if (IsInline (attachment)) {
+				if (entity.ContentDisposition is null)
+					entity.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
+				else
+					entity.ContentDisposition.Disposition = ContentDisposition.Inline;
+			}
+
+			// [MS-OXCMAIL] 2.1.3.4.2.1: PidTagAttachLongFilename, else PidTagAttachFilename ([MS-OXCMSG] 2.2.2.10,
+			// 2.2.2.11); TnefAttachment.FileName applies that order. [MS-OXCMAIL] 2.1.3.4.2.2 puts the name in the
+			// Content-Type name parameter as well as in the Content-Disposition filename parameter.
+			var fileName = attachment.FileName;
+
+			if (!string.IsNullOrEmpty (fileName)) {
+				if (entity is MimePart part) {
+					part.FileName = fileName;
+				} else {
+					entity.ContentDisposition ??= new ContentDisposition ();
+					entity.ContentDisposition.FileName = fileName;
+					entity.ContentType.Name = fileName;
+				}
+			}
+
+			// PidTagDisplayName ([MS-OXCMSG] 2.2.2.4) overrides the Content-Type name parameter. This is MimeKit's
+			// historical behaviour rather than a rule from [MS-OXCMAIL]; [MS-OXCMAIL] 2.1.3.4.4 does the same for OLE
+			// attachments.
+			var displayName = properties.GetString (TnefPropertyTag.DisplayNameW);
+
+			if (!string.IsNullOrEmpty (displayName))
+				entity.ContentType.Name = displayName;
+
+			// The Content-Disposition size, creation-date and modification-date parameters (RFC 2183) come from
+			// PidTagAttachSize, PidTagCreationTime and PidTagLastModificationTime ([MS-OXCMSG] 2.2.2.5, 2.2.2.3,
+			// 2.2.2.2). [MS-OXCMAIL] does not map these; they are carried over from the earlier TnefPart converter.
+			var size = properties.GetInt32 (TnefPropertyTag.AttachSize);
+
+			if (size.HasValue && size.Value >= 0) {
+				entity.ContentDisposition ??= new ContentDisposition ();
+				entity.ContentDisposition.Size = size.Value;
+			}
+
+			var created = properties.GetDateTime (TnefPropertyTag.CreationTime);
+
+			if (created.HasValue && TryGetDateTimeOffset (created.Value, out var date)) {
+				entity.ContentDisposition ??= new ContentDisposition ();
+				entity.ContentDisposition.CreationDate = date;
+			}
+
+			var modified = properties.GetDateTime (TnefPropertyTag.LastModificationTime);
+
+			if (modified.HasValue && TryGetDateTimeOffset (modified.Value, out date)) {
+				entity.ContentDisposition ??= new ContentDisposition ();
+				entity.ContentDisposition.ModificationDate = date;
+			}
+
+			// [MS-OXCMAIL] 2.1.3.4.2.3: PidTagAttachContentId, PidTagAttachContentLocation and PidTagAttachContentBase
+			// ([MS-OXCMSG] 2.2.2.29). The Content-Id SHOULD be trimmed and given angle brackets if it lacks them; the
+			// Content-Location SHOULD be generated only from a valid URI and the Content-Base only from a valid absolute
+			// URI.
+			text = attachment.ContentId;
+
+			if (text != null) {
+				if (TryParseMsgId (text, out var contentId))
+					entity.ContentId = contentId;
+				else
+					AddLoss (TnefConversionLossKind.InvalidMessageId, $"The Content-Id of attachment {label} is not a valid msg-id: {text}");
+			}
+
+			text = properties.GetString (TnefPropertyTag.AttachContentLocationW);
+
+			if (!string.IsNullOrWhiteSpace (text) && Uri.TryCreate (text!.Trim (), UriKind.RelativeOrAbsolute, out var location))
+				entity.ContentLocation = location;
+
+			text = properties.GetString (TnefPropertyTag.AttachContentBaseW);
+
+			if (!string.IsNullOrWhiteSpace (text) && Uri.TryCreate (text!.Trim (), UriKind.Absolute, out var contentBase))
+				entity.ContentBase = contentBase;
+		}
+
+		MimeMessage? ConvertEmbeddedMessage (TnefAttachment attachment, string label)
+		{
+			TnefMessage embeddedMessage;
+
+			// An afEmbeddedMessage attachment ([MS-OXCMSG] 2.2.2.9) carries its message in PidTagAttachDataObject
+			// ([MS-OXCMSG] 2.2.2.8) as a nested TNEF stream ([MS-OXTNEF] 2.1.3.4). Its losses are reported in the same
+			// list as the outer message's.
+			try {
+				embeddedMessage = attachment.LoadEmbeddedMessage (cancellationToken);
+			} catch (TnefException ex) {
+				AddLoss (TnefConversionLossKind.InvalidEmbeddedMessage, $"The embedded message in attachment {label} could not be loaded: {ex.Message}");
+				return null;
+			}
+
+			using (embeddedMessage)
+				return new TnefMessageConverter (embeddedMessage, options, losses, true, cancellationToken).Convert ();
+		}
+
+		MimeEntity CreateEmbeddedMessageAttachment (TnefAttachment attachment, string label)
+		{
+			MimeEntity entity;
+
+			if (options.ConvertEmbeddedMessages) {
+				// [MS-OXCMAIL] 2.1.3.4.5: an embedded message becomes a message/rfc822 part. That section says that
+				// no other headers SHOULD be generated for it; this converter deliberately keeps the attachment's
+				// Content-Disposition, file name and Content-Id so that they survive a round trip and stay visible to
+				// mail clients.
+				var message = ConvertEmbeddedMessage (attachment, label);
+
+				if (message != null) {
+					entity = new MessagePart { Message = message };
+
+					try {
+						ApplyAttachmentProperties (entity, attachment, label);
+					} catch {
+						entity.Dispose ();
+						throw;
+					}
+
+					return entity;
+				}
+			}
+
+			var part = new TnefPart ();
+
+			// When embedded messages are not converted (or the conversion failed), the nested TNEF stream is passed
+			// through as an application/ms-tnef part so that the caller can process it later.
+			try {
+				part.FileName = null;
+				part.ContentDisposition = null;
+				part.Content = new MimeContent (Copy (attachment.OpenRead ()));
+				part.ContentTransferEncoding = ContentEncoding.Base64;
+				ApplyAttachmentProperties (part, attachment, label);
+			} catch {
+				part.Dispose ();
+				throw;
+			}
+
+			return part;
+		}
+
+		void AddMissingContentLoss (TnefAttachment attachment, string label)
+		{
+			var method = attachment.Method;
+
+			// afByReference (2), afByReferenceResolve (3) and afByReferenceOnly (4) as defined by [MS-OXCMSG] 2.2.2.9
+			// point to a file path outside the message; per [MS-OXCMAIL] 2.1.3.4.2.4 a missing PidTagAttachDataBinary
+			// would produce an empty part, but an empty part would misrepresent the attachment, so it is dropped and
+			// reported instead.
+			switch ((int) method) {
+			case 2:
+			case 3:
+			case 4:
+				AddLoss (TnefConversionLossKind.UnsupportedAttachMethod, $"Attachment {label} refers to content outside of the TNEF stream ({method}) and was dropped.");
+				break;
+			default:
+				AddLoss (TnefConversionLossKind.AttachmentWithoutContent, $"Attachment {label} has no content and was dropped.");
+				break;
+			}
+		}
+
+		MimeEntity? CreateAttachment (TnefAttachment attachment, int index)
+		{
+			var label = GetAttachmentLabel (attachment, index);
+			var method = attachment.Method;
+
+			// [MS-OXCMAIL] 2.1.3.4: each attachment becomes one MIME entity.
+			if (!attachment.HasContent) {
+				AddMissingContentLoss (attachment, label);
+				return null;
+			}
+
+			if (attachment.IsEmbeddedMessage)
+				return CreateEmbeddedMessageAttachment (attachment, label);
+
+			if (method == TnefAttachMethod.EmbeddedMessage)
+				AddLoss (TnefConversionLossKind.InvalidEmbeddedMessage, $"Attachment {label} is not a valid embedded message and was converted to an ordinary attachment.");
+
+			// afOle attachments ([MS-OXCMSG] 2.2.2.9) are treated as ordinary attachments, using the PidTagAttachDataObject
+			// storage bytes as the content. [MS-OXCMAIL] 2.1.3.4.4 says that writers SHOULD emit the rendering
+			// (PidTagAttachRendering) as image/jpeg instead. This converter does not render OLE objects, so it passes the
+			// object through unchanged rather than label it with a content type it does not have.
+			var mimeType = attachment.MimeType;
+
+			// [MS-OXCMAIL] 2.1.3.4.2.2: the Content-Type comes from PidTagAttachMimeTag ([MS-OXCMSG] 2.2.2.29).
+			// Invalid values, multipart/*, application/applefile, application/mac-binhex40 and message/rfc822 MUST be
+			// replaced with application/octet-stream. This converter widens the rule to every message/* type: it
+			// base64-encodes attachment content, which RFC 2046 5.2 forbids for message/* types, and MimeKit would
+			// reparse a composite type as MIME structure. That makes this a security boundary as well, because an
+			// attacker-controlled MimeTag such as multipart/mixed would otherwise inject structure. The
+			// extension-based lookup that the spec allows for a missing MimeTag is not done.
+			if (mimeType is null || !ContentType.TryParse (mimeType, out var contentType) || IsForbiddenAttachmentType (contentType))
+				contentType = new ContentType ("application", "octet-stream");
+
+			var part = new MimePart (contentType);
+
+			try {
+				var content = Copy (attachment.OpenRead ());
+
+				part.Content = new MimeContent (content);
+
+				// [MS-OXCMAIL] 2.1.3.4.2.4 says writers SHOULD use base64 for ordinary attachments. Text attachments
+				// get the most readable encoding that is safe for their content instead. That is equally valid MIME,
+				// and it keeps the part human-readable.
+				if (contentType.IsMimeType ("text", "*"))
+					part.ContentTransferEncoding = GetBestEncoding (content);
+				else
+					part.ContentTransferEncoding = ContentEncoding.Base64;
+
+				ApplyAttachmentProperties (part, attachment, label);
+			} catch {
+				part.Dispose ();
+				throw;
+			}
+
+			return part;
+		}
+
+		#endregion
+
+		#region Headers
+
+		static bool TryGetDateTimeOffset (DateTime value, out DateTimeOffset date)
+		{
+			try {
+				date = value.Kind == DateTimeKind.Local ? new DateTimeOffset (value) : new DateTimeOffset (DateTime.SpecifyKind (value, DateTimeKind.Utc));
+				return true;
+			} catch (ArgumentOutOfRangeException) {
+				date = default;
+				return false;
+			}
+		}
+
+		static string? TrimNull (string? value)
+		{
+			return value?.TrimEnd ('\0');
+		}
+
+		// [MS-OXCMAIL] 2.1.3.1.1 lists the sources of an address in order of preference: (1) the EntryID, (2) the
+		// PidTagAddressType/PidTagEmailAddress pair when the address type is "SMTP", (3) PidTagSmtpAddress, and (4) an
+		// IMCEA-encapsulated address for any other address type ([MS-OXCMAIL] 2.1.3.1.8). EntryID resolution needs an
+		// address book, and IMCEA encapsulation is not implemented, so this applies steps 2 and 3 only. A non-SMTP
+		// address with no PidTagSmtpAddress is reported as a loss. As a MimeKit extension, the search key is used when
+		// neither property is present and it has the form "SMTP:address". The display name comes from the *Name
+		// property for the role (PidTagDisplayName for recipients); if it is absent, no display name is generated.
+		MailboxAddress? GetMailbox (string role, string? name, string? smtpAddress, string? emailAddress, string? addrType, string? searchKey)
+		{
+			bool isSmtp = string.IsNullOrEmpty (addrType) || addrType!.Equals ("SMTP", StringComparison.OrdinalIgnoreCase);
+			string? address = null;
+
+			if (isSmtp && !string.IsNullOrEmpty (emailAddress))
+				address = emailAddress;
+			else if (!string.IsNullOrEmpty (smtpAddress))
+				address = smtpAddress;
+			else if (isSmtp && searchKey != null && searchKey.StartsWith ("SMTP:", StringComparison.OrdinalIgnoreCase))
+				address = searchKey.Substring (5);
+
+			if (string.IsNullOrEmpty (address)) {
+				if (!isSmtp && !string.IsNullOrEmpty (emailAddress))
+					AddLoss (TnefConversionLossKind.UnparsableRecipient, $"The {role} address \"{emailAddress}\" has a non-SMTP address type ({addrType}) and was dropped.");
+				else if (!string.IsNullOrEmpty (name) || !string.IsNullOrEmpty (searchKey))
+					AddLoss (TnefConversionLossKind.UnparsableRecipient, $"The {role} \"{name ?? searchKey}\" does not have an Internet address and was dropped.");
+
+				return null;
+			}
+
+			if (!MailboxAddress.TryParse (address, out var mailbox)) {
+				AddLoss (TnefConversionLossKind.UnparsableRecipient, $"The {role} address \"{address}\" could not be parsed and was dropped.");
+				return null;
+			}
+
+			if (!string.IsNullOrEmpty (name))
+				mailbox.Name = name;
+
+			return mailbox;
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.27: Received headers come from PidTagTransportMessageHeaders ([MS-OXPROPS]), in their
+		// original order, ahead of every other header. That section says that writers MUST NOT copy them when the
+		// output is bound for SMTP delivery and SHOULD copy them for POP3/IMAP retrieval. The converter does not know where
+		// its output is going, so it always copies them and callers that resubmit over SMTP must remove them.
+		void AddReceivedHeaders (MimeMessage message)
+		{
+			var text = tnef.Properties.GetString (TnefPropertyTag.TransportMessageHeadersW)?.TrimStart ('\r', '\n');
+
+			if (string.IsNullOrEmpty (text))
+				return;
+
+			HeaderList headers;
+
+			try {
+				var buffer = Encoding.UTF8.GetBytes (text + "\r\n\r\n");
+
+				using (var stream = new MemoryStream (buffer, false))
+					headers = HeaderList.Load (ParserOptions.Default, stream, cancellationToken);
+			} catch (FormatException ex) {
+				AddLoss (TnefConversionLossKind.InvalidHeader, $"The transport message headers could not be parsed: {ex.Message}");
+				return;
+			}
+
+			foreach (var header in headers) {
+				if (header.Id == HeaderId.Received)
+					message.Headers.Add (header.Clone ());
+			}
+		}
+
+		// [MS-OXCMAIL] 2.1.3.1.3 and 2.1.3.1.4: From comes from the PidTagSentRepresenting* properties. Sender comes from
+		// the PidTagSender* properties and SHOULD NOT be generated when it identifies the same user. Without a
+		// sent-representing address, the sender becomes the From address. (The attFrom attribute is mapped onto these
+		// properties when the TNEF is loaded; see [MS-OXTNEF] 2.1.3.3.3.)
+		void AddOriginator (MimeMessage message)
+		{
+			var properties = tnef.Properties;
+
+			var representing = GetMailbox ("sent-representing",
+				properties.GetString (TnefPropertyTag.SentRepresentingNameW),
+				null,
+				properties.GetString (TnefPropertyTag.SentRepresentingEmailAddressW),
+				properties.GetString (TnefPropertyTag.SentRepresentingAddrtypeW),
+				TrimNull (properties.GetString (TnefPropertyTag.SentRepresentingSearchKey)));
+
+			var sender = GetMailbox ("sender",
+				properties.GetString (TnefPropertyTag.SenderNameW),
+				properties.GetString (TnefPropertyTag.SenderSmtpAddressW),
+				properties.GetString (TnefPropertyTag.SenderEmailAddressW),
+				properties.GetString (TnefPropertyTag.SenderAddrtypeW),
+				TrimNull (properties.GetString (TnefPropertyTag.SenderSearchKey)));
+
+			if (representing != null) {
+				message.From.Add (representing);
+
+				if (sender != null && !sender.Address.Equals (representing.Address, StringComparison.OrdinalIgnoreCase))
+					message.Sender = sender;
+			} else if (sender != null) {
+				message.From.Add (sender);
+			}
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.11: Message-Id comes from PidTagInternetMessageId.
+		void AddMessageId (MimeMessage message)
+		{
+			var properties = tnef.Properties;
+			var text = tnef.InternetMessageId;
+
+			if (text != null) {
+				if (TryParseMsgId (text, out var msgid)) {
+					message.MessageId = msgid;
+					return;
+				}
+
+				AddLoss (TnefConversionLossKind.InvalidMessageId, $"The Internet message identifier is not a valid msg-id: {text}");
+			}
+
+			// PidTagTnefCorrelationKey ([MS-OXCMSG] 2.2.1.29) ties the TNEF stream to its containing message.
+			// [MS-OXCMAIL] 2.1.3.2.26 says that writers SHOULD use the Message-Id of that message as the key, so use it
+			// as a fallback when it looks like a msg-id. This fallback is a MimeKit extension.
+			text = TrimNull (properties.GetString (TnefPropertyTag.TnefCorrelationKey));
+
+			if (text != null && text.Length > 5 && text[0] == '<' && text[text.Length - 1] == '>' && text.IndexOf ('@') != -1 && TryParseMsgId (text, out var key))
+				message.MessageId = key;
+		}
+
+		// [MS-OXCMAIL] 2.1.3.1.1.1 and 2.1.3.1.1.2: To, Cc and Bcc come from the recipient table (attRecipTable,
+		// [MS-OXTNEF] 2.1.3.3.22), keyed by PidTagRecipientType 1, 2 and 3. Writers SHOULD ignore any other recipient
+		// type.
+		void AddRecipients (MimeMessage message)
+		{
+			foreach (var recipient in tnef.Recipients) {
+				InternetAddressList list;
+				string role;
+
+				switch (recipient.RecipientType) {
+				case TnefRecipientType.To: list = message.To; role = "To recipient"; break;
+				case TnefRecipientType.Cc: list = message.Cc; role = "Cc recipient"; break;
+				case TnefRecipientType.Bcc: list = message.Bcc; role = "Bcc recipient"; break;
+				default: continue;
+				}
+
+				var properties = recipient.Properties;
+				var mailbox = GetMailbox (role,
+					recipient.DisplayName,
+					properties.GetString (TnefPropertyTag.SmtpAddressW),
+					properties.GetString (TnefPropertyTag.EmailAddressW),
+					recipient.AddressType,
+					TrimNull (properties.GetString (TnefPropertyTag.SearchKey)));
+
+				if (mailbox != null)
+					list.Add (mailbox);
+			}
+
+			// A MimeKit extension that is not in [MS-OXCMAIL]: when the TNEF stream has no recipient table, use
+			// PidTagReceivedBy* (the mailbox the message was delivered to) as the To address.
+			if (tnef.Recipients.Count == 0) {
+				var properties = tnef.Properties;
+				var mailbox = GetMailbox ("received-by",
+					properties.GetString (TnefPropertyTag.ReceivedByNameW),
+					null,
+					properties.GetString (TnefPropertyTag.ReceivedByEmailAddressW),
+					properties.GetString (TnefPropertyTag.ReceivedByAddrtypeW),
+					TrimNull (properties.GetString (TnefPropertyTag.ReceivedBySearchKey)));
+
+				if (mailbox != null)
+					message.To.Add (mailbox);
+			}
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.14: In-Reply-To from PidTagInReplyToId. [MS-OXCMAIL] 2.1.3.2.12: References from
+		// PidTagInternetReferences ([MS-OXCMSG] 2.2.1.26).
+		void AddThreadingHeaders (MimeMessage message)
+		{
+			var properties = tnef.Properties;
+			var text = properties.GetString (TnefPropertyTag.InReplyToIdW);
+
+			if (text != null) {
+				if (TryParseMsgId (text, out var msgid))
+					message.InReplyTo = msgid;
+				else
+					AddLoss (TnefConversionLossKind.InvalidMessageId, $"The In-Reply-To identifier is not a valid msg-id: {text}");
+			}
+
+			text = properties.GetString (TnefPropertyTag.InternetReferencesW);
+
+			if (text != null) {
+				foreach (var reference in MimeUtils.EnumerateReferences (text))
+					message.References.Add (reference);
+			}
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.5: Importance from PidTagImportance ([MS-OXCMSG] 2.2.1.11): 0 = Low, 1 = Normal and
+		// 2 = High. Writers MAY omit Normal; it is emitted so that the value round-trips. Other values are ignored.
+		void ApplyImportance (MimeMessage message)
+		{
+			switch (tnef.Properties.GetInt32 (TnefPropertyTag.Importance)) {
+			case 2: message.Importance = MessageImportance.High; break;
+			case 1: message.Importance = MessageImportance.Normal; break;
+			case 0: message.Importance = MessageImportance.Low; break;
+			}
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.25: X-Message-Flag comes from PidLidFlagRequest ([MS-OXPROPS] 2.136).
+		void ApplyMessageFlag (MimeMessage message)
+		{
+			if (tnef.Properties.TryGetValue (TnefNameId.FlagRequest, out var property) && property.TryGetString (out var flag) && !string.IsNullOrEmpty (flag))
+				message.Headers[MessageFlagField] = flag;
+		}
+
+		void AddPriorityHeaders (MimeMessage message)
+		{
+			var properties = tnef.Properties;
+
+			ApplyImportance (message);
+
+			// PidTagPriority ([MS-OXCMSG] 2.2.1.12): 1 = urgent, 0 = normal and -1 = not urgent. [MS-OXCMAIL] does not
+			// map PidTagPriority to a header in either direction. This MimeKit extension emits the RFC 2156 Priority
+			// header, whose urgent/normal/non-urgent values correspond directly.
+			switch (properties.GetInt32 (TnefPropertyTag.Priority)) {
+			case 1: message.Priority = MessagePriority.Urgent; break;
+			case 0: message.Priority = MessagePriority.Normal; break;
+			case -1: message.Priority = MessagePriority.NonUrgent; break;
+			}
+
+			// [MS-OXCMAIL] 2.1.3.2.6: Sensitivity from PidTagSensitivity ([MS-OXCMSG] 2.2.1.13). Writers SHOULD omit
+			// the header for 0 (normal) and for out-of-range values.
+			switch (properties.GetInt32 (TnefPropertyTag.Sensitivity)) {
+			case 1: message.Headers[HeaderId.Sensitivity] = "Personal"; break;
+			case 2: message.Headers[HeaderId.Sensitivity] = "Private"; break;
+			case 3: message.Headers[HeaderId.Sensitivity] = "Company-Confidential"; break;
+			}
+
+			ApplyMessageFlag (message);
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.4: writers SHOULD NOT generate headers whose names start with these Exchange-internal
+		// prefixes. [MS-OXCMAIL] 2.1.3.4.5 lifts that restriction for embedded messages, and it spells the
+		// prefixes in the X-MS-Exchange-* form, so both spellings are excluded.
+		static readonly string[] ExchangeInternalHeaderPrefixes = {
+			"X-Microsoft-Exchange-Organization",
+			"X-Microsoft-Exchange-Forest",
+			"X-MS-Exchange-Organization-",
+			"X-MS-Exchange-Forest-"
+		};
+
+		bool IsExcludedInternetHeader (string field)
+		{
+			// MIME structure headers describe the original MIME entity rather than the converted one.
+			if (field.StartsWith ("Content-", StringComparison.OrdinalIgnoreCase) || field.Equals ("MIME-Version", StringComparison.OrdinalIgnoreCase))
+				return true;
+
+			if (embedded)
+				return false;
+
+			foreach (var prefix in ExchangeInternalHeaderPrefixes) {
+				if (field.StartsWith (prefix, StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+
+			return false;
+		}
+
+		// [MS-OXCMAIL] 2.1.3.2.4: each PtypString named property in the PS_INTERNET_HEADERS property set is an
+		// arbitrary header whose name is the property name. Writers MUST NOT create such a header when another property
+		// already produced it, so this runs after every other header has been added and skips names that are already
+		// present. Multi-valued properties are a MimeKit extension that produces one header per value.
+		void AddInternetHeaders (MimeMessage message)
+		{
+			foreach (var property in tnef.Properties) {
+				var name = property.Name;
+
+				if (name is null || name.Value.Kind != TnefNameIdKind.Name || name.Value.PropertySetGuid != TnefPropertySetGuid.InternetHeaders)
+					continue;
+
+				var field = name.Value.Name;
+
+				if (string.IsNullOrEmpty (field) || IsExcludedInternetHeader (field!) || message.Headers.Contains (field!))
+					continue;
+
+				string[] values;
+
+				if (property.IsMultiValued) {
+					if (!property.TryGetValues<string> (out values)) {
+						AddLoss (TnefConversionLossKind.InvalidHeader, $"The {field} header does not have a string value and was dropped.");
+						continue;
+					}
+				} else if (property.TryGetString (out var value)) {
+					values = new[] { value };
+				} else {
+					AddLoss (TnefConversionLossKind.InvalidHeader, $"The {field} header does not have a string value and was dropped.");
+					continue;
+				}
+
+				foreach (var value in values) {
+					Header header;
+
+					try {
+						header = new Header (field!, value ?? string.Empty);
+					} catch (ArgumentException) {
+						AddLoss (TnefConversionLossKind.InvalidHeader, $"The \"{field}\" header has an invalid field name and was dropped.");
+						break;
+					}
+
+					message.Headers.Add (header);
+				}
+			}
+		}
+
+		#endregion
+
+		// The property path: builds the message from MAPI properties as described in [MS-OXCMAIL] 2.1 (MIME Generation).
+		// Only headers backed by a property are generated; nothing is fabricated (for example, no Date is invented).
+		MimeMessage ConvertProperties ()
+		{
+			var message = new MimeMessage (ParserOptions.Default.Clone ());
+			var attachments = new List<MimeEntity> ();
+
+			try {
+				AddReceivedHeaders (message);
+				AddOriginator (message);
+
+				// [MS-OXCMAIL] 2.1.3.2.7: Date from PidTagClientSubmitTime (UTC). attDateSent ([MS-OXTNEF] 2.1.3.3.4) is
+				// mapped onto that property when the TNEF is loaded.
+				var sent = tnef.Properties.GetDateTime (TnefPropertyTag.ClientSubmitTime);
+
+				if (sent.HasValue && TryGetDateTimeOffset (sent.Value, out var date))
+					message.Date = date;
+
+				var subject = tnef.Subject;
+
+				// [MS-OXCMAIL] 2.1.3.2.8: writers SHOULD build Subject from PidTagSubjectPrefix + PidTagNormalizedSubject
+				// ([MS-OXCMSG] 2.2.1.9, 2.2.1.10), MAY copy PidTagSubject ([MS-OXCMSG] 2.2.1.46) instead, and MUST use
+				// PidTagSubject when the other two are not available. PidTagSubject (or attSubject, [MS-OXTNEF]
+				// 2.1.3.3.7) is the value the sender actually saw, so it is preferred here under the MAY.
+				if (subject is null) {
+					var normalized = tnef.Properties.GetString (TnefPropertyTag.NormalizedSubjectW);
+
+					if (normalized != null)
+						subject = tnef.Properties.GetString (TnefPropertyTag.SubjectPrefixW) + normalized;
+				}
+
+				if (subject != null)
+					message.Subject = subject;
+
+				AddMessageId (message);
+				AddRecipients (message);
+				AddThreadingHeaders (message);
+				AddPriorityHeaders (message);
+
+				// Must run last; see AddInternetHeaders.
+				AddInternetHeaders (message);
+
+				var body = CreateBody ();
+
+				// [MS-OXCMAIL] 2.1.3.4: attachments are added in attachment-table order. [MS-OXCMAIL] 2.1.3.3 requires the
+				// body to be the first entity of the multipart/mixed.
+				for (int i = 0; i < tnef.Attachments.Count; i++) {
+					var attachment = CreateAttachment (tnef.Attachments[i], i);
+
+					if (attachment != null)
+						attachments.Add (attachment);
+				}
+
+				if (attachments.Count == 0) {
+					message.Body = body;
+				} else {
+					var mixed = new Multipart ("mixed");
+
+					if (body != null)
+						mixed.Add (body);
+
+					foreach (var attachment in attachments)
+						mixed.Add (attachment);
+
+					attachments.Clear ();
+					message.Body = mixed;
+				}
+			} catch {
+				foreach (var attachment in attachments)
+					attachment.Dispose ();
+
+				message.Dispose ();
+				throw;
+			}
+
+			return message;
+		}
+
+		#region MIME skeleton
+
+		sealed class SkeletonContext
+		{
+			readonly Dictionary<string, TnefAttachment> attachments = new Dictionary<string, TnefAttachment> (StringComparer.Ordinal);
+			readonly HashSet<TnefAttachment> consumed = new HashSet<TnefAttachment> ();
+			readonly TnefMessage tnef;
+			bool text, html, rtf;
+
+			public SkeletonContext (TnefMessage tnef)
+			{
+				this.tnef = tnef;
+
+				BodyContentId = NormalizeContentId (tnef.Properties.GetString (TnefPropertyTag.BodyContentIdW));
+
+				foreach (var attachment in tnef.Attachments) {
+					var id = NormalizeContentId (attachment.ContentId);
+
+					if (id != null && !attachments.ContainsKey (id))
+						attachments.Add (id, attachment);
+				}
+			}
+
+			public string? BodyContentId { get; }
+
+			public bool TryTakeAttachment (string id, out TnefAttachment attachment)
+			{
+				if (attachments.TryGetValue (id, out attachment!) && consumed.Add (attachment))
+					return true;
+
+				attachment = null!;
+
+				return false;
+			}
+
+			public bool IsConsumed (TnefAttachment attachment)
+			{
+				return consumed.Contains (attachment);
+			}
+
+			public TnefMessageBody? TakeBody (ContentType contentType)
+			{
+				if (contentType.IsMimeType ("text", "plain")) {
+					if (text || tnef.TextBody is null)
+						return null;
+
+					text = true;
+
+					return tnef.TextBody;
+				}
+
+				if (contentType.IsMimeType ("text", "html")) {
+					if (html || tnef.HtmlBody is null)
+						return null;
+
+					html = true;
+
+					return tnef.HtmlBody;
+				}
+
+				if (contentType.IsMimeType ("text", "rtf") || contentType.IsMimeType ("application", "rtf")) {
+					if (rtf || tnef.RtfBody is null)
+						return null;
+
+					rtf = true;
+
+					return tnef.RtfBody;
+				}
+
+				return null;
+			}
+		}
+
+		static string? NormalizeContentId (string? value)
+		{
+			if (value is null)
+				return null;
+
+			value = value.Trim ();
+
+			if (value.Length >= 2 && value[0] == '<' && value[value.Length - 1] == '>')
+				value = value.Substring (1, value.Length - 2).Trim ();
+
+			return value.Length > 0 ? value : null;
+		}
+
+		static string? TakeSkeletonContentId (MimeEntity entity)
+		{
+			// [MS-OXCMAIL] 2.4.3.1: the reader added X-Exchange-MIME-Skeleton-Content-Id only because the original part
+			// had no Content-Id. It is not part of the original message, so it is removed here. Otherwise the part's own
+			// Content-Id is the value that was promoted to PidTagAttachContentId or PidTagBodyContentId.
+			var value = entity.Headers[SkeletonContentIdField];
+
+			if (value != null)
+				entity.Headers.RemoveAll (SkeletonContentIdField);
+
+			return NormalizeContentId (value) ?? NormalizeContentId (entity.ContentId);
+		}
+
+		static bool IsEmpty (MimePart part)
+		{
+			return part.Content?.Stream is null || part.Content.Stream.Length == 0;
+		}
+
+		int IndexOf (TnefAttachment attachment)
+		{
+			for (int i = 0; i < tnef.Attachments.Count; i++) {
+				if (tnef.Attachments[i] == attachment)
+					return i;
+			}
+
+			return -1;
+		}
+
+		// Fills in the content of the skeleton's empty leaf parts. Returns null on success; otherwise, returns the reason
+		// that the skeleton does not match the message.
+		//
+		// [MS-OXCMAIL] 2.4.3.1 says that only the content of parts promoted to the body or to attachments is removed.
+		// Parts that still have content are kept as they are: vCard and iCalendar parts, message/delivery-status
+		// report parts, and anything else the reader did not promote. A vCard or iCalendar part can still claim its
+		// matching attachment, so that the attachment is not reported as missing from the skeleton.
+		//
+		// Not handled: for S/MIME, the skeleton holds only the root part's headers and the content lives in an
+		// attachment. Such a skeleton fails the "every attachment is consumed" check, so it falls back to the
+		// property path.
+		string? FillSkeleton (MimeEntity entity, SkeletonContext context)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			if (entity is Multipart multipart) {
+				foreach (var child in multipart) {
+					var reason = FillSkeleton (child, context);
+
+					if (reason != null)
+						return reason;
+				}
+
+				return null;
+			}
+
+			var id = TakeSkeletonContentId (entity);
+			TnefAttachment? attachment = null;
+
+			if (id != null && context.TryTakeAttachment (id, out var matched))
+				attachment = matched;
+
+			if (entity is MessagePart rfc822) {
+				if (attachment is null)
+					return null;
+
+				var label = GetAttachmentLabel (attachment, IndexOf (attachment));
+
+				if (!attachment.IsEmbeddedMessage)
+					return $"the message/rfc822 part <{id}> corresponds to attachment {label}, which is not an embedded message";
+
+				// The skeleton's structure is message/rfc822 here, so the embedded message is always converted,
+				// whatever TnefConversionOptions.ConvertEmbeddedMessages says.
+				var message = ConvertEmbeddedMessage (attachment, label);
+
+				if (message is null)
+					return $"the embedded message in attachment {label} could not be loaded";
+
+				rfc822.Message?.Dispose ();
+				rfc822.Message = message;
+
+				return null;
+			}
+
+			if (entity is not MimePart part)
+				return null;
+
+			if (attachment != null) {
+				if (!IsEmpty (part))
+					return null;
+
+				if (!attachment.HasContent)
+					return $"attachment {GetAttachmentLabel (attachment, IndexOf (attachment))} has no content";
+
+				part.Content = new MimeContent (Copy (attachment.OpenRead ()));
+
+				return null;
+			}
+
+			if (!IsEmpty (part))
+				return null;
+
+			// A part with no attachment, or a Content-Id that matches PidTagBodyContentId ([MS-OXCMSG] 2.2.1.58.7), is
+			// the promoted body. Its content type decides which body property fills it.
+			if (id is null || context.BodyContentId is null || id == context.BodyContentId) {
+				var body = context.TakeBody (part.ContentType);
+
+				if (body is null)
+					return $"the empty {part.ContentType.MimeType} part does not correspond to a body";
+
+				SetBodyContent (part, body);
+
+				return null;
+			}
+
+			return $"no attachment has the content identifier <{id}>";
+		}
+
+		MimeMessage? ConvertSkeleton (byte[] skeleton)
+		{
+			int lossCount = losses.Count;
+			MimeMessage? message = null;
+			string? reason;
+
+			try {
+				using (var stream = new MemoryStream (skeleton, false))
+					message = MimeMessage.Load (ParserOptions.Default, stream, cancellationToken);
+
+				if (message.Body is null) {
+					reason = "it does not have a body";
+				} else {
+					var context = new SkeletonContext (tnef);
+
+					reason = FillSkeleton (message.Body, context);
+
+					if (reason is null) {
+						for (int i = 0; i < tnef.Attachments.Count; i++) {
+							var attachment = tnef.Attachments[i];
+
+							if (attachment.HasContent && !context.IsConsumed (attachment)) {
+								reason = $"it does not contain attachment {GetAttachmentLabel (attachment, i)}";
+								break;
+							}
+						}
+					}
+				}
+			} catch (FormatException ex) {
+				reason = "it could not be parsed: " + ex.Message;
+			} catch {
+				message?.Dispose ();
+				throw;
+			}
+
+			if (reason != null) {
+				// The skeleton cannot be trusted, so discard anything recorded while trying it and fall back to the
+				// property path.
+				message?.Dispose ();
+				losses.RemoveRange (lossCount, losses.Count - lossCount);
+				AddLoss (TnefConversionLossKind.InvalidMimeSkeleton, $"The MIME skeleton was ignored because {reason}.");
+				return null;
+			}
+
+			for (int i = 0; i < tnef.Attachments.Count; i++) {
+				if (!tnef.Attachments[i].HasContent)
+					AddMissingContentLoss (tnef.Attachments[i], GetAttachmentLabel (tnef.Attachments[i], i));
+			}
+
+			// The skeleton records the headers as they were when the message arrived. PidTagImportance and
+			// PidLidFlagRequest are user-editable after delivery, so their current values replace the skeleton's
+			// ([MS-OXCMAIL] 2.1.3.2.5, 2.1.3.2.25).
+			ApplyImportance (message!);
+			ApplyMessageFlag (message!);
+
+			return message;
+		}
+
+		#endregion
+	}
+}

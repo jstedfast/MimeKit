@@ -25,7 +25,11 @@
 //
 
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
+using MimeKit.Utils;
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A MIME part containing Microsoft TNEF data.
@@ -67,6 +71,92 @@ namespace MimeKit.Tnef {
 		void CheckDisposed ()
 		{
 			CheckDisposed (nameof (TnefPart));
+		}
+
+		Stream OpenContent (ref TnefOptions? options)
+		{
+			CheckDisposed ();
+
+			if (Content is null)
+				throw new InvalidOperationException ("The TNEF part does not have any content.");
+
+			if (options is null) {
+				var charset = ContentType.Charset;
+				int codepage;
+
+				if (!string.IsNullOrEmpty (charset) && (codepage = CharsetUtils.GetCodePage (charset!)) > 0)
+					options = new TnefOptions { DefaultCodepage = codepage };
+			}
+
+			return Content.Open ();
+		}
+
+		/// <summary>
+		/// Load the TNEF message contained within the part.
+		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the content of the part and loads the TNEF message that it contains.</para>
+		/// <para>If <paramref name="options"/> is <see langword="null"/> and the Content-Type of the part has a charset
+		/// parameter, the codepage of that charset is used as the <see cref="TnefOptions.DefaultCodepage"/>.</para>
+		/// <para>The returned message is independent of the part and must be disposed by the caller. Use
+		/// <see cref="TnefMessage.ConvertToMime"/> to convert it to a <see cref="MimeMessage"/>.</para>
+		/// </remarks>
+		/// <returns>The TNEF message.</returns>
+		/// <param name="options">The options to use, or <see langword="null"/> to use the default options.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefPart"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The part does not have any content.
+		/// </exception>
+		/// <exception cref="TnefException">
+		/// The content does not begin with the TNEF signature.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public TnefMessage LoadTnefMessage (TnefOptions? options = null, CancellationToken cancellationToken = default)
+		{
+			using (var stream = OpenContent (ref options))
+				return TnefMessage.Load (stream, options, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously load the TNEF message contained within the part.
+		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the content of the part and asynchronously loads the TNEF message that it contains.</para>
+		/// <para>If <paramref name="options"/> is <see langword="null"/> and the Content-Type of the part has a charset
+		/// parameter, the codepage of that charset is used as the <see cref="TnefOptions.DefaultCodepage"/>.</para>
+		/// <para>The returned message is independent of the part and must be disposed by the caller. Use
+		/// <see cref="TnefMessage.ConvertToMime"/> to convert it to a <see cref="MimeMessage"/>.</para>
+		/// </remarks>
+		/// <returns>The TNEF message.</returns>
+		/// <param name="options">The options to use, or <see langword="null"/> to use the default options.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefPart"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The part does not have any content.
+		/// </exception>
+		/// <exception cref="TnefException">
+		/// The content does not begin with the TNEF signature.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public async Task<TnefMessage> LoadTnefMessageAsync (TnefOptions? options = null, CancellationToken cancellationToken = default)
+		{
+			using (var stream = OpenContent (ref options))
+				return await TnefMessage.LoadAsync (stream, options, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>

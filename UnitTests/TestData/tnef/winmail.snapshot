@@ -1,7 +1,4 @@
 message
-  From: 
-  Subject: 
-  Message-Id: (generated)
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
     TextPart text/rtf
@@ -10,11 +7,11 @@ message
       text: {\\rtf1\\adeflang1025\\ansi\\ansicpg936\\uc2\\adeff31507\\deff0\\stshfdbch31505\\stshfloch31506\\stshfhich31506\\stshfbi31507\\deflang1033\\deflangfe2052\\themelang1033\\themelangfe2052\\themelangcs0{\\fonttbl{\\f2\\fbidi \\fmodern\\fcharset0\\fprq1{\\*\\panose 020703090202050204...
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname="Picture (Device Independent Bitmap)"
-      Content-Disposition: attachment; filename=Untitled Attachment; modification-date=2015-01-09T20:59:46Z; size=29307
       Content-Transfer-Encoding: base64
-      content: encoding=Default length=29200 sha256=0d41694376064226e8029d4008bd57726d4c763805542206e6a49c109a143944
+      Content-Disposition: inline; filename=Untitled Attachment; size=29307; modification-date=2015-01-09T15:59:46Z
+      content: encoding=Default length=29184 sha256=385d3d54e32f7f720668a11eae7afac1e690b96327262f691a9f7f27bad32681
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname="Picture (Device Independent Bitmap)"
-      Content-Disposition: attachment; filename=Untitled Attachment; modification-date=2015-01-09T20:59:46Z; size=68731
       Content-Transfer-Encoding: base64
-      content: encoding=Default length=68624 sha256=3f9e7c77d1bd77b31f2de5483507e7f4e1c86bae2514d6ccc0f61edca86346ed
+      Content-Disposition: inline; filename=Untitled Attachment; size=68731; modification-date=2015-01-09T15:59:46Z
+      content: encoding=Default length=68608 sha256=f95862718f98d9aa32147e171e3f3f9b79256ad9570ed83ab32572b5aed7d8bc

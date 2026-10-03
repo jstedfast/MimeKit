@@ -430,6 +430,8 @@ namespace MimeKit.Tnef {
 			hasProperty = true;
 			valueCount = 0;
 			valueIndex = -1;
+			consumed = false;
+			hasValue = false;
 			name = null;
 		}
 

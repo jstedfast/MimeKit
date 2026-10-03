@@ -1,7 +1,6 @@
 message
-  From: 
-  Subject: 
   Message-Id: <DM5PR21MB0828DA2B8C88048BC03EFFA6CFA20@DM5PR21MB0828.namprd21.prod.outlook.com>
+  msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=jestedfa@microsoft.com; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2018-12-15T15:07:06.8221370Z; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure Information Protection; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic; Sensitivity=General
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
     TextPart text/rtf
@@ -10,26 +9,16 @@ message
       text: {\\rtf1\\adeflang1025\\ansi\\ansicpg1252\\uc1\\adeff31507\\deff0\\stshfdbch31506\\stshfloch31506\\stshfhich31506\\stshfbi31507\\deflang1033\\deflangfe1033\\themelang1033\\themelangfe0\\themelangcs0{\\fonttbl{\\f0\\fbidi \\froman\\fcharset0\\fprq2{\\*\\panose 02020603050405020304}...
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname=kitten-playing-with-a-christmas-tree.jpg
-      Content-Disposition: attachment; modification-date=2018-12-15T15:03:32Z; filename=kitten-playing-with-a-christmas-tree.jpg; size=378843
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=kitten-playing-with-a-christmas-tree.jpg; size=378843; modification-date=2018-12-15T10:03:32Z
       content: encoding=Default length=375081 sha256=f79d79bf20d19d17f4bbc92bc59485be362df93deaa92b71cc0d490d3b7ac935
-    MimePart application/octet-stream
-      Content-Type: application/octet-stream; name="Build a train table"
-      Content-Disposition: attachment; filename=Untitled Attachment; modification-date=2018-12-15T15:17:38Z; size=9217
-      Content-Transfer-Encoding: base64
-      content: encoding=Default length=89 sha256=75f459e8f4943b779961210b0cc9e70b7f52e0d09983d92b4fb19c5db54fdc16
     TnefPart application/ms-tnef
       Content-Type: application/ms-tnef; name="Build a train table"
-      Content-Disposition: attachment; filename=Untitled Attachment; modification-date=2018-12-15T15:17:38Z; size=9217
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=Untitled Attachment; size=9217; modification-date=2018-12-15T10:17:38Z
       content: encoding=Default length=6508 sha256=ffaf277cb2d598c5235ff295852dfc941bca0f500f487fc4699147482f34bf0b
-    MimePart application/octet-stream
-      Content-Type: application/octet-stream; name="Christmas Celebration!"
-      Content-Disposition: attachment; filename=Untitled Attachment; modification-date=2018-12-15T15:17:38Z; size=387453
-      Content-Transfer-Encoding: base64
-      content: encoding=Default length=89 sha256=75f459e8f4943b779961210b0cc9e70b7f52e0d09983d92b4fb19c5db54fdc16
     TnefPart application/ms-tnef
       Content-Type: application/ms-tnef; name="Christmas Celebration!"
-      Content-Disposition: attachment; filename=Untitled Attachment; modification-date=2018-12-15T15:17:38Z; size=387453
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=Untitled Attachment; size=387453; modification-date=2018-12-15T10:17:38Z
       content: encoding=Default length=385301 sha256=b70438e89e97db895fa43d906c163d4cb5f4bd03d78b0d66060d788938ad65ae

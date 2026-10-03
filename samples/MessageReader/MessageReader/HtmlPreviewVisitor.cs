@@ -242,7 +242,12 @@ namespace MessageReader
 		protected override void VisitTnefPart (TnefPart entity)
 		{
 			// extract any attachments in the MS-TNEF part
-			attachments.AddRange (entity.ExtractAttachments ());
+			using (var tnef = entity.LoadTnefMessage ()) {
+				// the converted message (and its attachments) outlives the TnefMessage
+				var result = tnef.ConvertToMime ();
+
+				attachments.AddRange (result.Message.Attachments);
+			}
 		}
 
 		protected override void VisitMessagePart (MessagePart entity)

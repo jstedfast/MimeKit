@@ -49,7 +49,6 @@ namespace UnitTests.Tnef {
 	/// the resulting diff before committing it.</para>
 	/// </remarks>
 	[TestFixture]
-	[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
 	public class TnefConversionSnapshotTests
 	{
 		const int TextPreviewLength = 256;
@@ -80,7 +79,7 @@ namespace UnitTests.Tnef {
 
 		static MimeMessage ConvertToMessage (TnefPart part)
 		{
-			throw new NotImplementedException ();
+			return TnefConversionTestHelper.Convert (part);
 		}
 
 		/// <summary>

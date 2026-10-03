@@ -1,8 +1,11 @@
 message
   From: Administrator <Administrator@exchange.local>
+  Date: 2017-03-07T12:04:24Z
   Subject: example
   Message-Id: <011fdf9d1a754260a583e5c6c89061d3@WIN-N56837RFTER.exchange.local>
-  Date: 2017-03-07T17:04:24Z
+  acceptlanguage: de-DE, en-US
+  x-ms-has-attach: yes
+  x-originating-ip: [192.168.122.1]
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
     TextPart text/html
@@ -11,6 +14,6 @@ message
       text: <html>\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">\r\n<style type="text/css" style="display:none"><!--P{margin-top:0;margin-bottom:0;} .ms-cui-menu {background-color:#ffffff;border:1px rgb(171, 171, 171) solid;font-family:...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=example.dat
-      Content-Disposition: attachment; filename=example.dat; creation-date=2017-03-07T17:04:23Z; modification-date=2017-03-07T17:04:23Z
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=example.dat; creation-date=2017-03-07T12:04:23Z; modification-date=2017-03-07T12:04:23Z
       content: encoding=Default length=1024 sha256=b188960490adc65828dc99f6183137bd9951725ed739982920c9814bc842ccb5

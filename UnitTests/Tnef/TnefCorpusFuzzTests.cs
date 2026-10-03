@@ -213,7 +213,7 @@ namespace UnitTests.Tnef {
 
 		static MimeMessage ConvertToMessage (byte[] data)
 		{
-			throw new NotImplementedException ();
+			return TnefConversionTestHelper.ConvertArbitrary (data);
 		}
 
 		[Test]
@@ -386,7 +386,6 @@ namespace UnitTests.Tnef {
 		}
 
 		[TestCaseSource (nameof (SeedCases))]
-		[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
 		public void TestMutatedCorpusConvertToMessageUpholdsInvariants (string fileName)
 		{
 			var seed = File.ReadAllBytes (Path.Combine (CorpusDirectory, fileName));

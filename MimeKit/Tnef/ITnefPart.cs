@@ -24,6 +24,9 @@
 // THE SOFTWARE.
 //
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// An interface for a MIME part containing Microsoft TNEF data.
@@ -35,5 +38,64 @@ namespace MimeKit.Tnef {
 	/// </remarks>
 	public interface ITnefPart : IMimePart
 	{
+		/// <summary>
+		/// Load the TNEF message contained within the part.
+		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the content of the part and loads the TNEF message that it contains.</para>
+		/// <para>If <paramref name="options"/> is <see langword="null"/> and the Content-Type of the part has a charset
+		/// parameter, the codepage of that charset is used as the <see cref="TnefOptions.DefaultCodepage"/>.</para>
+		/// <para>The returned message is independent of the part and must be disposed by the caller. Use
+		/// <see cref="TnefMessage.ConvertToMime"/> to convert it to a <see cref="MimeMessage"/>.</para>
+		/// </remarks>
+		/// <returns>The TNEF message.</returns>
+		/// <param name="options">The options to use, or <see langword="null"/> to use the default options.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The part has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The part does not have any content.
+		/// </exception>
+		/// <exception cref="TnefException">
+		/// The content does not begin with the TNEF signature.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		TnefMessage LoadTnefMessage (TnefOptions? options = null, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Asynchronously load the TNEF message contained within the part.
+		/// </summary>
+		/// <remarks>
+		/// <para>Decodes the content of the part and asynchronously loads the TNEF message that it contains.</para>
+		/// <para>If <paramref name="options"/> is <see langword="null"/> and the Content-Type of the part has a charset
+		/// parameter, the codepage of that charset is used as the <see cref="TnefOptions.DefaultCodepage"/>.</para>
+		/// <para>The returned message is independent of the part and must be disposed by the caller. Use
+		/// <see cref="TnefMessage.ConvertToMime"/> to convert it to a <see cref="MimeMessage"/>.</para>
+		/// </remarks>
+		/// <returns>The TNEF message.</returns>
+		/// <param name="options">The options to use, or <see langword="null"/> to use the default options.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The part has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The part does not have any content.
+		/// </exception>
+		/// <exception cref="TnefException">
+		/// The content does not begin with the TNEF signature.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		Task<TnefMessage> LoadTnefMessageAsync (TnefOptions? options = null, CancellationToken cancellationToken = default);
 	}
 }

@@ -288,7 +288,6 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
 		public void TestConvertToMessageWithOversizedLength ()
 		{
 			var tnef = CreateTnefStream (int.MaxValue);
@@ -301,17 +300,14 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
-		public void TestExtractAttachmentsWithOversizedLength ()
+		public void TestLoadTnefMessageWithOversizedLength ()
 		{
 			var tnef = CreateTnefStream (int.MaxValue);
 			var part = new TnefPart { Content = new MimeContent (new MemoryStream (tnef, false)) };
 
-			Assert.DoesNotThrow (() => _ = ExtractAttachments (part).ToList ());
+			Assert.DoesNotThrow (() => part.LoadTnefMessage ().Dispose ());
 		}
 
-		static MimeMessage ConvertToMessage (TnefPart part) => throw new NotImplementedException ();
-
-		static IEnumerable<MimeEntity> ExtractAttachments (TnefPart part) => throw new NotImplementedException ();
+		static MimeMessage ConvertToMessage (TnefPart part) => TnefConversionTestHelper.Convert (part);
 	}
 }

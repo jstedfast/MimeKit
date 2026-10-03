@@ -278,6 +278,48 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
+		/// Convert the message to MIME.
+		/// </summary>
+		/// <remarks>
+		/// <para>Converts the TNEF message to a <see cref="MimeMessage"/>.</para>
+		/// <para>If the message has a <see cref="TnefPropertyId.MimeSkeleton"/> property, the MIME structure and headers
+		/// are taken from the skeleton and its empty parts are filled in with the message's bodies and attachments. If the
+		/// skeleton cannot be parsed or does not match the message's bodies and attachments, it is discarded and a
+		/// <see cref="TnefConversionLossKind.InvalidMimeSkeleton"/> loss is reported.</para>
+		/// <para>Otherwise, the MIME message is built from the message's properties:</para>
+		/// <list type="bullet">
+		/// <item>The Received headers are taken from the <see cref="TnefPropertyId.TransportMessageHeaders"/>, followed
+		/// by the headers that correspond to the message's properties (such as From, Date, Subject, Message-Id, To and
+		/// Cc), and then the headers stored in the <see cref="TnefPropertySetGuid.InternetHeaders"/> named properties.
+		/// No header is generated that does not correspond to a property.</item>
+		/// <item>The plain text, compressed RTF and HTML bodies become a <c>multipart/alternative</c>, in that
+		/// order, if there is more than one.</item>
+		/// <item>The attachments follow the body within a <c>multipart/mixed</c>.</item>
+		/// </list>
+		/// <para>The information that could not be represented in MIME is listed in
+		/// <see cref="TnefConversionResult.Losses"/>.</para>
+		/// <para>The converted message is independent of the <see cref="TnefMessage"/>, which may be disposed
+		/// afterwards.</para>
+		/// </remarks>
+		/// <returns>The result of the conversion.</returns>
+		/// <param name="options">The conversion options, or <see langword="null"/> to use
+		/// <see cref="TnefConversionOptions.Default"/>.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefMessage"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public TnefConversionResult ConvertToMime (TnefConversionOptions? options = null, CancellationToken cancellationToken = default)
+		{
+			if (disposed)
+				throw new ObjectDisposedException (nameof (TnefMessage));
+
+			return TnefMessageConverter.Convert (this, options ?? TnefConversionOptions.Default, cancellationToken);
+		}
+
+		/// <summary>
 		/// Release all resources used by the <see cref="TnefMessage"/> object.
 		/// </summary>
 		/// <remarks>

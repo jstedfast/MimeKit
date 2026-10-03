@@ -1389,6 +1389,15 @@ namespace MimeKit.Tnef {
 		MsgStatus                                = 0x0E17,
 
 		/// <summary>
+		/// The MAPI property PR_NATIVE_BODY_INFO (PidTagNativeBody).
+		/// </summary>
+		/// <remarks>
+		/// Indicates the best available format for storing the message body: 1 for plain text, 2 for RTF and 3 for HTML
+		/// ([MS-OXCMSG] section 2.2.1.58.2, [MS-OXBBODY] section 2.1.3.1).
+		/// </remarks>
+		NativeBody                               = 0x1016,
+
+		/// <summary>
 		/// The MAPI property PR_NDR_DIAG_CODE.
 		/// </summary>
 		NdrDiagCode                              = 0x0C05,

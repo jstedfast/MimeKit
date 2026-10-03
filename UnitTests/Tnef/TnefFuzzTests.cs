@@ -172,7 +172,7 @@ namespace UnitTests.Tnef {
 
 		static MimeMessage ConvertToMessage (byte[] data)
 		{
-			throw new NotImplementedException ();
+			return TnefConversionTestHelper.ConvertArbitrary (data);
 		}
 
 		public static void AssertInvariants (byte[] data, string what)
@@ -437,7 +437,6 @@ namespace UnitTests.Tnef {
 		}
 
 		[TestCaseSource (nameof (ReaderCases))]
-		[Ignore ("Re-enabled in step 6 when TnefMessage.ToMimeMessage lands")]
 		public void TestConvertToMessageUpholdsInvariants (MalformedCase test)
 		{
 			Assert.DoesNotThrow (() => ConvertToMessage (test.Data).Dispose (), test.Name);

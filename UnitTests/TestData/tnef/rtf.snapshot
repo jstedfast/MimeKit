@@ -1,10 +1,10 @@
 message
-  From: 
+  Date: 1999-10-14T12:55:44Z
   Subject: 
   Message-Id: <013501bf1643$6d982290$17ce15d1@hornet.vireo.com>
-  Date: 1999-10-14T12:55:44Z
-  Priority: urgent
   To: "Simpson, Mark" <mark.simpson@numega.com>
+  Importance: high
+  Priority: urgent
   TextPart text/rtf
     Content-Type: text/rtf
     content: encoding=Default length=593 sha256=285e04e771fe1f1d699d8c7c6ce5d5fcf4dfebf239d9ed002239662e4862bde7

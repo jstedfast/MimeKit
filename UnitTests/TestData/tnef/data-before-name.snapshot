@@ -1,6 +1,5 @@
 message
   From: ADAM@PTM.COM
-  Subject: 
   Message-Id: <NEBBJICMOKLANKBNHOELOEENCCAA.Adam@PTM.com>
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
@@ -10,16 +9,16 @@ message
       text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\r\n\\viewkind4\\uc1\\pard\\f0\\fs20 asdf\\objattph\\'20\\objattph\\'20\\objattph\\'20\\par\r\n}\r\n\u0000
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=AUTOEXEC.BAT
-      Content-Disposition: attachment; modification-date=2000-03-24T14:30:09Z; filename=AUTOEXEC.BAT; size=3605
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=AUTOEXEC.BAT; size=3605; modification-date=2000-03-24T09:30:09Z
       content: encoding=Default length=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=CONFIG.SYS
-      Content-Disposition: attachment; modification-date=2000-03-24T14:30:09Z; filename=CONFIG.SYS; size=3599
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=CONFIG.SYS; size=3599; modification-date=2000-03-24T09:30:09Z
       content: encoding=Default length=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=boot.ini
-      Content-Disposition: attachment; modification-date=2000-03-24T14:26:59Z; filename=boot.ini; size=3882
       Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=boot.ini; size=3882; modification-date=2000-03-24T09:26:59Z
       content: encoding=Default length=289 sha256=a815374e31481bbb939d99e73ecfe1de7914363ecd5c670c60a9022474251bce

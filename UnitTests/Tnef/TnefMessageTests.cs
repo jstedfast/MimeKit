@@ -209,7 +209,7 @@ namespace UnitTests.Tnef {
 			}
 		}
 
-		static void AssertContent (string directory, string fileName, Stream actual, string description, int expectedOffset = 0)
+		static void AssertContent (string directory, string fileName, Stream actual, string description)
 		{
 			var path = Path.Combine (directory, fileName);
 
@@ -221,11 +221,6 @@ namespace UnitTests.Tnef {
 
 			using (var stream = File.OpenRead (path))
 				expected = ReadAll (stream, text);
-
-			// The expectation files for OLE attachments were produced by the old extractor which kept the
-			// 16-byte IID prefix that TnefAttachment.OpenRead() now strips.
-			if (expectedOffset > 0)
-				expected = expected.Skip (expectedOffset).ToArray ();
 
 			var bytes = ReadAll (actual, text);
 
@@ -280,10 +275,8 @@ namespace UnitTests.Tnef {
 
 					Assert.That (embedded, Is.EqualTo (fileName == "christmas.tnef" ? 2 : 0), $"{fileName}: embedded messages");
 
-					// The old extractor named each attachment without a file name "Untitled Attachment" and saved it as
-					// "Untitled Attachment.N". It also emitted each embedded message twice (once for the legacy data and
-					// once for the MAPI data), so the numbering only lines up when there are no embedded messages.
-					bool compareUntitled = embedded == 0;
+					// Each attachment without a file name is named "Untitled Attachment" and its expected content is saved as
+					// "Untitled Attachment.N".
 					int untitled = 1;
 
 					// The attachment content must match the expected content.
@@ -293,17 +286,11 @@ namespace UnitTests.Tnef {
 
 						var expectedName = attachment.FileName;
 
-						if (expectedName == "Untitled Attachment") {
-							if (!compareUntitled)
-								continue;
-
+						if (expectedName == "Untitled Attachment")
 							expectedName = string.Format (CultureInfo.InvariantCulture, "Untitled Attachment.{0}", untitled++);
-						}
-
-						int expectedOffset = attachment.Method == TnefAttachMethod.Ole ? 16 : 0;
 
 						using (var content = attachment.OpenRead ())
-							AssertContent (directory, expectedName, content, $"{fileName}: {attachment.FileName}", expectedOffset);
+							AssertContent (directory, expectedName, content, $"{fileName}: {attachment.FileName}");
 					}
 
 					await CountEmbeddedMessagesAsync (message, async);

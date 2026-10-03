@@ -1,8 +1,26 @@
 message
   From: Anders Wåglund <anders.waglund@bifirm.com>
+  Date: 2016-01-12T13:14:55Z
   Subject: Fw: VIKTIGT: Vill att någon av er gör följande ändringar i https://baka.spiderads.eu/
   Message-Id: <VI1PR07MB1486473A0B5207810BB98E10EDCA0@VI1PR07MB1486.eurprd07.prod.outlook.com>
-  Date: 2016-01-12T18:14:55Z
+  In-Reply-To: <HE1PR07MB129059B644E4AB8B16EB5EB2E1E10@HE1PR07MB1290.eurprd07.prod.outlook.com>
+  References: <HE1PR07MB129059B644E4AB8B16EB5EB2E1E10@HE1PR07MB1290.eurprd07.prod.outlook.com>
+  acceptlanguage: en-US
+  authentication-results: spf=none (sender IP is ) smtp.mailfrom=anders.waglund@bifirm.com;
+  x-ms-has-attach: yes
+  x-originating-ip: [82.99.58.5]
+  x-microsoft-exchange-diagnostics: 1;VI1PR07MB1488;5:MfgDWDEUgq1DUCiD8zQsXU1BASp38tjmYqO1EMgUDi84tvbgB0Skbh3lrny6TNpFzFNsrf0Gt1eKtFFXxcp4xbRJFYcMHbshzJsPs3H+39RwTlWiQjuxD3zxFImlvgjzxhgXTUe2/LB+keGMduyjwQ==;24:hJ3/JUJfIh9ErZ2IjUc9wAoTjodjf9nZVlNzjynx/RwOlg+O90ExeoHVgjvem0HKyFNUmR/8a87hXmDJtSwofbrZMCESZR0jvDDKpObNQe8=
+  x-microsoft-antispam: UriScan:;BCL:0;PCL:0;RULEID:;SRVR:VI1PR07MB1488;
+  x-ms-office365-filtering-correlation-id: 88640e74-b904-4a8f-57f3-08d31b525d8d
+  x-ld-processed: 997f5ba7-7813-4620-8039-81ccc9df5981,ExtAddr
+  x-microsoft-antispam-prvs: <VI1PR07MB14884C6EFB4D004D70984D34EDCA0@VI1PR07MB1488.eurprd07.prod.outlook.com>
+  x-exchange-antispam-report-test: UriScan:;
+  x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(102615245)(601004)(2401047)(520078)(5005006)(8121501046)(3002001)(10201501046);SRVR:VI1PR07MB1488;BCL:0;PCL:0;RULEID:;SRVR:VI1PR07MB1488;
+  x-forefront-prvs: 081904387B
+  x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(199003)(377454003)(189002)(99936001)(122556002)(19580405001)(92566002)(19580395003)(2906002)(40100003)(15975445007)(66066001)(54356999)(5004730100002)(18206015028)(10400500002)(2900100001)(101416001)(450100001)(33656002)(87936001)(5008740100001)(74316001)(77096005)(102836003)(224303003)(1096002)(76576001)(5001960100002)(189998001)(16236675004)(586003)(50986999)(76176999)(107886002)(81156007)(105586002)(19625215002)(3846002)(106356001)(6116002)(1220700001)(86362001)(19617315012)(224313004)(19627405001)(97736004)(11100500001)(110136002)(19627595001)(17760045003)(5003600100002)(5002640100001)(2950100001)(7099028);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR07MB1488;H:VI1PR07MB1486.eurprd07.prod.outlook.com;FPR:;SPF:None;PTR:InfoNoRecords;A:1;MX:1;LANG:sv;
+  received-spf: None (protection.outlook.com: bifirm.com does not designate permitted sender hosts)
+  spamdiagnosticoutput: 1:23
+  spamdiagnosticmetadata: NSPM
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
     TextPart text/html
@@ -11,19 +29,19 @@ message
       text: <html>\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">\r\n<style type="text/css" style="display:none;"><!-- P {margin-top:0;margin-bottom:0;} --></style>\r\n</head>\r\n<body dir="ltr">\r\n<div id="divtagdefaultwrapper" style="font...
     MimePart image/jpeg
       Content-Type: image/jpeg; name=image001.jpg
-      Content-Disposition: inline; filename=image001.jpg; creation-date=2015-12-18T18:38:48Z; modification-date=2015-12-18T18:38:48Z
       Content-Transfer-Encoding: base64
+      Content-Disposition: inline; filename=image001.jpg; creation-date=2015-12-18T13:38:48Z; modification-date=2015-12-18T13:38:48Z
       Content-Id: <image001.jpg@01D139A1.76DB0C80>
       content: encoding=Default length=11250 sha256=ee9bec688ebc6b535fa1c06b3c7f388510f501509a2d6ae17e964a3eda92f8db
     MimePart image/jpeg
       Content-Type: image/jpeg; name=image002.jpg
-      Content-Disposition: inline; filename=image002.jpg; creation-date=2015-12-18T18:38:49Z; modification-date=2015-12-18T18:38:49Z
       Content-Transfer-Encoding: base64
+      Content-Disposition: inline; filename=image002.jpg; creation-date=2015-12-18T13:38:49Z; modification-date=2015-12-18T13:38:49Z
       Content-Id: <image002.jpg@01D139A1.76DB0C80>
       content: encoding=Default length=9583 sha256=a497dd22b4a1f2de15da0929f17429edb502f94d767a0fa2ce67da35162cc62f
     MimePart image/png
       Content-Type: image/png; name=image003.png
-      Content-Disposition: inline; filename=image003.png; creation-date=2015-12-18T18:38:49Z; modification-date=2015-12-18T18:38:49Z
       Content-Transfer-Encoding: base64
+      Content-Disposition: inline; filename=image003.png; creation-date=2015-12-18T13:38:49Z; modification-date=2015-12-18T13:38:49Z
       Content-Id: <image003.png@01D139A1.76DB0C80>
       content: encoding=Default length=7147 sha256=7c65885b27f3cd66501fdb7a4711c22ba8b6f64e51ea6c2a3ec9db6fa968a7b8
