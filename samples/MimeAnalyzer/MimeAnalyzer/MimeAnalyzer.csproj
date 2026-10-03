@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>MimeAnalyzer</AssemblyName>
+    <RootNamespace>MimeAnalyzerExample</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Note: This references MimeKit in-tree because the MIME compliance API has not shipped in a
+         NuGet release yet. Replace this with a PackageReference once v5.0 is released. -->
+    <ProjectReference Include="..\..\..\MimeKit\MimeKit.csproj" />
+  </ItemGroup>
+</Project>

@@ -27,36 +27,19 @@
 using MimeKit;
 
 namespace UnitTests {
-	class MimeComplianceIssue
-	{
-		public MimeComplianceIssue (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber)
-		{
-			Violation = violation;
-			StreamOffset = streamOffset;
-			LineNumber = lineNumber;
-			ColumnNumber = columnNumber;
-		}
-
-		public MimeComplianceViolation Violation { get; private set; }
-
-		public long StreamOffset { get; private set; }
-
-		public int LineNumber { get; private set; }
-
-		public int ColumnNumber { get; private set; }
-	}
-
 	class ExpectedMimeComplianceIssue
 	{
 		public readonly MimeComplianceViolation Violation;
+		public readonly MimeCompliancePositionKind PositionKind;
 		public readonly int LineNumber;
 		public readonly int ColumnNumber;
 		public long UnixOffset;
 		public long DosOffset;
 
-		public ExpectedMimeComplianceIssue (MimeComplianceViolation violation, int lineNumber, int columnNumber)
+		public ExpectedMimeComplianceIssue (MimeComplianceViolation violation, int lineNumber, int columnNumber, MimeCompliancePositionKind positionKind = MimeCompliancePositionKind.Exact)
 		{
 			Violation = violation;
+			PositionKind = positionKind;
 			LineNumber = lineNumber;
 			ColumnNumber = columnNumber;
 		}

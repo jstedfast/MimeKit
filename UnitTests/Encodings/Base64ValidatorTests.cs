@@ -1,4 +1,4 @@
-﻿//
+//
 // Base64ValidatorTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new Base64Validator (nullComplianceLogger, 0, 1));
+			AssertArgumentExceptions (new Base64Validator (nullComplianceLogger, MimeComplianceContext.Transport, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new Base64Validator (nullComplianceLogger, 0, 1);
+			var validator = new Base64Validator (nullComplianceLogger, MimeComplianceContext.Transport, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.Base64));
 		}
@@ -60,7 +60,7 @@ namespace UnitTests.Encodings {
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new Base64Validator (logger, 0, 1);
+			var validator = new Base64Validator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
@@ -72,7 +72,7 @@ namespace UnitTests.Encodings {
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new Base64Validator (logger, 0, 1);
+			var validator = new Base64Validator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
@@ -83,16 +83,65 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestValidateInvalidInput_MultipleInvalidCharacters ()
 		{
+			// Note: The '%' on line 1 and the '!' on line 3 are not reported: each violation is
+			// reported at most once per line so that a line of garbage cannot emit an issue per byte.
 			const string text = " &% VGhp\r\ncyBp\r\ncyB0aGUgcGxhaW4g  \tdGV4dCBtZ?!XNzY*WdlIQ==";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Character, 1, 1, 2),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Character, 2, 1, 3),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Character, 44, 3, 29),
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Character, 45, 3, 30),
-				new MimeComplianceIssue (MimeComplianceViolation.ObsoleteBase64Comment, 50, 3, 35),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 1, 1, 2),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 44, 3, 29),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.ObsoleteBase64Comment, 50, 3, 35),
 			};
 
 			TestValidateInvalidInput (text, issues);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_InvalidCharacterIsReportedOncePerLine ()
+		{
+			// Note: The number of invalid octets on a line is attacker-controlled, so an unthrottled
+			// report would let a crafted part emit an issue per byte of content. Only the first
+			// invalid octet on each line is reported, and the latch resets at the line break.
+			const string text = "????????????????\r\n????????????????\r\n";
+			var issues = new List<MimeComplianceIssue> {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 0, 1, 1),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 18, 2, 1),
+			};
+
+			TestValidateInvalidInput (text, issues);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_ObsoleteCommentIsReportedOncePerLine ()
+		{
+			const string text = "VGhp***********\r\ncyBp***********\r\n";
+			var issues = new List<MimeComplianceIssue> {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.ObsoleteBase64Comment, 4, 1, 5),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.ObsoleteBase64Comment, 21, 2, 5),
+			};
+
+			TestValidateInvalidInput (text, issues);
+		}
+
+		[Test]
+		public void TestValidateInvalidInput_InvalidCharacterLatchSpansWriteCalls ()
+		{
+			// Note: The latch is an instance field rather than a local because a malformed line can
+			// straddle any number of Write() calls.
+			var rawData = Encoding.ASCII.GetBytes ("????????\r\n????????\r\n");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new Base64Validator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			for (int i = 0; i < rawData.Length; i++)
+				validator.Write (rawData, i, 1);
+
+			validator.Flush ();
+
+			var issues = new List<MimeComplianceIssue> {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 0, 1, 1),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 10, 2, 1),
+			};
+
+			AssertInvalidInput (logger, issues);
 		}
 
 		[Test]
@@ -100,7 +149,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ===";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Padding, 44, 1, 45)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Padding, 44, 1, 45)
 			};
 
 			TestValidateInvalidInput (text, issues);
@@ -111,7 +160,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ====";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Padding, 44, 1, 45)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Padding, 44, 1, 45)
 			};
 
 			TestValidateInvalidInput (text, issues);
@@ -122,7 +171,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=====";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidBase64Padding, 44, 1, 45)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Padding, 44, 1, 45)
 			};
 
 			TestValidateInvalidInput (text, issues);
@@ -133,7 +182,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGF5bG9hZCBvZiB0aGUgZmlyc3QgYmFzZTY0LWVuY29kZWQgYmxvY2sgb2Yg\r\ndGV4dC4=\r\nQW5kIHRoaXMgaXMgdGhlIHBheWxvYWQgb2YgdGhlIHNlY29uZCBiYXNlNjQtZW5jb2RlZCBibG9j\r\nayBvZiB0ZXh0Lg==\r\n";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.Base64CharactersAfterPadding, text.IndexOf ('=') + 3, 3, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.Base64CharactersAfterPadding, text.IndexOf ('=') + 3, 3, 1)
 			};
 
 			TestValidateInvalidInput (text, issues);
@@ -144,7 +193,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=\r\n";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteBase64Quantum, 45, 2, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.IncompleteBase64Quantum, 45, 2, 1)
 			};
 
 			TestValidateInvalidInput (text, issues);
@@ -155,7 +204,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "VGhpcyBpcyB0aGUgcGxhaW4gdGV4dCBtZXNzYWdlIQ=";
 			var issues = new List<MimeComplianceIssue> {
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteBase64Quantum, 43, 1, 44)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.IncompleteBase64Quantum, 43, 1, 44)
 			};
 
 			TestValidateInvalidInput (text, issues);
@@ -169,7 +218,7 @@ namespace UnitTests.Encodings {
 		{
 			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (logger, new Base64Validator (logger, 0, 1), "photo.b64", photo_b64, bufferSize);
+			TestValidator (logger, new Base64Validator (logger, MimeComplianceContext.Transport, 0, 1), "photo.b64", photo_b64, bufferSize);
 		}
 	}
 }

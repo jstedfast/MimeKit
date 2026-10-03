@@ -1,4 +1,4 @@
-﻿//
+//
 // QuotedPrintableValidator.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -49,9 +49,18 @@ namespace MimeKit.Encodings {
 		}
 
 		readonly IMimeComplianceLogger logger;
+		readonly MimeComplianceContext context;
+		long lineBeginOffset;
 		long streamOffset;
 		int lineNumber;
 		QpValidatorState state;
+
+		// Note: Each of these violations is reported at most once per line. Reporting every occurrence
+		// of them would let a crafted part emit an issue for every couple of bytes of content (content
+		// such as "=~=~=~..." logs once per two octets), swamping every other finding in the report.
+		// They are instance fields rather than locals because a line can span multiple Write() calls.
+		bool reportedInvalidEncoding;
+		bool reportedInvalidSoftBreak;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="QuotedPrintableValidator"/> class.
@@ -60,13 +69,24 @@ namespace MimeKit.Encodings {
 		/// Creates a new quoted-printable validator.
 		/// </remarks>
 		/// <param name="logger">The compliance logger.</param>
+		/// <param name="context">The context that the message is being used in.</param>
 		/// <param name="streamOffset">The current stream offset.</param>
 		/// <param name="lineNumber">The current line number.</param>
-		public QuotedPrintableValidator (IMimeComplianceLogger logger, long streamOffset, int lineNumber)
+		public QuotedPrintableValidator (IMimeComplianceLogger logger, MimeComplianceContext context, long streamOffset, int lineNumber)
 		{
 			this.logger = logger;
+			this.context = context;
+			this.lineBeginOffset = streamOffset;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
+		}
+
+		// Note: The validator only ever tracks the offset that the current line begins at. The column
+		// is worked out from the offset being reported rather than from the cursor, because not every
+		// violation is reported at the exact position that the cursor happens to be sitting at.
+		int GetColumnNumber (long offset)
+		{
+			return (int) (offset - lineBeginOffset) + 1;
 		}
 
 		/// <summary>
@@ -93,15 +113,29 @@ namespace MimeKit.Encodings {
 			while (inptr < inend) {
 				switch (state) {
 				case QpValidatorState.PassThrough:
+					// Note: The bulk of quoted-printable content consists of literal characters that are
+					// simply passed through, so use a vectorized search to locate the next byte that the
+					// validator actually needs to inspect.
 					while (inptr < inend) {
-						c = *inptr++;
+						int index = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr)).IndexOfAny ((byte) '=', (byte) '\n');
+
+						if (index == -1) {
+							inptr = inend;
+							break;
+						}
+
+						c = inptr[index];
+						inptr += index + 1;
 
 						if (c == '=') {
 							state = QpValidatorState.EqualSign;
 							break;
-						} else if (c == '\n') {
-							lineNumber++;
 						}
+
+						lineBeginOffset = streamOffset + (inptr - input);
+						lineNumber++;
+						reportedInvalidEncoding = false;
+						reportedInvalidSoftBreak = false;
 					}
 					break;
 				case QpValidatorState.EqualSign:
@@ -113,9 +147,17 @@ namespace MimeKit.Encodings {
 						state = QpValidatorState.SoftBreak;
 					} else if (c == '\n') {
 						state = QpValidatorState.PassThrough;
+						lineBeginOffset = streamOffset + (inptr - input) + 1;
 						lineNumber++;
+						reportedInvalidEncoding = false;
+						reportedInvalidSoftBreak = false;
 					} else {
-						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						if (!reportedInvalidEncoding) {
+							reportedInvalidEncoding = true;
+
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
+						}
+
 						state = QpValidatorState.PassThrough;
 					}
 
@@ -123,10 +165,15 @@ namespace MimeKit.Encodings {
 					break;
 				case QpValidatorState.SoftBreak:
 					if (*inptr == '\n') {
-						lineNumber++;
 						inptr++;
-					} else {
-						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber);
+						lineBeginOffset = streamOffset + (inptr - input);
+						lineNumber++;
+						reportedInvalidEncoding = false;
+						reportedInvalidSoftBreak = false;
+					} else if (!reportedInvalidSoftBreak) {
+						reportedInvalidSoftBreak = true;
+
+						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
 					}
 
 					state = QpValidatorState.PassThrough;
@@ -135,10 +182,18 @@ namespace MimeKit.Encodings {
 					c = *inptr;
 
 					if (!c.IsXDigit ()) {
-						logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber);
+						if (!reportedInvalidEncoding) {
+							reportedInvalidEncoding = true;
 
-						if (c == '\n')
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset + (inptr - input), lineNumber, GetColumnNumber (streamOffset + (inptr - input))));
+						}
+
+						if (c == '\n') {
+							lineBeginOffset = streamOffset + (inptr - input) + 1;
 							lineNumber++;
+							reportedInvalidEncoding = false;
+							reportedInvalidSoftBreak = false;
+						}
 					}
 
 					state = QpValidatorState.PassThrough;
@@ -185,9 +240,9 @@ namespace MimeKit.Encodings {
 		{
 			// Note: the only valid state to end on is the pass-through state.
 			if (state == QpValidatorState.EqualSign || state == QpValidatorState.DecodeByte)
-				logger.Log (MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber);
+				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableEncoding, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 			else if (state == QpValidatorState.SoftBreak)
-				logger.Log (MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber);
+				logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidQuotedPrintableSoftBreak, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
 		}
 	}
 }

@@ -41,7 +41,7 @@ namespace UnitTests.Encodings {
 
 		class NullComplianceLogger : IMimeComplianceLogger
 		{
-			public void Log (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber = -1)
+			public void Log (in MimeComplianceIssue issue)
 			{
 			}
 		}
@@ -94,7 +94,7 @@ namespace UnitTests.Encodings {
 				Assert.That (logger.Issues[i].Violation, Is.EqualTo (expected[i].Violation), $"Issues[{i}].Violation");
 				Assert.That (logger.Issues[i].StreamOffset, Is.EqualTo (expected[i].StreamOffset), $"Issues[{i}].StreamOffset");
 				Assert.That (logger.Issues[i].LineNumber, Is.EqualTo (expected[i].LineNumber), $"Issues[{i}].LineNumber");
-				//Assert.That (logger.Issues[i].ColumnNumber, Is.EqualTo (expected[i].ColumnNumber), $"Issues[{i}].ColumnNumber");
+				Assert.That (logger.Issues[i].ColumnNumber, Is.EqualTo (expected[i].ColumnNumber), $"Issues[{i}].ColumnNumber");
 			}
 		}
 

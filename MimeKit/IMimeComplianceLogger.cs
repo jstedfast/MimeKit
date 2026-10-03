@@ -29,9 +29,15 @@ namespace MimeKit {
 	/// An interface for recording MIME compliance violations.
 	/// </summary>
 	/// <remarks>
-	/// Implementations of this interface are intended to capture and record information about MIME
+	/// <para>Implementations of this interface are intended to capture and record information about MIME
 	/// compliance issues detected during parsing. This can be used for diagnostics, auditing, or
-	/// reporting purposes in systems that process MIME data.
+	/// reporting purposes in systems that process MIME data.</para>
+	/// <para>No limit is placed by default on how many issues a single message, or even a single
+	/// header, may produce. A malformed message is not obliged to be malformed in only a few places,
+	/// so the number of issues is bounded only by the size of the input. When the messages being
+	/// parsed are untrusted, set <see cref="MimeReader.MaxComplianceIssuesPerViolation"/> to bound
+	/// the report. An implementation that retains issues rather than summarizing them should impose
+	/// its own limit as well, since it cannot assume that every caller configures one.</para>
 	/// </remarks>
 	public interface IMimeComplianceLogger
 	{
@@ -39,12 +45,11 @@ namespace MimeKit {
 		/// Log a MIME compliance violation.
 		/// </summary>
 		/// <remarks>
-		/// Logs a MIME compliance violation.
+		/// <para>Logs a MIME compliance violation.</para>
+		/// <para>This is called during parsing, so an implementation that does significant work here
+		/// will slow parsing down, and one that throws will abort it.</para>
 		/// </remarks>
-		/// <param name="violation">The specific MIME compliance violation that occurred.</param>
-		/// <param name="streamOffset">The offset within the stream where the violation was found.</param>
-		/// <param name="lineNumber">The line number within the MIME message where the violation was found.</param>
-		/// <param name="columnNumber">The column number within the MIME message where the violation was found.</param>
-		void Log (MimeComplianceViolation violation, long streamOffset, int lineNumber, int columnNumber = -1);
+		/// <param name="issue">The MIME compliance issue that was detected.</param>
+		void Log (in MimeComplianceIssue issue);
 	}
 }

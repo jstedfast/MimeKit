@@ -1,4 +1,4 @@
-﻿//
+//
 // UUValidatorTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -36,13 +36,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new UUValidator (nullComplianceLogger, 0, 1));
+			AssertArgumentExceptions (new UUValidator (nullComplianceLogger, MimeComplianceContext.Transport, 0, 1));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var validator = new UUValidator (nullComplianceLogger, 0, 1);
+			var validator = new UUValidator (nullComplianceLogger, MimeComplianceContext.Transport, 0, 1);
 
 			Assert.That (validator.Encoding, Is.EqualTo (ContentEncoding.UUEncode));
 		}
@@ -51,14 +51,14 @@ namespace UnitTests.Encodings {
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new UUValidator (logger, 0, 1);
+			var validator = new UUValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
 
 			Assert.That (logger.Issues.Count, Is.EqualTo (0));
 
-			validator = new UUValidator (logger, 0, 1);
+			validator = new UUValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			for (int i = 0; i < rawData.Length; i++)
 				validator.Write (rawData, i, 1);
@@ -90,7 +90,7 @@ namespace UnitTests.Encodings {
 		{
 			var rawData = Encoding.ASCII.GetBytes (text);
 			var logger = new TestMimeComplianceLogger ();
-			var validator = new UUValidator (logger, 0, 1);
+			var validator = new UUValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			validator.Write (rawData, 0, rawData.Length);
 			validator.Flush ();
@@ -103,7 +103,7 @@ namespace UnitTests.Encodings {
 			}
 
 			logger.Issues.Clear ();
-			validator = new UUValidator (logger, 0, 1);
+			validator = new UUValidator (logger, MimeComplianceContext.Transport, 0, 1);
 
 			for (int i = 0; i < rawData.Length; i++)
 				validator.Write (rawData, i, 1);
@@ -124,19 +124,65 @@ namespace UnitTests.Encodings {
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&E\r\n`\r\nend\r\n";
 			// Note: the violation triggers on the '\n' character
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteUUEncodedLine, text.IndexOf ("E\r\n") + 2, 2, 61)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.IncompleteUUEncodedLine, text.IndexOf ("E\r\n") + 2, 2, 61)
 			};
 
 			AssertInvalidInput (text, issues);
 		}
 
+		// Note: The 'x' is the first octet past the declared length, so it is reported as extra data
+		// rather than as invalid content. An octet that is not payload is not classified as payload.
 		[Test]
 		public void TestValidateExtraLineData ()
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&ENx\r\n`\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedContent, text.IndexOf ('x'), 2, 61), // 'x' is an invalid character
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('x'), 2, 61)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('x'), 2, 61)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
+
+		// Note: Whatever the extra data looks like, the line reports exactly one violation at the
+		// first octet past the declared length. Before, a tail that began with a valid payload
+		// character let the scan run on to the first invalid one and report it a second time, and a
+		// tail that began with an invalid one put two violations on the same octet.
+		[TestCase ("E~~~")]
+		[TestCase ("~~~~")]
+		[TestCase ("EFGH")]
+		public void TestValidateExtraLineDataIsReportedRegardlessOfItsContents (string extra)
+		{
+			string text = $"begin 644 t.txt\r\n#ABCD{extra}\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf (extra[0]), 2, 6)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
+
+		// Note: The number of extra octets on a line is attacker-controlled, so this pins that the
+		// violation is reported once per malformed line rather than once per extra octet.
+		[Test]
+		public void TestValidateExtraLineDataReportedOncePerLine ()
+		{
+			const string text = "begin 644 t.txt\r\n#86)CXXXXXXXX\r\n#86)CYYYY\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('X'), 2, 6),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineExtraData, text.IndexOf ('Y'), 3, 6)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
+
+		// Note: The number of invalid octets on a line is attacker-controlled, so this pins that the
+		// violation is reported once per malformed line rather than once per invalid octet.
+		[Test]
+		public void TestValidateInvalidContentReportedOncePerLine ()
+		{
+			const string text = "begin 644 t.txt\r\n#aaaa\r\n#aaaa\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedContent, text.IndexOf ('a'), 2, 2),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedContent, text.LastIndexOf ("aaaa"), 3, 2)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -147,7 +193,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\nmore text...";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("more text..."), 5, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("more text..."), 5, 1)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -162,8 +208,8 @@ namespace UnitTests.Encodings {
 		{
 			string text = beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodePretext, offset, 1, offset + 1),
-				new MimeComplianceIssue (MimeComplianceViolation.IncompleteUUEncodedContent, text.Length, 5, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodePretext, offset, 1, offset + 1),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.IncompleteUUEncodedContent, text.Length, 5, 1)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -174,7 +220,7 @@ namespace UnitTests.Encodings {
 		{
 			string text = "this is some random garbage...\r\nbegin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodePretext, 0, 1, 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodePretext, 0, 1, 1)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -189,7 +235,7 @@ namespace UnitTests.Encodings {
 		{
 			string text = beginLine + "\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeFileMode, offset, 1, offset + 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodeFileMode, offset, 1, offset + 1)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -203,7 +249,7 @@ namespace UnitTests.Encodings {
 		{
 			string text = $"begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\n{endLine}\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf (endLine) + offset, 4, offset + 1)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf (endLine) + offset, 4, offset + 1)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -214,7 +260,7 @@ namespace UnitTests.Encodings {
 		{
 			const string text = "begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`x\r\nend\r\n";
 			var issues = new MimeComplianceIssue[] {
-				new MimeComplianceIssue (MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("`x") + 1, 3, 2)
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodeEndMarker, text.IndexOf ("`x") + 1, 3, 2)
 			};
 
 			AssertInvalidInput (text, issues);
@@ -228,7 +274,7 @@ namespace UnitTests.Encodings {
 		{
 			var logger = new TestMimeComplianceLogger ();
 
-			TestValidator (logger, new UUValidator (logger, 0, 1), "photo.uu", photo_uu, bufferSize);
+			TestValidator (logger, new UUValidator (logger, MimeComplianceContext.Transport, 0, 1), "photo.uu", photo_uu, bufferSize);
 		}
 	}
 }
