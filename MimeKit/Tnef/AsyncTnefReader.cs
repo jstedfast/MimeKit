@@ -264,6 +264,9 @@ namespace MimeKit.Tnef {
 		/// <para>Any part of the current attribute's value that has not been consumed is skipped, and the
 		/// attribute's checksum is verified.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefReaderAsync"/>
+		/// </example>
 		/// <returns><see langword="true"/> if the reader was advanced to the next attribute; otherwise,
 		/// <see langword="false"/> if there are no more attributes.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>

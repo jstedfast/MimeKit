@@ -48,6 +48,9 @@ namespace MimeKit.Tnef {
 		/// <para>The returned message is independent of the part and must be disposed by the caller. Use
 		/// <see cref="TnefMessage.ConvertToMime"/> to convert it to a <see cref="MimeMessage"/>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ConvertToMime"/>
+		/// </example>
 		/// <returns>The TNEF message.</returns>
 		/// <param name="options">The options to use, or <see langword="null"/> to use the default options.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -78,6 +81,9 @@ namespace MimeKit.Tnef {
 		/// <para>The returned message is independent of the part and must be disposed by the caller. Use
 		/// <see cref="TnefMessage.ConvertToMime"/> to convert it to a <see cref="MimeMessage"/>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ConvertToMimeAsync"/>
+		/// </example>
 		/// <returns>The TNEF message.</returns>
 		/// <param name="options">The options to use, or <see langword="null"/> to use the default options.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

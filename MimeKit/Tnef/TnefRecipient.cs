@@ -34,6 +34,9 @@ namespace MimeKit.Tnef {
 	/// <para>The convenience properties are derived from <see cref="Properties"/>, which contains all of the
 	/// recipient's MAPI properties.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadRecipients"/>
+	/// </example>
 	public sealed class TnefRecipient
 	{
 		// Note: The high-order bits of PidTagRecipientType may be set to indicate that the recipient was resent to

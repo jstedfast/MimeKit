@@ -34,6 +34,9 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A TNEF name identifier.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadProperties"/>
+	/// </example>
 	public readonly struct TnefNameId : IEquatable<TnefNameId>
 	{
 		readonly TnefNameIdKind kind;

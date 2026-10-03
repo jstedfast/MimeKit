@@ -38,6 +38,9 @@ namespace MimeKit.Tnef {
 	/// <para>A <see cref="TnefMessageBody"/> holds the content of one of the bodies of a <see cref="TnefMessage"/>.</para>
 	/// <para>The content is buffered in memory when the message is loaded, so it may be read any number of times.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadBodies"/>
+	/// </example>
 	public sealed class TnefMessageBody : IDisposable
 	{
 		readonly MemoryBlockStream content;

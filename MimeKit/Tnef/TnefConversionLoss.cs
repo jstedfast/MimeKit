@@ -31,6 +31,9 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// A piece of information that was lost when converting a <see cref="TnefMessage"/> to MIME.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ConvertToMime"/>
+	/// </example>
 	public sealed class TnefConversionLoss
 	{
 		/// <summary>

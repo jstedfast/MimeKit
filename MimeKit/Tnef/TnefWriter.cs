@@ -56,6 +56,9 @@ namespace MimeKit.Tnef {
 	/// disposed and are then written to the output stream by the next call to one of the <c>WriteAttribute</c>
 	/// methods, <see cref="Flush"/>, or <see cref="Dispose"/>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefWriter"/>
+	/// </example>
 	public sealed partial class TnefWriter : IDisposable
 	{
 		const int AttributeHeaderSize = 9;

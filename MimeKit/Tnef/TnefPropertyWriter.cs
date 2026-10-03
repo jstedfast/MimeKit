@@ -51,6 +51,9 @@ namespace MimeKit.Tnef {
 	/// because a single-valued property has no value), the attribute is discarded and the next call to the
 	/// <see cref="TnefWriter"/> throws an <see cref="InvalidOperationException"/>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefWriter"/>
+	/// </example>
 	public sealed class TnefPropertyWriter : IDisposable
 	{
 		const int ClassIdLength = 16;
@@ -912,6 +915,9 @@ namespace MimeKit.Tnef {
 		/// <para>The value is completed when the embedded message writer is disposed. No other value or property may
 		/// be written until then.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefWriterEmbeddedMessage"/>
+		/// </example>
 		/// <returns>The embedded message writer.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The property writer has been disposed.
@@ -938,6 +944,9 @@ namespace MimeKit.Tnef {
 		/// <para>The value is completed when the embedded message writer is disposed. No other value or property may
 		/// be written until then.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefWriterEmbeddedMessage"/>
+		/// </example>
 		/// <returns>The embedded message writer.</returns>
 		/// <param name="codepage">The codepage that the embedded message writer uses to encode 8-bit strings.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">

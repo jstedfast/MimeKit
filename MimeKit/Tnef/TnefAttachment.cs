@@ -43,6 +43,9 @@ namespace MimeKit.Tnef {
 	/// If the attachment is an embedded message (see <see cref="IsEmbeddedMessage"/>), the content is the embedded
 	/// TNEF message, which can be loaded on demand using <see cref="LoadEmbeddedMessage"/>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ExtractAttachments"/>
+	/// </example>
 	public sealed class TnefAttachment : IDisposable
 	{
 		readonly TnefEmbeddedMessageContext? embedded;
@@ -236,6 +239,9 @@ namespace MimeKit.Tnef {
 		/// <see cref="TnefComplianceViolation.NestingTooDeep"/> issue is reported and an empty message is returned.</para>
 		/// <para>The returned message is independent of the attachment and must be disposed by the caller.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ExtractAttachments"/>
+		/// </example>
 		/// <returns>The embedded message.</returns>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.ObjectDisposedException">

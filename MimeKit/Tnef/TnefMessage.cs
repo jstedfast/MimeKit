@@ -45,6 +45,9 @@ namespace MimeKit.Tnef {
 	/// <para>Malformed TNEF streams are read on a best-effort basis. The problems that were encountered are reported to the
 	/// <see cref="TnefReader.ComplianceLogger"/>, if any.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadProperties"/>
+	/// </example>
 	public sealed partial class TnefMessage : IDisposable
 	{
 		readonly List<TnefAttachment> attachments;
@@ -104,6 +107,9 @@ namespace MimeKit.Tnef {
 		/// attribute) are not included; use <see cref="TextBody"/>, <see cref="HtmlBody"/> and <see cref="RtfBody"/>
 		/// instead.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadProperties"/>
+		/// </example>
 		/// <value>The properties.</value>
 		public TnefPropertySet Properties {
 			get;
@@ -115,6 +121,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets the recipients of the message, in the order in which they appeared in the TNEF stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadRecipients"/>
+		/// </example>
 		/// <value>The recipients.</value>
 		public IReadOnlyList<TnefRecipient> Recipients {
 			get;
@@ -126,6 +135,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets the attachments of the message, in the order in which they appeared in the TNEF stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ExtractAttachments"/>
+		/// </example>
 		/// <value>The attachments.</value>
 		public IReadOnlyList<TnefAttachment> Attachments {
 			get;
@@ -138,6 +150,9 @@ namespace MimeKit.Tnef {
 		/// Gets the plain text body of the message, from the <see cref="TnefPropertyId.Body"/> property or, if the
 		/// message does not have that property, from the legacy <see cref="TnefAttributeTag.Body"/> attribute.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadBodies"/>
+		/// </example>
 		/// <value>The plain text body, or <see langword="null"/> if the message does not have one.</value>
 		public TnefMessageBody? TextBody {
 			get;
@@ -149,6 +164,9 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Gets the HTML body of the message, from the <see cref="TnefPropertyId.BodyHtml"/> property.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadBodies"/>
+		/// </example>
 		/// <value>The HTML body, or <see langword="null"/> if the message does not have one.</value>
 		public TnefMessageBody? HtmlBody {
 			get;
@@ -161,6 +179,9 @@ namespace MimeKit.Tnef {
 		/// Gets the compressed RTF body of the message, from the <see cref="TnefPropertyId.RtfCompressed"/> property.
 		/// Use <see cref="TnefMessageBody.OpenDecodedRead"/> to read the decompressed RTF.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadBodies"/>
+		/// </example>
 		/// <value>The compressed RTF body, or <see langword="null"/> if the message does not have one.</value>
 		public TnefMessageBody? RtfBody {
 			get;
@@ -224,6 +245,9 @@ namespace MimeKit.Tnef {
 		/// <para>Loads a TNEF message from the specified stream.</para>
 		/// <para>The stream is left open.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadProperties"/>
+		/// </example>
 		/// <returns>The TNEF message.</returns>
 		/// <param name="stream">The TNEF stream.</param>
 		/// <param name="options">The options to use, or <see langword="null"/> to use <see cref="TnefOptions.Default"/>.</param>
@@ -254,6 +278,9 @@ namespace MimeKit.Tnef {
 		/// <see cref="TnefReader.ComplianceLogger"/>.</para>
 		/// <para>The reader must not have been advanced. It is not disposed.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ComplianceLogger"/>
+		/// </example>
 		/// <returns>The TNEF message.</returns>
 		/// <param name="reader">The TNEF reader.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -306,6 +333,9 @@ namespace MimeKit.Tnef {
 		/// <para>The converted message is independent of the <see cref="TnefMessage"/>, which may be disposed
 		/// afterwards.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ConvertToMime"/>
+		/// </example>
 		/// <returns>The result of the conversion.</returns>
 		/// <param name="options">The conversion options, or <see langword="null"/> to use
 		/// <see cref="TnefConversionOptions.Default"/>.</param>

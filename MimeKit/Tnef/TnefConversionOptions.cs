@@ -31,6 +31,9 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// Options for converting a <see cref="TnefMessage"/> to MIME using <see cref="TnefMessage.ConvertToMime"/>.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ConvertToMime"/>
+	/// </example>
 	public class TnefConversionOptions
 	{
 		/// <summary>

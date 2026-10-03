@@ -51,6 +51,9 @@ namespace MimeKit.Tnef {
 	/// reported to the <see cref="ComplianceLogger"/> (if any) and the reader recovers as best it can.
 	/// To stop at the first problem, use a logger that throws.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefReader"/>
+	/// </example>
 	public sealed partial class TnefReader : IDisposable
 	{
 		internal const int TnefSignature = 0x223e9f78;
@@ -222,6 +225,9 @@ namespace MimeKit.Tnef {
 		/// <para>Readers created by <see cref="TnefPropertyReader.OpenEmbeddedMessage"/> report to the same
 		/// logger as the reader that created them.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="ComplianceLogger"/>
+		/// </example>
 		/// <value>The TNEF compliance logger.</value>
 		public ITnefComplianceLogger? ComplianceLogger {
 			get { return userComplianceLogger; }

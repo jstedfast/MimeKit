@@ -41,6 +41,9 @@ namespace MimeKit.Tnef {
 	/// <see cref="TnefPropertyReader.ReadRowsAsPropertySets(System.Threading.CancellationToken)"/>.</para>
 	/// <para>The properties are kept in the order in which they appeared in the TNEF stream.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadProperties"/>
+	/// </example>
 	public sealed class TnefPropertySet : IReadOnlyList<TnefProperty>
 	{
 		readonly List<TnefProperty> properties;

@@ -35,6 +35,9 @@ namespace MimeKit.Tnef {
 	/// <para>The options are consulted while the stream is being read, so they should not be modified
 	/// while a <see cref="TnefReader"/> that uses them is in use.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="Limits"/>
+	/// </example>
 	public class TnefOptions
 	{
 		/// <summary>

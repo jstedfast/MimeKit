@@ -34,6 +34,9 @@ namespace MimeKit.Tnef {
 	/// <remarks>
 	/// The result of converting a <see cref="TnefMessage"/> to MIME using <see cref="TnefMessage.ConvertToMime"/>.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ConvertToMime"/>
+	/// </example>
 	public sealed class TnefConversionResult : IDisposable
 	{
 		internal TnefConversionResult (MimeMessage message, IReadOnlyList<TnefConversionLoss> losses)

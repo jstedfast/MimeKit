@@ -42,6 +42,9 @@ namespace MimeKit.Tnef {
 	/// <see cref="TnefComplianceViolation.None"/>, which is never reported and cannot be constructed,
 	/// so it may be used to detect an uninitialized instance.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ComplianceLogger"/>
+	/// </example>
 	public readonly struct TnefComplianceIssue : IEquatable<TnefComplianceIssue>
 	{
 		/// <summary>

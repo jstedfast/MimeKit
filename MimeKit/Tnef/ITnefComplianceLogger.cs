@@ -37,6 +37,9 @@ namespace MimeKit.Tnef {
 	/// report. An implementation that retains issues rather than summarizing them should impose its
 	/// own limit as well, since it cannot assume that every caller configures one.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ComplianceLogger"/>
+	/// </example>
 	public interface ITnefComplianceLogger
 	{
 		/// <summary>

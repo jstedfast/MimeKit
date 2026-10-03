@@ -54,6 +54,9 @@ namespace MimeKit.Tnef {
 	/// are reported to the reader's <see cref="TnefReader.ComplianceLogger"/>, and if the remainder of the attribute
 	/// cannot be interpreted, the reader simply stops returning properties.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefReader"/>
+	/// </example>
 	public sealed partial class TnefPropertyReader
 	{
 		// {00020307-0000-0000-C000-000000000046}
@@ -1491,6 +1494,9 @@ namespace MimeKit.Tnef {
 		/// <para>The embedded reader is only valid until this reader is advanced to another value. Disposing it does
 		/// not affect this reader.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefReader"/>
+		/// </example>
 		/// <returns>The embedded message reader.</returns>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="TnefReader"/> has been disposed.

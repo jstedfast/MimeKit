@@ -48,7 +48,7 @@ was nothing between it and `ConvertToMessage ()`, and can now use a higher level
 | `TnefPropertyTag.Puid` | Removed (obsolete); use `TnefPropertyTag.PuidA` or `TnefPropertyTag.PuidW`. |
 
 New types: `TnefOptions`, `ITnefComplianceLogger`, `TnefComplianceIssue`, `TnefComplianceViolation`,
-`TnefCappedComplianceLogger`, `TnefMessage`, `TnefAttachment`, `TnefRecipient`, `TnefRecipientType`,
+`TnefMessage`, `TnefAttachment`, `TnefRecipient`, `TnefRecipientType`,
 `TnefMessageBody`, `TnefMessageBodyFormat`, `TnefPropertySet`, `TnefProperty`, `TnefPropertySetGuid`,
 `TnefConversionOptions`, `TnefConversionResult`, `TnefConversionLoss` and `TnefConversionLossKind`.
 `TnefAttributeType` (internal in 4.x) is now public.
@@ -151,7 +151,7 @@ If you only need the raw attachment bytes, skip MIME conversion entirely and use
 | `TnefVersion` | Read the `TnefAttributeTag.TnefVersion` attribute with `ReadValueAsInt32 ()`. | A non-`0x00010000` version is reported as `UnsupportedVersion`. |
 | `ComplianceMode` | — | Removed. |
 | `ComplianceStatus` | `ComplianceLogger` | See [Compliance](#compliance-tnefcompliancestatus-and-tnefcompliancemode). |
-| `ResetComplianceStatus ()` | — | Removed; use a new logger, or `TnefCappedComplianceLogger.Reset ()`. |
+| `ResetComplianceStatus ()` | — | Removed; use a new logger. |
 | — | `MaxComplianceIssuesPerViolation` | Caps repeated reports. Set this when reading untrusted input. |
 | — | `Depth` | Embedded-message nesting depth (0 for the outermost stream). |
 | — | `Options` | The `TnefOptions` the reader was created with. |
@@ -280,7 +280,7 @@ found in, a `Severity`, a `Description` and `Remarks`.
 | `status.HasFlag (TnefComplianceStatus.X)` | `issues.Any (i => i.Violation == TnefComplianceViolation.X)` |
 
 When reading untrusted streams, bound the number of issues with `reader.MaxComplianceIssuesPerViolation`
-or wrap the logger in a `TnefCappedComplianceLogger`. To get a logger into `TnefMessage`, create the
+or have your logger stop recording after a limit of its own. To get a logger into `TnefMessage`, create the
 reader yourself and call `TnefMessage.Load (TnefReader)` (see [Collect compliance issues](#collect-compliance-issues)).
 
 ## TnefException

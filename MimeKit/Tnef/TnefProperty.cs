@@ -40,6 +40,9 @@ namespace MimeKit.Tnef {
 	/// <para>Binary values are held in memory as byte arrays. To read large values (such as attachment data) without
 	/// buffering them, use <see cref="TnefPropertyReader.OpenValueStream"/> instead.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TnefExamples.cs" region="ReadProperties"/>
+	/// </example>
 	public readonly struct TnefProperty
 	{
 		readonly Encoding? encoding;
