@@ -326,6 +326,10 @@ namespace MimeKit.Tnef {
 		/// No header is generated that does not correspond to a property.</item>
 		/// <item>The plain text, compressed RTF and HTML bodies become a <c>multipart/alternative</c>, in that
 		/// order, if there is more than one.</item>
+		/// <item>If the message is a calendar item or a meeting message and
+		/// <see cref="TnefConversionOptions.GenerateCalendar"/> is enabled, an iCalendar <c>text/calendar</c> part is
+		/// generated from its properties and added as the last alternative of the body. The embedded messages that
+		/// hold the exceptions to a recurring appointment become part of the calendar rather than attachments.</item>
 		/// <item>The attachments follow the body within a <c>multipart/mixed</c>.</item>
 		/// </list>
 		/// <para>The information that could not be represented in MIME is listed in

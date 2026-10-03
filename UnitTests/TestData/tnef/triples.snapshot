@@ -12,3 +12,8 @@ message
       Content-Type: text/rtf
       content: encoding=Default length=247 sha256=8bbeaeb23fc3a13faaccd850e600d78aa01fce545f0ce9759c66a5a47867e29b
       text: {\\rtf1\\ansi\\ansicpg1251\\deff0\\deflang1049{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}{\\f1\\fswiss\\fcharset204{\\*\\fname Arial;}Arial CYR;}}\r\n{\\*\\generator Riched20 5.40.11.2210;}\\viewkind4\\uc1\\pard\\lang1033\\f0\\fs20 Sample description\\lang1049\\f1\\par\r\n}\r\n\u0000
+    TextPart text/calendar
+      Content-Type: text/calendar; charset=utf-8; method=PUBLISH
+      Content-Transfer-Encoding: 7bit
+      content: encoding=Default length=650 sha256=0828fa9831207cb259902b172b07ea5742c09c50ef6c58ac1621e2f1ea83091a
+      text: BEGIN:VCALENDAR\r\nMETHOD:PUBLISH\r\nPRODID:-//.NET Foundation//MimeKit//EN\r\nVERSION:2.0\r\nX-MS-OLK-FORCEINSPECTOROPEN:TRUE\r\nBEGIN:VEVENT\r\nCLASS:PUBLIC\r\nCREATED:20030523T132539Z\r\nDESCRIPTION:Sample description\r\nDTEND:20030523T150000Z\r\nDTSTAMP:20030523T132617Z\r\n...

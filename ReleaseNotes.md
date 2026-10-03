@@ -95,6 +95,17 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     `TnefMessage.ConvertToMime ()`, which follows [MS-OXCMAIL] (including `PidTagMimeSkeleton`,
     `PS_INTERNET_HEADERS` and transport `Received` headers) and reports anything it could not
     represent via `TnefConversionResult.Losses`.
+  * `TnefMessage.ConvertToMime ()` now generates a `text/calendar` part for appointments, meeting
+    requests, responses, counter-proposals and cancellations, following [MS-OXCICAL]. It covers time
+    zones, recurrence rules, deleted and modified occurrences, attendees and reminders. Per
+    [MS-OXCMAIL] 2.1.3.3.8 it is added as the last alternative of the body. Exception attachments it
+    consumes are not repeated as MIME attachments. You can turn it off with
+    `TnefConversionOptions.GenerateCalendar`. Data it cannot represent is reported as
+    `TnefConversionLossKind.InvalidCalendarData` or `UnsupportedCalendarData`.
+  * Added `TnefConversionOptions.MaxCalendarExceptions` (default 1024) and `TnefConversionOptions.MaxCalendarExceptionsSize`
+    (default 16 MiB) to bound the size of the generated `text/calendar` part for recurring appointments with many
+    exceptions. Exceptions beyond either limit are omitted and reported as
+    `TnefConversionLossKind.CalendarExceptionLimitExceeded`.
   * See the [TNEF Porting Guide](TnefPortingGuide.md) for help migrating from MimeKit 4.x.
 * Added `TnefWriter` and `TnefPropertyWriter` for producing [MS-OXTNEF] streams, including named
   properties, multi-valued properties, recipient tables, embedded messages and [MS-OXRTFCP]
@@ -113,6 +124,9 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `CONTENTS`, to skip the CRC for uncompressed streams, and to discard unknown `COMPTYPE`s.
 * Added `TnefNameId.ToString ()`. Named properties previously printed as the type name, which also
   affected `TnefProperty.ToString ()`.
+* Added the `RecipientFlags` and `RecipientTrackStatus` property IDs and tags, and the
+  `AppointmentCounterProposal`, `AppointmentProposedStartWhole` and `AppointmentProposedEndWhole`
+  named property IDs.
 
 ### Performance
 

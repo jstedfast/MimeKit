@@ -1,4 +1,4 @@
-﻿//
+//
 // TnefConversionLossKind.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -82,6 +82,31 @@ namespace MimeKit.Tnef {
 		/// The CRC of the <see cref="TnefPropertyId.RtfCompressed"/> body does not match its content. The RTF body was
 		/// converted anyway, but may be corrupt.
 		/// </summary>
-		RtfChecksumMismatch
+		RtfChecksumMismatch,
+
+		/// <summary>
+		/// The calendar data of a calendar item or meeting message, such as its start time, time zone or recurrence
+		/// pattern, is missing or malformed. The <c>text/calendar</c> part omits the information that could not be
+		/// interpreted, or is not generated at all if the appointment does not have a start time.
+		/// </summary>
+		InvalidCalendarData,
+
+		/// <summary>
+		/// The calendar data of a calendar item or meeting message uses a feature that iCalendar cannot represent,
+		/// such as a recurrence pattern based on a non-Gregorian calendar, and was omitted from the <c>text/calendar</c>
+		/// part.
+		/// </summary>
+		UnsupportedCalendarData,
+
+		/// <summary>
+		/// A recurring appointment has more modified occurrences (exceptions) than allowed by
+		/// <see cref="TnefConversionOptions.MaxCalendarExceptions"/>, or the exceptions would exceed
+		/// <see cref="TnefConversionOptions.MaxCalendarExceptionsSize"/> bytes once written.
+		/// </summary>
+		/// <remarks>
+		/// This is not a defect in the TNEF message, but the exceptions beyond the limit were not written to the
+		/// <c>text/calendar</c> part. The embedded messages for any of those exceptions are kept as ordinary attachments.
+		/// </remarks>
+		CalendarExceptionLimitExceeded
 	}
 }

@@ -4415,6 +4415,14 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag RecipientDisplayNameW = new TnefPropertyTag (TnefPropertyId.RecipientDisplayName, TnefPropertyType.Unicode);
 
 		/// <summary>
+		/// The MAPI property PR_RECIPIENT_FLAGS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECIPIENT_FLAGS.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecipientFlags = new TnefPropertyTag (TnefPropertyId.RecipientFlags, TnefPropertyType.Long);
+
+		/// <summary>
 		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.
 		/// </summary>
 		/// <remarks>
@@ -4445,6 +4453,14 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_RECIPIENT_STATUS.
 		/// </remarks>
 		public static readonly TnefPropertyTag RecipientStatus = new TnefPropertyTag (TnefPropertyId.RecipientStatus, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_TRACKSTATUS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECIPIENT_TRACKSTATUS.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecipientTrackStatus = new TnefPropertyTag (TnefPropertyId.RecipientTrackStatus, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_RECIPIENT_TYPE.

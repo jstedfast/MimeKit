@@ -2,4 +2,8 @@ message
   From: Arbeitssicherheit und Brandschutztechnik Brechmann <info@sitec-owl.de>
   Date: 2006-02-17T09:23:08Z
   Subject: Pfingstmontag
-  (no body)
+  TextPart text/calendar
+    Content-Type: text/calendar; charset=utf-8; method=PUBLISH
+    Content-Transfer-Encoding: 7bit
+    content: encoding=Default length=566 sha256=5ccb2954e81882b9f6aa454c919414c239570deffe9e29df1169ca3b9b40ed7b
+    text: BEGIN:VCALENDAR\r\nMETHOD:PUBLISH\r\nPRODID:-//.NET Foundation//MimeKit//EN\r\nVERSION:2.0\r\nX-MS-OLK-FORCEINSPECTOROPEN:TRUE\r\nBEGIN:VEVENT\r\nCATEGORIES:Feiertag\r\nCLASS:PUBLIC\r\nCREATED:20060217T092308Z\r\nDTEND;VALUE=DATE:20030610\r\nDTSTAMP:20060217T092308Z\r\nDTSTART;...

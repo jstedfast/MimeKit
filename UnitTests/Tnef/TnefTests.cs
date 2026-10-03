@@ -344,6 +344,10 @@ namespace UnitTests.Tnef {
 				var isText = false;
 				string fileName;
 
+				// The text/calendar part is generated from the appointment properties; it is covered by TnefCalendarTests.
+				if (part.ContentType.IsMimeType ("text", "calendar"))
+					continue;
+
 				if (part is TextPart text && string.IsNullOrEmpty (part.FileName)) {
 					if (text.IsHtml)
 						fileName = "message.html";

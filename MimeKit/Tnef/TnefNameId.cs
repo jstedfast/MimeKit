@@ -105,6 +105,15 @@ namespace MimeKit.Tnef {
 		public static readonly TnefNameId AppointmentColor = new TnefNameId (TnefPropertySetGuid.Appointment, 0x8214);
 
 		/// <summary>
+		/// The PidLidAppointmentCounterProposal named property.
+		/// </summary>
+		/// <remarks>
+		/// The <c>PidLidAppointmentCounterProposal</c> named property (PSETID_Appointment, LID 0x00008257) of type <c>PtypBoolean</c>,
+		/// as defined in [MS-OXPROPS] section 2.10.
+		/// </remarks>
+		public static readonly TnefNameId AppointmentCounterProposal = new TnefNameId (TnefPropertySetGuid.Appointment, 0x8257);
+
+		/// <summary>
 		/// The PidLidAppointmentDuration named property.
 		/// </summary>
 		/// <remarks>
@@ -130,6 +139,24 @@ namespace MimeKit.Tnef {
 		/// as defined in [MS-OXPROPS] section 2.17.
 		/// </remarks>
 		public static readonly TnefNameId AppointmentNotAllowPropose = new TnefNameId (TnefPropertySetGuid.Appointment, 0x825A);
+
+		/// <summary>
+		/// The PidLidAppointmentProposedEndWhole named property.
+		/// </summary>
+		/// <remarks>
+		/// The <c>PidLidAppointmentProposedEndWhole</c> named property (PSETID_Appointment, LID 0x00008251) of type <c>PtypTime</c>,
+		/// as defined in [MS-OXPROPS] section 2.20.
+		/// </remarks>
+		public static readonly TnefNameId AppointmentProposedEndWhole = new TnefNameId (TnefPropertySetGuid.Appointment, 0x8251);
+
+		/// <summary>
+		/// The PidLidAppointmentProposedStartWhole named property.
+		/// </summary>
+		/// <remarks>
+		/// The <c>PidLidAppointmentProposedStartWhole</c> named property (PSETID_Appointment, LID 0x00008250) of type <c>PtypTime</c>,
+		/// as defined in [MS-OXPROPS] section 2.21.
+		/// </remarks>
+		public static readonly TnefNameId AppointmentProposedStartWhole = new TnefNameId (TnefPropertySetGuid.Appointment, 0x8250);
 
 		/// <summary>
 		/// The PidLidAppointmentRecur named property.

@@ -1079,12 +1079,16 @@ X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
 		[Test]
 		public void TestConversionOptionsClone ()
 		{
-			var options = new TnefConversionOptions { ConvertEmbeddedMessages = true };
+			var options = new TnefConversionOptions { ConvertEmbeddedMessages = true, GenerateCalendar = false, MaxCalendarExceptions = 7, MaxCalendarExceptionsSize = 4096 };
 			var clone = options.Clone ();
 
 			Assert.That (clone, Is.Not.SameAs (options));
 			Assert.That (clone.ConvertEmbeddedMessages, Is.True);
+			Assert.That (clone.GenerateCalendar, Is.False);
+			Assert.That (clone.MaxCalendarExceptions, Is.EqualTo (7));
+			Assert.That (clone.MaxCalendarExceptionsSize, Is.EqualTo (4096));
 			Assert.That (TnefConversionOptions.Default.ConvertEmbeddedMessages, Is.False);
+			Assert.That (TnefConversionOptions.Default.GenerateCalendar, Is.True);
 		}
 
 		#endregion

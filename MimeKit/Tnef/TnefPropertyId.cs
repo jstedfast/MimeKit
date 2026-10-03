@@ -2023,6 +2023,11 @@ namespace MimeKit.Tnef {
 		RecipientDisplayName                     = 0x5FF6,
 
 		/// <summary>
+		/// The MAPI property PR_RECIPIENT_FLAGS.
+		/// </summary>
+		RecipientFlags                           = 0x5FFD,
+
+		/// <summary>
 		/// The MAPI property PR_RECIPIENT_NUMBER_FOR_ADVICE.
 		/// </summary>
 		RecipientNumberForAdvice                 = 0x0C14,
@@ -2036,6 +2041,11 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_RECIPIENT_STATUS.
 		/// </summary>
 		RecipientStatus                          = 0x0E15,
+
+		/// <summary>
+		/// The MAPI property PR_RECIPIENT_TRACKSTATUS.
+		/// </summary>
+		RecipientTrackStatus                     = 0x5FFF,
 
 		/// <summary>
 		/// The MAPI property PR_RECIPIENT_TYPE.
