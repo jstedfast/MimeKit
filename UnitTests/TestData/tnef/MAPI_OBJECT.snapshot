@@ -1,0 +1,15 @@
+message
+  Date: 2002-10-08T00:15:35Z
+  Subject: OCTOBER DISCOUNTED PRICE LIST
+  Message-Id: <BF55F48D9D4AD51190C500D0B7BB2C6E089088FE@xau03.aus.hp.com>
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=732 sha256=095da1917ef2b6c25839ddd215a916605f95d45a4f780736ed6055107be19c71
+      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang3081{\\fonttbl{\\f0\\fswiss\\fprq2\\fcharset0 Futura Bk;}{\\f1\\fswiss\\fprq2\\fcharset128 Arial Unicode MS;}{\\f2\\fswiss\\fcharset0 Arial;}}\r\n{\\colortbl ;\\red0\\green0\\blue255;}\r\n\\viewkind4\\uc1\\pard\\sb100\\sa100\\lang1033\\f0\\fs20 At...
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name=Untitled_Attachment
+      Content-Transfer-Encoding: base64
+      Content-Disposition: inline; filename=Untitled_Attachment; size=628302; creation-date=2002-10-08T00:13:48Z; modification-date=2002-10-08T00:13:48Z
+      content: encoding=Default length=628224 sha256=f89a1afbdfb2fc38b8888b8e0fd84509a801fa6d5491306f6f8d34a3d62931e3

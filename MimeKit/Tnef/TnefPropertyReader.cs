@@ -27,1640 +27,1726 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Buffers;
+using System.Threading;
+using System.Buffers.Binary;
+using System.Collections.Generic;
 
 namespace MimeKit.Tnef {
 	/// <summary>
-	/// A TNEF property reader.
+	/// A forward-only reader for the MAPI properties contained within a TNEF attribute.
 	/// </summary>
 	/// <remarks>
-	/// A TNEF property reader.
+	/// <para>A <see cref="TnefPropertyReader"/> provides forward-only access to the MAPI properties contained within
+	/// the <see cref="TnefAttributeTag.MapiProperties"/>, <see cref="TnefAttributeTag.Attachment"/> and
+	/// <see cref="TnefAttributeTag.RecipientTable"/> attributes. It is obtained by calling
+	/// <see cref="TnefReader.GetPropertyReader"/>.</para>
+	/// <para>For a <see cref="TnefAttributeTag.RecipientTable"/> attribute, each row of properties is selected by
+	/// calling <see cref="ReadNextRow(CancellationToken)"/> before reading the row's properties with
+	/// <see cref="ReadNextProperty(CancellationToken)"/>.</para>
+	/// <para>When positioned on a property, the reader is also positioned on the property's first value (if it has
+	/// any). Additional values of a multi-valued property are selected using <see cref="ReadNextValue(CancellationToken)"/>.</para>
+	/// <para>Fixed-width values (integers, floating point values, dates, booleans and GUIDs) are decoded when the
+	/// reader is positioned on them and may be read any number of times. Variable-length values (strings, binary
+	/// values and objects) may only be read once.</para>
+	/// <para>The property reader is only valid until the <see cref="TnefReader"/> is advanced to the next attribute.
+	/// After that, any use of the property reader throws <see cref="InvalidOperationException"/>.</para>
+	/// <para>Like the <see cref="TnefReader"/>, the property reader never throws because of malformed data. Problems
+	/// are reported to the reader's <see cref="TnefReader.ComplianceLogger"/>, and if the remainder of the attribute
+	/// cannot be interpreted, the reader simply stops returning properties.</para>
 	/// </remarks>
-	public class TnefPropertyReader
+	public sealed partial class TnefPropertyReader
 	{
-		static readonly Encoding DefaultEncoding = Encoding.GetEncoding (1252);
+		// {00020307-0000-0000-C000-000000000046}
+		static readonly Guid IID_IMessage = new Guid (0x00020307, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
 
-		TnefPropertyTag propertyTag;
+		// Note: Fixed-width values are decoded from this buffer. The largest fixed-width value is a 16-byte GUID.
+		readonly byte[] scratch = new byte[16];
 		readonly TnefReader reader;
-		TnefNameId propertyName;
-		int rawValueOffset;
-		int rawValueLength;
-		int propertyIndex;
-		int propertyCount;
-		int valueIndex;
-		int valueCount;
-		int rowIndex;
-		int rowCount;
+		readonly int generation;
+		readonly bool isTable;
 
-		internal TnefAttachMethod AttachMethod {
-			get; set;
-		}
+		// The state of the reader.
+		int rowCount = -1, rowIndex;
+		int propertyCount = -1, propertyIndex;
+		bool inRow, stopped;
 
-#if false
-		/// <summary>
-		/// Get a value indicating whether the current property is a computed property.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the current property is a computed property.
-		/// </remarks>
-		/// <value><see langword="true" /> if the current property is a computed property; otherwise, <see langword="false" />.</value>
-		public bool IsComputedProperty {
-			get { throw new NotImplementedException (); }
-		}
-#endif
+		// The state of the current property.
+		TnefPropertyTag tag = TnefPropertyTag.Null;
+		TnefNameId? name;
+		bool hasProperty;
+		int valueCount, valueIndex;
 
-		/// <summary>
-		/// Get a value indicating whether the current property is an embedded TNEF message.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the current property is an embedded TNEF message.
-		/// </remarks>
-		/// <value><see langword="true" /> if the current property is an embedded TNEF message; otherwise, <see langword="false" />.</value>
-		public bool IsEmbeddedMessage {
-			get { return propertyTag.Id == TnefPropertyId.AttachData && AttachMethod == TnefAttachMethod.EmbeddedMessage; }
-		}
+		// The state of the current value.
+		bool hasValue, consumed;
+		long dataStart, dataEnd, valueEnd;
+		DateTime dateValue;
+		Guid objectIid;
 
-#if false
-		/// <summary>
-		/// Get a value indicating whether the current property has a large value.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the current property has a large value.
-		/// </remarks>
-		/// <value><see langword="true" /> if the current property has a large value; otherwise, <see langword="false" />.</value>
-		public bool IsLargeValue {
-			get { throw new NotImplementedException (); }
-		}
-#endif
-
-		/// <summary>
-		/// Get a value indicating whether the current property has multiple values.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the current property has multiple values.
-		/// </remarks>
-		/// <value><see langword="true" /> if the current property has multiple values; otherwise, <see langword="false" />.</value>
-		public bool IsMultiValuedProperty {
-			get { return propertyTag.IsMultiValued; }
+		internal TnefPropertyReader (TnefReader reader, bool isTable)
+		{
+			generation = reader.Generation;
+			this.isTable = isTable;
+			this.reader = reader;
 		}
 
 		/// <summary>
-		/// Get a value indicating whether the current property is a named property.
+		/// Get the number of table rows.
 		/// </summary>
 		/// <remarks>
-		/// Gets a value indicating whether the current property is a named property.
-		/// </remarks>
-		/// <value><see langword="true" /> if the current property is a named property; otherwise, <see langword="false" />.</value>
-		public bool IsNamedProperty {
-			get { return propertyTag.IsNamed; }
-		}
-
-		/// <summary>
-		/// Get a value indicating whether the current property contains object values.
-		/// </summary>
-		/// <remarks>
-		/// Gets a value indicating whether the current property contains object values.
-		/// </remarks>
-		/// <value><see langword="true" /> if the current property contains object values; otherwise, <see langword="false" />.</value>
-		public bool IsObjectProperty {
-			get { return propertyTag.ValueTnefType == TnefPropertyType.Object; }
-		}
-
-#if false
-		/// <summary>
-		/// Get the object iid.
-		/// </summary>
-		/// <remarks>
-		/// Gets the object iid.
-		/// </remarks>
-		/// <value>The object iid.</value>
-		public Guid ObjectIid {
-			get { throw new NotImplementedException (); }
-		}
-#endif
-
-		/// <summary>
-		/// Get the number of properties available.
-		/// </summary>
-		/// <remarks>
-		/// Gets the number of properties available.
-		/// </remarks>
-		/// <value>The property count.</value>
-		public int PropertyCount {
-			get { return propertyCount; }
-		}
-
-		/// <summary>
-		/// Get the property name identifier.
-		/// </summary>
-		/// <remarks>
-		/// Gets the property name identifier.
-		/// </remarks>
-		/// <value>The property name identifier.</value>
-		public TnefNameId PropertyNameId {
-			get { return propertyName; }
-		}
-
-		/// <summary>
-		/// Get the property tag.
-		/// </summary>
-		/// <remarks>
-		/// Gets the property tag.
-		/// </remarks>
-		/// <value>The property tag.</value>
-		public TnefPropertyTag PropertyTag {
-			get { return propertyTag; }
-		}
-
-		/// <summary>
-		/// Get the length of the raw value.
-		/// </summary>
-		/// <remarks>
-		/// Gets the length of the raw value.
-		/// </remarks>
-		/// <value>The length of the raw value.</value>
-		public int RawValueLength {
-			get { return rawValueLength; }
-		}
-
-		/// <summary>
-		/// Get the raw value stream offset.
-		/// </summary>
-		/// <remarks>
-		/// Gets the raw value stream offset.
-		/// </remarks>
-		/// <value>The raw value stream offset.</value>
-		public int RawValueStreamOffset {
-			get { return rawValueOffset; }
-		}
-
-		/// <summary>
-		/// Get the number of table rows available.
-		/// </summary>
-		/// <remarks>
-		/// Gets the number of table rows available.
+		/// <para>Gets the number of table rows in a <see cref="TnefAttributeTag.RecipientTable"/> attribute.</para>
+		/// <para>The row count is read by the first call to <see cref="ReadNextRow(CancellationToken)"/>, so until then,
+		/// and for attributes that do not contain a table, it is <c>0</c>.</para>
 		/// </remarks>
 		/// <value>The row count.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
 		public int RowCount {
-			get { return rowCount; }
+			get {
+				CheckGeneration ();
+				return Math.Max (rowCount, 0);
+			}
 		}
 
 		/// <summary>
-		/// Get the number of values available.
+		/// Get the number of properties.
 		/// </summary>
 		/// <remarks>
-		/// Gets the number of values available.
+		/// <para>Gets the number of properties in the attribute or, for a <see cref="TnefAttributeTag.RecipientTable"/>
+		/// attribute, in the current row.</para>
+		/// <para>The property count is read by the first call to <see cref="ReadNextProperty(CancellationToken)"/> (or, for
+		/// a table, by <see cref="ReadNextRow(CancellationToken)"/>), so until then it is <c>0</c>.</para>
+		/// </remarks>
+		/// <value>The property count.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public int PropertyCount {
+			get {
+				CheckGeneration ();
+				return Math.Max (propertyCount, 0);
+			}
+		}
+
+		/// <summary>
+		/// Get the tag of the current property.
+		/// </summary>
+		/// <remarks>
+		/// Gets the tag of the current property.
+		/// </remarks>
+		/// <value>The property tag.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public TnefPropertyTag Tag {
+			get {
+				CheckGeneration ();
+				return tag;
+			}
+		}
+
+		/// <summary>
+		/// Get the type of the current property's values.
+		/// </summary>
+		/// <remarks>
+		/// Gets the type of the current property's values, without the <see cref="TnefPropertyType.MultiValued"/> flag.
+		/// </remarks>
+		/// <value>The property type.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public TnefPropertyType PropertyType {
+			get {
+				CheckGeneration ();
+				return tag.ValueTnefType;
+			}
+		}
+
+		/// <summary>
+		/// Get whether the current property is multi-valued.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether the current property is multi-valued.
+		/// </remarks>
+		/// <value><see langword="true"/> if the current property is multi-valued; otherwise, <see langword="false"/>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public bool IsMultiValued {
+			get {
+				CheckGeneration ();
+				return tag.IsMultiValued;
+			}
+		}
+
+		/// <summary>
+		/// Get the name of the current property.
+		/// </summary>
+		/// <remarks>
+		/// Gets the name of the current property if it is a named property; otherwise, <see langword="null"/>.
+		/// </remarks>
+		/// <value>The property name.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public TnefNameId? Name {
+			get {
+				CheckGeneration ();
+				return name;
+			}
+		}
+
+		/// <summary>
+		/// Get the number of values of the current property.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the number of values of the current property.</para>
+		/// <para>A malformed property may have no values at all, in which case there is no value to read.</para>
 		/// </remarks>
 		/// <value>The value count.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
 		public int ValueCount {
-			get { return valueCount; }
-		}
-
-		/// <summary>
-		/// Get the type of the value.
-		/// </summary>
-		/// <remarks>
-		/// Gets the type of the value.
-		/// </remarks>
-		/// <value>The type of the value.</value>
-		public Type ValueType {
 			get {
-				if (propertyCount > 0)
-					return GetPropertyValueType ();
-
-				return GetAttributeValueType ();
+				CheckGeneration ();
+				return valueCount;
 			}
 		}
 
-		internal TnefPropertyReader (TnefReader tnef)
+		/// <summary>
+		/// Get whether the current variable-length value has already been read.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets whether the current variable-length value has already been read.</para>
+		/// <para>Variable-length values may only be read once. Fixed-width values may be read any number of times
+		/// and are never considered to be consumed.</para>
+		/// </remarks>
+		/// <value><see langword="true"/> if the current value has been read; otherwise, <see langword="false"/>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public bool IsValueConsumed {
+			get {
+				CheckGeneration ();
+				return consumed;
+			}
+		}
+
+		/// <summary>
+		/// Get whether the current value is an embedded TNEF message.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets whether the current value is an embedded TNEF message.</para>
+		/// <para>An embedded message is an <see cref="TnefPropertyId.AttachData"/> value that is either a
+		/// <see cref="TnefPropertyType.Object"/> value prefixed with the IID_IMessage interface identifier, or a value
+		/// of an attachment whose <see cref="TnefPropertyId.AttachMethod"/> has already been read and is
+		/// <see cref="TnefAttachMethod.EmbeddedMessage"/>. It can be read using <see cref="OpenEmbeddedMessage"/>.</para>
+		/// </remarks>
+		/// <value><see langword="true"/> if the current value is an embedded message; otherwise, <see langword="false"/>.</value>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		public bool IsEmbeddedMessage {
+			get {
+				CheckGeneration ();
+				return IsEmbeddedMessageCore;
+			}
+		}
+
+		// Whether the reader is positioned on a value.
+		internal bool HasValue {
+			get {
+				CheckGeneration ();
+				return hasValue;
+			}
+		}
+
+		bool IsEmbeddedMessageCore {
+			get {
+				if (!hasValue || tag.Id != TnefPropertyId.AttachData)
+					return false;
+
+				// Note: [MS-OXTNEF] prefixes PtypObject values with the IID of the object's interface, which is
+				// IID_IMessage for an embedded message. Since writers typically emit the attachment properties in
+				// ascending order of property id, PidTagAttachMethod (0x3705) usually comes *after*
+				// PidTagAttachDataObject (0x3701), so the IID is the only reliable indicator.
+				if (tag.ValueTnefType == TnefPropertyType.Object && objectIid != Guid.Empty)
+					return objectIid == IID_IMessage;
+
+				if (reader.AttachMethod != TnefAttachMethod.EmbeddedMessage)
+					return false;
+
+				return tag.ValueTnefType == TnefPropertyType.Object || tag.ValueTnefType == TnefPropertyType.Binary;
+			}
+		}
+
+		long Remaining {
+			get { return Math.Max (reader.ValueEnd - reader.LocalOffset, 0); }
+		}
+
+		void CheckGeneration ()
 		{
-			propertyTag = TnefPropertyTag.Null;
-			propertyName = new TnefNameId ();
-			rawValueOffset = 0;
-			rawValueLength = 0;
-			propertyIndex = 0;
-			propertyCount = 0;
-			valueIndex = 0;
-			valueCount = 0;
+			reader.CheckGeneration (generation);
+		}
+
+		void Log (TnefComplianceViolation violation, long offset)
+		{
+			reader.Log (violation, offset, tag);
+		}
+
+		// Note: Once the structure of the attribute can no longer be trusted, there is no way to locate the
+		// properties that follow, so the reader stops.
+		void Stop ()
+		{
+			stopped = true;
+			hasProperty = false;
+			hasValue = false;
+			inRow = false;
+		}
+
+		// Checks that the attribute has enough data left for the next structure.
+		bool CheckAvailable (int count, TnefComplianceViolation violation)
+		{
+			if (Remaining >= count)
+				return true;
+
+			Log (violation, reader.LocalOffset);
+			Stop ();
+
+			return false;
+		}
+
+		// Checks that the stream did not end before the attribute did.
+		bool CheckFilled (bool filled)
+		{
+			if (filled)
+				return true;
+
+			reader.SetTruncated (tag);
+			Stop ();
+
+			return false;
+		}
+
+		static int GetMaxCount (long remaining, int width)
+		{
+			return (int) Math.Min (remaining / width, int.MaxValue);
+		}
+
+		void LoadRowCount (int count, long offset)
+		{
+			// Note: Every row begins with a 32-bit property count.
+			int max = GetMaxCount (Remaining, 4);
+
+			if (count < 0 || count > max) {
+				reader.Log (TnefComplianceViolation.InvalidRowCount, offset);
+				count = count < 0 ? 0 : max;
+			}
+
+			rowCount = count;
 			rowIndex = 0;
-			rowCount = 0;
-
-			reader = tnef;
 		}
 
-		/// <summary>
-		/// Get the embedded TNEF message reader.
-		/// </summary>
-		/// <remarks>
-		/// Gets the embedded TNEF message reader.
-		/// </remarks>
-		/// <returns>The embedded TNEF message reader.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// <para>The property does not contain any more values.</para>
-		/// <para>-or-</para>
-		/// <para>The property value is not an embedded message.</para>
-		/// </exception>
-		public TnefReader GetEmbeddedMessageReader ()
+		void LoadPropertyCount (int count, long offset)
 		{
-			if (!IsEmbeddedMessage)
-				throw new InvalidOperationException ();
+			// Note: Every property begins with a 32-bit property tag.
+			int max = GetMaxCount (Remaining, 4);
 
-			var stream = GetRawValueReadStream ();
-			var guid = new byte[16];
-			int index = 0;
-			int n;
+			if (count < 0 || count > max) {
+				reader.Log (TnefComplianceViolation.InvalidPropertyCount, offset);
+				count = count < 0 ? 0 : max;
+			}
 
-			do {
-				if ((n = stream.Read (guid, index, 16 - index)) > 0)
-					index += n;
-			} while (n > 0);
-
-			return new TnefReader (stream, reader.MessageCodepage, reader.ComplianceMode);
+			propertyCount = count;
+			propertyIndex = 0;
 		}
 
-		/// <summary>
-		/// Get the raw value of the attribute or property as a stream.
-		/// </summary>
-		/// <remarks>
-		/// Gets the raw value of the attribute or property as a stream.
-		/// </remarks>
-		/// <returns>The raw value stream.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// The property does not contain any more values.
-		/// </exception>
-		public Stream GetRawValueReadStream ()
+		// Gets the width of a fixed-width value, -1 for a variable-length value, or -2 for an unsupported type.
+		static int GetFixedWidth (TnefPropertyType type)
 		{
-			if (valueIndex >= valueCount)
-				throw new InvalidOperationException ();
-
-			int startOffset = RawValueStreamOffset;
-			int length = RawValueLength;
-
-			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode:
-				case TnefPropertyType.String8:
-				case TnefPropertyType.Binary:
-				case TnefPropertyType.Object:
-					int n = ReadInt32 ();
-					if (n >= 0 && n < length - 4)
-						length = n + 4;
-					break;
-				}
-			}
-
-			valueIndex++;
-
-			int valueEndOffset = startOffset + RawValueLength;
-			int dataEndOffset = startOffset + length;
-
-			return new TnefReaderStream (reader, dataEndOffset, valueEndOffset);
-		}
-
-		bool CheckRawValueLength ()
-		{
-			// Check that the length of the property value does not go beyond the end of the attribute value.
-			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
-			long valueEndOffset = (long) RawValueStreamOffset + RawValueLength;
-
-			if (valueEndOffset > attrEndOffset) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
-				return false;
-			}
-
-			return true;
-		}
-
-		byte ReadByte ()
-		{
-			return reader.ReadByte ();
-		}
-
-		byte[] ReadBytes (int count)
-		{
-			if (count <= 0) {
-				if (count < 0)
-					reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
-
-				return Array.Empty<byte> ();
-			}
-
-			// Never allow our caller to request more than the number of bytes that actually remain in the current
-			// attribute. A corrupt or malicious length prefix could otherwise force an enormous allocation
-			// before any data is read, exhausting available memory.
-			long attrEndOffset = (long) reader.AttributeRawValueStreamOffset + reader.AttributeRawValueLength;
-			long available = Math.Max (attrEndOffset - reader.StreamOffset, 0);
-
-			if (count > available) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
-				count = (int) available;
-			}
-
-			// Both 'count' and the attribute length are vulnerable to corruption, so be careful not to allocate a huge buffer. Read the value in chunks if necessary.
-			const int MaxChunkSize = 4096;
-			int offset = 0, nread;
-			byte[] buffer;
-
-			if (count <= MaxChunkSize) {
-				// The specified value length is within a safe allocation size limit, so we can allocate the full buffer up front and read directly into it.
-				buffer = new byte[count];
-
-				while (offset < count && (nread = reader.ReadAttributeRawValue (buffer, offset, count - offset)) > 0)
-					offset += nread;
-
-				return buffer;
-			}
-
-			// The specified value length is larger than the safe allocation size limit, so we need to read it in chunks and grow the buffer as needed.
-			buffer = ArrayPool<byte>.Shared.Rent (MaxChunkSize);
-
-			try {
-				using (var memory = new MemoryStream ()) {
-					while (offset < count && (nread = reader.ReadAttributeRawValue (buffer, 0, Math.Min (buffer.Length, count - offset))) > 0) {
-						memory.Write (buffer, 0, nread);
-						offset += nread;
-					}
-
-					return memory.ToArray ();
-				}
-			} finally {
-				ArrayPool<byte>.Shared.Return (buffer);
+			switch (type) {
+			case TnefPropertyType.Null:
+				return 0;
+			case TnefPropertyType.I2:
+			case TnefPropertyType.Long:
+			case TnefPropertyType.R4:
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Boolean:
+				// Note: [MS-OXTNEF] pads 16-bit values out to 4 bytes.
+				return 4;
+			case TnefPropertyType.Double:
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.AppTime:
+			case TnefPropertyType.SysTime:
+			case TnefPropertyType.I8:
+				return 8;
+			case TnefPropertyType.ClassId:
+				return 16;
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object:
+				return -1;
+			default:
+				return -2;
 			}
 		}
 
-		short ReadInt16 ()
+		// Starts a new property once its 32-bit property tag has been buffered.
+		void LoadPropertyTag ()
 		{
-			return reader.ReadInt16 ();
+			var type = (TnefPropertyType) reader.TakeInt16 ();
+			var id = (TnefPropertyId) reader.TakeInt16 ();
+
+			tag = new TnefPropertyTag (id, type);
+			hasProperty = true;
+			valueCount = 0;
+			valueIndex = -1;
+			consumed = false;
+			hasValue = false;
+			name = null;
 		}
 
-		int ReadInt32 ()
+		// Reads the GUID and kind of a named property once they have been buffered.
+		TnefNameIdKind LoadNameHeader (out Guid guid)
 		{
-			return reader.ReadInt32 ();
+			reader.TakeBytes (scratch, 0, 16);
+			guid = new Guid (scratch);
+
+			return (TnefNameIdKind) reader.TakeInt32 ();
 		}
 
-		int PeekInt32 ()
+		bool CheckNameLength (int length, long offset)
 		{
-			return reader.PeekInt32 ();
+			if (length >= 0 && length <= Remaining)
+				return true;
+
+			Log (TnefComplianceViolation.InvalidPropertyLength, offset);
+			Stop ();
+
+			return false;
 		}
 
-		long ReadInt64 ()
-		{
-			return reader.ReadInt64 ();
-		}
-
-		float ReadSingle ()
-		{
-			return reader.ReadSingle ();
-		}
-
-		double ReadDouble ()
-		{
-			return reader.ReadDouble ();
-		}
-
-		DateTime ReadAppTime ()
-		{
-			var appTime = ReadDouble ();
-
-			return DateTime.FromOADate (appTime);
-		}
-
-		DateTime ReadSysTime ()
-		{
-			var fileTime = ReadInt64 ();
-
-			return DateTime.FromFileTime (fileTime);
-		}
-
-		static int GetPaddedLength (int length)
+		// Gets the number of padding bytes that follow a variable-length value of the specified length.
+		int GetPadding (int length)
 		{
 			int padding = (4 - (length & 3)) & 3;
 
-			return length + padding;
-		}
-
-		byte[] ReadByteArray ()
-		{
-			int length = ReadInt32 ();
-			var bytes = ReadBytes (length);
-
-			if (length > 0 && (length % 4) != 0) {
-				// remaining bytes are padding
-				int padding = 4 - (length % 4);
-
-				reader.Skip (padding);
+			if (padding > Remaining) {
+				Log (TnefComplianceViolation.InvalidPropertyLength, reader.LocalOffset);
+				padding = (int) Remaining;
 			}
 
-			return bytes;
+			return padding;
 		}
 
-		string ReadUnicodeString ()
+		static string DecodeUnicode (byte[] bytes)
 		{
-			var bytes = ReadByteArray ();
-			int length = bytes.Length;
+			int length = bytes.Length & ~1;
 
-			// force length to a multiple of 2 bytes
-			length &= ~1;
-
+			// Note: Unicode strings are usually nul-terminated.
 			while (length > 1 && bytes[length - 1] == 0 && bytes[length - 2] == 0)
 				length -= 2;
 
-			if (length < 2)
+			if (length == 0)
 				return string.Empty;
 
 			return Encoding.Unicode.GetString (bytes, 0, length);
 		}
 
-		Encoding GetMessageEncoding ()
+		// Returns false if the property type is not one that can be parsed.
+		bool CheckPropertyType (long offset)
 		{
-			int codepage = reader.MessageCodepage;
+			if (GetFixedWidth (tag.ValueTnefType) != -2)
+				return true;
 
-			if (codepage != 0 && codepage != 1252) {
-				try {
-					return Encoding.GetEncoding (codepage);
-				} catch {
-					return DefaultEncoding;
+			// Note: The length of a value of an unknown type is unknowable, so there is no way to locate the
+			// properties that follow.
+			Log (TnefComplianceViolation.UnsupportedPropertyType, offset);
+			Stop ();
+
+			return false;
+		}
+
+		bool HasValueCount {
+			get { return tag.IsMultiValued || GetFixedWidth (tag.ValueTnefType) == -1; }
+		}
+
+		void LoadValueCount (int count, long offset)
+		{
+			int width = GetFixedWidth (tag.ValueTnefType);
+
+			// Note: Variable-length values begin with a 32-bit length, and there is no way to bound a count
+			// of zero-width values, so treat them as being 4 bytes wide.
+			int max = GetMaxCount (Remaining, width > 0 ? width : 4);
+
+			if (tag.IsMultiValued) {
+				if (count < 0 || count > max) {
+					Log (TnefComplianceViolation.InvalidValueCount, offset);
+					count = count < 0 ? 0 : max;
 				}
-			}
-
-			return DefaultEncoding;
-		}
-
-		string DecodeAnsiString (byte[] bytes)
-		{
-			int length = bytes.Length;
-
-			while (length > 0 && bytes[length - 1] == 0)
-				length--;
-
-			if (length == 0)
-				return string.Empty;
-
-			try {
-				return GetMessageEncoding ().GetString (bytes, 0, length);
-			} catch {
-				return DefaultEncoding.GetString (bytes, 0, length);
-			}
-		}
-
-		string ReadString ()
-		{
-			var bytes = ReadByteArray ();
-
-			return DecodeAnsiString (bytes);
-		}
-
-		byte[] ReadAttrBytes ()
-		{
-			return ReadBytes (RawValueLength);
-		}
-
-		string ReadAttrString ()
-		{
-			var bytes = ReadBytes (RawValueLength);
-
-			// attribute strings are null-terminated
-			return DecodeAnsiString (bytes);
-		}
-
-		DateTime ReadAttrDateTime ()
-		{
-			int year = ReadInt16 ();
-			int month = ReadInt16 ();
-			int day = ReadInt16 ();
-			int hour = ReadInt16 ();
-			int minute = ReadInt16 ();
-			int second = ReadInt16 ();
-			#pragma warning disable IDE0059
-			int dow = ReadInt16 ();
-			#pragma warning restore IDE0059
-
-			try {
-				return new DateTime (year, month, day, hour, minute, second);
-			} catch (ArgumentOutOfRangeException ex) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidDate, ex);
-				return default (DateTime);
-			}
-		}
-
-		void LoadPropertyName ()
-		{
-			var guid = new Guid (ReadBytes (16));
-			var kind = (TnefNameIdKind) ReadInt32 ();
-
-			if (kind == TnefNameIdKind.Name) {
-				var name = ReadUnicodeString ();
-
-				propertyName = new TnefNameId (guid, name);
-			} else if (kind == TnefNameIdKind.Id) {
-				int id = ReadInt32 ();
-
-				propertyName = new TnefNameId (guid, id);
 			} else {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
-				propertyName = new TnefNameId (guid, 0);
+				// Note: A single-valued property should have exactly one value, but if it claims to have some
+				// other number of values, honor it so that the properties that follow can still be located.
+				if (count != 1)
+					Log (TnefComplianceViolation.InvalidValueCount, offset);
+
+				if (count < 0)
+					count = 0;
+				else if (count > max)
+					count = max;
+			}
+
+			valueCount = count;
+		}
+
+		// Begins positioning the reader on the next value of the current property.
+		int BeginValue ()
+		{
+			reader.IncrementValueGeneration ();
+			valueIndex++;
+			consumed = false;
+			hasValue = false;
+			objectIid = Guid.Empty;
+
+			return GetFixedWidth (tag.ValueTnefType);
+		}
+
+		bool HasObjectIid {
+			get { return tag.ValueTnefType == TnefPropertyType.Object && dataEnd - dataStart >= 16; }
+		}
+
+		// Peeks at the interface identifier that prefixes an object value once it has been buffered.
+		void LoadObjectIid ()
+		{
+			reader.PeekBytes (scratch, 0, 16);
+			objectIid = new Guid (scratch);
+		}
+
+		// Loads a fixed-width value once it has been buffered.
+		void LoadFixedValue (int width)
+		{
+			long offset = reader.LocalOffset;
+
+			reader.TakeBytes (scratch, 0, width);
+			dataStart = offset;
+			dataEnd = valueEnd = reader.LocalOffset;
+			hasValue = true;
+
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.AppTime:
+				var appTime = BitConverter.Int64BitsToDouble (BinaryPrimitives.ReadInt64LittleEndian (scratch.AsSpan (0, 8)));
+
+				try {
+					dateValue = DateTime.FromOADate (appTime);
+				} catch (ArgumentException) {
+					Log (TnefComplianceViolation.InvalidDate, offset);
+					dateValue = default;
+				}
+				break;
+			case TnefPropertyType.SysTime:
+				// Note: [MS-OXCDATA] defines PtypTime as a FILETIME, which is the number of 100-nanosecond
+				// intervals since January 1, 1601 UTC.
+				long fileTime = BinaryPrimitives.ReadInt64LittleEndian (scratch.AsSpan (0, 8));
+
+				try {
+					dateValue = DateTime.FromFileTimeUtc (fileTime);
+				} catch (ArgumentOutOfRangeException) {
+					Log (TnefComplianceViolation.InvalidDate, offset);
+					dateValue = default;
+				}
+				break;
+			case TnefPropertyType.Long:
+				if (tag.Id == TnefPropertyId.AttachMethod)
+					reader.AttachMethod = (TnefAttachMethod) BinaryPrimitives.ReadInt32LittleEndian (scratch.AsSpan (0, 4));
+				else if (tag.Id == TnefPropertyId.InternetCodepage && !tag.IsMultiValued && reader.Level == TnefAttributeLevel.Message && reader.Tag == TnefAttributeTag.MapiProperties)
+					reader.SetInternetCodepage (BinaryPrimitives.ReadInt32LittleEndian (scratch.AsSpan (0, 4)));
+				break;
 			}
 		}
 
-		/// <summary>
-		/// Advance to the next MAPI property.
-		/// </summary>
-		/// <remarks>
-		/// Advances to the next MAPI property.
-		/// </remarks>
-		/// <returns><see langword="true" /> if there is another property available to be read; otherwise, <see langword="false" />.</returns>
-		/// <exception cref="TnefException">
-		/// The TNEF data is corrupt or invalid.
-		/// </exception>
-		public bool ReadNextProperty ()
+		// Loads a variable-length value once its 32-bit length has been buffered.
+		bool LoadVariableValue ()
 		{
-			while (ReadNextValue ()) {
-				// skip over the remaining value(s) for the current property...
+			long offset = reader.LocalOffset;
+			int length = reader.TakeInt32 ();
+
+			if (length < 0 || length > Remaining) {
+				Log (TnefComplianceViolation.InvalidPropertyLength, offset);
+				Stop ();
+				return false;
 			}
 
-			if (propertyIndex >= propertyCount)
-				return false;
+			dataStart = reader.LocalOffset;
+			dataEnd = dataStart + length;
+			valueEnd = dataEnd + ((4 - (length & 3)) & 3);
 
-			try {
-				var type = (TnefPropertyType) ReadInt16 ();
-				var id = (TnefPropertyId) ReadInt16 ();
+			if (valueEnd > reader.ValueEnd) {
+				Log (TnefComplianceViolation.InvalidPropertyLength, dataEnd);
+				valueEnd = reader.ValueEnd;
+			}
 
-				propertyTag = new TnefPropertyTag (id, type);
+			hasValue = true;
 
-				if (propertyTag.IsNamed)
-					LoadPropertyName ();
+			return true;
+		}
 
-				LoadValueCount ();
-				propertyIndex++;
+		bool PositionNextValue (CancellationToken cancellationToken)
+		{
+			int width = BeginValue ();
 
-				if (!TryGetPropertyValueLength (out rawValueLength))
+			if (width >= 0) {
+				if (!CheckAvailable (width, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (width, cancellationToken)))
 					return false;
 
-				rawValueOffset = reader.StreamOffset;
-
-				switch (id) {
-				case TnefPropertyId.AttachMethod:
-					AttachMethod = (TnefAttachMethod) PeekInt32 ();
-					break;
-				}
-			} catch (EndOfStreamException) {
-				return false;
+				LoadFixedValue (width);
+				return true;
 			}
 
-			return CheckRawValueLength ();
+			if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (4, cancellationToken)))
+				return false;
+
+			if (!LoadVariableValue ())
+				return false;
+
+			// Note: If the stream ends before the IID, the truncation is reported when the value is read or skipped.
+			if (HasObjectIid && reader.Fill (16, cancellationToken))
+				LoadObjectIid ();
+
+			return true;
 		}
 
-		/// <summary>
-		/// Advance to the next table row of properties.
-		/// </summary>
-		/// <remarks>
-		/// Advances to the next table row of properties.
-		/// </remarks>
-		/// <returns><see langword="true" /> if there is another row available to be read; otherwise, <see langword="false" />.</returns>
-		/// <exception cref="TnefException">
-		/// The TNEF data is corrupt or invalid.
-		/// </exception>
-		public bool ReadNextRow ()
+		// Gets the number of bytes of the current value that remain to be skipped.
+		long BeginSkipValue ()
 		{
-			while (ReadNextProperty ()) {
-				// skip over the remaining property/properties in the current row...
+			if (!hasValue)
+				return 0;
+
+			hasValue = false;
+
+			return valueEnd - reader.LocalOffset;
+		}
+
+		bool CanAdvanceValue {
+			get { return hasProperty && !stopped; }
+		}
+
+		bool HasNextValue {
+			get { return valueIndex + 1 < valueCount; }
+		}
+
+		// Skips whatever remains of the current value, then positions the reader on the next value.
+		bool AdvanceValue (CancellationToken cancellationToken)
+		{
+			if (!CanAdvanceValue)
+				return false;
+
+			long skip = BeginSkipValue ();
+
+			if (skip > 0 && !CheckFilled (reader.Skip (skip, cancellationToken)))
+				return false;
+
+			if (!HasNextValue)
+				return false;
+
+			return PositionNextValue (cancellationToken);
+		}
+
+		bool SkipProperty (CancellationToken cancellationToken)
+		{
+			while (AdvanceValue (cancellationToken)) {
+				// skip over the remaining value(s) of the current property...
 			}
+
+			hasProperty = false;
+
+			return !stopped;
+		}
+
+		// Returns true if the reader needs to read the property count before it can read the next property.
+		bool NeedsPropertyCount {
+			get { return !isTable && propertyCount < 0; }
+		}
+
+		// Returns true if there is another property to read (once the property count, if any, has been read).
+		bool BeginProperty (out long offset)
+		{
+			offset = reader.LocalOffset;
+
+			if ((isTable && !inRow) || propertyIndex >= propertyCount)
+				return false;
+
+			propertyIndex++;
+			tag = TnefPropertyTag.Null;
+
+			return true;
+		}
+
+		bool ReadNextPropertyCore (CancellationToken cancellationToken)
+		{
+			if (!SkipProperty (cancellationToken))
+				return false;
+
+			if (NeedsPropertyCount) {
+				long countOffset = reader.LocalOffset;
+
+				if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyCount) || !CheckFilled (reader.Fill (4, cancellationToken)))
+					return false;
+
+				LoadPropertyCount (reader.TakeInt32 (), countOffset);
+			}
+
+			if (!BeginProperty (out long offset))
+				return false;
+
+			if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (4, cancellationToken)))
+				return false;
+
+			LoadPropertyTag ();
+
+			if (tag.IsNamed) {
+				if (!CheckAvailable (20, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (20, cancellationToken)))
+					return false;
+
+				var kind = LoadNameHeader (out var guid);
+
+				if (kind == TnefNameIdKind.Id) {
+					if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (4, cancellationToken)))
+						return false;
+
+					name = new TnefNameId (guid, reader.TakeInt32 ());
+				} else if (kind == TnefNameIdKind.Name) {
+					if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (4, cancellationToken)))
+						return false;
+
+					long lengthOffset = reader.LocalOffset;
+					int length = reader.TakeInt32 ();
+
+					if (!CheckNameLength (length, lengthOffset))
+						return false;
+
+					var bytes = reader.ReadValueBytes (length, tag, cancellationToken);
+
+					if (bytes is null) {
+						// Note: The name is too large to read into memory, so skip it.
+						if (!CheckFilled (reader.Skip (length + GetPadding (length), cancellationToken)))
+							return false;
+
+						name = new TnefNameId (guid, string.Empty);
+					} else {
+						if (!CheckFilled (bytes.Length == length) || !CheckFilled (reader.Skip (GetPadding (length), cancellationToken)))
+							return false;
+
+						name = new TnefNameId (guid, DecodeUnicode (bytes));
+					}
+				} else {
+					Log (TnefComplianceViolation.InvalidNamedPropertyKind, offset);
+					name = new TnefNameId (guid, 0);
+				}
+			}
+
+			if (!CheckPropertyType (offset))
+				return false;
+
+			if (HasValueCount) {
+				long countOffset = reader.LocalOffset;
+
+				if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyLength) || !CheckFilled (reader.Fill (4, cancellationToken)))
+					return false;
+
+				LoadValueCount (reader.TakeInt32 (), countOffset);
+			} else {
+				valueCount = 1;
+			}
+
+			return valueCount == 0 || PositionNextValue (cancellationToken);
+		}
+
+		// Returns true if the reader needs to read the row count before it can read the next row.
+		bool NeedsRowCount {
+			get { return !inRow && rowCount < 0; }
+		}
+
+		// Returns true if there is another row to read (once the row count has been read).
+		bool BeginRow (out long offset)
+		{
+			offset = reader.LocalOffset;
+			inRow = false;
 
 			if (rowIndex >= rowCount)
 				return false;
 
-			try {
-				LoadPropertyCount ();
-				rowIndex++;
-			} catch (EndOfStreamException) {
-				reader.SetComplianceError (TnefComplianceStatus.StreamTruncated);
-				return false;
-			}
+			rowIndex++;
+			propertyCount = 0;
+			propertyIndex = 0;
 
 			return true;
 		}
 
 		/// <summary>
-		/// Advance to the next value in the TNEF stream.
+		/// Advance to the next row of a table.
 		/// </summary>
 		/// <remarks>
-		/// Advances to the next value in the TNEF stream.
+		/// <para>Advances to the next row of a <see cref="TnefAttributeTag.RecipientTable"/> attribute. Any properties
+		/// of the current row that have not been read are skipped.</para>
+		/// <para>For attributes that do not contain a table, this method always returns <see langword="false"/>.</para>
 		/// </remarks>
-		/// <returns><see langword="true" /> if there is another value available to be read; otherwise, <see langword="false" />.</returns>
-		/// <exception cref="TnefException">
-		/// The TNEF data is corrupt or invalid.
+		/// <returns><see langword="true"/> if the reader was advanced to the next row; otherwise, <see langword="false"/>.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
 		/// </exception>
-		public bool ReadNextValue ()
-		{
-			if (valueIndex >= valueCount || propertyCount == 0)
-				return false;
-
-			int offset = RawValueStreamOffset + RawValueLength;
-
-			if (reader.StreamOffset < offset && !reader.Skip (offset - reader.StreamOffset))
-				return false;
-
-			try {
-				if (!TryGetPropertyValueLength (out rawValueLength))
-					return false;
-
-				rawValueOffset = reader.StreamOffset;
-				valueIndex++;
-			} catch (EndOfStreamException) {
-				return false;
-			}
-
-			return true;
-		}
-
-		/// <summary>
-		/// Read the raw attribute or property value as a sequence of bytes.
-		/// </summary>
-		/// <remarks>
-		/// Reads the raw attribute or property value as a sequence of bytes.
-		/// </remarks>
-		/// <returns>The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many
-		/// bytes are not currently available, or zero (0) if the end of the stream has been reached.</returns>
-		/// <param name="buffer">The buffer to read data into.</param>
-		/// <param name="offset">The offset into the buffer to start reading data.</param>
-		/// <param name="count">The number of bytes to read.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
-		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> bytes starting
-		/// at the specified <paramref name="offset"/>.</para>
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public int ReadRawValue (byte[] buffer, int offset, int count)
-		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (offset < 0 || offset >= buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (offset));
-
-			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException (nameof (count));
-
-			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode:
-				case TnefPropertyType.String8:
-				case TnefPropertyType.Binary:
-				case TnefPropertyType.Object:
-					ReadInt32 ();
-					break;
-				}
-			}
-
-			int valueEndOffset = RawValueStreamOffset + RawValueLength;
-			int valueLeft = valueEndOffset - reader.StreamOffset;
-			int n = Math.Min (valueLeft, count);
-
-			return n > 0 ? reader.ReadAttributeRawValue (buffer, offset, n) : 0;
-		}
-
-		/// <summary>
-		/// Read the raw attribute or property value as a sequence of unicode characters.
-		/// </summary>
-		/// <remarks>
-		/// Reads the raw attribute or property value as a sequence of unicode characters.
-		/// </remarks>
-		/// <returns>The total number of characters read into the buffer. This can be less than the number of characters
-		/// requested if that many bytes are not currently available, or zero (0) if the end of the stream has been
-		/// reached.</returns>
-		/// <param name="buffer">The buffer to read data into.</param>
-		/// <param name="offset">The offset into the buffer to start reading data.</param>
-		/// <param name="count">The number of characters to read.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="buffer"/> is <see langword="null"/>.
-		/// </exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <para><paramref name="offset"/> is less than zero or greater than the length of <paramref name="buffer"/>.</para>
-		/// <para>-or-</para>
-		/// <para>The <paramref name="buffer"/> is not large enough to contain <paramref name="count"/> characters starting
-		/// at the specified <paramref name="offset"/>.</para>
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public int ReadTextValue (char[] buffer, int offset, int count)
-		{
-			if (buffer is null)
-				throw new ArgumentNullException (nameof (buffer));
-
-			if (offset < 0 || offset >= buffer.Length)
-				throw new ArgumentOutOfRangeException (nameof (offset));
-
-			if (count < 0 || count > (buffer.Length - offset))
-				throw new ArgumentOutOfRangeException (nameof (count));
-
-			if (reader.StreamOffset == RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
-			Encoding? encoding = null;
-
-			if (propertyCount > 0 && reader.StreamOffset == RawValueStreamOffset) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode:
-					ReadInt32 ();
-					encoding = Encoding.Unicode;
-					break;
-				case TnefPropertyType.String8:
-				case TnefPropertyType.Binary:
-				case TnefPropertyType.Object:
-					ReadInt32 ();
-					encoding = GetMessageEncoding ();
-					break;
-				}
-			}
-
-			if (encoding is null)
-				throw new InvalidOperationException ();
-
-			int valueEndOffset = RawValueStreamOffset + RawValueLength;
-			int valueLeft = valueEndOffset - reader.StreamOffset;
-			int n = Math.Min (valueLeft, count);
-
-			if (n <= 0)
-				return 0;
-
-			var bytes = new byte[n];
-
-			n = reader.ReadAttributeRawValue (bytes, 0, n);
-
-			var flush = reader.StreamOffset >= valueEndOffset;
-			var decoder = encoding.GetDecoder ();
-
-			return decoder.GetChars (bytes, 0, n, buffer, offset, flush);
-		}
-
-		bool TryGetPropertyValueLength (out int length)
-		{
-			switch (propertyTag.ValueTnefType) {
-			case TnefPropertyType.Unspecified:
-			case TnefPropertyType.Null:
-				length = 0;
-				break;
-			case TnefPropertyType.Boolean:
-			case TnefPropertyType.Error:
-			case TnefPropertyType.Long:
-			case TnefPropertyType.R4:
-			case TnefPropertyType.I2:
-				length = 4;
-				break;
-			case TnefPropertyType.Currency:
-			case TnefPropertyType.Double:
-			case TnefPropertyType.I8:
-				length = 8;
-				break;
-			case TnefPropertyType.ClassId:
-				length = 16;
-				break;
-			case TnefPropertyType.Unicode:
-			case TnefPropertyType.String8:
-			case TnefPropertyType.Binary:
-			case TnefPropertyType.Object:
-				// Validate the length of the value before we do any padding arithmetic to avoid integer overflow.
-				if ((length = PeekInt32 ()) < 0 || length > int.MaxValue - 8) {
-					// A value length this large cannot possibly fit within an attribute, so reject it
-					// before the padding arithmetic has any chance to overflow.
-					reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
-					length = 0;
-
-					return false;
-				}
-
-				length = 4 + GetPaddedLength (length);
-				break;
-			case TnefPropertyType.AppTime:
-			case TnefPropertyType.SysTime:
-				length = 8;
-				break;
-			default:
-				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
-				length = 0;
-
-				return false;
-			}
-
-			return true;
-		}
-
-		Type GetPropertyValueType ()
-		{
-			switch (propertyTag.ValueTnefType) {
-			case TnefPropertyType.I2:       return typeof (short);
-			case TnefPropertyType.Boolean:  return typeof (bool);
-			case TnefPropertyType.Currency: return typeof (long);
-			case TnefPropertyType.I8:       return typeof (long);
-			case TnefPropertyType.Error:    return typeof (int);
-			case TnefPropertyType.Long:     return typeof (int);
-			case TnefPropertyType.Double:   return typeof (double);
-			case TnefPropertyType.R4:       return typeof (float);
-			case TnefPropertyType.AppTime:  return typeof (DateTime);
-			case TnefPropertyType.SysTime:  return typeof (DateTime);
-			case TnefPropertyType.Unicode:  return typeof (string);
-			case TnefPropertyType.String8:  return typeof (string);
-			case TnefPropertyType.Binary:   return typeof (byte[]);
-			case TnefPropertyType.ClassId:  return typeof (Guid);
-			case TnefPropertyType.Object:   return typeof (byte[]);
-			default:                        return typeof (object);
-			}
-		}
-
-		Type GetAttributeValueType ()
-		{
-			switch (reader.AttributeType) {
-			case TnefAttributeType.Triples: return typeof (byte[]);
-			case TnefAttributeType.String:  return typeof (string);
-			case TnefAttributeType.Text:    return typeof (string);
-			case TnefAttributeType.Date:    return typeof (DateTime);
-			case TnefAttributeType.Short:   return typeof (short);
-			case TnefAttributeType.Long:    return typeof (int);
-			case TnefAttributeType.Byte:    return typeof (byte[]);
-			case TnefAttributeType.Word:    return typeof (short);
-			case TnefAttributeType.DWord:   return typeof (int);
-			default:                        return typeof (object);
-			}
-		}
-
-		object? ReadPropertyValue ()
-		{
-			object? value;
-
-			switch (propertyTag.ValueTnefType) {
-			case TnefPropertyType.Null:
-				value = null;
-				break;
-			case TnefPropertyType.I2:
-				// 2 bytes for the short followed by 2 bytes of padding
-				value = (short) (ReadInt32 () & 0xFFFF);
-				break;
-			case TnefPropertyType.Boolean:
-				value = (ReadInt32 () & 0xFF) != 0;
-				break;
-			case TnefPropertyType.Currency:
-			case TnefPropertyType.I8:
-				value = ReadInt64 ();
-				break;
-			case TnefPropertyType.Error:
-			case TnefPropertyType.Long:
-				value = ReadInt32 ();
-				break;
-			case TnefPropertyType.Double:
-				value = ReadDouble ();
-				break;
-			case TnefPropertyType.R4:
-				value = ReadSingle ();
-				break;
-			case TnefPropertyType.AppTime:
-				value = ReadAppTime ();
-				break;
-			case TnefPropertyType.SysTime:
-				value = ReadSysTime ();
-				break;
-			case TnefPropertyType.Unicode:
-				value = ReadUnicodeString ();
-				break;
-			case TnefPropertyType.String8:
-				value = ReadString ();
-				break;
-			case TnefPropertyType.Binary:
-				value = ReadByteArray ();
-				break;
-			case TnefPropertyType.ClassId:
-				value = new Guid (ReadBytes (16));
-				break;
-			case TnefPropertyType.Object:
-				value = ReadByteArray ();
-				break;
-			default:
-				reader.SetComplianceError (TnefComplianceStatus.UnsupportedPropertyType);
-				value = null;
-				break;
-			}
-
-			valueIndex++;
-
-			return value;
-		}
-
-		/// <summary>
-		/// Read the value.
-		/// </summary>
-		/// <remarks>
-		/// Reads an attribute or property value as its native type.
-		/// </remarks>
-		/// <returns>The value.</returns>
 		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read.
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public object? ReadValue ()
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public bool ReadNextRow (CancellationToken cancellationToken = default)
 		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
+			CheckGeneration ();
 
-			if (propertyCount > 0)
-				return ReadPropertyValue ();
+			if (!isTable || stopped)
+				return false;
 
-			object? value = null;
+			if (inRow) {
+				while (ReadNextPropertyCore (cancellationToken)) {
+					// skip over the remaining properties of the current row...
+				}
 
-			switch (reader.AttributeType) {
-			case TnefAttributeType.Triples: value = ReadAttrBytes (); break;
-			case TnefAttributeType.String: value = ReadAttrString (); break;
-			case TnefAttributeType.Text:   value = ReadAttrString (); break;
-			case TnefAttributeType.Date:   value = ReadAttrDateTime (); break;
-			case TnefAttributeType.Short:  value = ReadInt16 (); break;
-			case TnefAttributeType.Long:   value = ReadInt32 (); break;
-			case TnefAttributeType.Byte:   value = ReadAttrBytes (); break;
-			case TnefAttributeType.Word:   value = ReadInt16 (); break;
-			case TnefAttributeType.DWord:  value = ReadInt32 (); break;
+				if (stopped)
+					return false;
+			} else if (NeedsRowCount) {
+				long countOffset = reader.LocalOffset;
+
+				if (!CheckAvailable (4, TnefComplianceViolation.InvalidRowCount) || !CheckFilled (reader.Fill (4, cancellationToken)))
+					return false;
+
+				LoadRowCount (reader.TakeInt32 (), countOffset);
 			}
 
-			valueIndex++;
+			if (!BeginRow (out long offset))
+				return false;
 
-			return value;
+			if (!CheckAvailable (4, TnefComplianceViolation.InvalidPropertyCount) || !CheckFilled (reader.Fill (4, cancellationToken)))
+				return false;
+
+			LoadPropertyCount (reader.TakeInt32 (), offset);
+			inRow = true;
+
+			return true;
 		}
 
 		/// <summary>
-		/// Read the value as a boolean.
+		/// Advance to the next property.
 		/// </summary>
 		/// <remarks>
-		/// Reads any integer-based attribute or property value as a boolean.
+		/// <para>Advances to the next property. Any values of the current property that have not been read are
+		/// skipped.</para>
+		/// <para>When this method returns <see langword="true"/>, the reader is positioned on the first value of the
+		/// property, unless the property has no values (see <see cref="ValueCount"/>).</para>
+		/// <para>For a <see cref="TnefAttributeTag.RecipientTable"/> attribute, this method returns the properties of
+		/// the current row and returns <see langword="false"/> until <see cref="ReadNextRow(CancellationToken)"/> has
+		/// been called.</para>
+		/// </remarks>
+		/// <returns><see langword="true"/> if the reader was advanced to the next property; otherwise, <see langword="false"/>.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public bool ReadNextProperty (CancellationToken cancellationToken = default)
+		{
+			CheckGeneration ();
+
+			return ReadNextPropertyCore (cancellationToken);
+		}
+
+		/// <summary>
+		/// Advance to the next value of the current property.
+		/// </summary>
+		/// <remarks>
+		/// <para>Advances to the next value of the current (multi-valued) property. Any part of the current value
+		/// that has not been read is skipped.</para>
+		/// <para>Since the reader is already positioned on the first value of a property by
+		/// <see cref="ReadNextProperty(CancellationToken)"/>, the values of a property are typically read using a
+		/// <c>do { ... } while (reader.ReadNextValue ())</c> loop.</para>
+		/// </remarks>
+		/// <returns><see langword="true"/> if the reader was advanced to the next value; otherwise, <see langword="false"/>.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public bool ReadNextValue (CancellationToken cancellationToken = default)
+		{
+			CheckGeneration ();
+
+			return AdvanceValue (cancellationToken);
+		}
+
+		void CheckValue ()
+		{
+			CheckGeneration ();
+
+			if (!hasValue)
+				throw new InvalidOperationException ("The reader is not positioned on a value.");
+		}
+
+		static InvalidOperationException CannotReadAs (TnefPropertyType type, string what)
+		{
+			return new InvalidOperationException (string.Format ("A {0} value cannot be read as {1}.", type, what));
+		}
+
+		void ClaimVariableValue (string what)
+		{
+			CheckValue ();
+
+			if (GetFixedWidth (tag.ValueTnefType) != -1)
+				throw CannotReadAs (tag.ValueTnefType, what);
+
+			if (consumed)
+				throw new InvalidOperationException ("The value has already been read.");
+
+			consumed = true;
+		}
+
+		short GetInt16 ()
+		{
+			return BinaryPrimitives.ReadInt16LittleEndian (scratch.AsSpan (0, 2));
+		}
+
+		int GetInt32 ()
+		{
+			return BinaryPrimitives.ReadInt32LittleEndian (scratch.AsSpan (0, 4));
+		}
+
+		long GetInt64 ()
+		{
+			return BinaryPrimitives.ReadInt64LittleEndian (scratch.AsSpan (0, 8));
+		}
+
+		float GetSingle ()
+		{
+			return BitConverter.ToSingle (scratch, 0);
+		}
+
+		double GetDouble ()
+		{
+			return BitConverter.Int64BitsToDouble (GetInt64 ());
+		}
+
+		/// <summary>
+		/// Read the current value as a boolean.
+		/// </summary>
+		/// <remarks>
+		/// Reads any integer-based value as a boolean.
 		/// </remarks>
 		/// <returns>The value as a boolean.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a boolean.
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a boolean.</para>
 		/// </exception>
 		public bool ReadValueAsBoolean ()
 		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
+			CheckValue ();
 
-			bool value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFF) != 0;
-					break;
-				case TnefPropertyType.I2:
-					value = (ReadInt32 () & 0xFFFF) != 0;
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 () != 0;
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 () != 0;
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 () != 0; break;
-				case TnefAttributeType.Long:   value = ReadInt32 () != 0; break;
-				case TnefAttributeType.Word:   value = ReadInt16 () != 0; break;
-				case TnefAttributeType.DWord:  value = ReadInt32 () != 0; break;
-				case TnefAttributeType.Byte:   value = ReadByte () != 0; break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Boolean: return (GetInt32 () & 0xFFFF) != 0;
+			case TnefPropertyType.I2: return GetInt16 () != 0;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return GetInt32 () != 0;
+			case TnefPropertyType.Currency:
+			case TnefPropertyType.I8: return GetInt64 () != 0;
+			default: throw CannotReadAs (tag.ValueTnefType, "a boolean");
 			}
-
-			valueIndex++;
-
-			return value;
 		}
 
 		/// <summary>
-		/// Read the value as a byte array.
+		/// Read the current value as a 16-bit integer.
 		/// </summary>
 		/// <remarks>
-		/// Reads any string, binary blob, Class ID, or Object attribute or property value as a byte array.
-		/// </remarks>
-		/// <returns>The value as a byte array.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a byte array.
-		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		public byte[] ReadValueAsBytes ()
-		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
-			byte[] bytes;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode:
-				case TnefPropertyType.String8:
-				case TnefPropertyType.Binary:
-				case TnefPropertyType.Object:
-					bytes = ReadByteArray ();
-					break;
-				case TnefPropertyType.ClassId:
-					bytes = ReadBytes (16);
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Triples:
-				case TnefAttributeType.String:
-				case TnefAttributeType.Text:
-				case TnefAttributeType.Byte:
-					bytes = ReadAttrBytes ();
-					break;
-				default:
-					throw new ArgumentOutOfRangeException ();
-				}
-			}
-
-			valueIndex++;
-
-			return bytes;
-		}
-
-		/// <summary>
-		/// Read the value as a date and time.
-		/// </summary>
-		/// <remarks>
-		/// Reads any date and time attribute or property value as a <see cref="DateTime"/>.
-		/// </remarks>
-		/// <returns>The value as a date and time.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a date and time.
-		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		public DateTime ReadValueAsDateTime ()
-		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
-			DateTime value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.AppTime:
-					value = ReadAppTime ();
-					break;
-				case TnefPropertyType.SysTime:
-					value = ReadSysTime ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else if (reader.AttributeType == TnefAttributeType.Date) {
-				value = ReadAttrDateTime ();
-			} else {
-				throw new InvalidOperationException ();
-			}
-
-			valueIndex++;
-
-			return value;
-		}
-
-		/// <summary>
-		/// Read the value as a double.
-		/// </summary>
-		/// <remarks>
-		/// Reads any numeric attribute or property value as a double.
-		/// </remarks>
-		/// <returns>The value as a double.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a double.
-		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		public double ReadValueAsDouble ()
-		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
-			double value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFF);
-					break;
-				case TnefPropertyType.I2:
-					value = (ReadInt32 () & 0xFFFF);
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadDouble (); break;
-				default: throw new InvalidOperationException ();
-				}
-			}
-
-			valueIndex++;
-
-			return value;
-		}
-
-		/// <summary>
-		/// Read the value as a float.
-		/// </summary>
-		/// <remarks>
-		/// Reads any numeric attribute or property value as a float.
-		/// </remarks>
-		/// <returns>The value as a float.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a float.
-		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		public float ReadValueAsFloat ()
-		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
-			float value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (ReadInt32 () & 0xFF);
-					break;
-				case TnefPropertyType.I2:
-					value = (ReadInt32 () & 0xFFFF);
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (float) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadSingle (); break;
-				default: throw new InvalidOperationException ();
-				}
-			}
-
-			valueIndex++;
-
-			return value;
-		}
-
-		/// <summary>
-		/// Read the value as a GUID.
-		/// </summary>
-		/// <remarks>
-		/// Reads any Class ID value as a GUID.
-		/// </remarks>
-		/// <returns>The value as a GUID.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a GUID.
-		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		public Guid ReadValueAsGuid ()
-		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
-
-			Guid guid;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.ClassId:
-					guid = new Guid (ReadBytes (16));
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				throw new InvalidOperationException ();
-			}
-
-			valueIndex++;
-
-			return guid;
-		}
-
-		/// <summary>
-		/// Read the value as a 16-bit integer.
-		/// </summary>
-		/// <remarks>
-		/// Reads any integer-based attribute or property value as a 16-bit integer.
+		/// Reads any numeric value as a 16-bit integer.
 		/// </remarks>
 		/// <returns>The value as a 16-bit integer.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a 16-bit integer.
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a 16-bit integer.</para>
 		/// </exception>
 		public short ReadValueAsInt16 ()
 		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
+			CheckValue ();
 
-			short value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = (short) (ReadInt32 () & 0xFF);
-					break;
-				case TnefPropertyType.I2:
-					value = (short) (ReadInt32 () & 0xFFFF);
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = (short) ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = (short) ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (short) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = (short) ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = (short) ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = (short) ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadInt16 (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Boolean: return (short) (GetInt32 () & 0xFFFF);
+			case TnefPropertyType.I2: return GetInt16 ();
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return (short) GetInt32 ();
+			case TnefPropertyType.Currency: return (short) (GetInt64 () / 10000);
+			case TnefPropertyType.I8: return (short) GetInt64 ();
+			case TnefPropertyType.Double: return (short) GetDouble ();
+			case TnefPropertyType.R4: return (short) GetSingle ();
+			default: throw CannotReadAs (tag.ValueTnefType, "a 16-bit integer");
 			}
-
-			valueIndex++;
-
-			return value;
 		}
 
 		/// <summary>
-		/// Read the value as a 32-bit integer.
+		/// Read the current value as a 32-bit integer.
 		/// </summary>
 		/// <remarks>
-		/// Reads any integer-based attribute or property value as a 32-bit integer.
+		/// Reads any numeric value as a 32-bit integer.
 		/// </remarks>
 		/// <returns>The value as a 32-bit integer.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a 32-bit integer.
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a 32-bit integer.</para>
 		/// </exception>
 		public int ReadValueAsInt32 ()
 		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
+			CheckValue ();
 
-			int value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = ReadInt32 () & 0xFF;
-					break;
-				case TnefPropertyType.I2:
-					value = ReadInt32 () & 0xFFFF;
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = (int) ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (int) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = (int) ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadInt32 (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Boolean: return GetInt32 () & 0xFFFF;
+			case TnefPropertyType.I2: return GetInt16 ();
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return GetInt32 ();
+			case TnefPropertyType.Currency: return (int) (GetInt64 () / 10000);
+			case TnefPropertyType.I8: return (int) GetInt64 ();
+			case TnefPropertyType.Double: return (int) GetDouble ();
+			case TnefPropertyType.R4: return (int) GetSingle ();
+			default: throw CannotReadAs (tag.ValueTnefType, "a 32-bit integer");
 			}
-
-			valueIndex++;
-
-			return value;
 		}
 
 		/// <summary>
-		/// Read the value as a 64-bit integer.
+		/// Read the current value as a 64-bit integer.
 		/// </summary>
 		/// <remarks>
-		/// Reads any integer-based attribute or property value as a 64-bit integer.
+		/// Reads any numeric value as a 64-bit integer.
 		/// </remarks>
 		/// <returns>The value as a 64-bit integer.</returns>
-		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a 64-bit integer.
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a 64-bit integer.</para>
 		/// </exception>
 		public long ReadValueAsInt64 ()
 		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
+			CheckValue ();
 
-			long value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Boolean:
-					value = ReadInt32 () & 0xFF;
-					break;
-				case TnefPropertyType.I2:
-					value = ReadInt32 () & 0xFFFF;
-					break;
-				case TnefPropertyType.Error:
-				case TnefPropertyType.Long:
-					value = ReadInt32 ();
-					break;
-				case TnefPropertyType.Currency:
-				case TnefPropertyType.I8:
-					value = ReadInt64 ();
-					break;
-				case TnefPropertyType.Double:
-					value = (long) ReadDouble ();
-					break;
-				case TnefPropertyType.R4:
-					value = (long) ReadSingle ();
-					break;
-				default:
-					throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.Short:  value = ReadInt16 (); break;
-				case TnefAttributeType.Long:   value = ReadInt32 (); break;
-				case TnefAttributeType.Word:   value = ReadInt16 (); break;
-				case TnefAttributeType.DWord:  value = ReadInt32 (); break;
-				case TnefAttributeType.Byte:   value = ReadInt64 (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Boolean: return GetInt32 () & 0xFFFF;
+			case TnefPropertyType.I2: return GetInt16 ();
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return GetInt32 ();
+			case TnefPropertyType.Currency: return GetInt64 () / 10000;
+			case TnefPropertyType.I8: return GetInt64 ();
+			case TnefPropertyType.Double: return (long) GetDouble ();
+			case TnefPropertyType.R4: return (long) GetSingle ();
+			default: throw CannotReadAs (tag.ValueTnefType, "a 64-bit integer");
 			}
-
-			valueIndex++;
-
-			return value;
 		}
 
 		/// <summary>
-		/// Read the value as a string.
+		/// Read the current value as a double.
 		/// </summary>
 		/// <remarks>
-		/// Reads any string or binary blob values as a string.
+		/// Reads any numeric value as a double.
 		/// </remarks>
-		/// <returns>The value as a string.</returns>
+		/// <returns>The value as a double.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a string.
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a double.</para>
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		public string ReadValueAsString ()
+		public double ReadValueAsDouble ()
 		{
-			if (valueIndex >= valueCount || reader.StreamOffset > RawValueStreamOffset)
-				throw new InvalidOperationException ();
+			CheckValue ();
 
-			string value;
-
-			if (propertyCount > 0) {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode: value = ReadUnicodeString (); break;
-				case TnefPropertyType.String8: value = ReadString (); break;
-				case TnefPropertyType.Binary:  value = ReadString (); break;
-				default: throw new InvalidOperationException ();
-				}
-			} else {
-				switch (reader.AttributeType) {
-				case TnefAttributeType.String: value = ReadAttrString (); break;
-				case TnefAttributeType.Text:   value = ReadAttrString (); break;
-				case TnefAttributeType.Byte:   value = ReadAttrString (); break;
-				default: throw new InvalidOperationException ();
-				}
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Boolean: return GetInt32 () & 0xFFFF;
+			case TnefPropertyType.I2: return GetInt16 ();
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return GetInt32 ();
+			case TnefPropertyType.Currency: return GetInt64 () / 10000.0;
+			case TnefPropertyType.I8: return GetInt64 ();
+			case TnefPropertyType.Double: return GetDouble ();
+			case TnefPropertyType.R4: return GetSingle ();
+			default: throw CannotReadAs (tag.ValueTnefType, "a double");
 			}
-
-			valueIndex++;
-
-			return value;
 		}
 
 		/// <summary>
-		/// Read the value as a Uri.
+		/// Read the current value as a float.
 		/// </summary>
 		/// <remarks>
-		/// Reads any string or binary blob values as a Uri.
+		/// Reads any numeric value as a float.
 		/// </remarks>
-		/// <returns>The value as a Uri.</returns>
+		/// <returns>The value as a float.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
 		/// <exception cref="System.InvalidOperationException">
-		/// There are no more values to read or the value could not be read as a string.
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a float.</para>
 		/// </exception>
-		/// <exception cref="System.IO.EndOfStreamException">
-		/// The TNEF stream is truncated and the value could not be read.
-		/// </exception>
-		internal Uri? ReadValueAsUri ()
+		public float ReadValueAsFloat ()
 		{
-			var value = ReadValueAsString ();
+			CheckValue ();
 
-			if (Uri.IsWellFormedUriString (value, UriKind.Absolute))
-				return new Uri (value, UriKind.Absolute);
-
-			if (Uri.IsWellFormedUriString (value, UriKind.Relative))
-				return new Uri (value, UriKind.Relative);
-
-			return null;
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Boolean: return GetInt32 () & 0xFFFF;
+			case TnefPropertyType.I2: return GetInt16 ();
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return GetInt32 ();
+			case TnefPropertyType.Currency: return (float) (GetInt64 () / 10000.0);
+			case TnefPropertyType.I8: return GetInt64 ();
+			case TnefPropertyType.Double: return (float) GetDouble ();
+			case TnefPropertyType.R4: return GetSingle ();
+			default: throw CannotReadAs (tag.ValueTnefType, "a float");
+			}
 		}
 
 		/// <summary>
-		/// Serves as a hash function for a <see cref="TnefPropertyReader"/> object.
+		/// Read the current value as a date and time.
 		/// </summary>
 		/// <remarks>
-		/// Serves as a hash function for a <see cref="TnefPropertyReader"/> object.
+		/// <para>Reads any <see cref="TnefPropertyType.AppTime"/> or <see cref="TnefPropertyType.SysTime"/> value as a
+		/// <see cref="DateTime"/>.</para>
+		/// <para>Values of type <see cref="TnefPropertyType.SysTime"/> are FILETIME values and are therefore returned with
+		/// a <see cref="DateTime.Kind"/> of <see cref="DateTimeKind.Utc"/>.</para>
+		/// <para>If the value is out of range, a <see cref="TnefComplianceViolation.InvalidDate"/> issue is reported
+		/// and <c>default (DateTime)</c> is returned.</para>
 		/// </remarks>
-		/// <returns>A hash code for this instance that is suitable for use in hashing algorithms
-		/// and data structures such as a hash table.</returns>
-		public override int GetHashCode ()
+		/// <returns>The value as a date and time.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a date and time.</para>
+		/// </exception>
+		public DateTime ReadValueAsDateTime ()
 		{
-			return reader.GetHashCode ();
+			CheckValue ();
+
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.AppTime:
+			case TnefPropertyType.SysTime:
+				return dateValue;
+			default:
+				throw CannotReadAs (tag.ValueTnefType, "a date and time");
+			}
 		}
 
 		/// <summary>
-		/// Determine whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyReader"/>.
+		/// Read the current value as a GUID.
 		/// </summary>
 		/// <remarks>
-		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="TnefPropertyReader"/>.
+		/// Reads a <see cref="TnefPropertyType.ClassId"/> value as a GUID.
 		/// </remarks>
-		/// <param name="obj">The <see cref="System.Object"/> to compare with the current <see cref="TnefPropertyReader"/>.</param>
-		/// <returns><see langword="true" /> if the specified <see cref="System.Object"/> is equal to the current
-		/// <see cref="TnefPropertyReader"/>; otherwise, <see langword="false" />.</returns>
-		public override bool Equals (object? obj)
+		/// <returns>The value as a GUID.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a GUID.</para>
+		/// </exception>
+		public Guid ReadValueAsGuid ()
 		{
-			return obj is TnefPropertyReader prop && prop.reader == reader;
+			CheckValue ();
+
+			if (tag.ValueTnefType != TnefPropertyType.ClassId)
+				throw CannotReadAs (tag.ValueTnefType, "a GUID");
+
+			return new Guid (scratch);
 		}
 
-		void LoadPropertyCount ()
+		bool TryGetFixedBytes (out byte[] bytes)
 		{
-			if ((propertyCount = ReadInt32 ()) < 0) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidPropertyLength);
-				propertyCount = 0;
+			CheckValue ();
+
+			if (tag.ValueTnefType == TnefPropertyType.ClassId) {
+				bytes = new byte[16];
+				Buffer.BlockCopy (scratch, 0, bytes, 0, 16);
+				return true;
 			}
 
-			propertyIndex = 0;
-			valueCount = 0;
-			valueIndex = 0;
+			bytes = Array.Empty<byte> ();
+
+			return false;
 		}
 
-		int ReadValueCount ()
-		{
-			int count;
-
-			if ((count = ReadInt32 ()) < 0) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidAttributeValue);
-				return 0;
-			}
-
-			return count;
+		int VariableLength {
+			get { return (int) (dataEnd - dataStart); }
 		}
 
-		void LoadValueCount ()
+		/// <summary>
+		/// Read the current value as a byte array.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads any string, binary, object or <see cref="TnefPropertyType.ClassId"/> value as a byte array.</para>
+		/// <para>Variable-length values may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
+		/// </remarks>
+		/// <returns>The value as a byte array.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a byte array.</para>
+		/// <para>-or-</para>
+		/// <para>The value has already been read.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public byte[] ReadValueAsBytes (CancellationToken cancellationToken = default)
 		{
-			if (propertyTag.IsMultiValued) {
-				valueCount = ReadValueCount ();
-			} else {
-				switch (propertyTag.ValueTnefType) {
-				case TnefPropertyType.Unicode:
-				case TnefPropertyType.String8:
-				case TnefPropertyType.Binary:
-				case TnefPropertyType.Object:
-					valueCount = ReadValueCount ();
-					break;
-				default:
-					valueCount = 1;
-					break;
-				}
-			}
+			if (TryGetFixedBytes (out var bytes))
+				return bytes;
 
-			valueIndex = 0;
+			ClaimVariableValue ("a byte array");
+
+			return reader.ReadValueBytes (VariableLength, tag, cancellationToken) ?? Array.Empty<byte> ();
 		}
 
-		void LoadRowCount ()
+		void ClaimStringValue ()
 		{
-			if ((rowCount = ReadInt32 ()) < 0) {
-				reader.SetComplianceError (TnefComplianceStatus.InvalidRowCount);
-				rowCount = 0;
-			}
+			CheckValue ();
 
-			propertyCount = 0;
-			propertyIndex = 0;
-			valueCount = 0;
-			valueIndex = 0;
-			rowIndex = 0;
-		}
-
-		internal void Load ()
-		{
-			propertyTag = TnefPropertyTag.Null;
-			rawValueOffset = 0;
-			rawValueLength = 0;
-			propertyCount = 0;
-			propertyIndex = 0;
-			valueCount = 0;
-			valueIndex = 0;
-			rowCount = 0;
-			rowIndex = 0;
-
-			switch (reader.AttributeTag) {
-			case TnefAttributeTag.MapiProperties:
-			case TnefAttributeTag.Attachment:
-				LoadPropertyCount ();
-				break;
-			case TnefAttributeTag.RecipientTable:
-				LoadRowCount ();
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Binary:
 				break;
 			default:
-				rawValueLength = reader.AttributeRawValueLength;
-				rawValueOffset = reader.StreamOffset;
-				valueCount = 1;
-				break;
+				throw CannotReadAs (tag.ValueTnefType, "a string");
 			}
+
+			ClaimVariableValue ("a string");
+		}
+
+		string DecodeString (byte[]? bytes)
+		{
+			if (bytes is null)
+				return string.Empty;
+
+			if (tag.ValueTnefType == TnefPropertyType.Unicode)
+				return DecodeUnicode (bytes);
+
+			return TnefReader.DecodeString (reader.Encoding, bytes);
+		}
+
+		/// <summary>
+		/// Read the current value as a string.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads any string or binary value as a string.</para>
+		/// <para><see cref="TnefPropertyType.String8"/> and <see cref="TnefPropertyType.Binary"/> values are decoded using
+		/// the <see cref="TnefReader.Codepage"/>.</para>
+		/// <para>The value may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
+		/// </remarks>
+		/// <returns>The value as a string.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value cannot be read as a string.</para>
+		/// <para>-or-</para>
+		/// <para>The value has already been read.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public string ReadValueAsString (CancellationToken cancellationToken = default)
+		{
+			ClaimStringValue ();
+
+			return DecodeString (reader.ReadValueBytes (VariableLength, tag, cancellationToken));
+		}
+
+		// Gets the value of a fixed-width property. Returns false for variable-length values.
+		bool TryGetFixedValue (out object? value)
+		{
+			CheckValue ();
+
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Null: value = null; break;
+			case TnefPropertyType.I2: value = GetInt16 (); break;
+			case TnefPropertyType.Boolean: value = (GetInt32 () & 0xFFFF) != 0; break;
+			// Note: [MS-OXCDATA] defines PtypCurrency as a 64-bit signed integer scaled by 10000.
+			case TnefPropertyType.Currency: value = decimal.FromOACurrency (GetInt64 ()); break;
+			case TnefPropertyType.I8: value = GetInt64 (); break;
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: value = GetInt32 (); break;
+			case TnefPropertyType.Double: value = GetDouble (); break;
+			case TnefPropertyType.R4: value = GetSingle (); break;
+			case TnefPropertyType.AppTime:
+			case TnefPropertyType.SysTime: value = dateValue; break;
+			case TnefPropertyType.ClassId: value = new Guid (scratch); break;
+			default: value = null; return false;
+			}
+
+			return true;
+		}
+
+		object DecodeVariableValue (byte[]? bytes)
+		{
+			switch (tag.ValueTnefType) {
+			case TnefPropertyType.Unicode:
+			case TnefPropertyType.String8:
+				return DecodeString (bytes);
+			default:
+				return bytes ?? Array.Empty<byte> ();
+			}
+		}
+
+		/// <summary>
+		/// Read the current value.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads the current value as its native type.</para>
+		/// <para>A <see cref="TnefPropertyType.Currency"/> value is returned as a <see cref="decimal"/> that has already
+		/// been scaled by 1/10000, since [MS-OXCDATA] defines PtypCurrency as a 64-bit signed integer with 4 digits to
+		/// the right of the decimal point.</para>
+		/// <para>Variable-length values may only be read once.</para>
+		/// <para>If the value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and an empty value is returned.</para>
+		/// </remarks>
+		/// <returns>The value.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value has already been read.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public object? ReadValue (CancellationToken cancellationToken = default)
+		{
+			if (TryGetFixedValue (out var value))
+				return value;
+
+			ClaimVariableValue ("a value");
+
+			return DecodeVariableValue (reader.ReadValueBytes (VariableLength, tag, cancellationToken));
+		}
+
+		/// <summary>
+		/// Open a stream for reading the current value.
+		/// </summary>
+		/// <remarks>
+		/// <para>Opens a stream for reading the raw data of the current string, binary or object value.</para>
+		/// <para>The stream is only valid until the reader is advanced to another value.</para>
+		/// </remarks>
+		/// <returns>The value stream.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value is not a variable-length value.</para>
+		/// <para>-or-</para>
+		/// <para>The value has already been read.</para>
+		/// </exception>
+		public Stream OpenValueStream ()
+		{
+			ClaimVariableValue ("a stream");
+
+			return new TnefReaderStream (reader, dataEnd, tag);
+		}
+
+		/// <summary>
+		/// Open a reader for the embedded TNEF message contained within the current value.
+		/// </summary>
+		/// <remarks>
+		/// <para>Opens a <see cref="TnefReader"/> for the embedded TNEF message contained within the current value
+		/// (see <see cref="IsEmbeddedMessage"/>).</para>
+		/// <para>The returned reader has a <see cref="TnefReader.Depth"/> one greater than the reader that created it,
+		/// and uses the same options and compliance logger. Its <see cref="TnefReader.StreamOffset"/> values are
+		/// relative to the start of the outermost TNEF stream.</para>
+		/// <para>If the embedded message is nested more deeply than <see cref="TnefOptions.MaxNestingDepth"/> allows,
+		/// a <see cref="TnefComplianceViolation.NestingTooDeep"/> issue is reported and the returned reader does not
+		/// return any attributes.</para>
+		/// <para>The embedded reader is only valid until this reader is advanced to another value. Disposing it does
+		/// not affect this reader.</para>
+		/// </remarks>
+		/// <returns>The embedded message reader.</returns>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a value.</para>
+		/// <para>-or-</para>
+		/// <para>The value is not an embedded message.</para>
+		/// <para>-or-</para>
+		/// <para>The value has already been read.</para>
+		/// </exception>
+		public TnefReader OpenEmbeddedMessage ()
+		{
+			CheckValue ();
+
+			if (!IsEmbeddedMessageCore)
+				throw new InvalidOperationException ("The value is not an embedded message.");
+
+			ClaimVariableValue ("an embedded message");
+
+			var stream = new TnefReaderStream (reader, dataEnd, tag);
+
+			return reader.CreateEmbeddedReader (stream, dataStart, tag);
+		}
+
+		// Checks that the reader is positioned on a property whose values have not been read.
+		void CheckUnreadProperty ()
+		{
+			CheckGeneration ();
+
+			if (!hasProperty)
+				throw new InvalidOperationException ("The reader is not positioned on a property.");
+
+			if (valueIndex > 0 || consumed)
+				throw new InvalidOperationException ("The property's values have already been read.");
+		}
+
+		static Array CreateValueArray (TnefPropertyType type, int length)
+		{
+			switch (type) {
+			case TnefPropertyType.I2: return new short[length];
+			case TnefPropertyType.Error:
+			case TnefPropertyType.Long: return new int[length];
+			case TnefPropertyType.R4: return new float[length];
+			case TnefPropertyType.Double: return new double[length];
+			case TnefPropertyType.Currency: return new decimal[length];
+			case TnefPropertyType.AppTime:
+			case TnefPropertyType.SysTime: return new DateTime[length];
+			case TnefPropertyType.Boolean: return new bool[length];
+			case TnefPropertyType.I8: return new long[length];
+			case TnefPropertyType.ClassId: return new Guid[length];
+			case TnefPropertyType.String8:
+			case TnefPropertyType.Unicode: return new string[length];
+			case TnefPropertyType.Binary:
+			case TnefPropertyType.Object: return new byte[length][];
+			default: return new object?[length];
+			}
+		}
+
+		// Shrinks the array of values when the property had fewer values than it claimed.
+		Array TrimValueArray (Array values, int count)
+		{
+			if (count == values.Length)
+				return values;
+
+			var trimmed = CreateValueArray (tag.ValueTnefType, count);
+			Array.Copy (values, trimmed, count);
+
+			return trimmed;
+		}
+
+		TnefProperty CreateProperty (int count, object? value)
+		{
+			return new TnefProperty (tag, name, count, value, reader.Encoding);
+		}
+
+		/// <summary>
+		/// Read the current property.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads all of the values of the current property into a <see cref="TnefProperty"/> whose values can be
+		/// read any number of times.</para>
+		/// <para>This method must be called before any of the property's variable-length values have been read and
+		/// before the reader has been advanced to any of its other values.</para>
+		/// <para>Binary values are read into memory. Use <see cref="OpenValueStream"/> to read large values, such as
+		/// attachment data, without buffering them.</para>
+		/// <para>If any value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and the property is returned without any values (its <see cref="TnefProperty.Count"/> is <c>0</c>).</para>
+		/// </remarks>
+		/// <returns>The property.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// <para>The <see cref="TnefReader"/> has been advanced to another attribute.</para>
+		/// <para>-or-</para>
+		/// <para>The reader is not positioned on a property.</para>
+		/// <para>-or-</para>
+		/// <para>Some of the property's values have already been read.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public TnefProperty ReadProperty (CancellationToken cancellationToken = default)
+		{
+			CheckUnreadProperty ();
+
+			return ReadPropertyCore (cancellationToken);
+		}
+
+		// Note: Returned by ReadCurrentValue when the value was too large to read into memory.
+		static readonly object SkippedValue = new object ();
+
+		// Note: Unless the stream is known to contain enough data, the array of values for a multi-valued property starts
+		// out at this size and grows as values are actually read, so that a bogus value count cannot force a huge allocation.
+		const int MaxUnverifiedValueCount = 1024;
+
+		object? ReadCurrentValue (CancellationToken cancellationToken)
+		{
+			if (TryGetFixedValue (out var value))
+				return value;
+
+			consumed = true;
+
+			var bytes = reader.ReadValueBytes (VariableLength, tag, cancellationToken);
+
+			return bytes is null ? SkippedValue : DecodeVariableValue (bytes);
+		}
+
+		Array CreateMultiValueArray ()
+		{
+			int width = GetFixedWidth (tag.ValueTnefType);
+			int length = valueCount;
+
+			if (length > MaxUnverifiedValueCount && !reader.CanAllocate ((long) length * (width > 0 ? width : 4)))
+				length = MaxUnverifiedValueCount;
+
+			return CreateValueArray (tag.ValueTnefType, length);
+		}
+
+		Array GrowValueArray (Array values)
+		{
+			int length = (int) Math.Min ((long) values.Length * 2, valueCount);
+			var grown = CreateValueArray (tag.ValueTnefType, length);
+
+			Array.Copy (values, grown, values.Length);
+
+			return grown;
+		}
+
+		TnefProperty ReadPropertyCore (CancellationToken cancellationToken)
+		{
+			object? value;
+
+			if (!tag.IsMultiValued) {
+				if (!hasValue || (value = ReadCurrentValue (cancellationToken)) == SkippedValue)
+					return CreateProperty (0, null);
+
+				return CreateProperty (1, value);
+			}
+
+			var values = CreateMultiValueArray ();
+			int count = 0;
+
+			if (hasValue) {
+				do {
+					if ((value = ReadCurrentValue (cancellationToken)) == SkippedValue)
+						return CreateProperty (0, null);
+
+					if (count == values.Length)
+						values = GrowValueArray (values);
+
+					values.SetValue (value, count++);
+				} while (count < valueCount && AdvanceValue (cancellationToken));
+			}
+
+			return CreateProperty (count, TrimValueArray (values, count));
+		}
+
+		/// <summary>
+		/// Read the remaining properties.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads all of the properties that follow the current property (or, if the reader has not yet been
+		/// positioned on a property, all of the properties) into a <see cref="TnefPropertySet"/>.</para>
+		/// <para>For a <see cref="TnefAttributeTag.RecipientTable"/> attribute, only the properties of the current row
+		/// are read. Use <see cref="ReadRowsAsPropertySets(CancellationToken)"/> to read every row.</para>
+		/// <para>Binary values are read into memory. Use <see cref="OpenValueStream"/> to read large values, such as
+		/// attachment data, without buffering them.</para>
+		/// <para>If any value is larger than <see cref="TnefOptions.MaxPropertyValueLength"/> or the remaining
+		/// <see cref="TnefOptions.MaxTotalDataBytes"/> allow, a <see cref="TnefComplianceViolation.DataSizeLimitExceeded"/> issue is
+		/// reported and the property is returned without any values (its <see cref="TnefProperty.Count"/> is <c>0</c>).</para>
+		/// </remarks>
+		/// <returns>The properties.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public TnefPropertySet ReadPropertySet (CancellationToken cancellationToken = default)
+		{
+			CheckGeneration ();
+
+			var properties = new TnefPropertySet ();
+
+			while (ReadNextPropertyCore (cancellationToken))
+				properties.Add (ReadPropertyCore (cancellationToken));
+
+			return properties;
+		}
+
+		/// <summary>
+		/// Read the remaining rows of a table.
+		/// </summary>
+		/// <remarks>
+		/// <para>Reads the properties of each of the remaining rows of a <see cref="TnefAttributeTag.RecipientTable"/>
+		/// attribute. Any unread properties of the current row are skipped.</para>
+		/// <para>For attributes that do not contain a table, an empty list is returned.</para>
+		/// </remarks>
+		/// <returns>The properties of each row.</returns>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ObjectDisposedException">
+		/// The <see cref="TnefReader"/> has been disposed.
+		/// </exception>
+		/// <exception cref="System.InvalidOperationException">
+		/// The <see cref="TnefReader"/> has been advanced to another attribute.
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public IReadOnlyList<TnefPropertySet> ReadRowsAsPropertySets (CancellationToken cancellationToken = default)
+		{
+			var rows = new List<TnefPropertySet> ();
+
+			while (ReadNextRow (cancellationToken))
+				rows.Add (ReadPropertySet (cancellationToken));
+
+			return rows;
 		}
 	}
 }

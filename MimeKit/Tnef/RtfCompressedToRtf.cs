@@ -52,6 +52,10 @@ namespace MimeKit.Tnef {
 			Complete,
 		}
 
+		// The maximum number of bytes that we will pre-allocate for the output buffer based on the
+		// (untrusted) RAWSIZE and COMPSIZE header fields.
+		const int MaxEstimatedOutputSize = 1024 * 1024;
+
 		readonly byte[] dict = new byte[4096];
 		readonly Crc32 crc32 = new Crc32 ();
 		FilterState state;
@@ -59,7 +63,6 @@ namespace MimeKit.Tnef {
 		int compressedSize;
 		short dictWriteOffset;
 		short dictReadOffset;
-		short dictEndOffset;
 		byte flagCount;
 		byte flags;
 		int checksum;
@@ -74,7 +77,7 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public RtfCompressedToRtf ()
 		{
-			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
+			dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 			DictionaryInitializer.CopyTo (dict);
 		}
 
@@ -82,8 +85,14 @@ namespace MimeKit.Tnef {
 		/// Get the compression mode.
 		/// </summary>
 		/// <remarks>
-		/// At least 12 bytes from the stream must be processed before this property value will
-		/// be accurate.
+		/// <para>At least 12 bytes from the stream must be processed before this property value will
+		/// be accurate. Until then, and after a call to <see cref="Reset"/>, the compression mode
+		/// is <see cref="RtfCompressionMode.Unknown"/>.</para>
+		/// <para>Once the header has been processed, this property holds the raw value of the COMPTYPE field.
+		/// <a href="https://learn.microsoft.com/openspecs/exchange_server_protocols/ms-oxrtfcp/">[MS-OXRTFCP]</a>
+		/// only defines <see cref="RtfCompressionMode.Compressed"/> and <see cref="RtfCompressionMode.Uncompressed"/>;
+		/// any other value means that the stream is malformed, and the filter discards its content and produces no
+		/// output.</para>
 		/// </remarks>
 		/// <value>The compression mode.</value>
 		public RtfCompressionMode CompressionMode {
@@ -94,7 +103,11 @@ namespace MimeKit.Tnef {
 		/// Get a value indicating whether the crc32 is valid.
 		/// </summary>
 		/// <remarks>
-		/// Until all data has been processed, this property will always return <see langword="false" />.
+		/// <para>Until all data has been processed, this property will always return <see langword="false" />.</para>
+		/// <para>Note: <a href="https://learn.microsoft.com/openspecs/exchange_server_protocols/ms-oxrtfcp/">[MS-OXRTFCP]</a>
+		/// only defines the CRC for <see cref="RtfCompressionMode.Compressed"/> streams; an
+		/// <see cref="RtfCompressionMode.Uncompressed"/> stream must set the CRC field to <c>0</c>, so no
+		/// checksum is computed over its content.</para>
 		/// </remarks>
 		/// <value><see langword="true" /> if the crc32 is valid; otherwise, <see langword="false" />.</value>
 		public bool IsValidCrc32 {
@@ -181,7 +194,11 @@ namespace MimeKit.Tnef {
 				}
 
 				state = FilterState.UncompressedSize;
-				compressedSize -= 12;
+
+				// Note: [MS-OXRTFCP] defines COMPSIZE as the length of the CONTENTS field plus 12 (the
+				// number of header bytes that follow it), so anything smaller is nonsensical and is
+				// treated as an empty CONTENTS field rather than allowed to go negative.
+				compressedSize = compressedSize >= 12 ? compressedSize - 12 : 0;
 			}
 
 			// read the uncompressed size if we haven't already...
@@ -218,10 +235,19 @@ namespace MimeKit.Tnef {
 				state = FilterState.BeginControlRun;
 			}
 
-			if (CompressionMode != RtfCompressionMode.Compressed) {
-				// the data is not compressed, just keep track of the CRC32 checksum
-				crc32.Update (input, index, endIndex - index);
+			if (CompressionMode != RtfCompressionMode.Compressed && CompressionMode != RtfCompressionMode.Uncompressed) {
+				// Note: [MS-OXRTFCP] 2.1.3.1.1 defines only the COMPRESSED and UNCOMPRESSED values of COMPTYPE, and
+				// decompression is not defined for any other value. The contents cannot be interpreted, and passing
+				// them through would label arbitrary bytes as RTF, so discard them.
+				outputLength = 0;
+				outputIndex = endIndex;
 
+				return input;
+			}
+
+			if (CompressionMode == RtfCompressionMode.Uncompressed) {
+				// Note: [MS-OXRTFCP] requires the CRC field of an UNCOMPRESSED stream to be 0 and only
+				// defines a checksum over the content of a COMPRESSED stream, so do not accumulate one.
 				outputLength = Math.Max (Math.Min (endIndex - index, compressedSize - size), 0);
 				size += outputLength;
 				outputIndex = index;
@@ -229,14 +255,20 @@ namespace MimeKit.Tnef {
 				return input;
 			}
 
-			int extra = Math.Abs (uncompressedSize - compressedSize);
-			int estimatedSize = (endIndex - index) + extra;
+			// Note: Both compressedSize and uncompressedSize come from the (untrusted) header, so use 64-bit
+			// arithmetic to avoid overflowing and clamp the estimate to a sane upper bound so that a bogus
+			// size cannot force an enormous allocation. The output buffer will grow on demand if needed.
+			long extra = Math.Abs ((long) uncompressedSize - compressedSize);
+			long estimatedSize = Math.Min ((endIndex - index) + extra, MaxEstimatedOutputSize);
 
-			EnsureOutputSize (Math.Max (estimatedSize, 4096), false);
+			EnsureOutputSize ((int) Math.Max (estimatedSize, 4096), false);
 			outputLength = 0;
 			outputIndex = 0;
 
-			while (index < endIndex && state != FilterState.Complete) {
+			// Note: [MS-OXRTFCP] defines COMPSIZE as the length of the CONTENTS field plus 12, so stop once
+			// that many bytes have been consumed. Without this, data that follows the stream would be
+			// decompressed into the output and folded into the CRC.
+			while (index < endIndex && size < compressedSize && state != FilterState.Complete) {
 				byte value = input[index++];
 
 				crc32.Update (value);
@@ -257,7 +289,6 @@ namespace MimeKit.Tnef {
 					OutputBuffer[outputLength++] = value;
 					dict[dictWriteOffset++] = value;
 
-					dictEndOffset = Math.Max (dictWriteOffset, dictEndOffset);
 					dictWriteOffset = (short) (dictWriteOffset % 4096);
 
 					if ((flagCount++ % 8) != 0) {
@@ -293,7 +324,6 @@ namespace MimeKit.Tnef {
 						OutputBuffer[outputLength++] = value;
 						dict[dictWriteOffset++] = value;
 
-						dictEndOffset = Math.Max (dictWriteOffset, dictEndOffset);
 						dictWriteOffset = (short) (dictWriteOffset % 4096);
 					}
 
@@ -322,9 +352,11 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		public override void Reset ()
 		{
-			dictEndOffset = dictWriteOffset = (short) DictionaryInitializer.Length; // 207
+			dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 			DictionaryInitializer.CopyTo (dict);
 			state = FilterState.CompressedSize;
+			CompressionMode = RtfCompressionMode.Unknown;
+			uncompressedSize = 0;
 			dictReadOffset = 0;
 			compressedSize = 0;
 			crc32.Reset ();

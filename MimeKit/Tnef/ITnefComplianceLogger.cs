@@ -1,5 +1,5 @@
 ﻿//
-// TnefComplianceMode.cs
+// ITnefComplianceLogger.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -26,21 +26,29 @@
 
 namespace MimeKit.Tnef {
 	/// <summary>
-	/// A TNEF compliance mode.
+	/// An interface for recording TNEF compliance violations.
 	/// </summary>
 	/// <remarks>
-	/// A TNEF compliance mode.
+	/// <para>Implementations of this interface are intended to capture and record information about
+	/// TNEF compliance issues detected during parsing. This can be used for diagnostics, auditing, or
+	/// reporting purposes in systems that process TNEF data.</para>
+	/// <para>No limit is placed by default on how many issues a single stream may produce. When the
+	/// streams being parsed are untrusted, configure a per-violation limit on the reader to bound the
+	/// report. An implementation that retains issues rather than summarizing them should impose its
+	/// own limit as well, since it cannot assume that every caller configures one.</para>
 	/// </remarks>
-	public enum TnefComplianceMode {
+	public interface ITnefComplianceLogger
+	{
 		/// <summary>
-		/// Use a loose compliance mode, attempting to ignore invalid or corrupt data.
+		/// Log a TNEF compliance violation.
 		/// </summary>
-		Loose,
-
-		/// <summary>
-		/// Use a very strict compliance mode, aborting the parser at the first sign of
-		/// invalid or corrupted data.
-		/// </summary>
-		Strict
+		/// <remarks>
+		/// <para>Logs a TNEF compliance violation.</para>
+		/// <para>This is called during parsing, so an implementation that does significant work here
+		/// will slow parsing down, and one that throws will abort it. Throwing is the supported way to
+		/// stop parsing at the first violation.</para>
+		/// </remarks>
+		/// <param name="issue">The TNEF compliance issue that was detected.</param>
+		void Log (in TnefComplianceIssue issue);
 	}
 }

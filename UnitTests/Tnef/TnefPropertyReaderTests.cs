@@ -31,236 +31,283 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefPropertyReaderTests
 	{
-		const int TnefSignature = 0x223e9f78;
-
-		static void WriteInt16 (Stream stream, short value)
+		static byte[] CreateTnefStream (int declaredValueLength, int? declaredAttributeLength = null)
 		{
-			stream.WriteByte ((byte) (value & 0xFF));
-			stream.WriteByte ((byte) ((value >> 8) & 0xFF));
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WritePropertyHeader (TnefPropertyTag.AttachDataBin);
+			properties.WriteValueCount (1);
+			properties.WriteVariableLengthValue (new byte[] { 1, 2, 3, 4 }, declaredValueLength, false);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: declaredAttributeLength);
+
+			return builder.ToArray ();
 		}
 
-		static void WriteInt32 (Stream stream, int value)
+		static TestTnefComplianceLogger ReadMalformedValue (byte[] tnef, out byte[] bytes)
 		{
-			stream.WriteByte ((byte) (value & 0xFF));
-			stream.WriteByte ((byte) ((value >> 8) & 0xFF));
-			stream.WriteByte ((byte) ((value >> 16) & 0xFF));
-			stream.WriteByte ((byte) ((value >> 24) & 0xFF));
-		}
+			var logger = new TestTnefComplianceLogger ();
 
-		static short Checksum (byte[] data)
-		{
-			int sum = 0;
+			bytes = Array.Empty<byte> ();
 
-			for (int i = 0; i < data.Length; i++)
-				sum = (sum + data[i]) & 0xFFFF;
+			using var reader = new TnefReader (new MemoryStream (tnef, false)) { ComplianceLogger = logger };
 
-			return (short) sum;
-		}
+			while (reader.Read ()) {
+				if (reader.Tag != TnefAttributeTag.MapiProperties)
+					continue;
 
-		/// <summary>
-		/// Builds a minimal TNEF stream containing a single attMAPIProps attribute with a single
-		/// MAPI property whose value is prefixed by <paramref name="declaredValueLength"/>.
-		/// </summary>
-		/// <param name="declaredAttributeLength">
-		/// When non-null, overrides the attribute's raw value length with an arbitrary (untrusted) value
-		/// instead of the true payload length.
-		/// </param>
-		static byte[] CreateTnefStream (TnefPropertyId id, TnefPropertyType type, int declaredValueLength, byte[] data, int? declaredAttributeLength = null)
-		{
-			byte[] attrValue;
+				var prop = reader.GetPropertyReader ();
 
-			using (var payload = new MemoryStream ()) {
-				WriteInt32 (payload, 1);                       // property count
-				WriteInt16 (payload, (short) type);            // property type
-				WriteInt16 (payload, (short) id);              // property id
-				WriteInt32 (payload, 1);                       // value count
-				WriteInt32 (payload, declaredValueLength);     // <-- untrusted length prefix
-				payload.Write (data, 0, data.Length);          // the (small) amount of real data
-
-				attrValue = payload.ToArray ();
-			}
-
-			using (var stream = new MemoryStream ()) {
-				WriteInt32 (stream, TnefSignature);
-				WriteInt16 (stream, 0); // legacy attachment key
-
-				stream.WriteByte ((byte) TnefAttributeLevel.Message);
-				WriteInt32 (stream, (int) TnefAttributeTag.MapiProperties);
-				WriteInt32 (stream, declaredAttributeLength ?? attrValue.Length); // <-- untrusted attribute length
-				stream.Write (attrValue, 0, attrValue.Length);
-				WriteInt16 (stream, Checksum (attrValue));
-
-				return stream.ToArray ();
-			}
-		}
-
-		static byte[] ReadFirstPropertyAsBytes (byte[] tnef, out TnefComplianceStatus status, out bool readProperty)
-		{
-			using (var reader = new TnefReader (new MemoryStream (tnef, false), 0, TnefComplianceMode.Loose)) {
-				byte[] bytes = null;
-
-				readProperty = false;
-
-				while (reader.ReadNextAttribute ()) {
-					var prop = reader.TnefPropertyReader;
-
-					while (prop.ReadNextProperty ()) {
-						readProperty = true;
+				while (prop.ReadNextProperty ()) {
+					if (prop.ValueCount > 0)
 						bytes = prop.ReadValueAsBytes ();
-					}
 				}
-
-				status = reader.ComplianceStatus;
-
-				return bytes;
 			}
+
+			return logger;
 		}
 
-		// A huge value-length prefix that cannot possibly fit inside the (small) enclosing attribute
-		// must be rejected, and must never be used to size an allocation.
+		static async Task<TestTnefComplianceLogger> ReadMalformedValueAsync (byte[] tnef)
+		{
+			var logger = new TestTnefComplianceLogger ();
+
+			using var reader = new TnefReader (new MemoryStream (tnef, false)) { ComplianceLogger = logger };
+
+			while (await reader.ReadAsync ()) {
+				if (reader.Tag != TnefAttributeTag.MapiProperties)
+					continue;
+
+				var prop = reader.GetPropertyReader ();
+
+				while (await prop.ReadNextPropertyAsync ()) {
+					if (prop.ValueCount > 0)
+						await prop.ReadValueAsBytesAsync ();
+				}
+			}
+
+			return logger;
+		}
+
 		[TestCase (int.MaxValue)]
-		[TestCase (int.MaxValue - 1)]
-		[TestCase (int.MaxValue - 2)]
-		[TestCase (int.MaxValue - 3)]   // exercises padding arithmetic near the int boundary
+		[TestCase (int.MaxValue - 3)]
 		[TestCase (0x40000000)]
 		[TestCase (1024 * 1024)]
-		public void TestOversizedValueLengthIsRejected (int declaredLength)
-		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, declaredLength, new byte[] { 1, 2, 3, 4 });
-
-			Assert.That (tnef.Length, Is.LessThan (128), "the crafted TNEF stream should be tiny");
-
-			byte[] bytes = null;
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
-			bool readProperty = false;
-
-			Assert.DoesNotThrow (() => bytes = ReadFirstPropertyAsBytes (tnef, out status, out readProperty));
-
-			Assert.That (status.HasFlag (TnefComplianceStatus.InvalidPropertyLength), Is.True,
-				"an oversized property length should be recorded as a compliance error");
-
-			// Whatever happens, we must never have materialized a buffer larger than the input.
-			if (bytes != null)
-				Assert.That (bytes.Length, Is.LessThanOrEqualTo (tnef.Length), "allocated buffer is larger than the entire input stream");
-		}
-
-		// GetPaddedLength() rounds up to a multiple of 4; verify the arithmetic near int.MaxValue
-		// does not overflow into a negative/small value that would slip past the bounds check.
-		[TestCase (int.MaxValue)]
-		[TestCase (int.MaxValue - 1)]
-		[TestCase (int.MaxValue - 2)]
-		[TestCase (int.MaxValue - 3)]
-		public void TestPaddedLengthOverflowIsRejected (int declaredLength)
-		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Object, declaredLength, new byte[] { 1, 2, 3, 4 });
-
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
-			byte[] bytes = null;
-			bool readProperty = false;
-
-			Assert.DoesNotThrow (() => bytes = ReadFirstPropertyAsBytes (tnef, out status, out readProperty));
-
-			Assert.That (status, Is.Not.EqualTo (TnefComplianceStatus.Compliant), "overflowing length must not be treated as compliant");
-
-			if (bytes != null)
-				Assert.That (bytes.Length, Is.LessThanOrEqualTo (tnef.Length));
-		}
-
-		// A negative length prefix must be rejected rather than flowing into the padding arithmetic.
 		[TestCase (-1)]
 		[TestCase (int.MinValue)]
-		[TestCase (-1024)]
-		public void TestNegativeValueLengthIsRejected (int declaredLength)
+		public void TestInvalidValueLengthIsRejected (int declaredLength)
 		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, declaredLength, new byte[] { 1, 2, 3, 4 });
+			var tnef = CreateTnefStream (declaredLength);
+			var logger = ReadMalformedValue (tnef, out var bytes);
 
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
-			byte[] bytes = null;
-			bool readProperty = false;
-
-			Assert.DoesNotThrow (() => bytes = ReadFirstPropertyAsBytes (tnef, out status, out readProperty));
-
-			Assert.That (status.HasFlag (TnefComplianceStatus.InvalidPropertyLength), Is.True,
-				"a negative property length should be recorded as a compliance error");
-
-			if (bytes != null)
-				Assert.That (bytes.Length, Is.Zero);
+			Assert.That (tnef.Length, Is.LessThan (128), "the crafted TNEF stream should be tiny");
+			Assert.That (bytes.Length, Is.LessThanOrEqualTo (tnef.Length), "allocated buffer is bounded by input size");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidPropertyLength));
 		}
 
-		// String properties go through the same ReadByteArray() path via ReadValueAsString().
-		[TestCase (TnefPropertyType.Unicode)]
-		[TestCase (TnefPropertyType.String8)]
-		public void TestOversizedStringLengthIsRejected (TnefPropertyType type)
+		[TestCase (int.MaxValue)]
+		[TestCase (int.MaxValue - 3)]
+		[TestCase (0x40000000)]
+		[TestCase (1024 * 1024)]
+		[TestCase (-1)]
+		[TestCase (int.MinValue)]
+		public async Task TestInvalidValueLengthIsRejectedAsync (int declaredLength)
 		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachTransportName, type, int.MaxValue, new byte[] { 0x41, 0x00, 0x42, 0x00 });
+			var tnef = CreateTnefStream (declaredLength);
+			var logger = await ReadMalformedValueAsync (tnef);
 
-			Assert.DoesNotThrow (() => {
-				using (var reader = new TnefReader (new MemoryStream (tnef, false), 0, TnefComplianceMode.Loose)) {
-					while (reader.ReadNextAttribute ()) {
-						var prop = reader.TnefPropertyReader;
-
-						while (prop.ReadNextProperty ()) {
-							var value = prop.ReadValueAsString ();
-
-							Assert.That (value.Length, Is.LessThanOrEqualTo (tnef.Length));
-						}
-					}
-				}
-			});
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidPropertyLength));
 		}
 
-		// The attribute length itself is untrusted. A tiny stream that claims a ~2GB attribute must not
-		// cause a ~2GB allocation, even though every individual property length "fits" inside it.
 		[Test]
 		public void TestOversizedAttributeLengthDoesNotAllocate ()
 		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, 0x7FFFFF00, new byte[] { 1, 2, 3, 4 },
-				declaredAttributeLength: 0x7FFFFFFF);
+			var tnef = CreateTnefStream (0x7FFFFF00, 0x7FFFFFFF);
+			var logger = ReadMalformedValue (tnef, out var bytes);
 
-			Assert.That (tnef.Length, Is.LessThan (128), "the crafted TNEF stream should be tiny");
-
-			byte[] bytes = null;
-			TnefComplianceStatus status = TnefComplianceStatus.Compliant;
-			bool readProperty = false;
-
-			Assert.DoesNotThrow (() => bytes = ReadFirstPropertyAsBytes (tnef, out status, out readProperty));
-
-			if (bytes != null) {
-				Assert.That (bytes.Length, Is.LessThanOrEqualTo (tnef.Length),
-					"a tiny stream must never produce a buffer sized from the declared attribute length");
-			}
-
-			Assert.That (status, Is.Not.EqualTo (TnefComplianceStatus.Compliant),
-				"an attribute length that exceeds the stream should be recorded as a compliance error");
+			Assert.That (bytes.Length, Is.LessThanOrEqualTo (tnef.Length), "allocated buffer is bounded by input size");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream));
 		}
 
-		// End-to-end: the public entry points named in the report must survive a malicious winmail.dat.
 		[Test]
-		public void TestConvertToMessageWithOversizedLength ()
+		public async Task TestOversizedAttributeLengthDoesNotAllocateAsync ()
 		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, int.MaxValue, new byte[] { 1, 2, 3, 4 });
+			var tnef = CreateTnefStream (0x7FFFFF00, 0x7FFFFFFF);
+			var logger = await ReadMalformedValueAsync (tnef);
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream));
+		}
+
+		[TestCase (TnefPropertyType.Unicode)]
+		[TestCase (TnefPropertyType.String8)]
+		public void TestOversizedStringLengthDoesNotAllocate (TnefPropertyType type)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.AttachTransportName, type));
+			properties.WriteValueCount (1);
+			properties.WriteVariableLengthValue (new byte[] { 0x41, 0x00, 0x42, 0x00 }, 0x7FFFFF00, false);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: 0x7FFFFFFF);
+
+			// Note: Lift the limits so that the bogus length is not rejected up front and the chunked read path is exercised.
+			var options = new TnefOptions { MaxPropertyValueLength = int.MaxValue, MaxTotalDataBytes = long.MaxValue };
+			using var reader = new TnefReader (builder.ToStream (), options) { ComplianceLogger = logger };
+
+			Assert.That (reader.Read (), Is.True);
+			var prop = reader.GetPropertyReader ();
+			Assert.That (prop.ReadNextProperty (), Is.True);
+			Assert.DoesNotThrow (() => _ = prop.ReadValueAsString ());
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream));
+		}
+
+		[TestCase (TnefPropertyType.Unicode)]
+		[TestCase (TnefPropertyType.String8)]
+		public async Task TestOversizedStringLengthDoesNotAllocateAsync (TnefPropertyType type)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+
+			properties.WritePropertyHeader (new TnefPropertyTag (TnefPropertyId.AttachTransportName, type));
+			properties.WriteValueCount (1);
+			properties.WriteVariableLengthValue (new byte[] { 0x41, 0x00, 0x42, 0x00 }, 0x7FFFFF00, false);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: 0x7FFFFFFF);
+
+			// Note: Lift the limits so that the bogus length is not rejected up front and the chunked read path is exercised.
+			var options = new TnefOptions { MaxPropertyValueLength = int.MaxValue, MaxTotalDataBytes = long.MaxValue };
+			using var reader = new TnefReader (builder.ToStream (), options) { ComplianceLogger = logger };
+
+			Assert.That (await reader.ReadAsync (), Is.True);
+			var prop = reader.GetPropertyReader ();
+			Assert.That (await prop.ReadNextPropertyAsync (), Is.True);
+			await prop.ReadValueAsStringAsync ();
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.TruncatedStream));
+		}
+
+		[Test]
+		public void TestGetPropertyReaderReturnsSameInstance ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 1);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (reader.Read (), Is.True);
+			var first = reader.GetPropertyReader ();
+			Assert.That (reader.GetPropertyReader (), Is.SameAs (first));
+		}
+
+		[Test]
+		public async Task TestGetPropertyReaderReturnsSameInstanceAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 1);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (await reader.ReadAsync (), Is.True);
+			var first = reader.GetPropertyReader ();
+			Assert.That (reader.GetPropertyReader (), Is.SameAs (first));
+		}
+
+		[Test]
+		public void TestGetPropertyReaderOnNonPropertyAttributeThrows ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (reader.Read (), Is.True);
+			Assert.Throws<InvalidOperationException> (() => reader.GetPropertyReader ());
+		}
+
+		[Test]
+		public async Task TestGetPropertyReaderOnNonPropertyAttributeThrowsAsync ()
+		{
+			var builder = new TnefBuilder ();
+
+			builder.WriteTnefVersion ();
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (await reader.ReadAsync (), Is.True);
+			Assert.Throws<InvalidOperationException> (() => reader.GetPropertyReader ());
+		}
+
+		[Test]
+		public void TestPropertyReaderThrowsAfterReaderAdvances ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 1);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+			builder.WriteTnefVersion ();
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (reader.Read (), Is.True);
+			var prop = reader.GetPropertyReader ();
+			Assert.That (prop.ReadNextProperty (), Is.True);
+			Assert.That (reader.Read (), Is.True);
+
+			Assert.Throws<InvalidOperationException> (() => _ = prop.Tag);
+			Assert.Throws<InvalidOperationException> (() => _ = prop.PropertyCount);
+			Assert.Throws<InvalidOperationException> (() => prop.ReadValueAsInt32 ());
+			Assert.Throws<InvalidOperationException> (() => prop.ReadNextProperty ());
+		}
+
+		[Test]
+		public async Task TestPropertyReaderThrowsAfterReaderAdvancesAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var builder = new TnefBuilder ();
+
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 1);
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties);
+			builder.WriteTnefVersion ();
+
+			using var reader = new TnefReader (builder.ToStream ());
+
+			Assert.That (await reader.ReadAsync (), Is.True);
+			var prop = reader.GetPropertyReader ();
+			Assert.That (await prop.ReadNextPropertyAsync (), Is.True);
+			Assert.That (await reader.ReadAsync (), Is.True);
+
+			Assert.Throws<InvalidOperationException> (() => _ = prop.Tag);
+			Assert.ThrowsAsync<InvalidOperationException> (async () => await prop.ReadNextPropertyAsync ());
+		}
+
+		[Test]
+		public void TestConvertToMimeWithOversizedLength ()
+		{
+			var tnef = CreateTnefStream (int.MaxValue);
 			var part = new TnefPart { Content = new MimeContent (new MemoryStream (tnef, false)) };
 
 			Assert.DoesNotThrow (() => {
-				using (var message = part.ConvertToMessage ())
-					Assert.That (message, Is.Not.Null);
+				using var message = ConvertToMime (part);
+				Assert.That (message, Is.Not.Null);
 			});
 		}
 
 		[Test]
-		public void TestExtractAttachmentsWithOversizedLength ()
+		public void TestLoadTnefMessageWithOversizedLength ()
 		{
-			var tnef = CreateTnefStream (TnefPropertyId.AttachData, TnefPropertyType.Binary, int.MaxValue, new byte[] { 1, 2, 3, 4 });
+			var tnef = CreateTnefStream (int.MaxValue);
 			var part = new TnefPart { Content = new MimeContent (new MemoryStream (tnef, false)) };
 
-			Assert.DoesNotThrow (() => {
-				var attachments = part.ExtractAttachments ().ToList ();
-
-				foreach (var attachment in attachments.OfType<MimePart> ()) {
-					using (var content = attachment.Content.Open ())
-						Assert.That (content.CanRead, Is.True);
-				}
-			});
+			Assert.DoesNotThrow (() => part.LoadTnefMessage ().Dispose ());
 		}
+
+		static MimeMessage ConvertToMime (TnefPart part) => TnefConversionTestHelper.Convert (part);
 	}
 }

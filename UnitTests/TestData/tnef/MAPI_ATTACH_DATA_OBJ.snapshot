@@ -1,0 +1,25 @@
+message
+  Date: 2002-08-20T11:39:48Z
+  Subject: Bodø-damer på vei!
+  Message-Id: <BBDA395B19A3D3119A0E0000F8D02CA902AEBCE8@ODIN>
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    TextPart text/rtf
+      Content-Type: text/rtf
+      content: encoding=Default length=2429 sha256=e803e31e72d8d36f2528719a632d029806d6cbbdf168013865725b602302b0db
+      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deftab360{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\r\n\\viewkind4\\uc1\\pard\\lang1044\\f0\\fs20 Det er jo en velkjent sak at bod\\'f8damene er noe mer j\\'e5lete/velkledde (to sider av samme sak?) enn de noe mer allv\\'e6rskledde s\\'f8str...
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name="VIA Nytt 1402.doc"
+      Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=VIA_Nytt_1402.doc; size=62030; creation-date=2002-07-26T08:47:42Z; modification-date=2002-08-20T11:27:58Z
+      content: encoding=Default length=61952 sha256=9955935516d1407e0f833d91242f7416c68a66eae69e73d855ae17724e04fe60
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name="VIA Nytt 1402.pdf"
+      Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=VIA_Nytt_1402.pdf; size=213763; creation-date=2002-08-20T07:57:50Z; modification-date=2002-08-20T11:28:01Z
+      content: encoding=Default length=213685 sha256=968c9c4a8a6a02ff9a6c4e2621d5f5d512593a30d57379f704c4274ead48d72e
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name="VIA Nytt 14021.htm"
+      Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=VIA_Nytt_14021.htm; size=68997; creation-date=2002-08-20T10:41:01Z; modification-date=2002-08-20T11:28:05Z
+      content: encoding=Default length=68919 sha256=c2ee04f99e59079afa8661913dbd8b9002ea005c7540aaec85a67ed113e9a7b8

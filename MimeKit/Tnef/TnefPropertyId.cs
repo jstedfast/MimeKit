@@ -1025,14 +1025,14 @@ namespace MimeKit.Tnef {
 		InternetArticleNumber                    = 0x0E23,
 
 		/// <summary>
+		/// The MAPI property PR_INTERNET_CPID.
+		/// </summary>
+		InternetCodepage                         = 0x3FDE,
+
+		/// <summary>
 		/// The MAPI property PR_INTERNET_CONTROL.
 		/// </summary>
 		InternetControl                          = 0x1031,
-
-		/// <summary>
-		/// The MAPI property PR_INTERNET_CPID.
-		/// </summary>
-		InternetCPID                             = 0x3FDE,
 
 		/// <summary>
 		/// The MAPI property PR_INTERNET_DISTRIBUTION.
@@ -1360,6 +1360,15 @@ namespace MimeKit.Tnef {
 		MiddleName                               = 0x3A44,
 
 		/// <summary>
+		/// The MAPI property PR_MIME_SKELETON (PidTagMimeSkeleton).
+		/// </summary>
+		/// <remarks>
+		/// Contains the top-level MIME message headers, all MIME body part headers, and the body part content that has
+		/// not already been converted to Message object properties ([MS-OXCMSG] section 2.2.1.28).
+		/// </remarks>
+		MimeSkeleton                             = 0x64F0,
+
+		/// <summary>
 		/// The MAPI property PR_MINI_ICON.
 		/// </summary>
 		MiniIcon                                 = 0x0FFC,
@@ -1378,6 +1387,15 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_MSG_STATUS.
 		/// </summary>
 		MsgStatus                                = 0x0E17,
+
+		/// <summary>
+		/// The MAPI property PR_NATIVE_BODY_INFO (PidTagNativeBody).
+		/// </summary>
+		/// <remarks>
+		/// Indicates the best available format for storing the message body: 1 for plain text, 2 for RTF and 3 for HTML
+		/// ([MS-OXCMSG] section 2.2.1.58.2, [MS-OXBBODY] section 2.1.3.1).
+		/// </remarks>
+		NativeBody                               = 0x1016,
 
 		/// <summary>
 		/// The MAPI property PR_NDR_DIAG_CODE.

@@ -1,0 +1,17 @@
+message
+  Date: 1999-10-14T02:49:09Z
+  Subject: two files
+  Message-Id: <14341.17573.560761.368512@localhost.localdomain>
+  To: "Simpson, Mark" <mark.simpson@numega.com>
+  Multipart multipart/mixed
+    Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name="AUTHORS file for tnef"
+      Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=AUTHORS; size=308; creation-date=1999-10-14T02:51:46Z; modification-date=1999-10-14T02:51:46Z
+      content: encoding=Default length=244 sha256=36c47da7d11846caf0474a4b3df83bb4eba9ea01d2bca500c288fa108e123d28
+    MimePart application/octet-stream
+      Content-Type: application/octet-stream; name="README file for tnef"
+      Content-Transfer-Encoding: base64
+      Content-Disposition: attachment; filename=README; size=957; creation-date=1999-10-14T02:51:46Z; modification-date=1999-10-14T02:51:46Z
+      content: encoding=Default length=893 sha256=d0f163180d6ad5d8d3b4e7c6bc0cc948d05888bff0f69dba375b946ea4c6b0fa

@@ -58,7 +58,7 @@ namespace MimeKit.Tnef {
 		/// </exception>
 		protected TnefException (SerializationInfo info, StreamingContext context) : base (info, context)
 		{
-			Error = (TnefComplianceStatus) info.GetValue ("Error", typeof (TnefComplianceStatus));
+			Violation = (TnefComplianceViolation) info.GetInt32 ("Violation");
 		}
 #endif
 
@@ -68,12 +68,12 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Creates a new <see cref="TnefException"/>.
 		/// </remarks>
-		/// <param name="error">The compliance status error.</param>
+		/// <param name="violation">The compliance violation that caused the error.</param>
 		/// <param name="message">The error message.</param>
 		/// <param name="innerException">The inner exception.</param>
-		public TnefException (TnefComplianceStatus error, string? message, Exception? innerException) : base (message, innerException)
+		public TnefException (TnefComplianceViolation violation, string? message, Exception? innerException) : base (message, innerException)
 		{
-			Error = error;
+			Violation = violation;
 		}
 
 		/// <summary>
@@ -82,11 +82,11 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// Creates a new <see cref="TnefException"/>.
 		/// </remarks>
-		/// <param name="error">The compliance status error.</param>
+		/// <param name="violation">The compliance violation that caused the error.</param>
 		/// <param name="message">The error message.</param>
-		public TnefException (TnefComplianceStatus error, string? message) : base (message)
+		public TnefException (TnefComplianceViolation violation, string? message) : base (message)
 		{
-			Error = error;
+			Violation = violation;
 		}
 
 #if SERIALIZABLE
@@ -108,18 +108,18 @@ namespace MimeKit.Tnef {
 		{
 			base.GetObjectData (info, context);
 
-			info.AddValue ("Error", Error);
+			info.AddValue ("Violation", (int) Violation);
 		}
 #endif
 
 		/// <summary>
-		/// Get the error.
+		/// Get the compliance violation that caused the error.
 		/// </summary>
 		/// <remarks>
-		/// Gets the error.
+		/// Gets the compliance violation that caused the error.
 		/// </remarks>
-		/// <value>The error.</value>
-		public TnefComplianceStatus Error {
+		/// <value>The compliance violation.</value>
+		public TnefComplianceViolation Violation {
 			get; private set;
 		}
 	}

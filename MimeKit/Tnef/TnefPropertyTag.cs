@@ -1588,6 +1588,22 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag EntryId = new TnefPropertyTag (TnefPropertyId.EntryId, TnefPropertyType.Binary);
 
 		/// <summary>
+		/// The MAPI property PR_EXCEPTION_ENDTIME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_EXCEPTION_ENDTIME.
+		/// </remarks>
+		public static readonly TnefPropertyTag ExceptionEndTime = new TnefPropertyTag (TnefPropertyId.ExceptionEndTime, TnefPropertyType.SysTime);
+
+		/// <summary>
+		/// The MAPI property PR_EXCEPTION_STARTTIME.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_EXCEPTION_STARTTIME.
+		/// </remarks>
+		public static readonly TnefPropertyTag ExceptionStartTime = new TnefPropertyTag (TnefPropertyId.ExceptionStartTime, TnefPropertyType.SysTime);
+
+		/// <summary>
 		/// The MAPI property PR_EXPAND_BEGIN_TIME.
 		/// </summary>
 		/// <remarks>
@@ -2204,6 +2220,14 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag InternetArticleNumber = new TnefPropertyTag (TnefPropertyId.InternetArticleNumber, TnefPropertyType.Long);
 
 		/// <summary>
+		/// The MAPI property PR_INTERNET_CPID.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_INTERNET_CPID.
+		/// </remarks>
+		public static readonly TnefPropertyTag InternetCodepage = new TnefPropertyTag (TnefPropertyId.InternetCodepage, TnefPropertyType.Long);
+
+		/// <summary>
 		/// The MAPI property PR_INTERNET_CONTROL.
 		/// </summary>
 		/// <remarks>
@@ -2218,14 +2242,6 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_INTERNET_CONTROL.
 		/// </remarks>
 		public static readonly TnefPropertyTag InternetControlW = new TnefPropertyTag (TnefPropertyId.InternetControl, TnefPropertyType.Unicode);
-
-		/// <summary>
-		/// The MAPI property PR_INTERNET_CPID.
-		/// </summary>
-		/// <remarks>
-		/// The MAPI property PR_INTERNET_CPID.
-		/// </remarks>
-		public static readonly TnefPropertyTag InternetCPID = new TnefPropertyTag (TnefPropertyId.InternetCPID, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_INTERNET_DISTRIBUTION.
@@ -2910,6 +2926,15 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag MiddleNameW = new TnefPropertyTag (TnefPropertyId.MiddleName, TnefPropertyType.Unicode);
 
 		/// <summary>
+		/// The MAPI property PR_MIME_SKELETON (PidTagMimeSkeleton).
+		/// </summary>
+		/// <remarks>
+		/// Contains the top-level MIME message headers, all MIME body part headers, and the body part content that has
+		/// not already been converted to Message object properties ([MS-OXCMSG] section 2.2.1.28).
+		/// </remarks>
+		public static readonly TnefPropertyTag MimeSkeleton = new TnefPropertyTag (TnefPropertyId.MimeSkeleton, TnefPropertyType.Binary);
+
+		/// <summary>
 		/// The MAPI property PR_MINI_ICON.
 		/// </summary>
 		/// <remarks>
@@ -2948,6 +2973,15 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_MSG_STATUS.
 		/// </remarks>
 		public static readonly TnefPropertyTag MsgStatus = new TnefPropertyTag (TnefPropertyId.MsgStatus, TnefPropertyType.Long);
+
+		/// <summary>
+		/// The MAPI property PR_NATIVE_BODY_INFO (PidTagNativeBody).
+		/// </summary>
+		/// <remarks>
+		/// Indicates the best available format for storing the message body: 1 for plain text, 2 for RTF and 3 for HTML
+		/// ([MS-OXCMSG] section 2.2.1.58.2, [MS-OXBBODY] section 2.1.3.1).
+		/// </remarks>
+		public static readonly TnefPropertyTag NativeBody = new TnefPropertyTag (TnefPropertyId.NativeBody, TnefPropertyType.Long);
 
 		/// <summary>
 		/// The MAPI property PR_NDR_DIAG_CODE.
@@ -4421,6 +4455,14 @@ namespace MimeKit.Tnef {
 		public static readonly TnefPropertyTag RecipientType = new TnefPropertyTag (TnefPropertyId.RecipientType, TnefPropertyType.Long);
 
 		/// <summary>
+		/// The MAPI property PR_RECORD_KEY.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_RECORD_KEY.
+		/// </remarks>
+		public static readonly TnefPropertyTag RecordKey = new TnefPropertyTag (TnefPropertyId.RecordKey, TnefPropertyType.Binary);
+
+		/// <summary>
 		/// The MAPI property PR_REDIRECTION_HISTORY.
 		/// </summary>
 		/// <remarks>
@@ -4867,6 +4909,22 @@ namespace MimeKit.Tnef {
 		/// The MAPI property PR_SENDER_SEARCH_KEY.
 		/// </remarks>
 		public static readonly TnefPropertyTag SenderSearchKey = new TnefPropertyTag (TnefPropertyId.SenderSearchKey, TnefPropertyType.Binary);
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </remarks>
+		public static readonly TnefPropertyTag SenderSmtpAddressA = new TnefPropertyTag (TnefPropertyId.SenderSmtpAddress, TnefPropertyType.String8);
+
+		/// <summary>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </summary>
+		/// <remarks>
+		/// The MAPI property PR_SENDER_SMTP_ADDRESS.
+		/// </remarks>
+		public static readonly TnefPropertyTag SenderSmtpAddressW = new TnefPropertyTag (TnefPropertyId.SenderSmtpAddress, TnefPropertyType.Unicode);
 
 		/// <summary>
 		/// The MAPI property PR_SEND_INTERNET_ENCODING.
