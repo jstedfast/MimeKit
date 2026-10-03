@@ -2,6 +2,88 @@
 
 ## MimeKit 5.0.0 (unreleased)
 
+MimeKit 5.0 is a major release containing a number of breaking changes. The headline changes are
+the split of the cryptography support into its own assembly, the promotion of the new MIME parser,
+a redesigned TNEF implementation, and a new MIME compliance violation reporting API.
+
+### Breaking Changes
+
+* Split the cryptography support out of MimeKit into a separate `MimeKit.Cryptography` assembly and
+  NuGet package. (issue [#820](https://github.com/jstedfast/MimeKit/issues/820))
+  * The `MimeKit` package is now a meta-package that references both `MimeKit.Core` and
+    `MimeKit.Cryptography`, so projects referencing `MimeKit` continue to get everything. Projects
+    that do not need S/MIME, PGP/MIME, DKIM or ARC can reference `MimeKit.Core` on its own.
+  * The assembly produced by the `MimeKit` project is now named `MimeKit.Core`. The `MimeKit`
+    namespace is unchanged.
+  * `MimeKitLite` has been retired. `MimeKit.Core` replaces it.
+  * Applications using `MimeKit.Cryptography` must call `CryptographyModule.Initialize ()` during
+    startup to register the cryptographic entity factory. Without it, `multipart/signed` and
+    `multipart/encrypted` content will be parsed as a plain `Multipart`.
+  * The `MimeMessage.Sign ()`, `Encrypt ()` and `SignAndEncrypt ()` methods (and their async
+    counterparts) are now extension methods in `MimeKit.Cryptography`. Add a
+    `using MimeKit.Cryptography;` directive to continue using them.
+* Promoted the new MIME parser. This is a source-compatible rename for most consumers, but the
+  underlying implementation is different:
+  * `ExperimentalMimeParser` has been renamed to `MimeParser`.
+  * The previous `MimeParser` implementation has been renamed to `LegacyMimeParser` and is retained
+    for compatibility.
+  * `MessageDeliveryStatus` now uses the new parser and is no longer tied to `LegacyMimeParser`.
+* `CryptographyContext` no longer registers a default S/MIME implementation. Applications must now
+  explicitly register the context they want (for example via `CryptographyContext.Register ()`).
+  This change is what makes MimeKit AOT-compatible; the `DefaultSecureMimeContext` constructors that
+  rely on reflection to load a platform-appropriate SQLite library remain available for applications
+  that do not need AOT compatibility.
+* Removed the `DbConnection` parameter from the protected `X509CertificateDatabase` APIs
+  (`GetSelectCommand`, `GetSelectAllCrlsCommand`, `GetInsertCommand`, `GetUpdateCommand`,
+  `GetDeleteCommand`, `GetTableColumns`, `CreateTable`, `AddTableColumn`, `CreateIndex` and
+  `RemoveIndex`). No implementation ever used it, and a subclass calling `connection.CreateCommand ()`
+  directly would silently bypass `ExecuteWithinTransaction ()`. The constructors still take a
+  `DbConnection`.
+* Removed the `beginOffset` and `lineNumber` arguments from `MimeReader.OnMboxMarkerRead ()` and
+  `OnMboxMarkerReadAsync ()`. Both values are already supplied by the corresponding
+  `OnMboxMarkerBegin ()` call, which makes the signature consistent with `OnMimePartContentRead ()`.
+* Removed previously obsoleted APIs:
+  * The `QEncoder` class, and the public `HexEncoder` `IMimeEncoder` implementation. `HexDecoder` is
+    now internal.
+  * The `HtmlToHtml.FilterHtml` property. Use a dedicated library such as HtmlSanitizer instead.
+  * The obsolete `IX509CertificateDatabase` APIs.
+  * The obsolete `DkimSigner` and `ArcSigner` APIs.
+  * The obsolete `MimeReader` APIs.
+  * `TnefPropertyTag.Puid`. Use `TnefPropertyTag.PuidA` or `TnefPropertyTag.PuidW`.
+* Removed the dead `[Obsolete]` annotations on the legacy serialization members. The
+  `#if NET8_0_OR_GREATER` guard around `GetObjectData ()` could never be satisfied (`SERIALIZABLE` is
+  only defined for .NET Framework), and the unconditional attribute on the protected serialization
+  constructors emitted a spurious `CS0618` for .NET Framework consumers subclassing these exceptions.
+
+### MIME Compliance Violation Reporting
+
+* Added an API for reporting MIME compliance violations found while reading a message. Set
+  `MimeReader.ComplianceLogger` to an `IMimeComplianceLogger` implementation to receive a
+  `MimeComplianceIssue` for each violation. Each issue carries the `MimeComplianceViolation`, a
+  stream offset, line and column numbers, and a `MimeCompliancePositionKind` describing what the
+  position refers to.
+* Violations are classified along two axes: a `MimeComplianceSeverity` and a set of
+  `MimeComplianceCategories` (`Interoperability`, `DataLoss` and `Security`). Severity is further
+  qualified by the `MimeComplianceContext` (`Transport` or `Storage`), since defects such as a bare
+  linefeed are far more serious in flight than at rest.
+* Added address header validation covering quoted local-parts, ISO-2022 sequences, stray carriage
+  returns and null bytes, domain-literal `dtext`, empty domain labels, unterminated quoted-strings
+  and comments, missing group terminators, spoofing patterns and unquoted addresses in display
+  names. The validator is vectorized and avoids re-scanning phrases.
+* Added violations for repeated header fields, and corrected the reported positions of the
+  `InvalidHeader`, `Content-Transfer-Encoding` and `BareLinefeedInBody` violations.
+* The base64, quoted-printable and uuencode validators now report column numbers and report each
+  violation at most once per line.
+* Added `MimeReader.MaxComplianceIssuesPerViolation`, a configurable cap on how many times each
+  individual violation will be reported. The cap is per-violation rather than a single total so that
+  a flood of one violation cannot suppress the reporting of any other. When a budget is exhausted, a
+  single `TooManyComplianceIssues` is logged so that a truncated report is never silently truncated.
+  The default is `0` (no limit).
+* Added a `MimeAnalyzer` sample that reports violations in a compiler-style
+  `file:line:column: severity: message` format.
+
+### TNEF
+
 * Redesigned the TNEF API (`MimeKit.Tnef`). This is a breaking change:
   * `TnefReader` and `TnefPropertyReader` were rewritten against [MS-OXTNEF] and [MS-OXCDATA] with
     bounded allocations, async equivalents and resilient recovery from corrupt or truncated streams.
@@ -14,6 +96,59 @@
     `PS_INTERNET_HEADERS` and transport `Received` headers) and reports anything it could not
     represent via `TnefConversionResult.Losses`.
   * See the [TNEF Porting Guide](TnefPortingGuide.md) for help migrating from MimeKit 4.x.
+* Added `TnefWriter` and `TnefPropertyWriter` for producing [MS-OXTNEF] streams, including named
+  properties, multi-valued properties, recipient tables, embedded messages and [MS-OXRTFCP]
+  compressed RTF.
+* Hardened the TNEF reader against malformed and malicious input: the TNEF signature, attribute
+  levels, attribute containment, `attMessageClass` and checksums are now validated; truncation is
+  reported as `StreamTruncated`; property, value and row counts are clamped to the attribute size;
+  embedded-message nesting is limited; and date, GUID and end-of-stream decoding errors can no longer
+  escape.
+* Fixed a number of TNEF value decoding bugs: `PT_R4` and `PT_DOUBLE` are now decoded
+  little-endian, `PT_SYSTIME` as UTC and `PT_CURRENCY` scaled by 1/10000; the `PT_I2` and
+  `PT_BOOLEAN` coercions and `ReadTextValue` were corrected; stream offsets were widened to 64 bits;
+  and the codepage is now selected per [MS-OXTNEF] 2.3.3.2, degrading gracefully when it is not
+  available.
+* Fixed the compressed RTF decoder to not trust `COMPSIZE`/`RAWSIZE`, to stop at the end of
+  `CONTENTS`, to skip the CRC for uncompressed streams, and to discard unknown `COMPTYPE`s.
+* Added `TnefNameId.ToString ()`. Named properties previously printed as the type name, which also
+  affected `TnefProperty.ToString ()`.
+
+### Performance
+
+* Optimized `MimeMessage` address header tracking to use a lazily allocated array instead of a
+  `Dictionary`, and to avoid subscribing to change events for unused address headers.
+* Optimized `HeaderList` creation by supplying an initial capacity wherever it is known, caching the
+  `HeaderChanged` delegate, and using `Dictionary.TryAdd ()` internally on modern frameworks.
+* Optimized the check for whether a header is a `Content-*` header.
+* Removed a redundant `And` masking before `MoveMask` in `Memory.IndexOf ()`, dropping a dependent
+  instruction from the hot loop's dependency chain at all eight SSE2 and AVX2 8-bit detection sites.
+
+### Bug Fixes
+
+* Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
+  `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
+  against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a
+  complete no-op. None of these classes directly owns unmanaged resources, so per CA1063 they should
+  not have had one at all. This also resolves the CodeQL
+  `cs/virtual-call-in-constructor-or-destructor` alerts for `MimeMessage` and
+  `X509CertificateDatabase`, and avoids needlessly adding every entity, message and content instance
+  to the GC's finalization queue. `Dispose ()`, `Dispose (bool)` and the `GC.SuppressFinalize ()`
+  calls are unchanged, so subclasses that need a finalizer can still add one.
+* Fixed `MimeReader.GetEntityType ()` to use the same `MaxMimeDepth` check as
+  `ParserOptions.CreateEntity ()`. The two comparisons were off by one with respect to each other,
+  which could result in an `InvalidCastException` rather than a quiet behavior difference.
+* Fixed `BouncyCastleSecureMimeContext.Verify ()` to rethrow rather than return a disposed
+  `MemoryBlockStream` to the caller, which previously surfaced as a confusing
+  `ObjectDisposedException` with the original cause lost.
+* Fixed `DownloadCrlOverHttp[Async] ()` and `ArcVerifier.VerifyAsync ()` to propagate
+  `OperationCanceledException` instead of swallowing it. A cancelled CRL download previously degraded
+  silently into "no CRL available" and certificate revocation checking carried on without it. An
+  `HttpClient` timeout still returns `false` as before.
+* Fixed `X509Certificate2Extensions.AsBouncyCastleCertificate ()` to pass the original exception along
+  as the `InnerException` rather than discarding it, and narrowed the catch clauses in both it and
+  `DecodeEncryptionAlgorithms ()`.
+* Fixed the empty-catch-block and catch-of-all-exception issues in `WindowsSecureMimeContext`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
