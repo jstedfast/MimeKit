@@ -27,6 +27,7 @@
 ### Specialty
 
 * [How would I parse multipart/form-data from an HTTP web request?](#parse-web-request-form-data)
+* [How do I port my TNEF (winmail.dat) code from MimeKit 4.x to MimeKit 5.0?](#port-tnef-code)
 
 ## General
 
@@ -1297,3 +1298,30 @@ MimeEntity ParseMultipartFormData (HttpWebResponse response)
     return MimeEntity.Load (contentType, response.GetResponseStream ());
 }
 ```
+
+### <a name="port-tnef-code">Q: How do I port my TNEF (winmail.dat) code from MimeKit 4.x to MimeKit 5.0?</a>
+
+MimeKit 5.0 replaces the TNEF API. `TnefPart.ConvertToMessage ()`, `TnefPart.ExtractAttachments ()`,
+`TnefComplianceMode` and `TnefComplianceStatus` are gone, and `TnefReader` and `TnefPropertyReader` have new
+member names and some new behavior. For example, `PT_SYSTIME` values are now UTC, and the property cursor
+is already on the first value after `ReadNextProperty ()`.
+
+Most code only needs to load the `TnefPart` into a `TnefMessage` and convert it to MIME:
+
+```csharp
+using (var tnef = tnefPart.LoadTnefMessage ()) {
+    // The converted message does not depend on the TnefMessage, so it can outlive it.
+    var result = tnef.ConvertToMime ();
+
+    foreach (var attachment in result.Message.Attachments) {
+        // ...
+    }
+}
+```
+
+If you don't need MIME conversion, `TnefMessage` gives you the recipients, bodies, attachments and MAPI
+properties directly.
+
+The [TNEF Porting Guide](TnefPortingGuide.md) covers everything else. It has old-to-new mapping tables for
+every member, a compliance-flag-to-violation table, the semantic changes, before/after recipes and a
+porting checklist.

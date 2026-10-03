@@ -13,6 +13,7 @@
     `TnefMessage.ConvertToMime ()`, which follows [MS-OXCMAIL] (including `PidTagMimeSkeleton`,
     `PS_INTERNET_HEADERS` and transport `Received` headers) and reports anything it could not
     represent via `TnefConversionResult.Losses`.
+  * See the [TNEF Porting Guide](TnefPortingGuide.md) for help migrating from MimeKit 4.x.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
