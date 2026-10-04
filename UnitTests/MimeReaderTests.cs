@@ -414,6 +414,171 @@ namespace UnitTests {
 			await TestMboxAsync (null, "jwz");
 		}
 
+		sealed class ContentRegion
+		{
+			public string Kind;
+			public long BeginOffset;
+			public long EndOffset;
+			public byte[] Content;
+		}
+
+		// Records the bytes passed to the content/preamble/epilogue Read callbacks so that they can be compared
+		// against the stream offsets reported by the corresponding End callbacks.
+		class ContentRecordingReader : MimeReader
+		{
+			public readonly List<ContentRegion> Regions = new List<ContentRegion> ();
+			readonly MemoryStream content = new MemoryStream ();
+
+			public ContentRecordingReader (Stream stream, MimeFormat format) : base (stream, format)
+			{
+			}
+
+			void Begin ()
+			{
+				content.SetLength (0);
+			}
+
+			void End (string kind, long beginOffset, long endOffset)
+			{
+				Regions.Add (new ContentRegion { Kind = kind, BeginOffset = beginOffset, EndOffset = endOffset, Content = content.ToArray () });
+			}
+
+			protected override void OnMimePartContentBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken) => Begin ();
+			protected override void OnMimePartContentRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken) => content.Write (buffer, startIndex, count);
+			protected override void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken) => End ("content", beginOffset, endOffset);
+
+			protected override void OnMultipartPreambleBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken) => Begin ();
+			protected override void OnMultipartPreambleRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken) => content.Write (buffer, startIndex, count);
+			protected override void OnMultipartPreambleEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken) => End ("preamble", beginOffset, endOffset);
+
+			protected override void OnMultipartEpilogueBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken) => Begin ();
+			protected override void OnMultipartEpilogueRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken) => content.Write (buffer, startIndex, count);
+			protected override void OnMultipartEpilogueEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken) => End ("epilogue", beginOffset, endOffset);
+		}
+
+		// Returns at most 'chunkSize' bytes per read (both sync and async) to force line endings and boundary markers to be split across reads.
+		class ChunkedReadStream : MemoryStream
+		{
+			readonly int chunkSize;
+
+			public ChunkedReadStream (byte[] buffer, int chunkSize) : base (buffer, false)
+			{
+				this.chunkSize = chunkSize;
+			}
+
+			public override int Read (byte[] buffer, int offset, int count)
+			{
+				return base.Read (buffer, offset, Math.Min (count, chunkSize));
+			}
+
+			public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+			{
+				return base.ReadAsync (buffer, offset, Math.Min (count, chunkSize), cancellationToken);
+			}
+		}
+
+		static void AssertContentRegions (byte[] source, List<ContentRegion> regions, int expectedCount, string label)
+		{
+			if (expectedCount >= 0)
+				Assert.That (regions, Has.Count.EqualTo (expectedCount), $"{label}: region count");
+			else
+				Assert.That (regions, Is.Not.Empty, $"{label}: region count");
+
+			for (int i = 0; i < regions.Count; i++) {
+				var region = regions[i];
+				var expected = new byte[region.EndOffset - region.BeginOffset];
+
+				Array.Copy (source, region.BeginOffset, expected, 0, expected.Length);
+
+				Assert.That (Encoding.Latin1.GetString (region.Content), Is.EqualTo (Encoding.Latin1.GetString (expected)), $"{label}: {region.Kind} region #{i} @ {region.BeginOffset}");
+			}
+		}
+
+		static readonly string LongLine = new string ('x', 1500);
+
+		static readonly string[] ContentCallbackMessages = {
+			// multipart with a preamble, an empty part, a part that ends with a blank line and an epilogue followed by EOS
+			"From: mimekit@example.org\r\nContent-Type: multipart/mixed; boundary=\"b\"\r\n\r\npreamble\r\n--b\r\n\r\n--b\r\nContent-Type: text/plain\r\n\r\nline 1\r\n\r\n--b\r\nContent-Type: text/plain\r\n\r\nline 2\r\n--b--\r\nepilogue\r\n",
+
+			// same as above, but with bare linefeeds
+			"From: mimekit@example.org\nContent-Type: multipart/mixed; boundary=\"b\"\n\npreamble\n--b\n\n--b\nContent-Type: text/plain\n\nline 1\n\n--b\nContent-Type: text/plain\n\nline 2\n--b--\nepilogue\n",
+
+			// over-long lines (that get consumed mid-line) immediately followed by a boundary marker
+			"From: mimekit@example.org\r\nContent-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\n\r\n" + LongLine + "\r\n--b\r\n\r\n" + LongLine + "\n--b--\r\n",
+
+			// nested multipart where the inner epilogue is terminated by the outer boundary
+			"From: mimekit@example.org\r\nContent-Type: multipart/mixed; boundary=\"outer\"\r\n\r\n--outer\r\nContent-Type: multipart/alternative; boundary=\"inner\"\r\n\r\n--inner\r\n\r\ninner\r\n--inner--\r\ninner epilogue\r\n--outer--\r\n",
+
+			// single-part messages terminated by EOS, with and without a trailing newline
+			"From: mimekit@example.org\r\n\r\nbody\r\n",
+			"From: mimekit@example.org\r\n\r\nbody",
+			"From: mimekit@example.org\r\n\r\nbody\r",
+		};
+
+		static readonly int[] ContentCallbackExpectedRegions = { 5, 5, 4, 5, 1, 1, 1 };
+
+		[Test]
+		public void TestContentCallbacksExcludeBoundaryNewLine ([Values (1, 2, 3, 7, 4096)] int chunkSize)
+		{
+			for (int i = 0; i < ContentCallbackMessages.Length; i++) {
+				var source = Encoding.ASCII.GetBytes (ContentCallbackMessages[i]);
+
+				using (var stream = new ChunkedReadStream (source, chunkSize)) {
+					var reader = new ContentRecordingReader (stream, MimeFormat.Entity);
+
+					reader.ReadMessage ();
+
+					AssertContentRegions (source, reader.Regions, ContentCallbackExpectedRegions[i], $"message #{i}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestContentCallbacksExcludeBoundaryNewLineAsync ([Values (1, 2, 3, 7, 4096)] int chunkSize)
+		{
+			for (int i = 0; i < ContentCallbackMessages.Length; i++) {
+				var source = Encoding.ASCII.GetBytes (ContentCallbackMessages[i]);
+
+				using (var stream = new ChunkedReadStream (source, chunkSize)) {
+					var reader = new ContentRecordingReader (stream, MimeFormat.Entity);
+
+					await reader.ReadMessageAsync ();
+
+					AssertContentRegions (source, reader.Regions, ContentCallbackExpectedRegions[i], $"message #{i}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestContentCallbacksExcludeBoundaryNewLineMbox ()
+		{
+			var source = File.ReadAllBytes (Path.Combine (MboxDataDir, "jwz.mbox.txt"));
+
+			using (var stream = new MemoryStream (source, false)) {
+				var reader = new ContentRecordingReader (stream, MimeFormat.Mbox);
+
+				while (!reader.IsEndOfStream)
+					reader.ReadMessage ();
+
+				AssertContentRegions (source, reader.Regions, -1, "jwz.mbox.txt");
+			}
+		}
+
+		[Test]
+		public async Task TestContentCallbacksExcludeBoundaryNewLineMboxAsync ()
+		{
+			var source = File.ReadAllBytes (Path.Combine (MboxDataDir, "jwz.mbox.txt"));
+
+			using (var stream = new MemoryStream (source, false)) {
+				var reader = new ContentRecordingReader (stream, MimeFormat.Mbox);
+
+				while (!reader.IsEndOfStream)
+					await reader.ReadMessageAsync ();
+
+				AssertContentRegions (source, reader.Regions, -1, "jwz.mbox.txt");
+			}
+		}
+
 		[Test]
 		public void TestLineCountSingleLine ()
 		{

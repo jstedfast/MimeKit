@@ -546,6 +546,8 @@ namespace MimeKit {
 			if (content is null /* aka 'persistent' */) {
 				content = new BoundStream (stream, beginOffset, endOffset, true);
 			} else {
+				// Note: MimeReader only passes the bytes within [beginOffset, endOffset) to OnMimePartContentRead(), so this
+				// is normally a no-op. It is kept as a cheap safeguard so that the content always matches the reported offsets.
 				content.SetLength (endOffset - beginOffset);
 				content.Position = 0;
 			}
@@ -688,6 +690,8 @@ namespace MimeKit {
 		{
 			var multipart = (Multipart) stack.Peek ();
 
+			// Note: MimeReader only passes the bytes within [beginOffset, endOffset) to OnMultipartPreambleRead(), so this
+			// is normally a no-op. It is kept as a cheap safeguard so that the preamble always matches the reported offsets.
 			content!.SetLength (endOffset - beginOffset);
 
 			multipart.RawPreamble = ((MemoryStream) content).ToArray ();
@@ -793,6 +797,8 @@ namespace MimeKit {
 		{
 			var multipart = (Multipart) stack.Peek ();
 
+			// Note: MimeReader only passes the bytes within [beginOffset, endOffset) to OnMultipartEpilogueRead(), so this
+			// is normally a no-op. It is kept as a cheap safeguard so that the epilogue always matches the reported offsets.
 			content!.SetLength (endOffset - beginOffset);
 
 			multipart.RawEpilogue = ((MemoryStream) content).ToArray ();

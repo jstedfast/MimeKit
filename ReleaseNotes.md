@@ -73,9 +73,15 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `CryptographyContext` and `ICryptographyContext` to `OpenPgpContext`. They were never used by S/MIME,
   where the caller always chooses the signing digest algorithm, so on a `SecureMimeContext` they reported
   a misleading SHA-1-only list. In OpenPGP they only determine the preferred hash algorithms advertised by
-  keys created with `GnuPGContext.GenerateKeyPair ()`.   The default OpenPGP ranking now matches GnuPG's
-    defaults for new keys: SHA-512, SHA-384, SHA-256, SHA-224 and SHA-1. Previously SHA-1 was ranked first.
-    RIPEMD-160 is no longer included by default.
+  keys created with `GnuPGContext.GenerateKeyPair ()`. The default OpenPGP ranking now matches GnuPG's
+  defaults for new keys: SHA-512, SHA-384, SHA-256, SHA-224 and SHA-1. Previously SHA-1 was ranked first.
+  RIPEMD-160 is no longer included by default.
+* `MimeReader` no longer includes the newline sequence that precedes a multipart boundary marker in the
+  content passed to `OnMimePartContentRead[Async] ()` and `OnMultipartEpilogueRead[Async] ()`. Per
+  RFC 2046, that newline belongs to the boundary marker. Previously it was passed to the callback and then
+  excluded only from the `endOffset` reported to the corresponding `End` callback, so subclasses that
+  buffered the content had to trim it themselves. The bytes passed to the `Read` callbacks now match the
+  range between the `Begin` and `End` offsets exactly. Preamble content is unchanged.
 
 ### MIME Compliance Violation Reporting
 

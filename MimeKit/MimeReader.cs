@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeReader.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -701,6 +701,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Called when MIME part content is read from the stream.</para>
+		/// <para>The newline sequence that precedes a multipart boundary marker is considered to be part of the
+		/// boundary marker and is not included in the content passed to this method.</para>
 		/// </remarks>
 		/// <param name="buffer">A buffer containing the MIME part content.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
@@ -715,6 +717,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Called when MIME part content is read from the stream.</para>
+		/// <para>The newline sequence that precedes a multipart boundary marker is considered to be part of the
+		/// boundary marker and is not included in the content passed to this method.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="buffer">A buffer containing the MIME part content.</param>
@@ -1239,6 +1243,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Called when multipart epilogue text is read from the stream.</para>
+		/// <para>The newline sequence that precedes a multipart boundary marker is considered to be part of the
+		/// boundary marker and is not included in the content passed to this method.</para>
 		/// </remarks>
 		/// <param name="buffer">A buffer containing the multipart epilogue text.</param>
 		/// <param name="startIndex">The index denoting the starting position of the content within the buffer.</param>
@@ -1253,6 +1259,8 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Called when multipart epilogue text is read from the stream.</para>
+		/// <para>The newline sequence that precedes a multipart boundary marker is considered to be part of the
+		/// boundary marker and is not included in the content passed to this method.</para>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="buffer">A buffer containing the multipart epilogue text.</param>
@@ -2845,14 +2853,53 @@ namespace MimeKit {
 			}
 		}
 
+		/// <summary>
+		/// Get the length of the newline sequence at the end of the scanned content that should be withheld from the content callbacks.
+		/// </summary>
+		/// <remarks>
+		/// The newline sequence that precedes a boundary marker belongs to the boundary marker, so the trailing newline sequence of the
+		/// scanned content cannot be emitted until we know whether or not the next line is a boundary marker. A trailing lone <c>'\r'</c>
+		/// is also withheld because it might be the first half of a <c>"\r\n"</c> sequence that was split across reads.
+		/// </remarks>
+		int GetPendingNewLineLength (int contentIndex, bool trimNewLine)
+		{
+			if (!trimNewLine || inputIndex <= contentIndex)
+				return 0;
+
+			if (input[inputIndex - 1] == (byte) '\n')
+				return inputIndex - 1 > contentIndex && input[inputIndex - 2] == (byte) '\r' ? 2 : 1;
+
+			if (boundaryType == MimeBoundaryType.None && input[inputIndex - 1] == (byte) '\r')
+				return 1;
+
+			return 0;
+		}
+
+		void OnScanContentRead (ScanContentType type, int startIndex, int count, CancellationToken cancellationToken)
+		{
+			switch (type) {
+			case ScanContentType.MultipartPreamble:
+				OnMultipartPreambleRead (input, startIndex, count, cancellationToken);
+				break;
+			case ScanContentType.MultipartEpilogue:
+				OnMultipartEpilogueRead (input, startIndex, count, cancellationToken);
+				break;
+			default:
+				OnMimePartContentRead (input, startIndex, count, cancellationToken);
+				break;
+			}
+		}
+
 		unsafe ScanContentResult ScanContent (ScanContentType type, byte* inbuf, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
 			var formats = new bool[2];
 			long contentLength = 0;
+			long scannedLength = 0;
 			bool incomplete = false;
 			bool midline = false;
+			int pending = 0;
 
 			if (type == ScanContentType.MimeContent && currentEncoding.HasValue)
 				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
@@ -2860,48 +2907,41 @@ namespace MimeKit {
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
+				// Note: ReadAhead() preserves the 2 bytes preceding inputIndex, which is where any pending (withheld) newline sequence lives.
 				if (ReadAhead (atleast, 2, cancellationToken) <= 0) {
 					boundaryType = MimeBoundaryType.Eos;
 					break;
 				}
 
-				int contentIndex = inputIndex;
+				int contentIndex = inputIndex - pending;
+				int scanIndex = inputIndex;
 
 				incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref formats);
 
-				if (contentIndex < inputIndex) {
-					switch (type) {
-					case ScanContentType.MultipartPreamble:
-						OnMultipartPreambleRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
-						break;
-					case ScanContentType.MultipartEpilogue:
-						OnMultipartEpilogueRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
-						break;
-					default:
-						validator?.Write (input, contentIndex, inputIndex - contentIndex);
-						OnMimePartContentRead (input, contentIndex, inputIndex - contentIndex, cancellationToken);
-						break;
-					}
+				if (scanIndex < inputIndex) {
+					validator?.Write (input, scanIndex, inputIndex - scanIndex);
+					scannedLength += inputIndex - scanIndex;
+				}
 
-					contentLength += inputIndex - contentIndex;
+				pending = GetPendingNewLineLength (contentIndex, trimNewLine);
+
+				int count = (inputIndex - contentIndex) - pending;
+
+				if (count > 0) {
+					OnScanContentRead (type, contentIndex, count, cancellationToken);
+					contentLength += count;
 				}
 			} while (boundaryType == MimeBoundaryType.None);
 
 			validator?.Flush ();
 
-			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
-			var isEmpty = contentLength == 0;
-
-			if (boundaryType != MimeBoundaryType.Eos && trimNewLine) {
-				// the last \r\n belongs to the boundary
-				if (contentLength > 0) {
-					if (input[inputIndex - 2] == (byte) '\r')
-						contentLength -= 2;
-					else
-						contentLength--;
-				}
+			if (pending > 0 && boundaryType == MimeBoundaryType.Eos) {
+				// The withheld newline sequence did not precede a boundary marker, so it belongs to the content.
+				OnScanContentRead (type, inputIndex - pending, pending, cancellationToken);
+				contentLength += pending;
 			}
 
+			var isEmpty = scannedLength == 0;
 			var endOffset = beginOffset + contentLength;
 			var lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 

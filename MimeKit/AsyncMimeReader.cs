@@ -387,14 +387,28 @@ namespace MimeKit {
 			return state;
 		}
 
+		Task OnScanContentReadAsync (ScanContentType type, int startIndex, int count, CancellationToken cancellationToken)
+		{
+			switch (type) {
+			case ScanContentType.MultipartPreamble:
+				return OnMultipartPreambleReadAsync (input, startIndex, count, cancellationToken);
+			case ScanContentType.MultipartEpilogue:
+				return OnMultipartEpilogueReadAsync (input, startIndex, count, cancellationToken);
+			default:
+				return OnMimePartContentReadAsync (input, startIndex, count, cancellationToken);
+			}
+		}
+
 		async Task<ScanContentResult> ScanContentAsync (ScanContentType type, long beginOffset, int beginLineNumber, bool trimNewLine, ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
 			var formats = new bool[2];
 			long contentLength = 0;
+			long scannedLength = 0;
 			bool incomplete = false;
 			bool midline = false;
+			int pending = 0;
 
 			if (type == ScanContentType.MimeContent && currentEncoding.HasValue)
 				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
@@ -402,12 +416,14 @@ namespace MimeKit {
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
 
+				// Note: ReadAheadAsync() preserves the 2 bytes preceding inputIndex, which is where any pending (withheld) newline sequence lives.
 				if (await ReadAheadAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
 					boundaryType = MimeBoundaryType.Eos;
 					break;
 				}
 
-				int contentIndex = inputIndex;
+				int contentIndex = inputIndex - pending;
+				int scanIndex = inputIndex;
 
 				unsafe {
 					fixed (byte* inbuf = input) {
@@ -415,39 +431,30 @@ namespace MimeKit {
 					}
 				}
 
-				if (contentIndex < inputIndex) {
-					switch (type) {
-					case ScanContentType.MultipartPreamble:
-						await OnMultipartPreambleReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
-						break;
-					case ScanContentType.MultipartEpilogue:
-						await OnMultipartEpilogueReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
-						break;
-					default:
-						validator?.Write (input, contentIndex, inputIndex - contentIndex);
-						await OnMimePartContentReadAsync (input, contentIndex, inputIndex - contentIndex, cancellationToken).ConfigureAwait (false);
-						break;
-					}
+				if (scanIndex < inputIndex) {
+					validator?.Write (input, scanIndex, inputIndex - scanIndex);
+					scannedLength += inputIndex - scanIndex;
+				}
 
-					contentLength += inputIndex - contentIndex;
+				pending = GetPendingNewLineLength (contentIndex, trimNewLine);
+
+				int count = (inputIndex - contentIndex) - pending;
+
+				if (count > 0) {
+					await OnScanContentReadAsync (type, contentIndex, count, cancellationToken).ConfigureAwait (false);
+					contentLength += count;
 				}
 			} while (boundaryType == MimeBoundaryType.None);
 
 			validator?.Flush ();
 
-			// FIXME: need to redesign the above loop so that we don't consume the last <CR><LF> that belongs to the boundary marker.
-			var isEmpty = contentLength == 0;
-
-			if (boundaryType != MimeBoundaryType.Eos && trimNewLine) {
-				// the last \r\n belongs to the boundary
-				if (contentLength > 0) {
-					if (input[inputIndex - 2] == (byte) '\r')
-						contentLength -= 2;
-					else
-						contentLength--;
-				}
+			if (pending > 0 && boundaryType == MimeBoundaryType.Eos) {
+				// The withheld newline sequence did not precede a boundary marker, so it belongs to the content.
+				await OnScanContentReadAsync (type, inputIndex - pending, pending, cancellationToken).ConfigureAwait (false);
+				contentLength += pending;
 			}
 
+			var isEmpty = scannedLength == 0;
 			var endOffset = beginOffset + contentLength;
 			var lines = GetLineCount (beginLineNumber, beginOffset, endOffset);
 
