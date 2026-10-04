@@ -25,6 +25,7 @@
 //
 
 using System.Text;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 
@@ -353,6 +354,399 @@ namespace UnitTests.Encodings {
 				}
 
 				Assert.That (DecodeInPlace (decode, encoded, payloadOnly), Is.EqualTo (expected), $"In-place: iteration={iteration}");
+			}
+		}
+
+		static void AssertMatchesScalar (DecodeFunc decode, byte[] encoded, bool payloadOnly, int[] chunkSizes, string message)
+		{
+			var scalar = GetDecodeFunc (CodePath.Scalar);
+			var expected = DecodeChunked (scalar, encoded, int.MaxValue, payloadOnly);
+
+			foreach (var chunkSize in chunkSizes) {
+				Assert.That (DecodeChunked (scalar, encoded, chunkSize, payloadOnly), Is.EqualTo (expected), $"Scalar: {message}, chunkSize={chunkSize}");
+				Assert.That (DecodeChunked (decode, encoded, chunkSize, payloadOnly), Is.EqualTo (expected), $"{message}, chunkSize={chunkSize}");
+			}
+
+			Assert.That (DecodeInPlace (decode, encoded, payloadOnly), Is.EqualTo (expected), $"In-place: {message}");
+		}
+
+		[Test]
+		public void TestDecodeAllLineLengths ([Values] CodePath path, [Values ("\n", "\r\n")] string newLine, [Values] bool backtick)
+		{
+			int[] chunkSizes = { 1, 13, 16, 32, 61, 64, int.MaxValue };
+			var decode = GetDecodeFunc (path);
+			var random = new Random (newLine.Length * 2 + (backtick ? 1 : 0));
+
+			// Every possible line length (the length octet can only encode 0-63) with a variety of data lengths so that
+			// the last line of each encoding is also of varying length.
+			for (int bytesPerLine = 1; bytesPerLine <= 63; bytesPerLine++) {
+				foreach (var length in new[] { bytesPerLine - 1, bytesPerLine, bytesPerLine * 3 + 1, bytesPerLine * 4 + random.Next (bytesPerLine) }) {
+					var data = new byte[length];
+
+					random.NextBytes (data);
+
+					var encoded = GetBytes (UUEncode (data, bytesPerLine, newLine, backtick));
+
+					foreach (var chunkSize in chunkSizes)
+						Assert.That (DecodeChunked (decode, encoded, chunkSize), Is.EqualTo (data), $"bytesPerLine={bytesPerLine}, length={length}, chunkSize={chunkSize}");
+
+					Assert.That (DecodeInPlace (decode, encoded), Is.EqualTo (data), $"In-place: bytesPerLine={bytesPerLine}, length={length}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestDecodeNonCanonicalCharacters ([Values] CodePath path)
+		{
+			// Every byte (other than '\r' and '\n') maps to a sextet: (c - 0x20) & 0x3F. So replacing each character of a
+			// valid encoding (including the length octets) with a random alternative that maps to the same sextet must
+			// produce exactly the same output.
+			int[] chunkSizes = { 1, 16, 61, int.MaxValue };
+			var decode = GetDecodeFunc (path);
+			var random = new Random (4242);
+
+			for (int iteration = 0; iteration < 200; iteration++) {
+				var data = new byte[random.Next (0, 800)];
+
+				random.NextBytes (data);
+
+				var encoded = GetBytes (UUEncode (data, random.Next (1, 64), random.Next (2) == 0 ? "\n" : "\r\n", random.Next (2) == 0, false));
+
+				for (int i = 0; i < encoded.Length; i++) {
+					if (encoded[i] == (byte) '\r' || encoded[i] == (byte) '\n')
+						continue;
+
+					byte alternative;
+
+					do {
+						alternative = (byte) (encoded[i] + (random.Next (4) << 6));
+					} while (alternative == (byte) '\r' || alternative == (byte) '\n');
+
+					encoded[i] = alternative;
+				}
+
+				foreach (var chunkSize in chunkSizes)
+					Assert.That (DecodeChunked (decode, encoded, chunkSize, true), Is.EqualTo (data), $"iteration={iteration}, chunkSize={chunkSize}");
+
+				Assert.That (DecodeInPlace (decode, encoded, true), Is.EqualTo (data), $"In-place: iteration={iteration}");
+			}
+		}
+
+		static string MutateLine (Random random, string line, ref string newLine)
+		{
+			const string chars = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`az~\t\0\u0080\u00ff";
+
+			switch (random.Next (14)) {
+			case 0: // strip trailing spaces (which some transports do)
+				return line.TrimEnd (' ');
+			case 1: // append trailing whitespace
+				return line + new string (' ', random.Next (1, 4));
+			case 2: // append a trailing checksum-like character
+				return line + chars[random.Next (chars.Length)];
+			case 3: // remove the last character
+				return line.Length > 1 ? line.Substring (0, line.Length - 1) : line;
+			case 4: // remove a character from the middle
+				return line.Length > 2 ? line.Remove (random.Next (1, line.Length), 1) : line;
+			case 5: // insert a character into the middle
+				return line.Insert (random.Next (1, line.Length + 1), chars[random.Next (chars.Length)].ToString ());
+			case 6: // change the length octet by +/- 1
+				return (char) (line[0] + (random.Next (2) == 0 ? 1 : -1)) + line.Substring (1);
+			case 7: // replace the length octet with a random character
+				return chars[random.Next (chars.Length)] + line.Substring (1);
+			case 8: // insert a '\r' or '\n' into the middle of the line
+				return line.Insert (random.Next (1, line.Length + 1), random.Next (2) == 0 ? "\r" : "\n");
+			case 9: // "\r\r\n"
+				newLine = "\r\r\n";
+				return line;
+			case 10: // lone '\r' (which is not a line break)
+				newLine = "\r";
+				return line;
+			case 11: // blank line(s)
+				newLine += random.Next (2) == 0 ? "\n" : "\r\n\r\n";
+				return line;
+			case 12: // join with the next line
+				newLine = string.Empty;
+				return line;
+			default: // a very long line
+				return line + line.Substring (1) + line.Substring (1);
+			}
+		}
+
+		static byte[] EncodeMalformed (Random random, out bool payloadOnly)
+		{
+			var data = new byte[random.Next (0, 1500)];
+			bool backtick = random.Next (2) == 0;
+			int bytesPerLine = random.Next (2) == 0 ? 45 : random.Next (1, 64);
+			string defaultNewLine = random.Next (2) == 0 ? "\n" : "\r\n";
+			int percent = random.Next (1, 30);
+
+			random.NextBytes (data);
+
+			// Note: some lines may consist entirely of spaces (or the "end" marker) when stripping trailing spaces, etc.
+			var lines = UUEncode (data, bytesPerLine, "\n", backtick, false).Split ('\n');
+			var builder = new StringBuilder ();
+
+			payloadOnly = random.Next (4) != 0;
+
+			if (!payloadOnly)
+				builder.Append ("begin 644 file.bin").Append (defaultNewLine);
+
+			for (int i = 0; i < lines.Length - 1; i++) {
+				var newLine = defaultNewLine;
+				var line = lines[i];
+
+				if (line.Length > 0 && random.Next (100) < percent)
+					line = MutateLine (random, line, ref newLine);
+
+				builder.Append (line).Append (newLine);
+			}
+
+			return GetBytes (builder.ToString ());
+		}
+
+		[Test]
+		public void TestDecodeMalformedLines ([Values] CodePath path)
+		{
+			int[] chunkSizes = { 1, 7, 16, 32, 46, 61, 63, 100, 4096 };
+			var decode = GetDecodeFunc (path);
+			var random = new Random (8675309);
+
+			for (int iteration = 0; iteration < 1000; iteration++) {
+				var encoded = EncodeMalformed (random, out var payloadOnly);
+
+				AssertMatchesScalar (decode, encoded, payloadOnly, chunkSizes, $"iteration={iteration}");
+			}
+		}
+
+		[Test]
+		public void TestDecodeVeryLongLines ([Values] CodePath path)
+		{
+			int[] chunkSizes = { 1, 16, 33, 1000, int.MaxValue };
+			var decode = GetDecodeFunc (path);
+			var random = new Random (31337);
+
+			for (int iteration = 0; iteration < 20; iteration++) {
+				var builder = new StringBuilder ();
+				int lines = random.Next (1, 4);
+
+				for (int i = 0; i < lines; i++) {
+					builder.Append ((char) random.Next (0x21, 0x60));
+
+					// A line far longer than its length octet allows, with no line breaks.
+					int length = random.Next (100, 5000);
+					for (int j = 0; j < length; j++)
+						builder.Append ((char) random.Next (0x20, 0x61));
+
+					builder.Append (random.Next (2) == 0 ? "\n" : "\r\n");
+				}
+
+				AssertMatchesScalar (decode, GetBytes (builder.ToString ()), true, chunkSizes, $"iteration={iteration}");
+			}
+		}
+
+		unsafe delegate int PointerDecodeFunc (UUDecoder decoder, byte* input, int length, byte* output, int outputLength);
+
+		static unsafe PointerDecodeFunc GetPointerDecodeFunc (CodePath path)
+		{
+			switch (path) {
+			case CodePath.Ssse3:
+				if (!Ssse3.IsSupported)
+					Assert.Ignore ("SSSE3 is not supported on this host.");
+
+				return (decoder, input, length, output, outputLength) => decoder.HwAccelDecode (input, length, output, outputLength, false);
+			case CodePath.Avx2:
+				if (!Avx2.IsSupported)
+					Assert.Ignore ("AVX2 is not supported on this host.");
+
+				return (decoder, input, length, output, outputLength) => decoder.HwAccelDecode (input, length, output, outputLength, true);
+			case CodePath.AdvSimd:
+				if (!AdvSimd.Arm64.IsSupported || !BitConverter.IsLittleEndian || Ssse3.IsSupported)
+					Assert.Ignore ("AdvSimd (Arm64) is not supported on this host.");
+
+				return (decoder, input, length, output, outputLength) => decoder.HwAccelDecode (input, length, output, outputLength, false);
+			default:
+				Assert.Ignore ("The scalar decoder does not take an output length.");
+				return null;
+			}
+		}
+
+		[Test]
+		public unsafe void TestDecodeStaysWithinBounds ([Values] CodePath path)
+		{
+			// Surround the input and output with guard bytes to verify that the SIMD kernels never write past the end of
+			// the output buffer, and that they never use bytes beyond the end of the input. The input guard bytes are
+			// well-formed uuencoded lines so that reading them would change the decoded output.
+			var inputGuard = GetBytes ("M" + new string ('A', 60) + "\nM" + new string ('B', 60) + "\n");
+			int[] chunkSizes = { 1, 16, 17, 33, 62, 64, 100, int.MaxValue };
+			var decode = GetPointerDecodeFunc (path);
+			var scalar = GetDecodeFunc (CodePath.Scalar);
+			const int OutputGuardLength = 64;
+			const byte Sentinel = 0xA5;
+			var random = new Random (1999);
+
+			for (int iteration = 0; iteration < 500; iteration++) {
+				byte[] encoded;
+				bool payloadOnly;
+
+				if (random.Next (2) == 0) {
+					var data = new byte[random.Next (0, 1000)];
+					random.NextBytes (data);
+					payloadOnly = random.Next (2) == 0;
+					encoded = GetBytes (UUEncode (data, random.Next (1, 64), random.Next (2) == 0 ? "\n" : "\r\n", random.Next (2) == 0, !payloadOnly));
+				} else {
+					encoded = EncodeMalformed (random, out payloadOnly);
+				}
+
+				foreach (var chunkSize in chunkSizes) {
+					var expected = DecodeChunked (scalar, encoded, chunkSize, payloadOnly);
+					var decoder = new UUDecoder (payloadOnly);
+					var actual = new List<byte> ();
+					int size = Math.Max (1, Math.Min (chunkSize, encoded.Length));
+
+					for (int index = 0; index < encoded.Length; index += size) {
+						int n = Math.Min (size, encoded.Length - index);
+						var input = new byte[n + inputGuard.Length];
+						int outputLength = decoder.EstimateOutputLength (n);
+						var output = new byte[outputLength + OutputGuardLength];
+
+						Buffer.BlockCopy (encoded, index, input, 0, n);
+						Buffer.BlockCopy (inputGuard, 0, input, n, inputGuard.Length);
+						output.AsSpan ().Fill (Sentinel);
+
+						fixed (byte* inptr = input, outptr = output)
+							n = decode (decoder, inptr, n, outptr, outputLength);
+
+						Assert.That (n, Is.LessThanOrEqualTo (outputLength), $"iteration={iteration}, chunkSize={chunkSize}: output length");
+
+						for (int i = outputLength; i < output.Length; i++) {
+							if (output[i] != Sentinel)
+								Assert.Fail ($"iteration={iteration}, chunkSize={chunkSize}: wrote past the end of the output buffer at offset {i - outputLength}");
+						}
+
+						actual.AddRange (output.AsSpan (0, n).ToArray ());
+					}
+
+					Assert.That (actual.ToArray (), Is.EqualTo (expected), $"iteration={iteration}, chunkSize={chunkSize}");
+				}
+			}
+		}
+
+		// Allocates memory surrounded by inaccessible guard pages so that any out-of-bounds read or write faults immediately.
+		sealed unsafe class GuardedMemory : IDisposable
+		{
+			const uint MEM_COMMIT = 0x1000, MEM_RESERVE = 0x2000, MEM_RELEASE = 0x8000;
+			const uint PAGE_NOACCESS = 0x01, PAGE_READWRITE = 0x04;
+			const int PROT_NONE = 0, PROT_READ = 1, PROT_WRITE = 2, MAP_PRIVATE = 2;
+
+			[DllImport ("kernel32.dll", SetLastError = true)]
+			static extern void* VirtualAlloc (void* address, nuint size, uint allocationType, uint protect);
+
+			[DllImport ("kernel32.dll", SetLastError = true)]
+			static extern bool VirtualProtect (void* address, nuint size, uint newProtect, out uint oldProtect);
+
+			[DllImport ("kernel32.dll", SetLastError = true)]
+			static extern bool VirtualFree (void* address, nuint size, uint freeType);
+
+			[DllImport ("libc", SetLastError = true)]
+			static extern void* mmap (void* address, nuint length, int prot, int flags, int fd, nint offset);
+
+			[DllImport ("libc", SetLastError = true)]
+			static extern int mprotect (void* address, nuint length, int prot);
+
+			[DllImport ("libc", SetLastError = true)]
+			static extern int munmap (void* address, nuint length);
+
+			readonly byte* allocation;
+			readonly nuint allocationSize;
+
+			// The usable region is [Start, Start + Length), and either Start immediately follows the leading guard page or
+			// Start + Length immediately precedes the trailing guard page.
+			public readonly byte* Start;
+			public readonly int Length;
+
+			public GuardedMemory (int length, bool alignEnd)
+			{
+				int pageSize = Environment.SystemPageSize;
+				int dataPages = Math.Max (1, (length + pageSize - 1) / pageSize);
+
+				allocationSize = (nuint) ((dataPages + 2) * pageSize);
+
+				if (OperatingSystem.IsWindows ()) {
+					allocation = (byte*) VirtualAlloc (null, allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+					Assert.That ((IntPtr) allocation, Is.Not.EqualTo (IntPtr.Zero), "VirtualAlloc");
+					Assert.That (VirtualProtect (allocation, (nuint) pageSize, PAGE_NOACCESS, out _), Is.True, "VirtualProtect");
+					Assert.That (VirtualProtect (allocation + (dataPages + 1) * pageSize, (nuint) pageSize, PAGE_NOACCESS, out _), Is.True, "VirtualProtect");
+				} else {
+					int mapAnonymous = OperatingSystem.IsMacOS () ? 0x1000 : 0x20;
+
+					allocation = (byte*) mmap (null, allocationSize, PROT_READ | PROT_WRITE, MAP_PRIVATE | mapAnonymous, -1, 0);
+					Assert.That ((IntPtr) allocation, Is.Not.EqualTo ((IntPtr) (-1)), "mmap");
+					Assert.That (mprotect (allocation, (nuint) pageSize, PROT_NONE), Is.EqualTo (0), "mprotect");
+					Assert.That (mprotect (allocation + (dataPages + 1) * pageSize, (nuint) pageSize, PROT_NONE), Is.EqualTo (0), "mprotect");
+				}
+
+				byte* data = allocation + pageSize;
+
+				Start = alignEnd ? data + dataPages * pageSize - length : data;
+				Length = length;
+			}
+
+			public void Dispose ()
+			{
+				if (OperatingSystem.IsWindows ())
+					VirtualFree (allocation, 0, MEM_RELEASE);
+				else
+					munmap (allocation, allocationSize);
+			}
+		}
+
+		[Test]
+		public unsafe void TestDecodeDoesNotAccessMemoryOutOfBounds ([Values] CodePath path, [Values] bool alignEnd)
+		{
+			// Places each chunk of input and the output buffer immediately before (or after) an inaccessible guard page so
+			// that reading or writing even a single byte out of bounds crashes rather than going unnoticed.
+			int[] chunkSizes = { 1, 15, 16, 17, 31, 32, 33, 61, 62, 64, 100, 4096 };
+			var decode = GetPointerDecodeFunc (path);
+			var scalar = GetDecodeFunc (CodePath.Scalar);
+			var random = new Random (alignEnd ? 2024 : 2025);
+
+			for (int iteration = 0; iteration < 100; iteration++) {
+				byte[] encoded;
+				bool payloadOnly;
+
+				if (random.Next (2) == 0) {
+					var data = new byte[random.Next (0, 1000)];
+					random.NextBytes (data);
+					payloadOnly = random.Next (2) == 0;
+					encoded = GetBytes (UUEncode (data, random.Next (1, 64), random.Next (2) == 0 ? "\n" : "\r\n", random.Next (2) == 0, !payloadOnly));
+				} else {
+					encoded = EncodeMalformed (random, out payloadOnly);
+				}
+
+				foreach (var chunkSize in chunkSizes) {
+					var expected = DecodeChunked (scalar, encoded, chunkSize, payloadOnly);
+					var decoder = new UUDecoder (payloadOnly);
+					var actual = new List<byte> ();
+					int size = Math.Max (1, Math.Min (chunkSize, encoded.Length));
+
+					for (int index = 0; index < encoded.Length; index += size) {
+						int n = Math.Min (size, encoded.Length - index);
+						int outputLength = decoder.EstimateOutputLength (n);
+
+						using var input = new GuardedMemory (n, alignEnd);
+						using var output = new GuardedMemory (outputLength, alignEnd);
+
+						encoded.AsSpan (index, n).CopyTo (new Span<byte> (input.Start, n));
+
+						n = decode (decoder, input.Start, n, output.Start, outputLength);
+
+						Assert.That (n, Is.LessThanOrEqualTo (outputLength), $"iteration={iteration}, chunkSize={chunkSize}: output length");
+
+						actual.AddRange (new ReadOnlySpan<byte> (output.Start, n).ToArray ());
+					}
+
+					Assert.That (actual.ToArray (), Is.EqualTo (expected), $"iteration={iteration}, chunkSize={chunkSize}");
+				}
 			}
 		}
 	}

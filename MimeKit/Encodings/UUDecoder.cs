@@ -675,7 +675,7 @@ namespace MimeKit.Encodings {
 		}
 
 		[SkipLocalsInit]
-		unsafe int HwAccelDecode (byte* input, int length, byte* output, int outputLength, bool useAvx2)
+		internal unsafe int HwAccelDecode (byte* input, int length, byte* output, int outputLength, bool useAvx2)
 		{
 			if (state == UUDecoderState.Ended)
 				return 0;
