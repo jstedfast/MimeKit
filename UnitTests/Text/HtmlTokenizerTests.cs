@@ -3266,10 +3266,25 @@ namespace UnitTests.Text {
 			const string content = "</>";
 			var tokenizer = CreateTokenizer (content);
 
-			// TODO: is this the expected behavior?
+			// Per the HTML5 spec, "</>" is a missing-end-tag-name parse error and is dropped.
 			Assert.That (tokenizer.ReadNextToken (out HtmlToken _), Is.False);
-			//Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
-			//Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("</>"));
+		}
+
+		[Test]
+		public void TestIncompleteEndTagBetweenText ()
+		{
+			const string content = "a</>b";
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("a"));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("b"));
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
 
 		[Test]

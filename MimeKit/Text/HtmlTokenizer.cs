@@ -998,9 +998,10 @@ namespace MimeKit.Text {
 			data.Append (c);
 
 			switch (c) {
-			case '>': // parse error
+			case '>': // missing-end-tag-name parse error
+				// Note: per the HTML5 spec, "</>" is simply dropped (nothing is emitted).
 				TokenizerState = HtmlTokenizerState.Data;
-				data.Length = 0; // FIXME: this is probably wrong
+				data.Length = 0;
 				break;
 			default:
 				if (IsAsciiLetter (c)) {
