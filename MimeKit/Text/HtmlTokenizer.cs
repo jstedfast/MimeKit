@@ -73,6 +73,7 @@ namespace MimeKit.Text {
 		char quote;
 
 		bool decodeCharacterReferences = true;
+		bool scriptingEnabled = true;
 		int linePosition = 1;
 		int lineNumber = 1;
 
@@ -196,6 +197,28 @@ namespace MimeKit.Text {
 		/// <value><see langword="true" /> if truncated tags should be ignored; otherwise, <see langword="false" />.</value>
 		public bool IgnoreTruncatedTags {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get or set whether the tokenizer should behave as if scripting is enabled.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether the tokenizer should behave as if scripting is enabled.</para>
+		/// <para>This corresponds to the scripting flag described in the HTML5 specification and controls
+		/// how the content of <c>&lt;noscript&gt;</c> elements is tokenized. When scripting is enabled, the
+		/// content of a <c>&lt;noscript&gt;</c> element is treated as raw text and emitted as an
+		/// <see cref="HtmlDataToken"/>. When scripting is disabled, the content is tokenized as normal markup
+		/// (i.e. as tags, comments and character data).</para>
+		/// <note type="security">If the tokens are being used to filter HTML that will later be rendered by
+		/// another application (such as a web browser), then this value should match whether scripting will
+		/// be enabled in that application. Otherwise, the renderer may interpret the content of
+		/// <c>&lt;noscript&gt;</c> elements differently than the tokenizer did, allowing markup to bypass the
+		/// filter. See <see cref="HtmlToHtml.ScriptingEnabled"/> for details.</note>
+		/// </remarks>
+		/// <value><see langword="true" /> if the tokenizer should behave as if scripting is enabled; otherwise, <see langword="false" />.</value>
+		public bool ScriptingEnabled {
+			get { return scriptingEnabled; }
+			set { scriptingEnabled = value; }
 		}
 
 		/// <summary>
@@ -638,9 +661,12 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.ScriptData;
 					break;
 				case HtmlTagId.NoScript:
-					// TODO: only switch into the RawText state if scripting is enabled
-					TokenizerState = HtmlTokenizerState.RawText;
-					activeTagName = tag.Name;
+					if (scriptingEnabled) {
+						TokenizerState = HtmlTokenizerState.RawText;
+						activeTagName = tag.Name;
+					} else {
+						TokenizerState = HtmlTokenizerState.Data;
+					}
 					break;
 				case HtmlTagId.Html:
 					TokenizerState = HtmlTokenizerState.Data;

@@ -3313,5 +3313,68 @@ namespace UnitTests.Text {
 			Assert.That (tag.Id, Is.EqualTo (HtmlTagId.NoScript));
 			Assert.That (tokenizer.TokenizerState, Is.EqualTo (HtmlTokenizerState.RawText));
 		}
+
+		[Test]
+		public void TestNoScriptScriptingEnabled ()
+		{
+			const string content = "<noscript><b>bold</b></noscript>";
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ScriptingEnabled, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Id, Is.EqualTo (HtmlTagId.NoScript));
+			Assert.That (tokenizer.TokenizerState, Is.EqualTo (HtmlTokenizerState.RawText));
+
+			// Note: the RawText state may emit the content as multiple data tokens
+			var text = string.Empty;
+
+			while (tokenizer.ReadNextToken (out token) && token.Kind == HtmlTokenKind.Data)
+				text += ((HtmlDataToken) token).Data;
+
+			Assert.That (text, Is.EqualTo ("<b>bold</b>"));
+
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Id, Is.EqualTo (HtmlTagId.NoScript));
+			Assert.That (((HtmlTagToken) token).IsEndTag, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
+		[Test]
+		public void TestNoScriptScriptingDisabled ()
+		{
+			const string content = "<noscript><b>bold</b></noscript>";
+			var tokenizer = CreateTokenizer (content);
+
+			tokenizer.ScriptingEnabled = false;
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Id, Is.EqualTo (HtmlTagId.NoScript));
+			Assert.That (tokenizer.TokenizerState, Is.EqualTo (HtmlTokenizerState.Data));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Id, Is.EqualTo (HtmlTagId.B));
+			Assert.That (((HtmlTagToken) token).IsEndTag, Is.False);
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("bold"));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Id, Is.EqualTo (HtmlTagId.B));
+			Assert.That (((HtmlTagToken) token).IsEndTag, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Id, Is.EqualTo (HtmlTagId.NoScript));
+			Assert.That (((HtmlTagToken) token).IsEndTag, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
 	}
 }

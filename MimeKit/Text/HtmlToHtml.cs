@@ -121,6 +121,51 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		/// <summary>
+		/// Get or set whether the HTML should be tokenized as if scripting is enabled.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether the HTML should be tokenized as if scripting is enabled.</para>
+		/// <para>This corresponds to the scripting flag described in the HTML5 specification and controls
+		/// how the content of <c>&lt;noscript&gt;</c> elements is tokenized (see
+		/// <see cref="HtmlTokenizer.ScriptingEnabled"/>). When <see langword="true" />, the content of a
+		/// <c>&lt;noscript&gt;</c> element is treated as raw text and is written to the output verbatim
+		/// <em>without</em> being passed to the <see cref="HtmlTagCallback"/>. When <see langword="false" />,
+		/// the content is tokenized as normal markup and each tag is passed to the <see cref="HtmlTagCallback"/>.</para>
+		/// <note type="security">
+		/// <para>If the <see cref="HtmlTagCallback"/> is being used to filter the HTML (for example, to remove
+		/// remote images or event handler attributes), then the output is only filtered correctly if this
+		/// value matches whether scripting is enabled in the application that will eventually render the
+		/// output. A mismatch in either direction allows content to bypass the callback:</para>
+		/// <list type="bullet">
+		/// <item><description>If this value is <see langword="true" /> but the output is rendered with
+		/// scripting disabled (as is typical for email clients), markup inside <c>&lt;noscript&gt;</c>
+		/// elements, such as tracking images, remote content and forms, is never seen by the callback but
+		/// <em>is</em> rendered.</description></item>
+		/// <item><description>If this value is <see langword="false" /> but the output is rendered with
+		/// scripting enabled, a <c>&lt;/noscript&gt;</c> hidden inside a comment or a raw text element such as
+		/// <c>&lt;style&gt;</c> within a <c>&lt;noscript&gt;</c> element will close the
+		/// <c>&lt;noscript&gt;</c> element in the renderer, allowing markup that the callback never saw
+		/// (including script event handlers) to be rendered. This is a cross-site scripting (XSS)
+		/// vulnerability.</description></item>
+		/// </list>
+		/// <para>The default value is <see langword="true" /> because a mismatch then cannot lead to script
+		/// execution, since any markup that bypasses the callback is only rendered when scripting is disabled.
+		/// Applications that render with scripting disabled should set this value to <see langword="false" />
+		/// so that the content of <c>&lt;noscript&gt;</c> elements is filtered. To produce output that is
+		/// interpreted the same way regardless of whether scripting is enabled, set this value to
+		/// <see langword="false" /> and remove the <c>&lt;noscript&gt;</c> start and end tags (but not their
+		/// content) in the <see cref="HtmlTagCallback"/> by setting <see cref="HtmlTagContext.DeleteTag"/> and
+		/// <see cref="HtmlTagContext.DeleteEndTag"/>.</para>
+		/// <para>Note that <see cref="HtmlToHtml"/> is not an HTML sanitizer. For displaying untrusted HTML,
+		/// use a dedicated HTML sanitizer library.</para>
+		/// </note>
+		/// </remarks>
+		/// <value><see langword="true" /> if the HTML should be tokenized as if scripting is enabled; otherwise, <see langword="false" />.</value>
+		public bool ScriptingEnabled {
+			get; set;
+		} = true;
+
 #if false
 		/// <summary>
 		/// Get or set whether the converter should only output an HTML fragment.
@@ -226,7 +271,8 @@ namespace MimeKit.Text {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
-					DecodeCharacterReferences = false
+					DecodeCharacterReferences = false,
+					ScriptingEnabled = ScriptingEnabled
 				};
 				HtmlToHtmlTagContext? ctx;
 

@@ -138,6 +138,15 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `AppointmentCounterProposal`, `AppointmentProposedStartWhole` and `AppointmentProposedEndWhole`
   named property IDs.
 
+### Other Enhancements
+
+* Added `HtmlTokenizer.ScriptingEnabled` and `HtmlToHtml.ScriptingEnabled`, which correspond to the
+  HTML5 scripting flag and control whether `<noscript>` content is tokenized as raw text (`true`, the
+  default and previous behavior) or as normal markup (`false`). When `true`, `<noscript>` content is
+  not passed to the `HtmlToHtml.HtmlTagCallback`, so applications that use the callback to filter HTML
+  that will be rendered with scripting disabled (as is typical for email) should set it to `false`.
+  See the `HtmlToHtml.ScriptingEnabled` documentation for the security implications of each setting.
+
 ### Performance
 
 * Optimized `MimeMessage` address header tracking to use a lazily allocated array instead of a
