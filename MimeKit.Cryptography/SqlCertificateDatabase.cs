@@ -482,7 +482,10 @@ namespace MimeKit.Cryptography {
 			var serialNumber = GetParameterName (CertificateColumnNames.SerialNumber);
 			var fingerprint = GetParameterName (CertificateColumnNames.Fingerprint);
 
-			// FIXME: Is this really the best way to query for an exact match of a certificate?
+			// Note: The issuer name and serial number uniquely identify a certificate (rfc5280), while the fingerprint
+			// (a SHA-1 hash of the DER-encoded certificate) guards against misbehaving CAs that reuse serial numbers.
+			// There is a matching (ISSUERNAME, SERIALNUMBER, FINGERPRINT) index, so this lookup is efficient. Comparing
+			// the raw CERTIFICATE blob instead is not portable since some backends (e.g. SQL Server) cannot index it.
 			query = query.Append (" WHERE ")
 				.Append (CertificateColumnNames.IssuerName).Append (" = ").Append (issuerName).Append (" AND ")
 				.Append (CertificateColumnNames.SerialNumber).Append (" = ").Append (serialNumber).Append (" AND ")
@@ -580,9 +583,9 @@ namespace MimeKit.Cryptography {
 
 			query = query.Append (" WHERE ");
 
-			// FIXME: We could create an X509CertificateDatabaseSelector subclass of X509CertStoreSelector that
-			// adds properties like bool Trusted, bool Anchor, and bool HasPrivateKey ? Then we could drop the
-			// bool method arguments...
+			// Note: trustedAnchorsOnly and requirePrivateKey are passed as separate arguments rather than as properties on
+			// an X509CertStoreSelector subclass because they describe the database record (TRUSTED, ANCHOR, PRIVATEKEY)
+			// rather than the certificate itself, which is all that ISelector<X509Certificate>.Match() can examine.
 			if (trustedAnchorsOnly) {
 				var trusted = GetParameterName (CertificateColumnNames.Trusted);
 				var anchor = GetParameterName (CertificateColumnNames.Anchor);
