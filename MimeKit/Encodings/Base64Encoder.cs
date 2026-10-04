@@ -384,7 +384,12 @@ namespace MimeKit.Encodings {
 				// str = [...|KLJK|HIGH|EFDE|BCAB]
 				str = Avx512Vbmi.PermuteVar64x8 (str, shuffleVecVbmi);
 
-				// TODO: This can be achieved faster with multishift
+				// Note: On .NET 9 and later, the following 4 instructions could be replaced by a single VPMULTISHIFTQB
+				// (Avx512Vbmi.MultiShift) using the per-qword shift control 0x3036242a1016040a (as in Wojciech Mula's
+				// reference implementation), relying on the subsequent PermuteVar64x8 only using the low 6 bits of each
+				// index. This was not done because the gain is negligible (with the standard 76-character line length,
+				// this loop only executes once per line) and validating it requires AVX512-VBMI capable hardware.
+				//
 				// Consider the first 4 bytes - BCAB
 				// temp1	= [...|0000cccc|cc000000|aaaaaa00|00000000]
 				Vector512<ushort> temp1 = (str.AsUInt16 () & maskAC);
