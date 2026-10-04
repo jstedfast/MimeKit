@@ -895,6 +895,8 @@ namespace MimeKit.Cryptography {
 		/// <para>If the certificate already exists in the database and <paramref name="trusted"/> is <see langword="true" />,
 		/// then the IsTrusted state is updated otherwise the certificate is added to the database with the
 		/// specified trust.</para>
+		/// <note type="note">The certificate database is accessed synchronously because <see cref="IX509CertificateDatabase"/>
+		/// does not provide asynchronous APIs, so this method will block the calling thread until the import has completed.</note>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="certificate">The certificate.</param>
@@ -908,7 +910,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Task ImportAsync (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default)
 		{
-			// TODO: Add Async APIs to IX509CertificateDatabase
+			// Note: IX509CertificateDatabase does not have async APIs, so this is performed synchronously.
 			Import (certificate, trusted, cancellationToken);
 			return Task.FromResult (true);
 		}
@@ -945,7 +947,9 @@ namespace MimeKit.Cryptography {
 		/// Asynchronously import a DER-encoded certificate stream.
 		/// </summary>
 		/// <remarks>
-		/// Asynchronously imports the certificate(s).
+		/// <para>Asynchronously imports the certificate(s).</para>
+		/// <note type="note">The certificate database is accessed synchronously because <see cref="IX509CertificateDatabase"/>
+		/// does not provide asynchronous APIs, so this method will block the calling thread until the import has completed.</note>
 		/// </remarks>
 		/// <returns>An asynchronous task context.</returns>
 		/// <param name="stream">The raw certificate(s).</param>
@@ -959,7 +963,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public Task ImportAsync (Stream stream, bool trusted, CancellationToken cancellationToken = default)
 		{
-			// TODO: Add Async APIs to IX509CertificateDatabase
+			// Note: IX509CertificateDatabase does not have async APIs, so this is performed synchronously.
 			Import (stream, trusted, cancellationToken);
 			return Task.FromResult (true);
 		}
