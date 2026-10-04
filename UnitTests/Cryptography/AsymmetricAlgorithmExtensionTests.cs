@@ -27,8 +27,9 @@
 using System.Security.Cryptography;
 using System.Diagnostics.CodeAnalysis;
 
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit.Cryptography;
@@ -42,81 +43,66 @@ namespace UnitTests.Cryptography {
 		{
 			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricKeyParameter (null));
 			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricCipherKeyPair (null));
-
-			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm ((AsymmetricKeyParameter) null));
-			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm ((AsymmetricCipherKeyPair) null));
 		}
 
-		static void AssertAreEqual (byte[] expected, byte[] actual, string paramName)
+		static void AssertAreEqual (byte[] expected, BigInteger actual, string paramName)
 		{
-			if (expected == null) {
-				Assert.That (actual, Is.Null, paramName);
-				return;
+			Assert.That (expected, Is.Not.Null, $"Expected {paramName} is null");
+			Assert.That (actual, Is.Not.Null, $"Actual {paramName} is null");
+			Assert.That (actual, Is.EqualTo (new BigInteger (1, expected)), $"{paramName} are not equal");
+		}
+
+		static void AssertDsaParameters (DSAParameters expected, DsaParameters actual)
+		{
+			AssertAreEqual (expected.P, actual.P, "P");
+			AssertAreEqual (expected.Q, actual.Q, "Q");
+			AssertAreEqual (expected.G, actual.G, "G");
+
+			if (expected.Seed != null) {
+				Assert.That (actual.ValidationParameters, Is.Not.Null, "ValidationParameters");
+				Assert.That (actual.ValidationParameters.Counter, Is.EqualTo (expected.Counter), "Counter");
+				Assert.That (actual.ValidationParameters.GetSeed (), Is.EqualTo (expected.Seed), "Seed");
+			} else {
+				Assert.That (actual.ValidationParameters, Is.Null, "ValidationParameters");
 			}
-
-			Assert.That (actual, Is.Not.Null, paramName);
-			Assert.That (actual.Length, Is.EqualTo (expected.Length), $"Lengths do not match: {paramName}");
-
-			var expectedBigInteger = new BigInteger (1, expected);
-			var actualBigInteger = new BigInteger (1, actual);
-
-			Assert.That (actualBigInteger, Is.EqualTo (expectedBigInteger), $"{paramName} are not equal");
 		}
 
 		static void AssertDSA (DSA dsa)
 		{
 			// first, check private key conversion
 			var expected = dsa.ExportParameters (true);
-			var keyParameter = dsa.AsAsymmetricKeyParameter ();
-			DSA asymmetricAlgorithm;
+			var privateKey = dsa.AsAsymmetricKeyParameter () as DsaPrivateKeyParameters;
 
-			try {
-				asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
-			} catch {
-				Console.WriteLine ("System.Security DSA X parameter = {0}", expected.X.AsHex ());
-				Console.WriteLine ("Bouncy Castle DSA X parameter   = {0}", ((DsaPrivateKeyParameters) keyParameter).X.ToByteArrayUnsigned ().AsHex ());
-				throw;
-			}
-
-			var actual = asymmetricAlgorithm.ExportParameters (true);
-
-			Assert.That (actual.Counter, Is.EqualTo (expected.Counter), "Counter");
-			AssertAreEqual (expected.Seed, actual.Seed, "Seed");
-			AssertAreEqual (expected.G, actual.G, "G");
-			AssertAreEqual (expected.P, actual.P, "P");
-			AssertAreEqual (expected.Q, actual.Q, "Q");
-			AssertAreEqual (expected.X, actual.X, "X");
-			AssertAreEqual (expected.Y, actual.Y, "Y");
+			Assert.That (privateKey, Is.Not.Null, "AsAsymmetricKeyParameter (private)");
+			Assert.That (privateKey.IsPrivate, Is.True, "IsPrivate");
+			AssertDsaParameters (expected, privateKey.Parameters);
+			AssertAreEqual (expected.X, privateKey.X, "X");
 
 			// test AsymmetricCipherKeyPair conversion
 			var keyPair = dsa.AsAsymmetricCipherKeyPair ();
-			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as DSA;
-			actual = asymmetricAlgorithm.ExportParameters (true);
+			privateKey = keyPair.Private as DsaPrivateKeyParameters;
+			var publicKey = keyPair.Public as DsaPublicKeyParameters;
 
-			Assert.That (actual.Counter, Is.EqualTo (expected.Counter), "Counter");
-			AssertAreEqual (expected.Seed, actual.Seed, "Seed");
-			AssertAreEqual (expected.G, actual.G, "G");
-			AssertAreEqual (expected.P, actual.P, "P");
-			AssertAreEqual (expected.Q, actual.Q, "Q");
-			AssertAreEqual (expected.X, actual.X, "X");
-			AssertAreEqual (expected.Y, actual.Y, "Y");
+			Assert.That (privateKey, Is.Not.Null, "AsAsymmetricCipherKeyPair.Private");
+			Assert.That (publicKey, Is.Not.Null, "AsAsymmetricCipherKeyPair.Public");
+			AssertDsaParameters (expected, privateKey.Parameters);
+			AssertDsaParameters (expected, publicKey.Parameters);
+			AssertAreEqual (expected.X, privateKey.X, "X");
+			AssertAreEqual (expected.Y, publicKey.Y, "Y");
 
 			// test public key conversion
 			expected = dsa.ExportParameters (false);
 			using var pubdsa = new DSACryptoServiceProvider ();
 			pubdsa.ImportParameters (expected);
 
-			keyParameter = pubdsa.AsAsymmetricKeyParameter ();
-			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as DSA;
-			actual = asymmetricAlgorithm.ExportParameters (false);
+			publicKey = pubdsa.AsAsymmetricKeyParameter () as DsaPublicKeyParameters;
 
-			Assert.That (actual.Counter, Is.EqualTo (expected.Counter), "Counter");
-			AssertAreEqual (expected.Seed, actual.Seed, "Seed");
-			AssertAreEqual (expected.G, actual.G, "G");
-			AssertAreEqual (expected.P, actual.P, "P");
-			AssertAreEqual (expected.Q, actual.Q, "Q");
-			AssertAreEqual (expected.X, actual.X, "X");
-			AssertAreEqual (expected.Y, actual.Y, "Y");
+			Assert.That (publicKey, Is.Not.Null, "AsAsymmetricKeyParameter (public)");
+			Assert.That (publicKey.IsPrivate, Is.False, "IsPrivate");
+			AssertDsaParameters (expected, publicKey.Parameters);
+			AssertAreEqual (expected.Y, publicKey.Y, "Y");
+
+			Assert.Throws<ArgumentException> (() => pubdsa.AsAsymmetricCipherKeyPair ());
 		}
 
 		[Test]
@@ -152,50 +138,48 @@ namespace UnitTests.Cryptography {
 		{
 			// first, check private key conversion
 			var expected = rsa.ExportParameters (true);
-			var keyParameter = rsa.AsAsymmetricKeyParameter ();
-			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
-			var actual = asymmetricAlgorithm.ExportParameters (true);
+			var privateKey = rsa.AsAsymmetricKeyParameter () as RsaPrivateCrtKeyParameters;
 
-			AssertAreEqual (expected.D, actual.D, "D");
-			AssertAreEqual (expected.DP, actual.DP, "DP");
-			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
-			AssertAreEqual (expected.P, actual.P, "P");
-			AssertAreEqual (expected.Q, actual.Q, "Q");
-			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
-			AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
-			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+			Assert.That (privateKey, Is.Not.Null, "AsAsymmetricKeyParameter (private)");
+			AssertRsaPrivateKey (expected, privateKey);
 
 			// test AsymmetricCipherKeyPair conversion
 			var keyPair = rsa.AsAsymmetricCipherKeyPair ();
-			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as RSA;
-			actual = asymmetricAlgorithm.ExportParameters (true);
+			privateKey = keyPair.Private as RsaPrivateCrtKeyParameters;
 
-			AssertAreEqual (expected.D, actual.D, "D");
-			AssertAreEqual (expected.DP, actual.DP, "DP");
-			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
-			AssertAreEqual (expected.P, actual.P, "P");
-			AssertAreEqual (expected.Q, actual.Q, "Q");
-			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
-			AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
-			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+			Assert.That (privateKey, Is.Not.Null, "AsAsymmetricCipherKeyPair.Private");
+			AssertRsaPrivateKey (expected, privateKey);
+			AssertRsaPublicKey (expected, keyPair.Public as RsaKeyParameters);
 
 			// test public key conversion
 			expected = rsa.ExportParameters (false);
 			using var pubrsa = new RSACryptoServiceProvider ();
 			pubrsa.ImportParameters (expected);
 
-			keyParameter = pubrsa.AsAsymmetricKeyParameter ();
-			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as RSA;
-			actual = asymmetricAlgorithm.ExportParameters (false);
+			AssertRsaPublicKey (expected, pubrsa.AsAsymmetricKeyParameter () as RsaKeyParameters);
 
-			AssertAreEqual (expected.D, actual.D, "D");
-			AssertAreEqual (expected.DP, actual.DP, "DP");
-			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
+			Assert.Throws<ArgumentException> (() => pubrsa.AsAsymmetricCipherKeyPair ());
+		}
+
+		static void AssertRsaPrivateKey (RSAParameters expected, RsaPrivateCrtKeyParameters actual)
+		{
+			Assert.That (actual.IsPrivate, Is.True, "IsPrivate");
+			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+			AssertAreEqual (expected.Exponent, actual.PublicExponent, "Exponent");
+			AssertAreEqual (expected.D, actual.Exponent, "D");
 			AssertAreEqual (expected.P, actual.P, "P");
 			AssertAreEqual (expected.Q, actual.Q, "Q");
-			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
-			AssertAreEqual (expected.InverseQ, actual.InverseQ, "InverseQ");
+			AssertAreEqual (expected.DP, actual.DP, "DP");
+			AssertAreEqual (expected.DQ, actual.DQ, "DQ");
+			AssertAreEqual (expected.InverseQ, actual.QInv, "InverseQ");
+		}
+
+		static void AssertRsaPublicKey (RSAParameters expected, RsaKeyParameters actual)
+		{
+			Assert.That (actual, Is.Not.Null, "RSA public key");
+			Assert.That (actual.IsPrivate, Is.False, "IsPrivate");
 			AssertAreEqual (expected.Modulus, actual.Modulus, "Modulus");
+			AssertAreEqual (expected.Exponent, actual.Exponent, "Exponent");
 		}
 
 		[Test]
@@ -221,44 +205,62 @@ namespace UnitTests.Cryptography {
 #endif
 		}
 
+		static void AssertECDomain (ECParameters expected, ECDomainParameters actual)
+		{
+			var namedCurve = ECNamedCurveTable.GetByOid (new DerObjectIdentifier (expected.Curve.Oid.Value));
+
+			Assert.That (namedCurve, Is.Not.Null, "Named curve");
+			Assert.That (actual.Curve, Is.EqualTo (namedCurve.Curve), "Curve");
+			Assert.That (actual.G, Is.EqualTo (namedCurve.G), "G");
+			Assert.That (actual.N, Is.EqualTo (namedCurve.N), "N");
+			Assert.That (actual.H, Is.EqualTo (namedCurve.H), "H");
+		}
+
+		static void AssertECPoint (ECParameters expected, Org.BouncyCastle.Math.EC.ECPoint actual)
+		{
+			var q = actual.Normalize ();
+
+			AssertAreEqual (expected.Q.X, q.AffineXCoord.ToBigInteger (), "Q.X");
+			AssertAreEqual (expected.Q.Y, q.AffineYCoord.ToBigInteger (), "Q.Y");
+		}
+
 		static void AssertECDsa (ECDsa ecdsa)
 		{
 			// first, check private key conversion
 			var expected = ecdsa.ExportParameters (true);
-			var keyParameter = ecdsa.AsAsymmetricKeyParameter ();
-			var asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as ECDsa;
-			var actual = asymmetricAlgorithm.ExportParameters (true);
+			var privateKey = ecdsa.AsAsymmetricKeyParameter () as ECPrivateKeyParameters;
 
-			AssertAreEqual (expected.D, actual.D, "D");
-			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
-			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
-			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+			Assert.That (privateKey, Is.Not.Null, "AsAsymmetricKeyParameter (private)");
+			Assert.That (privateKey.IsPrivate, Is.True, "IsPrivate");
+			AssertECDomain (expected, privateKey.Parameters);
+			AssertAreEqual (expected.D, privateKey.D, "D");
+
+			// verify that the private key generates the expected public key point
+			AssertECPoint (expected, privateKey.Parameters.G.Multiply (privateKey.D));
 
 			// test AsymmetricCipherKeyPair conversion
 			var keyPair = ecdsa.AsAsymmetricCipherKeyPair ();
-			asymmetricAlgorithm = keyPair.AsAsymmetricAlgorithm () as ECDsa;
-			actual = asymmetricAlgorithm.ExportParameters (true);
+			privateKey = keyPair.Private as ECPrivateKeyParameters;
+			var publicKey = keyPair.Public as ECPublicKeyParameters;
 
-			AssertAreEqual (expected.D, actual.D, "D");
-			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
-			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
-			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
+			Assert.That (privateKey, Is.Not.Null, "AsAsymmetricCipherKeyPair.Private");
+			Assert.That (publicKey, Is.Not.Null, "AsAsymmetricCipherKeyPair.Public");
+			AssertECDomain (expected, privateKey.Parameters);
+			AssertECDomain (expected, publicKey.Parameters);
+			AssertAreEqual (expected.D, privateKey.D, "D");
+			AssertECPoint (expected, publicKey.Q);
 
 			// test public key conversion
 			expected = ecdsa.ExportParameters (false);
-			var pubec = ECDsa.Create ();
+			using var pubec = ECDsa.Create ();
 			pubec.ImportParameters (expected);
 
-			keyParameter = pubec.AsAsymmetricKeyParameter ();
-			asymmetricAlgorithm = keyParameter.AsAsymmetricAlgorithm () as ECDsa;
-			actual = asymmetricAlgorithm.ExportParameters (false);
+			publicKey = pubec.AsAsymmetricKeyParameter () as ECPublicKeyParameters;
 
-			Assert.That (actual.D, Is.Null, "D (public key)");
-			AssertAreEqual (expected.Q.X, actual.Q.X, "Q.X");
-			AssertAreEqual (expected.Q.Y, actual.Q.Y, "Q.Y");
-			Assert.That (actual.Curve.Oid.Value, Is.EqualTo (expected.Curve.Oid.Value), "Curve OID");
-
-			pubec.Dispose ();
+			Assert.That (publicKey, Is.Not.Null, "AsAsymmetricKeyParameter (public)");
+			Assert.That (publicKey.IsPrivate, Is.False, "IsPrivate");
+			AssertECDomain (expected, publicKey.Parameters);
+			AssertECPoint (expected, publicKey.Q);
 		}
 
 		static ECCurve GetNamedCurve (string name)

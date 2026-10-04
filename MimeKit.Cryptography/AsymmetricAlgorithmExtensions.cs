@@ -48,8 +48,10 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public static class AsymmetricAlgorithmExtensions
 	{
+#if ENABLE_NATIVE_DKIM
 		const int MinDsaKeySize = 2048;
 		const int MinRsaKeySize = 2048;
+#endif
 
 		static void GetAsymmetricKeyParameters (DSA dsa, bool publicOnly, out AsymmetricKeyParameter pub, out AsymmetricKeyParameter? key)
 		{
@@ -301,6 +303,10 @@ namespace MimeKit.Cryptography {
 			throw new NotSupportedException (string.Format ("'{0}' is currently not supported.", key.GetType ().Name));
 		}
 
+#if ENABLE_NATIVE_DKIM
+		// Note: The BouncyCastle -> System.Security.Cryptography conversions below are only needed by
+		// DkimSignerBase and DkimVerifierBase when ENABLE_NATIVE_DKIM is defined.
+
 		static byte[] GetPaddedByteArray (BigInteger big, int length)
 		{
 			var bytes = big.ToByteArrayUnsigned ();
@@ -509,7 +515,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static AsymmetricAlgorithm AsAsymmetricAlgorithm (this AsymmetricKeyParameter key)
 		{
-			// TODO: Drop this API - it's no longer needed. The WindowsSecureMimeContext now exports the certificate & key into a pkcs12 and then loads that into an X509Certificate2.
+			// Note: WindowsSecureMimeContext no longer uses this API (it exports the certificate & key into a pkcs12 and loads that into an
+			// X509Certificate2 instead). It is still used by DkimSignerBase and DkimVerifierBase when ENABLE_NATIVE_DKIM is defined.
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
@@ -557,7 +564,8 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static AsymmetricAlgorithm AsAsymmetricAlgorithm (this AsymmetricCipherKeyPair key)
 		{
-			// TODO: Drop this API - it's no longer needed. The WindowsSecureMimeContext now exports the certificate & key into a pkcs12 and then loads that into an X509Certificate2.
+			// Note: WindowsSecureMimeContext no longer uses this API (it exports the certificate & key into a pkcs12 and loads that into an
+			// X509Certificate2 instead). It is still used by DkimSignerBase and DkimVerifierBase when ENABLE_NATIVE_DKIM is defined.
 			if (key == null)
 				throw new ArgumentNullException (nameof (key));
 
@@ -574,5 +582,6 @@ namespace MimeKit.Cryptography {
 
 			throw new NotSupportedException (string.Format ("{0} is currently not supported.", key.Private.GetType ().Name));
 		}
+#endif
 	}
 }

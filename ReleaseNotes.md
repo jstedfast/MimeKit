@@ -55,6 +55,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `Join ()` now also validates the `id` and `number` parameters of every partial up front, so a
   mismatched `id` or missing `number` throws `InvalidOperationException` even when only a single partial
   is provided.
+* Removed the `AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm ()` extension methods that converted
+  BouncyCastle `AsymmetricKeyParameter` and `AsymmetricCipherKeyPair` keys into
+  `System.Security.Cryptography` `RSA`, `DSA` and `ECDsa` instances. MimeKit no longer uses them.
+  The `AsAsymmetricKeyParameter ()` and `AsAsymmetricCipherKeyPair ()` conversions in the other
+  direction are unchanged.
 * Removed the dead `[Obsolete]` annotations on the legacy serialization members. The
   `#if NET8_0_OR_GREATER` guard around `GetObjectData ()` could never be satisfied (`SERIALIZABLE` is
   only defined for .NET Framework), and the unconditional attribute on the protected serialization
