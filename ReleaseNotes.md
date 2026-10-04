@@ -182,6 +182,13 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   as the `InnerException` rather than discarding it, and narrowed the catch clauses in both it and
   `DecodeEncryptionAlgorithms ()`.
 * Fixed the empty-catch-block and catch-of-all-exception issues in `WindowsSecureMimeContext`.
+* Fixed `WindowsSecureMimeContext` to import a signer's certificate into the `AddressBook` store when
+  verifying a signature that includes S/MIME capabilities. Previously the certificate was only imported
+  when the signature did not include them. The certificate is now always imported, independently of
+  `UpdateSecureMimeCapabilities ()`, which now keeps the advertised encryption algorithms in memory for
+  the lifetime of the context. `GetPreferredEncryptionAlgorithm ()` uses them in preference to the
+  certificate's S/MIME capabilities extension, so replies can use the strongest algorithm the
+  recipient supports instead of falling back to Triple-DES.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

@@ -62,6 +62,21 @@ namespace MimeKit.Cryptography {
 	{
 		const X509KeyStorageFlags DefaultKeyStorageFlags = X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable;
 
+		sealed class SecureMimeCapabilities
+		{
+			public SecureMimeCapabilities (EncryptionAlgorithm[] algorithms, DateTime timestamp)
+			{
+				Algorithms = algorithms;
+				Timestamp = timestamp;
+			}
+
+			public EncryptionAlgorithm[] Algorithms { get; }
+
+			public DateTime Timestamp { get; }
+		}
+
+		readonly Dictionary<string, SecureMimeCapabilities> capabilities = new Dictionary<string, SecureMimeCapabilities> (StringComparer.OrdinalIgnoreCase);
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="WindowsSecureMimeContext"/> class.
 		/// </summary>
@@ -491,13 +506,34 @@ namespace MimeKit.Cryptography {
 		/// <para>This method is called when decoding digital signatures that include S/MIME capabilities in the metadata, allowing custom
 		/// implementations to update the X.509 certificate records with the list of preferred encryption algorithms specified by the
 		/// sending client.</para>
+		/// <para>The default implementation caches the S/MIME capabilities in memory for the lifetime of the
+		/// <see cref="WindowsSecureMimeContext"/> so that they can be used by
+		/// <see cref="GetPreferredEncryptionAlgorithm(RealCmsRecipientCollection)"/>. The S/MIME capabilities are not persisted
+		/// because the Windows X.509 certificate stores do not provide a standard way of associating them with a certificate.
+		/// Custom implementations that wish to persist them should override this method along with
+		/// <see cref="GetPreferredEncryptionAlgorithm(RealCmsRecipientCollection)"/>.</para>
+		/// <para>The signer's certificate is imported into the <see cref="StoreName.AddressBook"/> store separately, before
+		/// this method is called.</para>
 		/// </remarks>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="algorithms">The encryption algorithm capabilities of the client (in preferred order).</param>
 		/// <param name="timestamp">The timestamp.</param>
 		protected virtual void UpdateSecureMimeCapabilities (X509Certificate2 certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
 		{
-			// TODO: implement this - should we add/update the X509Extension for S/MIME Capabilities?
+			lock (capabilities) {
+				if (!capabilities.TryGetValue (certificate.Thumbprint, out var known) || timestamp > known.Timestamp)
+					capabilities[certificate.Thumbprint] = new SecureMimeCapabilities (algorithms, timestamp);
+			}
+		}
+
+		EncryptionAlgorithm[] GetEncryptionAlgorithms (X509Certificate2 certificate)
+		{
+			lock (capabilities) {
+				if (capabilities.TryGetValue (certificate.Thumbprint, out var known))
+					return known.Algorithms;
+			}
+
+			return certificate.GetEncryptionAlgorithms ();
 		}
 
 		static byte[] ReadAllBytes (Stream stream)
@@ -920,16 +956,15 @@ namespace MimeKit.Cryptography {
 				var signature = new WindowsSecureMimeDigitalSignature (signerInfo);
 
 				if (signerInfo.Certificate != null) {
-					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0) {
-						UpdateSecureMimeCapabilities (signerInfo.Certificate, signature.EncryptionAlgorithms, signature.CreationDate);
-					} else {
-						try {
-							Import (signerInfo.Certificate);
-						} catch (CryptographicException) {
-							// Best-effort: a failure to cache the signer's certificate in the
-							// AddressBook store should not fail signature verification.
-						}
+					try {
+						Import (signerInfo.Certificate);
+					} catch (CryptographicException) {
+						// Best-effort: a failure to cache the signer's certificate in the
+						// AddressBook store should not fail signature verification.
 					}
+
+					if (signature.EncryptionAlgorithms.Length > 0 && signature.CreationDate.Ticks != 0)
+						UpdateSecureMimeCapabilities (signerInfo.Certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 				}
 
 				signatures.Add (signature);
@@ -1098,6 +1133,10 @@ namespace MimeKit.Cryptography {
 		/// based on the encryption algorithms supported by each of the recipients, the
 		/// <see cref="CryptographyContext.EnabledEncryptionAlgorithms"/>, and the
 		/// <see cref="CryptographyContext.EncryptionAlgorithmRank"/>.</para>
+		/// <para>The encryption algorithms supported by each recipient are determined by the S/MIME capabilities
+		/// previously advertised in a signed message from that recipient (see
+		/// <see cref="UpdateSecureMimeCapabilities(X509Certificate2, EncryptionAlgorithm[], DateTime)"/>) or, if
+		/// none are known, the S/MIME capabilities extension of the recipient's certificate.</para>
 		/// <para>If the supported encryption algorithms are unknown for any recipient, it is assumed that
 		/// the recipient supports at least the Triple-DES encryption algorithm.</para>
 		/// </remarks>
@@ -1109,7 +1148,7 @@ namespace MimeKit.Cryptography {
 			int need = recipients.Count;
 
 			foreach (var recipient in recipients) {
-				var supported = recipient.Certificate.GetEncryptionAlgorithms ();
+				var supported = GetEncryptionAlgorithms (recipient.Certificate);
 
 				foreach (var algorithm in supported)
 					votes[(int) algorithm]++;

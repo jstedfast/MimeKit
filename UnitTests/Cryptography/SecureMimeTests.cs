@@ -3451,6 +3451,50 @@ namespace UnitTests.Cryptography {
 			return ((WindowsSecureMimeDigitalSignature) signature).EncryptionAlgorithms;
 		}
 
+		class CapabilitiesTestContext : WindowsSecureMimeContext
+		{
+			public void Update (X509Certificate2 certificate, EncryptionAlgorithm[] algorithms, DateTime timestamp)
+			{
+				UpdateSecureMimeCapabilities (certificate, algorithms, timestamp);
+			}
+
+			public EncryptionAlgorithm GetPreferred (X509Certificate2 certificate)
+			{
+				var recipients = new System.Security.Cryptography.Pkcs.CmsRecipientCollection {
+					new System.Security.Cryptography.Pkcs.CmsRecipient (certificate)
+				};
+
+				return GetPreferredEncryptionAlgorithm (recipients);
+			}
+		}
+
+		[Test]
+		public void TestUpdateSecureMimeCapabilities ()
+		{
+			if (!IsEnabled)
+				return;
+
+			var certificate = RsaCertificate.Certificate.AsX509Certificate2 ();
+			var timestamp = DateTime.UtcNow;
+
+			using (var ctx = new CapabilitiesTestContext ()) {
+				// the test certificate includes an S/MIME capabilities extension advertising AES-256
+				Assert.That (ctx.GetPreferred (certificate), Is.EqualTo (EncryptionAlgorithm.Aes256), "Before update");
+
+				// advertised capabilities should take precedence over the certificate extension
+				ctx.Update (certificate, new[] { EncryptionAlgorithm.Aes128, EncryptionAlgorithm.TripleDes }, timestamp);
+				Assert.That (ctx.GetPreferred (certificate), Is.EqualTo (EncryptionAlgorithm.Aes128), "After update");
+
+				// older capabilities should be ignored
+				ctx.Update (certificate, new[] { EncryptionAlgorithm.Aes256 }, timestamp.AddDays (-1));
+				Assert.That (ctx.GetPreferred (certificate), Is.EqualTo (EncryptionAlgorithm.Aes128), "After stale update");
+
+				// newer capabilities should replace the previous capabilities
+				ctx.Update (certificate, new[] { EncryptionAlgorithm.TripleDes }, timestamp.AddDays (1));
+				Assert.That (ctx.GetPreferred (certificate), Is.EqualTo (EncryptionAlgorithm.TripleDes), "After newer update");
+			}
+		}
+
 		[Test]
 		public override void TestCanSignAndEncrypt ()
 		{
