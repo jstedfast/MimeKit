@@ -191,7 +191,7 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Sign the message using the specified cryptography context and the SHA-1 digest algorithm.
+		/// Sign the message using the specified cryptography context and the SHA-256 digest algorithm.
 		/// </summary>
 		/// <remarks>
 		/// If either of the Resent-Sender or Resent-From headers are set, then the message
@@ -221,11 +221,11 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static void Sign (this MimeMessage message, CryptographyContext ctx, CancellationToken cancellationToken = default)
 		{
-			Sign (message, ctx, DigestAlgorithm.Sha1, cancellationToken);
+			Sign (message, ctx, DigestAlgorithm.Sha256, cancellationToken);
 		}
 
 		/// <summary>
-		/// Asynchronously sign the message using the specified cryptography context and the SHA-1 digest algorithm.
+		/// Asynchronously sign the message using the specified cryptography context and the SHA-256 digest algorithm.
 		/// </summary>
 		/// <remarks>
 		/// If either of the Resent-Sender or Resent-From headers are set, then the message
@@ -256,7 +256,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static Task SignAsync (this MimeMessage message, CryptographyContext ctx, CancellationToken cancellationToken = default)
 		{
-			return SignAsync (message, ctx, DigestAlgorithm.Sha1, cancellationToken);
+			return SignAsync (message, ctx, DigestAlgorithm.Sha256, cancellationToken);
 		}
 
 		/// <summary>
@@ -513,7 +513,7 @@ namespace MimeKit.Cryptography {
 
 		/// <summary>
 		/// Sign and encrypt the message to the sender and all of the recipients using
-		/// the specified cryptography context and the SHA-1 digest algorithm.
+		/// the specified cryptography context and the SHA-256 digest algorithm.
 		/// </summary>
 		/// <remarks>
 		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
@@ -556,12 +556,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static void SignAndEncrypt (this MimeMessage message, CryptographyContext ctx, CancellationToken cancellationToken = default)
 		{
-			SignAndEncrypt (message, ctx, DigestAlgorithm.Sha1, cancellationToken);
+			SignAndEncrypt (message, ctx, DigestAlgorithm.Sha256, cancellationToken);
 		}
 
 		/// <summary>
 		/// Asynchronously sign and encrypt the message to the sender and all of the recipients using
-		/// the specified cryptography context and the SHA-1 digest algorithm.
+		/// the specified cryptography context and the SHA-256 digest algorithm.
 		/// </summary>
 		/// <remarks>
 		/// <para>If either of the Resent-Sender or Resent-From headers are set, then the message
@@ -605,7 +605,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static Task SignAndEncryptAsync (this MimeMessage message, CryptographyContext ctx, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (message, ctx, DigestAlgorithm.Sha1, cancellationToken);
+			return SignAndEncryptAsync (message, ctx, DigestAlgorithm.Sha256, cancellationToken);
 		}
 	}
 }

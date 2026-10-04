@@ -736,7 +736,10 @@ namespace MimeKit.Cryptography {
 		/// Generate a new key pair.
 		/// </summary>
 		/// <remarks>
-		/// Generates a new RSA key pair.
+		/// <para>Generates a new RSA key pair.</para>
+		/// <para>The enabled encryption algorithms (see <see cref="CryptographyContext.EnabledEncryptionAlgorithms"/>) and the
+		/// enabled digest algorithms (see <see cref="OpenPgpContext.EnabledDigestAlgorithms"/>) are stored, in ranked order,
+		/// in the generated key's preferred symmetric algorithms and preferred hash algorithms signature subpackets.</para>
 		/// </remarks>
 		/// <param name="mailbox">The mailbox to generate the key pair for.</param>
 		/// <param name="password">The password to be set on the secret key.</param>

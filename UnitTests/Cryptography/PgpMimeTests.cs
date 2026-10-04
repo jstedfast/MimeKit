@@ -40,7 +40,7 @@ namespace UnitTests.Cryptography {
 
 		public PgpMimeTests ()
 		{
-			GnuPGDir = Path.Combine (TestHelper.ProjectDir, "Temp", ".gnupg");
+			GnuPGDir = DummyOpenPgpContext.GnuPGDir;
 			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "openpgp");
 
 			Directory.CreateDirectory (GnuPGDir);

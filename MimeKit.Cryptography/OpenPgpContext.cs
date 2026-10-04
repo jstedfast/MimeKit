@@ -74,15 +74,17 @@ namespace MimeKit.Cryptography {
 			EncryptionAlgorithm.Camellia256
 		};
 
+		// Note: This matches the digest preferences that GnuPG advertises for newly generated keys.
 		static readonly DigestAlgorithm[] DefaultDigestAlgorithmRank = {
-			DigestAlgorithm.Sha1,
-			DigestAlgorithm.RipeMD160,
-			DigestAlgorithm.Sha256,
-			DigestAlgorithm.Sha384,
 			DigestAlgorithm.Sha512,
-			DigestAlgorithm.Sha224
+			DigestAlgorithm.Sha384,
+			DigestAlgorithm.Sha256,
+			DigestAlgorithm.Sha224,
+			DigestAlgorithm.Sha1
 		};
 
+		DigestAlgorithm[] digestAlgorithmRank;
+		int enabledDigestAlgorithms;
 		EncryptionAlgorithm defaultAlgorithm;
 		readonly HttpClient client;
 		Uri? keyServer;
@@ -97,7 +99,7 @@ namespace MimeKit.Cryptography {
 		protected OpenPgpContext ()
 		{
 			EncryptionAlgorithmRank = DefaultEncryptionAlgorithmRank;
-			DigestAlgorithmRank = DefaultDigestAlgorithmRank;
+			digestAlgorithmRank = DefaultDigestAlgorithmRank;
 
 			foreach (var algorithm in EncryptionAlgorithmRank)
 				Enable (algorithm);
@@ -108,6 +110,107 @@ namespace MimeKit.Cryptography {
 			defaultAlgorithm = EncryptionAlgorithm.Cast5;
 
 			client = new HttpClient ();
+		}
+
+		/// <summary>
+		/// Get or set the preferred rank order for the digest algorithms; from the most preferred to the least.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the preferred rank order for the digest algorithms; from the most preferred to the least.</para>
+		/// <para>The digest algorithm ranking, filtered by which digest algorithms are enabled (see
+		/// <see cref="EnabledDigestAlgorithms"/>), is only used when generating new key pairs (see
+		/// <see cref="GnuPGContext.GenerateKeyPair(MailboxAddress, string, DateTime?, EncryptionAlgorithm, Org.BouncyCastle.Security.SecureRandom?)"/>).
+		/// It is stored in the key's "preferred hash algorithms" signature subpacket, which advertises to other OpenPGP
+		/// implementations which digest algorithms the owner of the key prefers.</para>
+		/// <para>It does <em>not</em> affect signing, where the caller always specifies the digest algorithm, nor
+		/// signature verification, where the digest algorithm chosen by the signer is used.</para>
+		/// <para><see cref="GnuPGContext"/> initializes the ranking from the <c>personal-digest-preferences</c>
+		/// option in <c>gpg.conf</c>, if present.</para>
+		/// </remarks>
+		/// <value>The preferred digest algorithm ranking.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty.
+		/// </exception>
+		protected DigestAlgorithm[] DigestAlgorithmRank {
+			get { return digestAlgorithmRank; }
+			set {
+				if (value == null)
+					throw new ArgumentNullException (nameof (value));
+
+				if (value.Length == 0)
+					throw new ArgumentException ("The array of digest algorithms cannot be empty.", nameof (value));
+
+				digestAlgorithmRank = value;
+			}
+		}
+
+		/// <summary>
+		/// Get the enabled digest algorithms in ranked order.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the enabled digest algorithms in ranked order.</para>
+		/// <para>These are the digest algorithms advertised as the preferred hash algorithms of newly generated keys
+		/// (see <see cref="GnuPGContext.GenerateKeyPair(MailboxAddress, string, DateTime?, EncryptionAlgorithm, Org.BouncyCastle.Security.SecureRandom?)"/>).
+		/// They do <em>not</em> restrict which digest algorithms may be used to sign or verify messages.</para>
+		/// </remarks>
+		/// <value>The enabled digest algorithms.</value>
+		public DigestAlgorithm[] EnabledDigestAlgorithms {
+			get {
+				var algorithms = new List<DigestAlgorithm> ();
+
+				foreach (var algorithm in DigestAlgorithmRank) {
+					if (IsEnabled (algorithm))
+						algorithms.Add (algorithm);
+				}
+
+				return algorithms.ToArray ();
+			}
+		}
+
+		/// <summary>
+		/// Enable the digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>Enables the digest algorithm so that it is included in <see cref="EnabledDigestAlgorithms"/>.</para>
+		/// <para>Enabled digest algorithms are advertised as the preferred hash algorithms of newly generated keys. Enabling
+		/// or disabling a digest algorithm does not affect which digest algorithms may be used to sign or verify messages.</para>
+		/// </remarks>
+		/// <param name="algorithm">The digest algorithm.</param>
+		public void Enable (DigestAlgorithm algorithm)
+		{
+			enabledDigestAlgorithms |= 1 << (int) algorithm;
+		}
+
+		/// <summary>
+		/// Disable the digest algorithm.
+		/// </summary>
+		/// <remarks>
+		/// <para>Disables the digest algorithm so that it is excluded from <see cref="EnabledDigestAlgorithms"/>.</para>
+		/// <para>Enabled digest algorithms are advertised as the preferred hash algorithms of newly generated keys. Enabling
+		/// or disabling a digest algorithm does not affect which digest algorithms may be used to sign or verify messages.</para>
+		/// </remarks>
+		/// <param name="algorithm">The digest algorithm.</param>
+		public void Disable (DigestAlgorithm algorithm)
+		{
+			enabledDigestAlgorithms &= ~(1 << (int) algorithm);
+		}
+
+		/// <summary>
+		/// Check whether the specified digest algorithm is enabled.
+		/// </summary>
+		/// <remarks>
+		/// <para>Determines whether the specified digest algorithm is enabled.</para>
+		/// <para>Enabled digest algorithms are advertised as the preferred hash algorithms of newly generated keys. Enabling
+		/// or disabling a digest algorithm does not affect which digest algorithms may be used to sign or verify messages.</para>
+		/// </remarks>
+		/// <returns><see langword="true" /> if the specified digest algorithm is enabled; otherwise, <see langword="false" />.</returns>
+		/// <param name="algorithm">The digest algorithm.</param>
+		public bool IsEnabled (DigestAlgorithm algorithm)
+		{
+			return (enabledDigestAlgorithms & (1 << (int) algorithm)) != 0;
 		}
 
 		/// <summary>

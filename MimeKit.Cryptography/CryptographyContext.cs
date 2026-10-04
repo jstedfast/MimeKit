@@ -49,17 +49,14 @@ namespace MimeKit.Cryptography {
 		static readonly object mutex = new object ();
 
 		EncryptionAlgorithm[] encryptionAlgorithmRank;
-		DigestAlgorithm[] digestAlgorithmRank;
-
 		int enabledEncryptionAlgorithms;
-		int enabledDigestAlgorithms;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="CryptographyContext"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="CryptographyContext"/>.</para>
-		/// <para>By default, only the 3DES encryption algorithm and the SHA-1 digest algorithm are enabled.</para>
+		/// <para>By default, only the 3DES encryption algorithm is enabled.</para>
 		/// </remarks>
 		protected CryptographyContext ()
 		{
@@ -68,12 +65,6 @@ namespace MimeKit.Cryptography {
 			};
 
 			Enable (EncryptionAlgorithm.TripleDes);
-
-			digestAlgorithmRank = new[] {
-				DigestAlgorithm.Sha1
-			};
-
-			Enable (DigestAlgorithm.Sha1);
 
 			PrepareBeforeSigning = true;
 		}
@@ -210,83 +201,6 @@ namespace MimeKit.Cryptography {
 		public bool IsEnabled (EncryptionAlgorithm algorithm)
 		{
 			return (enabledEncryptionAlgorithms & (1 << (int) algorithm)) != 0;
-		}
-
-		/// <summary>
-		/// Get the preferred rank order for the digest algorithms; from the most preferred to the least.
-		/// </summary>
-		/// <remarks>
-		/// Gets the preferred rank order for the digest algorithms; from the most preferred to the least.
-		/// </remarks>
-		/// <value>The preferred encryption algorithm ranking.</value>
-		protected DigestAlgorithm[] DigestAlgorithmRank {
-			get { return digestAlgorithmRank; }
-			set {
-				if (value == null)
-					throw new ArgumentNullException (nameof (value));
-
-				if (value.Length == 0)
-					throw new ArgumentException ("The array of digest algorithms cannot be empty.", nameof (value));
-
-				digestAlgorithmRank = value;
-			}
-		}
-
-		/// <summary>
-		/// Get the enabled digest algorithms in ranked order.
-		/// </summary>
-		/// <remarks>
-		/// Gets the enabled digest algorithms in ranked order.
-		/// </remarks>
-		/// <value>The enabled encryption algorithms.</value>
-		public DigestAlgorithm[] EnabledDigestAlgorithms {
-			get {
-				var algorithms = new List<DigestAlgorithm> ();
-
-				foreach (var algorithm in DigestAlgorithmRank) {
-					if (IsEnabled (algorithm))
-						algorithms.Add (algorithm);
-				}
-
-				return algorithms.ToArray ();
-			}
-		}
-
-		/// <summary>
-		/// Enable the digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// Enables the digest algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The digest algorithm.</param>
-		public void Enable (DigestAlgorithm algorithm)
-		{
-			enabledDigestAlgorithms |= 1 << (int) algorithm;
-		}
-
-		/// <summary>
-		/// Disable the digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// Disables the digest algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The digest algorithm.</param>
-		public void Disable (DigestAlgorithm algorithm)
-		{
-			enabledDigestAlgorithms &= ~(1 << (int) algorithm);
-		}
-
-		/// <summary>
-		/// Check whether the specified digest algorithm is enabled.
-		/// </summary>
-		/// <remarks>
-		/// Determines whether the specified digest algorithm is enabled.
-		/// </remarks>
-		/// <returns><see langword="true" /> if the specified digest algorithm is enabled; otherwise, <see langword="false" />.</returns>
-		/// <param name="algorithm">The digest algorithm.</param>
-		public bool IsEnabled (DigestAlgorithm algorithm)
-		{
-			return (enabledDigestAlgorithms & (1 << (int) algorithm)) != 0;
 		}
 
 		/// <summary>

@@ -64,6 +64,18 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `#if NET8_0_OR_GREATER` guard around `GetObjectData ()` could never be satisfied (`SERIALIZABLE` is
   only defined for .NET Framework), and the unconditional attribute on the protected serialization
   constructors emitted a spurious `CS0618` for .NET Framework consumers subclassing these exceptions.
+* The `MimeMessage.Sign ()`, `SignAsync ()`, `SignAndEncrypt ()` and `SignAndEncryptAsync ()`
+  extension method overloads that do not take a `DigestAlgorithm` now sign using SHA-256 instead of
+  SHA-1. SHA-1 is no longer considered secure for digital signatures, and RFC 8551 requires S/MIME
+  agents to support SHA-256. Pass `DigestAlgorithm.Sha1` explicitly to restore the previous behavior.
+* Moved the digest algorithm preference APIs (`DigestAlgorithmRank`, `EnabledDigestAlgorithms`, and the
+  `Enable (DigestAlgorithm)`, `Disable (DigestAlgorithm)` and `IsEnabled (DigestAlgorithm)` methods) from
+  `CryptographyContext` and `ICryptographyContext` to `OpenPgpContext`. They were never used by S/MIME,
+  where the caller always chooses the signing digest algorithm, so on a `SecureMimeContext` they reported
+  a misleading SHA-1-only list. In OpenPGP they only determine the preferred hash algorithms advertised by
+  keys created with `GnuPGContext.GenerateKeyPair ()`.   The default OpenPGP ranking now matches GnuPG's
+    defaults for new keys: SHA-512, SHA-384, SHA-256, SHA-224 and SHA-1. Previously SHA-1 was ranked first.
+    RIPEMD-160 is no longer included by default.
 
 ### MIME Compliance Violation Reporting
 

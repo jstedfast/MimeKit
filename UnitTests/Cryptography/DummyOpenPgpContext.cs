@@ -31,7 +31,12 @@ using MimeKit.Cryptography;
 namespace UnitTests.Cryptography {
 	public class DummyOpenPgpContext : GnuPGContext
 	{
-		public DummyOpenPgpContext ()
+		// Note: Always pass an explicit GnuPG home directory. The parameterless GnuPGContext ctor uses
+		// a value cached from $GNUPGHOME the first time the GnuPGContext type is used which, depending on
+		// test ordering, may be the developer's real GnuPG home directory.
+		public static readonly string GnuPGDir = Path.Combine (TestHelper.ProjectDir, "Temp", ".gnupg");
+
+		public DummyOpenPgpContext () : base (GnuPGDir)
 		{
 		}
 

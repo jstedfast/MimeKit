@@ -111,8 +111,6 @@ namespace MimeKit.Cryptography {
 			// Disable Blowfish and Twofish by default for now
 			Disable (EncryptionAlgorithm.Blowfish);
 			Disable (EncryptionAlgorithm.Twofish);
-
-			// TODO: Set a preferred digest algorithm rank and enable them.
 		}
 
 		/// <summary>

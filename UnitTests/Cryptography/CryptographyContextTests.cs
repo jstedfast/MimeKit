@@ -29,6 +29,7 @@ using MimeKit.Cryptography;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using MimeKit;
 
 namespace UnitTests.Cryptography
@@ -42,10 +43,29 @@ namespace UnitTests.Cryptography
 			{
 				EncryptionAlgorithmRank = rankedAlgorithms;
 			}
+		}
+
+		class TestableOpenPgpContext : GnuPGContext
+		{
+			// Note: an empty GnuPG home directory means that no keyrings or gpg.conf are loaded,
+			// so the context uses the OpenPgpContext defaults.
+			public TestableOpenPgpContext () : base (Path.Combine (Path.GetTempPath (), Guid.NewGuid ().ToString ("N")))
+			{
+			}
+
+			public DigestAlgorithm[] GetDigestAlgorithmRank ()
+			{
+				return DigestAlgorithmRank;
+			}
 
 			public void SetDigestAlgorithmRank (DigestAlgorithm[] rankedAlgorithms)
 			{
 				DigestAlgorithmRank = rankedAlgorithms;
+			}
+
+			protected override string GetPasswordForKey (PgpSecretKey key)
+			{
+				throw new NotImplementedException ();
 			}
 		}
 
@@ -158,8 +178,10 @@ namespace UnitTests.Cryptography
 			Assert.Throws<ArgumentNullException> (() => ctx.SetEncryptionAlgorithmRank (null));
 			Assert.Throws<ArgumentException> (() => ctx.SetEncryptionAlgorithmRank (Array.Empty<EncryptionAlgorithm> ()));
 
-			Assert.Throws<ArgumentNullException> (() => ctx.SetDigestAlgorithmRank (null));
-			Assert.Throws<ArgumentException> (() => ctx.SetDigestAlgorithmRank (Array.Empty<DigestAlgorithm> ()));
+			using (var pgp = new TestableOpenPgpContext ()) {
+				Assert.Throws<ArgumentNullException> (() => pgp.SetDigestAlgorithmRank (null));
+				Assert.Throws<ArgumentException> (() => pgp.SetDigestAlgorithmRank (Array.Empty<DigestAlgorithm> ()));
+			}
 
 			Assert.Throws<ArgumentException> (() => CryptographyContext.Register (typeof (NoParameterlessCtorContext)));
 			Assert.Throws<ArgumentException> (() => CryptographyContext.Register (typeof (UnknownCryprographyContext)));
@@ -190,10 +212,27 @@ namespace UnitTests.Cryptography
 		}
 
 		[Test]
+		public void TestDefaultDigestAlgorithmRank ()
+		{
+			var expected = new[] {
+				DigestAlgorithm.Sha512,
+				DigestAlgorithm.Sha384,
+				DigestAlgorithm.Sha256,
+				DigestAlgorithm.Sha224,
+				DigestAlgorithm.Sha1
+			};
+
+			using (var ctx = new TestableOpenPgpContext ()) {
+				Assert.That (ctx.GetDigestAlgorithmRank (), Is.EqualTo (expected), "DigestAlgorithmRank");
+				Assert.That (ctx.EnabledDigestAlgorithms, Is.EqualTo (expected), "EnabledDigestAlgorithms");
+			}
+		}
+
+		[Test]
 		public void TestEnableDisableDigestAlgorithms ()
 		{
 			const DigestAlgorithm algorithm = DigestAlgorithm.Sha1;
-			var ctx = new TemporarySecureMimeContext ();
+			using var ctx = new TestableOpenPgpContext ();
 			DigestAlgorithm[] algorithms;
 			int previousLength;
 

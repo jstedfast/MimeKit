@@ -96,33 +96,6 @@ namespace MimeKit.Cryptography {
 		bool Supports (string protocol);
 
 		/// <summary>
-		/// Get the enabled digest algorithms in ranked order.
-		/// </summary>
-		/// <remarks>
-		/// Gets the enabled digest algorithms in ranked order.
-		/// </remarks>
-		/// <value>The enabled encryption algorithms.</value>
-		DigestAlgorithm[] EnabledDigestAlgorithms { get; }
-
-		/// <summary>
-		/// Enable the digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// Enables the digest algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The digest algorithm.</param>
-		void Enable (DigestAlgorithm algorithm);
-
-		/// <summary>
-		/// Disable the digest algorithm.
-		/// </summary>
-		/// <remarks>
-		/// Disables the digest algorithm.
-		/// </remarks>
-		/// <param name="algorithm">The digest algorithm.</param>
-		void Disable (DigestAlgorithm algorithm);
-
-		/// <summary>
 		/// Get the digest algorithm from the micalg parameter value in a multipart/signed part.
 		/// </summary>
 		/// <remarks>
@@ -149,16 +122,6 @@ namespace MimeKit.Cryptography {
 		/// <paramref name="micalg"/> is out of range.
 		/// </exception>
 		string GetDigestAlgorithmName (DigestAlgorithm micalg);
-
-		/// <summary>
-		/// Check whether the specified digest algorithm is enabled.
-		/// </summary>
-		/// <remarks>
-		/// Determines whether the specified digest algorithm is enabled.
-		/// </remarks>
-		/// <returns><see langword="true" /> if the specified digest algorithm is enabled; otherwise, <see langword="false" />.</returns>
-		/// <param name="algorithm">The digest algorithm.</param>
-		bool IsEnabled (DigestAlgorithm algorithm);
 
 		/// <summary>
 		/// Get the enabled encryption algorithms in ranked order.
