@@ -401,14 +401,18 @@ namespace MimeKit.Encodings {
 		{
 			ArgumentValidator.Validate (buffer, startIndex, length);
 
+			fixed (byte* inbuf = buffer)
+				Write (inbuf + startIndex, length);
+		}
+
+		internal unsafe void Write (byte* input, int length)
+		{
 			if (invalid)
 				return;
 
-			fixed (byte* inbuf = buffer) {
-				ref byte table = ref MemoryMarshal.GetReference (base64_class);
+			ref byte table = ref MemoryMarshal.GetReference (base64_class);
 
-				Validate (ref table, inbuf + startIndex, length);
-			}
+			Validate (ref table, input, length);
 		}
 
 		/// <summary>

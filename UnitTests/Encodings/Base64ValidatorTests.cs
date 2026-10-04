@@ -381,5 +381,190 @@ namespace UnitTests.Encodings {
 					Assert.That (Validate (path, encoded, chunkSize), Is.EqualTo (expected), $"iteration={iteration}, chunkSize={chunkSize}");
 			}
 		}
+
+		const string Base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+		static bool IssuesEqual (List<MimeComplianceIssue> actual, List<MimeComplianceIssue> expected)
+		{
+			if (actual.Count != expected.Count)
+				return false;
+
+			for (int i = 0; i < actual.Count; i++) {
+				if (!actual[i].Equals (expected[i]))
+					return false;
+			}
+
+			return true;
+		}
+
+		static void AssertMatchesScalar (CodePath path, byte[] encoded, int[] chunkSizes, string message)
+		{
+			// The scalar validator is the reference implementation.
+			var expected = Validate (CodePath.Scalar, encoded, int.MaxValue, 100, 7);
+
+			foreach (var chunkSize in chunkSizes) {
+				var actual = Validate (path, encoded, chunkSize, 100, 7);
+
+				if (!IssuesEqual (actual, expected))
+					Assert.That (actual, Is.EqualTo (expected), $"{message}, chunkSize={chunkSize}");
+			}
+		}
+
+		[Test]
+		public void TestValidateEveryByteAtEveryPosition ([Values] CodePath path, [Values] bool replace)
+		{
+			// The SIMD kernels classify bytes using range comparisons. Verify that every possible byte value, at every
+			// position within (and across) the 16 and 32-byte blocks, is classified exactly like the scalar validator.
+			// The input spans multiple lines so that the line and column tracking is verified as well.
+			int[] chunkSizes = { 16, 33, int.MaxValue };
+			var data = new byte[72];
+
+			new Random (72).NextBytes (data);
+
+			var base64 = Wrap (Convert.ToBase64String (data), 40, "\r\n", string.Empty);
+
+			for (int value = 0; value < 256; value++) {
+				for (int position = 0; position < base64.Length; position++) {
+					byte[] encoded;
+
+					if (replace) {
+						encoded = (byte[]) base64.Clone ();
+					} else {
+						encoded = new byte[base64.Length + 1];
+						Buffer.BlockCopy (base64, 0, encoded, 0, position);
+						Buffer.BlockCopy (base64, position, encoded, position + 1, base64.Length - position);
+					}
+
+					encoded[position] = (byte) value;
+
+					AssertMatchesScalar (path, encoded, chunkSizes, $"value=0x{value:X2}, position={position}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestValidateAllLineLengths ([Values] CodePath path, [Values ("\n", "\r\n", " \t\r\n")] string newLine)
+		{
+			// Every line contains an invalid character (and an obsolete comment character) at a random position so that the
+			// once-per-line latches, the line numbers and the column numbers are verified for every line length.
+			int[] dataLengths = { 1, 2, 3, 47, 48, 49, 301 };
+			int[] chunkSizes = { 1, 15, 16, 17, 32, 33, 77, int.MaxValue };
+			var random = new Random (newLine.Length);
+
+			for (int lineLength = 1; lineLength <= 100; lineLength++) {
+				foreach (var dataLength in dataLengths) {
+					var data = new byte[dataLength];
+
+					random.NextBytes (data);
+
+					var base64 = Convert.ToBase64String (data);
+					var encoded = Wrap (base64, lineLength, newLine, string.Empty);
+
+					foreach (var chunkSize in chunkSizes) {
+						var issues = Validate (path, encoded, chunkSize, 100, 7);
+
+						if (issues.Count != 0)
+							Assert.That (issues, Is.Empty, $"lineLength={lineLength}, dataLength={dataLength}, chunkSize={chunkSize}");
+					}
+
+					var builder = new StringBuilder ();
+					var unpadded = base64.TrimEnd ('=');
+
+					for (int i = 0; i < unpadded.Length; i += lineLength) {
+						var line = unpadded.Substring (i, Math.Min (lineLength, unpadded.Length - i));
+
+						line = line.Insert (random.Next (line.Length + 1), "?");
+						line = line.Insert (random.Next (line.Length + 1), "*");
+
+						builder.Append (line);
+						builder.Append (newLine);
+					}
+
+					AssertMatchesScalar (path, Encoding.ASCII.GetBytes (builder.ToString ()), chunkSizes, $"lineLength={lineLength}, dataLength={dataLength}");
+				}
+			}
+		}
+
+		static byte[] GenerateRandomBytes (Random random, int length, double density)
+		{
+			var encoded = new byte[length];
+
+			for (int i = 0; i < length; i++) {
+				if (random.NextDouble () < density)
+					encoded[i] = (byte) Base64Alphabet[random.Next (Base64Alphabet.Length)];
+				else
+					encoded[i] = (byte) random.Next (256);
+			}
+
+			return encoded;
+		}
+
+		[Test]
+		public void TestValidateRandomBytes ([Values] CodePath path, [Values (0.0, 0.5, 0.9, 0.99, 0.999)] double density)
+		{
+			// Base64 alphabet characters interspersed with arbitrary bytes (including '=' padding, line breaks and 8-bit
+			// bytes) at the specified density.
+			int[] chunkSizes = { 1, 7, 16, 31, 32, 33, 100, int.MaxValue };
+			var random = new Random ((int) (density * 1000));
+
+			for (int iteration = 0; iteration < 300; iteration++) {
+				var encoded = GenerateRandomBytes (random, random.Next (0, 800), density);
+
+				AssertMatchesScalar (path, encoded, chunkSizes, $"iteration={iteration}");
+			}
+		}
+
+		static byte[] GenerateEncoded (Random random)
+		{
+			var data = new byte[random.Next (0, 1000)];
+
+			random.NextBytes (data);
+
+			var newLine = random.Next (3) switch { 0 => "\n", 1 => "\r\n", _ => string.Empty };
+			var encoded = Wrap (Convert.ToBase64String (data), random.Next (1, 100), newLine, string.Empty);
+
+			if (encoded.Length > 0 && random.Next (2) == 0) {
+				int corruptions = random.Next (1, 10);
+
+				for (int i = 0; i < corruptions; i++)
+					encoded[random.Next (encoded.Length)] = (byte) random.Next (256);
+			}
+
+			return encoded;
+		}
+
+		[Test]
+		public unsafe void TestValidateDoesNotAccessMemoryOutOfBounds ([Values] CodePath path, [Values] bool alignEnd)
+		{
+			// Places each chunk of input immediately before (or after) an inaccessible guard page so that reading even a
+			// single byte out of bounds crashes rather than going unnoticed.
+			int[] chunkSizes = { 1, 15, 16, 17, 31, 32, 33, 47, 48, 49, 64, 100, 4096 };
+			var random = new Random (alignEnd ? 2024 : 2025);
+
+			for (int iteration = 0; iteration < 100; iteration++) {
+				var encoded = random.Next (4) == 0 ? GenerateRandomBytes (random, random.Next (0, 800), 0.95) : GenerateEncoded (random);
+				var expected = Validate (CodePath.Scalar, encoded, int.MaxValue, 100, 7);
+
+				foreach (var chunkSize in chunkSizes) {
+					var logger = new TestMimeComplianceLogger ();
+					var validator = CreateValidator (path, logger, 100, 7);
+					int size = Math.Max (1, Math.Min (chunkSize, encoded.Length));
+
+					for (int index = 0; index < encoded.Length; index += size) {
+						int n = Math.Min (size, encoded.Length - index);
+
+						using var input = new GuardedMemory (n, alignEnd);
+
+						encoded.AsSpan (index, n).CopyTo (new Span<byte> (input.Start, n));
+
+						validator.Write (input.Start, n);
+					}
+
+					validator.Flush ();
+
+					Assert.That (logger.Issues, Is.EqualTo (expected), $"iteration={iteration}, chunkSize={chunkSize}");
+				}
+			}
+		}
 	}
 }
