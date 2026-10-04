@@ -95,6 +95,15 @@ namespace UnitTests {
 			partials[3].ContentType.Parameters["id"] = "abc@example.com";
 			partials[3].ContentType.Parameters.Remove ("number"); // missing number
 			Assert.Throws<InvalidOperationException> (() => MessagePartial.Join (message, partials));
+
+			// Note: a single partial is never passed to the sort comparer, so make sure it is still validated.
+			var single = new MessagePartial ("abc@example.com", 1, 1) {
+				Content = new MimeContent (new MemoryStream (Array.Empty<byte> (), false))
+			};
+			single.ContentType.Parameters.Remove ("number");
+			Assert.Throws<InvalidOperationException> (() => MessagePartial.Join (message, new[] { single }));
+
+			Assert.That (MessagePartial.Join (message, Array.Empty<MessagePartial> ()), Is.Null);
 		}
 
 		[Test]

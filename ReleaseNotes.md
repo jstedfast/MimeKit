@@ -50,6 +50,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   * The obsolete `DkimSigner` and `ArcSigner` APIs.
   * The obsolete `MimeReader` APIs.
   * `TnefPropertyTag.Puid`. Use `TnefPropertyTag.PuidA` or `TnefPropertyTag.PuidW`.
+* Changed the `partials` parameter of `MessagePartial.Join ()` from `IEnumerable<MessagePartial>` to
+  `IReadOnlyList<MessagePartial>`. Arrays and `List<MessagePartial>` continue to work unchanged.
+  `Join ()` now also validates the `id` and `number` parameters of every partial up front, so a
+  mismatched `id` or missing `number` throws `InvalidOperationException` even when only a single partial
+  is provided.
 * Removed the dead `[Obsolete]` annotations on the legacy serialization members. The
   `#if NET8_0_OR_GREATER` guard around `GetObjectData ()` could never be satisfied (`SERIALIZABLE` is
   only defined for .NET Framework), and the unconditional attribute on the protected serialization

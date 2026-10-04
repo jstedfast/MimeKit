@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Globalization;
 using System.Collections.Generic;
 
@@ -324,13 +323,8 @@ namespace MimeKit {
 
 		static int PartialCompare (MessagePartial partial1, MessagePartial partial2)
 		{
-			if (partial1.Id != partial2.Id)
-				throw new ArgumentException ("Partial messages have mismatching identifiers.", "partials");
-
-			if (!partial1.Number.HasValue || !partial2.Number.HasValue)
-				throw new ArgumentException ("One or more partial messages have missing numbers.", "partials");
-
-			return partial1.Number.Value - partial2.Number.Value;
+			// Note: Join() has already validated that every partial has a number.
+			return partial1.Number!.Value - partial2.Number!.Value;
 		}
 
 		static void CombineHeaders (MimeMessage message, MimeMessage joined)
@@ -426,7 +420,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more <paramref name="partials"/> has a missing number parameter in the Content-Type header.</para>
 		/// </exception>
-		public static MimeMessage? Join (ParserOptions options, MimeMessage message, IEnumerable<MessagePartial> partials)
+		public static MimeMessage? Join (ParserOptions options, MimeMessage message, IReadOnlyList<MessagePartial> partials)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -437,28 +431,36 @@ namespace MimeKit {
 			if (partials is null)
 				throw new ArgumentNullException (nameof (partials));
 
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
-			var parts = partials.ToList ();
-
-			if (parts.Count == 0)
+			if (partials.Count == 0)
 				return null;
 
-			parts.Sort (PartialCompare);
+			var parts = new MessagePartial[partials.Count];
+			var id = partials[0].Id;
 
-			int? lastTotal = parts[parts.Count - 1].Total;
+			for (int i = 0; i < parts.Length; i++) {
+				var partial = partials[i];
+
+				if (partial.Id != id)
+					throw new InvalidOperationException ("Partial messages have mismatching identifiers.");
+
+				if (!partial.Number.HasValue)
+					throw new InvalidOperationException ("One or more partial messages have missing numbers.");
+
+				parts[i] = partial;
+			}
+
+			Array.Sort (parts, PartialCompare);
+
+			int? lastTotal = parts[parts.Length - 1].Total;
 			if (!lastTotal.HasValue)
 				throw new ArgumentException ("The last partial does not have a Total.", nameof (partials));
 
-			if (parts.Count != lastTotal.Value)
+			if (parts.Length != lastTotal.Value)
 				throw new ArgumentException ("The number of partials provided does not match the expected count.", nameof (partials));
-
-			// TODO: should we validate that all of the parts have the same Id parameter?
-			// string? id = parts[0].Id;
 
 			using (var chained = new ChainedStream ()) {
 				// chain all the partial content streams...
-				for (int i = 0; i < parts.Count; i++) {
-					// Note: PartialCompare will throw an exception if any part has a null Number.
+				for (int i = 0; i < parts.Length; i++) {
 					int number = parts[i].Number!.Value;
 
 					if (number != i + 1)
@@ -506,9 +508,8 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para>One or more <paramref name="partials"/> has a missing number parameter in the Content-Type header.</para>
 		/// </exception>
-		public static MimeMessage? Join (MimeMessage message, IEnumerable<MessagePartial> partials)
+		public static MimeMessage? Join (MimeMessage message, IReadOnlyList<MessagePartial> partials)
 		{
-			// FIXME: the partials argument should be changed to be IReadOnlyList<MessagePartial> for MimeKit v5.0.
 			return Join (ParserOptions.Default, message, partials);
 		}
 	}
