@@ -26,6 +26,14 @@
 
 using System;
 
+#if NET6_0_OR_GREATER
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+using System.Runtime.Intrinsics.Arm;
+#endif
+
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// Incrementally encodes content using the Unix-to-Unix encoding.
@@ -46,6 +54,13 @@ namespace MimeKit.Encodings {
 		uint saved;
 		byte nsaved;
 		byte uulen;
+
+		static UUEncoder ()
+		{
+#if NET6_0_OR_GREATER
+			EnableHardwareAcceleration = Ssse3.IsSupported || (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian);
+#endif
+		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="UUEncoder"/> class.
@@ -76,6 +91,21 @@ namespace MimeKit.Encodings {
 			return encoder;
 		}
 
+#if NET6_0_OR_GREATER
+		/// <summary>
+		/// Get or set whether the <see cref="UUEncoder"/> should use hardware acceleration when available.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets whether the <see cref="UUEncoder"/> should use hardware acceleration when available.</para>
+		/// <para>Hardware acceleration defaults to <see langword="true"/> on systems that support SSSE3 (x86/x64) or
+		/// AdvSimd (Arm64). The hardware accelerated code path produces identical results to the scalar implementation.</para>
+		/// </remarks>
+		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
+		public static bool EnableHardwareAcceleration {
+			get; set;
+		}
+#endif
+
 		/// <summary>
 		/// Get the encoding.
 		/// </summary>
@@ -97,7 +127,9 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return (((inputLength + 2) / MaxInputPerLine) * MaxOutputPerLine) + MaxOutputPerLine + 2;
+			// Note: up to 44 bytes of input from previous calls may still be buffered (in uubuf and saved), so the
+			// worst case needs to account for them being completed into full lines along with the new input.
+			return (((inputLength + MaxInputPerLine - 1) / MaxInputPerLine) * MaxOutputPerLine) + MaxOutputPerLine + 2;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -123,7 +155,7 @@ namespace MimeKit.Encodings {
 			return c != 0 ? (byte) (c + 0x20) : (byte) '`';
 		}
 
-		unsafe int Encode (byte* input, int length, byte[] outbuf, byte* output, byte *uuptr)
+		unsafe int Encode (byte* input, int length, byte* output, byte* uuptr)
 		{
 			if (length == 0)
 				return 0;
@@ -144,7 +176,7 @@ namespace MimeKit.Encodings {
 					// copy the previous call's uubuf to output
 					int n = (uulen / 3) * 4;
 
-					Buffer.BlockCopy (uubuf, 0, outbuf, 1, n);
+					Buffer.MemoryCopy (uuptr, bufptr, n, n);
 					bufptr += n;
 				}
 			}
@@ -164,7 +196,7 @@ namespace MimeKit.Encodings {
 
 				uulen += 3;
 			} else if (nsaved == 1) {
-				if ((inptr + 2) < inend) {
+				if ((inptr + 1) < inend) {
 					b0 = (byte) (saved & 0xFF);
 					b1 = *inptr++;
 					b2 = *inptr++;
@@ -226,6 +258,301 @@ namespace MimeKit.Encodings {
 			return (int) (outptr - output);
 		}
 
+#if NET6_0_OR_GREATER
+		unsafe int HwAccelEncode (byte* input, int length, byte* output, byte* uuptr, bool useAvx2)
+		{
+			Debug.Assert ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && BitConverter.IsLittleEndian);
+
+			byte* inend = input + length;
+			byte* outptr = output;
+			byte* inptr = input;
+
+			if (uulen != 0 || nsaved != 0) {
+				// Use the scalar encoder to complete the partial line left over from the previous call.
+				int needed = MaxInputPerLine - uulen - nsaved;
+
+				if (length < needed)
+					return Encode (input, length, output, uuptr);
+
+				outptr += Encode (inptr, needed, outptr, uuptr);
+				inptr += needed;
+
+				Debug.Assert (uulen == 0 && nsaved == 0);
+			}
+
+			int lines = (int) (inend - inptr) / MaxInputPerLine;
+
+			if (lines > 0) {
+				if (useAvx2)
+					outptr = Avx2EncodeLines (inptr, outptr, lines);
+				else
+					outptr = Vector128EncodeLines (inptr, outptr, lines);
+
+				inptr += lines * MaxInputPerLine;
+			}
+
+			if (inptr < inend)
+				outptr += Encode (inptr, (int) (inend - inptr), outptr, uuptr);
+
+			return (int) (outptr - output);
+		}
+
+		// Encodes complete 45-byte lines (each producing 'M' + 60 encoded characters + '\n').
+		//
+		// A line is not a multiple of the 12-byte (Vector128) or 24-byte (Vector256) block size,
+		// so the final block of each line overlaps the previous one. This means that every load
+		// stays within the 45 bytes of input for the line and every store stays within the 62 bytes
+		// of output for the line, so no bounds checks against the end of the buffers are needed.
+		static unsafe byte* Vector128EncodeLines (byte* inptr, byte* outptr, int lines)
+		{
+			// The JIT won't hoist these "constants", so help it
+			Vector128<byte> shuffleVec = Vector128.Create (0x01020001, 0x04050304, 0x07080607, 0x0A0B090A).AsByte ();
+
+			// The same shuffle as above, but for a 16-byte load done 4 bytes before the 12 bytes of interest.
+			Vector128<byte> shuffleTailVec = Vector128.Create (0x05060405, 0x08090708, 0x0B0C0A0B, 0x0E0F0D0E).AsByte ();
+			Vector128<byte> maskAC = Vector128.Create (0x0fc0fc00).AsByte ();
+			Vector128<byte> maskBB = Vector128.Create (0x003f03f0).AsByte ();
+			Vector128<ushort> shiftAC = Vector128.Create (0x04000040).AsUInt16 ();
+			Vector128<short> shiftBB = Vector128.Create (0x01000010).AsInt16 ();
+			Vector128<byte> const63 = Vector128.Create ((byte) 63);
+			Vector128<byte> const33 = Vector128.Create ((byte) 33);
+			Vector128<byte> mask8F = Vector128.Create ((byte) 0x8F);
+
+			do {
+				*outptr = (byte) 'M';
+
+				// input bytes [0..11] -> output chars [0..15]
+				Vector128EncodeBlock (Vector128.LoadUnsafe (ref *inptr), shuffleVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33, mask8F).Store (outptr + 1);
+
+				// input bytes [12..23] -> output chars [16..31]
+				Vector128EncodeBlock (Vector128.LoadUnsafe (ref *(inptr + 12)), shuffleVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33, mask8F).Store (outptr + 17);
+
+				// input bytes [24..35] -> output chars [32..47]
+				Vector128EncodeBlock (Vector128.LoadUnsafe (ref *(inptr + 24)), shuffleVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33, mask8F).Store (outptr + 33);
+
+				// input bytes [33..44] (loaded from [29..44]) -> output chars [44..59]
+				Vector128EncodeBlock (Vector128.LoadUnsafe (ref *(inptr + 29)), shuffleTailVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33, mask8F).Store (outptr + 45);
+
+				outptr[61] = (byte) '\n';
+
+				inptr += MaxInputPerLine;
+				outptr += MaxOutputPerLine;
+			} while (--lines > 0);
+
+			return outptr;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static Vector128<byte> Vector128EncodeBlock (Vector128<byte> str, Vector128<byte> shuffleVec, Vector128<byte> maskAC, Vector128<byte> maskBB, Vector128<ushort> shiftAC, Vector128<short> shiftBB, Vector128<byte> const63, Vector128<byte> const33, Vector128<byte> mask8F)
+		{
+			// Reshuffle
+			str = SimdShuffle (str, shuffleVec, mask8F);
+			// str, bytes MSB to LSB:
+			// k l j k
+			// h i g h
+			// e f d e
+			// b c a b
+
+			Vector128<byte> t0 = str & maskAC;
+			// bits, upper case are most significant bits, lower case are least significant bits
+			// 0000kkkk LL000000 JJJJJJ00 00000000
+			// 0000hhhh II000000 GGGGGG00 00000000
+			// 0000eeee FF000000 DDDDDD00 00000000
+			// 0000bbbb CC000000 AAAAAA00 00000000
+
+			Vector128<byte> t2 = str & maskBB;
+			// 00000000 00llllll 000000jj KKKK0000
+			// 00000000 00iiiiii 000000gg HHHH0000
+			// 00000000 00ffffff 000000dd EEEE0000
+			// 00000000 00cccccc 000000aa BBBB0000
+
+			Vector128<ushort> t1;
+			if (Ssse3.IsSupported) {
+				t1 = Sse2.MultiplyHigh (t0.AsUInt16 (), shiftAC);
+			} else if (AdvSimd.Arm64.IsSupported) {
+				Vector128<ushort> odd = Vector128.ShiftRightLogical (AdvSimd.Arm64.UnzipOdd (t0.AsUInt16 (), t0.AsUInt16 ()), 6);
+				Vector128<ushort> even = Vector128.ShiftRightLogical (AdvSimd.Arm64.UnzipEven (t0.AsUInt16 (), t0.AsUInt16 ()), 10);
+				t1 = AdvSimd.Arm64.ZipLow (even, odd);
+			} else {
+				// explicitly recheck each IsSupported query to ensure that the trimmer can see which paths are live/dead
+				t1 = default;
+			}
+			// 00000000 00kkkkLL 00000000 00JJJJJJ
+			// 00000000 00hhhhII 00000000 00GGGGGG
+			// 00000000 00eeeeFF 00000000 00DDDDDD
+			// 00000000 00bbbbCC 00000000 00AAAAAA
+
+			Vector128<short> t3 = t2.AsInt16 () * shiftBB;
+			// 00llllll 00000000 00jjKKKK 00000000
+			// 00iiiiii 00000000 00ggHHHH 00000000
+			// 00ffffff 00000000 00ddEEEE 00000000
+			// 00cccccc 00000000 00aaBBBB 00000000
+
+			str = t1.AsByte () | t3.AsByte ();
+			// 00llllll 00kkkkLL 00jjKKKK 00JJJJJJ
+			// 00iiiiii 00hhhhII 00ggHHHH 00GGGGGG
+			// 00ffffff 00eeeeFF 00ddEEEE 00DDDDDD
+			// 00cccccc 00bbbbCC 00aaBBBB 00AAAAAA
+
+			// Translation: 0 => '`' (0x60) and 1..63 => 0x21..0x5F.
+			// ((v + 63) & 63) is (v - 1) mod 64, which maps 0 to 63 and 1..63 to 0..62.
+			return ((str + const63) & const63) + const33;
+		}
+
+		static unsafe byte* Avx2EncodeLines (byte* inptr, byte* outptr, int lines)
+		{
+			// Each 128-bit lane of the AVX2 shuffle can only access bytes within the same lane, so the
+			// lower lane needs its 12 input bytes at offsets [4..15] and the upper lane needs its 12
+			// input bytes at offsets [0..11]. The cross-lane permutes below arrange the dwords that way.
+
+			// The JIT won't hoist these "constants", so help it
+			Vector256<byte> shuffleVec = Vector256.Create (
+				5, 4, 6, 5,
+				8, 7, 9, 8,
+				11, 10, 12, 11,
+				14, 13, 15, 14,
+				1, 0, 2, 1,
+				4, 3, 5, 4,
+				7, 6, 8, 7,
+				10, 9, 11, 10).AsByte ();
+
+			// input bytes [0..31] => dwords [x, 0..11] [12..23, x]
+			Vector256<int> permuteHead = Vector256.Create (0, 0, 1, 2, 3, 4, 5, 6);
+
+			// input bytes [13..44] => dwords [x, 21..32] [33..44, x]
+			Vector256<int> permuteTail = Vector256.Create (0, 2, 3, 4, 5, 6, 7, 0);
+
+			Vector256<byte> maskAC = Vector256.Create (0x0fc0fc00).AsByte ();
+			Vector256<byte> maskBB = Vector256.Create (0x003f03f0).AsByte ();
+			Vector256<ushort> shiftAC = Vector256.Create (0x04000040).AsUInt16 ();
+			Vector256<short> shiftBB = Vector256.Create (0x01000010).AsInt16 ();
+			Vector256<byte> const63 = Vector256.Create ((byte) 63);
+			Vector256<byte> const33 = Vector256.Create ((byte) 33);
+
+			do {
+				*outptr = (byte) 'M';
+
+				// input bytes [0..23] -> output chars [0..31]
+				Vector256<byte> str = Avx2.PermuteVar8x32 (Avx.LoadVector256 (inptr).AsInt32 (), permuteHead).AsByte ();
+				Avx.Store (outptr + 1, Avx2EncodeBlock (str, shuffleVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33));
+
+				// input bytes [21..44] (loaded from [13..44]) -> output chars [28..59]
+				str = Avx2.PermuteVar8x32 (Avx.LoadVector256 (inptr + 13).AsInt32 (), permuteTail).AsByte ();
+				Avx.Store (outptr + 29, Avx2EncodeBlock (str, shuffleVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33));
+
+				outptr[61] = (byte) '\n';
+
+				inptr += MaxInputPerLine;
+				outptr += MaxOutputPerLine;
+			} while (--lines > 0);
+
+			return outptr;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static Vector256<byte> Avx2EncodeBlock (Vector256<byte> str, Vector256<byte> shuffleVec, Vector256<byte> maskAC, Vector256<byte> maskBB, Vector256<ushort> shiftAC, Vector256<short> shiftBB, Vector256<byte> const63, Vector256<byte> const33)
+		{
+			// See Vector128EncodeBlock for a description of each step.
+			str = Avx2.Shuffle (str, shuffleVec);
+
+			Vector256<byte> t0 = Avx2.And (str, maskAC);
+			Vector256<byte> t2 = Avx2.And (str, maskBB);
+			Vector256<ushort> t1 = Avx2.MultiplyHigh (t0.AsUInt16 (), shiftAC);
+			Vector256<short> t3 = Avx2.MultiplyLow (t2.AsInt16 (), shiftBB);
+
+			str = Avx2.Or (t1.AsByte (), t3.AsByte ());
+
+			return Avx2.Add (Avx2.And (Avx2.Add (str, const63), const63), const33);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static Vector128<byte> SimdShuffle (Vector128<byte> left, Vector128<byte> right, Vector128<byte> mask8F)
+		{
+			Debug.Assert ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && BitConverter.IsLittleEndian);
+
+			if (Ssse3.IsSupported)
+				return Ssse3.Shuffle (left, right);
+
+			return AdvSimd.Arm64.VectorTableLookup (left, right & mask8F);
+		}
+
+		internal unsafe int HwAccelEncode (byte* input, int length, byte* output, bool useAvx2)
+		{
+			fixed (byte* uuptr = uubuf)
+				return HwAccelEncode (input, length, output, uuptr, useAvx2);
+		}
+
+		unsafe int HwAccelEncode (byte[] input, int startIndex, int length, byte[] output, bool useAvx2, bool flush)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
+				int n = HwAccelEncode (inptr + startIndex, length, outptr, uuptr, useAvx2);
+
+				return flush ? n + Flush (outptr + n, uuptr) : n;
+			}
+		}
+
+		// The following internal entry points allow the unit tests to exercise each code path directly,
+		// regardless of which path the public Encode() and Flush() methods would choose on the host machine.
+		internal int Ssse3Encode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!Ssse3.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, false, flush);
+		}
+
+		internal int Avx2Encode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!Avx2.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, true, flush);
+		}
+
+		internal int AdvSimdEncode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!AdvSimd.Arm64.IsSupported || !BitConverter.IsLittleEndian || Ssse3.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, false, flush);
+		}
+#endif
+
+		internal int ScalarEncode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
+					int n = Encode (inptr + startIndex, length, outptr, uuptr);
+
+					return flush ? n + Flush (outptr + n, uuptr) : n;
+				}
+			}
+		}
+
+		unsafe int Encode (byte[] input, int startIndex, int length, byte[] output, bool flush)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
+				int n;
+
+#if NET6_0_OR_GREATER
+				if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && BitConverter.IsLittleEndian && EnableHardwareAcceleration)
+					n = HwAccelEncode (inptr + startIndex, length, outptr, uuptr, Avx2.IsSupported);
+				else
+					n = Encode (inptr + startIndex, length, outptr, uuptr);
+#else
+				n = Encode (inptr + startIndex, length, outptr, uuptr);
+#endif
+
+				return flush ? n + Flush (outptr + n, uuptr) : n;
+			}
+		}
+
 		/// <summary>
 		/// Encode the specified input into the output buffer.
 		/// </summary>
@@ -256,22 +583,13 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int Encode (byte[] input, int startIndex, int length, byte[] output)
 		{
-			ValidateArguments (input, startIndex, length, output);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
-					return Encode (inptr + startIndex, length, output, outptr, uuptr);
-				}
-			}
+			return Encode (input, startIndex, length, output, false);
 		}
 
-		unsafe int Flush (byte* input, int length, byte[] outbuf, byte* output, byte* uuptr)
+		// Encodes any remaining buffered input as the final (partial) line, followed by the terminating "`\n" line.
+		unsafe int Flush (byte* output, byte* uuptr)
 		{
 			byte* outptr = output;
-
-			if (length > 0)
-				outptr += Encode (input, length, outbuf, output, uuptr);
-
 			byte* bufptr = uuptr + ((uulen / 3) * 4);
 			byte uufill = 0;
 
@@ -305,7 +623,7 @@ namespace MimeKit.Encodings {
 				int n = (uulen / 3) * 4;
 				
 				*outptr++ = Encode ((uulen - uufill) & 0xFF);
-				Buffer.BlockCopy (uubuf, 0, outbuf, (int) (outptr - output), n);
+				Buffer.MemoryCopy (uuptr, outptr, n, n);
 				outptr += n;
 
 				*outptr++ = (byte) '\n';
@@ -350,13 +668,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int Flush (byte[] input, int startIndex, int length, byte[] output)
 		{
-			ValidateArguments (input, startIndex, length, output);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output, uuptr = uubuf) {
-					return Flush (inptr + startIndex, length, output, outptr, uuptr);
-				}
-			}
+			return Encode (input, startIndex, length, output, true);
 		}
 
 		/// <summary>

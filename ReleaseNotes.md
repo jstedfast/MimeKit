@@ -189,6 +189,9 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUDecoder` that decode whole well-formed lines at a
   time (roughly 19x faster than the scalar decoder), falling back to the scalar decoder for anything
   else. They can be disabled using the new `UUDecoder.EnableHardwareAcceleration` property.
+* Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUEncoder` that encode whole 45-byte lines at a
+  time (roughly 14x faster with SSSE3 and 16x faster with AVX2 than the scalar encoder). They can be
+  disabled using the new `UUEncoder.EnableHardwareAcceleration` property.
 
 ### Bug Fixes
 
@@ -225,6 +228,12 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Fixed `UUDecoder` to remember across `Decode ()` calls that the previous input ended with a line
   break. Previously, for a line with fewer encoded characters than its length octet claimed, the
   output could differ depending on where the input was split into buffers.
+* Fixed `UUEncoder` to output the bytes in the correct order when 1 byte was left over from a
+  previous `Encode ()` call and the next call passed exactly 2 bytes. Previously those 3 bytes were
+  held back and output after the input of the next call.
+* Fixed `UUEncoder.EstimateOutputLength ()` to account for input left over from previous `Encode ()`
+  calls. It could previously underestimate, so a caller allocating an output buffer of the estimated
+  size could have its output buffer overrun.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
