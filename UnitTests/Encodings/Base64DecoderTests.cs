@@ -262,7 +262,10 @@ namespace UnitTests.Encodings {
 		}
 
 		static readonly object[] LineFormats = {
+			new object[] { 1, "\r\n" },
+			new object[] { 3, "\n" },
 			new object[] { 4, "\r\n" },
+			new object[] { 5, "\r\n" },
 			new object[] { 12, "\n" },
 			new object[] { 16, "\r\n" },
 			new object[] { 17, "\r\n" },
@@ -270,7 +273,10 @@ namespace UnitTests.Encodings {
 			new object[] { 57, "\r\n" },
 			new object[] { 64, "\r\n" },
 			new object[] { 72, " \t\r\n" },
+			new object[] { 75, "\r\n" },
+			new object[] { 75, "\n" },
 			new object[] { 76, "\r\n" },
+			new object[] { 77, "\r\n" },
 			new object[] { 76, "\n" },
 			new object[] { 1000, "\r\n" },
 			new object[] { int.MaxValue, "" },

@@ -25,9 +25,13 @@
 //
 
 using System;
-using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+
+#if NET8_0_OR_GREATER
+using System.Numerics;
+using System.Runtime.Intrinsics;
+#endif
 
 using MimeKit.Utils;
 
@@ -42,10 +46,6 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	class Base64Validator : IEncodingValidator
 	{
-#if NET8_0_OR_GREATER
-		static readonly SearchValues<byte> Base64Alphabet = SearchValues.Create ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"u8);
-#endif
-
 		// Classifications for each possible input byte. Combining the base64 alphabet, the padding
 		// character, the line breaks and the whitespace into a single table means that the inner loop
 		// only needs one table lookup per byte instead of a lookup plus a chain of comparisons.
@@ -90,6 +90,12 @@ namespace MimeKit.Encodings {
 		bool reportedInvalidCharacter;
 		bool reportedComment;
 
+#if NET8_0_OR_GREATER
+		// The widest vector (in bytes) that Validate() is allowed to use. This allows the unit tests to
+		// exercise the narrower (and scalar) code paths on hosts that support wider vectors.
+		internal int MaxVectorSize = Vector256.IsHardwareAccelerated ? 32 : Vector128.IsHardwareAccelerated ? 16 : 0;
+#endif
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Validator"/> class.
 		/// </summary>
@@ -128,6 +134,156 @@ namespace MimeKit.Encodings {
 			get { return ContentEncoding.Base64; }
 		}
 
+#if NET8_0_OR_GREATER
+		// Update the line tracking state for the line feeds found by one of the SIMD kernels.
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		unsafe void OnLineFeeds (byte* input, byte* block, uint lineFeeds)
+		{
+			// Note: For both 16 and 32-byte vectors, the index of the last line feed in the block is
+			// 31 - LeadingZeroCount(), so the next line begins at 32 - LeadingZeroCount().
+			lineBeginOffset = streamOffset + (block - input) + (32 - BitOperations.LeadingZeroCount (lineFeeds));
+			lineNumber += BitOperations.PopCount (lineFeeds);
+			reportedInvalidCharacter = false;
+			reportedComment = false;
+		}
+
+		// Returns a mask of the bytes that are base64 alphabet characters.
+		//
+		// Note: x86 has no unsigned byte comparisons, so each range check is performed by adding a bias that maps the
+		// start of the range to sbyte.MinValue and then doing a single signed comparison against the end of the range.
+		// OR'ing with 0x20 maps 'A'-'Z' to 'a'-'z' without mapping any other byte into that range.
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static Vector256<byte> IsAlphabet (Vector256<byte> block)
+		{
+			var letters = Vector256.LessThan (((block | Vector256.Create ((byte) 0x20)) + Vector256.Create (unchecked ((byte) (0x80 - 'a')))).AsSByte (), Vector256.Create ((sbyte) (-128 + 26)));
+			var digits = Vector256.LessThan ((block + Vector256.Create (unchecked ((byte) (0x80 - '0')))).AsSByte (), Vector256.Create ((sbyte) (-128 + 10)));
+
+			return letters.AsByte () | digits.AsByte ()
+				| Vector256.Equals (block, Vector256.Create ((byte) '+'))
+				| Vector256.Equals (block, Vector256.Create ((byte) '/'));
+		}
+
+		// See IsAlphabet(Vector256<byte>) for an explanation of how this works.
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static Vector128<byte> IsAlphabet (Vector128<byte> block)
+		{
+			var letters = Vector128.LessThan (((block | Vector128.Create ((byte) 0x20)) + Vector128.Create (unchecked ((byte) (0x80 - 'a')))).AsSByte (), Vector128.Create ((sbyte) (-128 + 26)));
+			var digits = Vector128.LessThan ((block + Vector128.Create (unchecked ((byte) (0x80 - '0')))).AsSByte (), Vector128.Create ((sbyte) (-128 + 10)));
+
+			return letters.AsByte () | digits.AsByte ()
+				| Vector128.Equals (block, Vector128.Create ((byte) '+'))
+				| Vector128.Equals (block, Vector128.Create ((byte) '/'));
+		}
+
+		// Validates 32-byte blocks consisting of base64 alphabet characters, line feeds and whitespace. Stops at
+		// the first byte that requires special handling ('=', '*' or an invalid character) or when there are
+		// fewer than 32 bytes remaining. Returns a pointer to the first byte that was not consumed.
+		unsafe byte* ValidateVector256 (byte* input, byte* inptr, byte* inend, ref uint total)
+		{
+			// Note: Accumulate into a local rather than updating the ref parameter in every iteration of the loop.
+			uint n = total;
+
+			do {
+				var block = Vector256.Load (inptr);
+
+				var alphabet = IsAlphabet (block);
+				uint alphabetMask = alphabet.ExtractMostSignificantBits ();
+
+				// Fast path: blocks consisting entirely of base64 alphabet characters only need to be counted.
+				if (alphabetMask == uint.MaxValue) {
+					n += 32;
+					inptr += 32;
+					continue;
+				}
+
+				var lineFeed = Vector256.Equals (block, Vector256.Create ((byte) '\n'));
+				var whitespace = Vector256.Equals (block, Vector256.Create ((byte) '\r'))
+					| Vector256.Equals (block, Vector256.Create ((byte) ' '))
+					| Vector256.Equals (block, Vector256.Create ((byte) '\t'));
+
+				uint valid = (alphabet | lineFeed | whitespace).ExtractMostSignificantBits ();
+				uint lineFeedMask = lineFeed.ExtractMostSignificantBits ();
+				int count = 32;
+
+				if (valid != uint.MaxValue) {
+					// Only consume the bytes that precede the first byte that requires special handling.
+					count = BitOperations.TrailingZeroCount (~valid);
+
+					uint mask = (1u << count) - 1;
+
+					alphabetMask &= mask;
+					lineFeedMask &= mask;
+				}
+
+				n += (uint) BitOperations.PopCount (alphabetMask);
+
+				if (lineFeedMask != 0)
+					OnLineFeeds (input, inptr, lineFeedMask);
+
+				inptr += count;
+
+				if (count < 32)
+					break;
+			} while (inend - inptr >= 32);
+
+			total = n;
+
+			return inptr;
+		}
+
+		// See ValidateVector256() for an explanation of how this works.
+		unsafe byte* ValidateVector128 (byte* input, byte* inptr, byte* inend, ref uint total)
+		{
+			// Note: Accumulate into a local rather than updating the ref parameter in every iteration of the loop.
+			uint n = total;
+
+			do {
+				var block = Vector128.Load (inptr);
+
+				var alphabet = IsAlphabet (block);
+				uint alphabetMask = alphabet.ExtractMostSignificantBits ();
+
+				if (alphabetMask == 0xFFFF) {
+					n += 16;
+					inptr += 16;
+					continue;
+				}
+
+				var lineFeed = Vector128.Equals (block, Vector128.Create ((byte) '\n'));
+				var whitespace = Vector128.Equals (block, Vector128.Create ((byte) '\r'))
+					| Vector128.Equals (block, Vector128.Create ((byte) ' '))
+					| Vector128.Equals (block, Vector128.Create ((byte) '\t'));
+
+				uint valid = (alphabet | lineFeed | whitespace).ExtractMostSignificantBits ();
+				uint lineFeedMask = lineFeed.ExtractMostSignificantBits ();
+				int count = 16;
+
+				if (valid != 0xFFFF) {
+					count = BitOperations.TrailingZeroCount (~valid);
+
+					uint mask = (1u << count) - 1;
+
+					alphabetMask &= mask;
+					lineFeedMask &= mask;
+				}
+
+				n += (uint) BitOperations.PopCount (alphabetMask);
+
+				if (lineFeedMask != 0)
+					OnLineFeeds (input, inptr, lineFeedMask);
+
+				inptr += count;
+
+				if (count < 16)
+					break;
+			} while (inend - inptr >= 16);
+
+			total = n;
+
+			return inptr;
+		}
+#endif
+
 #if NET6_0_OR_GREATER
 		[SkipLocalsInit]
 #endif
@@ -141,18 +297,17 @@ namespace MimeKit.Encodings {
 			if (padding == 0) {
 				while (inptr < inend) {
 #if NET8_0_OR_GREATER
-					// The overwhelming majority of the content consists of base64 alphabet characters,
-					// so use a vectorized search to skip over them in bulk.
-					int index = new ReadOnlySpan<byte> (inptr, (int) (inend - inptr)).IndexOfAnyExcept (Base64Alphabet);
+					// The overwhelming majority of the content consists of base64 alphabet characters and
+					// line breaks, so use SIMD to validate them in bulk. The SIMD kernels stop at the first
+					// byte that requires special handling, which is then handled by the scalar code below.
+					if (MaxVectorSize >= 32 && inend - inptr >= 32)
+						inptr = ValidateVector256 (input, inptr, inend, ref n);
 
-					if (index == -1) {
-						n += (uint) (inend - inptr);
-						inptr = inend;
+					if (MaxVectorSize >= 16 && inend - inptr >= 16)
+						inptr = ValidateVector128 (input, inptr, inend, ref n);
+
+					if (inptr == inend)
 						break;
-					}
-
-					n += (uint) index;
-					inptr += index;
 #endif
 					byte c = *inptr++;
 					byte category = Unsafe.Add (ref table, c);

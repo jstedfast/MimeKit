@@ -25,6 +25,7 @@
 //
 
 using System.Text;
+using System.Runtime.Intrinsics;
 
 using MimeKit;
 using MimeKit.Encodings;
@@ -219,6 +220,166 @@ namespace UnitTests.Encodings {
 			var logger = new TestMimeComplianceLogger ();
 
 			TestValidator (logger, new Base64Validator (logger, MimeComplianceContext.Transport, 0, 1), "photo.b64", photo_b64, bufferSize);
+		}
+
+		public enum CodePath
+		{
+			Scalar,
+			Vector128,
+			Vector256
+		}
+
+		static Base64Validator CreateValidator (CodePath path, IMimeComplianceLogger logger, long streamOffset = 0, int lineNumber = 1)
+		{
+			var validator = new Base64Validator (logger, MimeComplianceContext.Transport, streamOffset, lineNumber);
+
+			switch (path) {
+			case CodePath.Vector256:
+				if (!Vector256.IsHardwareAccelerated)
+					Assert.Ignore ("Vector256 is not hardware accelerated on this host.");
+
+				validator.MaxVectorSize = 32;
+				break;
+			case CodePath.Vector128:
+				if (!Vector128.IsHardwareAccelerated)
+					Assert.Ignore ("Vector128 is not hardware accelerated on this host.");
+
+				validator.MaxVectorSize = 16;
+				break;
+			default:
+				validator.MaxVectorSize = 0;
+				break;
+			}
+
+			return validator;
+		}
+
+		static List<MimeComplianceIssue> Validate (CodePath path, byte[] input, int chunkSize, long streamOffset = 0, int lineNumber = 1)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var validator = CreateValidator (path, logger, streamOffset, lineNumber);
+
+			chunkSize = Math.Max (1, Math.Min (chunkSize, input.Length));
+
+			for (int index = 0; index < input.Length; index += chunkSize)
+				validator.Write (input, index, Math.Min (chunkSize, input.Length - index));
+
+			validator.Flush ();
+
+			return logger.Issues;
+		}
+
+		static byte[] Wrap (string base64, int lineLength, string newLine, string trailer)
+		{
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < base64.Length; i += lineLength) {
+				builder.Append (base64, i, Math.Min (lineLength, base64.Length - i));
+				builder.Append (newLine);
+			}
+
+			builder.Append (trailer);
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
+		}
+
+		static readonly object[] LineFormats = {
+			new object[] { 1, "\r\n" },
+			new object[] { 3, "\n" },
+			new object[] { 5, "\r\n" },
+			new object[] { 15, "\r\n" },
+			new object[] { 16, "\n" },
+			new object[] { 17, "\r\n" },
+			new object[] { 31, "\r\n" },
+			new object[] { 33, "\n" },
+			new object[] { 57, "\r\n" },
+			new object[] { 64, "\r\n" },
+			new object[] { 72, " \t\r\n" },
+			new object[] { 75, "\r\n" },
+			new object[] { 75, "\n" },
+			new object[] { 76, "\r\n" },
+			new object[] { 77, "\r\n" },
+			new object[] { 1000, "\r\n" },
+			new object[] { int.MaxValue, "" },
+		};
+
+		[Test]
+		public void TestValidateRandomData ([Values] CodePath path, [ValueSource (nameof (LineFormats))] object[] format)
+		{
+			int lineLength = (int) format[0];
+			var newLine = (string) format[1];
+			var random = new Random (lineLength * 31 + newLine.Length);
+			int[] chunkSizes = { 1, 3, 15, 16, 17, 31, 32, 33, 77, 4096, int.MaxValue };
+
+			for (int length = 0; length < 1200; length += random.Next (1, 50)) {
+				var data = new byte[length];
+
+				random.NextBytes (data);
+
+				var base64 = Convert.ToBase64String (data);
+
+				// Valid content should not report any issues.
+				var encoded = Wrap (base64, lineLength, newLine, string.Empty);
+
+				foreach (var chunkSize in chunkSizes) {
+					var issues = Validate (path, encoded, chunkSize, 100, 7);
+
+					Assert.That (issues, Is.Empty, $"length={length}, chunkSize={chunkSize}");
+				}
+
+				// Append an invalid character so that the line and column tracking can be verified.
+				encoded = Wrap (base64.TrimEnd ('='), lineLength, newLine, "?");
+				var expected = Validate (CodePath.Scalar, encoded, int.MaxValue, 100, 7);
+
+				Assert.That (expected.Count, Is.GreaterThan (0), $"Reference: length={length}");
+
+				foreach (var chunkSize in chunkSizes)
+					Assert.That (Validate (path, encoded, chunkSize, 100, 7), Is.EqualTo (expected), $"length={length}, chunkSize={chunkSize}");
+			}
+		}
+
+		[Test]
+		public void TestValidateRandomDataWithGarbage ([Values] CodePath path)
+		{
+			const string garbage = " \t\r\n\v\f=*?!-.~\0\u0080\u00ff@[`{:";
+			int[] lineLengths = { 3, 17, 57, 75, 76, 77, int.MaxValue };
+			int[] chunkSizes = { 1, 7, 16, 33, 100, int.MaxValue };
+			var random = new Random (1214);
+
+			for (int iteration = 0; iteration < 500; iteration++) {
+				var data = new byte[random.Next (0, 600)];
+
+				random.NextBytes (data);
+
+				int lineLength = lineLengths[random.Next (lineLengths.Length)];
+				var wrapped = Encoding.ASCII.GetString (Wrap (Convert.ToBase64String (data), lineLength, "\r\n", string.Empty));
+				var positions = new SortedSet<int> ();
+				var builder = new StringBuilder ();
+				int insertions = random.Next (0, 10);
+
+				for (int i = 0; i < insertions; i++)
+					positions.Add (random.Next (0, wrapped.Length + 1));
+
+				int last = 0;
+				foreach (var position in positions) {
+					builder.Append (wrapped, last, position - last);
+					int count = random.Next (1, 4);
+					for (int i = 0; i < count; i++)
+						builder.Append (garbage[random.Next (garbage.Length)]);
+					last = position;
+				}
+				builder.Append (wrapped, last, wrapped.Length - last);
+
+				var encoded = new byte[builder.Length];
+				for (int i = 0; i < builder.Length; i++)
+					encoded[i] = (byte) builder[i];
+
+				// The scalar validator is the reference implementation.
+				var expected = Validate (CodePath.Scalar, encoded, int.MaxValue);
+
+				foreach (var chunkSize in chunkSizes)
+					Assert.That (Validate (path, encoded, chunkSize), Is.EqualTo (expected), $"iteration={iteration}, chunkSize={chunkSize}");
+			}
 		}
 	}
 }
