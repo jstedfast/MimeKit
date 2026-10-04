@@ -184,8 +184,8 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Replaced the `Base64.DecodeFromUtf8 ()`-based hardware-accelerated path in `Base64Decoder` with
   MimeKit's own SSSE3, AVX2 and Arm64 AdvSimd kernels, which fall back to the scalar decoder for
   whitespace, line breaks, padding and invalid characters. The output is identical to the scalar
-  decoder, so `Base64Decoder.EnableHardwareAcceleration` is now enabled by default on .NET 8 and later
-  (it was previously disabled because of bugs in `Base64.DecodeFromUtf8 ()`).
+  decoder but is 5.5x faster, so `Base64Decoder.EnableHardwareAcceleration` is now enabled by default
+  on .NET 8 and later (it was previously disabled because of bugs in `Base64.DecodeFromUtf8 ()`).
 * Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUDecoder` that decode whole well-formed lines at a
   time (roughly 19x faster than the scalar decoder), falling back to the scalar decoder for anything
   else. They can be disabled using the new `UUDecoder.EnableHardwareAcceleration` property.
