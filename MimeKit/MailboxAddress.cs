@@ -45,6 +45,9 @@ namespace MimeKit {
 	/// Represents a mailbox address (commonly referred to as an email address)
 	/// for a single recipient.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="ParseMailbox"/>
+	/// </example>
 	public class MailboxAddress : InternetAddress
 	{
 		static readonly byte[] EmptySentinels = Array.Empty<byte> ();
@@ -288,6 +291,9 @@ namespace MimeKit {
 		/// <para>For more information, see section 3.2 of
 		/// <a href="https://tools.ietf.org/html/rfc6532#section-3.2">rfc6532</a>.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="InternationalAddresses"/>
+		/// </example>
 		/// <value><see langword="true" /> if the address is an international address; otherwise, <see langword="false" />.</value>
 		public bool IsInternational {
 			get {
@@ -386,6 +392,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// If <paramref name="idnEncode"/> is <see langword="true" />, then the returned mailbox address will be encoded according to the IDN encoding rules.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="InternationalAddresses"/>
+		/// </example>
 		/// <param name="idnEncode"><see langword="true" /> if the address should be encoded according to IDN encoding rules; otherwise, <see langword="false" />.</param>
 		/// <returns>The mailbox address.</returns>
 		public string GetAddress (bool idnEncode)
@@ -716,6 +725,9 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="TryParseMailbox"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="options">The parser options to use.</param>
 		/// <param name="text">The text.</param>
@@ -749,6 +761,9 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="TryParseMailbox"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
@@ -988,6 +1003,9 @@ namespace MimeKit {
 		/// Parses a single <see cref="MailboxAddress"/>. If the address is not a mailbox address or
 		/// there is more than a single mailbox address, then parsing will fail.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="ParseMailbox"/>
+		/// </example>
 		/// <returns>The parsed <see cref="MailboxAddress"/>.</returns>
 		/// <param name="text">The text.</param>
 		/// <exception cref="System.ArgumentNullException">

@@ -52,6 +52,9 @@ namespace MimeKit {
 	/// types of addresses. They typically only contain mailbox addresses, but may also
 	/// contain other group addresses.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="ParseAddressList"/>
+	/// </example>
 	[TypeConverter (typeof (InternetAddressListConverter))]
 	public class InternetAddressList : IList<InternetAddress>, IEquatable<InternetAddressList>, IComparable<InternetAddressList>
 	{
@@ -111,6 +114,9 @@ namespace MimeKit {
 		/// This API is useful for collecting a flattened list of <see cref="MailboxAddress"/>
 		/// recipients for use with sending via SMTP or for encrypting via S/MIME or PGP/MIME.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="EnumerateMailboxes"/>
+		/// </example>
 		/// <value>The mailboxes.</value>
 		public IEnumerable<MailboxAddress> Mailboxes {
 			get {
@@ -1063,6 +1069,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a list of addresses from the specified text.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="ParseAddressList"/>
+		/// </example>
 		/// <returns>The parsed <see cref="InternetAddressList"/>.</returns>
 		/// <param name="text">The text.</param>
 		/// <exception cref="System.ArgumentNullException">

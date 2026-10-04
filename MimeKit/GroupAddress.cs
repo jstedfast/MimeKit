@@ -41,6 +41,9 @@ namespace MimeKit {
 	/// Group addresses are rarely used anymore. Typically, if you see a group address,
 	/// it will be of the form: <c>"undisclosed-recipients: ;"</c>.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="GroupAddress"/>
+	/// </example>
 	public class GroupAddress : InternetAddress
 	{
 		/// <summary>
@@ -127,6 +130,9 @@ namespace MimeKit {
 		/// anything other than <see cref="MailboxAddress"/> members in order to comply with internet
 		/// standards.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="GroupAddress"/>
+		/// </example>
 		/// <value>The list of members.</value>
 		public InternetAddressList Members {
 			get; private set;

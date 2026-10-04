@@ -38,6 +38,10 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents MIME entities such as those with a Content-Type of message/rfc822 or message/news.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MultipartExamples.cs" region="ExtractAttachedMessages"/>
+	/// <code language="c#" source="Examples\ForwardExamples.cs" region="ForwardAttached"/>
+	/// </example>
 	public class MessagePart : MimeEntity, IMessagePart
 	{
 		/// <summary>

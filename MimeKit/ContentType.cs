@@ -40,6 +40,9 @@ namespace MimeKit {
 	/// suggest to the receiving client the mime-type of the content and,
 	/// depending on that mime-type, presentation options such as charset.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="ParseContentType"/>
+	/// </example>
 	public class ContentType
 	{
 		ParameterList parameters;
@@ -133,6 +136,9 @@ namespace MimeKit {
 		/// contain parameters to provide further hints to the receiving client as to
 		/// how to process or display the content.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="ContentTypeParameters"/>
+		/// </example>
 		/// <value>The parameters.</value>
 		public ParameterList Parameters {
 			get { return parameters; }
@@ -283,6 +289,9 @@ namespace MimeKit {
 		/// If the specified <paramref name="mediaType"/> or <paramref name="mediaSubtype"/>
 		/// are <c>"*"</c>, they match anything.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="IsMimeType"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the <see cref="ContentType"/> matches the
 		/// provided media type and subtype.</returns>
 		/// <param name="mediaType">The media type.</param>
@@ -664,6 +673,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="ParseContentType"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the content type was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text to parse.</param>
 		/// <param name="type">The parsed content type.</param>
@@ -870,6 +882,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Parses a Content-Type value from the specified text.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="ParseContentType"/>
+		/// </example>
 		/// <returns>The parsed <see cref="ContentType"/>.</returns>
 		/// <param name="text">The text.</param>
 		/// <exception cref="System.ArgumentNullException">

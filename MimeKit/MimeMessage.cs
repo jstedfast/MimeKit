@@ -51,6 +51,9 @@ namespace MimeKit {
 	/// tree of MIME entities such as a text/plain MIME part and a collection
 	/// of file attachments.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="CreateMessage"/>
+	/// </example>
 	public class MimeMessage : IMimeMessage
 	{
 		static readonly HeaderId[] StandardAddressHeaders = {
@@ -278,6 +281,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Creates a new MIME message.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="CreateMessage"/>
+		/// </example>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
 			Headers[HeaderId.From] = string.Empty;
@@ -316,6 +322,9 @@ namespace MimeKit {
 		/// <see cref="MimeEntity.Headers"/> property of the <see cref="Body"/>.
 		/// </note>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <value>The list of headers.</value>
 		public HeaderList Headers {
 			get; private set;
@@ -327,6 +336,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets the value of the Importance header.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="CreateMessage"/>
+		/// </example>
 		/// <value>The importance.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is not a valid <see cref="MessageImportance"/>.
@@ -371,6 +383,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets or sets the value of the Priority header.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="CreateMessage"/>
+		/// </example>
 		/// <value>The priority.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is not a valid <see cref="MessagePriority"/>.
@@ -697,6 +712,9 @@ namespace MimeKit {
 		/// The addresses in the To header are the primary recipients of
 		/// the message.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="EnumerateMailboxes"/>
+		/// </example>
 		/// <value>The list of addresses in the To header.</value>
 		public InternetAddressList To {
 			get { return GetLazyLoadedAddresses (HeaderId.To, LazyLoadedFields.To); }
@@ -856,6 +874,9 @@ namespace MimeKit {
 		/// The References header contains a chain of Message-Ids back to the
 		/// original message that started the thread.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="MessageIdHeaders"/>
+		/// </example>
 		/// <value>The references.</value>
 		public MessageIdList References {
 			get {
@@ -884,6 +905,9 @@ namespace MimeKit {
 		/// use the In-Reply-To header to specify the Message-Id of the
 		/// original message being replied to.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="MessageIdHeaders"/>
+		/// </example>
 		/// <value>The message id that this message is in reply to.</value>
 		/// <exception cref="System.ArgumentException">
 		/// <paramref name="value"/> is improperly formatted.
@@ -935,6 +959,9 @@ namespace MimeKit {
 		/// <para><see cref="MimeUtils.GenerateMessageId()"/> can be used
 		/// to generate this value.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="MessageIdHeaders"/>
+		/// </example>
 		/// <value>The message identifier.</value>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
@@ -1089,6 +1116,9 @@ namespace MimeKit {
 		/// <para>Gets the text content of the first text/plain body part that is found (in depth-first
 		/// search order) which is not an attachment.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="GetMessageText"/>
+		/// </example>
 		/// <value>The text body if it exists; otherwise, <see langword="null"/>.</value>
 		public string? TextBody {
 			get { return GetTextBody (TextFormat.Plain); }
@@ -1100,6 +1130,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Gets the HTML-formatted body of the message if it exists.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="GetMessageText"/>
+		/// </example>
 		/// <value>The html body if it exists; otherwise, <see langword="null"/>.</value>
 		public string? HtmlBody {
 			get { return GetTextBody (TextFormat.Html); }
@@ -1111,6 +1144,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the text body in the specified format, if it exists.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="GetMessageText"/>
+		/// </example>
 		/// <returns>The text body in the desired format if it exists; otherwise, <see langword="null"/>.</returns>
 		/// <param name="format">The desired text format.</param>
 		public string? GetTextBody (TextFormat format)
@@ -1284,6 +1320,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Prepares the message for transport using the specified encoding constraints.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="Prepare"/>
+		/// </example>
 		/// <param name="constraint">The encoding constraint.</param>
 		/// <param name="maxLineLength">The maximum allowable length for a line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -1480,6 +1519,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Asynchronously writes the message to the output stream using the provided formatting options.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="WriteToAsync"/>
+		/// </example>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -1598,6 +1640,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Writes the message to the specified file using the provided formatting options.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="WriteTo"/>
+		/// </example>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="fileName">The file.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
@@ -2204,6 +2249,9 @@ namespace MimeKit {
 		/// Loads a <see cref="MimeMessage"/> from the given stream, using the
 		/// specified <see cref="ParserOptions"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="LoadMessageAsync"/>
+		/// </example>
 		/// <returns>The parsed message.</returns>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream.</param>
@@ -2454,6 +2502,9 @@ namespace MimeKit {
 		/// Loads a <see cref="MimeMessage"/> from the file at the given path, using the
 		/// default <see cref="ParserOptions"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="LoadMessage"/>
+		/// </example>
 		/// <returns>The parsed message.</returns>
 		/// <param name="fileName">The name of the file to load.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

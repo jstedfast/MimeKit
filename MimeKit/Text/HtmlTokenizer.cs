@@ -37,6 +37,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// Tokenizes HTML text, emitting an <see cref="HtmlToken"/> for each token it encounters.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TextConverterExamples.cs" region="HtmlTokenizer"/>
+	/// </example>
 	public class HtmlTokenizer
 	{
 		// Specification: https://dev.w3.org/html5/spec-LC/tokenization.html
@@ -2715,6 +2718,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Reads the next token.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TextConverterExamples.cs" region="HtmlTokenizer"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the next token was read; otherwise, <see langword="false" />.</returns>
 		/// <param name="token">The token that was read.</param>
 		public bool ReadNextToken ([NotNullWhen (true)] out HtmlToken? token)

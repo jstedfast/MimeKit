@@ -39,6 +39,9 @@ namespace MimeKit.Text {
 	/// <para>The Content-Type header for the wrapped output text should be set to
 	/// <c>text/plain; format=flowed; delsp=yes</c>.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TextConverterExamples.cs" region="TextToFlowed"/>
+	/// </example>
 	public class TextToFlowed : TextConverter
 	{
 		const int MaxLineLength = 78;

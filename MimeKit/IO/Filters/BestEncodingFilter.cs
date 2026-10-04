@@ -35,6 +35,9 @@ namespace MimeKit.IO.Filters {
 	/// Keeps track of the content that gets passed through the filter in order to
 	/// determine the most efficient <see cref="ContentEncoding"/> to use.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\FilterExamples.cs" region="BestEncoding"/>
+	/// </example>
 	public class BestEncodingFilter : IMimeFilter
 	{
 		readonly byte[] marker = new byte[6];
@@ -61,6 +64,9 @@ namespace MimeKit.IO.Filters {
 		/// <remarks>
 		/// Gets the best encoding given the specified constraints.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\FilterExamples.cs" region="BestEncoding"/>
+		/// </example>
 		/// <returns>The best encoding.</returns>
 		/// <param name="constraint">The encoding constraint.</param>
 		/// <param name="maxLineLength">The maximum allowable line length (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>

@@ -47,6 +47,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// <para><see cref="MimeReader"/> provides forward-only, read-only access to MIME data in a stream.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeReaderExamples.cs" region="MimeStructureReader"/>
+	/// </example>
 	public partial class MimeReader
 	{
 		enum MimeEntityType
@@ -225,6 +228,9 @@ namespace MimeKit {
 		/// <para>This does not change which violations are reported, only the
 		/// <see cref="MimeComplianceIssue.Severity"/> that they are reported with.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeReaderExamples.cs" region="ComplianceLogger"/>
+		/// </example>
 		/// <value>The MIME compliance context.</value>
 		public MimeComplianceContext ComplianceContext {
 			get; set;
@@ -236,6 +242,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// <para>Gets or sets the logger to use for reporting MIME compliance violations.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeReaderExamples.cs" region="ComplianceLogger"/>
+		/// </example>
 		/// <value>The MIME compliance logger.</value>
 		public IMimeComplianceLogger? ComplianceLogger {
 			get { return userComplianceLogger; }
@@ -265,6 +274,9 @@ namespace MimeKit {
 		/// <see cref="MimeComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
 		/// report is never silently incomplete.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeReaderExamples.cs" region="ComplianceLogger"/>
+		/// </example>
 		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="value"/> is negative.
@@ -3417,6 +3429,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Reads a message from the stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeReaderExamples.cs" region="MimeStructureReader"/>
+		/// </example>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.

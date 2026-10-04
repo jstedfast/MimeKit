@@ -40,6 +40,9 @@ namespace MimeKit {
 	/// (in other words, the last entity will be in a format that, when rendered, will most closely match
 	/// what the sending client's WYSISYG editor produced).
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MultipartExamples.cs" region="CreateMultipartAlternative"/>
+	/// </example>
 	public class MultipartAlternative : Multipart, IMultipartAlternative
 	{
 		/// <summary>

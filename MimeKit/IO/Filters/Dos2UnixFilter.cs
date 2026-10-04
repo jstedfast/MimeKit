@@ -33,6 +33,9 @@ namespace MimeKit.IO.Filters {
 	/// <remarks>
 	/// Converts from Windows/DOS line endings to Unix line endings.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\FilterExamples.cs" region="ConvertCharset"/>
+	/// </example>
 	public class Dos2UnixFilter : MimeFilterBase
 	{
 		readonly bool ensureNewLine;

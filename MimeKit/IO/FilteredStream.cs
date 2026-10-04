@@ -39,6 +39,10 @@ namespace MimeKit.IO {
 	/// <remarks>
 	/// Passes data through each <see cref="IMimeFilter"/> as the data is read or written.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\FilterExamples.cs" region="EncodeFile"/>
+	/// <code language="c#" source="Examples\FilterExamples.cs" region="DecodeFile"/>
+	/// </example>
 	public class FilteredStream : Stream, ICancellableStream
 	{
 		const int ReadBufferSize = 4096;

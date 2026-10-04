@@ -41,6 +41,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// Allows you to anonymize a <see cref="MimeMessage"/> or <see cref="MimeEntity"/>.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeAnonymizerExamples.cs" region="AnonymizeMessage"/>
+	/// </example>
 	public class MimeAnonymizer
 	{
 		static ReadOnlySpan<byte> AddressSpecials => " \t\r\n()<>[]:;@,."u8;
@@ -79,6 +82,9 @@ namespace MimeKit {
 		/// <note type="note">This set of headers to preserve also applies to the status headers in the content of
 		/// message/delivery-status parts as well.</note>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeAnonymizerExamples.cs" region="PreserveHeaders"/>
+		/// </example>
 		/// <value>The set of headers that the anonymizer is configured to preserve.</value>
 		public HashSet<string> PreserveHeaders {
 			get { return preserveHeaders; }
@@ -90,6 +96,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Writes an anonymized version of the message to a stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeAnonymizerExamples.cs" region="AnonymizeMessage"/>
+		/// </example>
 		/// <param name="message">The message to anonymize.</param>
 		/// <param name="stream">The stream to write the anonymized message to.</param>
 		/// <exception cref="ArgumentNullException">
@@ -108,6 +117,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Writes an anonymized version of the message to a stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeAnonymizerExamples.cs" region="PreserveHeaders"/>
+		/// </example>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="message">The message to anonymize.</param>
 		/// <param name="stream">The stream to write the anonymized message to.</param>
@@ -138,6 +150,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Writes an anonymized version of the entity to a stream.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\MimeAnonymizerExamples.cs" region="AnonymizeEntity"/>
+		/// </example>
 		/// <param name="entity">The MIME entity to anonymize.</param>
 		/// <param name="stream">The stream to write the anonymized entity to.</param>
 		/// <exception cref="ArgumentNullException">

@@ -41,6 +41,9 @@ namespace MimeKit {
 	/// <see cref="MimeComplianceViolation.None"/>, which is never reported by <see cref="MimeReader"/>
 	/// and cannot be constructed, so it may be used to detect an uninitialized instance.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MimeReaderExamples.cs" region="ComplianceLogger"/>
+	/// </example>
 	public readonly struct MimeComplianceIssue : IEquatable<MimeComplianceIssue>
 	{
 		/// <summary>

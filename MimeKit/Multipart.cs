@@ -70,6 +70,10 @@ namespace MimeKit {
 	/// inter-related MIME parts which typically reference each other via URIs based on the Content-Id and/or
 	/// Content-Location headers.</para>
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\MultipartExamples.cs" region="CreateMultipartMixed"/>
+	/// <code language="c#" source="Examples\MultipartExamples.cs" region="RemoveAttachments"/>
+	/// </example>
 	public class Multipart : MimeEntity, IMultipart
 	{
 		readonly List<MimeEntity> children;

@@ -41,6 +41,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// Represents a single header field and value pair.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\HeaderExamples.cs" region="EnumerateHeaders"/>
+	/// </example>
 	public class Header
 	{
 		internal static readonly byte[] Colon = { (byte) ':' };
@@ -535,6 +538,9 @@ namespace MimeKit {
 		/// <para>By using this method, the client is able to override the fallback charset
 		/// on a per-header basis.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="DecodeHeaderValue"/>
+		/// </example>
 		/// <returns>The value.</returns>
 		/// <param name="charset">The charset to use as a fallback.</param>
 		public string GetValue (string charset)
@@ -1499,6 +1505,9 @@ namespace MimeKit {
 		/// according to the rules of rfc2047, this method should be used
 		/// instead of the <see cref="Value"/> setter.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="SetHeaderValue"/>
+		/// </example>
 		/// <param name="charset">A charset encoding.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">

@@ -98,6 +98,9 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Gets a text preview of the text part.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TextConverterExamples.cs" region="GetPreviewText"/>
+		/// </example>
 		/// <param name="body">The text part.</param>
 		/// <returns>A string representing a shortened preview of the original text.</returns>
 		/// <exception cref="System.ArgumentNullException">

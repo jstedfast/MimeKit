@@ -44,6 +44,9 @@ namespace MimeKit {
 	/// Represents a list of headers as found in a <see cref="MimeMessage"/>
 	/// or <see cref="MimeEntity"/>.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+	/// </example>
 	public sealed class HeaderList : IList<Header>
 	{
 		internal readonly ParserOptions Options;
@@ -114,6 +117,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Adds a new header for the specified field and value pair.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -291,6 +297,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Inserts the header at the specified index in the list.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <param name="index">The index to insert the header.</param>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="value">The header value.</param>
@@ -440,6 +449,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes the first occurrence of the specified header field, if any exist.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the first occurrence of the specified
 		/// header was removed; otherwise, <see langword="false" />.</returns>
 		/// <param name="field">The name of the header field.</param>
@@ -463,6 +475,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Removes all the headers matching the specified field name.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <param name="id">The header identifier.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="id"/> is not a valid <see cref="HeaderId"/>.
@@ -549,6 +564,9 @@ namespace MimeKit {
 		/// <para>Replaces all headers with identical field names with the single specified header.</para>
 		/// <para>If no headers with the specified field name exist, it is simply added.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <param name="id">The header identifier.</param>
 		/// <param name="value">The header value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -569,6 +587,9 @@ namespace MimeKit {
 		/// <para>Replaces all headers with identical field names with the single specified header.</para>
 		/// <para>If no headers with the specified field name exist, it is simply added.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="SetHeaderValue"/>
+		/// </example>
 		/// <param name="field">The name of the header field.</param>
 		/// <param name="encoding">The character encoding to use for the value.</param>
 		/// <param name="value">The header value.</param>
@@ -653,6 +674,9 @@ namespace MimeKit {
 		/// Gets or sets the value of the first occurrence of a header
 		/// with the specified field name.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="ModifyHeaders"/>
+		/// </example>
 		/// <value>The value of the first occurrence of the specified header if it exists; otherwise <see langword="null"/>.</value>
 		/// <param name="field">The name of the header field.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1356,6 +1380,9 @@ namespace MimeKit {
 		/// Loads a <see cref="HeaderList"/> from the given stream, using the
 		/// default <see cref="ParserOptions"/>.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\HeaderExamples.cs" region="DecodeHeaderValue"/>
+		/// </example>
 		/// <returns>The parsed list of headers.</returns>
 		/// <param name="stream">The stream.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>

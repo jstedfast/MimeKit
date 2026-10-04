@@ -38,6 +38,9 @@ namespace MimeKit {
 	/// <remarks>
 	/// A mapping of file name extensions to the corresponding MIME-type.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="MimeTypes"/>
+	/// </example>
 	public static class MimeTypes
 	{
 		// Note: The official mime-type registry can be found at https://www.iana.org/assignments/media-types/media-types.xhtml
@@ -1016,6 +1019,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the MIME-type of a file based on the file extension.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="MimeTypes"/>
+		/// </example>
 		/// <returns>The MIME-type.</returns>
 		/// <param name="fileName">The file name.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -1039,6 +1045,9 @@ namespace MimeKit {
 		/// <remarks>
 		/// Gets the standard file extension for a MIME-type.
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="MimeTypes"/>
+		/// </example>
 		/// <returns><see langword="true" /> if the extension is known for the specified MIME-type; otherwise, <see langword="false" />.</returns>
 		/// <param name="mimeType">The MIME-type.</param>
 		/// <param name="extension">The file name extension for the specified MIME-type.</param>
@@ -1061,6 +1070,9 @@ namespace MimeKit {
 		/// <para>If the mapping for the MIME-type and/or file extension already exists,
 		/// then it is overridden by the new mapping.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\ContentTypeExamples.cs" region="MimeTypes"/>
+		/// </example>
 		/// <param name="mimeType">The MIME-type to register.</param>
 		/// <param name="extension">The file extension to register.</param>
 		/// <exception cref="System.ArgumentNullException">

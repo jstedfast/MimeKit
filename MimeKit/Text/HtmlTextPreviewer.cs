@@ -36,6 +36,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// A text previewer for HTML content.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TextConverterExamples.cs" region="GetPreviewText"/>
+	/// </example>
 	public class HtmlTextPreviewer : TextPreviewer
 	{
 		/// <summary>

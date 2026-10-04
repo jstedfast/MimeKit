@@ -37,6 +37,9 @@ namespace MimeKit.Text {
 	/// <remarks>
 	/// Unwraps the flowed text format described in rfc3676.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\TextConverterExamples.cs" region="FlowedToText"/>
+	/// </example>
 	public class FlowedToText : TextConverter
 	{
 		/// <summary>
@@ -81,6 +84,9 @@ namespace MimeKit.Text {
 		/// <see cref="DeleteSpace"/> should be set to <see langword="true" />, otherwise <see cref="DeleteSpace"/>
 		/// should be set to <see langword="false" />.</para>
 		/// </remarks>
+		/// <example>
+		/// <code language="c#" source="Examples\TextConverterExamples.cs" region="FlowedToText"/>
+		/// </example>
 		/// <value><see langword="true" /> if the trailing space on a wrapped line should be deleted; otherwise, <see langword="false" />.</value>
 		public bool DeleteSpace {
 			get; set;

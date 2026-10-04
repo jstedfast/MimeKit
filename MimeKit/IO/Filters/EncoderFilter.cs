@@ -36,6 +36,9 @@ namespace MimeKit.IO.Filters {
 	/// <remarks>
 	/// Uses a <see cref="IMimeEncoder"/> to incrementally encode data.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\FilterExamples.cs" region="EncodeFile"/>
+	/// </example>
 	public class EncoderFilter : MimeFilterBase
 	{
 		/// <summary>

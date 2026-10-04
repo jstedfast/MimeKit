@@ -37,6 +37,9 @@ namespace MimeKit.IO.Filters {
 	/// <remarks>
 	/// Incrementally converts text from one charset encoding to another.
 	/// </remarks>
+	/// <example>
+	/// <code language="c#" source="Examples\FilterExamples.cs" region="ConvertCharset"/>
+	/// </example>
 	public class CharsetFilter : MimeFilterBase
 	{
 		readonly char[] chars = new char[1024];
