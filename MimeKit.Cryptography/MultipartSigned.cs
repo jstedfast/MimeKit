@@ -1,4 +1,4 @@
-﻿//
+//
 // MultipartSigned.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -110,9 +110,10 @@ namespace MimeKit.Cryptography {
 
 			using (var filtered = new FilteredStream (memory)) {
 				if (ctx.PrepareBeforeSigning) {
-					// FIXME: Since this entity could contain binary content, the ArmoredFromFilter and TrailingWhitespaceFilter
-					// logic should really be moved somehwere where it would only get applied to headers, multipart prefaces/epilogues,
-					// and non-binary MIME content.
+					// Note: These filters are safe to apply to the entire entity because the call to Prepare() above has already
+					// re-encoded any binary or 8bit content (as well as any 7bit content containing "From " lines) using either
+					// base64 (which never produces spaces) or quoted-printable (which always encodes trailing whitespace). Armoring
+					// a "From " line within quoted-printable content produces "=46rom " which decodes to the same content.
 
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
@@ -144,9 +145,10 @@ namespace MimeKit.Cryptography {
 
 			using (var filtered = new FilteredStream (memory)) {
 				if (ctx.PrepareBeforeSigning) {
-					// FIXME: Since this entity could contain binary content, the ArmoredFromFilter and TrailingWhitespaceFilter
-					// logic should really be moved somehwere where it would only get applied to headers, multipart prefaces/epilogues,
-					// and non-binary MIME content.
+					// Note: These filters are safe to apply to the entire entity because the call to Prepare() above has already
+					// re-encoded any binary or 8bit content (as well as any 7bit content containing "From " lines) using either
+					// base64 (which never produces spaces) or quoted-printable (which always encodes trailing whitespace). Armoring
+					// a "From " line within quoted-printable content produces "=46rom " which decodes to the same content.
 
 					// Note: see rfc3156, section 3 - second note
 					filtered.Add (new ArmoredFromFilter ());
