@@ -961,6 +961,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing the content.
+		/// </exception>
 		public override MimePart Sign (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
@@ -1007,6 +1013,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing the content.
 		/// </exception>
 		public override async Task<MimePart> SignAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
@@ -1102,6 +1114,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing the content.
+		/// </exception>
 		public ApplicationPgpSignature Sign (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
 			return SignAsync (signer, digestAlgo, content, false, cancellationToken).GetAwaiter ().GetResult ();
@@ -1140,6 +1158,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing the content.
 		/// </exception>
 		public Task<ApplicationPgpSignature> SignAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, Stream content, CancellationToken cancellationToken = default)
 		{
@@ -1472,6 +1496,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public override MimePart Encrypt (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
@@ -1482,7 +1512,6 @@ namespace MimeKit.Cryptography {
 
 			var encryptionKeys = GetPublicKeys (recipients, cancellationToken);
 
-			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return Encrypt (encryptionKeys, content, cancellationToken);
 		}
 
@@ -1513,6 +1542,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key could not be found for one or more of the <paramref name="recipients"/>.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public override async Task<MimePart> EncryptAsync (IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
@@ -1523,7 +1558,6 @@ namespace MimeKit.Cryptography {
 
 			var encryptionKeys = await GetPublicKeysAsync (recipients, cancellationToken).ConfigureAwait (false);
 
-			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return await EncryptAsync (encryptionKeys, content, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -1558,6 +1592,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
@@ -1568,7 +1608,6 @@ namespace MimeKit.Cryptography {
 
 			var encryptionKeys = GetPublicKeys (recipients, cancellationToken);
 
-			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return Encrypt (algorithm, encryptionKeys, content, cancellationToken);
 		}
 
@@ -1603,6 +1642,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public async Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (recipients == null)
@@ -1613,7 +1658,6 @@ namespace MimeKit.Cryptography {
 
 			var encryptionKeys = await GetPublicKeysAsync (recipients, cancellationToken).ConfigureAwait (false);
 
-			// TODO: document the exceptions that can be thrown by BouncyCastle
 			return await EncryptAsync (algorithm, encryptionKeys, content, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -1678,6 +1722,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public MimePart Encrypt (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (algorithm, recipients, content, false, cancellationToken).GetAwaiter ().GetResult ();
@@ -1711,6 +1761,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public Task<MimePart> EncryptAsync (EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			return EncryptAsync (algorithm, recipients, content, true, cancellationToken);
@@ -1740,6 +1796,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
+		/// </exception>
 		public MimePart Encrypt (IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			return Encrypt (defaultAlgorithm, recipients, content, cancellationToken);
@@ -1768,6 +1830,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while encrypting the content, such as failing to encrypt the session key for one of the recipients.
 		/// </exception>
 		public Task<MimePart> EncryptAsync (IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
@@ -1818,6 +1886,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
 		/// </exception>
 		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
@@ -1881,6 +1955,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
+		/// </exception>
 		public async Task<MimePart> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
@@ -1937,6 +2017,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
+		/// </exception>
 		public MimePart SignAndEncrypt (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			if (signer == null)
@@ -1992,6 +2078,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
 		/// </exception>
 		public async Task<MimePart> SignAndEncryptAsync (MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
@@ -2162,6 +2254,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
+		/// </exception>
 		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, content, false, cancellationToken).GetAwaiter ().GetResult ();
@@ -2206,6 +2304,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
+		/// </exception>
 		public Task<MimePart> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, content, true, cancellationToken);
@@ -2246,6 +2350,12 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
+		/// </exception>
 		public MimePart SignAndEncrypt (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
 			return SignAndEncrypt (signer, digestAlgo, defaultAlgorithm, recipients, content, cancellationToken);
@@ -2285,6 +2395,12 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An error occurred while reading the <paramref name="content"/> stream.
+		/// </exception>
+		/// <exception cref="Org.BouncyCastle.Bcpg.OpenPgp.PgpException">
+		/// An OpenPGP error occurred while signing or encrypting the content.
 		/// </exception>
 		public Task<MimePart> SignAndEncryptAsync (PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, Stream content, CancellationToken cancellationToken = default)
 		{
