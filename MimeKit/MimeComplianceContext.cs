@@ -39,7 +39,7 @@ namespace MimeKit {
 	/// <see cref="MimeComplianceViolation.OversizedLine"/>. Every other violation is rated the
 	/// same in both contexts.</para>
 	/// <note type="note">This does not change which violations are reported, only how severe they
-	/// are considered to be. Set <see cref="MimeReader.ComplianceContext"/> before parsing so that
+	/// are considered to be. Set <see cref="MimeComplianceOptions.Context"/> before parsing so that
 	/// <see cref="MimeComplianceIssue.Severity"/> is rated for the correct context, or use
 	/// <see cref="MimeComplianceIssue.GetSeverity(MimeComplianceViolation,MimeComplianceContext)"/>
 	/// to rate a violation for a particular context after the fact.</note>

@@ -35,7 +35,7 @@ namespace MimeKit {
 	/// <para>No limit is placed by default on how many issues a single message, or even a single
 	/// header, may produce. A malformed message is not obliged to be malformed in only a few places,
 	/// so the number of issues is bounded only by the size of the input. When the messages being
-	/// parsed are untrusted, set <see cref="MimeReader.MaxComplianceIssuesPerViolation"/> to bound
+	/// parsed are untrusted, set <see cref="MimeComplianceOptions.MaxIssuesPerViolation"/> to bound
 	/// the report. An implementation that retains issues rather than summarizing them should impose
 	/// its own limit as well, since it cannot assume that every caller configures one.</para>
 	/// </remarks>

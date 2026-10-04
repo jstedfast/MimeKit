@@ -80,6 +80,17 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Get the maximum number of times that each violation may be reported.
+		/// </summary>
+		/// <remarks>
+		/// Gets the maximum number of times that each violation may be reported.
+		/// </remarks>
+		/// <value>The limit.</value>
+		public int Limit {
+			get { return limit; }
+		}
+
+		/// <summary>
 		/// Reset the budget.
 		/// </summary>
 		/// <remarks>
@@ -99,7 +110,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// Forwards the issue to the inner logger unless the violation has already been reported
-		/// <see cref="MimeReader.MaxComplianceIssuesPerViolation"/> times.
+		/// <see cref="MimeComplianceOptions.MaxIssuesPerViolation"/> times.
 		/// </remarks>
 		/// <param name="issue">The MIME compliance issue that was detected.</param>
 		public void Log (in MimeComplianceIssue issue)

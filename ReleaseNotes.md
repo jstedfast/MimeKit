@@ -102,11 +102,18 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `InvalidHeader`, `Content-Transfer-Encoding` and `BareLinefeedInBody` violations.
 * The base64, quoted-printable and uuencode validators now report column numbers and report each
   violation at most once per line.
-* Added `MimeReader.MaxComplianceIssuesPerViolation`, a configurable cap on how many times each
+* Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are
+  reported. Its `Context` property selects the `MimeComplianceContext` used to rate severities.
+* Added `MimeComplianceOptions.MaxIssuesPerViolation`, a configurable cap on how many times each
   individual violation will be reported. The cap is per-violation rather than a single total so that
   a flood of one violation cannot suppress the reporting of any other. When a budget is exhausted, a
   single `TooManyComplianceIssues` is logged so that a truncated report is never silently truncated.
   The default is `0` (no limit).
+* Added `MimeComplianceOptions.EnabledValidators`, which allows the base64, quoted-printable, uuencode
+  and address validators to be individually disabled (for example, from application configuration) if
+  one of them proves too expensive for, or misbehaves on, a particular deployment's mail, without having
+  to disable compliance reporting altogether. Changing `MimeComplianceOptions.Default` at startup
+  applies the setting to every `MimeReader` created afterward. All validators are enabled by default.
 * Added a `MimeAnalyzer` sample that reports violations in a compiler-style
   `file:line:column: severity: message` format.
 

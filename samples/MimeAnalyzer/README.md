@@ -129,9 +129,11 @@ var collector = new ComplianceCollector (maxIssues);
 
 using (var stream = File.OpenRead (fileName)) {
     var reader = new MimeReader (stream) {
-        ComplianceContext = context,
         ComplianceLogger = collector,
-        MaxComplianceIssuesPerViolation = maxPerViolation
+        ComplianceOptions = new MimeComplianceOptions {
+            Context = context,
+            MaxIssuesPerViolation = maxPerViolation
+        }
     };
 
     reader.ReadMessage ();
@@ -143,7 +145,7 @@ method is called for each violation found. By default MimeKit places no limit on
 will report, and the number is bounded only by the size of the message — a message built for the
 purpose can produce one issue every few bytes. There are two defenses, and the sample uses both:
 
-* `MimeReader.MaxComplianceIssuesPerViolation` (`--max-per-violation`) bounds the report at the
+* `MimeComplianceOptions.MaxIssuesPerViolation` (`--max-per-violation`) bounds the report at the
   source. The budget is per violation rather than a single total, so that a flood of one cheap
   violation cannot push a more interesting one out of the report. When a budget runs out, a single
   `TooManyComplianceIssues` issue is reported so the report is never silently incomplete.

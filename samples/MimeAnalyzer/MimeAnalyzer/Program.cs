@@ -40,7 +40,7 @@ namespace MimeAnalyzerExample
 	/// <para>The parser places no limit by default on how many issues a message may produce, so a
 	/// logger that retains them needs a limit of its own. See the remarks on
 	/// <see cref="IMimeComplianceLogger"/>.</para>
-	/// <para>This is a belt-and-braces limit: <see cref="MimeReader.MaxComplianceIssuesPerViolation"/>
+	/// <para>This is a belt-and-braces limit: <see cref="MimeComplianceOptions.MaxIssuesPerViolation"/>
 	/// bounds the report at the source, but a logger cannot assume that every caller configures
 	/// it.</para>
 	/// </remarks>
@@ -735,9 +735,11 @@ namespace MimeAnalyzerExample
 
 			using (var stream = File.OpenRead (fileName)) {
 				var reader = new MimeReader (stream) {
-					ComplianceContext = options.Context,
 					ComplianceLogger = collector,
-					MaxComplianceIssuesPerViolation = options.MaxIssuesPerViolation
+					ComplianceOptions = new MimeComplianceOptions {
+						Context = options.Context,
+						MaxIssuesPerViolation = options.MaxIssuesPerViolation
+					}
 				};
 
 				// Note: MimeReader only scans the message, it does not construct a MimeMessage, so

@@ -58,7 +58,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
 				var reader = new MimeReader (stream, format) {
 					ComplianceLogger = logger,
-					MaxComplianceIssuesPerViolation = limit
+					ComplianceOptions = new MimeComplianceOptions { MaxIssuesPerViolation = limit }
 				};
 
 				while (!reader.IsEndOfStream)
@@ -75,7 +75,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
 				var reader = new MimeReader (stream, format) {
 					ComplianceLogger = logger,
-					MaxComplianceIssuesPerViolation = limit
+					ComplianceOptions = new MimeComplianceOptions { MaxIssuesPerViolation = limit }
 				};
 
 				while (!reader.IsEndOfStream)
@@ -96,7 +96,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream ()) {
 				var reader = new MimeReader (stream);
 
-				Assert.That (reader.MaxComplianceIssuesPerViolation, Is.EqualTo (0));
+				Assert.That (reader.ComplianceOptions.MaxIssuesPerViolation, Is.EqualTo (0));
 			}
 
 			var issues = Read (CreateFloodedMessage (), 0);
@@ -120,7 +120,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream ()) {
 				var reader = new MimeReader (stream);
 
-				Assert.Throws<ArgumentOutOfRangeException> (() => reader.MaxComplianceIssuesPerViolation = -1);
+				Assert.Throws<ArgumentOutOfRangeException> (() => reader.ComplianceOptions.MaxIssuesPerViolation = -1);
 			}
 		}
 
@@ -251,12 +251,12 @@ namespace UnitTests {
 			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
 				var reader = new MimeReader (stream) {
 					ComplianceLogger = logger,
-					MaxComplianceIssuesPerViolation = 3
+					ComplianceOptions = new MimeComplianceOptions { MaxIssuesPerViolation = 3 }
 				};
 
 				Assert.That (reader.ComplianceLogger, Is.SameAs (logger));
 
-				reader.MaxComplianceIssuesPerViolation = 0;
+				reader.ComplianceOptions.MaxIssuesPerViolation = 0;
 
 				reader.ReadMessage ();
 			}

@@ -140,7 +140,7 @@ namespace UnitTests {
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var reader = new MimeReader (stream) {
 					ComplianceLogger = logger,
-					ComplianceContext = MimeComplianceContext.Storage
+					ComplianceOptions = new MimeComplianceOptions { Context = MimeComplianceContext.Storage }
 				};
 
 				reader.ReadMessage ();

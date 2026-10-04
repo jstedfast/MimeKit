@@ -113,7 +113,7 @@ namespace MimeKit {
 		/// <para>Gets the context that the message is being used in, which determines how
 		/// <see cref="Severity"/> rates the violation.</para>
 		/// <para>When an issue is reported by <see cref="MimeReader"/>, this is the value of
-		/// <see cref="MimeReader.ComplianceContext"/> at the time that the violation was detected.</para>
+		/// <see cref="MimeComplianceOptions.Context"/> at the start of the parse operation.</para>
 		/// </remarks>
 		/// <value>The context.</value>
 		public MimeComplianceContext Context {

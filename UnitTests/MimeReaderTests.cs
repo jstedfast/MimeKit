@@ -62,8 +62,9 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new MimeReader (ParserOptions.Default, null, MimeFormat.Default));
 
 			Assert.Throws<ArgumentNullException> (() => reader.Options = null);
+			Assert.Throws<ArgumentNullException> (() => reader.ComplianceOptions = null);
 
-			Assert.Throws<ArgumentOutOfRangeException> (() => reader.MaxComplianceIssuesPerViolation = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => reader.ComplianceOptions.MaxIssuesPerViolation = -1);
 		}
 
 		static NewLineFormat DetectNewLineFormat (string fileName)

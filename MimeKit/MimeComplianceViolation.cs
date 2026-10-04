@@ -1034,7 +1034,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>This is not a defect in the message being parsed. It is reported when
-		/// <see cref="MimeReader.MaxComplianceIssuesPerViolation"/> is configured and some violation has
+		/// <see cref="MimeComplianceOptions.MaxIssuesPerViolation"/> is configured and some violation has
 		/// reached its limit, meaning that further occurrences of it were not passed on to the logger and
 		/// that the report is therefore incomplete.</para>
 		/// <para>It is reported at most once per parse operation, at the position of the first suppressed
