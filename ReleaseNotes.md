@@ -181,6 +181,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Optimized the check for whether a header is a `Content-*` header.
 * Removed a redundant `And` masking before `MoveMask` in `Memory.IndexOf ()`, dropping a dependent
   instruction from the hot loop's dependency chain at all eight SSE2 and AVX2 8-bit detection sites.
+* Replaced the `Base64.DecodeFromUtf8 ()`-based hardware-accelerated path in `Base64Decoder` with
+  MimeKit's own SSSE3, AVX2 and Arm64 AdvSimd kernels, which fall back to the scalar decoder for
+  whitespace, line breaks, padding and invalid characters. The output is identical to the scalar
+  decoder, so `Base64Decoder.EnableHardwareAcceleration` is now enabled by default on .NET 8 and later
+  (it was previously disabled because of bugs in `Base64.DecodeFromUtf8 ()`).
 
 ### Bug Fixes
 
