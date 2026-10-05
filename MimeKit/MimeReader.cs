@@ -28,6 +28,8 @@ using System;
 using System.IO;
 #if NET8_0_OR_GREATER
 using System.Buffers;
+using System.Numerics;
+using System.Runtime.Intrinsics;
 #endif
 using System.Threading;
 using System.Diagnostics;
@@ -2726,6 +2728,207 @@ namespace MimeKit {
 			return ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls;
 		}
 
+#if NET8_0_OR_GREATER
+		// Scans the remaining bytes using scalar logic. See SkipNonBoundaryLines() for details.
+		static unsafe byte* SkipNonBoundaryLinesScalar (byte* inptr, byte* inptr0, byte* inend, byte c1, byte c2, byte* resume, ref int lines, ref bool dos, ref bool unix)
+		{
+			byte* p = inptr;
+
+			while (p < inend) {
+				if (*p == (byte) '\n') {
+					if (p > inptr0 && *(p - 1) == (byte) '\r')
+						dos = true;
+					else
+						unix = true;
+
+					resume = p + 1;
+					lines++;
+
+					// Note: *inend is a '\n' sentinel, so p[2] is only read if p[1] is a real byte of data.
+					if ((p[1] == (byte) '-' && p[2] == (byte) '-') || (p[1] == c1 && p[2] == c2))
+						break;
+				}
+
+				p++;
+			}
+
+			return resume;
+		}
+
+		internal static unsafe byte* SkipNonBoundaryLinesScalar (byte* inptr, byte* inend, byte c1, byte c2, out int lines, out bool dos, out bool unix)
+		{
+			lines = 0;
+			dos = unix = false;
+
+			return SkipNonBoundaryLinesScalar (inptr, inptr, inend, c1, c2, inptr, ref lines, ref dos, ref unix);
+		}
+
+		internal static unsafe byte* SkipNonBoundaryLinesVector128 (byte* inptr, byte* inend, byte c1, byte c2, out int lines, out bool dos, out bool unix)
+		{
+			var vlf = Vector128.Create ((byte) '\n');
+			var vcr = Vector128.Create ((byte) '\r');
+			var vdash = Vector128.Create ((byte) '-');
+			var vc1 = Vector128.Create (c1);
+			var vc2 = Vector128.Create (c2);
+			uint dosBits = 0, unixBits = 0;
+			byte* resume = inptr;
+			byte* p = inptr;
+			uint crCarry = 0;
+			int count = 0;
+
+			// Note: The (p + 1) and (p + 2) loads read up to and including the '\n' sentinel at inend.
+			while (p + Vector128<byte>.Count + 1 <= inend) {
+				var v = Vector128.Load (p);
+				uint lf = Vector128.ExtractMostSignificantBits (Vector128.Equals (v, vlf));
+				uint cr = Vector128.ExtractMostSignificantBits (Vector128.Equals (v, vcr));
+
+				if (lf != 0) {
+					var n1 = Vector128.Load (p + 1);
+					var n2 = Vector128.Load (p + 2);
+					var possible = (Vector128.Equals (n1, vdash) & Vector128.Equals (n2, vdash)) | (Vector128.Equals (n1, vc1) & Vector128.Equals (n2, vc2));
+					uint candidates = lf & Vector128.ExtractMostSignificantBits (possible);
+					uint crlf = lf & ((cr << 1) | crCarry);
+
+					if (candidates != 0) {
+						int index = BitOperations.TrailingZeroCount (candidates);
+						uint keep = (2u << index) - 1;
+
+						lf &= keep;
+						crlf &= keep;
+
+						count += BitOperations.PopCount (lf);
+						unixBits |= lf & ~crlf;
+						dosBits |= crlf;
+
+						resume = p + index + 1;
+						goto done;
+					}
+
+					count += BitOperations.PopCount (lf);
+					unixBits |= lf & ~crlf;
+					dosBits |= crlf;
+
+					resume = p + (31 - BitOperations.LeadingZeroCount (lf)) + 1;
+				}
+
+				crCarry = cr >> (Vector128<byte>.Count - 1);
+				p += Vector128<byte>.Count;
+			}
+
+			lines = count;
+			dos = dosBits != 0;
+			unix = unixBits != 0;
+
+			return SkipNonBoundaryLinesScalar (p, inptr, inend, c1, c2, resume, ref lines, ref dos, ref unix);
+
+		done:
+			lines = count;
+			dos = dosBits != 0;
+			unix = unixBits != 0;
+
+			return resume;
+		}
+
+		internal static unsafe byte* SkipNonBoundaryLinesVector256 (byte* inptr, byte* inend, byte c1, byte c2, out int lines, out bool dos, out bool unix)
+		{
+			var vlf = Vector256.Create ((byte) '\n');
+			var vcr = Vector256.Create ((byte) '\r');
+			var vdash = Vector256.Create ((byte) '-');
+			var vc1 = Vector256.Create (c1);
+			var vc2 = Vector256.Create (c2);
+			uint dosBits = 0, unixBits = 0;
+			byte* resume = inptr;
+			byte* p = inptr;
+			uint crCarry = 0;
+			int count = 0;
+
+			// Note: The (p + 1) and (p + 2) loads read up to and including the '\n' sentinel at inend.
+			while (p + Vector256<byte>.Count + 1 <= inend) {
+				var v = Vector256.Load (p);
+				uint lf = Vector256.ExtractMostSignificantBits (Vector256.Equals (v, vlf));
+				uint cr = Vector256.ExtractMostSignificantBits (Vector256.Equals (v, vcr));
+
+				if (lf != 0) {
+					var n1 = Vector256.Load (p + 1);
+					var n2 = Vector256.Load (p + 2);
+					var possible = (Vector256.Equals (n1, vdash) & Vector256.Equals (n2, vdash)) | (Vector256.Equals (n1, vc1) & Vector256.Equals (n2, vc2));
+					uint candidates = lf & Vector256.ExtractMostSignificantBits (possible);
+					uint crlf = lf & ((cr << 1) | crCarry);
+
+					if (candidates != 0) {
+						int index = BitOperations.TrailingZeroCount (candidates);
+
+						// Note: when index is 31, (2u << 31) overflows to 0 and the mask becomes 0xFFFFFFFF.
+						uint keep = (2u << index) - 1;
+
+						lf &= keep;
+						crlf &= keep;
+
+						count += BitOperations.PopCount (lf);
+						unixBits |= lf & ~crlf;
+						dosBits |= crlf;
+
+						resume = p + index + 1;
+						goto done;
+					}
+
+					count += BitOperations.PopCount (lf);
+					unixBits |= lf & ~crlf;
+					dosBits |= crlf;
+
+					resume = p + (31 - BitOperations.LeadingZeroCount (lf)) + 1;
+				}
+
+				crCarry = cr >> (Vector256<byte>.Count - 1);
+				p += Vector256<byte>.Count;
+			}
+
+			lines = count;
+			dos = dosBits != 0;
+			unix = unixBits != 0;
+
+			return SkipNonBoundaryLinesScalar (p, inptr, inend, c1, c2, resume, ref lines, ref dos, ref unix);
+
+		done:
+			lines = count;
+			dos = dosBits != 0;
+			unix = unixBits != 0;
+
+			return resume;
+		}
+
+		/// <summary>
+		/// Skip over complete lines that cannot possibly be a boundary marker.
+		/// </summary>
+		/// <remarks>
+		/// <para>Skips over every complete line up to (but not including) the first line that begins with either
+		/// <c>"--"</c> or the 2-byte prefix specified by <paramref name="c1"/> and <paramref name="c2"/>. If no such
+		/// line is found, all complete lines are skipped and the returned pointer will point to the beginning of the
+		/// trailing incomplete line (or <paramref name="inend"/>).</para>
+		/// <para>The line beginning at <paramref name="inptr"/> is always skipped (if complete), so the caller is
+		/// responsible for checking it. <c>*inend</c> must be a <c>'\n'</c> sentinel which is never read past.</para>
+		/// </remarks>
+		/// <returns>A pointer to the beginning of the first line that was not skipped.</returns>
+		/// <param name="inptr">The beginning of the line to start scanning from.</param>
+		/// <param name="inend">The end of the input buffer.</param>
+		/// <param name="c1">The first byte of an alternative boundary prefix (must not be <c>'\n'</c>).</param>
+		/// <param name="c2">The second byte of an alternative boundary prefix.</param>
+		/// <param name="lines">The number of lines skipped.</param>
+		/// <param name="dos"><see langword="true" /> if any of the skipped lines ended with <c>"\r\n"</c>.</param>
+		/// <param name="unix"><see langword="true" /> if any of the skipped lines ended with a bare <c>'\n'</c>.</param>
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static unsafe byte* SkipNonBoundaryLines (byte* inptr, byte* inend, byte c1, byte c2, out int lines, out bool dos, out bool unix)
+		{
+			if (Vector256.IsHardwareAccelerated)
+				return SkipNonBoundaryLinesVector256 (inptr, inend, c1, c2, out lines, out dos, out unix);
+
+			if (Vector128.IsHardwareAccelerated)
+				return SkipNonBoundaryLinesVector128 (inptr, inend, c1, c2, out lines, out dos, out unix);
+
+			return SkipNonBoundaryLinesScalar (inptr, inend, c1, c2, out lines, out dos, out unix);
+		}
+#endif
+
 		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool[] formats)
 		{
 			byte* inptr = inbuf + inputIndex;
@@ -2735,10 +2938,45 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
+#if NET8_0_OR_GREATER
+			// Note: The fast path skips the per-line compliance checks, so it can only be used when there is no compliance logger.
+			bool fastSkip = complianceLogger == null && Vector128.IsHardwareAccelerated;
+			byte c1 = format == MimeFormat.Mbox ? MboxFromMarker[0] : (byte) '-';
+			byte c2 = format == MimeFormat.Mbox ? MboxFromMarker[1] : (byte) '-';
+#endif
+
 			while (inptr < inend) {
 				byte* start = inptr;
 				int length;
 
+#if NET8_0_OR_GREATER
+				// Only lines that begin with "--" (or "From " in Mbox format) can be boundary markers, so skip
+				// over all complete lines up until the next line that might be one.
+				if (fastSkip && !midline && *inptr != (byte) '-' && *inptr != c1) {
+					byte* next = SkipNonBoundaryLines (inptr, inend, c1, c2, out int lines, out bool dos, out bool unix);
+
+					if (next > inptr) {
+						if (dos)
+							formats[(int) NewLineFormat.Dos] = true;
+						if (unix)
+							formats[(int) NewLineFormat.Unix] = true;
+
+						// Keep the line state identical to what IncrementLineNumber() would have produced for each line.
+						if (lines > 1) {
+							int lastLineIndex = new ReadOnlySpan<byte> (inptr, (int) (next - inptr) - 1).LastIndexOf ((byte) '\n') + 1;
+							prevLineBeginOffset = GetOffset (startIndex + lastLineIndex);
+						} else {
+							prevLineBeginOffset = lineBeginOffset;
+						}
+
+						startIndex += (int) (next - inptr);
+						lineBeginOffset = GetOffset (startIndex);
+						lineNumber += lines;
+						inptr = next;
+						continue;
+					}
+				}
+#endif
 				if (byteOptions != ByteDetectionOptions.None) {
 					inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
 
