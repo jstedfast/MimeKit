@@ -161,7 +161,10 @@ namespace MimeKit.Encodings {
 			int maxLineLength = (quartetsPerLine * 4) + 1;
 			int maxInputPerLine = quartetsPerLine * 3;
 
-			return (((inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength;
+			// Note: up to 2 bytes of input from previous calls may still be saved and the current line may already be
+			// nearly full, so the worst case can complete the current line *and* terminate a new line when flushing,
+			// which requires 1 more newline than the line count alone would suggest.
+			return (((inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength + 1;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -185,7 +188,7 @@ namespace MimeKit.Encodings {
 #if NET6_0_OR_GREATER
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		unsafe int HwAccelEncode (byte* input, int length, byte* output)
+		internal unsafe int HwAccelEncode (byte* input, int length, byte* output, bool useAvx512, bool useAvx2)
 		{
 			byte* inend = input + length;
 			byte* outptr = output;
@@ -216,9 +219,8 @@ namespace MimeKit.Encodings {
 			int remainingInput = (int) (inend - inptr);
 
 			// prevent the while-loop from processing incomplete triplets
-			byte* loopEnd = inend - 2;
-
-			while (inptr < loopEnd) {
+			// Note: Don't compare against (inend - 2) because the input pointer will be null for an empty input array.
+			while (remainingInput > 2) {
 				int remainingLineInput = Math.Min (remainingInput, (quartetsPerLine - quartets) * 3);
 				byte* lineEnd = inptr + remainingLineInput;
 				int nread;
@@ -251,7 +253,7 @@ namespace MimeKit.Encodings {
 
 				if (Ssse3.IsSupported) {
 					// Hardware accelerated Intel/AMD code-path...
-					if (Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported && remainingLineInput >= 48 && remainingInput >= 64) {
+					if (useAvx512 && Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported && remainingLineInput >= 48 && remainingInput >= 64) {
 						// Avx512Encode processes 48 bytes at a time, but requires at least 64 bytes of input to avoid segfaulting.
 						byte* maxLineOffset = lineEnd - 48;
 						byte* maxOffset = inend - 64;
@@ -262,10 +264,13 @@ namespace MimeKit.Encodings {
 						remainingInput -= nread;
 					}
 
-					if (Avx2.IsSupported && remainingLineInput >= 48 && remainingInput >= 56) {
+					if (useAvx2 && Avx2.IsSupported && remainingLineInput >= 48 && remainingInput >= 56) {
 						// Avx2Encode processes 24 bytes at a time, but requires at least 32 bytes of input to avoid segfaulting.
 						// Note: This is not worth doing for anything less than at least 2 passes.
-						byte* maxLineOffset = lineEnd - 24;
+						// Note: Avx2Encode compares maxOffset against an input pointer that has been shifted back by 4 bytes (as
+						// required by its Reshuffle step), so the line limit must also be shifted back by 4 bytes to prevent it
+						// from encoding past the end of the line.
+						byte* maxLineOffset = lineEnd - 28;
 						byte* maxOffset = inend - 32;
 
 						maxOffset = maxLineOffset < maxOffset ? maxLineOffset : maxOffset;
@@ -877,40 +882,93 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int Encode (byte[] input, int startIndex, int length, byte[] output)
 		{
+			return Encode (input, startIndex, length, output, false);
+		}
+
+#if NET6_0_OR_GREATER
+		unsafe int HwAccelEncode (byte[] input, int startIndex, int length, byte[] output, bool useAvx512, bool useAvx2, bool flush)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			fixed (byte* inptr = input, outptr = output) {
+				int n = HwAccelEncode (inptr + startIndex, length, outptr, useAvx512, useAvx2);
+
+				return flush ? n + Flush (outptr + n) : n;
+			}
+		}
+
+		// The following internal entry points allow the unit tests to exercise each code path directly,
+		// regardless of which path the public Encode() and Flush() methods would choose on the host machine.
+		internal int Ssse3Encode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!Ssse3.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, false, false, flush);
+		}
+
+		internal int Avx2Encode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!Avx2.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, false, true, flush);
+		}
+
+		internal int Avx512Encode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!Vector512.IsHardwareAccelerated || !Avx512Vbmi.IsSupported || !Avx2.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, true, true, flush);
+		}
+
+		internal int AdvSimdEncode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
+			if (!AdvSimd.Arm64.IsSupported || !BitConverter.IsLittleEndian || Ssse3.IsSupported)
+				throw new PlatformNotSupportedException ();
+
+			return HwAccelEncode (input, startIndex, length, output, false, false, flush);
+		}
+#endif
+
+		internal int ScalarEncode (byte[] input, int startIndex, int length, byte[] output, bool flush = false)
+		{
 			ValidateArguments (input, startIndex, length, output);
 
 			unsafe {
 				fixed (byte* inptr = input, outptr = output) {
-#if NET6_0_OR_GREATER
-					if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && EnableHardwareAcceleration) {
-						// If we have hardware acceleration, use it.
-						return HwAccelEncode (inptr + startIndex, length, outptr);
-					} else {
-						return Encode (inptr + startIndex, length, outptr);
-					}
-#else
-					return Encode (inptr + startIndex, length, outptr);
-#endif
+					int n = Encode (inptr + startIndex, length, outptr);
+
+					return flush ? n + Flush (outptr + n) : n;
 				}
 			}
 		}
 
-		unsafe int Flush (byte* input, int length, byte* output)
+		unsafe int Encode (byte[] input, int startIndex, int length, byte[] output, bool flush)
+		{
+			ValidateArguments (input, startIndex, length, output);
+
+			fixed (byte* inptr = input, outptr = output) {
+				int n;
+
+#if NET6_0_OR_GREATER
+				if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && EnableHardwareAcceleration)
+					n = HwAccelEncode (inptr + startIndex, length, outptr, Vector512.IsHardwareAccelerated && Avx512Vbmi.IsSupported, Avx2.IsSupported);
+				else
+					n = Encode (inptr + startIndex, length, outptr);
+#else
+				n = Encode (inptr + startIndex, length, outptr);
+#endif
+
+				return flush ? n + Flush (outptr + n) : n;
+			}
+		}
+
+		// Encodes any remaining saved input as the final (padded) quartet and terminates the final line.
+		unsafe int Flush (byte* output)
 		{
 			byte* outptr = output;
-
-			if (length > 0) {
-#if NET6_0_OR_GREATER
-				if ((Ssse3.IsSupported || AdvSimd.Arm64.IsSupported) && EnableHardwareAcceleration) {
-					// If we have hardware acceleration, use it.
-					outptr += HwAccelEncode (input, length, outptr);
-				} else {
-					outptr += Encode (input, length, outptr);
-				}
-#else
-				outptr += Encode (input, length, outptr);
-#endif
-			}
 
 			if (saved >= 1) {
 				int c1 = saved1;
@@ -965,13 +1023,7 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int Flush (byte[] input, int startIndex, int length, byte[] output)
 		{
-			ValidateArguments (input, startIndex, length, output);
-
-			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Flush (inptr + startIndex, length, outptr);
-				}
-			}
+			return Encode (input, startIndex, length, output, true);
 		}
 
 		/// <summary>

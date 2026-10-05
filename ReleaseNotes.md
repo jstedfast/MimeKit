@@ -234,6 +234,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Fixed `UUEncoder.EstimateOutputLength ()` to account for input left over from previous `Encode ()`
   calls. It could previously underestimate, so a caller allocating an output buffer of the estimated
   size could have its output buffer overrun.
+* Fixed `Base64Encoder` to no longer dereference a null pointer when given an empty input array while
+  hardware acceleration is enabled.
+* Fixed `Base64Encoder.EstimateOutputLength ()` to account for a partially-filled line left over from
+  previous `Encode ()` calls. It could previously underestimate by 1 byte, so a caller allocating an
+  output buffer of the estimated size could have its output buffer overrun.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
