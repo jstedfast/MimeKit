@@ -76,13 +76,11 @@ namespace MimeKit {
 		// atom text, whitespace, '@', '.' and the bytes no production can consume -- is passed over
 		// without changing the outcome, so finding the first of these answers "is this token a bare
 		// addr-spec?" in a single vectorized scan.
-		static readonly SearchValues<byte> PhraseStructure = SearchValues.Create ([
-			(byte) '"', (byte) '(', (byte) '[', (byte) '<', (byte) ':', (byte) ',', (byte) ';', (byte) '>'
-		]);
+		static readonly SearchValues<byte> PhraseStructure = SearchValues.Create ("\"([<:,;>"u8);
 
 		static byte[] Complement (Func<byte, bool> predicate)
 		{
-			var bytes = new byte[256];
+			Span<byte> bytes = stackalloc byte[256];
 			int n = 0;
 
 			for (int c = 0; c < 256; c++) {
@@ -90,9 +88,7 @@ namespace MimeKit {
 					bytes[n++] = (byte) c;
 			}
 
-			Array.Resize (ref bytes, n);
-
-			return bytes;
+			return bytes.Slice (0, n).ToArray ();
 		}
 #endif
 
