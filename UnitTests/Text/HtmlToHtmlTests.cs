@@ -296,6 +296,19 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
+		// The tokenizer used to leak the first few characters following a short bogus DOCTYPE keyword into the
+		// name of the next tag, which then caused HtmlWriter to throw an ArgumentException for the invalid tag name.
+		[TestCase ("<!DOCTYPE html </DIV><DIV class=x>y</DIV>", "<!DOCTYPE html><DIV class=\"x\">y</DIV>")]
+		[TestCase ("<!DOCTYPE html bog><p>y</p>", "<!DOCTYPE html><p>y</p>")]
+		public void TestShortBogusDocTypeKeyword (string input, string expected)
+		{
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
 		static string Repeat (string value, int count)
 		{
 			var builder = new StringBuilder (value.Length * count);

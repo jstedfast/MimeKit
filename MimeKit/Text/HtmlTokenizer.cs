@@ -600,6 +600,12 @@ namespace MimeKit.Text {
 			var token = doctype;
 			data.Length = 0;
 			doctype = null;
+
+			// Note: The After DOCTYPE name state accumulates up to 6 characters in the name buffer while looking for
+			// the PUBLIC or SYSTEM keywords. If the DOCTYPE ends before then, those characters must not leak into the
+			// name of the next tag or attribute.
+			name.Length = 0;
+
 			return token;
 		}
 

@@ -716,6 +716,40 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestAfterDocTypeNameShortBogusKeyword ()
+		{
+			// The After DOCTYPE name state buffers up to 6 characters looking for PUBLIC/SYSTEM; make sure that
+			// those characters do not leak into the name of the next tag when the DOCTYPE ends early.
+			const string content = "<!DOCTYPE HTML BOG><div class=x></DIV></p>";
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.DocType));
+			var doctype = (HtmlDocTypeToken) token;
+			Assert.That (doctype.Name, Is.EqualTo ("HTML"));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			var tag = (HtmlTagToken) token;
+			Assert.That (tag.Name, Is.EqualTo ("div"));
+			Assert.That (tag.IsEndTag, Is.False);
+			Assert.That (tag.Attributes, Has.Count.EqualTo (1));
+			Assert.That (tag.Attributes[0].Name, Is.EqualTo ("class"));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			tag = (HtmlTagToken) token;
+			Assert.That (tag.Name, Is.EqualTo ("DIV"));
+			Assert.That (tag.IsEndTag, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			tag = (HtmlTagToken) token;
+			Assert.That (tag.Name, Is.EqualTo ("p"));
+			Assert.That (tag.IsEndTag, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
+		[Test]
 		public void TestAfterDocTypeNameBogusDocType ()
 		{
 			const string content = "<!DOCTYPE HTML PUBLISH>";

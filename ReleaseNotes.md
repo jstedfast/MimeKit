@@ -208,6 +208,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 
 ### Bug Fixes
 
+* Fixed `HtmlTokenizer` so that a short, unrecognized keyword following the DOCTYPE name (for example
+  `<!DOCTYPE html foo>`) no longer leaks into the name of the next tag. Previously, input such as
+  `<!DOCTYPE html </div><div class=x>` produced a start tag named `</divdiv`, which caused `HtmlToHtml`
+  to throw an `ArgumentException` (Invalid tag name) for attacker-controllable input.
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a
