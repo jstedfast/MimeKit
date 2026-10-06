@@ -2730,26 +2730,33 @@ namespace MimeKit {
 
 #if NET8_0_OR_GREATER
 		// Scans the remaining bytes using scalar logic. See SkipNonBoundaryLines() for details.
+		//
+		// Note: In practice, this method is only used to finish the short tail of a SIMD scan, i.e. at most the
+		// last 32 bytes of the input buffer for Vector256 (16 bytes for Vector128). ScanContent() only enables
+		// the fast skip when Vector128 is hardware accelerated, so SkipNonBoundaryLines() never falls back to a
+		// purely scalar scan of the whole buffer (the internal scalar overload below exists for unit testing).
 		static unsafe byte* SkipNonBoundaryLinesScalar (byte* inptr, byte* inptr0, byte* inend, byte c1, byte c2, byte* resume, ref int lines, ref bool dos, ref bool unix)
 		{
 			byte* p = inptr;
 
-			while (p < inend) {
-				if (*p == (byte) '\n') {
-					if (p > inptr0 && *(p - 1) == (byte) '\r')
-						dos = true;
-					else
-						unix = true;
+			while (true) {
+				// Note: *inend is a '\n' sentinel, so passing inend + 1 guarantees that EndOfLine() terminates.
+				p = ParseUtils.EndOfLine (p, inend + 1);
 
-					resume = p + 1;
-					lines++;
+				if (p == inend)
+					break;
 
-					// Note: *inend is a '\n' sentinel, so p[2] is only read if p[1] is a real byte of data.
-					if ((p[1] == (byte) '-' && p[2] == (byte) '-') || (p[1] == c1 && p[2] == c2))
-						break;
-				}
+				if (p > inptr0 && *(p - 1) == (byte) '\r')
+					dos = true;
+				else
+					unix = true;
 
-				p++;
+				resume = ++p;
+				lines++;
+
+				// Note: p[1] is only read if p[0] is a real byte of data (the '\n' sentinel never matches).
+				if ((p[0] == (byte) '-' && p[1] == (byte) '-') || (p[0] == c1 && p[1] == c2))
+					break;
 			}
 
 			return resume;
