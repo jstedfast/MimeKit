@@ -200,6 +200,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   header on every refill of the input buffer (or, for the legacy parser, on every line). The buffers now grow
   geometrically (by 1.5x). Parsing a message with an 80,000-recipient `To` header went from roughly 230 ms
   to 3 ms with `MimeParser` and from 13 s to 3.5 ms with `LegacyMimeParser`.
+* Fixed quadratic behavior in `HtmlToHtml` and `HtmlTextPreviewer` when processing HTML with a large number
+  of unclosed elements. Every token caused a scan of the entire list of open elements, so a small, malicious
+  document could consume minutes of CPU time (100,000 unclosed `<b>` tags followed by 100,000 unmatched end
+  tags, about 700 KB of HTML, took over 2 minutes in `HtmlToHtml`). Every open-element operation is now O(1),
+  so the same input is converted in about 50 ms.
 
 ### Bug Fixes
 

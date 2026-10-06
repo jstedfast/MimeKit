@@ -132,6 +132,61 @@ namespace UnitTests.Text {
 			AssertPreviewText (path, expected, 230);
 		}
 
+		[TestCase ("<body><ol><li>a<ul><li>b</ul><li>c</ol>d", "1. a b 2. cd")]
+		[TestCase ("<body><ol><li>a<ul><li>b</ol><li>c</ul>d", "1. a b cd")]
+		[TestCase ("<body><ul><li>a<ol><li>b</ul><li>c</ol>d", "a 1. b 2. cd")]
+		[TestCase ("<body><ol><li>a<ol><li>b</ol><li>c</ol>d", "1. a 1. b 2. cd")]
+		[TestCase ("<body><b>a<script>b<i>c</b>d</script>e</i>f", "aef")]
+		[TestCase ("<body><table><td>a</table>b<tr>c</td>d</tr>e", "abe")]
+		[TestCase ("<body>a</body>b<body>c", "ac")]
+		public void TestNestedAndMisnestedElements (string input, string expected)
+		{
+			var previewer = new HtmlTextPreviewer ();
+
+			Assert.That (previewer.GetPreviewText (input), Is.EqualTo (expected));
+		}
+
+		static string Repeat (string value, int count)
+		{
+			var builder = new StringBuilder (value.Length * count);
+
+			for (int i = 0; i < count; i++)
+				builder.Append (value);
+
+			return builder.ToString ();
+		}
+
+		// Prior to using an O(1) open element stack, each of these took time quadratic in the number of unclosed tags.
+		[Test]
+		public void TestManyUnclosedTagsFollowedByUnmatchedEndTags ()
+		{
+			const int count = 100000;
+			var input = "<body>" + Repeat ("<b>", count) + Repeat ("</i>", count) + "text";
+			var previewer = new HtmlTextPreviewer ();
+
+			Assert.That (previewer.GetPreviewText (input), Is.EqualTo ("text"));
+		}
+
+		[Test]
+		public void TestManyListItemsWithoutList ()
+		{
+			const int count = 100000;
+			var input = "<body>" + Repeat ("<li>", count) + "text";
+			var previewer = new HtmlTextPreviewer ();
+
+			Assert.That (previewer.GetPreviewText (input), Is.EqualTo ("text"));
+		}
+
+		[Test]
+		public void TestManyUnclosedTagsFollowedByReopenedList ()
+		{
+			const int count = 100000;
+			var input = "<body><ul>" + Repeat ("<b>", count) + Repeat ("</ul><ul>", count) + "<li>text";
+			var previewer = new HtmlTextPreviewer ();
+
+			Assert.That (previewer.GetPreviewText (input), Is.EqualTo ("text"));
+		}
+
 		[Test]
 		public void TestPlanetFitness110 ()
 		{

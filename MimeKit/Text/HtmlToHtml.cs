@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Collections.Generic;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -210,29 +209,6 @@ namespace MimeKit.Text {
 			tagContext.WriteTag (htmlWriter, true);
 		}
 
-		static bool SuppressContent (IList<HtmlToHtmlTagContext> stack)
-		{
-			for (int i = stack.Count; i > 0; i--) {
-				if (stack[i - 1].SuppressInnerContent)
-					return true;
-			}
-
-			return false;
-		}
-
-		static HtmlToHtmlTagContext? Pop (IList<HtmlToHtmlTagContext> stack, string name)
-		{
-			for (int i = stack.Count; i > 0; i--) {
-				if (stack[i - 1].TagName.Equals (name, StringComparison.OrdinalIgnoreCase)) {
-					var ctx = stack[i - 1];
-					stack.RemoveAt (i - 1);
-					return ctx;
-				}
-			}
-
-			return null;
-		}
-
 		/// <summary>
 		/// Convert the contents of <paramref name="reader"/> from the <see cref="InputFormat"/> to the
 		/// <see cref="OutputFormat"/> and uses the <paramref name="writer"/> to write the resulting text.
@@ -269,7 +245,7 @@ namespace MimeKit.Text {
 
 			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
-				var stack = new List<HtmlToHtmlTagContext> ();
+				var stack = new HtmlTagContextStack<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false,
 					ScriptingEnabled = ScriptingEnabled
@@ -279,11 +255,11 @@ namespace MimeKit.Text {
 				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {
 					default:
-						if (!SuppressContent (stack))
+						if (!stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.Comment:
-						if (!FilterComments && !SuppressContent (stack))
+						if (!FilterComments && !stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.Tag:
@@ -293,17 +269,17 @@ namespace MimeKit.Text {
 							if (!tag.IsEmptyElement) {
 								ctx = new HtmlToHtmlTagContext (tag);
 
-								if (!SuppressContent (stack))
+								if (!stack.SuppressContent)
 									callback (ctx, htmlWriter);
 
-								stack.Add (ctx);
-							} else if (!SuppressContent (stack)) {
+								stack.Push (ctx);
+							} else if (!stack.SuppressContent) {
 								ctx = new HtmlToHtmlTagContext (tag);
 								callback (ctx, htmlWriter);
 							}
 						} else {
-							if ((ctx = Pop (stack, tag.Name)) != null) {
-								if (!SuppressContent (stack)) {
+							if ((ctx = stack.Pop (tag.Name)) != null) {
+								if (!stack.SuppressContent) {
 									if (ctx.InvokeCallbackForEndTag) {
 										ctx = new HtmlToHtmlTagContext (tag) {
 											InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
@@ -316,7 +292,7 @@ namespace MimeKit.Text {
 										htmlWriter.WriteEndTag (tag.Name);
 									}
 								}
-							} else if (!SuppressContent (stack)) {
+							} else if (!stack.SuppressContent) {
 								ctx = new HtmlToHtmlTagContext (tag);
 								callback (ctx, htmlWriter);
 							}

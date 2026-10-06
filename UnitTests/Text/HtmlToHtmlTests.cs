@@ -272,5 +272,76 @@ namespace UnitTests.Text {
 
 			Assert.That (result, Is.EqualTo (expected));
 		}
+
+		static void SuppressXCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+		{
+			if (ctx.TagName.Equals ("x", StringComparison.OrdinalIgnoreCase))
+				ctx.SuppressInnerContent = true;
+
+			ctx.WriteTag (htmlWriter, true);
+		}
+
+		[TestCase ("<a><b>1</a>2</b>3", "<a><b>1</a>2</b>3")]
+		[TestCase ("<x>1<y>2</x>3</y>4", "<x></x>3</y>4")]
+		[TestCase ("<x>1<X>2</x>3</X>4", "<x></X>4")]
+		[TestCase ("<y><x>1</y>2</x>3<x>4</X>5", "<y><x></x>3<x></X>5")]
+		[TestCase ("<x>1<x>2<x>3</x>4</x>5</x>6", "<x></x>6")]
+		[TestCase ("</x>1<x>2</y>3</x>4</x>5", "</x>1<x></x>4</x>5")]
+		public void TestOutOfOrderEndTags (string input, string expected)
+		{
+			var converter = new HtmlToHtml { HtmlTagCallback = SuppressXCallback };
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		static string Repeat (string value, int count)
+		{
+			var builder = new StringBuilder (value.Length * count);
+
+			for (int i = 0; i < count; i++)
+				builder.Append (value);
+
+			return builder.ToString ();
+		}
+
+		// Prior to using HtmlTagContextStack, each of these took time quadratic in the number of unclosed tags
+		// (100,000 unmatched end tags took over 2 minutes).
+		[Test]
+		public void TestManyUnclosedTagsFollowedByUnmatchedEndTags ()
+		{
+			const int count = 100000;
+			var input = Repeat ("<b>", count) + "x" + Repeat ("</i>", count);
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (input));
+		}
+
+		[Test]
+		public void TestManyUnclosedTagsFollowedByReopenedOuterElement ()
+		{
+			const int count = 100000;
+			var input = "<a>" + Repeat ("<b>", count) + Repeat ("</a><a>", count);
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (input));
+		}
+
+		[Test]
+		public void TestManyUnclosedTagsInsideSuppressedElement ()
+		{
+			const int count = 100000;
+			var input = "<x>" + Repeat ("<b>y", count) + Repeat ("</i>", count) + "</x>z";
+			var converter = new HtmlToHtml { HtmlTagCallback = SuppressXCallback };
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo ("<x></x>z"));
+		}
 	}
 }
