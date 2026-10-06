@@ -1,0 +1,435 @@
+﻿//
+// RtfToHtmlTests.cs
+//
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
+//
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System.Text;
+
+using MimeKit.Text;
+using MimeKit.Utils;
+
+namespace UnitTests.Text {
+	[TestFixture]
+	public class RtfToHtmlTests
+	{
+		static readonly string NewLine = Environment.NewLine;
+
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			using var reader = new StringReader ("");
+			using var writer = new StringWriter ();
+			var converter = new RtfToHtml ();
+
+			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
+			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = -1);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxFontTableEntries = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxFontTableEntries = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxColorTableEntries = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxColorTableEntries = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxGroupDepth = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxGroupDepth = -1);
+
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, writer));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, writer));
+		}
+
+		[Test]
+		public void TestDefaultPropertyValues ()
+		{
+			var converter = new RtfToHtml ();
+
+			Assert.That (converter.DetectEncodingFromByteOrderMark, Is.False, "DetectEncodingFromByteOrderMark");
+			Assert.That (converter.ExtractEncapsulatedHtml, Is.True, "ExtractEncapsulatedHtml");
+			Assert.That (converter.Footer, Is.Null, "Footer");
+			Assert.That (converter.FooterFormat, Is.EqualTo (HeaderFooterFormat.Text), "FooterFormat");
+			Assert.That (converter.Header, Is.Null, "Header");
+			Assert.That (converter.HeaderFormat, Is.EqualTo (HeaderFooterFormat.Text), "HeaderFormat");
+			Assert.That (converter.HtmlTagCallback, Is.Null, "HtmlTagCallback");
+			Assert.That (converter.InputEncoding, Is.EqualTo (CharsetUtils.Latin1), "InputEncoding");
+			Assert.That (converter.InputFormat, Is.EqualTo (TextFormat.RichText), "InputFormat");
+			Assert.That (converter.InputStreamBufferSize, Is.EqualTo (4096), "InputStreamBufferSize");
+			Assert.That (converter.OutputEncoding, Is.EqualTo (Encoding.UTF8), "OutputEncoding");
+			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Html), "OutputFormat");
+			Assert.That (converter.OutputHtmlFragment, Is.False, "OutputHtmlFragment");
+			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
+			Assert.That (converter.MaxFontTableEntries, Is.EqualTo (4096), "MaxFontTableEntries");
+			Assert.That (converter.MaxColorTableEntries, Is.EqualTo (4096), "MaxColorTableEntries");
+			Assert.That (converter.MaxGroupDepth, Is.EqualTo (4096), "MaxGroupDepth");
+		}
+
+		static string Convert (string rtf, Action<RtfToHtml> configure = null)
+		{
+			var converter = new RtfToHtml { OutputHtmlFragment = true };
+
+			configure?.Invoke (converter);
+
+			return converter.Convert (rtf);
+		}
+
+		[Test]
+		public void TestSimpleDocument ()
+		{
+			Assert.That (Convert ("{\\rtf1 Hello}", c => c.OutputHtmlFragment = false), Is.EqualTo ("<html><body><div>Hello</div>" + NewLine + "</body></html>"));
+			Assert.That (Convert ("{\\rtf1 Hello}"), Is.EqualTo ("<div>Hello</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestEmptyInput ()
+		{
+			Assert.That (Convert (string.Empty), Is.EqualTo (string.Empty));
+			Assert.That (Convert (string.Empty, c => c.OutputHtmlFragment = false), Is.EqualTo ("<html><body></body></html>"));
+		}
+
+		[Test]
+		public void TestCharacterFormatting ()
+		{
+			const string rtf = "{\\rtf1\\ansi{\\colortbl;\\red255\\green0\\blue0;\\red0\\green0\\blue255;}\\pard a {\\b b}{\\i i}{\\ul u}{\\strike s}{\\super sup}{\\sub sub}{\\cf1\\cb2 c}{\\fs36 big}{\\fs25 odd}\\par}";
+			var expected = "<div>a <span style=\"font-weight: bold;\">b</span><span style=\"font-style: italic;\">i</span>" +
+				"<span style=\"text-decoration: underline;\">u</span><span style=\"text-decoration: line-through;\">s</span>" +
+				"<span style=\"vertical-align: super;\">sup</span><span style=\"vertical-align: sub;\">sub</span>" +
+				"<span style=\"color: #FF0000; background-color: #0000FF;\">c</span><span style=\"font-size: 18pt;\">big</span>" +
+				"<span style=\"font-size: 12.5pt;\">odd</span></div>" + NewLine;
+
+			Assert.That (Convert (rtf), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestCombinedFormatting ()
+		{
+			Assert.That (Convert ("{\\rtf1{\\b\\i\\ul\\strike x}}"), Is.EqualTo ("<div><span style=\"font-weight: bold; font-style: italic; text-decoration: underline line-through;\">x</span></div>" + NewLine));
+		}
+
+		[Test]
+		public void TestAutoColor ()
+		{
+			// \cf0 refers to the auto color even if the first color table entry is defined
+			const string rtf = "{\\rtf1{\\colortbl\\red0\\green0\\blue0;\\red255\\green0\\blue0;}\\cf0\\cb0 a\\cf1 b\\cf99 c}";
+
+			Assert.That (Convert (rtf), Is.EqualTo ("<div>a<span style=\"color: #FF0000;\">b</span>c</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestZeroFontSize ()
+		{
+			Assert.That (Convert ("{\\rtf1\\fs0 a}"), Is.EqualTo ("<div>a</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestParagraphAlignment ()
+		{
+			const string rtf = "{\\rtf1\\pard left\\par\\pard\\qc center\\par\\pard\\qr right\\par\\qj just\\par\\pard\\ql left\\par}";
+			var expected = "<div>left</div>" + NewLine +
+				"<div style=\"text-align: center;\">center</div>" + NewLine +
+				"<div style=\"text-align: right;\">right</div>" + NewLine +
+				"<div style=\"text-align: justify;\">just</div>" + NewLine +
+				"<div>left</div>" + NewLine;
+
+			Assert.That (Convert (rtf), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestWhitespaceAndEscaping ()
+		{
+			const string rtf = "{\\rtf1 a  b   c\\tab d<&>\"'\\par\\par x\\line y}";
+			var expected = "<div>a &#160;b &#160; c&#160;&#160;&#160;&#160;d&lt;&amp;&gt;&quot;&#39;</div>" + NewLine +
+				"<div><br/></div>" + NewLine +
+				"<div>x<br/>y</div>" + NewLine;
+
+			Assert.That (Convert (rtf), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestUnicodeAndCodePages ()
+		{
+			const string rtf = "{\\rtf1\\ansi\\ansicpg1252{\\fonttbl{\\f0 Arial;}{\\f1\\fcharset204 Arial Cyr;}}caf\\'e9 {\\f1 \\'cf\\'f0\\'e8} \\u8364?}";
+
+			Assert.That (Convert (rtf), Is.EqualTo ("<div>caf&#233; &#1055;&#1088;&#1080; &#8364;</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestHyperlinks ()
+		{
+			const string rtf = "{\\rtf1{\\field{\\*\\fldinst HYPERLINK \"http://example.com/?a=1&b=2\"}{\\fldrslt link}} " +
+				"{\\field{\\*\\fldinst HYPERLINK \"mailto:user@example.com\"}{\\fldrslt {\\b mail}}}}";
+			var expected = "<div><a href=\"http://example.com/?a=1&amp;b=2\">link</a> <a href=\"mailto:user@example.com\"><span style=\"font-weight: bold;\">mail</span></a></div>" + NewLine;
+
+			Assert.That (Convert (rtf), Is.EqualTo (expected));
+		}
+
+		[TestCase ("javascript:alert(1)")]
+		[TestCase ("JavaScript:alert(1)")]
+		[TestCase ("vbscript:msgbox(1)")]
+		[TestCase ("data:text/html,<script>alert(1)</script>")]
+		[TestCase ("file:///etc/passwd")]
+		[TestCase (" javascript:alert(1)")]
+		public void TestUnsafeHyperlinks (string url)
+		{
+			var rtf = "{\\rtf1{\\field{\\*\\fldinst HYPERLINK \"" + url + "\"}{\\fldrslt bad}}}";
+			var html = Convert (rtf);
+
+			Assert.That (html, Is.EqualTo ("<div>bad</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestTable ()
+		{
+			const string rtf = "{\\rtf1\\trowd\\cellx1000\\cellx2000\\pard\\intbl a\\cell b\\cell\\row\\pard after\\par}";
+			var expected = "<table><tr><td><div>a</div>" + NewLine + "</td><td><div>b</div>" + NewLine + "</td></tr>" + NewLine +
+				"</table>" + NewLine + "<div>after</div>" + NewLine;
+
+			Assert.That (Convert (rtf), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestHeaderAndFooter ()
+		{
+			var html = Convert ("{\\rtf1 Hello}", c => {
+				c.Header = "<p>header</p>";
+				c.HeaderFormat = HeaderFooterFormat.Html;
+				c.Footer = "<footer>";
+				c.FooterFormat = HeaderFooterFormat.Text;
+			});
+
+			Assert.That (html, Is.EqualTo ("<p>header</p><div>Hello</div>" + NewLine + "&lt;footer&gt;<br/>"));
+
+			html = Convert ("{\\rtf1 Hello}", c => {
+				c.OutputHtmlFragment = false;
+				c.Header = "<p>header</p>";
+				c.HeaderFormat = HeaderFooterFormat.Html;
+				c.Footer = "<p>footer</p>";
+				c.FooterFormat = HeaderFooterFormat.Html;
+			});
+
+			Assert.That (html, Is.EqualTo ("<html><body><p>header</p><div>Hello</div>" + NewLine + "<p>footer</p></body></html>"));
+		}
+
+		[Test]
+		public void TestHtmlTagCallback ()
+		{
+			var html = Convert ("{\\rtf1{\\b bold} plain}", c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Span) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				};
+			});
+
+			Assert.That (html, Is.EqualTo ("<div>bold plain</div>" + NewLine));
+		}
+
+		const string EncapsulatedHtml = "{\\rtf1\\ansi\\ansicpg1252\\fromhtml1 \\deff0{\\fonttbl{\\f0\\fswiss Arial;}}\r\n" +
+			"{\\*\\htmltag19 <html>}{\\*\\htmltag34 <head><title>t</title><style>p\\{color:red\\}</style>}{\\*\\htmltag41 </head>}{\\*\\htmltag50 <body>}\\htmlrtf {\\htmlrtf0 \r\n" +
+			"{\\*\\htmltag64 <p class=\"caf\\'e9\">}\\htmlrtf {\\htmlrtf0 caf\\'e9 &amp; <b>\\htmlrtf\\par\\htmlrtf0 \r\n" +
+			"{\\*\\htmltag72 </p>}\\htmlrtf }\\htmlrtf0 \r\n" +
+			"\\htmlrtf }\\htmlrtf0 {\\*\\htmltag58 </body>}{\\*\\htmltag27 </html>}}";
+
+		[Test]
+		public void TestExtractEncapsulatedHtml ()
+		{
+			var html = Convert (EncapsulatedHtml, c => c.OutputHtmlFragment = false);
+
+			Assert.That (html, Is.EqualTo ("<html><head><title>t</title><style>p{color:red}</style></head><body><p class=\"caf&#233;\">café &amp; <b></p></body></html>"));
+		}
+
+		[Test]
+		public void TestExtractEncapsulatedHtmlFragment ()
+		{
+			Assert.That (Convert (EncapsulatedHtml), Is.EqualTo ("<p class=\"caf&#233;\">café &amp; <b></p>"));
+		}
+
+		[Test]
+		public void TestExtractEncapsulatedHtmlCallback ()
+		{
+			var html = Convert (EncapsulatedHtml, c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.P) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				};
+			});
+
+			Assert.That (html, Is.EqualTo ("café &amp; <b>"));
+		}
+
+		[Test]
+		public void TestDisableEncapsulatedHtmlExtraction ()
+		{
+			// The RTF rendering of the encapsulated HTML is used instead: "&amp; <b>" is literal text in the RTF.
+			var html = Convert (EncapsulatedHtml, c => c.ExtractEncapsulatedHtml = false);
+
+			Assert.That (html, Is.EqualTo ("<div>caf&#233; &amp;amp; &lt;b&gt;</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestFromHtmlOutsideRecognitionWindow ()
+		{
+			// [MS-OXRTFEX] 2.2.3.1: \fromhtml1 must appear within the first 10 tokens of the document.
+			var html = Convert ("{\\rtf1 text\\fromhtml1 {\\*\\htmltag <script>}x}");
+
+			Assert.That (html, Is.EqualTo ("<div>textx</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestTnefMultiValueAttribute ()
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", "multi-value-attribute", "message.rtf");
+			var converter = new RtfToHtml ();
+			string html;
+
+			using (var stream = File.OpenRead (path))
+				html = ConvertStream (converter, stream);
+
+			Assert.That (html, Does.StartWith ("<html><head>"));
+			Assert.That (html, Does.Contain ("<a style=\"color: #3399ff; \" href=\"tel:208225\">"));
+			Assert.That (html, Does.Contain ("Curie Conf Room"));
+			Assert.That (html, Does.Not.Contain ("\\htmltag"));
+			Assert.That (html, Does.Not.Contain ("\\par"));
+
+			converter = new RtfToHtml { ExtractEncapsulatedHtml = false, OutputHtmlFragment = true };
+
+			using (var stream = File.OpenRead (path))
+				html = ConvertStream (converter, stream);
+
+			Assert.That (html, Does.StartWith ("<div>"));
+			Assert.That (html, Does.Contain ("<a href=\"tel:208225\"><span style=\"text-decoration: underline; color: #0000FF;\">208225</span></a>"));
+		}
+
+		static string ConvertStream (TextConverter converter, Stream stream)
+		{
+			using var output = new MemoryStream ();
+
+			converter.Convert (stream, output);
+
+			output.Position = 0;
+
+			using var reader = new StreamReader (output, Encoding.UTF8);
+
+			return reader.ReadToEnd ();
+		}
+
+		[TestCase ("multi-value-attribute")]
+		[TestCase ("winmail")]
+		[TestCase ("rtf")]
+		[TestCase ("MAPI_OBJECT")]
+		[TestCase ("long-filename")]
+		public void TestTnefSamples (string name)
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "tnef", name, "message.rtf");
+
+			foreach (var extract in new [] { true, false }) {
+				var converter = new RtfToHtml { ExtractEncapsulatedHtml = extract };
+				string html;
+
+				using (var stream = File.OpenRead (path))
+					html = ConvertStream (converter, stream);
+
+				Assert.That (html, Does.StartWith ("<html>"), $"extract={extract}");
+				Assert.That (html, Does.EndWith ("</html>").Or.EndWith ("</html>" + NewLine).Or.EndWith ("</html>\r\n").Or.EndWith ("</html>\n"), $"extract={extract}");
+				Assert.That (html, Does.Not.Contain ("\\rtf"), $"extract={extract}");
+				Assert.That (html, Does.Not.Contain ("\\fonttbl"), $"extract={extract}");
+			}
+
+			using (var stream = File.OpenRead (path)) {
+				var text = ConvertStream (new RtfToText (), stream);
+
+				Assert.That (text, Does.Not.Contain ("\\rtf"));
+				Assert.That (text, Does.Not.Contain ("\\fonttbl"));
+			}
+		}
+
+		[Test]
+		public void TestDeepNesting ()
+		{
+			const int depth = 1000000;
+			var builder = new StringBuilder ();
+
+			builder.Append ("{\\rtf1 a");
+			builder.Append ('{', depth);
+			builder.Append ("{\\b deep}");
+			builder.Append ('}', depth);
+			builder.Append ("b}");
+
+			Assert.That (Convert (builder.ToString (), c => c.MaxGroupDepth = 8), Is.EqualTo ("<div>a<span style=\"font-weight: bold;\">deep</span>b</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestMaxGroupDepth ()
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("{\\rtf1 a");
+			for (int i = 0; i < 100; i++)
+				builder.Append ((i & 1) == 0 ? "{\\b " : "{\\b0 ");
+			builder.Append ("deep");
+			builder.Append ('}', 100);
+			builder.Append ("b}");
+
+			Assert.That (Convert (builder.ToString (), c => c.MaxGroupDepth = 8), Is.EqualTo ("<div>ab</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestLargeColorTable ()
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("{\\rtf1{\\colortbl;");
+			for (int i = 0; i < 100000; i++)
+				builder.Append ("\\red255\\green0\\blue0;");
+			builder.Append ("}\\cf5 a\\cf50000 b}");
+
+			Assert.That (Convert (builder.ToString (), c => c.MaxColorTableEntries = 10), Is.EqualTo ("<div><span style=\"color: #FF0000;\">a</span>b</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestLargeFontTable ()
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("{\\rtf1{\\fonttbl");
+			for (int i = 0; i < 100000; i++)
+				builder.Append ("{\\f").Append (i).Append ("\\fcharset204 Font;}");
+			builder.Append ("}\\f5 \\'cf\\f50000 \\'cf}");
+
+			Assert.That (Convert (builder.ToString (), c => c.MaxFontTableEntries = 10), Is.EqualTo ("<div>&#1055;&#207;</div>" + NewLine));
+		}
+	}
+}

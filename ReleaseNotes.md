@@ -165,6 +165,14 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 
 ### Other Enhancements
 
+* Added the `RtfToText` and `RtfToHtml` text converters for `text/rtf` content (such as the
+  `PR_RTF_COMPRESSED` body of TNEF attachments). `RtfToHtml` extracts the original HTML from RTF that
+  encapsulates HTML ([MS-OXRTFEX]) unless `ExtractEncapsulatedHtml` is `false`, and otherwise renders the
+  RTF as HTML. Both converters are designed for untrusted input: their `MaxFontTableEntries`,
+  `MaxColorTableEntries` and `MaxGroupDepth` properties (4096 by default) bound the resources used by
+  hostile documents, nested groups that do not change any formatting are folded so that arbitrarily deep
+  nesting uses constant memory, `\binN` data is skipped without buffering, and `RtfToHtml` only renders
+  `http`, `https`, `mailto`, `ftp` and `tel` hyperlinks.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).

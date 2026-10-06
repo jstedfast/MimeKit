@@ -1,0 +1,3 @@
+Body text with a comment.
+An embedded object: Object result text.
+Nesting: deep.

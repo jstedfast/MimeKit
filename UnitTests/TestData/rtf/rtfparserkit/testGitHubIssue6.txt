@@ -1,0 +1,5 @@
+	INNEN. KÜCHE - TAG
+Ein Absatz mit Line-Separator:
+Der geht hier auf einer neuen Zeile weiter.
+	INNEN. KÜCHE - TAG
+Hier ist die zweite Szene.

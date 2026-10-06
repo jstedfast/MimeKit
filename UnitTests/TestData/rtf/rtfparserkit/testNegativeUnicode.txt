@@ -1,0 +1,4 @@
+From: http://unicode-table.com/en/#private-use-area
+F700
+F710
+F720

@@ -7,3 +7,4 @@
 *.yml text
 *.cs text
 *.md text
+*.rtf binary

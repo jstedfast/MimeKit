@@ -1,0 +1,18 @@
+Tab A	B
+Tab A	B
+CR A
+B
+LF A
+B
+This is a line break.
+Here is the new line.
+Emdash: —
+Endash: –
+Emspace:  
+Enspace:  
+Qmspace:  
+Bullet: •
+Lquote: ‘
+Rquote: ’
+Ldblquote: “
+Rdblquote: ”

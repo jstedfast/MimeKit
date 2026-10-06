@@ -1,0 +1,17 @@
+Hellou RTF World
+
+with some symbols: "abc"
+
+and some bold, italic, underlined and strikethrough text
+
+some nested styles: bold, italic, underlined, normal
+
+some combined styles: bold+italic+underlined vs. normal
+
+and further: bold, bold+italic, bold+underlined, normal
+
+different ways: [A] == [A] == [A] == [A]
+more unicode: Unicode: [Γ] - ANSI-fallback: [G]
+same but different: "[Γ]"
+
+something to ignore: visible.

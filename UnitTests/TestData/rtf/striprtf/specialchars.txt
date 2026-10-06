@@ -1,0 +1,1 @@
+This is some bold text with non breaking spaces. Optional hyphenfoo. Non breaking hyphen‑foo.

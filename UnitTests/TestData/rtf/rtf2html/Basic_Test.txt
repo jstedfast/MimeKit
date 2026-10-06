@@ -1,0 +1,31 @@
+Test Test Test Test Test Test RED BACKGROUND Test
+
+Very large Text in Font Courier
+
+1 cm3 H2O
+centered
+paragraph
+right-aligned
+paragraph
+left-aligned
+paragraph
+
+Indented by 10 mm. 
+Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test 
+
+Bullet list
+·	Item 1
+·	Item 2
+·	Item 3
+
+Numbered list
+1	Item A
+2	Item B
+3	Item C
+
+Numbered list (Uppercase Roman)
+I	Item A
+II	Item B
+III	Item C
+
+
