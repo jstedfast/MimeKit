@@ -62,6 +62,23 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMaxHeaderLength ()
+		{
+			var options = new ParserOptions ();
+
+			Assert.That (options.MaxHeaderLength, Is.EqualTo (16 * 1024 * 1024), "Default MaxHeaderLength");
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxHeaderLength = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxHeaderLength = -1);
+
+			options.MaxHeaderLength = 1;
+
+			var clone = options.Clone ();
+
+			Assert.That (clone.MaxHeaderLength, Is.EqualTo (1), "Cloned MaxHeaderLength");
+		}
+
+		[Test]
 		public void TestParsingOfApplicationRtf ()
 		{
 			const string rawMimeData = @"Content-type: application/rtf

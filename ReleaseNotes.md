@@ -171,6 +171,9 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   not passed to the `HtmlToHtml.HtmlTagCallback`, so applications that use the callback to filter HTML
   that will be rendered with scripting disabled (as is typical for email) should set it to `false`.
   See the `HtmlToHtml.ScriptingEnabled` documentation for the security implications of each setting.
+* Added `ParserOptions.MaxHeaderLength` to limit how much memory the parser will use to buffer any
+  single header. A header whose raw length exceeds the limit causes the parser to throw a `FormatException`.
+  The default limit is 16 MB.
 
 ### Performance
 
@@ -192,6 +195,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUEncoder` that encode whole 45-byte lines at a
   time (roughly 14x faster with SSSE3 and 16x faster with AVX2 than the scalar encoder). They can be
   disabled using the new `UUEncoder.EnableHardwareAcceleration` property.
+* Fixed quadratic behavior when parsing very long (e.g. heavily folded) headers. `MimeReader` and
+  `LegacyMimeParser` grew their header buffers by only a small fixed amount at a time, copying the entire
+  header on every refill of the input buffer (or, for the legacy parser, on every line). The buffers now grow
+  geometrically (by 1.5x). Parsing a message with an 80,000-recipient `To` header went from roughly 230 ms
+  to 3 ms with `MimeParser` and from 13 s to 3.5 ms with `LegacyMimeParser`.
 
 ### Bug Fixes
 

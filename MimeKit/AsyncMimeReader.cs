@@ -299,6 +299,8 @@ namespace MimeKit {
 						}
 					}
 
+					CheckHeaderLength (beginOffset);
+
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
 						if (complianceLogger != null) {
 							if (midline)
@@ -316,6 +318,8 @@ namespace MimeKit {
 					state = MimeParserState.Error;
 					return;
 				}
+
+				CheckHeaderLength (beginOffset);
 
 				var header = CreateHeader (beginOffset, beginLineNumber, fieldNameLength, headerFieldLength, invalid, ascii);
 

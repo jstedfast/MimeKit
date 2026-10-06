@@ -47,6 +47,9 @@ namespace MimeKit {
 		readonly Dictionary<string, ConstructorInfo> mimeTypes = new Dictionary<string, ConstructorInfo> (MimeUtils.OrdinalIgnoreCase);
 		static readonly Type[] ConstructorArgTypes = { typeof (MimeEntityConstructorArgs) };
 		static volatile ICryptographicEntityFactory? CryptographicEntityFactory;
+		int maxHeaderLength;
+
+		internal const int DefaultMaxHeaderLength = 16 * 1024 * 1024;
 
 		/// <summary>
 		/// The default parser options.
@@ -121,6 +124,32 @@ namespace MimeKit {
 		public int MaxMimeDepth { get; set; }
 
 		/// <summary>
+		/// Get or set the maximum length of a header that the parser should accept.
+		/// </summary>
+		/// <remarks>
+		/// <para>This option exists in order to limit the amount of memory that the parser will allocate
+		/// for any single header. Without a limit, a maliciously crafted message containing a single enormous
+		/// (e.g. folded) header could force the parser to buffer the entire header in memory.</para>
+		/// <para>The length is measured in bytes of raw header data and includes the field name, the colon,
+		/// the raw value (including any folding), and the terminating newline sequence.</para>
+		/// <para>When a header exceeds this limit, the parser will throw a <see cref="FormatException"/>.</para>
+		/// <para>The default value is <c>16777216</c> (16 MB).</para>
+		/// </remarks>
+		/// <value>The maximum header length, in bytes.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is less than <c>1</c>.
+		/// </exception>
+		public int MaxHeaderLength {
+			get { return maxHeaderLength; }
+			set {
+				if (value < 1)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxHeaderLength = value;
+			}
+		}
+
+		/// <summary>
 		/// Get or set the compliance mode that should be used when parsing Content-Type and Content-Disposition parameters.
 		/// </summary>
 		/// <remarks>
@@ -190,6 +219,7 @@ namespace MimeKit {
 			RespectContentLength = false;
 			MaxAddressGroupDepth = 3;
 			MaxMimeDepth = 1024;
+			MaxHeaderLength = DefaultMaxHeaderLength;
 		}
 
 		/// <summary>
@@ -211,7 +241,8 @@ namespace MimeKit {
 				MaxAddressGroupDepth = MaxAddressGroupDepth,
 				RespectContentLength = RespectContentLength,
 				CharsetEncoding = CharsetEncoding,
-				MaxMimeDepth = MaxMimeDepth
+				MaxMimeDepth = MaxMimeDepth,
+				MaxHeaderLength = MaxHeaderLength
 			};
 
 			foreach (var mimeType in mimeTypes)

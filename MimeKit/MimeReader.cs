@@ -1332,10 +1332,24 @@ namespace MimeKit {
 
 		#endregion Multipart Events
 
-		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static int NextAllocSize (int need)
+		internal const int MaxArrayLength = 0x7FFFFFC7;
+
+		/// <summary>
+		/// Get the new size for a buffer that needs to grow to hold at least <paramref name="need"/> bytes.
+		/// </summary>
+		/// <remarks>
+		/// Buffers that are appended to repeatedly (such as the header buffer when reading a very long folded header)
+		/// must grow geometrically; otherwise each refill of the input buffer would reallocate and copy the entire
+		/// accumulated buffer, making the total cost quadratic in the size of the data.
+		/// </remarks>
+		/// <param name="currentSize">The current size of the buffer.</param>
+		/// <param name="need">The minimum number of bytes needed.</param>
+		/// <returns>The new buffer size.</returns>
+		internal static int NextGrowSize (int currentSize, int need)
 		{
-			return (need + 63) & ~63;
+			long size = Math.Max ((long) currentSize + (currentSize >> 1), need);
+
+			return (int) Math.Max (need, Math.Min (size, MaxArrayLength));
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
@@ -1915,7 +1929,7 @@ namespace MimeKit {
 		void EnsureHeaderBufferSize (int size)
 		{
 			if (size >= headerBuffer.Length)
-				Array.Resize (ref headerBuffer, NextAllocSize (size));
+				Array.Resize (ref headerBuffer, NextGrowSize (headerBuffer.Length, size));
 		}
 
 		/// <summary>
@@ -2052,6 +2066,19 @@ namespace MimeKit {
 
 			// If inptr == inend, then our caller will re-fill the input buffer and call us again.
 			return inptr < inend;
+		}
+
+		/// <summary>
+		/// Check that the current header does not exceed the <see cref="ParserOptions.MaxHeaderLength"/>.
+		/// </summary>
+		/// <param name="beginOffset">The offset of the beginning of the header.</param>
+		/// <exception cref="FormatException">
+		/// The current header exceeds the <see cref="ParserOptions.MaxHeaderLength"/>.
+		/// </exception>
+		void CheckHeaderLength (long beginOffset)
+		{
+			if (headerIndex > options.MaxHeaderLength)
+				throw new FormatException ($"Header at offset {beginOffset} exceeds the maximum header length of {options.MaxHeaderLength} bytes.");
 		}
 
 		bool IsEndOfHeaderBlock (int left)
@@ -2362,6 +2389,8 @@ namespace MimeKit {
 
 				// Consume the header value.
 				while (!StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii)) {
+					CheckHeaderLength (beginOffset);
+
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
 						if (complianceLogger != null) {
 							if (midline)
@@ -2379,6 +2408,8 @@ namespace MimeKit {
 					state = MimeParserState.Error;
 					return;
 				}
+
+				CheckHeaderLength (beginOffset);
 
 				var header = CreateHeader (beginOffset, beginLineNumber, fieldNameLength, headerFieldLength, invalid, ascii);
 

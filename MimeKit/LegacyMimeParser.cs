@@ -839,10 +839,13 @@ namespace MimeKit {
 
 		void AppendRawHeaderData (int startIndex, int length)
 		{
+			if (length > options.MaxHeaderLength - headerIndex)
+				throw new FormatException ($"Header at offset {headerOffset} exceeds the maximum header length of {options.MaxHeaderLength} bytes.");
+
 			int left = headerBuffer.Length - headerIndex;
 
 			if (left < length)
-				Array.Resize (ref headerBuffer, NextAllocSize (headerIndex + length));
+				Array.Resize (ref headerBuffer, MimeReader.NextGrowSize (headerBuffer.Length, headerIndex + length));
 
 			Buffer.BlockCopy (input, startIndex, headerBuffer, headerIndex, length);
 			headerIndex += length;

@@ -457,8 +457,25 @@ namespace UnitTests {
 			protected override void OnMultipartEpilogueEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken) => End ("epilogue", beginOffset, endOffset);
 		}
 
+		[Test]
+		public void TestNextGrowSize ()
+		{
+			// Grows geometrically (by 1.5x) so that appending to the header buffer is amortized O(n).
+			Assert.That (MimeReader.NextGrowSize (512, 513), Is.EqualTo (768));
+			Assert.That (MimeReader.NextGrowSize (4096, 4097), Is.EqualTo (6144));
+
+			// Never smaller than what is needed.
+			Assert.That (MimeReader.NextGrowSize (512, 5000), Is.EqualTo (5000));
+			Assert.That (MimeReader.NextGrowSize (0, 1), Is.EqualTo (1));
+			Assert.That (MimeReader.NextGrowSize (1, 2), Is.EqualTo (2));
+
+			// Clamped to the maximum array length without overflowing, but never smaller than what is needed.
+			Assert.That (MimeReader.NextGrowSize (0x60000000, 0x60000001), Is.EqualTo (MimeReader.MaxArrayLength));
+			Assert.That (MimeReader.NextGrowSize (0x7FFFFF00, 0x7FFFFFF0), Is.EqualTo (0x7FFFFFF0));
+		}
+
 		// Returns at most 'chunkSize' bytes per read (both sync and async) to force line endings and boundary markers to be split across reads.
-		class ChunkedReadStream : MemoryStream
+		internal class ChunkedReadStream : MemoryStream
 		{
 			readonly int chunkSize;
 
