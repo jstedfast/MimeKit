@@ -880,7 +880,12 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.Data);
 
-			return EmitDataToken (DecodeCharacterReferences, false);
+			var token = EmitDataToken (DecodeCharacterReferences, false);
+
+			if (token is HtmlDataToken dataToken)
+				dataToken.IsDataState = true;
+
+			return token;
 		}
 
 		// 8.2.4.2 Character reference in data state

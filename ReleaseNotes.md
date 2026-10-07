@@ -240,6 +240,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   non-void HTML elements. `HtmlToHtml` and `HtmlTextPreviewer` now suppress the content that follows a
   self-closing raw-text element when its content is suppressed.
 
+* Fixed `HtmlToHtml` so that a literal `<` at the end of character data (e.g. the first `<` in `<</>c>`)
+  is written as `&lt;`. Previously, if the markup following it was dropped (e.g. `</>`, a comment removed by
+  `FilterComments`, or a tag deleted by an `HtmlTagCallback`), the `<` could combine with the following text
+  to form a new tag.
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a

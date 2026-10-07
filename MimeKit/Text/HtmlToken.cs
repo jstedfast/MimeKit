@@ -239,6 +239,10 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		internal bool IsDataState {
+			get; set;
+		}
+
 		/// <summary>
 		/// Get the character data.
 		/// </summary>
@@ -267,6 +271,20 @@ namespace MimeKit.Text {
 				throw new ArgumentNullException (nameof (output));
 
 			if (!EncodeEntities) {
+				// Note: The tokenizer only ends a data-state token with a literal '<' when the following input
+				// begins markup that a browser treats as text (e.g. the first '<' in "<</>c>"). If the markup that
+				// follows gets dropped (e.g. "</>", a filtered comment, or a tag removed by a callback), writing
+				// the '<' verbatim would allow it to combine with the next token to form a new tag, so encode it.
+				if (IsDataState && Data.Length > 0 && Data[Data.Length - 1] == '<') {
+#if NET6_0_OR_GREATER
+					output.Write (Data.AsSpan (0, Data.Length - 1));
+#else
+					output.Write (Data.Substring (0, Data.Length - 1));
+#endif
+					output.Write ("&lt;");
+					return;
+				}
+
 				output.Write (Data);
 				return;
 			}

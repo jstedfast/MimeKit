@@ -414,6 +414,28 @@ namespace UnitTests.Text {
 			Assert.That (converter.Convert (input), Is.EqualTo (expected));
 		}
 
+		// A literal '<' at the end of a data token must not combine with the data that follows dropped markup to form a new tag.
+		[TestCase ("<</>c>", false, "&lt;c>")]
+		[TestCase ("<<!-- x -->img src=x onerror=alert(1)>", true, "&lt;img src=x onerror=alert(1)>")]
+		[TestCase ("<<!-- x -->img>", false, "&lt;<!-- x -->img>")]
+		[TestCase ("a <<b>img onerror=alert(1)>", false, "a &lt;img onerror=alert(1)>")]
+		public void TestDroppedMarkupDoesNotFormNewTag (string input, bool filterComments, string expected)
+		{
+			var converter = new HtmlToHtml {
+				FilterComments = filterComments,
+				HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.B) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				}
+			};
+
+			Assert.That (converter.Convert (input), Is.EqualTo (expected));
+		}
+
 		// "<a href/=javascript:x>" has a valueless "href" attribute followed by an attribute named "=javascript:x". Make sure
 		// that the output does not get reparsed as an href attribute with a value of "javascript:x".
 		[Test]
