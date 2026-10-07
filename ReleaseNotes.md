@@ -245,6 +245,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `FilterComments`, or a tag deleted by an `HtmlTagCallback`), the `<` could combine with the following text
   to form a new tag.
 
+* Fixed `HtmlTokenizer` so that an abruptly terminated DOCTYPE public or system identifier (e.g.
+  `<!DOCTYPE x PUBLIC "><a href=&>`) no longer leaves a stale quote character behind. Previously, a
+  character reference in an unquoted attribute value of the next tag would resume tokenizing in the quoted
+  attribute value state, causing the tag (and the markup that followed) to be emitted as character data.
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a

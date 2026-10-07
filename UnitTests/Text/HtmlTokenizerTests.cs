@@ -3631,5 +3631,31 @@ namespace UnitTests.Text {
 			else
 				Assert.That (last.Kind, Is.EqualTo (HtmlTokenKind.Comment), "Expected <style> to be foreign content");
 		}
+
+		// An abruptly terminated DOCTYPE identifier must not leave a stale quote character behind that would cause a
+		// character reference in an unquoted attribute value of the next tag to resume in the quoted attribute value state.
+		[TestCase ("<!DOCTYPE l PUBLIC\"><k g=&>")]
+		[TestCase ("<!DOCTYPE l PUBLIC '><k g=&>")]
+		[TestCase ("<!DOCTYPE l SYSTEM \"><k g=&>")]
+		[TestCase ("<!DOCTYPE l PUBLIC \"a\" '><k g=&>")]
+		public void TestAbruptDocTypeIdentifierQuote (string input)
+		{
+			var tokenizer = CreateTokenizer (input);
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.DocType));
+			Assert.That (((HtmlDocTypeToken) token).ForceQuirksMode, Is.True);
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+
+			var tag = (HtmlTagToken) token;
+			Assert.That (tag.Name, Is.EqualTo ("k"));
+			Assert.That (tag.Attributes, Has.Count.EqualTo (1));
+			Assert.That (tag.Attributes[0].Name, Is.EqualTo ("g"));
+			Assert.That (tag.Attributes[0].Value, Is.EqualTo ("&"));
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
 	}
 }

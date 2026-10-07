@@ -607,6 +607,9 @@ namespace MimeKit.Text {
 			// name of the next tag or attribute.
 			name.Length = 0;
 
+			// Note: An abruptly terminated DOCTYPE identifier (e.g. <!DOCTYPE x PUBLIC "...>) leaves the quote set.
+			quote = '\0';
+
 			return token;
 		}
 
@@ -1780,7 +1783,11 @@ namespace MimeKit.Text {
 					quote = c;
 					return null;
 				case '&':
+					// Note: This is the start of an unquoted attribute value. Make sure that a stale quote character
+					// (e.g. from an abruptly terminated DOCTYPE identifier) does not cause the character reference
+					// state to resume in the quoted attribute value state.
 					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
+					quote = '\0';
 					return null;
 				case '>':
 					return EmitTagToken ();
@@ -1789,6 +1796,7 @@ namespace MimeKit.Text {
 					goto default;
 				default:
 					TokenizerState = HtmlTokenizerState.AttributeValueUnquoted;
+					quote = '\0';
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
 				}
