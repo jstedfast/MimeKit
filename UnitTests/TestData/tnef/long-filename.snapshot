@@ -6,10 +6,16 @@ message
   In-Reply-To: <14387.2186.517000.429171@gargle.gargle.HOWL>
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=1066 sha256=2f522487cfb7ad54cea360683d80bca7f6da39e8c1bfa9b723168aa7bca74695
-      text: {\\rtf1\\ansi\\ansicpg1252\\fromtext \\deff0{\\fonttbl\r\n{\\f0\\fswiss Arial;}\r\n{\\f1\\fmodern Courier New;}\r\n{\\f2\\fnil\\fcharset2 Symbol;}\r\n{\\f3\\fmodern\\fcharset0 Courier New;}}\r\n{\\colortbl\\red0\\green0\\blue0;\\red0\\green0\\blue255;}\r\n\\uc1\\pard\\plain\\deftab360 \\f0\\fs20\\...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=729 sha256=d98d982b0011c7748c7a5e087c3c9479b0775ea287c80e1de1060f65a04ff871
+        text: I've attached a temp. license for QARun 4.7.  Do you need something more permanent?  If so, give me your host id and host name of the machine you want to put it on and indicate whether you want a single user perm. license or a concurrent user perm. license...
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=1689 sha256=64180063a72ed12d5415625622458b98ec7e0271305d465e1fd818b44a3bc663
+        text: <html><body><div><span style="font-size: 10pt;">I&#39;ve attached a temp. license for QARun 4.7. &#160;Do you need something more permanent? &#160;If so, give me your host id and host name of the machine you want to put it on and indicate whether you want ...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=allproductsmar2000.dat
       Content-Transfer-Encoding: base64

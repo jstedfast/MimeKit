@@ -349,7 +349,7 @@ namespace MimeKit.Tnef {
 			if (mode != RtfCompressionMode.Compressed && mode != RtfCompressionMode.Uncompressed) {
 				// [MS-OXRTFCP] 2.1.3.1.1 only defines the COMPRESSED and UNCOMPRESSED values of COMPTYPE, so the content
 				// cannot be interpreted and the filter produces nothing. The body is treated as absent, including when
-				// choosing the best body ([MS-OXBBODY] 2.1.3.1), rather than emitting an empty text/rtf part.
+				// choosing the best body ([MS-OXBBODY] 2.1.3.1), rather than generating empty bodies from it.
 				content.Dispose ();
 				AddLoss (TnefConversionLossKind.InvalidRtfBody, $"The compressed RTF body has an unknown compression type (0x{(uint) mode:X8}) and was dropped.");
 				return;
@@ -411,6 +411,48 @@ namespace MimeKit.Tnef {
 			return part;
 		}
 
+		// Whether the text/plain and text/html bodies are generated from the RTF body (see CreateBody).
+		bool UseRtfBody ()
+		{
+			if (rtfBody is null)
+				return false;
+
+			if (GetBestBody () == BestBodyFormat.Rtf)
+				return true;
+
+			// PidTagNativeBody can name a plain text or HTML best body ([MS-OXBBODY] 2.1.3.1 step 1) that is absent. If
+			// the RTF is the only body there is, it is used rather than producing a message without a body.
+			return tnef.TextBody is null && tnef.HtmlBody is null;
+		}
+
+		// Generates a text/plain or text/html body part from the decoded RTF body. The output is UTF-8. A
+		// replacement fallback (rather than CharsetUtils.UTF8's exception fallback) is used because malformed RTF can
+		// produce unpaired surrogates (e.g. from a lone \uN), and no byte order mark is written.
+		TextPart CreateRtfBodyPart (string subtype, TextConverter converter)
+		{
+			var rtf = decodedRtf ??= DecodeRtf (rtfBody!, out _);
+			var part = new TextPart (subtype);
+
+			try {
+				var content = new MemoryBlockStream ();
+
+				part.Content = new MimeContent (content);
+				part.ContentType.Charset = "utf-8";
+
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				converter.OutputEncoding = new UTF8Encoding (false);
+				rtf.Position = 0;
+				converter.Convert (rtf, content);
+				content.Position = 0;
+			} catch {
+				part.Dispose ();
+				throw;
+			}
+
+			return part;
+		}
+
 		TextPart CreateCalendarPart (TnefCalendarBuilder calendar)
 		{
 			var part = new TextPart ("calendar");
@@ -457,20 +499,28 @@ namespace MimeKit.Tnef {
 			var parts = new List<MimeEntity> (4);
 
 			try {
-				// [MS-OXCMAIL] 2.1.3.3: the message body is a single MIME entity. Its exact shape there depends on the
-				// "best body" ([MS-OXBBODY]) and on inline attachments (2.1.3.3.3-2.1.3.3.7), and a writer is expected
-				// to synthesize HTML from RTF. This converter does not synthesize content: every body present in the
-				// TNEF is emitted unchanged, as alternatives ordered from the least to the most preferred
-				// representation (RFC 2046 5.1.4). ConvertProperties wraps this entity and the inline attachments that
-				// the HTML body refers to in a multipart/related (2.1.3.3.6).
-				if (tnef.TextBody != null)
-					parts.Add (CreateBodyPart ("plain", tnef.TextBody));
+				// [MS-OXCMAIL] 2.1.3.3: the message body is a single MIME entity whose shape depends on the "best body"
+				// ([MS-OXBBODY], see GetBestBody) and on inline attachments (2.1.3.3.3-2.1.3.3.7). The bodies are
+				// alternatives ordered from the least to the most preferred representation (RFC 2046 5.1.4).
+				// ConvertProperties wraps this entity and the inline attachments that the HTML body refers to in a
+				// multipart/related (2.1.3.3.6).
+				//
+				// No text/rtf part is ever emitted: [MS-OXCMAIL] only defines text/plain and text/html bodies, and
+				// few MIME clients can render RTF.
+				if (UseRtfBody ()) {
+					// [MS-OXCMAIL] 2.1.3.3.5 and 2.1.3.3.6: when the best body is RTF, the text/plain and text/html
+					// alternatives SHOULD both be generated from PidTagRtfCompressed rather than copied from
+					// PidTagBody and PidTagHtml (which MAY be used instead, but are not guaranteed to be in sync with
+					// the RTF). For RTF that encapsulates HTML ([MS-OXRTFEX]), RtfToHtml recovers the original HTML.
+					parts.Add (CreateRtfBodyPart ("plain", new RtfToText ()));
+					parts.Add (CreateRtfBodyPart ("html", new RtfToHtml ()));
+				} else {
+					if (tnef.TextBody != null)
+						parts.Add (CreateBodyPart ("plain", tnef.TextBody));
 
-				if (rtfBody != null)
-					parts.Add (CreateBodyPart ("rtf", rtfBody));
-
-				if (tnef.HtmlBody != null)
-					parts.Add (CreateBodyPart ("html", tnef.HtmlBody));
+					if (tnef.HtmlBody != null)
+						parts.Add (CreateBodyPart ("html", tnef.HtmlBody));
+				}
 
 				// [MS-OXCMAIL] 2.1.3.3.8: the text/calendar part of a calendar item or meeting message is the last
 				// alternative.
@@ -496,8 +546,8 @@ namespace MimeKit.Tnef {
 			return alternative;
 		}
 
-		// [MS-OXBBODY] 2.1.3.1: the Best Body Algorithm. Only the inline-attachment rules of [MS-OXCMAIL] 2.1.3.4.1
-		// depend on the result; it does not change which bodies are emitted (see CreateBody).
+		// [MS-OXBBODY] 2.1.3.1: the Best Body Algorithm. It decides whether the bodies are generated from the RTF (see
+		// CreateBody) and which attachments are inline ([MS-OXCMAIL] 2.1.3.4.1).
 		BestBodyFormat GetBestBody ()
 		{
 			bestBody ??= ComputeBestBody ();

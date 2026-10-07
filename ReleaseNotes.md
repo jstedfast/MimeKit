@@ -141,6 +141,11 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     (default 16 MiB) to bound the size of the generated `text/calendar` part for recurring appointments with many
     exceptions. Exceptions beyond either limit are omitted and reported as
     `TnefConversionLossKind.CalendarExceptionLimitExceeded`.
+  * `TnefMessage.ConvertToMime ()` chooses the message body using the [MS-OXBBODY] best body algorithm
+    and never adds a `text/rtf` part. 4.x's `TnefPart.ConvertToMessage ()` added every body (RTF, HTML
+    and plain text) as an alternative. When the best body is the compressed RTF body, the `text/plain`
+    and `text/html` alternatives are generated from it using `RtfToText` and `RtfToHtml`, as recommended
+    by [MS-OXCMAIL] 2.1.3.3.5. Otherwise an out-of-date RTF body is dropped.
   * See the [TNEF Porting Guide](TnefPortingGuide.md) for help migrating from MimeKit 4.x.
 * Added `TnefWriter` and `TnefPropertyWriter` for producing [MS-OXTNEF] streams, including named
   properties, multi-valued properties, recipient tables, embedded messages and [MS-OXRTFCP]

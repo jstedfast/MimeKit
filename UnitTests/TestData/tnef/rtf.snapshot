@@ -5,7 +5,13 @@ message
   To: "Simpson, Mark" <mark.simpson@numega.com>
   Importance: high
   Priority: urgent
-  TextPart text/rtf
-    Content-Type: text/rtf
-    content: encoding=Default length=593 sha256=285e04e771fe1f1d699d8c7c6ce5d5fcf4dfebf239d9ed002239662e4862bde7
-    text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033\\deftab360{\\fonttbl {\\f0\\fswiss\\fcharset0 Arial;}{\\f1\\fswiss Arial;}}\r\n{\\colortbl ;\\red0\\green0\\blue255;\\red0\\green0\\blue0;}\r\n\\uc1\\pard\\tx720\\ulnone\\f0\\fs20\\par\r\naafg\\b ag'alga'kgk\\par\r\n\\par\r\nagka;kgag\\par\r\n\\par\r\n\\p...
+  MultipartAlternative multipart/alternative
+    Content-Type: multipart/alternative; boundary="=-snapshot-boundary-0"
+    TextPart text/plain
+      Content-Type: text/plain; charset=utf-8
+      content: encoding=Default length=259 sha256=ab56ea48a1a0eb943dc5720e85b2584c49912e73a53375da9aa5e52410da0813
+      text: \r\naafgag'alga'kgk\r\n\r\nagka;kgag\r\n\r\n\r\naf;kafkk'g\r\nahakg'akgq[arja'kmba'hgmpgkjaqpgbmdvb\r\nad\r\n\\hge\r\nrgtad\r\nadfhadhadhb\r\n-- Greg\r\nGreg Allen\r\nSenior Engineer/QADirector Team\r\nCompuware Corporation\r\ngallen@numega.com\r\n978-287-4494 (Office)\r\n978-318-6939 (Fax) \r...
+    TextPart text/html
+      Content-Type: text/html; charset=utf-8
+      content: encoding=Default length=1522 sha256=0bc8172a524913095c02684176fc83ea686cdb813f3aed39b556926fc8967543
+      text: <html><body><div><br/></div>\r\n<div><span style="font-size: 10pt;">aafg</span><span style="font-weight: bold; font-size: 10pt;">ag&#39;alga&#39;kgk</span></div>\r\n<div><br/></div>\r\n<div><span style="font-weight: bold; font-size: 10pt;">agka;kgag</span></div>...

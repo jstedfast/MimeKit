@@ -3,10 +3,16 @@ message
   msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=jestedfa@microsoft.com; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2018-12-15T15:07:06.8221370Z; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure Information Protection; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic; Sensitivity=General
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=15237 sha256=3716ee1ced39726b038a01a003ff26cbef59d5d37d2c65e38a323ee4db9d7901
-      text: {\\rtf1\\adeflang1025\\ansi\\ansicpg1252\\uc1\\adeff31507\\deff0\\stshfdbch31506\\stshfloch31506\\stshfhich31506\\stshfbi31507\\deflang1033\\deflangfe1033\\themelang1033\\themelangfe0\\themelangcs0{\\fonttbl{\\f0\\fbidi \\froman\\fcharset0\\fprq2{\\*\\panose 02020603050405020304}...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=1871 sha256=8095e615b329bd6c21c125d872bf1da53aa455a6b09ff73983d32a9039a50657
+        text:  \r\n\r\nYou've made this a Christmas to remember\r\nSpringtime feeling's in the middle of December\r\nStrangers meet and willingly surrender\r\nOh! What a Christmas to remember\r\nAlmost went to Aspen but something told me no\r\nI considered Mammoth but there wasn't en...
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=4236 sha256=5f0c71f9bc3698fb11b3fbdd3462af6ce869063ae49d7fdfef712869c76e7fcd
+        text: <html><body><div><span style="color: #FFFFFF;">&#160;</span></div>\r\n<div><br/></div>\r\n<div><span style="color: #FFFFFF;">You&#39;ve made this a Christmas to remember</span></div>\r\n<div><span style="color: #FFFFFF;">Springtime feeling&#39;s in the middle of...
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname=kitten-playing-with-a-christmas-tree.jpg
       Content-Transfer-Encoding: base64

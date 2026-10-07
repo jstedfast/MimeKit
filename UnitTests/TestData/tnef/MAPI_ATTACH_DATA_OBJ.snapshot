@@ -4,10 +4,16 @@ message
   Message-Id: <BBDA395B19A3D3119A0E0000F8D02CA902AEBCE8@ODIN>
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=2429 sha256=e803e31e72d8d36f2528719a632d029806d6cbbdf168013865725b602302b0db
-      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deftab360{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\r\n\\viewkind4\\uc1\\pard\\lang1044\\f0\\fs20 Det er jo en velkjent sak at bod\\'f8damene er noe mer j\\'e5lete/velkledde (to sider av samme sak?) enn de noe mer allv\\'e6rskledde s\\'f8str...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=2031 sha256=d96efb5fef399b452bd1252cd25541f5006ee94e9c6b4334f20e6b2db5e69c81
+        text: Det er jo en velkjent sak at bodødamene er noe mer jålete/velkledde (to sider av samme sak?) enn de noe mer allværskledde søstrene i landsdelshovedstaden. Det er litt flere perlekjeder og plisséskjørt hist ved Saltstraumen. Og så snakker de jo litt penere,...
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=3475 sha256=f64a774a77cc12abb2355c3598753cb420946ad5a40bb312f59a57e978e90214
+        text: <html><body><div><span style="font-size: 10pt;">Det er jo en velkjent sak at bod&#248;damene er noe mer j&#229;lete/velkledde (to sider av samme sak?) enn de noe mer allv&#230;rskledde s&#248;strene i landsdelshovedstaden. Det er litt flere perlekjeder og ...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name="VIA Nytt 1402.doc"
       Content-Transfer-Encoding: base64

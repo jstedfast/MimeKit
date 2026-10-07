@@ -2,10 +2,16 @@ message
   From: JGERLAND@SYNACOR.COM
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=443 sha256=5dcd1bdee036cc1c7639bca7f7e96355d80a18f9e366b3be672a3112019d4356
-      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\r\n{\\colortbl ;\\red255\\green0\\blue0;}\r\n{\\*\\generator Riched20 5.40.11.2210;}\\viewkind4\\uc1\\pard\\cf1\\f0\\fs20 Casdasdfasdfasd\\par\r\n\\pard Casdasdfasdfasd\\cf0\\par\r\n\\par\r\n\\pard\\par\r\n...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=118 sha256=9b9f18146599aad63a728541d677ef56fa8be004dc1d5c29ca98ef3aa602906e
+        text: Casdasdfasdfasd\r\nCasdasdfasdfasd\r\n\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n \r\nCasdasdfasdfasd\r\n\r\n \r\n
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=658 sha256=d80813bc20dc2e07fbba4aed7459a96352bb2d7ddbf345e8a283bf6050eadf24
+        text: <html><body><div><span style="font-size: 10pt; color: #FF0000;">Casdasdfasdfasd</span></div>\r\n<div><span style="font-size: 10pt; color: #FF0000;">Casdasdfasdfasd</span></div>\r\n<div><br/></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 24pt;">Casdasdf...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=zappa_av1.jpg
       Content-Transfer-Encoding: base64

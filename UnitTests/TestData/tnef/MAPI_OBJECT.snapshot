@@ -4,10 +4,16 @@ message
   Message-Id: <BF55F48D9D4AD51190C500D0B7BB2C6E089088FE@xau03.aus.hp.com>
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=732 sha256=095da1917ef2b6c25839ddd215a916605f95d45a4f780736ed6055107be19c71
-      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang3081{\\fonttbl{\\f0\\fswiss\\fprq2\\fcharset0 Futura Bk;}{\\f1\\fswiss\\fprq2\\fcharset128 Arial Unicode MS;}{\\f2\\fswiss\\fcharset0 Arial;}}\r\n{\\colortbl ;\\red0\\green0\\blue255;}\r\n\\viewkind4\\uc1\\pard\\sb100\\sa100\\lang1033\\f0\\fs20 At...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=343 sha256=1f2beb14e38942638a33f6880774c710fded5ae2e9f54c7fc0c2c1a23fa8116b
+        text: Attached is the updated October Discounted Price List of refurbished HP products available to staff members.\r\nAs these items are highly sought after, please be quick if you really want the product.\r\nPlease contact either Cherie or Claudio on (03) 9848 8110...
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=870 sha256=a38f2c4695ec5d44f6e1dd1a2723951969aaf5dd17d8c649e5827ff4d505a7bc
+        text: <html><body><div><span style="font-size: 10pt;">Attached is the updated October Discounted Price List of refurbished HP products available to staff members.</span></div>\r\n<div><span style="font-size: 10pt;">As these items are highly sought after, please be...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=Untitled_Attachment
       Content-Transfer-Encoding: base64

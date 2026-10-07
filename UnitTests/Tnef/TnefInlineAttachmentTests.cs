@@ -571,9 +571,10 @@ namespace UnitTests.Tnef {
 			var body = ConvertBody (builder);
 
 			// The OLE attachment is inline ([MS-OXCMAIL] 2.1.3.4.1), but the RTF body refers to it by position rather
-			// than by Content-Id or Content-Location, so there is nothing for a multipart/related to resolve.
+			// than by Content-Id or Content-Location, and the text/html generated from the RTF does not reference it,
+			// so there is nothing for a multipart/related to resolve.
 			Assert.That (body.ContentType.MimeType, Is.EqualTo ("multipart/mixed"));
-			Assert.That (((Multipart) body)[0].ContentType.MimeType, Is.EqualTo ("text/rtf"));
+			Assert.That (((Multipart) body)[0].ContentType.MimeType, Is.EqualTo ("multipart/alternative"));
 			Assert.That (IsInline (((Multipart) body)[1]), Is.True);
 		}
 

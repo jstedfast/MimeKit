@@ -1,10 +1,16 @@
 message
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=13412 sha256=cad7003a27529058a508e95ef8df485d7e85eaab31bf2a80ef30091e03dd13f2
-      text: {\\rtf1\\adeflang1025\\ansi\\ansicpg936\\uc2\\adeff31507\\deff0\\stshfdbch31505\\stshfloch31506\\stshfhich31506\\stshfbi31507\\deflang1033\\deflangfe2052\\themelang1033\\themelangfe2052\\themelangcs0{\\fonttbl{\\f2\\fbidi \\fmodern\\fcharset0\\fprq1{\\*\\panose 020703090202050204...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=106 sha256=130d5e729a758c1d2a9f420191d911ed763f216ee42e8a1817d2a0c2cf672e29
+        text: 111111111111111111111111111111111111111111111\r\n \r\n222222222222222222222222222222\r\n \r\n3333333333333333333\r\n
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=397 sha256=d2e9af0e77e55e94370c19f41f9dd8b5cc21dfc7764e627dfac405da6c047824
+        text: <html><body><div><span style="font-size: 10.5pt;">111111111111111111111111111111111111111111111</span></div>\r\n<div><span style="font-size: 10.5pt;">&#160;</span></div>\r\n<div><span style="font-size: 10.5pt;">222222222222222222222222222222</span></div>\r\n<div...
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname="Picture (Device Independent Bitmap)"
       Content-Transfer-Encoding: base64

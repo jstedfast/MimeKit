@@ -306,9 +306,19 @@ namespace UnitTests.Tnef {
 			var attachments = message.BodyParts.ToList ();
 
 			// Step 1: make sure we've extracted the body and all the attachments. The .list files name the bodies
-			// body.txt, body.rtf and body.html; they are converted to TextParts without a file name.
+			// body.txt, body.rtf and body.html; they are converted to TextParts without a file name. An RTF body
+			// is never emitted as text/rtf; per [MS-OXCMAIL] 2.1.3.3.5 it is converted into text/plain and text/html.
 			foreach (var name in names) {
 				bool found = false;
+
+				if (name == "body.rtf") {
+					var bodies = attachments.OfType<TextPart> ().Where (x => string.IsNullOrEmpty (x.FileName)).ToList ();
+
+					Assert.That (bodies.Any (x => x.IsRichText), Is.False, $"{tnefName}: unexpected text/rtf part");
+					Assert.That (bodies.Any (x => x.IsPlain), Is.True, $"{tnefName}: missing text/plain generated from the RTF body");
+					Assert.That (bodies.Any (x => x.IsHtml), Is.True, $"{tnefName}: missing text/html generated from the RTF body");
+					continue;
+				}
 
 				foreach (var part in attachments.OfType<MimePart> ()) {
 					if (part is TextPart && string.IsNullOrEmpty (part.FileName)) {
@@ -316,11 +326,7 @@ namespace UnitTests.Tnef {
 						var extension = Path.GetExtension (name);
 						string subtype;
 
-						switch (extension) {
-						case ".html": subtype = "html"; break;
-						case ".rtf": subtype = "rtf"; break;
-						default: subtype = "plain"; break;
-						}
+						subtype = extension == ".html" ? "html" : "plain";
 
 						if (basename == "body" && part.ContentType.IsMimeType ("text", subtype)) {
 							found = true;
@@ -547,13 +553,18 @@ namespace UnitTests.Tnef {
 
 			Assert.That (multipart.Count, Is.EqualTo (4));
 
-			Assert.That (multipart[0], Is.InstanceOf<TextPart> ());
+			Assert.That (multipart[0], Is.InstanceOf<MultipartAlternative> ());
 			Assert.That (multipart[1], Is.InstanceOf<MimePart> ());
 			Assert.That (multipart[2], Is.InstanceOf<TnefPart> ());
 			Assert.That (multipart[3], Is.InstanceOf<TnefPart> ());
 
-			var rtf = (TextPart) multipart[0];
-			Assert.That (rtf.ContentType.MimeType, Is.EqualTo ("text/rtf"), "MimeType");
+			// [MS-OXCMAIL] 2.1.3.3.5: the RTF best body is converted into text/plain and text/html (never text/rtf).
+			var alternative = (MultipartAlternative) multipart[0];
+			Assert.That (alternative.Count, Is.EqualTo (2));
+			Assert.That (alternative[0].ContentType.MimeType, Is.EqualTo ("text/plain"), "MimeType");
+			Assert.That (alternative[1].ContentType.MimeType, Is.EqualTo ("text/html"), "MimeType");
+			Assert.That (alternative.TextBody, Is.Not.Empty, "TextBody");
+			Assert.That (alternative.HtmlBody, Does.StartWith ("<html>"), "HtmlBody");
 
 			var kitten = (MimePart) multipart[1];
 			Assert.That (kitten.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");

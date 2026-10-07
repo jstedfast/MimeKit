@@ -324,8 +324,10 @@ namespace MimeKit.Tnef {
 		/// by the headers that correspond to the message's properties (such as From, Date, Subject, Message-Id, To and
 		/// Cc), and then the headers stored in the <see cref="TnefPropertySetGuid.InternetHeaders"/> named properties.
 		/// No header is generated that does not correspond to a property.</item>
-		/// <item>The plain text, compressed RTF and HTML bodies become a <c>multipart/alternative</c>, in that
-		/// order, if there is more than one.</item>
+		/// <item>The plain text and HTML bodies become a <c>multipart/alternative</c>, in that order, if there is
+		/// more than one. When the best body ([MS-OXBBODY]) is the compressed RTF body, both are generated from the
+		/// RTF using <see cref="MimeKit.Text.RtfToText"/> and <see cref="MimeKit.Text.RtfToHtml"/>, as recommended
+		/// by [MS-OXCMAIL] 2.1.3.3.5. The RTF itself is never added as a <c>text/rtf</c> part.</item>
 		/// <item>If the message is a calendar item or a meeting message and
 		/// <see cref="TnefConversionOptions.GenerateCalendar"/> is enabled, an iCalendar <c>text/calendar</c> part is
 		/// generated from its properties and added as the last alternative of the body. The embedded messages that

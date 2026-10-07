@@ -554,33 +554,54 @@ namespace UnitTests.Tnef {
 
 		#region Compressed RTF
 
-		const string RtfText = "{\\rtf1 Hello}";
+		const string RtfText = "{\\rtf1 Hello from RTF}";
+		const string RtfPlainText = "Hello from RTF";
 
-		static byte[] CompressedRtf (int? crc = null, int? compressionType = null)
+		static byte[] CompressedRtf (int? crc = null, int? compressionType = null, string rtf = RtfText)
 		{
-			return new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes (RtfText)).WriteEndOfStream ().ToArray (crc: crc, compressionType: compressionType);
+			return new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes (rtf)).WriteEndOfStream ().ToArray (crc: crc, compressionType: compressionType);
 		}
 
-		static TnefBuilder CreateRtfMessage (byte[] rtf)
+		static TnefBuilder CreateRtfMessage (byte[] rtf, bool rtfInSync = true, string html = null, int? nativeBody = null, string plain = "Hello")
 		{
 			var properties = new TnefMapiPropertyBuilder ();
 
-			properties.WriteStringProperty (TnefPropertyTag.BodyW, "Hello");
+			if (plain != null)
+				properties.WriteStringProperty (TnefPropertyTag.BodyW, plain);
+			if (html != null)
+				properties.WriteBinaryProperty (TnefPropertyTag.BodyHtmlB, Encoding.ASCII.GetBytes (html));
+			if (nativeBody.HasValue)
+				properties.WriteInt32Property (TnefPropertyTag.NativeBody, nativeBody.Value);
+			properties.WriteInt32Property (TnefPropertyTag.RtfInSync, rtfInSync ? 1 : 0);
 			properties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, rtf);
 
 			return CreateMessage (properties);
+		}
+
+		// [MS-OXCMAIL] 2.1.3.3.5: when the best body is RTF, the text/plain and text/html alternatives are generated
+		// from the RTF (as UTF-8 without a byte order mark), and no text/rtf part is emitted.
+		static MultipartAlternative AssertGeneratedFromRtf (MimeMessage message, string plain = RtfPlainText, string html = RtfPlainText)
+		{
+			var alternative = (MultipartAlternative) message.Body;
+
+			Assert.That (alternative.Count, Is.EqualTo (2));
+			Assert.That (alternative[0].ContentType.MimeType, Is.EqualTo ("text/plain"));
+			Assert.That (alternative[0].ContentType.Charset, Is.EqualTo ("utf-8"));
+			Assert.That (alternative[1].ContentType.MimeType, Is.EqualTo ("text/html"));
+			Assert.That (alternative[1].ContentType.Charset, Is.EqualTo ("utf-8"));
+			Assert.That (ReadText ((MimePart) alternative[0]).Trim (), Is.EqualTo (plain));
+			Assert.That (ReadText ((MimePart) alternative[1]), Does.StartWith ("<").And.Contain (html));
+			Assert.That (message.BodyParts.Any (part => part.ContentType.IsMimeType ("text", "rtf")), Is.False);
+
+			return alternative;
 		}
 
 		[Test]
 		public void TestCompressedRtfBody ()
 		{
 			using (var result = Convert (CreateRtfMessage (CompressedRtf ()))) {
-				var alternative = (MultipartAlternative) result.Message.Body;
-
 				Assert.That (result.Losses, Is.Empty);
-				Assert.That (alternative.Count, Is.EqualTo (2));
-				Assert.That (alternative[1].ContentType.MimeType, Is.EqualTo ("text/rtf"));
-				Assert.That (ReadText ((MimePart) alternative[1]), Is.EqualTo (RtfText));
+				AssertGeneratedFromRtf (result.Message);
 			}
 		}
 
@@ -595,10 +616,91 @@ namespace UnitTests.Tnef {
 			Encoding.ASCII.GetBytes (RtfText).CopyTo (rtf, 16);
 
 			using (var result = Convert (CreateRtfMessage (rtf))) {
+				Assert.That (result.Losses, Is.Empty);
+				AssertGeneratedFromRtf (result.Message);
+			}
+		}
+
+		[Test]
+		public void TestRtfNotInSyncWithPlainTextIsNotUsed ()
+		{
+			// [MS-OXBBODY] 2.1.3.1 step 3, row 9.1: plain text and RTF that is not in sync makes plain text the best body.
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (), rtfInSync: false))) {
+				var text = (TextPart) result.Message.Body;
+
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (text.ContentType.MimeType, Is.EqualTo ("text/plain"));
+				Assert.That (text.Text, Is.EqualTo ("Hello"));
+			}
+		}
+
+		[Test]
+		public void TestRtfInSyncWithHtmlIsUsedForBothBodies ()
+		{
+			// [MS-OXBBODY] 2.1.3.1 step 3, row 6: RTF that is in sync is the best body even when there is an HTML body, and
+			// [MS-OXCMAIL] 2.1.3.3.5 says the text/html SHOULD be generated from the RTF rather than copied from PidTagHtml.
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (), html: "<html><body>Stale HTML</body></html>"))) {
+				Assert.That (result.Losses, Is.Empty);
+				AssertGeneratedFromRtf (result.Message);
+				Assert.That (result.Message.HtmlBody, Does.Not.Contain ("Stale HTML"));
+			}
+		}
+
+		[Test]
+		public void TestRtfNotInSyncWithHtmlIsNotUsed ()
+		{
+			// [MS-OXBBODY] 2.1.3.1 step 3, row 7.
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (), rtfInSync: false, html: "<html><body>Current HTML</body></html>"))) {
+				var alternative = (MultipartAlternative) result.Message.Body;
+
+				Assert.That (alternative.Select (part => part.ContentType.MimeType), Is.EqualTo (new[] { "text/plain", "text/html" }));
+				Assert.That (result.Message.TextBody, Is.EqualTo ("Hello"));
+				Assert.That (result.Message.HtmlBody, Does.Contain ("Current HTML"));
+			}
+		}
+
+		[Test]
+		public void TestNativeBodyRtfIsUsed ()
+		{
+			// [MS-OXBBODY] 2.1.3.1 step 1: PidTagNativeBody takes precedence over PidTagRtfInSync.
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (), rtfInSync: false, nativeBody: 2))) {
+				Assert.That (result.Losses, Is.Empty);
+				AssertGeneratedFromRtf (result.Message);
+			}
+		}
+
+		[Test]
+		public void TestNativeBodyNamingAMissingBodyFallsBackToRtf ()
+		{
+			// PidTagNativeBody says plain text, but the RTF is the only body there is.
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (), rtfInSync: false, nativeBody: 1, plain: null))) {
+				Assert.That (result.Losses, Is.Empty);
+				AssertGeneratedFromRtf (result.Message);
+			}
+		}
+
+		[Test]
+		public void TestEncapsulatedHtmlIsRecovered ()
+		{
+			// [MS-OXRTFEX] 2.1.3.1.2: RTF with \fromhtml1 encapsulates the original HTML, which RtfToHtml recovers.
+			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <html><body><p>}{\\htmlrtf \\par }Hello {\\*\\htmltag <b>}encapsulated{\\*\\htmltag </b>}{\\*\\htmltag </p></body></html>}}";
+
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (rtf: rtf)))) {
+				Assert.That (result.Losses, Is.Empty);
+				AssertGeneratedFromRtf (result.Message, "Hello encapsulated", "<p>Hello <b>encapsulated</b></p>");
+			}
+		}
+
+		[Test]
+		public void TestRtfBodyWithLoneSurrogate ()
+		{
+			// A lone \uN surrogate must not make the UTF-8 encoder throw.
+			using (var result = Convert (CreateRtfMessage (CompressedRtf (rtf: "{\\rtf1 A\\u-10240?B}")))) {
 				var alternative = (MultipartAlternative) result.Message.Body;
 
 				Assert.That (result.Losses, Is.Empty);
-				Assert.That (ReadText ((MimePart) alternative[1]), Is.EqualTo (RtfText));
+				Assert.That (ReadText ((MimePart) alternative[0]), Does.StartWith ("A").And.Contain ("B"));
+				Assert.That (ReadText ((MimePart) alternative[1]), Does.Contain ("B"));
 			}
 		}
 
@@ -620,10 +722,8 @@ namespace UnitTests.Tnef {
 		public void TestRtfChecksumMismatchIsReported ()
 		{
 			using (var result = Convert (CreateRtfMessage (CompressedRtf (crc: 0x12345678)))) {
-				var alternative = (MultipartAlternative) result.Message.Body;
-
 				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.RtfChecksumMismatch }));
-				Assert.That (ReadText ((MimePart) alternative[1]), Is.EqualTo (RtfText), "the RTF body is kept");
+				AssertGeneratedFromRtf (result.Message);
 			}
 		}
 
@@ -667,8 +767,10 @@ namespace UnitTests.Tnef {
 			properties.WriteStringProperty (TnefPropertyTag.BodyW, "Hello from the body property");
 			properties.WriteInt32Property (TnefPropertyTag.Importance, 2);
 
-			if (rtf != null)
+			if (rtf != null) {
+				properties.WriteInt32Property (TnefPropertyTag.RtfInSync, 1);
 				properties.WriteBinaryProperty (TnefPropertyTag.RtfCompressed, rtf);
+			}
 			properties.WriteBinaryProperty (TnefPropertyTag.MimeSkeleton, Encoding.ASCII.GetBytes (skeleton.Replace ("\r\n", "\n").Replace ("\n", "\r\n")));
 			properties.WriteStringProperty (TnefPropertyTag.TransportMessageHeadersW, "Received: from transport.example.com; Mon, 1 Jan 2024 00:00:00 +0000\r\n");
 			WriteInternetHeader (properties, 1, "X-Property-Header", "value");
@@ -811,12 +913,13 @@ X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>
 		[Test]
 		public void TestMimeSkeletonFallbackRedecodesRtfBody ()
 		{
-			// The skeleton consumes the decoded RTF before the missing attachment makes it fall back.
+			// The skeleton consumes the decoded RTF before the missing attachment makes it fall back, so the RTF has to
+			// be decoded again to generate the text/plain and text/html bodies.
 			using (var result = Convert (CreateSkeletonMessage (RtfSkeleton, attachmentContentId: "other@example.com", rtf: CompressedRtf ()))) {
-				var rtf = result.Message.BodyParts.OfType<MimePart> ().Single (part => part.ContentType.IsMimeType ("text", "rtf"));
-
 				AssertSkeletonFallback (result);
-				Assert.That (ReadText (rtf), Is.EqualTo (RtfText));
+				Assert.That (result.Message.TextBody.TrimEnd (), Is.EqualTo (RtfPlainText));
+				Assert.That (result.Message.HtmlBody, Does.Contain (RtfPlainText));
+				Assert.That (result.Message.BodyParts.Any (part => part.ContentType.IsMimeType ("text", "rtf")), Is.False);
 			}
 		}
 

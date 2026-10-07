@@ -3,10 +3,16 @@ message
   Message-Id: <NEBBJICMOKLANKBNHOELOEENCCAA.Adam@PTM.com>
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=163 sha256=047bc7915ca95a0273baafc020a51e745a2e68d6f0cc9ba3c326090ff8e7fd8d
-      text: {\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\r\n\\viewkind4\\uc1\\pard\\f0\\fs20 asdf\\objattph\\'20\\objattph\\'20\\objattph\\'20\\par\r\n}\r\n\u0000
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=9 sha256=9b09f4259415bacf791f3e00c4a4619f530c75c4b9a2268b69be60a1f49ac84e
+        text: asdf   \r\n
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=89 sha256=066882ab93ff6bfb035c1dc2ec8516632f3bb6fc3bd3451671783d40bc86c801
+        text: <html><body><div><span style="font-size: 10pt;">asdf &#160; </span></div>\r\n</body></html>
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=AUTOEXEC.BAT
       Content-Transfer-Encoding: base64

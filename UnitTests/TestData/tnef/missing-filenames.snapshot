@@ -5,10 +5,16 @@ message
   In-Reply-To: <199906290620.PAA00876@mustang.sdc.com.au>
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    TextPart text/rtf
-      Content-Type: text/rtf
-      content: encoding=Default length=1367 sha256=507cd565d470dc9cb62d2205d818be0f35658a5b7e0052b557dab6f4b63de4ff
-      text: {\\rtf1\\ansi\\ansicpg1252\\fromtext\\deff0{\\fonttbl\r\n{\\f0\\fswiss Arial;}\r\n{\\f1\\fmodern Courier New;}\r\n{\\f2\\fnil\\fcharset2 Symbol;}\r\n{\\f3\\fmodern\\fcharset0 Courier New;}{\\f4\\fswiss\\fcharset0 Arial;}}\r\n{\\colortbl\\red0\\green0\\blue0;\\red0\\green0\\blue255;}\r\n\\uc1\\pa...
+    MultipartAlternative multipart/alternative
+      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
+      TextPart text/plain
+        Content-Type: text/plain; charset=utf-8
+        content: encoding=Default length=961 sha256=637554fc71c4e0eea859e06e394bdf639c9c2bff7574f1b18a9774deccd0662f
+        text: Hi Stephen,\r\n\r\nSue has encountered a Date problem while running our' New Books List'.  Can you please help us.  Apparently it is having a hernia with the ADD_DT which I would have presumed was fixed with your patches.\r\n\r\nAttached is the PRC file : generpts...
+      TextPart text/html
+        Content-Type: text/html; charset=utf-8
+        content: encoding=Default length=1605 sha256=a6bd33874c56756b3b45cd705c80979a4b8d59f1bf50f9a621c9ec135345a94c
+        text: <html><body><div><span style="font-size: 10pt;">Hi Stephen,</span></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 10pt;">Sue has encountered a Date problem while running our&#39; New Books List&#39;. &#160;Can you please help us. &#160;Apparently it...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=generpts.src
       Content-Transfer-Encoding: base64
