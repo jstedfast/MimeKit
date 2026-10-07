@@ -275,7 +275,7 @@ namespace MimeKit.Text {
 								break;
 							}
 
-							if (!tag.IsEmptyElement) {
+							if (!tag.IsEmptyElement || tokenizer.TokenizerState != HtmlTokenizerState.Data) {
 								ctx = new HtmlTagContext (tag.Id) {
 									SuppressInnerContent = ShouldSuppressInnerContent (tag.Id)
 								};

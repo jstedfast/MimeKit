@@ -18,7 +18,11 @@ Comment: -
 Data: \n    
 Comment: 
 Data: \n    
-CData: this is some CDATA text
+Comment: [CDATA[this is not CDATA in HTML content <b
+Data: ]]>\n    
+Tag: <svg>
+CData: this is some CDATA text <b>
+Tag: </svg>
 Data: \n  
 Tag: </body>
 Data: \n

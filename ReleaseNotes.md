@@ -229,6 +229,17 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   that cannot start a tag name (e.g. `</<script x>`) with the leading `</`. Previously the `/` was dropped,
   so `HtmlToHtml` could turn such a comment into a tag (`<<script x>`).
 
+* `HtmlTokenizer` now tracks SVG and MathML foreign content using an approximation of the HTML tree
+  builder's stack of open elements, so that it agrees with browsers about where foreign content begins
+  and ends. Previously, `<![CDATA[` was recognized everywhere, allowing input such as
+  `<![CDATA[<img onerror=...>]]>` to hide a tag from `HtmlToHtml.HtmlTagCallback`, while `<style>` and
+  `<script>` inside `<svg>`/`<math>` were incorrectly treated as raw text, which hid the markup within
+  them. CDATA sections are now only recognized in foreign content (elsewhere they are bogus comments, as
+  in browsers), and self-closing raw-text elements such as `<style/>` and `<script/>` in HTML content now
+  switch the tokenizer into the appropriate raw-text state, as browsers ignore the self-closing flag on
+  non-void HTML elements. `HtmlToHtml` and `HtmlTextPreviewer` now suppress the content that follows a
+  self-closing raw-text element when its content is suppressed.
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a

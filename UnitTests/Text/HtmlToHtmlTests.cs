@@ -367,6 +367,16 @@ namespace UnitTests.Text {
 		[TestCase ("<script><!--<script</script><img src=x onerror=alert(1)>")]
 		[TestCase ("<script><!--</a <script></script><!--</script><img src=x onerror=alert(1)>-->")]
 		[TestCase ("<script><!--<script></a></script></script><img src=x onerror=alert(1)>")]
+		[TestCase ("<style/><!--</style><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<script/><!--</script><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<textarea/><!--</textarea><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<![CDATA[ x ><img src=x onerror=alert(1)>]]>")]
+		[TestCase ("<svg><style><img src=x onerror=alert(1)></style></svg>")]
+		[TestCase ("<math><style><img src=x onerror=alert(1)></style></math>")]
+		[TestCase ("<svg><script><img src=x onerror=alert(1)></script></svg>")]
+		[TestCase ("<div><svg></div><style><!--</style><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<foo><svg></foo><style><!--</style><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<svg><p><style><!--</style><img src=x onerror=alert(1)>-->")]
 		public void TestTagCallbackSeesAllTags (string input)
 		{
 			var converter = new HtmlToHtml {
@@ -381,6 +391,27 @@ namespace UnitTests.Text {
 			var result = converter.Convert (input);
 
 			Assert.That (result, Does.Not.Contain ("onerror"));
+		}
+
+		// Browsers ignore the self-closing flag on <style/> and <script/>, so the content that follows is raw text
+		// and must be suppressed along with the element.
+		[TestCase ("<style/>body { color: red; }</style><p>x</p>", "<p>x</p>")]
+		[TestCase ("<script/>alert(1)</script><p>x</p>", "<p>x</p>")]
+		public void TestSuppressSelfClosingRawTextElement (string input, string expected)
+		{
+			var converter = new HtmlToHtml {
+				HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Style || ctx.TagId == HtmlTagId.Script) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				}
+			};
+
+			Assert.That (converter.Convert (input), Is.EqualTo (expected));
 		}
 
 		// "<a href/=javascript:x>" has a valueless "href" attribute followed by an attribute named "=javascript:x". Make sure

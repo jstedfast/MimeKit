@@ -266,7 +266,10 @@ namespace MimeKit.Text {
 						var tag = (HtmlTagToken) token;
 
 						if (!tag.IsEndTag) {
-							if (!tag.IsEmptyElement) {
+							// Note: A self-closing tag such as <style/> or <script/> still switches the tokenizer into a raw content
+							// state (browsers ignore the self-closing flag on non-void HTML elements), so treat it as an open element
+							// so that SuppressInnerContent applies to the raw content that follows.
+							if (!tag.IsEmptyElement || tokenizer.TokenizerState != HtmlTokenizerState.Data) {
 								ctx = new HtmlToHtmlTagContext (tag);
 
 								if (!stack.SuppressContent)

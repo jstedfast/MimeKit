@@ -51,6 +51,7 @@ namespace MimeKit.Text {
 		readonly HtmlEntityDecoder entity = new HtmlEntityDecoder ();
 		readonly CharBuffer data = new CharBuffer (2048);
 		readonly CharBuffer name = new CharBuffer (32);
+		readonly HtmlOpenElementStack openElements = new HtmlOpenElementStack ();
 
 		readonly TextReader? textReader;
 		readonly Stream? stream;
@@ -650,7 +651,12 @@ namespace MimeKit.Text {
 
 		HtmlToken EmitTagToken ()
 		{
-			if (!tag!.IsEndTag && !tag.IsEmptyElement) {
+			if (tag!.IsEndTag) {
+				openElements.ProcessEndTag (tag);
+				TokenizerState = HtmlTokenizerState.Data;
+			} else if (openElements.ProcessStartTag (tag)) {
+				// Note: The tokenizer state is switched even if the tag is self-closing because browsers ignore
+				// the self-closing flag on non-void HTML elements.
 				switch (tag.Id) {
 				case HtmlTagId.Style: case HtmlTagId.Xmp: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed: case HtmlTagId.NoFrames:
 					TokenizerState = HtmlTokenizerState.RawText;
@@ -677,6 +683,9 @@ namespace MimeKit.Text {
 				case HtmlTagId.Html:
 					TokenizerState = HtmlTokenizerState.Data;
 
+					if (tag.IsEmptyElement)
+						break;
+
 					for (int i = tag.Attributes.Count; i > 0; i--) {
 						var attr = tag.Attributes[i - 1];
 
@@ -691,6 +700,7 @@ namespace MimeKit.Text {
 					break;
 				}
 			} else {
+				// Note: Start tags in SVG and MathML content never switch the tokenizer out of the data state.
 				TokenizerState = HtmlTokenizerState.Data;
 			}
 
@@ -2087,7 +2097,8 @@ namespace MimeKit.Text {
 						count++;
 					}
 
-					if (count == 7) {
+					// Note: CDATA sections are only allowed in SVG and MathML content. Elsewhere, "<![CDATA[" starts a bogus comment.
+					if (count == 7 && openElements.IsInForeignContent) {
 						TokenizerState = HtmlTokenizerState.CDataSection;
 						data.Length = 0;
 						return null;

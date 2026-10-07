@@ -458,19 +458,31 @@ namespace UnitTests.Text {
 		[Test]
 		public void TokenizationCDataDetected ()
 		{
-			var tokenizer = CreateTokenizer ("<![CDATA[hi mum how <!-- are you doing />]]>");
+			var tokenizer = CreateTokenizer ("<svg><![CDATA[hi mum how <!-- are you doing />]]>");
 
 			//tokenizer.IsAcceptingCharacterData = true;
 
 			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
 			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.CData));
+		}
+
+		[Test]
+		public void TokenizationCDataNotDetectedInHtmlContent ()
+		{
+			var tokenizer = CreateTokenizer ("<![CDATA[hi mum how <!-- are you doing />]]>");
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Comment));
+			Assert.That (((HtmlCommentToken) token).Comment, Is.EqualTo ("[CDATA[hi mum how <!-- are you doing /"));
 		}
 
 		[Test]
 		public void TokenizationCDataCorrectCharacters ()
 		{
 			var sb = new StringBuilder ();
-			var tokenizer = CreateTokenizer ("<![CDATA[hi mum how <!-- are you doing />]]>");
+			var tokenizer = CreateTokenizer ("<math><![CDATA[hi mum how <!-- are you doing />]]>");
 			HtmlToken token;
 
 			//tokenizer.IsAcceptingCharacterData = true;
@@ -1247,10 +1259,12 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestTruncatedCDATASection ()
 		{
-			const string content = "<![CDATA[this is some cdata]]";
+			const string content = "<svg><![CDATA[this is some cdata]]";
 			var tokenizer = CreateTokenizer (content);
 			HtmlToken token;
 
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
 			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
 			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.CData));
 			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("this is some cdata]]"));
@@ -1258,6 +1272,8 @@ namespace UnitTests.Text {
 			tokenizer = CreateTokenizer (content);
 			tokenizer.IgnoreTruncatedTags = true;
 
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
 			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
 			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.CData));
 			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("this is some cdata]]"));
@@ -3480,6 +3496,140 @@ namespace UnitTests.Text {
 		public void TestReconsume (string content, string expected)
 		{
 			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
+		}
+
+		const string RawTextStyleProbe = "<style><!--</style><img>-->";
+		const string RawTextStyleTokens = "Tag(style) Data(<!--) EndTag(style) Tag(img) Data(-->)";
+		const string ForeignStyleTokens = "Tag(style) Comment(</style><img>)";
+
+		// Browsers only switch the tokenizer into the RAWTEXT state for <style> when the tag is processed using the
+		// rules for HTML content. In SVG and MathML content, <style> is an ordinary element and "<!--" starts a comment.
+		[TestCase ("", true)]
+		[TestCase ("<svg>", false)]
+		[TestCase ("<math>", false)]
+		[TestCase ("<svg/>", true)]
+		[TestCase ("<svg></svg>", true)]
+		[TestCase ("<svg><g/>", false)]
+		[TestCase ("<svg><svg></svg>", false)]
+		[TestCase ("<svg><foreignObject>", true)]
+		[TestCase ("<svg><foreignObject></foreignObject>", false)]
+		[TestCase ("<svg><desc>", true)]
+		[TestCase ("<svg><title>", true)]
+		[TestCase ("<math><mi>", true)]
+		[TestCase ("<math><mtext>", true)]
+		[TestCase ("<math><mi></mi>", false)]
+		[TestCase ("<math><mi><mglyph>", false)]
+		[TestCase ("<math><annotation-xml>", false)]
+		[TestCase ("<math><annotation-xml encoding=\"text/html\">", true)]
+		[TestCase ("<math><annotation-xml encoding=\"APPLICATION/XHTML+XML\">", true)]
+		[TestCase ("<math><annotation-xml><svg>", false)]
+		[TestCase ("<math><svg>", false)]
+		[TestCase ("<math><svg><foreignObject>", false)]
+		[TestCase ("<svg><p>", true)]
+		[TestCase ("<svg><g><g><div>", true)]
+		[TestCase ("<svg></p>", true)]
+		[TestCase ("<svg></br>", true)]
+		[TestCase ("<svg><font>", false)]
+		[TestCase ("<svg><font color=red>", true)]
+		[TestCase ("<svg></g>", false)]
+		[TestCase ("<div><svg></div>", true)]
+		[TestCase ("<foo><svg></foo>", true)]
+		[TestCase ("<foo><div><svg></foo>", false)]
+		[TestCase ("<b><svg></b>", true)]
+		[TestCase ("<table><td><svg></table>", true)]
+		[TestCase ("<table><td><svg></td>", true)]
+		[TestCase ("<table><td><svg></tr>", true)]
+		[TestCase ("<td><svg></td>", false)]
+		[TestCase ("<table><tr><td><svg><td>", false)]
+		[TestCase ("<ul><li><svg><li>", true)]
+		[TestCase ("<ul><li><svg></li>", true)]
+		[TestCase ("<svg><foreignObject><div><svg></div>", true)]
+		[TestCase ("<svg><foreignObject><svg></foreignObject>", false)]
+		[TestCase ("<svg><foreignObject><svg></svg></foreignObject>", false)]
+		[TestCase ("<svg><foreignObject><svg></svg></foreignObject></svg>", true)]
+		public void TestForeignContentStyle (string prefix, bool rawText)
+		{
+			var actual = DescribeTokens (prefix + RawTextStyleProbe);
+
+			Assert.That (actual, Does.EndWith (rawText ? RawTextStyleTokens : ForeignStyleTokens));
+		}
+
+		// Browsers ignore the self-closing flag on non-void HTML elements, so these still switch the tokenizer state.
+		[TestCase ("style")]
+		[TestCase ("xmp")]
+		[TestCase ("iframe")]
+		[TestCase ("noembed")]
+		[TestCase ("noframes")]
+		[TestCase ("noscript")]
+		[TestCase ("title")]
+		[TestCase ("textarea")]
+		[TestCase ("script")]
+		public void TestSelfClosingRawTextElements (string name)
+		{
+			var content = $"<{name}/><!--</{name}><img>-->";
+			var expected = $"Tag({name}/) Data(<!--) EndTag({name}) Tag(img) Data(-->)";
+
+			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestSelfClosingPlainText ()
+		{
+			Assert.That (DescribeTokens ("<plaintext/><img>"), Is.EqualTo ("Tag(plaintext/) Data(<img>)"));
+		}
+
+		// CDATA sections are only recognized in SVG and MathML content.
+		[TestCase ("<![CDATA[ x ><img>]]>", "Bogus([CDATA[ x ) Tag(img) Data(]]>)")]
+		[TestCase ("<svg><![CDATA[ x ><img>]]>", "Tag(svg) Data( x ><img>)")]
+		[TestCase ("<math><![CDATA[ x ><img>]]>", "Tag(math) Data( x ><img>)")]
+		[TestCase ("<svg><foreignObject><![CDATA[ x ><img>]]>", "Tag(svg) Tag(foreignObject) Data( x ><img>)")]
+		[TestCase ("<svg></svg><![CDATA[ x ><img>]]>", "Tag(svg) EndTag(svg) Bogus([CDATA[ x ) Tag(img) Data(]]>)")]
+		public void TestCDataSectionContext (string content, string expected)
+		{
+			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
+		}
+
+		static string Repeat (string value, int count)
+		{
+			var builder = new StringBuilder (value.Length * count);
+
+			for (int i = 0; i < count; i++)
+				builder.Append (value);
+
+			return builder.ToString ();
+		}
+
+		// The open element stack must not degrade quadratically on deeply nested or unbalanced markup.
+		[TestCase ("<g>", "</zz>", false)]
+		[TestCase ("<g><a>", "</zz>", false)]
+		[TestCase ("<g><a>", "</svg>", true)]
+		[TestCase ("<div><span>", "</zz>", true)]
+		[TestCase ("<g><foreignObject><div><svg>", "</zz>", false)]
+		public void TestForeignContentDeepNesting (string open, string close, bool rawText)
+		{
+			const int Count = 100000;
+			var content = "<svg>" + Repeat (open, Count) + Repeat (close, Count) + RawTextStyleProbe;
+			var tokenizer = CreateTokenizer (content);
+			var watch = System.Diagnostics.Stopwatch.StartNew ();
+			HtmlToken token, last = null;
+			var lastFew = new List<HtmlToken> ();
+
+			while (tokenizer.ReadNextToken (out token)) {
+				lastFew.Add (token);
+				if (lastFew.Count > 6)
+					lastFew.RemoveAt (0);
+			}
+
+			watch.Stop ();
+
+			Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (30)));
+
+			last = lastFew[lastFew.Count - 1];
+
+			if (rawText)
+				Assert.That (last.Kind, Is.EqualTo (HtmlTokenKind.Data), "Expected <style> to be raw text");
+			else
+				Assert.That (last.Kind, Is.EqualTo (HtmlTokenKind.Comment), "Expected <style> to be foreign content");
 		}
 	}
 }
