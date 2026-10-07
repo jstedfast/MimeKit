@@ -41,6 +41,7 @@ namespace MimeKit.Text {
 	/// </example>
 	public class HtmlToHtml : TextConverter
 	{
+		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlToHtml"/> class.
 		/// </summary>
@@ -120,6 +121,31 @@ namespace MimeKit.Text {
 		/// <value>The html tag callback.</value>
 		public HtmlTagCallback? HtmlTagCallback {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the maximum element depth.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of distinct nested elements that will be tracked while
+		/// tokenizing the HTML (see <see cref="HtmlTokenizer.MaxElementDepth"/>).</para>
+		/// <para>Consecutive nested elements that are identical share a single entry, so arbitrarily deep nesting
+		/// of the same element does not count towards this limit. If a start tag exceeds this limit, then it is the
+		/// last tag passed to the <see cref="HtmlTagCallback"/> and the remainder of the input is written to the
+		/// output as encoded text.</para>
+		/// </remarks>
+		/// <value>The maximum element depth.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is less than <c>1</c>.
+		/// </exception>
+		public int MaxElementDepth {
+			get { return maxElementDepth; }
+			set {
+				if (value < 1)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxElementDepth = value;
+			}
 		}
 
 		/// <summary>
@@ -252,6 +278,7 @@ namespace MimeKit.Text {
 					DecodeCharacterReferences = false,
 					ScriptingEnabled = ScriptingEnabled,
 					IgnoreTruncatedTags = true,
+					MaxElementDepth = maxElementDepth,
 					ReuseDataTokens = true
 				};
 				HtmlToHtmlTagContext? ctx;

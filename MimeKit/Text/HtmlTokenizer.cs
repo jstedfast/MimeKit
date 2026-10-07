@@ -48,10 +48,12 @@ namespace MimeKit.Text {
 
 		const int MinimumBufferSize = 1024;
 
+		internal const int DefaultMaxElementDepth = 4096;
+
 		readonly HtmlEntityDecoder entity = new HtmlEntityDecoder ();
 		readonly CharBuffer data = new CharBuffer (2048);
 		readonly CharBuffer name = new CharBuffer (32);
-		readonly HtmlOpenElementStack openElements = new HtmlOpenElementStack ();
+		readonly HtmlOpenElementStack openElements = new HtmlOpenElementStack (DefaultMaxElementDepth);
 
 		readonly TextReader? textReader;
 		readonly Stream? stream;
@@ -198,6 +200,35 @@ namespace MimeKit.Text {
 		/// <value><see langword="true" /> if truncated tags should be ignored; otherwise, <see langword="false" />.</value>
 		public bool IgnoreTruncatedTags {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the maximum element depth.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of distinct nested elements that will be tracked.</para>
+		/// <para>In order to tokenize the content of elements such as <c>&lt;style&gt;</c>, <c>&lt;title&gt;</c> and
+		/// <c>&lt;![CDATA[</c> the same way that a web browser would, the tokenizer keeps track of which elements
+		/// are open (and, in particular, whether they are SVG or MathML elements). Consecutive nested elements
+		/// that are identical share a single entry, so arbitrarily deep nesting of the same element does not count
+		/// towards this limit.</para>
+		/// <para>Once a start tag exceeds this limit, the tokenizer can no longer reliably determine how the
+		/// remainder of the document would be tokenized by a web browser. To avoid misinterpreting markup that
+		/// follows, that start tag is the last tag token returned; the remainder of the input is returned as
+		/// <see cref="HtmlDataToken"/>s containing literal text.</para>
+		/// </remarks>
+		/// <value>The maximum element depth.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is less than <c>1</c>.
+		/// </exception>
+		public int MaxElementDepth {
+			get { return openElements.MaxDepth; }
+			set {
+				if (value < 1)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				openElements.MaxDepth = value;
+			}
 		}
 
 		/// <summary>
@@ -741,6 +772,12 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.Data;
 			}
 
+			// Note: If the stack of open elements overflowed, the tokenizer can no longer tell how a browser would tokenize the rest
+			// of the input (e.g. an untracked <svg> would change how <style> or <![CDATA[ are handled), so fail closed by treating
+			// the remainder of the input as literal text.
+			if (openElements.DepthExceeded)
+				TokenizerState = HtmlTokenizerState.PlainText;
+
 			var token = tag;
 			data.Length = 0;
 			tag = null;
@@ -1037,7 +1074,9 @@ namespace MimeKit.Text {
 
 			TokenizerState = HtmlTokenizerState.EndOfFile;
 
-			return EmitDataToken (false, false);
+			// Note: If the depth limit was exceeded, then the remaining input is not the content of a <plaintext> element and
+			// so needs to be encoded when written as HTML.
+			return EmitDataToken (openElements.DepthExceeded, false);
 		}
 
 		// 8.2.4.8 Tag open state

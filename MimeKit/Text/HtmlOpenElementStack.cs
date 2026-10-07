@@ -51,6 +51,10 @@ namespace MimeKit.Text {
 	/// entry with a repeat count, and every query is O(1): each entry caches the index of the nearest entry
 	/// at or below it that satisfies each scope/category predicate, and the index of the next lower entry with
 	/// the same name.</para>
+	/// <para>The number of entries is also limited (see <see cref="MaxDepth"/>). Simply ignoring elements beyond
+	/// the limit is not safe: an untracked <c>&lt;svg&gt;</c> or <c>&lt;math&gt;</c> element would cause the
+	/// tokenizer to disagree with a browser about how the rest of the document should be tokenized. Instead,
+	/// <see cref="DepthExceeded"/> gets set so that the tokenizer can fail closed.</para>
 	/// </remarks>
 	sealed class HtmlOpenElementStack
 	{
@@ -117,13 +121,45 @@ namespace MimeKit.Text {
 		readonly Dictionary<string, int> foreignNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 		readonly Dictionary<string, int> htmlNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 		readonly int[] htmlIds = new int[(int) HtmlTagId.Xmp + 1];
-		Entry[] entries = new Entry[32];
+
+		// Note: Entries are stored in fixed-size chunks rather than in a single array that gets resized as the stack
+		// grows. This avoids copying the entire stack each time it grows and keeps every allocation well below the
+		// large object heap threshold, no matter how deep the stack gets.
+		const int ChunkShift = 6;
+		const int ChunkSize = 1 << ChunkShift;
+		const int ChunkMask = ChunkSize - 1;
+
+		Entry[]?[] chunks = new Entry[]?[4];
+		int maxDepth;
 		int count;
 
-		public HtmlOpenElementStack ()
+		public HtmlOpenElementStack (int maxDepth)
 		{
 			for (int i = 0; i < htmlIds.Length; i++)
 				htmlIds[i] = -1;
+
+			this.maxDepth = maxDepth;
+		}
+
+		/// <summary>
+		/// Get or set the maximum number of entries that the stack can hold.
+		/// </summary>
+		/// <remarks>
+		/// Consecutive identical elements share a single entry and so only count once towards this limit.
+		/// </remarks>
+		public int MaxDepth {
+			get { return maxDepth; }
+			set { maxDepth = value; }
+		}
+
+		/// <summary>
+		/// Get whether an element could not be pushed because the stack had reached its maximum depth.
+		/// </summary>
+		/// <remarks>
+		/// Once this happens, the stack no longer reflects the document's structure and can no longer be trusted.
+		/// </remarks>
+		public bool DepthExceeded {
+			get; private set;
 		}
 
 		/// <summary>
@@ -133,54 +169,59 @@ namespace MimeKit.Text {
 		/// This is the condition under which a <c>&lt;![CDATA[</c> markup declaration starts a CDATA section.
 		/// </remarks>
 		public bool IsInForeignContent {
-			get { return count > 0 && entries[count - 1].Namespace != HtmlNamespace.Html; }
+			get { return count > 0 && EntryAt (count - 1).Namespace != HtmlNamespace.Html; }
 		}
 
 		#region Stack primitives
+
+		ref Entry EntryAt (int index)
+		{
+			return ref chunks[index >> ChunkShift]![index & ChunkMask];
+		}
 
 		int Top {
 			get { return count - 1; }
 		}
 
 		int TopSpecial {
-			get { return count > 0 ? entries[count - 1].PrevSpecial : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevSpecial : -1; }
 		}
 
 		int TopScope {
-			get { return count > 0 ? entries[count - 1].PrevScope : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevScope : -1; }
 		}
 
 		int TopListItemScope {
-			get { return count > 0 ? entries[count - 1].PrevListItemScope : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevListItemScope : -1; }
 		}
 
 		int TopButtonScope {
-			get { return count > 0 ? entries[count - 1].PrevButtonScope : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevButtonScope : -1; }
 		}
 
 		int TopTableScope {
-			get { return count > 0 ? entries[count - 1].PrevTableScope : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevTableScope : -1; }
 		}
 
 		int TopHeading {
-			get { return count > 0 ? entries[count - 1].PrevHeading : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevHeading : -1; }
 		}
 
 		int TopListItemStop {
-			get { return count > 0 ? entries[count - 1].PrevListItemStop : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevListItemStop : -1; }
 		}
 
 		int TopHtml {
-			get { return count > 0 ? entries[count - 1].PrevHtml : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevHtml : -1; }
 		}
 
 		int TopHtmlOrIntegrationPoint {
-			get { return count > 0 ? entries[count - 1].PrevHtmlOrIntegrationPoint : -1; }
+			get { return count > 0 ? EntryAt (count - 1).PrevHtmlOrIntegrationPoint : -1; }
 		}
 
 		bool IsTopHtml (HtmlTagId id)
 		{
-			return count > 0 && entries[count - 1].Namespace == HtmlNamespace.Html && entries[count - 1].Id == id;
+			return count > 0 && EntryAt (count - 1).Namespace == HtmlNamespace.Html && EntryAt (count - 1).Id == id;
 		}
 
 		int IndexOf (HtmlTagId id)
@@ -234,7 +275,7 @@ namespace MimeKit.Text {
 			int prev = count - 1;
 
 			if (prev >= 0) {
-				ref var top = ref entries[prev];
+				ref var top = ref EntryAt (prev);
 
 				// Fold consecutive identical elements into a single entry.
 				if (top.Namespace == ns && top.Id == id && top.Flags == flags && (id != HtmlTagId.Unknown || string.Equals (top.Name, name, StringComparison.OrdinalIgnoreCase))) {
@@ -244,11 +285,20 @@ namespace MimeKit.Text {
 				}
 			}
 
-			if (count == entries.Length)
-				Array.Resize (ref entries, entries.Length * 2);
+			if (count >= maxDepth) {
+				DepthExceeded = true;
+				return;
+			}
 
 			int index = count;
-			ref var entry = ref entries[index];
+			int chunk = index >> ChunkShift;
+
+			if (chunk == chunks.Length)
+				Array.Resize (ref chunks, chunks.Length * 2);
+
+			chunks[chunk] ??= new Entry[ChunkSize];
+
+			ref var entry = ref EntryAt (index);
 
 			entry.Name = name;
 			entry.Id = id;
@@ -258,7 +308,7 @@ namespace MimeKit.Text {
 			entry.PrevSameName = IndexOf (ns, id, name);
 
 			if (prev >= 0) {
-				ref var below = ref entries[prev];
+				ref var below = ref EntryAt (prev);
 
 				entry.PrevSpecial = below.PrevSpecial;
 				entry.PrevScope = below.PrevScope;
@@ -318,7 +368,7 @@ namespace MimeKit.Text {
 
 		void RemoveTopEntry ()
 		{
-			ref var entry = ref entries[count - 1];
+			ref var entry = ref EntryAt (count - 1);
 
 			SetIndexOf (entry.Namespace, entry.Id, entry.Name, entry.PrevSameName);
 			entry = default;
@@ -337,8 +387,8 @@ namespace MimeKit.Text {
 		{
 			PopAbove (index);
 
-			if (entries[index].Count > 1)
-				entries[index].Count--;
+			if (EntryAt (index).Count > 1)
+				EntryAt (index).Count--;
 			else
 				RemoveTopEntry ();
 		}
@@ -557,7 +607,7 @@ namespace MimeKit.Text {
 		public bool ProcessStartTag (HtmlTagToken tag)
 		{
 			if (count > 0) {
-				ref var top = ref entries[count - 1];
+				ref var top = ref EntryAt (count - 1);
 
 				if (top.Namespace != HtmlNamespace.Html) {
 					bool html;
@@ -654,7 +704,7 @@ namespace MimeKit.Text {
 			case HtmlTagId.H4: case HtmlTagId.H5: case HtmlTagId.H6:
 				ClosePInButtonScope ();
 
-				if (count > 0 && entries[count - 1].Namespace == HtmlNamespace.Html && IsHeading (entries[count - 1].Id))
+				if (count > 0 && EntryAt (count - 1).Namespace == HtmlNamespace.Html && IsHeading (EntryAt (count - 1).Id))
 					PopThrough (Top);
 
 				PushHtml (tag);
@@ -820,7 +870,7 @@ namespace MimeKit.Text {
 		/// <param name="tag">The end tag.</param>
 		public void ProcessEndTag (HtmlTagToken tag)
 		{
-			if (count > 0 && entries[count - 1].Namespace != HtmlNamespace.Html) {
+			if (count > 0 && EntryAt (count - 1).Namespace != HtmlNamespace.Html) {
 				if (tag.Id == HtmlTagId.Br || tag.Id == HtmlTagId.P) {
 					// </br> and </p> break out of foreign content.
 					PopAbove (TopHtmlOrIntegrationPoint);

@@ -44,6 +44,7 @@ namespace UnitTests.Text {
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = 0);
 
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
@@ -72,6 +73,7 @@ namespace UnitTests.Text {
 			Assert.That (converter.InputEncoding, Is.EqualTo (Encoding.UTF8), "InputEncoding");
 			Assert.That (converter.InputFormat, Is.EqualTo (TextFormat.Html), "InputFormat");
 			Assert.That (converter.InputStreamBufferSize, Is.EqualTo (4096), "InputStreamBufferSize");
+			Assert.That (converter.MaxElementDepth, Is.EqualTo (4096), "MaxElementDepth");
 			Assert.That (converter.OutputEncoding, Is.EqualTo (Encoding.UTF8), "OutputEncoding");
 			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Html), "OutputFormat");
 			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
@@ -128,6 +130,35 @@ namespace UnitTests.Text {
 			var result = converter.Convert (html);
 
 			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[TestCase ("<div><span><b><i>x<img src=x onerror=alert(1)>&amp;</i></b>", "<div><span><b><i>x&lt;img src=x onerror=alert(1)&gt;&amp;amp;&lt;/i&gt;&lt;/b&gt;")]
+		[TestCase ("<div><span><svg><style><img src=x onerror=alert(1)></style>", "<div><span><svg><style>&lt;img src=x onerror=alert(1)&gt;&lt;/style&gt;")]
+		[TestCase ("<div><div><div><div><span><b>x</b><img src=x>", "<div><div><div><div><span><b>x</b><img src=\"x\"/>")]
+		public void TestMaxElementDepthExceeded (string html, string expected)
+		{
+			// Once the depth limit is exceeded, the remainder of the input must be written as encoded text so that
+			// no tags can be hidden from the HtmlTagCallback.
+			var converter = new HtmlToHtml { Header = null, Footer = null, MaxElementDepth = 3 };
+			var result = converter.Convert (html);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestMaxElementDepthNestedTables ()
+		{
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < 100000; i++)
+				builder.Append ("<table><tr><td>");
+			builder.Append ("<img src=x onerror=alert(1)>");
+
+			var converter = new HtmlToHtml { Header = null, Footer = null };
+			var result = converter.Convert (builder.ToString ());
+
+			Assert.That (result, Does.EndWith ("&lt;img src=x onerror=alert(1)&gt;"));
+			Assert.That (result, Does.Not.Contain ("<img"));
 		}
 
 		void SupressInnerContentCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)

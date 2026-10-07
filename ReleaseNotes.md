@@ -174,6 +174,15 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Added `ParserOptions.MaxHeaderLength` to limit how much memory the parser will use to buffer any
   single header. A header whose raw length exceeds the limit causes the parser to throw a `FormatException`.
   The default limit is 16 MB.
+* Added `HtmlTokenizer.MaxElementDepth` and `HtmlToHtml.MaxElementDepth` to limit the number of distinct
+  nested elements that the tokenizer tracks in order to tokenize the content of elements such as `<style>`
+  and `<![CDATA[` sections inside of SVG and MathML the way a browser would. Previously, deeply nested markup
+  such as repeated `<table><tr><td>` could make the tokenizer allocate roughly 22 times the size of the input
+  (and `HtmlToHtml` roughly 32 times). Consecutive identical elements only count once. If a start tag exceeds
+  the limit, it is the last tag token and the rest of the input is returned as literal character data (which
+  `HtmlToHtml` writes as encoded text) so that no markup can be hidden from the `HtmlToHtml.HtmlTagCallback`.
+  The default limit is 4096. The tracked elements are also now stored in fixed-size chunks rather than in a
+  single array that is copied every time it grows, keeping allocations off the large object heap.
 
 ### Performance
 

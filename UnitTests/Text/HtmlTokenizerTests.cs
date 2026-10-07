@@ -3564,7 +3564,11 @@ namespace UnitTests.Text {
 
 		static string DescribeTokens (string content)
 		{
-			var tokenizer = CreateTokenizer (content);
+			return DescribeTokens (CreateTokenizer (content));
+		}
+
+		static string DescribeTokens (HtmlTokenizer tokenizer)
+		{
 			var builder = new StringBuilder ();
 			bool data = false;
 
@@ -3742,6 +3746,7 @@ namespace UnitTests.Text {
 			const int Count = 100000;
 			var content = "<svg>" + Repeat (open, Count) + Repeat (close, Count) + RawTextStyleProbe;
 			var tokenizer = CreateTokenizer (content);
+			tokenizer.MaxElementDepth = int.MaxValue;
 			var watch = System.Diagnostics.Stopwatch.StartNew ();
 			HtmlToken token, last = null;
 			var lastFew = new List<HtmlToken> ();
@@ -3762,6 +3767,81 @@ namespace UnitTests.Text {
 				Assert.That (last.Kind, Is.EqualTo (HtmlTokenKind.Data), "Expected <style> to be raw text");
 			else
 				Assert.That (last.Kind, Is.EqualTo (HtmlTokenKind.Comment), "Expected <style> to be foreign content");
+		}
+
+		[Test]
+		public void TestMaxElementDepth ()
+		{
+			var tokenizer = CreateTokenizer (string.Empty);
+
+			Assert.That (tokenizer.MaxElementDepth, Is.EqualTo (4096), "Default");
+			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.MaxElementDepth = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.MaxElementDepth = -1);
+
+			tokenizer.MaxElementDepth = 1;
+			Assert.That (tokenizer.MaxElementDepth, Is.EqualTo (1));
+
+			tokenizer.MaxElementDepth = int.MaxValue;
+			Assert.That (tokenizer.MaxElementDepth, Is.EqualTo (int.MaxValue));
+		}
+
+		// Once the depth limit is exceeded, the tokenizer can no longer tell how a browser would tokenize the rest of the
+		// input, so the start tag that exceeded the limit must be the last tag and the rest of the input must be literal text.
+		[TestCase ("<div><span><b><i><img src=x>&amp;", "Tag(div) Tag(span) Tag(b) Tag(i) Data(<img src=x>&amp;)")]
+		[TestCase ("<div><span><b></b><i><img src=x>", "Tag(div) Tag(span) Tag(b) EndTag(b) Tag(i) Tag(img src=\"x\")")]
+		[TestCase ("<div><div><div><div><div><span><b><img src=x>", "Tag(div) Tag(div) Tag(div) Tag(div) Tag(div) Tag(span) Tag(b) Tag(img src=\"x\")")]
+		[TestCase ("<div><span><svg><style><img src=x></style>", "Tag(div) Tag(span) Tag(svg) Tag(style) Data(<img src=x></style>)")]
+		[TestCase ("<div><svg><g><foreignObject><style><img src=x></style>", "Tag(div) Tag(svg) Tag(g) Tag(foreignObject) Data(<style><img src=x></style>)")]
+		[TestCase ("<div><span><b><svg><![CDATA[<img src=x>]]>", "Tag(div) Tag(span) Tag(b) Tag(svg) Data(<![CDATA[<img src=x>]]>)")]
+		[TestCase ("<table><tr><td><img src=x>", "Tag(table) Tag(tr) Tag(td) Data(<img src=x>)")]
+		public void TestMaxElementDepthExceeded (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+			tokenizer.MaxElementDepth = 3;
+
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestMaxElementDepthExceededDataIsEncoded ()
+		{
+			var tokenizer = new HtmlTokenizer (new StringReader ("<div><span><b><i><img src=x onerror=alert(1)>&amp;")) {
+				DecodeCharacterReferences = false,
+				MaxElementDepth = 3
+			};
+			HtmlToken last = null;
+
+			while (tokenizer.ReadNextToken (out var token))
+				last = token;
+
+			Assert.That (last, Is.InstanceOf<HtmlDataToken> ());
+
+			using var writer = new StringWriter ();
+			last.WriteTo (writer);
+
+			Assert.That (writer.ToString (), Is.EqualTo ("&lt;img src=x onerror=alert(1)&gt;&amp;amp;"));
+		}
+
+		[Test]
+		public void TestMaxElementDepthNestedTables ()
+		{
+			const int Count = 100000;
+			var content = Repeat ("<table><tr><td>", Count) + "<img src=x>";
+			var tokenizer = CreateTokenizer (content);
+			int tags = 0;
+			HtmlToken last = null;
+
+			while (tokenizer.ReadNextToken (out var token)) {
+				if (token.Kind == HtmlTokenKind.Tag)
+					tags++;
+				last = token;
+			}
+
+			// Each <table><tr><td> pushes 4 entries (including the implied <tbody>), so the <table> start tag
+			// following the first 1024 repetitions is the last tag.
+			Assert.That (tags, Is.EqualTo (3 * 1024 + 1));
+			Assert.That (last, Is.InstanceOf<HtmlDataToken> ());
+			Assert.That (((HtmlDataToken) last).Data, Does.EndWith ("<img src=x>"));
 		}
 
 		// An abruptly terminated DOCTYPE identifier must not leave a stale quote character behind that would cause a
