@@ -613,6 +613,16 @@ namespace MimeKit.Text {
 			return token;
 		}
 
+		// Note: When enabled, character data tokens are reused rather than allocated for each run of character data. This
+		// is only safe for consumers that are done with each data token before reading the next token (e.g. HtmlToHtml).
+		internal bool ReuseDataTokens {
+			get; set;
+		}
+
+		HtmlScriptDataToken? reusableScriptDataToken;
+		HtmlCDataToken? reusableCDataToken;
+		HtmlDataToken? reusableDataToken;
+
 		HtmlToken? EmitDataToken (bool encodeEntities, bool truncated)
 		{
 			if (data.Length == 0)
@@ -623,7 +633,15 @@ namespace MimeKit.Text {
 				return null;
 			}
 
-			var token = CreateDataToken (data.ToString ());
+			HtmlDataToken token;
+
+			if (ReuseDataTokens) {
+				token = reusableDataToken ??= new HtmlDataToken (HtmlTokenKind.Data, true);
+				token.SetData (data);
+			} else {
+				token = CreateDataToken (data.ToString ());
+			}
+
 			token.EncodeEntities = encodeEntities;
 			data.Length = 0;
 
@@ -635,7 +653,15 @@ namespace MimeKit.Text {
 			if (data.Length == 0)
 				return null;
 
-			var token = CreateCDataToken (data.ToString ());
+			HtmlDataToken token;
+
+			if (ReuseDataTokens) {
+				token = reusableCDataToken ??= new HtmlCDataToken ();
+				token.SetData (data);
+			} else {
+				token = CreateCDataToken (data.ToString ());
+			}
+
 			data.Length = 0;
 
 			return token;
@@ -646,7 +672,15 @@ namespace MimeKit.Text {
 			if (data.Length == 0)
 				return null;
 
-			var token = CreateScriptDataToken (data.ToString ());
+			HtmlDataToken token;
+
+			if (ReuseDataTokens) {
+				token = reusableScriptDataToken ??= new HtmlScriptDataToken ();
+				token.SetData (data);
+			} else {
+				token = CreateScriptDataToken (data.ToString ());
+			}
+
 			data.Length = 0;
 
 			return token;

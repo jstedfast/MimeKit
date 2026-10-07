@@ -3658,6 +3658,74 @@ namespace UnitTests.Text {
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
 
+		static void AssertReusedDataTokensMatch (string html, string label)
+		{
+			var expected = new HtmlTokenizer (new StringReader (html)) { DecodeCharacterReferences = false };
+			var actual = new HtmlTokenizer (new StringReader (html)) { DecodeCharacterReferences = false, ReuseDataTokens = true };
+			var expectedOutput = new StringWriter ();
+			var actualOutput = new StringWriter ();
+			int index = 0;
+
+			while (expected.ReadNextToken (out var expectedToken)) {
+				Assert.That (actual.ReadNextToken (out var actualToken), Is.True, $"{label}: token #{index}");
+				Assert.That (actualToken.Kind, Is.EqualTo (expectedToken.Kind), $"{label}: token #{index} kind");
+				Assert.That (actualToken.GetType (), Is.EqualTo (expectedToken.GetType ()), $"{label}: token #{index} type");
+
+				// Note: Write the token before accessing Data so that the CharBuffer-backed path gets exercised.
+				expectedToken.WriteTo (expectedOutput);
+				actualToken.WriteTo (actualOutput);
+				Assert.That (actualOutput.ToString (), Is.EqualTo (expectedOutput.ToString ()), $"{label}: token #{index} output");
+
+				if (expectedToken is HtmlDataToken expectedData)
+					Assert.That (((HtmlDataToken) actualToken).Data, Is.EqualTo (expectedData.Data), $"{label}: token #{index} data");
+
+				index++;
+			}
+
+			Assert.That (actual.ReadNextToken (out _), Is.False, label);
+		}
+
+		[TestCase ("short<b>" + "a much longer run of character data that forces the reused buffer to grow" + "<i>x</i>" + "mid-length run<br>y")]
+		[TestCase ("<script><!--<script>var a = 1 < 2;</script>--></script>after")]
+		[TestCase ("<script><!-- a -- < b --> c</script><style>p { a: b < c }</style>")]
+		[TestCase ("<svg><![CDATA[a<b]]>text<![CDATA[]]><![CDATA[longer cdata section]]></svg>")]
+		[TestCase ("a <</>c> b <<i>x &amp; &lt; & y")]
+		[TestCase ("<textarea>a<b>&amp;</textarea><title>x</title><plaintext>tail <b>")]
+		public void TestReusedDataTokens (string html)
+		{
+			AssertReusedDataTokensMatch (html, html);
+		}
+
+		[Test]
+		public void TestReusedDataTokensCorpus ()
+		{
+			foreach (var path in Directory.GetFiles (Path.Combine (TestHelper.ProjectDir, "TestData", "html"), "*.html"))
+				AssertReusedDataTokensMatch (File.ReadAllText (path), Path.GetFileName (path));
+		}
+
+		[Test]
+		public void TestReusedDataTokenDataAfterReuse ()
+		{
+			var tokenizer = new HtmlTokenizer (new StringReader ("first<b>second, but longer<i>3")) { ReuseDataTokens = true };
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+			var data = (HtmlDataToken) token;
+			Assert.That (data.Data, Is.EqualTo ("first"));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+
+			// Accessing Data converts the reusable token's content into a string, so the next reuse must start afresh.
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token, Is.SameAs (data));
+			Assert.That (data.Data, Is.EqualTo ("second, but longer"));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("3"));
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
 		// Tag names, attribute names and short attribute values are shared via a small direct-mapped cache, so
 		// make sure that cache collisions and evictions never cause the wrong string to be returned.
 		[Test]

@@ -248,7 +248,8 @@ namespace MimeKit.Text {
 				var stack = new HtmlTagContextStack<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false,
-					ScriptingEnabled = ScriptingEnabled
+					ScriptingEnabled = ScriptingEnabled,
+					ReuseDataTokens = true
 				};
 				HtmlToHtmlTagContext? ctx;
 

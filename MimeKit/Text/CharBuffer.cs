@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace MimeKit.Text {
@@ -83,6 +84,23 @@ namespace MimeKit.Text {
 		public override string ToString ()
 		{
 			return new string (buffer, 0, Length);
+		}
+
+		public void CopyFrom (CharBuffer source)
+		{
+			EnsureCapacity (source.Length);
+			Array.Copy (source.buffer, 0, buffer, 0, source.Length);
+			Length = source.Length;
+		}
+
+		public ReadOnlySpan<char> AsSpan ()
+		{
+			return new ReadOnlySpan<char> (buffer, 0, Length);
+		}
+
+		public void WriteTo (TextWriter output, int count)
+		{
+			output.Write (buffer, 0, count);
 		}
 
 		// A small, direct-mapped cache of recently used short strings (e.g. HTML tag and attribute names) shared by all

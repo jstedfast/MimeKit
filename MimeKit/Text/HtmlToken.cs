@@ -214,7 +214,7 @@ namespace MimeKit.Text {
 			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
-			Data = data;
+			content = data;
 		}
 
 		/// <summary>
@@ -232,8 +232,26 @@ namespace MimeKit.Text {
 			if (data is null)
 				throw new ArgumentNullException (nameof (data));
 
-			Data = data;
+			content = data;
 		}
+
+		/// <summary>
+		/// Initialize a new reusable instance of the <see cref="HtmlDataToken"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new reusable <see cref="HtmlDataToken"/> whose content is set via SetData.
+		/// </remarks>
+		/// <param name="kind">The kind of character data.</param>
+		/// <param name="reusable">Not used; distinguishes this constructor from the public constructors.</param>
+		internal HtmlDataToken (HtmlTokenKind kind, bool reusable) : base (kind)
+		{
+			content = string.Empty;
+		}
+
+		// Note: This is either a string or, for a reusable token (used internally by HtmlToHtml), a CharBuffer that is reused
+		// for each run of character data in order to avoid allocating a string per token. The string is only created if the
+		// Data property is accessed.
+		object content;
 
 		internal bool EncodeEntities {
 			get; set;
@@ -251,7 +269,46 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The character data.</value>
 		public string Data {
-			get; private set;
+			get {
+				if (content is CharBuffer buffer)
+					content = buffer.ToString ();
+
+				return (string) content;
+			}
+		}
+
+		internal void SetData (CharBuffer source)
+		{
+			if (content is not CharBuffer buffer)
+				content = buffer = new CharBuffer (Math.Max (source.Length, 64));
+
+			buffer.CopyFrom (source);
+			EncodeEntities = false;
+			IsDataState = false;
+		}
+
+		internal ReadOnlySpan<char> DataSpan {
+			get { return content is CharBuffer buffer ? buffer.AsSpan () : ((string) content).AsSpan (); }
+		}
+
+		internal void WriteData (TextWriter output, int count)
+		{
+			if (content is CharBuffer buffer) {
+				buffer.WriteTo (output, count);
+				return;
+			}
+
+			var data = (string) content;
+
+			if (count == data.Length) {
+				output.Write (data);
+			} else {
+#if NET6_0_OR_GREATER
+				output.Write (data.AsSpan (0, count));
+#else
+				output.Write (data.Substring (0, count));
+#endif
+			}
 		}
 
 		/// <summary>
@@ -270,26 +327,24 @@ namespace MimeKit.Text {
 			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
+			var span = DataSpan;
+
 			if (!EncodeEntities) {
 				// Note: The tokenizer only ends a data-state token with a literal '<' when the following input
 				// begins markup that a browser treats as text (e.g. the first '<' in "<</>c>"). If the markup that
 				// follows gets dropped (e.g. "</>", a filtered comment, or a tag removed by a callback), writing
 				// the '<' verbatim would allow it to combine with the next token to form a new tag, so encode it.
-				if (IsDataState && Data.Length > 0 && Data[Data.Length - 1] == '<') {
-#if NET6_0_OR_GREATER
-					output.Write (Data.AsSpan (0, Data.Length - 1));
-#else
-					output.Write (Data.Substring (0, Data.Length - 1));
-#endif
+				if (IsDataState && span.Length > 0 && span[span.Length - 1] == '<') {
+					WriteData (output, span.Length - 1);
 					output.Write ("&lt;");
 					return;
 				}
 
-				output.Write (Data);
+				WriteData (output, span.Length);
 				return;
 			}
 
-			HtmlUtils.HtmlEncode (output, Data);
+			HtmlUtils.HtmlEncode (output, span);
 		}
 	}
 
@@ -315,6 +370,10 @@ namespace MimeKit.Text {
 		{
 		}
 
+		internal HtmlCDataToken () : base (HtmlTokenKind.CData, true)
+		{
+		}
+
 		/// <summary>
 		/// Write the HTML character data to a <see cref="System.IO.TextWriter"/>.
 		/// </summary>
@@ -332,7 +391,7 @@ namespace MimeKit.Text {
 				throw new ArgumentNullException (nameof (output));
 
 			output.Write ("<![CDATA[");
-			output.Write (Data);
+			WriteData (output, DataSpan.Length);
 			output.Write ("]]>");
 		}
 	}
@@ -359,6 +418,10 @@ namespace MimeKit.Text {
 		{
 		}
 
+		internal HtmlScriptDataToken () : base (HtmlTokenKind.ScriptData, true)
+		{
+		}
+
 		/// <summary>
 		/// Write the HTML script data to a <see cref="System.IO.TextWriter"/>.
 		/// </summary>
@@ -375,7 +438,7 @@ namespace MimeKit.Text {
 			if (output is null)
 				throw new ArgumentNullException (nameof (output));
 
-			output.Write (Data);
+			WriteData (output, DataSpan.Length);
 		}
 	}
 
