@@ -225,6 +225,10 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 * Fixed `HtmlWriter` and `HtmlTagToken.WriteTo` so that an attribute whose name begins with `=`
   (e.g. from `<a href/=javascript:...>`) cannot be reparsed as the value of a preceding valueless attribute.
 
+* Fixed `HtmlCommentToken.WriteTo` to write bogus comments that came from `</` followed by a character
+  that cannot start a tag name (e.g. `</<script x>`) with the leading `</`. Previously the `/` was dropped,
+  so `HtmlToHtml` could turn such a comment into a tag (`<<script x>`).
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a

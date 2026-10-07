@@ -396,5 +396,28 @@ namespace UnitTests.Text {
 			converter.HtmlTagCallback = (ctx, writer) => ctx.WriteTag (writer, true);
 			Assert.That (converter.Convert (input), Is.EqualTo ("<a href=\"\" =javascript:x>y</a>"));
 		}
+
+		// Bogus comments must be written such that they tokenize as the same bogus comment again. In particular,
+		// "</" followed by a non-letter used to be written without the '/' which could turn the comment into a tag.
+		[TestCase ("</<script x>", "</<script x>")]
+		[TestCase ("</ <img src=x>", "</ <img src=x>")]
+		[TestCase ("</<s", "</<s>")]
+		[TestCase ("<?xml version=\"1.0\"?>", "<?xml version=\"1.0\"?>")]
+		[TestCase ("</?x>", "<?x>")]
+		[TestCase ("<!DOC>", "<!DOC>")]
+		[TestCase ("<!-x>", "<!-x>")]
+		public void TestBogusCommentRoundTrip (string input, string expected)
+		{
+			var converter = new HtmlToHtml ();
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+
+			var tokenizer = new HtmlTokenizer (new StringReader (result));
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+			Assert.That (token, Is.InstanceOf<HtmlCommentToken> ());
+			Assert.That (((HtmlCommentToken) token).IsBogusComment, Is.True);
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
 	}
 }

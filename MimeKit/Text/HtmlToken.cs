@@ -163,9 +163,16 @@ namespace MimeKit.Text {
 				output.Write (Comment);
 				output.Write ("-->");
 			} else {
-				output.Write ('<');
+				// Note: Bogus comments come from "<!" (e.g. "<!DOC>"), "<?" (e.g. "<?xml ...?>") or "</" followed by a character
+				// that cannot start a tag name (e.g. "</ x>"). The leading '?' is part of the comment text in the "<?" case, but
+				// the '/' is not part of the comment text in the "</" case, so it needs to be restored in order for the output
+				// to tokenize as a bogus comment again (e.g. "</<o" must not be written as "<<o>").
 				if (IsBangComment)
-					output.Write ('!');
+					output.Write ("<!");
+				else if (Comment.Length > 0 && Comment[0] == '?')
+					output.Write ('<');
+				else
+					output.Write ("</");
 				output.Write (Comment);
 				output.Write ('>');
 			}
