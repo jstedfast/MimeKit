@@ -356,5 +356,45 @@ namespace UnitTests.Text {
 
 			Assert.That (result, Is.EqualTo ("<x></x>z"));
 		}
+
+		// Each of these used to hide the <img> tag from the HtmlTagCallback due to tokenizer reconsume bugs.
+		[TestCase ("<<img src=x onerror=alert(1)>")]
+		[TestCase ("<script>x</scrip</script><img src=x onerror=alert(1)>")]
+		[TestCase ("<style>x</styl</style><img src=x onerror=alert(1)>")]
+		[TestCase ("<textarea>x</textare</textarea><img src=x onerror=alert(1)>")]
+		[TestCase ("<!DOC><img src=x onerror=alert(1)>")]
+		[TestCase ("<![CDAT><img src=x onerror=alert(1)>")]
+		[TestCase ("<script><!--<script</script><img src=x onerror=alert(1)>")]
+		[TestCase ("<script><!--</a <script></script><!--</script><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<script><!--<script></a></script></script><img src=x onerror=alert(1)>")]
+		public void TestTagCallbackSeesAllTags (string input)
+		{
+			var converter = new HtmlToHtml {
+				HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId != HtmlTagId.Image)
+						ctx.WriteTag (writer, true);
+					else
+						ctx.DeleteTag = true;
+				}
+			};
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Does.Not.Contain ("onerror"));
+		}
+
+		// "<a href/=javascript:x>" has a valueless "href" attribute followed by an attribute named "=javascript:x". Make sure
+		// that the output does not get reparsed as an href attribute with a value of "javascript:x".
+		[Test]
+		public void TestAttributeNameStartingWithEquals ()
+		{
+			const string input = "<a href/=javascript:x>y</a>";
+
+			var converter = new HtmlToHtml ();
+			Assert.That (converter.Convert (input), Is.EqualTo ("<a href=\"\" =javascript:x>y</a>"));
+
+			converter.HtmlTagCallback = (ctx, writer) => ctx.WriteTag (writer, true);
+			Assert.That (converter.Convert (input), Is.EqualTo ("<a href=\"\" =javascript:x>y</a>"));
+		}
 	}
 }

@@ -784,15 +784,12 @@ namespace MimeKit.Text {
 			var current = TokenizerState;
 
 			do {
-				if (!TryRead (out char c)) {
+				if (!TryPeek (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
 					return EmitDataToken (decoded, true);
 				}
-
-				// Note: we save the data in case we hit a parse error and have to emit a data token
-				data.Append (c);
 
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
@@ -810,22 +807,28 @@ namespace MimeKit.Text {
 					goto default;
 				case '>':
 					if (NameIs (activeTagName)) {
-						var token = CreateTagToken (name.ToString (), true);
-						TokenizerState = HtmlTokenizerState.Data;
-						data.Length = 0;
+						ConsumeCharacter (c);
+						tag = CreateTagToken (name.ToString (), true);
 						name.Length = 0;
-						return token;
+						return EmitTagToken ();
 					}
 					goto default;
 				default:
 					if (!IsAsciiLetter (c)) {
+						// Note: The current input character is not consumed; it gets reconsumed in the RCDATA/RAWTEXT state
+						// so that, for example, the second '<' in "</styl</style>" can still start the real end tag.
 						TokenizerState = rawText;
+						name.Length = 0;
 						return null;
 					}
 
-					name.Append (c == '\0' ? '\uFFFD' : c);
+					name.Append (c);
 					break;
 				}
+
+				// Note: we save the data in case we hit a parse error and have to emit a data token
+				ConsumeCharacter (c);
+				data.Append (c);
 			} while (TokenizerState == current);
 
 			tag = CreateTagToken (name.ToString (), true);
@@ -852,6 +855,12 @@ namespace MimeKit.Text {
 
 					goto default;
 				case '<':
+					// Note: If the next character cannot begin a tag, a comment or a markup declaration, then the tag open
+					// state would just emit the '<' as character data and reconsume the next character in the data state,
+					// so avoid emitting a separate data token for each '<' (e.g. "<<<<<<<<").
+					if (TryPeek (out char next) && next != '!' && next != '/' && next != '?' && !IsAsciiLetter (next))
+						goto default;
+
 					TokenizerState = HtmlTokenizerState.TagOpen;
 					break;
 				//case 0: // parse error, but emit it anyway
@@ -982,7 +991,7 @@ namespace MimeKit.Text {
 		// 8.2.4.8 Tag open state
 		HtmlToken? ReadTagOpen ()
 		{
-			if (!TryRead (out char c)) {
+			if (!TryPeek (out char c)) {
 				var token = IgnoreTruncatedTags ? null : CreateDataToken ("<");
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return token;
@@ -990,26 +999,35 @@ namespace MimeKit.Text {
 
 			// Note: we save the data in case we hit a parse error and have to emit a data token
 			data.Append ('<');
-			data.Append (c);
 
 			switch (c) {
 			case '!':
 				TokenizerState = HtmlTokenizerState.MarkupDeclarationOpen;
+				ConsumeCharacter (c);
+				data.Append (c);
 				break;
 			case '?':
 				TokenizerState = HtmlTokenizerState.BogusComment;
+				ConsumeCharacter (c);
 				data.Length = 1;
 				data[0] = c;
 				break;
 			case '/':
 				TokenizerState = HtmlTokenizerState.EndTagOpen;
+				ConsumeCharacter (c);
+				data.Append (c);
 				break;
 			default:
 				if (IsAsciiLetter (c)) {
 					TokenizerState = HtmlTokenizerState.TagName;
+					ConsumeCharacter (c);
+					data.Append (c);
 					isEndTag = false;
 					name.Append (c);
 				} else {
+					// invalid-first-character-of-tag-name parse error: emit the '<' as character data and
+					// reconsume the current input character in the data state (e.g. the second '<' in "<<img>"
+					// must still be able to start a tag).
 					TokenizerState = HtmlTokenizerState.Data;
 				}
 				break;
@@ -1171,15 +1189,12 @@ namespace MimeKit.Text {
 		HtmlToken? ReadScriptDataEndTagName ()
 		{
 			do {
-				if (!TryRead (out char c)) {
+				if (!TryPeek (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
 					return EmitScriptDataToken ();
 				}
-
-				// Note: we save the data in case we hit a parse error and have to emit a data token
-				data.Append (c);
 
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
@@ -1196,23 +1211,27 @@ namespace MimeKit.Text {
 					goto default;
 				case '>':
 					if (NameIs ("script")) {
-						var token = CreateTagToken (name.ToString (), true);
-						TokenizerState = HtmlTokenizerState.Data;
-						data.Length = 0;
+						ConsumeCharacter (c);
+						tag = CreateTagToken (name.ToString (), true);
 						name.Length = 0;
-						return token;
+						return EmitTagToken ();
 					}
 					goto default;
 				default:
 					if (!IsAsciiLetter (c)) {
+						// Note: The current input character is reconsumed in the script data state.
 						TokenizerState = HtmlTokenizerState.ScriptData;
 						name.Length = 0;
 						return null;
 					}
 
-					name.Append (c == '\0' ? '\uFFFD' : c);
+					name.Append (c);
 					break;
 				}
+
+				// Note: we save the data in case we hit a parse error and have to emit a data token
+				ConsumeCharacter (c);
+				data.Append (c);
 			} while (TokenizerState == HtmlTokenizerState.ScriptDataEndTagName);
 
 			tag = CreateTagToken (name.ToString (), true);
@@ -1359,6 +1378,7 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscapeStart;
 				ConsumeCharacter (c);
 				data.Append (c);
+				name.Length = 0;
 				name.Append (c);
 			} else {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
@@ -1379,6 +1399,7 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscapedEndTagName;
 				ConsumeCharacter (c);
 				data.Append (c);
+				name.Length = 0;
 				name.Append (c);
 			} else {
 				TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
@@ -1391,15 +1412,12 @@ namespace MimeKit.Text {
 		HtmlToken? ReadScriptDataEscapedEndTagName ()
 		{
 			do {
-				if (!TryRead (out char c)) {
+				if (!TryPeek (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
 					return EmitScriptDataToken ();
 				}
-
-				// Note: we save the data in case we hit a parse error and have to emit a data token
-				data.Append (c);
 
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
@@ -1417,22 +1435,27 @@ namespace MimeKit.Text {
 					goto default;
 				case '>':
 					if (NameIs ("script")) {
-						var token = CreateTagToken (name.ToString (), true);
-						TokenizerState = HtmlTokenizerState.Data;
-						data.Length = 0;
+						ConsumeCharacter (c);
+						tag = CreateTagToken (name.ToString (), true);
 						name.Length = 0;
-						return token;
+						return EmitTagToken ();
 					}
 					goto default;
 				default:
 					if (!IsAsciiLetter (c)) {
-						TokenizerState = HtmlTokenizerState.ScriptData;
+						// Note: The current input character is reconsumed in the script data escaped state.
+						TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
+						name.Length = 0;
 						return null;
 					}
 
 					name.Append (c);
 					break;
 				}
+
+				// Note: we save the data in case we hit a parse error and have to emit a data token
+				ConsumeCharacter (c);
+				data.Append (c);
 			} while (TokenizerState == HtmlTokenizerState.ScriptDataEscapedEndTagName);
 
 			tag = CreateTagToken (name.ToString (), true);
@@ -1445,14 +1468,12 @@ namespace MimeKit.Text {
 		HtmlToken? ReadScriptDataDoubleEscapeStart ()
 		{
 			do {
-				if (!TryRead (out char c)) {
+				if (!TryPeek (out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
 					return EmitScriptDataToken ();
 				}
-
-				data.Append (c);
 
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': case ' ': case '/': case '>':
@@ -1463,12 +1484,19 @@ namespace MimeKit.Text {
 					name.Length = 0;
 					break;
 				default:
-					if (!IsAsciiLetter (c))
+					if (!IsAsciiLetter (c)) {
+						// Note: The current input character is reconsumed in the script data escaped state.
 						TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
-					else
-						name.Append (c);
+						name.Length = 0;
+						return null;
+					}
+
+					name.Append (c);
 					break;
 				}
+
+				ConsumeCharacter (c);
+				data.Append (c);
 			} while (TokenizerState == HtmlTokenizerState.ScriptDataDoubleEscapeStart);
 
 			return null;
@@ -1496,7 +1524,7 @@ namespace MimeKit.Text {
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
-			} while (TokenizerState == HtmlTokenizerState.ScriptDataEscaped);
+			} while (TokenizerState == HtmlTokenizerState.ScriptDataDoubleEscaped);
 
 			return null;
 		}
@@ -1550,10 +1578,10 @@ namespace MimeKit.Text {
 					break;
 				default:
 					TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscaped;
-					data.Append (c);
+					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
-			} while (TokenizerState == HtmlTokenizerState.ScriptDataEscapedDashDash);
+			} while (TokenizerState == HtmlTokenizerState.ScriptDataDoubleEscapedDashDash);
 
 			return null;
 		}
@@ -1565,6 +1593,7 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscapeEnd;
 				ConsumeCharacter (c);
 				data.Append ('/');
+				name.Length = 0;
 			} else {
 				TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscaped;
 			}
@@ -1586,11 +1615,13 @@ namespace MimeKit.Text {
 						TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscaped;
 					ConsumeCharacter (c);
 					data.Append (c);
+					name.Length = 0;
 					break;
 				default:
 					if (!IsAsciiLetter (c)) {
 						// Note: EOF also hits this case.
 						TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscaped;
+						name.Length = 0;
 					} else {
 						ConsumeCharacter (c);
 						name.Append (c);
@@ -1735,9 +1766,6 @@ namespace MimeKit.Text {
 					return null;
 				case '&':
 					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
-					return null;
-				case '/':
-					TokenizerState = HtmlTokenizerState.SelfClosingStartTag;
 					return null;
 				case '>':
 					return EmitTagToken ();
@@ -1933,22 +1961,21 @@ namespace MimeKit.Text {
 		// 8.2.4.43 Self-closing start tag state
 		HtmlToken? ReadSelfClosingStartTag ()
 		{
-			if (!TryRead (out char c)) {
+			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitDataToken (false, true);
 			}
 
 			if (c == '>') {
+				ConsumeCharacter (c);
 				tag!.IsEmptyElement = true;
 
 				return EmitTagToken ();
 			}
 
-			// parse error
+			// unexpected-solidus-in-tag parse error: reconsume the current input character in the before attribute
+			// name state (e.g. "<img/onerror=...>" has an "onerror" attribute, not a "nerror" attribute).
 			TokenizerState = HtmlTokenizerState.BeforeAttributeName;
-
-			// Note: we save the data in case we hit a parse error and have to emit a data token
-			data.Append (c);
 
 			return null;
 		}
@@ -2003,6 +2030,10 @@ namespace MimeKit.Text {
 
 			if (count == 0) {
 				// Check for "<!DOCTYPE " or "<![CDATA["
+				//
+				// Note: Only the characters that match the keyword are consumed. If a character does not match, it is not
+				// consumed so that it gets reconsumed in the bogus comment state. This is important because the mismatched
+				// character might be the '>' that terminates the bogus comment (e.g. "<!DOC>").
 				if (c == 'D' || c == 'd') {
 					// Note: we save the data in case we hit a parse error and have to emit a data token
 					ConsumeCharacter (c);
@@ -2011,18 +2042,19 @@ namespace MimeKit.Text {
 					count = 1;
 
 					while (count < 7) {
-						if (!TryRead (out c)) {
+						if (!TryPeek (out c)) {
 							TokenizerState = HtmlTokenizerState.EndOfFile;
+							name.Length = 0;
 							return EmitDataToken (false, true);
 						}
-
-						// Note: we save the data in case we hit a parse error and have to emit a data token
-						data.Append (c);
-						name.Append (c);
 
 						if (ToLower (c) != DocType[count])
 							break;
 
+						// Note: we save the data in case we hit a parse error and have to emit a data token
+						ConsumeCharacter (c);
+						data.Append (c);
+						name.Append (c);
 						count++;
 					}
 
@@ -2041,17 +2073,17 @@ namespace MimeKit.Text {
 					count = 1;
 
 					while (count < 7) {
-						if (!TryRead (out c)) {
+						if (!TryPeek (out c)) {
 							TokenizerState = HtmlTokenizerState.EndOfFile;
 							return EmitDataToken (false, true);
 						}
 
-						// Note: we save the data in case we hit a parse error and have to emit a data token
-						data.Append (c);
-
 						if (c != CData[count])
 							break;
 
+						// Note: we save the data in case we hit a parse error and have to emit a data token
+						ConsumeCharacter (c);
+						data.Append (c);
 						count++;
 					}
 

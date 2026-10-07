@@ -492,8 +492,15 @@ namespace MimeKit.Text {
 				output.Write ('/');
 			output.Write (Name);
 			for (int i = 0; i < Attributes.Count; i++) {
+				var name = Attributes[i].Name;
+
+				// Note: If the previous attribute had no value, give it an explicit empty value so that an attribute name
+				// that begins with '=' cannot get reparsed as the previous attribute's value.
+				if (i > 0 && Attributes[i - 1].Value == null && name.Length > 0 && name[0] == '=')
+					output.Write ("=\"\"");
+
 				output.Write (' ');
-				output.Write (Attributes[i].Name);
+				output.Write (name);
 
 				var value = Attributes[i].Value;
 				if (value != null) {

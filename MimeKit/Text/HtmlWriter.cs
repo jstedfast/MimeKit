@@ -154,6 +154,12 @@ namespace MimeKit.Text {
 			if (WriterState == HtmlWriterState.Default)
 				throw new InvalidOperationException ("Cannot write attributes in the Default state.");
 
+			// Note: The tokenizer can produce attribute names that begin with '=' (e.g. "<a href/=javascript:...>" has a
+			// valueless "href" attribute followed by an attribute named "=javascript:..."). If the previous attribute had
+			// no value, give it an explicit empty value so that the '=' cannot get reparsed as the previous attribute's value.
+			if (WriterState == HtmlWriterState.Attribute && name.Length > 0 && name[0] == '=')
+				html.Write ("=\"\"");
+
 			html.Write (' ');
 			html.Write (name);
 			WriterState = HtmlWriterState.Attribute;

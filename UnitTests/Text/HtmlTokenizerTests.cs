@@ -1842,7 +1842,10 @@ namespace UnitTests.Text {
 			Assert.That (tag.Name, Is.EqualTo ("name"));
 			Assert.That (tag.Attributes.Count, Is.EqualTo (1));
 			Assert.That (tag.Attributes[0].Name, Is.EqualTo ("attr"));
-			Assert.That (tag.Attributes[0].Value, Is.EqualTo (null));
+
+			// Note: per the HTML specification, a '/' in the before attribute value state begins an unquoted attribute value.
+			Assert.That (tag.Attributes[0].Value, Is.EqualTo ("/"));
+			Assert.That (tag.IsEmptyElement, Is.False);
 		}
 
 		[Test]
@@ -3409,6 +3412,74 @@ namespace UnitTests.Text {
 			Assert.That (((HtmlTagToken) token).IsEndTag, Is.True);
 
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
+		static string DescribeTokens (string content)
+		{
+			var tokenizer = CreateTokenizer (content);
+			var builder = new StringBuilder ();
+			bool data = false;
+
+			while (tokenizer.ReadNextToken (out var token)) {
+				// merge adjacent data tokens since the tokenizer is free to split character data
+				bool merge = data && token is HtmlDataToken;
+
+				if (merge)
+					builder.Length--;
+				else if (builder.Length > 0)
+					builder.Append (' ');
+
+				data = false;
+
+				switch (token) {
+				case HtmlTagToken tag:
+					builder.Append (tag.IsEndTag ? "EndTag(" : "Tag(").Append (tag.Name);
+					foreach (var attr in tag.Attributes) {
+						builder.Append (' ').Append (attr.Name);
+						if (attr.Value != null)
+							builder.Append ("=\"").Append (attr.Value).Append ('"');
+					}
+					builder.Append (tag.IsEmptyElement ? "/)" : ")");
+					break;
+				case HtmlCommentToken comment:
+					builder.Append (comment.IsBogusComment ? "Bogus(" : "Comment(").Append (comment.Comment).Append (')');
+					break;
+				case HtmlDataToken dataToken:
+					if (!merge)
+						builder.Append ("Data(");
+					builder.Append (dataToken.Data).Append (')');
+					data = true;
+					break;
+				default:
+					builder.Append (token.Kind);
+					break;
+				}
+			}
+
+			return builder.ToString ();
+		}
+
+		// Each of these used to hide the <img> tag from the tokenizer consumer (and therefore from HtmlToHtml's
+		// HtmlTagCallback) because the tokenizer consumed a character that the HTML specification says must be
+		// reconsumed in a different state.
+		[TestCase ("<<img src=x>", "Data(<) Tag(img src=\"x\")")]
+		[TestCase ("<script>x</scrip</script><img src=x>", "Tag(script) Data(x</scrip) EndTag(script) Tag(img src=\"x\")")]
+		[TestCase ("<style>x</styl</style><img src=x>", "Tag(style) Data(x</styl) EndTag(style) Tag(img src=\"x\")")]
+		[TestCase ("<title>x</titl</title><img src=x>", "Tag(title) Data(x</titl) EndTag(title) Tag(img src=\"x\")")]
+		[TestCase ("<!DOC><img src=x>", "Bogus(DOC) Tag(img src=\"x\")")]
+		[TestCase ("<![CDAT><img src=x>", "Bogus([CDAT) Tag(img src=\"x\")")]
+		[TestCase ("<script><!--<script</script><img src=x>", "Tag(script) Data(<!--<script) EndTag(script) Tag(img src=\"x\")")]
+		[TestCase ("<script><!--</a <script></script><!--</script><img src=x>", "Tag(script) Data(<!--</a <script></script><!--) EndTag(script) Tag(img src=\"x\")")]
+		[TestCase ("<script><!--<script></a></script></script><img src=x>", "Tag(script) Data(<!--<script></a></script>) EndTag(script) Tag(img src=\"x\")")]
+		[TestCase ("<script><!--<script>-</script>--></script><img src=x>", "Tag(script) Data(<!--<script>-</script>-->) EndTag(script) Tag(img src=\"x\")")]
+		[TestCase ("<img/onerror=x src=y>", "Tag(img onerror=\"x\" src=\"y\")")]
+		[TestCase ("<a href=/x>y</a>", "Tag(a href=\"/x\") Data(y) EndTag(a)")]
+		[TestCase ("<a b/>", "Tag(a b/)")]
+		[TestCase ("<a b/=c>", "Tag(a b =c)")]
+		[TestCase ("<<<<", "Data(<<<<)")]
+		public void TestReconsume (string content, string expected)
+		{
+			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
 		}
 	}
 }

@@ -213,6 +213,18 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `<!DOCTYPE html </div><div class=x>` produced a start tag named `</divdiv`, which caused `HtmlToHtml`
   to throw an `ArgumentException` (Invalid tag name) for attacker-controllable input.
 
+* Fixed a number of `HtmlTokenizer` states that consumed a character which the HTML specification says
+  must be reconsumed in another state (tag open, markup declaration open, self-closing start tag, the
+  RCDATA/RAWTEXT/script data end tag name states and the script data escape states). These differences
+  from how browsers tokenize HTML allowed markup such as `<script>x</scrip</script><img onerror=...>`,
+  `<!DOC><img onerror=...>` or `<<img onerror=...>` to be treated as character data, hiding tags from
+  the `HtmlToHtml.HtmlTagCallback`. Also, `<img/onerror=...>` now has an `onerror` attribute (rather than
+  `nerror`) and a `/` at the start of an unquoted attribute value (e.g. `<a href=/path>`) is now part of
+  the value.
+
+* Fixed `HtmlWriter` and `HtmlTagToken.WriteTo` so that an attribute whose name begins with `=`
+  (e.g. from `<a href/=javascript:...>`) cannot be reparsed as the value of a preceding valueless attribute.
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a
