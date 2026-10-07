@@ -95,9 +95,47 @@ namespace UnitTests.Tnef {
 			int boundary = 0;
 
 			NormalizeBoundaries (message.Body, ref boundary);
+			NormalizeContentIds (message);
 			DescribeMessage (builder, message, 0);
 
 			return builder.ToString ();
+		}
+
+		// The Content-Ids that the converter generates for the images that an RTF body displays are random. They are
+		// replaced, both in the Content-Id headers and in the bodies that refer to them, by deterministic values.
+		static void NormalizeContentIds (MimeMessage message)
+		{
+			var map = new Dictionary<string, string> (StringComparer.Ordinal);
+			var texts = new List<TextPart> ();
+
+			foreach (var entity in message.BodyParts) {
+				if (entity is MessagePart rfc822 && rfc822.Message != null)
+					NormalizeContentIds (rfc822.Message);
+
+				if (entity.ContentId != null && IsGeneratedMessageId (entity.ContentId)) {
+					var id = "generated-" + map.Count.ToString (CultureInfo.InvariantCulture) + "@snapshot";
+
+					map.Add (entity.ContentId, id);
+					entity.ContentId = id;
+				}
+
+				if (entity is TextPart text && text.ContentDisposition == null)
+					texts.Add (text);
+			}
+
+			if (map.Count == 0)
+				return;
+
+			foreach (var text in texts) {
+				var original = text.Text;
+				var value = original;
+
+				foreach (var pair in map)
+					value = value.Replace (pair.Key, pair.Value);
+
+				if (value != original)
+					text.SetText (text.ContentType.Charset ?? "utf-8", value);
+			}
 		}
 
 		static void NormalizeBoundaries (MimeEntity entity, ref int boundary)

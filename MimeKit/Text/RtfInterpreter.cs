@@ -198,6 +198,13 @@ namespace MimeKit.Text {
 		public virtual void OnHtmlTag (RtfInterpreter rtf, char[] buffer, int index, int count)
 		{
 		}
+
+		/// <summary>
+		/// Called for each rendered <c>\objattph</c> attachment placeholder ([MS-OXRTFEX] 2.2.3.4).
+		/// </summary>
+		public virtual void OnObjectPlaceholder (RtfInterpreter rtf)
+		{
+		}
 	}
 
 	/// <summary>
@@ -284,6 +291,10 @@ namespace MimeKit.Text {
 
 		// RTF 1.9.1, "Unicode RTF": the number of fallback characters still to be skipped after a \uN.
 		int unicodeSkipRemaining;
+
+		// [MS-OXRTFEX] 2.2.3.4: set after a rendered \objattph so that the placeholder character that follows it
+		// (see ProcessToken) is replaced by the attachment rather than rendered.
+		bool objectPlaceholderPending;
 		int documentCodePage = DefaultCodePage;
 		int defaultFont;
 		bool finished;
@@ -489,6 +500,12 @@ namespace MimeKit.Text {
 				}
 			}
 
+			// [MS-OXRTFEX] 2.2.3.4: the attachment replaces the placeholder location, which Outlook writes as
+			// "\objattph\'20" (or "\objattph" followed by a literal space). Only a space that immediately follows the
+			// control word is consumed, so that no real content is lost if a writer omits the placeholder character.
+			bool replacePlaceholder = objectPlaceholderPending;
+			objectPlaceholderPending = false;
+
 			// While skipping a group, only the braces matter; everything else (including \binN data, which the
 			// tokenizer has already removed) is discarded. This needs O(1) memory regardless of how deeply the
 			// skipped content is nested.
@@ -505,10 +522,14 @@ namespace MimeKit.Text {
 			switch (kind) {
 			case RtfTokenKind.Text:
 				ignorableDestination = false;
-				ProcessText ();
+				ProcessText (replacePlaceholder);
 				return;
 			case RtfTokenKind.HexChar:
 				ignorableDestination = false;
+
+				if (replacePlaceholder && tokenizer.HexValue == 0x20)
+					return;
+
 				ProcessHexChar ();
 				return;
 			case RtfTokenKind.ControlSymbol:
@@ -864,7 +885,7 @@ namespace MimeKit.Text {
 			handler.OnHtmlTag (this, CrLf, 0, 2);
 		}
 
-		void ProcessText ()
+		void ProcessText (bool replacePlaceholder)
 		{
 			if (current.Destination == RtfDestination.Upr)
 				return;
@@ -878,6 +899,9 @@ namespace MimeKit.Text {
 				int n = Math.Min (unicodeSkipRemaining, endIndex - index);
 				unicodeSkipRemaining -= n;
 				index += n;
+			} else if (replacePlaceholder && index < endIndex && buffer[index] == ' ') {
+				// [MS-OXRTFEX] 2.2.3.4: the placeholder character after \objattph (see ProcessToken).
+				index++;
 			}
 
 			if (index == endIndex)
@@ -1381,6 +1405,17 @@ namespace MimeKit.Text {
 			case RtfKeyword.Zwnj: EmitChar ('\u200C'); break;
 			case RtfKeyword.Ltrmark: EmitChar ('\u200E'); break;
 			case RtfKeyword.Rtlmark: EmitChar ('\u200F'); break;
+			case RtfKeyword.Objattph:
+				// [MS-OXRTFEX] 2.2.3.4: "When the RTF reader is parsing RTF and it encounters an \objattph control
+				// word, it SHOULD add a new instance to the position array." Only placeholders that are actually
+				// rendered count: one in a skipped destination (such as an unknown {\*\dest ...} group or a \pict) is
+				// never seen here, and hidden (\v) or \htmlrtf-suppressed placeholders are not reported either.
+				if (current.Destination == RtfDestination.Normal && !IsContentSuppressed) {
+					Begin ();
+					handler.OnObjectPlaceholder (this);
+					objectPlaceholderPending = true;
+				}
+				break;
 			default:
 				// RTF 1.9.1, "Destinations": if a reader does not recognize a control word preceded by \*, it should
 				// skip the entire group. Unknown control words without \* are simply ignored.

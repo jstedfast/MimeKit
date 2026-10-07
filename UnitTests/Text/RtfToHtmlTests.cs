@@ -738,5 +738,92 @@ namespace UnitTests.Text {
 
 			Assert.That (Convert (rtf), Is.EqualTo ("<div><a href=\"http://a/\">a</a><a href=\"http://b/\">b</a><a href=\"http://a/\">c</a></div>" + NewLine));
 		}
+
+		static void WriteImage (int index, HtmlWriter writer)
+		{
+			writer.WriteEmptyElementTag ("img");
+			writer.WriteAttribute ("src", "cid:" + index);
+		}
+
+		static int CountObjectPlaceholders (string rtf)
+		{
+			using var reader = new StringReader (rtf);
+
+			return new RtfToHtml ().CountObjectPlaceholders (reader, CancellationToken.None);
+		}
+
+		[Test]
+		public void TestObjectPlaceholders ()
+		{
+			// [MS-OXRTFEX] 2.2.3.4: each \objattph marks the position of the next attachment. The placeholder
+			// character that follows it (written as \'20 or as a literal space) is replaced.
+			const string rtf = "{\\rtf1 A\\objattph\\'20 B{\\b\\objattph  C}}";
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteImage),
+				Is.EqualTo ("<div>A<img src=\"cid:0\"/> B<span style=\"font-weight: bold;\"><img src=\"cid:1\"/>C</span></div>" + NewLine));
+			Assert.That (Convert (rtf), Is.EqualTo ("<div>A B<span style=\"font-weight: bold;\">C</span></div>" + NewLine));
+			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (2));
+		}
+
+		[Test]
+		public void TestObjectPlaceholderStartsParagraph ()
+		{
+			Assert.That (Convert ("{\\rtf1\\objattph\\'20}", c => c.ObjectPlaceholderCallback = WriteImage),
+				Is.EqualTo ("<div><img src=\"cid:0\"/></div>" + NewLine));
+		}
+
+		[Test]
+		public void TestObjectPlaceholderOutputIsNotEncoded ()
+		{
+			// The callback writes HTML, not text.
+			var html = Convert ("{\\rtf1 A\\objattph\\'20}", c => c.ObjectPlaceholderCallback = (index, writer) => writer.WriteText ("<&>"));
+
+			Assert.That (html, Is.EqualTo ("<div>A&lt;&amp;&gt;</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestObjectPlaceholdersThatAreNotRendered ()
+		{
+			// Placeholders in skipped destinations or in hidden text are not part of the rendered document, so
+			// they are neither reported nor counted.
+			const string rtf = "{\\rtf1 A{\\*\\unknown \\objattph}{\\v \\objattph}{\\pict \\objattph}{\\fonttbl \\objattph}" +
+				"{\\*\\htmltag \\objattph}B\\objattph\\'20 C}";
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteImage), Is.EqualTo ("<div>AB<img src=\"cid:0\"/> C</div>" + NewLine));
+			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestObjectPlaceholdersInEncapsulatedHtml ()
+		{
+			// HTML that is extracted from the RTF refers to its attachments itself, so the placeholders in the
+			// (suppressed) RTF rendering are ignored and cannot be counted.
+			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <p>}A\\objattph\\'20 B{\\*\\htmltag </p>}}";
+			int calls = 0;
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = (index, writer) => calls++), Is.EqualTo ("<p>A B</p>"));
+			Assert.That (calls, Is.EqualTo (0));
+			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (-1));
+		}
+
+		[Test]
+		public void TestManyObjectPlaceholders ()
+		{
+			var builder = new StringBuilder ("{\\rtf1 ");
+			int last = -1, count = 0;
+
+			for (int i = 0; i < 100000; i++)
+				builder.Append ("\\objattph\\'20");
+			builder.Append ('}');
+
+			Convert (builder.ToString (), c => c.ObjectPlaceholderCallback = (index, writer) => {
+				Assert.That (index, Is.EqualTo (last + 1));
+				last = index;
+				count++;
+			});
+
+			Assert.That (count, Is.EqualTo (100000));
+			Assert.That (CountObjectPlaceholders (builder.ToString ()), Is.EqualTo (100000));
+		}
 	}
 }

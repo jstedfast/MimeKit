@@ -1182,8 +1182,22 @@ X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
 		[Test]
 		public void TestConversionOptionsClone ()
 		{
-			var options = new TnefConversionOptions { ConvertEmbeddedMessages = true, GenerateCalendar = false, MaxCalendarExceptions = 7, MaxCalendarExceptionsSize = 4096 };
+			TnefAttachmentPlaceholderCallback callback = (attachment, entity) => null;
+			var converter = new NullOleObjectConverter ();
+			var options = new TnefConversionOptions {
+				ConvertEmbeddedMessages = true,
+				GenerateCalendar = false,
+				MaxCalendarExceptions = 7,
+				MaxCalendarExceptionsSize = 4096,
+				OleObjectConverter = converter,
+				AttachmentPlaceholderCallback = callback
+			};
 			var clone = options.Clone ();
+
+			Assert.That (clone.OleObjectConverter, Is.SameAs (converter));
+			Assert.That (clone.AttachmentPlaceholderCallback, Is.SameAs (callback));
+			Assert.That (TnefConversionOptions.Default.OleObjectConverter, Is.Null);
+			Assert.That (TnefConversionOptions.Default.AttachmentPlaceholderCallback, Is.Null);
 
 			Assert.That (clone, Is.Not.SameAs (options));
 			Assert.That (clone.ConvertEmbeddedMessages, Is.True);
@@ -1192,6 +1206,14 @@ X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
 			Assert.That (clone.MaxCalendarExceptionsSize, Is.EqualTo (4096));
 			Assert.That (TnefConversionOptions.Default.ConvertEmbeddedMessages, Is.False);
 			Assert.That (TnefConversionOptions.Default.GenerateCalendar, Is.True);
+		}
+
+		sealed class NullOleObjectConverter : TnefOleObjectConverter
+		{
+			public override Stream? Convert (TnefAttachment attachment, CancellationToken cancellationToken = default)
+			{
+				return null;
+			}
 		}
 
 		#endregion

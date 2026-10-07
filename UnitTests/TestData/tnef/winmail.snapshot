@@ -5,19 +5,19 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=106 sha256=130d5e729a758c1d2a9f420191d911ed763f216ee42e8a1817d2a0c2cf672e29
-        text: 111111111111111111111111111111111111111111111\r\n \r\n222222222222222222222222222222\r\n \r\n3333333333333333333\r\n
+        content: encoding=Default length=104 sha256=92f7fa4c6b6a52804489fb6308e6e88ec4b50d78c8511d35fccc6e47f5e1180a
+        text: 111111111111111111111111111111111111111111111\r\n\r\n222222222222222222222222222222\r\n\r\n3333333333333333333\r\n
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=397 sha256=d2e9af0e77e55e94370c19f41f9dd8b5cc21dfc7764e627dfac405da6c047824
-        text: <html><body><div><span style="font-size: 10.5pt;">111111111111111111111111111111111111111111111</span></div>\r\n<div><span style="font-size: 10.5pt;">&#160;</span></div>\r\n<div><span style="font-size: 10.5pt;">222222222222222222222222222222</span></div>\r\n<div...
+        content: encoding=Default length=315 sha256=33446227a0d8c2d710887598a4f8a9898f6f932f418c20215ef776421a8fdd43
+        text: <html><body><div><span style="font-size: 10.5pt;">111111111111111111111111111111111111111111111</span></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 10.5pt;">222222222222222222222222222222</span></div>\r\n<div><br/></div>\r\n<div><span style="font-size...
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname="Picture (Device Independent Bitmap)"
       Content-Transfer-Encoding: base64
-      Content-Disposition: inline; filename=Untitled Attachment; size=29307; modification-date=2015-01-09T15:59:46Z
+      Content-Disposition: attachment; filename=Untitled Attachment; size=29307; modification-date=2015-01-09T15:59:46Z
       content: encoding=Default length=29184 sha256=385d3d54e32f7f720668a11eae7afac1e690b96327262f691a9f7f27bad32681
     MimePart application/octet-stream
       Content-Type: application/octet-stream;\tname="Picture (Device Independent Bitmap)"
       Content-Transfer-Encoding: base64
-      Content-Disposition: inline; filename=Untitled Attachment; size=68731; modification-date=2015-01-09T15:59:46Z
+      Content-Disposition: attachment; filename=Untitled Attachment; size=68731; modification-date=2015-01-09T15:59:46Z
       content: encoding=Default length=68608 sha256=f95862718f98d9aa32147e171e3f3f9b79256ad9570ed83ab32572b5aed7d8bc

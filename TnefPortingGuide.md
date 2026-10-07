@@ -97,10 +97,26 @@ callers:
   body references are grouped with the body in a `multipart/related` ([MS-OXCMAIL] 2.1.3.3.6). The
   other attachments follow in a `multipart/mixed`. A message with no body and one attachment is still
   wrapped in a `multipart/mixed`.
-- **Inline attachments.** Inline status follows the [MS-OXCMAIL] 2.1.3.4.1 "best body" rules. When the
-  best body is RTF, OLE attachments are inline. When there is an HTML body, attachments flagged
-  `afRenderedInBody` that the HTML references by `cid:` or `Content-Location` are inline. Inline
-  attachments get `Content-Disposition: inline`, so `MimeMessage.Attachments` does not list them.
+- **Inline attachments.** Inline status follows the [MS-OXCMAIL] 2.1.3.4.1 "best body" rules. When there
+  is an HTML body, attachments flagged `afRenderedInBody` that the HTML references by `cid:` or
+  `Content-Location` are inline. When the best body is RTF, the attachments are matched, in
+  `PidTagRenderingPosition` order, with the RTF's `\objattph` placeholders ([MS-OXRTFEX] 2.2.3.4,
+  [MS-OXCMAIL] 2.1.3.4.1.1). Hidden attachments and those with a rendering position of -1 are skipped.
+  Attachments whose content is an image a browser can display (PNG, JPEG, GIF, BMP or WebP) are given a
+  `Content-Id`, are referenced by an `<img src="cid:...">` in the generated HTML, and are inline. If the
+  numbers of placeholders and attachments differ, the images are appended to the end of the HTML body
+  instead. Other attachments, including OLE objects, are not inline. In 4.x, OLE attachments were always
+  inline. Inline attachments get `Content-Disposition: inline`, so `MimeMessage.Attachments` does not
+  list them.
+- **RTF attachment placeholders.** By default, the generated plain-text body has nothing at an attachment
+  placeholder, and the HTML body has an image or nothing. Set
+  `TnefConversionOptions.AttachmentPlaceholderCallback` to return text (for example, the attachment's
+  file name) to insert at the placeholder. The text is HTML-encoded in the HTML body, where it is used
+  only for attachments that are not displayed as images.
+- **OLE objects.** OLE attachments are kept as-is unless `TnefConversionOptions.OleObjectConverter` is
+  set. A `TnefOleObjectConverter` can render an OLE object as an image. The image replaces the OLE
+  attachment and is named after its display name ([MS-OXCMAIL] 2.1.3.4.4). If the converter returns
+  `null` or content that is not an image, the OLE attachment is kept.
 - **Embedded messages.** As in 4.x, embedded messages are added as `application/ms-tnef` `TnefPart`s by
   default. Set `TnefConversionOptions.ConvertEmbeddedMessages = true` to get `message/rfc822`
   `MessagePart`s instead.

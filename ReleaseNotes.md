@@ -146,6 +146,16 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     and plain text) as an alternative. When the best body is the compressed RTF body, the `text/plain`
     and `text/html` alternatives are generated from it using `RtfToText` and `RtfToHtml`, as recommended
     by [MS-OXCMAIL] 2.1.3.3.5. Otherwise an out-of-date RTF body is dropped.
+  * When the best body is RTF, `TnefMessage.ConvertToMime ()` matches the RTF `\objattph` attachment
+    placeholders with the attachments in `PidTagRenderingPosition` order ([MS-OXRTFEX] 2.2.3.4,
+    [MS-OXCMAIL] 2.1.3.4.1.1). Attachments that are browser-displayable images become inline,
+    `Content-Id`-referenced `<img>` elements in the generated HTML, grouped with the body in a
+    `multipart/related`. OLE attachments are no longer marked inline.
+  * Added `TnefConversionOptions.AttachmentPlaceholderCallback` (`TnefAttachmentPlaceholderCallback`),
+    which can supply text, such as the attachment's file name, to insert at each attachment placeholder.
+  * Added `TnefConversionOptions.OleObjectConverter` and the abstract `TnefOleObjectConverter` class
+    (with `Convert` and `ConvertAsync`), which can render OLE object attachments as images
+    ([MS-OXCMAIL] 2.1.3.4.4).
   * See the [TNEF Porting Guide](TnefPortingGuide.md) for help migrating from MimeKit 4.x.
 * Added `TnefWriter` and `TnefPropertyWriter` for producing [MS-OXTNEF] streams, including named
   properties, multi-valued properties, recipient tables, embedded messages and [MS-OXRTFCP]
@@ -179,7 +189,9 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   nesting uses constant memory, `\binN` data is skipped without buffering, and `RtfToHtml` only renders
   `http`, `https`, `mailto`, `ftp` and `tel` hyperlinks. `RtfToHtml.HtmlTagCallback` is applied to the
   extracted HTML, and `RtfToHtml.NoScriptHandling` controls how `<noscript>` elements in the extracted HTML
-  are handled (see `HtmlToHtml.NoScriptHandling` below).
+  are handled (see `HtmlToHtml.NoScriptHandling` below). `RtfToHtml.ObjectPlaceholderCallback` and
+  `RtfToText.ObjectPlaceholderCallback` let the caller write content at each `\objattph` attachment
+  placeholder.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).

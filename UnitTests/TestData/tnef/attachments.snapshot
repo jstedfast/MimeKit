@@ -2,21 +2,24 @@ message
   From: JGERLAND@SYNACOR.COM
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    MultipartAlternative multipart/alternative
-      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
-      TextPart text/plain
-        Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=118 sha256=9b9f18146599aad63a728541d677ef56fa8be004dc1d5c29ca98ef3aa602906e
-        text: Casdasdfasdfasd\r\nCasdasdfasdfasd\r\n\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n \r\nCasdasdfasdfasd\r\n\r\n \r\n
-      TextPart text/html
-        Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=658 sha256=d80813bc20dc2e07fbba4aed7459a96352bb2d7ddbf345e8a283bf6050eadf24
-        text: <html><body><div><span style="font-size: 10pt; color: #FF0000;">Casdasdfasdfasd</span></div>\r\n<div><span style="font-size: 10pt; color: #FF0000;">Casdasdfasdfasd</span></div>\r\n<div><br/></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 24pt;">Casdasdf...
-    MimePart application/octet-stream
-      Content-Type: application/octet-stream; name=zappa_av1.jpg
-      Content-Transfer-Encoding: base64
-      Content-Disposition: attachment; filename=zappa_av1.jpg; size=6548; modification-date=2003-04-07T10:35:38Z
-      content: encoding=Default length=2937 sha256=bea844f30e0fcc20fad419a0d11032a6465da93c1da185a1196949955994409a
+    MultipartRelated multipart/related
+      Content-Type: multipart/related; boundary="=-snapshot-boundary-1";\ttype="multipart/alternative"
+      MultipartAlternative multipart/alternative
+        Content-Type: multipart/alternative; boundary="=-snapshot-boundary-2"
+        TextPart text/plain
+          Content-Type: text/plain; charset=utf-8
+          content: encoding=Default length=116 sha256=45d379b0d3c0f2c6abaa3956d15348fa8e3e4494bb0eba44cfd88dc3ff474b8f
+          text: Casdasdfasdfasd\r\nCasdasdfasdfasd\r\n\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n\r\nCasdasdfasdfasd\r\n\r\n\r\n
+        TextPart text/html
+          Content-Type: text/html; charset=utf-8
+          content: encoding=Default length=703 sha256=f3733d016dbe76dc07deea89e56fd4550dacbdaa748c2a454de97e2173f7e842
+          text: <html><body><div><span style="font-size: 10pt; color: #FF0000;">Casdasdfasdfasd</span></div>\r\n<div><span style="font-size: 10pt; color: #FF0000;">Casdasdfasdfasd</span></div>\r\n<div><br/></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 24pt;">Casdasdf...
+      MimePart image/jpeg
+        Content-Type: image/jpeg; name=zappa_av1.jpg
+        Content-Transfer-Encoding: base64
+        Content-Disposition: inline; filename=zappa_av1.jpg; size=6548; modification-date=2003-04-07T10:35:38Z
+        Content-Id: <generated-0@snapshot>
+        content: encoding=Default length=2937 sha256=bea844f30e0fcc20fad419a0d11032a6465da93c1da185a1196949955994409a
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=bookmark.htm
       Content-Transfer-Encoding: base64

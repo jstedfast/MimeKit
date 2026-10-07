@@ -103,6 +103,7 @@ namespace MimeKit.Tnef {
 		readonly TnefMessage tnef;
 		readonly bool embedded;
 		HtmlReferences? htmlReferences;
+		HashSet<MimeEntity>? displayedImages;
 		MemoryBlockStream? decodedRtf;
 		TnefMessageBody? rtfBody;
 		BestBodyFormat? bestBody;
@@ -494,7 +495,231 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		MimeEntity? CreateBody (TnefCalendarBuilder? calendar)
+		// [MS-OXRTFEX] 2.2.3.4 ("Attachment and RTF Integration"): Outlook writes an \objattph placeholder into the RTF
+		// at the position of each attachment that is displayed in the body. The attachment list is every attachment
+		// whose PidTagAttachmentHidden is false or absent and whose PidTagRenderingPosition is not 0xFFFFFFFF.
+		// [MS-OXCMAIL] 2.1.3.4.1.1: that list is sorted by PidTagRenderingPosition, so that the attachment with the
+		// lowest position matches the first \objattph, the next lowest the second, and so on, and an <img> element is
+		// written at the position of each placeholder. Since an HTML body can only display images, an <img> is only
+		// written for attachments whose content is an image that browsers display; the placeholders of the other
+		// attachments produce nothing, unless the caller's AttachmentPlaceholderCallback provides text for them (which
+		// is also written to the text/plain body, for every attachment). Attachments that are displayed become inline
+		// parts of the multipart/related that holds the body (see ConvertProperties).
+		void PrepareRtfPlaceholders (RtfToHtml html, RtfToText text, MimeEntity?[] attachments)
+		{
+			var callback = options.AttachmentPlaceholderCallback;
+			var keys = new List<ulong> ();
+
+			for (int i = 0; i < tnef.Attachments.Count; i++) {
+				var properties = tnef.Attachments[i].Properties;
+
+				if (properties.GetBoolean (TnefPropertyTag.AttachmentHidden) == true)
+					continue;
+
+				var position = properties.GetInt32 (TnefPropertyTag.RenderingPosition);
+
+				if (position == -1)
+					continue;
+
+				// A stable sort by the (unsigned) rendering position. An attachment without one sorts last, which is
+				// unambiguous because 0xFFFFFFFF itself has been excluded.
+				ulong key = position.HasValue ? (uint) position.Value : uint.MaxValue;
+
+				keys.Add ((key << 32) | (uint) i);
+			}
+
+			keys.Sort ();
+
+			var images = new MimePart?[keys.Count];
+			string?[]? texts = null;
+			int imageCount = 0;
+
+			for (int k = 0; k < keys.Count; k++) {
+				int index = (int) (keys[k] & 0xFFFFFFFF);
+				var entity = attachments[index];
+
+				// Attachments that have no content (or that are written to the calendar) still occupy their position
+				// in the list, so that the remaining attachments stay matched with their placeholders.
+				if (entity is MimePart part && IsDisplayableImage (part)) {
+					images[k] = part;
+					imageCount++;
+				}
+
+				if (callback != null) {
+					var value = callback (tnef.Attachments[index], entity);
+
+					if (!string.IsNullOrEmpty (value)) {
+						texts ??= new string?[keys.Count];
+						texts[k] = value;
+					}
+				}
+			}
+
+			if (imageCount == 0 && texts is null)
+				return;
+
+			// The placeholders are matched with the attachment list only if their numbers are equal. Otherwise, the
+			// position list is emptied and the attachments SHOULD be appended to the end of the body.
+			int htmlCount = CountObjectPlaceholders (html.CountObjectPlaceholders);
+
+			if (texts != null) {
+				// Both converters report the same placeholders, unless RtfToHtml extracts encapsulated HTML.
+				int textCount = htmlCount != -1 ? htmlCount : CountObjectPlaceholders (text.CountObjectPlaceholders);
+
+				if (textCount == texts.Length) {
+					text.ObjectPlaceholderCallback = (index, writer) => {
+						if (texts[index] is string value)
+							writer.Write (value);
+					};
+				} else {
+					var footer = new StringBuilder ();
+
+					foreach (var value in texts) {
+						if (value != null)
+							footer.Append (Environment.NewLine).Append (value);
+					}
+
+					text.Footer = footer.Append (Environment.NewLine).ToString ();
+				}
+			}
+
+			// The RTF encapsulates HTML, which refers to its images by itself (see GetHtmlReferences).
+			if (htmlCount == -1)
+				return;
+
+			if (imageCount > 0)
+				PrepareDisplayedImages (images, attachments);
+
+			if (htmlCount == images.Length) {
+				html.ObjectPlaceholderCallback = (index, writer) => WritePlaceholder (writer, images[index], texts?[index]);
+			} else {
+				using (var footer = new StringWriter ()) {
+					using (var writer = new HtmlWriter (footer)) {
+						for (int k = 0; k < images.Length; k++) {
+							if (images[k] is null && texts?[k] is null)
+								continue;
+
+							writer.WriteStartTag (HtmlTagId.Div);
+							WritePlaceholder (writer, images[k], texts?[k]);
+							writer.WriteEndTag (HtmlTagId.Div);
+						}
+					}
+
+					html.FooterFormat = HeaderFooterFormat.Html;
+					html.Footer = footer.ToString ();
+				}
+			}
+		}
+
+		int CountObjectPlaceholders (Func<TextReader, CancellationToken, int> count)
+		{
+			var rtf = decodedRtf ??= DecodeRtf (rtfBody!, out _);
+
+			rtf.Position = 0;
+
+			using (var reader = new StreamReader (rtf, CharsetUtils.Latin1, false, BufferSize, true))
+				return count (reader, cancellationToken);
+		}
+
+		static void WritePlaceholder (HtmlWriter writer, MimePart? image, string? text)
+		{
+			if (image != null)
+				WriteImage (writer, image);
+			else if (text != null)
+				writer.WriteText (text);
+		}
+
+		// Whether an attachment can be displayed by an <img> element in the HTML body. The content must be an image in a
+		// format that browsers display (sniffed, not trusted from PidTagAttachMimeTag) and the declared type must not
+		// contradict that.
+		static bool IsDisplayableImage (MimePart part)
+		{
+			if (part is TextPart || part is TnefPart || part.Content?.Stream is not Stream content)
+				return false;
+
+			if (!part.ContentType.IsMimeType ("image", "*") && !part.ContentType.IsMimeType ("application", "octet-stream"))
+				return false;
+
+			return SniffImageSubtype (content, out _) != null;
+		}
+
+		// Makes the displayed images inline and gives each one a Content-Id that refers to it unambiguously.
+		void PrepareDisplayedImages (MimePart?[] images, MimeEntity?[] attachments)
+		{
+			var contentIds = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase);
+
+			foreach (var attachment in attachments) {
+				if (attachment?.ContentId is string id)
+					contentIds[id] = contentIds.TryGetValue (id, out var n) ? n + 1 : 1;
+			}
+
+			displayedImages = new HashSet<MimeEntity> ();
+
+			foreach (var image in images) {
+				if (image is null || !displayedImages.Add (image))
+					continue;
+
+				// Label the content with the type that it actually has (see IsDisplayableImage).
+				image.ContentType.MediaType = "image";
+				image.ContentType.MediaSubtype = SniffImageSubtype (image.Content!.Stream!, out _)!;
+
+				// RFC 2392: a cid: URL refers to the part with that Content-Id, so it must be unique within the message.
+				if (image.ContentId is null || contentIds[image.ContentId] > 1) {
+					string id;
+
+					do {
+						id = MimeUtils.GenerateMessageId ();
+					} while (contentIds.ContainsKey (id));
+
+					if (image.ContentId != null)
+						contentIds[image.ContentId]--;
+
+					image.ContentId = id;
+					contentIds[id] = 1;
+				}
+
+				// [MS-OXCMAIL] 2.1.3.4.1: an attachment that is rendered in the body is inline.
+				if (image.ContentDisposition is null)
+					image.ContentDisposition = new ContentDisposition (ContentDisposition.Inline);
+				else
+					image.ContentDisposition.Disposition = ContentDisposition.Inline;
+			}
+		}
+
+		static void WriteImage (HtmlWriter writer, MimePart image)
+		{
+			writer.WriteEmptyElementTag (HtmlTagId.Image);
+			writer.WriteAttribute (HtmlAttributeId.Src, "cid:" + EncodeContentIdUrl (image.ContentId!));
+
+			var name = image.FileName ?? image.ContentType.Name;
+
+			if (!string.IsNullOrEmpty (name))
+				writer.WriteAttribute (HtmlAttributeId.Alt, name!);
+		}
+
+		// RFC 2392 2: the cid: URL is the Content-Id without its angle brackets, with the characters that are not
+		// allowed in URLs %-encoded (RFC 3986 2.1). Everything except the RFC 3986 pchar characters (other than '%') is
+		// encoded, using UTF-8 for non-ASCII characters.
+		static string EncodeContentIdUrl (string contentId)
+		{
+			const string Hex = "0123456789ABCDEF";
+			var bytes = Encoding.UTF8.GetBytes (contentId);
+			var builder = new StringBuilder (bytes.Length);
+
+			foreach (var b in bytes) {
+				if ((b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9') || "-._~!$&'()*+,;=:@".IndexOf ((char) b) != -1) {
+					builder.Append ((char) b);
+				} else {
+					builder.Append ('%');
+					builder.Append (Hex[b >> 4]);
+					builder.Append (Hex[b & 0x0F]);
+				}
+			}
+
+			return builder.ToString ();
+		}
+
+		MimeEntity? CreateBody (TnefCalendarBuilder? calendar, MimeEntity?[] attachments)
 		{
 			var parts = new List<MimeEntity> (4);
 
@@ -512,8 +737,13 @@ namespace MimeKit.Tnef {
 					// alternatives SHOULD both be generated from PidTagRtfCompressed rather than copied from
 					// PidTagBody and PidTagHtml (which MAY be used instead, but are not guaranteed to be in sync with
 					// the RTF). For RTF that encapsulates HTML ([MS-OXRTFEX]), RtfToHtml recovers the original HTML.
-					parts.Add (CreateRtfBodyPart ("plain", new RtfToText ()));
-					parts.Add (CreateRtfBodyPart ("html", new RtfToHtml ()));
+					var html = new RtfToHtml ();
+					var text = new RtfToText ();
+
+					PrepareRtfPlaceholders (html, text, attachments);
+
+					parts.Add (CreateRtfBodyPart ("plain", text));
+					parts.Add (CreateRtfBodyPart ("html", html));
 				} else {
 					if (tnef.TextBody != null)
 						parts.Add (CreateBodyPart ("plain", tnef.TextBody));
@@ -803,9 +1033,12 @@ namespace MimeKit.Tnef {
 
 			switch (GetBestBody ()) {
 			case BestBodyFormat.Rtf:
-				// [MS-OXCMAIL] 2.1.3.4.1.1: with an RTF best body, all OLE attachments (afOle, [MS-OXCMSG] 2.2.2.9) are
-				// inline, and only OLE attachments are. afRenderedInBody is not consulted.
-				return attachment.Method == TnefAttachMethod.Ole;
+				// [MS-OXCMAIL] 2.1.3.4.1.1 says that, with an RTF best body, all OLE attachments (afOle, [MS-OXCMSG]
+				// 2.2.2.9) and only OLE attachments are inline, rendered in place of the RTF's \objattph placeholders.
+				// The generated HTML body can only display images, so this converter instead makes exactly the
+				// attachments that it displays inline (see PrepareRtfPlaceholders). The others keep the disposition
+				// that PidTagAttachmentDisposition gave them.
+				return false;
 			case BestBodyFormat.PlainText when tnef.HtmlBody != null:
 				// [MS-OXCMAIL] 2.1.3.4.1 says that, with a plain text best body (which includes plain text + HTML without
 				// RTF, [MS-OXBBODY] 2.1.3.1 row 10, and PidTagNativeBody = 1), writers SHOULD ignore afRenderedInBody,
@@ -1003,6 +1236,119 @@ namespace MimeKit.Tnef {
 			}
 		}
 
+		// The image formats that web browsers (and therefore HTML mail clients) display, identified by their signatures
+		// rather than by the attachment's (attacker-controlled) PidTagAttachMimeTag. Returns the image subtype and the
+		// file extension, or null if the content is not one of those formats.
+		static string? SniffImageSubtype (Stream content, out string extension)
+		{
+			var header = new byte[18];
+			int length = 0, nread;
+
+			content.Position = 0;
+
+			while (length < header.Length && (nread = content.Read (header, length, header.Length - length)) > 0)
+				length += nread;
+
+			content.Position = 0;
+
+			// PNG (ISO/IEC 15948, 5.2): 89 50 4E 47 0D 0A 1A 0A.
+			if (length >= 8 && header[0] == 0x89 && header[1] == 'P' && header[2] == 'N' && header[3] == 'G' &&
+				header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A) {
+				extension = ".png";
+				return "png";
+			}
+
+			// JPEG (ITU-T T.81, B.1.1.3): the SOI marker (FF D8) followed by another marker.
+			if (length >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF) {
+				extension = ".jpg";
+				return "jpeg";
+			}
+
+			// GIF: "GIF87a" or "GIF89a".
+			if (length >= 6 && header[0] == 'G' && header[1] == 'I' && header[2] == 'F' && header[3] == '8' &&
+				(header[4] == '7' || header[4] == '9') && header[5] == 'a') {
+				extension = ".gif";
+				return "gif";
+			}
+
+			// WebP: a RIFF container ("RIFF", 32-bit size) whose form type is "WEBP".
+			if (length >= 12 && header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F' &&
+				header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P') {
+				extension = ".webp";
+				return "webp";
+			}
+
+			// BMP: a BITMAPFILEHEADER ("BM" + 12 bytes) followed by a DIB header that starts with its own size. "BM" on
+			// its own is too weak a signature, so the DIB header size must also be one of the defined header sizes.
+			if (length >= 18 && header[0] == 'B' && header[1] == 'M') {
+				int size = header[14] | (header[15] << 8) | (header[16] << 16) | (header[17] << 24);
+
+				switch (size) {
+				case 12: case 40: case 52: case 56: case 64: case 108: case 124:
+					extension = ".bmp";
+					return "bmp";
+				}
+			}
+
+			extension = string.Empty;
+
+			return null;
+		}
+
+		// [MS-OXCMAIL] 2.1.3.4.4: an OLE attachment SHOULD be represented by an image. Rendering the object is up to the
+		// caller's TnefOleObjectConverter; returns null if it did not produce an image, in which case the OLE compound
+		// file is passed through as an ordinary attachment.
+		MimePart? CreateOleImageAttachment (TnefAttachment attachment, string label)
+		{
+			var stream = options.OleObjectConverter!.Convert (attachment, cancellationToken);
+
+			if (stream is null)
+				return null;
+
+			// Copy reads the stream from its current position (it need not be seekable) and disposes it.
+			var content = Copy (stream);
+			var subtype = SniffImageSubtype (content, out var extension);
+
+			if (subtype is null) {
+				content.Dispose ();
+				return null;
+			}
+
+			var part = new MimePart ("image", subtype) {
+				Content = new MimeContent (content),
+				ContentTransferEncoding = ContentEncoding.Base64
+			};
+
+			try {
+				ApplyAttachmentProperties (part, attachment, label);
+
+				// [MS-OXCMAIL] 2.1.3.4.4: the description string is PidTagDisplayName, made to end with the image's
+				// extension (the spec, which only produces JPEG, says ".jpg"). It SHOULD be used as the Content-Type name
+				// parameter, the Content-Description and the Content-Disposition filename parameter, and the size
+				// parameter SHOULD NOT be generated (it would describe the OLE object rather than the image).
+				var description = attachment.Properties.GetString (TnefPropertyTag.DisplayNameW);
+
+				if (string.IsNullOrWhiteSpace (description))
+					description = attachment.FileName;
+
+				if (string.IsNullOrWhiteSpace (description))
+					description = "image";
+
+				if (!description!.EndsWith (extension, StringComparison.OrdinalIgnoreCase))
+					description += extension;
+
+				part.FileName = description;
+				part.ContentType.Name = description;
+				part.ContentDescription = description;
+				part.ContentDisposition!.Size = null;
+			} catch {
+				part.Dispose ();
+				throw;
+			}
+
+			return part;
+		}
+
 		MimeEntity? CreateAttachment (TnefAttachment attachment, int index)
 		{
 			var label = GetAttachmentLabel (attachment, index);
@@ -1020,10 +1366,18 @@ namespace MimeKit.Tnef {
 			if (method == TnefAttachMethod.EmbeddedMessage)
 				AddLoss (TnefConversionLossKind.InvalidEmbeddedMessage, $"Attachment {label} is not a valid embedded message and was converted to an ordinary attachment.");
 
-			// afOle attachments ([MS-OXCMSG] 2.2.2.9) are treated as ordinary attachments, using the PidTagAttachDataObject
-			// storage bytes as the content. [MS-OXCMAIL] 2.1.3.4.4 says that writers SHOULD emit the rendering
-			// (PidTagAttachRendering) as image/jpeg instead. This converter does not render OLE objects, so it passes the
-			// object through unchanged rather than label it with a content type it does not have.
+			// afOle attachments ([MS-OXCMSG] 2.2.2.9) contain an OLE compound file (PidTagAttachDataObject). [MS-OXCMAIL]
+			// 2.1.3.4.4 says that writers SHOULD emit a rendering of the object as an image instead. Rendering an OLE
+			// object needs the application that created it, so that is left to the caller's OleObjectConverter. Without
+			// one (or if it cannot render the object), the object is passed through unchanged rather than being labeled
+			// with a content type that it does not have.
+			if (method == TnefAttachMethod.Ole && options.OleObjectConverter != null) {
+				var image = CreateOleImageAttachment (attachment, label);
+
+				if (image != null)
+					return image;
+			}
+
 			var mimeType = attachment.MimeType;
 
 			// [MS-OXCMAIL] 2.1.3.4.2.2: the Content-Type comes from PidTagAttachMimeTag ([MS-OXCMSG] 2.2.2.29).
@@ -1394,6 +1748,7 @@ namespace MimeKit.Tnef {
 		MimeMessage ConvertProperties ()
 		{
 			var message = new MimeMessage (ParserOptions.Default.Clone ());
+			var entities = new MimeEntity?[tnef.Attachments.Count];
 			var attachments = new List<MimeEntity> ();
 			MimeEntity? body = null;
 
@@ -1434,26 +1789,36 @@ namespace MimeKit.Tnef {
 
 				var calendar = CreateCalendar ();
 
-				body = CreateBody (calendar);
-				MultipartRelated? related = null;
-
-				// [MS-OXCMAIL] 2.1.3.4: attachments are added in attachment-table order. [MS-OXCMAIL] 2.1.3.3 requires the
-				// body to be the first entity of the multipart/mixed.
-				for (int i = 0; i < tnef.Attachments.Count; i++) {
+				// [MS-OXCMAIL] 2.1.3.4: each attachment becomes one MIME entity. They are created before the body,
+				// because an HTML body generated from RTF refers to them (see PrepareRtfPlaceholders).
+				for (int i = 0; i < entities.Length; i++) {
 					// The exceptions to a recurring appointment are part of the text/calendar part.
 					if (calendar != null && calendar.ExceptionAttachments.Contains (tnef.Attachments[i]))
 						continue;
 
-					var attachment = CreateAttachment (tnef.Attachments[i], i);
+					entities[i] = CreateAttachment (tnef.Attachments[i], i);
+				}
+
+				body = CreateBody (calendar, entities);
+				bool rtf = UseRtfBody ();
+				MultipartRelated? related = null;
+
+				// [MS-OXCMAIL] 2.1.3.4: attachments are added in attachment-table order. [MS-OXCMAIL] 2.1.3.3 requires the
+				// body to be the first entity of the multipart/mixed.
+				for (int i = 0; i < entities.Length; i++) {
+					var attachment = entities[i];
 
 					if (attachment is null)
 						continue;
 
+					entities[i] = null;
+
 					// [MS-OXCMAIL] 2.1.3.3.6: the inline attachments that the HTML body refers to are children of a
 					// multipart/related whose first child is the body; every other attachment is a peer of the
-					// multipart/related. With an RTF best body, the inline (OLE) attachments are not referenced by
-					// Content-Id or Content-Location, so they stay in the multipart/mixed.
-					if (body != null && GetBestBody () != BestBodyFormat.Rtf && IsInline (tnef.Attachments[i])) {
+					// multipart/related. An HTML body generated from RTF refers to the images that it displays.
+					bool inline = rtf ? displayedImages != null && displayedImages.Contains (attachment) : IsInline (tnef.Attachments[i]);
+
+					if (body != null && inline) {
 						if (related is null) {
 							related = new MultipartRelated ();
 							related.Root = body;
@@ -1484,6 +1849,9 @@ namespace MimeKit.Tnef {
 
 				body = null;
 			} catch {
+				foreach (var entity in entities)
+					entity?.Dispose ();
+
 				foreach (var attachment in attachments)
 					attachment.Dispose ();
 

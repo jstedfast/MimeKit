@@ -394,5 +394,92 @@ namespace UnitTests.Text {
 			// font 99999 was dropped so its text is decoded using the document code page, while font 1 is still known
 			Assert.That (Convert (builder.ToString (), c => c.MaxFontTableEntries = 10), Is.EqualTo ("ÏП"));
 		}
+
+		static void WriteIndex (int index, TextWriter writer)
+		{
+			writer.Write ('[');
+			writer.Write (index);
+			writer.Write (']');
+		}
+
+		static int CountObjectPlaceholders (string rtf)
+		{
+			using var reader = new StringReader (rtf);
+
+			return new RtfToText ().CountObjectPlaceholders (reader, CancellationToken.None);
+		}
+
+		[Test]
+		public void TestObjectPlaceholders ()
+		{
+			// [MS-OXRTFEX] 2.2.3.4: each \objattph marks the position of the next attachment. The placeholder
+			// character that follows it (written as \'20 or as a literal space) is replaced.
+			const string rtf = "{\\rtf1 A\\objattph\\'20 B\\objattph  C}";
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("A[0] B[1]C"));
+			Assert.That (Convert (rtf), Is.EqualTo ("A BC"));
+			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (2));
+		}
+
+		[TestCase ("{\\rtf1 A\\objattph\\'41B}", "A[0]AB")]
+		[TestCase ("{\\rtf1 A\\objattph xB}", "A[0]xB")]
+		[TestCase ("{\\rtf1 A\\objattph\\par B}", "A[0]\r\nB")]
+		[TestCase ("{\\rtf1 A\\objattph}", "A[0]")]
+		public void TestObjectPlaceholderCharacterIsOptional (string rtf, string expected)
+		{
+			// Only a space that immediately follows \objattph is consumed; other content is never lost.
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo (expected.Replace ("\r\n", NewLine)));
+		}
+
+		[Test]
+		public void TestObjectPlaceholdersThatAreNotRendered ()
+		{
+			// Placeholders in skipped destinations or in hidden text are not part of the rendered document, so
+			// they are neither reported nor counted.
+			const string rtf = "{\\rtf1 A{\\*\\unknown \\objattph}{\\v \\objattph}{\\pict \\objattph}{\\fonttbl \\objattph}" +
+				"{\\*\\htmltag \\objattph}B\\objattph\\'20 C}";
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("AB[0] C"));
+			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestObjectPlaceholderInTableCell ()
+		{
+			const string rtf = "{\\rtf1\\trowd\\cellx1000\\cellx2000\\pard\\intbl a\\cell\\objattph\\'20\\cell\\row}";
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("a\t[0]" + NewLine));
+		}
+
+		[Test]
+		public void TestObjectPlaceholdersInEncapsulatedHtml ()
+		{
+			// RtfToText always renders the RTF, so the placeholders are reported even if the RTF encapsulates HTML.
+			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <p>}A\\objattph\\'20 B{\\*\\htmltag </p>}}";
+
+			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("A[0] B"));
+			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestManyObjectPlaceholders ()
+		{
+			var builder = new StringBuilder ("{\\rtf1 ");
+			int last = -1, count = 0;
+
+			for (int i = 0; i < 100000; i++)
+				builder.Append ("\\objattph\\'20");
+			builder.Append ('}');
+
+			var text = Convert (builder.ToString (), c => c.ObjectPlaceholderCallback = (index, writer) => {
+				Assert.That (index, Is.EqualTo (last + 1));
+				last = index;
+				count++;
+			});
+
+			Assert.That (text, Is.Empty);
+			Assert.That (count, Is.EqualTo (100000));
+			Assert.That (CountObjectPlaceholders (builder.ToString ()), Is.EqualTo (100000));
+		}
 	}
 }

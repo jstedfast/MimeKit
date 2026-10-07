@@ -7,12 +7,12 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=9 sha256=9b09f4259415bacf791f3e00c4a4619f530c75c4b9a2268b69be60a1f49ac84e
-        text: asdf   \r\n
+        content: encoding=Default length=6 sha256=60958ccac3e5dfa6ae74aa4f8d6206fd33a5fc9546b8abaad65e3f1c4023c5bf
+        text: asdf\r\n
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=89 sha256=066882ab93ff6bfb035c1dc2ec8516632f3bb6fc3bd3451671783d40bc86c801
-        text: <html><body><div><span style="font-size: 10pt;">asdf &#160; </span></div>\r\n</body></html>
+        content: encoding=Default length=81 sha256=023cd39d37e22ea750af132575f89ad4b9d3193727c2037210aa75617cd9f237
+        text: <html><body><div><span style="font-size: 10pt;">asdf</span></div>\r\n</body></html>
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=AUTOEXEC.BAT
       Content-Transfer-Encoding: base64

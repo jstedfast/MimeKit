@@ -26,6 +26,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 
 using MimeKit.Utils;
 
@@ -39,7 +40,8 @@ namespace MimeKit.Text {
 	/// that affects the visible text of a document: character sets and code pages, Unicode escapes,
 	/// paragraphs, line breaks, tabs, tables and special characters. Destinations that do not contain
 	/// document text (such as pictures, embedded objects, style sheets and document properties) are skipped,
-	/// as is hidden text.</para>
+	/// as is hidden text. The attachment placeholders (<c>\objattph</c>) that Microsoft Outlook and Exchange write are
+	/// reported to the <see cref="ObjectPlaceholderCallback"/>.</para>
 	/// <para>The converter is designed to be resilient against hostile input. Its memory usage does not depend
 	/// on the size of the input: font table, color table and group nesting resources are bounded by
 	/// <see cref="MaxFontTableEntries"/>, <see cref="MaxColorTableEntries"/> and <see cref="MaxGroupDepth"/>,
@@ -143,6 +145,21 @@ namespace MimeKit.Text {
 			set { maxGroupDepth = ValidateLimit (value); }
 		}
 
+		/// <summary>
+		/// Get or set the <see cref="RtfTextObjectPlaceholderCallback"/> method to use for rendering attachment placeholders.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the <see cref="RtfTextObjectPlaceholderCallback"/> method to use for rendering the
+		/// attachment placeholders (<c>\objattph</c>) described by [MS-OXRTFEX] section 2.2.3.4.</para>
+		/// <para>The callback is invoked once for each placeholder that is rendered, in document order. Placeholders
+		/// that are hidden or that are within a destination that is skipped are not rendered.</para>
+		/// <para>When the value is <see langword="null" />, the placeholders are not rendered.</para>
+		/// </remarks>
+		/// <value>The object placeholder callback.</value>
+		public RtfTextObjectPlaceholderCallback? ObjectPlaceholderCallback {
+			get; set;
+		}
+
 		internal static int ValidateLimit (int value)
 		{
 			if (value < 1)
@@ -153,11 +170,14 @@ namespace MimeKit.Text {
 
 		sealed class TextHandler : RtfContentHandler
 		{
+			readonly RtfTextObjectPlaceholderCallback? placeholderCallback;
 			readonly TextWriter writer;
 			bool pendingCellSeparator;
+			int placeholderIndex;
 
-			public TextHandler (TextWriter writer)
+			public TextHandler (TextWriter writer, RtfTextObjectPlaceholderCallback? placeholderCallback)
 			{
+				this.placeholderCallback = placeholderCallback;
 				this.writer = writer;
 			}
 
@@ -201,6 +221,44 @@ namespace MimeKit.Text {
 				pendingCellSeparator = false;
 				writer.WriteLine ();
 			}
+
+			public override void OnObjectPlaceholder (RtfInterpreter rtf)
+			{
+				// The index is advanced even if the callback is not invoked so that the placeholders stay in lock
+				// step with the attachment list ([MS-OXRTFEX] 2.2.3.4).
+				int index = placeholderIndex;
+
+				if (placeholderIndex < int.MaxValue)
+					placeholderIndex++;
+
+				if (placeholderCallback is null)
+					return;
+
+				FlushCellSeparator ();
+				placeholderCallback (index, writer);
+			}
+		}
+
+		/// <summary>
+		/// Counts the attachment placeholders that <see cref="Convert(TextReader, TextWriter)"/> would report to the
+		/// <see cref="ObjectPlaceholderCallback"/>.
+		/// </summary>
+		/// <remarks>
+		/// [MS-OXRTFEX] 2.2.3.4: the placeholders are matched with the attachments only if their numbers are equal,
+		/// which has to be known before the document is rendered.
+		/// </remarks>
+		/// <returns>The number of placeholders (saturating at <see cref="int.MaxValue"/>).</returns>
+		internal int CountObjectPlaceholders (TextReader reader, CancellationToken cancellationToken)
+		{
+			var counter = new RtfToHtml.PlaceholderCounter ();
+			var interpreter = new RtfInterpreter (reader, counter, MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
+				ExtractHtml = false
+			};
+
+			while (interpreter.Step ())
+				cancellationToken.ThrowIfCancellationRequested ();
+
+			return counter.Count;
 		}
 
 		/// <summary>
@@ -232,7 +290,7 @@ namespace MimeKit.Text {
 			// Encapsulated HTML ([MS-OXRTFEX]) is deliberately not extracted: the RTF portion of such a document
 			// (including the \htmlrtf blocks) is a faithful rendering of the HTML, and is much better suited to
 			// producing plain text than the HTML markup would be.
-			var interpreter = new RtfInterpreter (reader, new TextHandler (writer), MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
+			var interpreter = new RtfInterpreter (reader, new TextHandler (writer, ObjectPlaceholderCallback), MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
 				ExtractHtml = false
 			};
 

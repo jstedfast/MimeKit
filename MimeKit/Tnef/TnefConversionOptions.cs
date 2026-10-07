@@ -169,6 +169,45 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
+		/// Get or set the method used to render OLE object attachments as images.
+		/// </summary>
+		/// <remarks>
+		/// <para>[MS-OXCMAIL] section 2.1.3.4.4 recommends that OLE object attachments (whose content is an OLE compound
+		/// file that few applications other than Microsoft Outlook can display) be converted to images. Rendering an
+		/// OLE object requires the application that created it, so MimeKit cannot do this by itself. When this
+		/// property is set, the converter is used for each OLE object attachment, and the image that it returns
+		/// replaces the content of the attachment. See <see cref="TnefOleObjectConverter"/> for details.</para>
+		/// <para>The converter is not called when the message is converted using its
+		/// <see cref="TnefPropertyId.MimeSkeleton"/>.</para>
+		/// </remarks>
+		/// <value>The OLE object converter, or <see langword="null"/>. The default is <see langword="null"/>.</value>
+		public TnefOleObjectConverter? OleObjectConverter {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the method used to generate the text for attachment placeholders in an RTF message body.
+		/// </summary>
+		/// <remarks>
+		/// <para>Microsoft Outlook and Exchange mark the position at which each attachment is displayed in an RTF message
+		/// body with a placeholder, as described by [MS-OXRTFEX] section 2.2.3.4. When the text/plain and text/html
+		/// bodies are generated from the RTF body, the attachments that are images that web browsers can display are
+		/// rendered as <c>&lt;img&gt;</c> elements in the text/html body. Other placeholders produce nothing unless this
+		/// callback is set.</para>
+		/// <para>When set, the callback is invoked once for each attachment that has a placeholder, and the text that
+		/// it returns (if any) is written at that attachment's placeholder in the text/plain body and, unless the
+		/// attachment is rendered as an image, in the text/html body (where it is HTML-encoded). If the number of
+		/// placeholders does not match the number of attachments, the text is appended to the end of the body.</para>
+		/// <para>The callback is not invoked when the message is converted using its
+		/// <see cref="TnefPropertyId.MimeSkeleton"/>, or when the text/html body is extracted from HTML that is
+		/// encapsulated within the RTF body (in which case only the text/plain body uses the text).</para>
+		/// </remarks>
+		/// <value>The attachment placeholder callback, or <see langword="null"/>. The default is <see langword="null"/>.</value>
+		public TnefAttachmentPlaceholderCallback? AttachmentPlaceholderCallback {
+			get; set;
+		}
+
+		/// <summary>
 		/// Clone the options.
 		/// </summary>
 		/// <remarks>
@@ -181,7 +220,9 @@ namespace MimeKit.Tnef {
 				ConvertEmbeddedMessages = ConvertEmbeddedMessages,
 				GenerateCalendar = GenerateCalendar,
 				MaxCalendarExceptions = MaxCalendarExceptions,
-				MaxCalendarExceptionsSize = MaxCalendarExceptionsSize
+				MaxCalendarExceptionsSize = MaxCalendarExceptionsSize,
+				OleObjectConverter = OleObjectConverter,
+				AttachmentPlaceholderCallback = AttachmentPlaceholderCallback
 			};
 		}
 	}

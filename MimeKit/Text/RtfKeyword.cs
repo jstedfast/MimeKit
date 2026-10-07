@@ -124,6 +124,9 @@ namespace MimeKit.Text {
 		Zwnj,
 		Ltrmark,
 		Rtlmark,
+
+		// Attachment placeholders ([MS-OXRTFEX] 2.2.3.4)
+		Objattph,
 	}
 
 	/// <summary>
@@ -315,6 +318,9 @@ namespace MimeKit.Text {
 				new Entry ("zwnj", RtfKeyword.Zwnj),
 				new Entry ("ltrmark", RtfKeyword.Ltrmark),
 				new Entry ("rtlmark", RtfKeyword.Rtlmark),
+
+				// [MS-OXRTFEX] 2.2.3.4, "Attachment and RTF Integration": marks where an attachment is rendered.
+				new Entry ("objattph", RtfKeyword.Objattph),
 			};
 
 			// Note: ordinal order matches the order used by MemoryExtensions.SequenceCompareTo in Lookup.

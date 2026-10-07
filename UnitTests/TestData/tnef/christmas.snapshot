@@ -3,21 +3,24 @@ message
   msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=jestedfa@microsoft.com; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2018-12-15T15:07:06.8221370Z; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure Information Protection; MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic; Sensitivity=General
   Multipart multipart/mixed
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
-    MultipartAlternative multipart/alternative
-      Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
-      TextPart text/plain
-        Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=1871 sha256=8095e615b329bd6c21c125d872bf1da53aa455a6b09ff73983d32a9039a50657
-        text:  \r\n\r\nYou've made this a Christmas to remember\r\nSpringtime feeling's in the middle of December\r\nStrangers meet and willingly surrender\r\nOh! What a Christmas to remember\r\nAlmost went to Aspen but something told me no\r\nI considered Mammoth but there wasn't en...
-      TextPart text/html
-        Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=4236 sha256=5f0c71f9bc3698fb11b3fbdd3462af6ce869063ae49d7fdfef712869c76e7fcd
-        text: <html><body><div><span style="color: #FFFFFF;">&#160;</span></div>\r\n<div><br/></div>\r\n<div><span style="color: #FFFFFF;">You&#39;ve made this a Christmas to remember</span></div>\r\n<div><span style="color: #FFFFFF;">Springtime feeling&#39;s in the middle of...
-    MimePart application/octet-stream
-      Content-Type: application/octet-stream;\tname=kitten-playing-with-a-christmas-tree.jpg
-      Content-Transfer-Encoding: base64
-      Content-Disposition: attachment; filename=kitten-playing-with-a-christmas-tree.jpg; size=378843; modification-date=2018-12-15T10:03:32Z
-      content: encoding=Default length=375081 sha256=f79d79bf20d19d17f4bbc92bc59485be362df93deaa92b71cc0d490d3b7ac935
+    MultipartRelated multipart/related
+      Content-Type: multipart/related; boundary="=-snapshot-boundary-1";\ttype="multipart/alternative"
+      MultipartAlternative multipart/alternative
+        Content-Type: multipart/alternative; boundary="=-snapshot-boundary-2"
+        TextPart text/plain
+          Content-Type: text/plain; charset=utf-8
+          content: encoding=Default length=1868 sha256=d50b3ab8f7bf0db219ab0800074d9568f3cbd69bafbdf4e423b77d22880db7d6
+          text: \r\n\r\nYou've made this a Christmas to remember\r\nSpringtime feeling's in the middle of December\r\nStrangers meet and willingly surrender\r\nOh! What a Christmas to remember\r\nAlmost went to Aspen but something told me no\r\nI considered Mammoth but there wasn't eno...
+        TextPart text/html
+          Content-Type: text/html; charset=utf-8
+          content: encoding=Default length=4307 sha256=8896a581730d92e7489448e01d752db5764da751cf396bb1e074d4beef981833
+          text: <html><body><div><span style="color: #FFFFFF;"><img src="cid:generated-0@snapshot" alt="kitten-playing-with-a-christmas-tree.jpg"/></span></div>\r\n<div><br/></div>\r\n<div><span style="color: #FFFFFF;">You&#39;ve made this a Christmas to remember</span></div>...
+      MimePart image/jpeg
+        Content-Type: image/jpeg; name=kitten-playing-with-a-christmas-tree.jpg
+        Content-Transfer-Encoding: base64
+        Content-Disposition: inline; filename=kitten-playing-with-a-christmas-tree.jpg; size=378843; modification-date=2018-12-15T10:03:32Z
+        Content-Id: <generated-0@snapshot>
+        content: encoding=Default length=375081 sha256=f79d79bf20d19d17f4bbc92bc59485be362df93deaa92b71cc0d490d3b7ac935
     TnefPart application/ms-tnef
       Content-Type: application/ms-tnef; name="Build a train table"
       Content-Transfer-Encoding: base64

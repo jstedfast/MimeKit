@@ -551,29 +551,39 @@ namespace UnitTests.Tnef {
 			Assert.That (extracted.Body, Is.InstanceOf<Multipart> ());
 			var multipart = (Multipart) extracted.Body;
 
-			Assert.That (multipart.Count, Is.EqualTo (4));
+			Assert.That (multipart.Count, Is.EqualTo (3));
 
-			Assert.That (multipart[0], Is.InstanceOf<MultipartAlternative> ());
-			Assert.That (multipart[1], Is.InstanceOf<MimePart> ());
+			// [MS-OXCMAIL] 2.1.3.4.1.1: the kitten picture is referenced by an RTF \objattph placeholder, so it is
+			// displayed inline in the HTML body and grouped with it in a multipart/related.
+			Assert.That (multipart[0], Is.InstanceOf<MultipartRelated> ());
+			Assert.That (multipart[1], Is.InstanceOf<TnefPart> ());
 			Assert.That (multipart[2], Is.InstanceOf<TnefPart> ());
-			Assert.That (multipart[3], Is.InstanceOf<TnefPart> ());
+
+			var related = (MultipartRelated) multipart[0];
+			Assert.That (related.Count, Is.EqualTo (2));
+			Assert.That (related[0], Is.InstanceOf<MultipartAlternative> ());
+			Assert.That (related[1], Is.InstanceOf<MimePart> ());
 
 			// [MS-OXCMAIL] 2.1.3.3.5: the RTF best body is converted into text/plain and text/html (never text/rtf).
-			var alternative = (MultipartAlternative) multipart[0];
+			var alternative = (MultipartAlternative) related[0];
 			Assert.That (alternative.Count, Is.EqualTo (2));
 			Assert.That (alternative[0].ContentType.MimeType, Is.EqualTo ("text/plain"), "MimeType");
 			Assert.That (alternative[1].ContentType.MimeType, Is.EqualTo ("text/html"), "MimeType");
 			Assert.That (alternative.TextBody, Is.Not.Empty, "TextBody");
 			Assert.That (alternative.HtmlBody, Does.StartWith ("<html>"), "HtmlBody");
 
-			var kitten = (MimePart) multipart[1];
-			Assert.That (kitten.ContentType.MimeType, Is.EqualTo ("application/octet-stream"), "MimeType");
+			// The attachment has no MIME tag, but its content sniffs as a JPEG, so it is labelled with its actual type.
+			var kitten = (MimePart) related[1];
+			Assert.That (kitten.ContentType.MimeType, Is.EqualTo ("image/jpeg"), "MimeType");
 			Assert.That (kitten.FileName, Is.EqualTo ("kitten-playing-with-a-christmas-tree.jpg"), "FileName");
+			Assert.That (kitten.ContentDisposition.Disposition, Is.EqualTo ("inline"), "Disposition");
+			Assert.That (kitten.ContentId, Is.Not.Null.And.Not.Empty, "ContentId");
+			Assert.That (alternative.HtmlBody, Does.Contain ("<img src=\"cid:" + kitten.ContentId + "\""), "img");
 
 			// The task and the appointment are embedded messages. Each has both a legacy attAttachData attribute and a
 			// PidTagAttachDataObject property; they are a single attachment, which is kept as an application/ms-tnef part
 			// because ConvertEmbeddedMessages is false by default.
-			var task = (MimePart) multipart[2];
+			var task = (MimePart) multipart[1];
 			Assert.That (task.ContentType.MimeType, Is.EqualTo ("application/ms-tnef"), "MimeType");
 			Assert.That (task.ContentType.Name, Is.EqualTo ("Build a train table"), "Name");
 			Assert.That (task.ContentDisposition.Disposition, Is.EqualTo ("attachment"), "Disposition");
@@ -581,7 +591,7 @@ namespace UnitTests.Tnef {
 			Assert.That (task.ContentDisposition.ModificationDate, Is.EqualTo (mtime), "ModificationDate");
 			Assert.That (task.ContentDisposition.Size, Is.EqualTo (9217), "Size");
 
-			var appointment = (MimePart) multipart[3];
+			var appointment = (MimePart) multipart[2];
 			Assert.That (appointment.ContentType.MimeType, Is.EqualTo ("application/ms-tnef"), "MimeType");
 			Assert.That (appointment.ContentType.Name, Is.EqualTo ("Christmas Celebration!"), "Name");
 			Assert.That (appointment.ContentDisposition.Disposition, Is.EqualTo ("attachment"), "Disposition");

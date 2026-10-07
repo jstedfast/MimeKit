@@ -9,11 +9,11 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=961 sha256=637554fc71c4e0eea859e06e394bdf639c9c2bff7574f1b18a9774deccd0662f
+        content: encoding=Default length=957 sha256=318795a6db0a738742b464617ad2f0f270fd69db879cc1bd66b09f505baa96b9
         text: Hi Stephen,\r\n\r\nSue has encountered a Date problem while running our' New Books List'.  Can you please help us.  Apparently it is having a hernia with the ADD_DT which I would have presumed was fixed with your patches.\r\n\r\nAttached is the PRC file : generpts...
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=1605 sha256=a6bd33874c56756b3b45cd705c80979a4b8d59f1bf50f9a621c9ec135345a94c
+        content: encoding=Default length=1591 sha256=281eaa0b64a348acf4ee1080cd1034cd57b0348c977ff137d9e835f8bb1b2faf
         text: <html><body><div><span style="font-size: 10pt;">Hi Stephen,</span></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 10pt;">Sue has encountered a Date problem while running our&#39; New Books List&#39;. &#160;Can you please help us. &#160;Apparently it...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=generpts.src
