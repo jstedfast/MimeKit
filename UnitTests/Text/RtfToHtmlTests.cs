@@ -128,6 +128,27 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestManyDistinctCharacterFormats ()
+		{
+			// More distinct formats than the CSS cache holds, followed by formats that were evicted and
+			// re-used, must still each produce the correct style.
+			var rtf = new StringBuilder ("{\\rtf1\\ansi\\pard ");
+			var expected = new StringBuilder ("<div>");
+
+			for (int round = 0; round < 2; round++) {
+				for (int size = 26; size < 26 + 600; size += 2) {
+					rtf.Append ("{\\fs").Append (size).Append (" x}");
+					expected.Append ("<span style=\"font-size: ").Append (size / 2).Append ("pt;\">x</span>");
+				}
+			}
+
+			rtf.Append ("\\par}");
+			expected.Append ("</div>").Append (NewLine);
+
+			Assert.That (Convert (rtf.ToString ()), Is.EqualTo (expected.ToString ()));
+		}
+
+		[Test]
 		public void TestCombinedFormatting ()
 		{
 			Assert.That (Convert ("{\\rtf1{\\b\\i\\ul\\strike x}}"), Is.EqualTo ("<div><span style=\"font-weight: bold; font-style: italic; text-decoration: underline line-through;\">x</span></div>" + NewLine));

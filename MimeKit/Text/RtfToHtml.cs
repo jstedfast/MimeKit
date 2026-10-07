@@ -510,6 +510,12 @@ namespace MimeKit.Text {
 
 			readonly List<RtfToHtmlTagContext> stack = new List<RtfToHtmlTagContext> ();
 			readonly StringBuilder css = new StringBuilder ();
+
+			// Documents typically reuse a small number of distinct character formats, so the CSS for each is
+			// cached rather than rebuilt for every span. The cache is bounded (and simply cleared when full) so
+			// that a document with many distinct formats cannot make it grow without limit.
+			const int MaxCssCacheEntries = 256;
+			readonly Dictionary<SpanFormat, string> cssCache = new Dictionary<SpanFormat, string> ();
 			readonly HtmlTagCallback callback;
 			readonly RtfToHtml converter;
 			readonly TextWriter output;
@@ -716,9 +722,22 @@ namespace MimeKit.Text {
 				}
 
 				if (!format.IsDefault && IndexOf (HtmlTagId.Span) == -1) {
-					Open (new RtfToHtmlTagContext (HtmlTagId.Span, new HtmlAttribute (HtmlAttributeId.Style, format.ToCss (css))));
+					Open (new RtfToHtmlTagContext (HtmlTagId.Span, new HtmlAttribute (HtmlAttributeId.Style, GetCss (format))));
 					spanFormat = format;
 				}
+			}
+
+			string GetCss (SpanFormat format)
+			{
+				if (!cssCache.TryGetValue (format, out var value)) {
+					if (cssCache.Count >= MaxCssCacheEntries)
+						cssCache.Clear ();
+
+					value = format.ToCss (css);
+					cssCache.Add (format, value);
+				}
+
+				return value;
 			}
 
 			// HTML collapses whitespace, but whitespace in RTF is significant. Runs of spaces are preserved
