@@ -26,7 +26,6 @@
 
 using System;
 using System.IO;
-using System.Globalization;
 
 namespace MimeKit.Text {
 	/// <summary>
@@ -56,6 +55,26 @@ namespace MimeKit.Text {
 			}
 		}
 #endif
+
+		// Writes a decimal numeric character reference ("&#NNNN;") without allocating a string per character.
+		static void WriteNumericCharacterReference (TextWriter output, int unichar)
+		{
+			// The largest code point (U+10FFFF = 1114111) needs 7 digits, plus "&#" and ";".
+			Span<char> buffer = stackalloc char[10];
+			int index = buffer.Length;
+
+			buffer[--index] = ';';
+
+			do {
+				buffer[--index] = (char) ('0' + (unichar % 10));
+				unichar /= 10;
+			} while (unichar > 0);
+
+			buffer[--index] = '#';
+			buffer[--index] = '&';
+
+			output.Write (buffer.Slice (index));
+		}
 
 		internal static bool IsValidAttributeName (string name)
 		{
@@ -167,7 +186,7 @@ namespace MimeKit.Text {
 						break;
 					}
 
-					output.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
+					WriteNumericCharacterReference (output, unichar);
 					break;
 				}
 			}
@@ -495,7 +514,7 @@ namespace MimeKit.Text {
 						break;
 					}
 
-					output.Write (string.Format (CultureInfo.InvariantCulture, "&#{0};", unichar));
+					WriteNumericCharacterReference (output, unichar);
 					break;
 				}
 			}

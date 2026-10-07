@@ -227,6 +227,17 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestEncodeNumericCharacterReferenceBoundaries ()
+		{
+			const string attributeValue = "\"&#160;&#255;&#256;&#65535;&#65536;&#1114111;\"";
+			const string encoded = "&#160;&#255;&#256;&#65535;&#65536;&#1114111;";
+			var text = "\u00A0\u00FF\u0100\uFFFF" + char.ConvertFromUtf32 (0x10000) + char.ConvertFromUtf32 (0x10FFFF);
+
+			AssertHtmlAttributeEncode (text, attributeValue);
+			AssertHtmlEncode (text, encoded, false);
+		}
+
+		[Test]
 		public void TestEncodeIllegalControlCharacters ()
 		{
 			const string attributeValue = "\"This contains some embedded control sequences ()\"";
