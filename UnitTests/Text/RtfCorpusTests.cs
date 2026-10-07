@@ -109,8 +109,8 @@ namespace UnitTests.Text {
 
 			public override void OnText (RtfInterpreter rtf, char[] buffer, int index, int count)
 			{
-				if (rtf.FieldHyperlink != null)
-					Output.Append ("[href=").Append (rtf.FieldHyperlink).Append (']');
+				if (rtf.State.Hyperlink != null)
+					Output.Append ("[href=").Append (rtf.State.Hyperlink).Append (']');
 				Output.Append (buffer, index, count);
 			}
 

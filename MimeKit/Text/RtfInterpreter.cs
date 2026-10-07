@@ -80,11 +80,10 @@ namespace MimeKit.Text {
 		Strike    = 1 << 3,
 		Hidden    = 1 << 4,
 		InTable   = 1 << 5,
-		Hyperlink = 1 << 6,
 
 		// [MS-OXRTFEX] 2.1.3.1.3: "The state of the HTMLRTF control word MUST transfer when entering groups and be
 		// restored when exiting groups", so it is part of the group state like any other toggle.
-		HtmlRtf   = 1 << 7,
+		HtmlRtf   = 1 << 6,
 
 		CharacterFormatting = Bold | Italic | Underline | Strike | Hidden
 	}
@@ -113,13 +112,18 @@ namespace MimeKit.Text {
 		public int BackgroundColor;
 		public int UnicodeSkip;
 
+		// The target of the HYPERLINK field whose result is being read, if any. RTF 1.9.1, "Fields": the field
+		// result is a group, and fields may be nested within another field's result, so the link target must be
+		// scoped to the \fldrslt group rather than tracked globally; otherwise, text following a nested field
+		// would be attributed to the nested field's link. Compared by reference so that folding stays O(1).
+		public string? Hyperlink;
+
 		public readonly bool Bold => (Flags & RtfStateFlags.Bold) != 0;
 		public readonly bool Italic => (Flags & RtfStateFlags.Italic) != 0;
 		public readonly bool Underline => (Flags & RtfStateFlags.Underline) != 0;
 		public readonly bool Strike => (Flags & RtfStateFlags.Strike) != 0;
 		public readonly bool Hidden => (Flags & RtfStateFlags.Hidden) != 0;
 		public readonly bool InTable => (Flags & RtfStateFlags.InTable) != 0;
-		public readonly bool Hyperlink => (Flags & RtfStateFlags.Hyperlink) != 0;
 		public readonly bool HtmlRtf => (Flags & RtfStateFlags.HtmlRtf) != 0;
 
 		public void SetFlag (RtfStateFlags flag, bool value)
@@ -140,7 +144,8 @@ namespace MimeKit.Text {
 				FontSize == other.FontSize &&
 				ForegroundColor == other.ForegroundColor &&
 				BackgroundColor == other.BackgroundColor &&
-				UnicodeSkip == other.UnicodeSkip;
+				UnicodeSkip == other.UnicodeSkip &&
+				ReferenceEquals (Hyperlink, other.Hyperlink);
 		}
 
 		public override readonly bool Equals (object? obj)
@@ -290,8 +295,9 @@ namespace MimeKit.Text {
 		int recognitionTokens;
 		bool recognitionWindowOpen = true;
 
-		// pending font table entry (committed on ';', the next \f, or the end of the font's group)
+		// pending font table entry (committed on ';', the next \f, or the end of the group that the \f appeared in)
 		bool pendingFont;
+		long pendingFontDepth;
 		int pendingFontNumber;
 		int pendingFontCharset;
 		int pendingFontCodePage;
@@ -367,8 +373,12 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get the current hyperlink target, if any.
+		/// Get the hyperlink target parsed from the most recent field instruction, if any.
 		/// </summary>
+		/// <remarks>
+		/// This is only meaningful while reading a field; use <see cref="RtfGroupState.Hyperlink"/> on
+		/// <see cref="State"/> to get the link target that applies to the current text.
+		/// </remarks>
 		public string? FieldHyperlink {
 			get; private set;
 		}
@@ -589,8 +599,11 @@ namespace MimeKit.Text {
 
 			if (depth == 0)
 				rootGroupClosed = true;
+
 			// RTF 1.9.1, "Font Table": the last font entry may be terminated by the end of its group rather than ';'.
-			if (previous.Destination == RtfDestination.FontTable)
+			// Only the end of the group that the \fN appeared in terminates the entry; the end of a group nested
+			// within the entry (e.g. {\*\panose ...} or {\*\falt ...}, which may precede \fcharsetN) does not.
+			if (pendingFont && depth < pendingFontDepth)
 				CommitFont ();
 
 			// RTF 1.9.1, "Fields": {\field {\*\fldinst ...} {\fldrslt ...}}. The instruction is complete once we
@@ -687,10 +700,15 @@ namespace MimeKit.Text {
 		void DecodeBytes (bool flush)
 		{
 			var decoder = GetDecoder (bytesCodePage);
-			int maxChars = byteCount + 16;
+
+			// Ask the decoder how many chars it will produce rather than assuming one char per byte: some decoders
+			// (e.g. stateful ISO-2022 or ISCII decoders, or a decoder holding a partial sequence from a previous
+			// call) can emit more chars than bytes, and an undersized buffer would make GetChars throw.
+			// GetCharCount does not change the decoder's state.
+			int maxChars = decoder.GetCharCount (bytes, 0, byteCount, flush);
 
 			if (chars.Length < maxChars)
-				chars = new char[maxChars];
+				chars = new char[Math.Max (maxChars, chars.Length * 2)];
 
 			int count = decoder.GetChars (bytes, 0, byteCount, chars, 0, flush);
 			byteCount = 0;
@@ -954,6 +972,7 @@ namespace MimeKit.Text {
 			CommitFont ();
 
 			pendingFont = true;
+			pendingFontDepth = depth;
 			pendingFontNumber = number;
 			pendingFontCharset = -1;
 			pendingFontCodePage = 0;
@@ -1095,17 +1114,26 @@ namespace MimeKit.Text {
 					if (index + 1 < text.Length && text[index + 1] == 'l')
 						return null;
 
+					// ECMA-376 Part 1, 17.16.5.25: only \o "tooltip" and \t "target" take an argument; \m and \n
+					// do not, so the text that follows them may be the URL itself.
+					bool hasArgument = index + 1 < text.Length && (text[index + 1] == 'o' || text[index + 1] == 't');
+
 					index++;
 					while (index < text.Length && !char.IsWhiteSpace (text[index]))
 						index++;
 
-					// Switches like \o, \t and \m take an argument which we need to skip.
+					if (!hasArgument)
+						continue;
+
 					while (index < text.Length && char.IsWhiteSpace (text[index]))
 						index++;
 
 					if (index < text.Length && text[index] == '"') {
 						int end = text.IndexOf ('"', index + 1);
 						index = end == -1 ? text.Length : end + 1;
+					} else {
+						while (index < text.Length && !char.IsWhiteSpace (text[index]))
+							index++;
 					}
 					continue;
 				}
@@ -1243,7 +1271,7 @@ namespace MimeKit.Text {
 				break;
 			case RtfKeyword.Fldrslt:
 				current.Destination = RtfDestination.Normal;
-				current.SetFlag (RtfStateFlags.Hyperlink, FieldHyperlink != null);
+				current.Hyperlink = FieldHyperlink;
 				break;
 			case RtfKeyword.Upr:
 				// RTF 1.9.1, "Unicode RTF": {\upr {ansi version}{\*\ud {unicode version}}}. Ignore the ANSI version.

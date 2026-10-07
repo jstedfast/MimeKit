@@ -431,5 +431,233 @@ namespace UnitTests.Text {
 
 			Assert.That (Convert (builder.ToString (), c => c.MaxFontTableEntries = 10), Is.EqualTo ("<div>&#1055;&#207;</div>" + NewLine));
 		}
+
+		static string Encapsulate (string html)
+		{
+			return "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag " + html.Replace ("\\", "\\\\").Replace ("{", "\\{").Replace ("}", "\\}") + "}}";
+		}
+
+		[Test]
+		public void TestExtractLineBreaksOutsideHtmlTag ()
+		{
+			// [MS-OXRTFEX] 2.2.3.2: outside of HTMLTAG destinations, \par and \line become CRLF while \cell and \row
+			// are dropped.
+			const string rtf = "{\\rtf1\\fromhtml1 {\\*\\htmltag <p>}a\\par b\\line c\\cell d\\row{\\*\\htmltag </p>}}";
+
+			Assert.That (Convert (rtf), Is.EqualTo ("<p>a\r\nb\r\ncd</p>"));
+		}
+
+		[Test]
+		public void TestExtractEndTagCallback ()
+		{
+			var html = Convert (Encapsulate ("<b>x</b><i>y</i>"), c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.B) {
+						if (ctx.IsEndTag) {
+							writer.WriteEndTag ("strong");
+						} else {
+							writer.WriteStartTag ("strong");
+							ctx.InvokeCallbackForEndTag = true;
+						}
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				};
+			});
+
+			Assert.That (html, Is.EqualTo ("<strong>x</strong><i>y</i>"));
+		}
+
+		[Test]
+		public void TestExtractUnmatchedEndTags ()
+		{
+			var tags = new List<string> ();
+			var html = Convert (Encapsulate ("</i><p>x</b></p></body></html>"), c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					tags.Add ((ctx.IsEndTag ? "/" : string.Empty) + ctx.TagName);
+					ctx.WriteTag (writer, true);
+				};
+			});
+
+			// Unmatched end tags are passed to the callback, except for document structure tags in a fragment.
+			Assert.That (html, Is.EqualTo ("</i><p>x</b></p>"));
+			Assert.That (tags, Is.EqualTo (new [] { "/i", "p", "/b" }));
+		}
+
+		[Test]
+		public void TestExtractDocumentStructureFragment ()
+		{
+			var html = Convert (Encapsulate ("<!DOCTYPE html><html><head><title>t</title></head><body/><body>x<br/></body></html>"));
+
+			Assert.That (html, Is.EqualTo ("x<br/>"));
+		}
+
+		[Test]
+		public void TestExtractSanitizingCallback ()
+		{
+			// The HtmlTagCallback is the hook for sanitizing extracted HTML, which is attacker-controlled. Content
+			// suppressed by the callback must stay suppressed even when its end tag is missing or mismatched.
+			var html = Convert (Encapsulate ("<p onclick=\"evil()\">a<script>alert('</p>')</script>b</p><script>c"), c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Script) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+						return;
+					}
+
+					if (ctx.IsEndTag) {
+						ctx.WriteTag (writer, false);
+						return;
+					}
+
+					ctx.WriteTag (writer, false);
+					foreach (var attribute in ctx.Attributes) {
+						if (!attribute.Name.StartsWith ("on", StringComparison.OrdinalIgnoreCase))
+							writer.WriteAttribute (attribute);
+					}
+				};
+			});
+
+			Assert.That (html, Is.EqualTo ("<p>ab</p>"));
+		}
+
+		[Test]
+		public void TestExtractBogusDocType ()
+		{
+			// A DOCTYPE with a truncated PUBLIC/SYSTEM keyword must not corrupt the name of the next tag.
+			var html = Convert (Encapsulate ("<!DOCTYPE html </DIV><DIV class=x>y</DIV>"), c => c.OutputHtmlFragment = false);
+
+			Assert.That (html, Is.EqualTo ("<!DOCTYPE html><DIV class=\"x\">y</DIV>"));
+		}
+
+		[Test]
+		public void TestExtractManyUnclosedTags ()
+		{
+			// Hostile encapsulated HTML with a huge number of unclosed elements and unmatched end tags must be
+			// processed in linear time.
+			const int count = 100000;
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < count; i++)
+				builder.Append ("<div>");
+			for (int i = 0; i < count; i++)
+				builder.Append ("</span>");
+
+			var html = Convert (Encapsulate (builder.ToString ()), c => c.HtmlTagCallback = (ctx, writer) => {
+				if (!ctx.IsEndTag)
+					ctx.WriteTag (writer, true);
+			});
+
+			Assert.That (html.Length, Is.EqualTo (count * "<div>".Length));
+		}
+
+		[Test]
+		public void TestExtractLargeDocument ()
+		{
+			// The extracted HTML is streamed into the HTML tokenizer rather than buffered.
+			var builder = new StringBuilder ("{\\rtf1\\fromhtml1 ");
+			for (int i = 0; i < 10000; i++)
+				builder.Append ("{\\*\\htmltag <p>}text ").Append (i).Append ("{\\*\\htmltag </p>}\\htmlrtf \\par\\htmlrtf0 ");
+			builder.Append ('}');
+
+			var html = Convert (builder.ToString ());
+
+			Assert.That (html, Does.StartWith ("<p>text 0</p><p>text 1</p>"));
+			Assert.That (html, Does.EndWith ("<p>text 9999</p>"));
+		}
+
+		[Test]
+		public void TestTextHeaderAndFooter ()
+		{
+			var html = Convert ("{\\rtf1 Hello}", c => {
+				c.OutputHtmlFragment = false;
+				c.Header = "<header>";
+				c.HeaderFormat = HeaderFooterFormat.Text;
+				c.Footer = "<footer>";
+				c.FooterFormat = HeaderFooterFormat.Text;
+			});
+
+			Assert.That (html, Is.EqualTo ("<html><body>&lt;header&gt;<br/><div>Hello</div>" + NewLine + "&lt;footer&gt;<br/></body></html>"));
+		}
+
+		[Test]
+		public void TestExtractHeaderAndFooter ()
+		{
+			var html = Convert (Encapsulate ("<p>x</p>"), c => {
+				c.Header = "<header>";
+				c.HeaderFormat = HeaderFooterFormat.Text;
+				c.Footer = "<p>footer</p>";
+				c.FooterFormat = HeaderFooterFormat.Html;
+			});
+
+			Assert.That (html, Is.EqualTo ("&lt;header&gt;<br/><p>x</p><p>footer</p>"));
+		}
+
+		[Test]
+		public void TestRowWithoutTable ()
+		{
+			// Unbalanced table structure must still produce well-formed output.
+			Assert.That (Convert ("{\\rtf1 a\\row b}"), Is.EqualTo ("<div>a<table><tr></tr>" + NewLine + "</table>" + NewLine + "b</div>" + NewLine));
+			Assert.That (Convert ("{\\rtf1\\row\\cell\\row}"), Is.EqualTo ("<table><tr></tr>" + NewLine + "<tr><td></td></tr>" + NewLine + "</table>" + NewLine));
+		}
+
+		[Test]
+		public void TestHiddenTextIsNotRendered ()
+		{
+			Assert.That (Convert ("{\\rtf1 a{\\v b\\par c\\line d\\cell e\\row}f}"), Is.EqualTo ("<div>af</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestHyperlinkWithSwitchBeforeUrl ()
+		{
+			const string rtf = "{\\rtf1{\\field{\\*\\fldinst HYPERLINK \\n \"https://example.com/\"}{\\fldrslt x}}}";
+
+			Assert.That (Convert (rtf), Is.EqualTo ("<div><a href=\"https://example.com/\">x</a></div>" + NewLine));
+		}
+
+		[Test]
+		public void TestFontPanoseBeforeCharset ()
+		{
+			// The {\*\panose} group ending must not commit the font entry before \fcharset204 is read.
+			const string rtf = "{\\rtf1{\\fonttbl{\\f0\\fswiss{\\*\\panose 020b0604020202020204}\\fcharset204 Arial;}}\\f0 \\'cf}";
+
+			Assert.That (Convert (rtf), Is.EqualTo ("<div>&#1055;</div>" + NewLine));
+		}
+
+		[Test]
+		public void TestRenderCallbackSuppressAndEndTags ()
+		{
+			const string rtf = "{\\rtf1 a{\\b secret}b\\par{\\i x}\\par c}";
+			var html = Convert (rtf, c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Span && ctx.Attributes.Count > 0 && ctx.Attributes[0].Value.Contains ("bold")) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+					} else if (ctx.TagId == HtmlTagId.Div) {
+						if (ctx.IsEndTag) {
+							writer.WriteEndTag ("p");
+						} else {
+							writer.WriteStartTag ("p");
+							ctx.InvokeCallbackForEndTag = true;
+						}
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				};
+			});
+
+			Assert.That (html, Is.EqualTo ("<p>ab</p>" + NewLine + "<p><span style=\"font-style: italic;\">x</span></p>" + NewLine + "<p>c</p>" + NewLine));
+		}
+
+		[Test]
+		public void TestNestedHyperlinks ()
+		{
+			// A hyperlink field nested in another's result must not produce nested <a> elements.
+			const string rtf = "{\\rtf1{\\field{\\*\\fldinst HYPERLINK \"http://a/\"}{\\fldrslt a{\\field{\\*\\fldinst HYPERLINK \"http://b/\"}{\\fldrslt b}}c}}}";
+
+			Assert.That (Convert (rtf), Is.EqualTo ("<div><a href=\"http://a/\">a</a><a href=\"http://b/\">b</a><a href=\"http://a/\">c</a></div>" + NewLine));
+		}
 	}
 }

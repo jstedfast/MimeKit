@@ -646,7 +646,7 @@ namespace MimeKit.Text {
 			// of how the RTF groups are nested.
 			void OpenInline (RtfInterpreter rtf)
 			{
-				var link = rtf.State.Hyperlink ? rtf.FieldHyperlink : null;
+				var link = rtf.State.Hyperlink;
 				var format = new SpanFormat (rtf);
 				int index;
 
@@ -861,27 +861,17 @@ namespace MimeKit.Text {
 			return id == HtmlTagId.Html || id == HtmlTagId.Head || id == HtmlTagId.Body;
 		}
 
-		static ExtractedHtmlTagContext? Pop (List<ExtractedHtmlTagContext> stack, string name)
-		{
-			for (int i = stack.Count; i > 0; i--) {
-				if (stack[i - 1].TagName.Equals (name, StringComparison.OrdinalIgnoreCase)) {
-					var ctx = stack[i - 1];
-					stack.RemoveAt (i - 1);
-					return ctx;
-				}
-			}
-
-			return null;
-		}
-
-		// This mirrors HtmlToHtml.Convert(), with the addition of OutputHtmlFragment support.
+		// This mirrors HtmlToHtml.Convert(), with the addition of OutputHtmlFragment support. Like HtmlToHtml, the
+		// open elements are tracked by an HtmlTagContextStack so that every token is processed in O(1) time; the
+		// encapsulated HTML is attacker-controlled, and a flat list would make many unclosed (or unmatched end)
+		// tags cost time quadratic in the size of the input.
 		void ConvertExtractedHtml (TextReader reader, TextWriter writer)
 		{
 			WriteHeader (writer);
 
 			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
-				var stack = new List<ExtractedHtmlTagContext> ();
+				var stack = new HtmlTagContextStack<ExtractedHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false
 				};
@@ -890,11 +880,11 @@ namespace MimeKit.Text {
 				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {
 					default:
-						if (!SuppressContent (stack))
+						if (!stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.DocType:
-						if (!OutputHtmlFragment && !SuppressContent (stack))
+						if (!OutputHtmlFragment && !stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
 					case HtmlTokenKind.Tag:
@@ -910,18 +900,18 @@ namespace MimeKit.Text {
 								ctx.DeleteTag = true;
 
 								if (!tag.IsEmptyElement)
-									stack.Add (ctx);
+									stack.Push (ctx);
 							} else if (!tag.IsEmptyElement) {
-								if (!SuppressContent (stack))
+								if (!stack.SuppressContent)
 									callback (ctx, htmlWriter);
 
-								stack.Add (ctx);
-							} else if (!SuppressContent (stack)) {
+								stack.Push (ctx);
+							} else if (!stack.SuppressContent) {
 								callback (ctx, htmlWriter);
 							}
 						} else {
-							if ((ctx = Pop (stack, tag.Name)) != null) {
-								if (!SuppressContent (stack)) {
+							if ((ctx = stack.Pop (tag.Name)) != null) {
+								if (!stack.SuppressContent) {
 									if (ctx.InvokeCallbackForEndTag) {
 										ctx = new ExtractedHtmlTagContext (tag) {
 											InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
@@ -934,7 +924,7 @@ namespace MimeKit.Text {
 										htmlWriter.WriteEndTag (tag.Name);
 									}
 								}
-							} else if (!SuppressContent (stack) && !(OutputHtmlFragment && IsDocumentStructureTag (tag.Id))) {
+							} else if (!stack.SuppressContent && !(OutputHtmlFragment && IsDocumentStructureTag (tag.Id))) {
 								ctx = new ExtractedHtmlTagContext (tag);
 								callback (ctx, htmlWriter);
 							}

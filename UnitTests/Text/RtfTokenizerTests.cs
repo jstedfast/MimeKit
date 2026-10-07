@@ -183,6 +183,77 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestArgumentExceptions ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new RtfTokenizer (null));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new RtfTokenizer (new StringReader (string.Empty), 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new RtfTokenizer (new StringReader (string.Empty), -1));
+		}
+
+		// Malformed escapes must never throw or desynchronize the tokenizer, regardless of where the buffer
+		// boundaries fall.
+		static readonly object[] MalformedCases = {
+			new object[] { "\\fs-x", new [] { "word:fs [Fs]", "text:x" } },
+			new object[] { "\\fs- x", new [] { "word:fs [Fs]", "text: x" } },
+			new object[] { "\\'zz", new [] { "text:zz" } },
+			new object[] { "\\'a}", new [] { "hex:0a", "}" } },
+			new object[] { "\\'A9\\'Fe", new [] { "hex:a9", "hex:fe" } },
+			new object[] { "\\'\\b", new [] { "word:b [B]" } },
+			new object[] { "\\'4", new [] { "hex:04" } },
+			new object[] { "x\\'", new [] { "text:x" } },
+			new object[] { "x\\", new [] { "text:x" } },
+			new object[] { "\\fs", new [] { "word:fs [Fs]" } },
+			new object[] { "\\fs-", new [] { "word:fs [Fs]" } },
+			new object[] { "\\fs-12", new [] { "word:fs=-12 [Fs]" } },
+			new object[] { "\\\r\\\t\\~", new [] { "symbol:\n", "symbol:\t", "symbol:~" } },
+			new object[] { "\\bin-5 x", new [] { "word:bin=-5 [Bin]", "text:x" } },
+			new object[] { "\\bin0 x", new [] { "word:bin=0 [Bin]", "text:x" } },
+			new object[] { "a\r\n\r\nb", new [] { "text:ab" } },
+		};
+
+		[TestCaseSource (nameof (MalformedCases))]
+		public void TestMalformedEscapes (string rtf, string[] expected)
+		{
+			foreach (var bufferSize in new [] { 1, 2, 3, 4096 })
+				Assert.That (Tokenize (rtf, bufferSize), Is.EqualTo (expected), $"bufferSize={bufferSize}");
+		}
+
+		[TestCaseSource (nameof (MalformedCases))]
+		public async Task TestMalformedEscapesAsync (string rtf, string[] expected)
+		{
+			foreach (var bufferSize in new [] { 1, 2, 3, 4096 })
+				Assert.That (await TokenizeAsync (rtf, bufferSize), Is.EqualTo (expected), $"bufferSize={bufferSize}");
+		}
+
+		[Test]
+		public void TestEndOfFileIsSticky ()
+		{
+			var tokenizer = new RtfTokenizer (new StringReader ("x"), 1);
+
+			Assert.That (tokenizer.ReadNextToken (), Is.True);
+			Assert.That (tokenizer.Kind, Is.EqualTo (RtfTokenKind.Text));
+
+			for (int i = 0; i < 3; i++) {
+				Assert.That (tokenizer.ReadNextToken (), Is.False);
+				Assert.That (tokenizer.Kind, Is.EqualTo (RtfTokenKind.EndOfFile));
+			}
+		}
+
+		[Test]
+		public async Task TestEndOfFileIsStickyAsync ()
+		{
+			var tokenizer = new RtfTokenizer (new StringReader ("x"), 1);
+
+			Assert.That (await tokenizer.ReadNextTokenAsync (), Is.True);
+			Assert.That (tokenizer.Kind, Is.EqualTo (RtfTokenKind.Text));
+
+			for (int i = 0; i < 3; i++) {
+				Assert.That (await tokenizer.ReadNextTokenAsync (), Is.False);
+				Assert.That (tokenizer.Kind, Is.EqualTo (RtfTokenKind.EndOfFile));
+			}
+		}
+
+		[Test]
 		public async Task TestCancellation ()
 		{
 			var tokenizer = new RtfTokenizer (new StringReader ("{\\rtf1 hello}"), 4);
