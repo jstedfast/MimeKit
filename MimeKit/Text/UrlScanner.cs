@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -71,6 +72,15 @@ namespace MimeKit.Text {
 		const string AtomCharacters = "!#$%&'*+-/=?^_`{|}~";
 		const string UrlSafeCharacters = "$-_.+!*'(),{}|\\^~[]`#%\";/?:@&=";
 
+		// rfc5321, section 4.5.3.1.1: The maximum total length of a user name or other local-part is 64 octets.
+		const int MaxLocalPartLength = 64;
+
+		// rfc5321, section 4.5.3.1.2: The maximum total length of a domain name or number is 255 octets.
+		const int MaxDomainLength = 255;
+
+		// rfc1035, section 2.3.4: Labels are limited to 63 octets or less.
+		const int MaxLabelLength = 63;
+
 		readonly Dictionary<string, UrlPattern> patterns = new Dictionary<string, UrlPattern> (StringComparer.Ordinal);
 		readonly Trie trie = new Trie (true);
 
@@ -88,51 +98,46 @@ namespace MimeKit.Text {
 		{
 			GetIndexDelegate getStartIndex, getEndIndex;
 			int endIndex = startIndex + count;
+			int searchIndex = startIndex;
 			int index;
 
-			if ((index = trie.Search (text, startIndex, count, out var pattern)) == -1) {
-				match = null;
-				return false;
+			// Note: If a pattern is found but it is not part of a valid URL (e.g. a lone '@'), keep searching the remainder of
+			// the text. Each failed candidate only examines a bounded amount of text around the pattern, so this remains linear.
+			while ((index = trie.Search (text, searchIndex, endIndex - searchIndex, out var pattern)) != -1) {
+				searchIndex = index + 1;
+
+				// Note: pattern is not null when Trie.Search != -1
+				if (!patterns.TryGetValue (pattern!, out var url))
+					continue;
+
+				switch (url.Type) {
+				case UrlPatternType.Addrspec:
+					getStartIndex = GetAddrspecStartIndex;
+					getEndIndex = GetAddrspecEndIndex;
+					break;
+				case UrlPatternType.MailTo:
+					getStartIndex = GetMailToStartIndex;
+					getEndIndex = GetMailToEndIndex;
+					break;
+				case UrlPatternType.File:
+					getStartIndex = GetFileStartIndex;
+					getEndIndex = GetFileEndIndex;
+					break;
+				default:
+					getStartIndex = GetWebStartIndex;
+					getEndIndex = GetWebEndIndex;
+					break;
+				}
+
+				match = new UrlMatch (url.Pattern, url.Prefix);
+
+				if (getStartIndex (match, text, startIndex, index, endIndex) && getEndIndex (match, text, startIndex, index, endIndex))
+					return true;
 			}
 
-			// Note: pattern is not null when Trie.Search != -1
-			if (!patterns.TryGetValue (pattern!, out var url)) {
-				match = null;
-				return false;
-			}
+			match = null;
 
-			match = new UrlMatch (url.Pattern, url.Prefix);
-
-			switch (url.Type) {
-			case UrlPatternType.Addrspec:
-				getStartIndex = GetAddrspecStartIndex;
-				getEndIndex = GetAddrspecEndIndex;
-				break;
-			case UrlPatternType.MailTo:
-				getStartIndex = GetMailToStartIndex;
-				getEndIndex = GetMailToEndIndex;
-				break;
-			case UrlPatternType.File:
-				getStartIndex = GetFileStartIndex;
-				getEndIndex = GetFileEndIndex;
-				break;
-			default:
-				getStartIndex = GetWebStartIndex;
-				getEndIndex = GetWebEndIndex;
-				break;
-			}
-
-			if (!getStartIndex (match, text, startIndex, index, endIndex)) {
-				match = null;
-				return false;
-			}
-
-			if (!getEndIndex (match, text, startIndex, index, endIndex)) {
-				match = null;
-				return false;
-			}
-
-			return true;
+			return false;
 		}
 
 		static char GetClosingBrace (UrlMatch match, char[] text, int startIndex)
@@ -160,19 +165,39 @@ namespace MimeKit.Text {
 			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || IsDigit (c);
 		}
 
+		// Non-ASCII characters are allowed in order to support IRIs and internationalized addresses, but whitespace
+		// (e.g. NBSP or U+2028), control characters, and invisible formatting characters (e.g. bidi overrides or
+		// zero-width spaces) are never considered part of a URL since they can be used to disguise the link target.
+		static bool IsNonAsciiUrlSafe (char c)
+		{
+			if (char.IsWhiteSpace (c) || char.IsControl (c))
+				return false;
+
+			return char.GetUnicodeCategory (c) != UnicodeCategory.Format;
+		}
+
 		static bool IsUrlSafe (char c)
 		{
-			return c >= 128 || IsLetterOrDigit (c) || UrlSafeCharacters.IndexOf (c) != -1;
+			if (c >= 128)
+				return IsNonAsciiUrlSafe (c);
+
+			return IsLetterOrDigit (c) || UrlSafeCharacters.IndexOf (c) != -1;
 		}
 
 		static bool IsAtom (char c)
 		{
-			return c >= 128 || IsLetterOrDigit (c) || AtomCharacters.IndexOf (c) != -1;
+			if (c >= 128)
+				return IsNonAsciiUrlSafe (c);
+
+			return IsLetterOrDigit (c) || AtomCharacters.IndexOf (c) != -1;
 		}
 
 		static bool IsDomain (char c)
 		{
-			return c >= 128 || IsLetterOrDigit (c) || c == '-';
+			if (c >= 128)
+				return IsNonAsciiUrlSafe (c);
+
+			return IsLetterOrDigit (c) || c == '-';
 		}
 
 		static bool SkipAtom (char[] text, int endIndex, ref int index)
@@ -196,34 +221,61 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		static bool IsSubDomainStart (char c)
+		{
+			return IsDomain (c) && c != '-';
+		}
+
+		// Note: The caller is responsible for verifying that the first character is a valid sub-domain start character.
 		static bool SkipSubDomain (char[] text, int endIndex, ref int index)
 		{
-			if (!IsDomain (text[index]) || text[index] == '-')
-				return false;
+			int startIndex = index++;
 
-			index++;
-
-			while (index < endIndex && IsDomain (text[index]))
+			// Note: Stop 1 char beyond the maximum label length so that we can detect (and reject) labels that are too long.
+			while (index < endIndex && index - startIndex <= MaxLabelLength && IsDomain (text[index]))
 				index++;
 
-			return true;
+			return index - startIndex <= MaxLabelLength;
 		}
 
 		static bool SkipDomain (char[] text, int endIndex, ref int index)
 		{
-			if (!SkipSubDomain (text, endIndex, ref index))
+			return SkipDomain (text, endIndex, index, ref index);
+		}
+
+		// Note: domainStartIndex may be less than index if a portion of the domain has already been consumed (e.g. "www.")
+		// so that it is counted toward the maximum domain length.
+		static bool SkipDomain (char[] text, int endIndex, int domainStartIndex, ref int index)
+		{
+			// Note: Limit how far forward we scan the domain. We allow scanning 1 char beyond the maximum domain length so
+			// that we can detect (and reject) domains that are too long.
+			int domainEndIndex = Math.Min (endIndex, domainStartIndex + MaxDomainLength + 1);
+
+			if (index >= domainEndIndex || !IsSubDomainStart (text[index]) || !SkipSubDomain (text, domainEndIndex, ref index))
 				return false;
 
-			while (index < endIndex && text[index] == '.') {
+			while (index < domainEndIndex && text[index] == '.') {
 				int subdomain = index++;
 
-				if (index == endIndex || !SkipSubDomain (text, endIndex, ref index)) {
+				if (index == domainEndIndex) {
+					// Check if the domain continues beyond the maximum length.
+					if (index < endIndex && IsSubDomainStart (text[index]))
+						return false;
+
 					index = subdomain;
 					break;
 				}
+
+				if (!IsSubDomainStart (text[index])) {
+					index = subdomain;
+					break;
+				}
+
+				if (!SkipSubDomain (text, domainEndIndex, ref index))
+					return false;
 			}
 
-			return true;
+			return index - domainStartIndex <= MaxDomainLength;
 		}
 
 		static bool SkipQuoted (char[] text, int endIndex, ref int index)
@@ -298,7 +350,8 @@ namespace MimeKit.Text {
 				int startIndex = index;
 				int value = 0;
 
-				while (index < endIndex && text[index] >= '0' && text[index] <= '9') {
+				// Note: Stop after 4 digits; any more than 3 digits is invalid anyway.
+				while (index < endIndex && index - startIndex < 4 && text[index] >= '0' && text[index] <= '9') {
 					value = (value * 10) + (text[index] - '0');
 					index++;
 				}
@@ -365,7 +418,8 @@ namespace MimeKit.Text {
 			while (index < endIndex) {
 				int startIndex = index;
 
-				while (index < endIndex && IsHexDigit (text[index]))
+				// Note: Stop after 5 hex digits; any more than 4 hex digits is invalid anyway.
+				while (index < endIndex && index - startIndex < 5 && IsHexDigit (text[index]))
 					index++;
 
 				if (index >= endIndex)
@@ -413,6 +467,21 @@ namespace MimeKit.Text {
 			return compact ? colons < 7 : colons == 7;
 		}
 
+		// A fully-qualified domain has at least 2 labels where the last label (the top-level domain) consists of at least 2 letters.
+		static bool IsFullyQualifiedDomain (char[] text, int startIndex, int endIndex)
+		{
+			int index = endIndex;
+
+			while (index > startIndex && text[index - 1] != '.') {
+				if (!char.IsLetter (text[index - 1]))
+					return false;
+
+				index--;
+			}
+
+			return index > startIndex && endIndex - index >= 2;
+		}
+
 		static bool GetAddrspecStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			int index = matchIndex - 1;
@@ -420,11 +489,15 @@ namespace MimeKit.Text {
 			if (matchIndex == startIndex)
 				return false;
 
+			// Note: Limit how far back we scan so that the cost of each candidate is bounded. We allow scanning 1 char beyond
+			// the maximum local-part length so that we can detect (and reject) local-parts that are too long.
+			int minIndex = Math.Max (startIndex, matchIndex - (MaxLocalPartLength + 1));
+
 			do {
-				if (!SkipWordBackwards (text, startIndex, ref index))
+				if (!SkipWordBackwards (text, minIndex, ref index))
 					return false;
 
-				if (index == startIndex)
+				if (index == minIndex)
 					break;
 
 				if (text[index - 1] != '.')
@@ -432,9 +505,12 @@ namespace MimeKit.Text {
 
 				index -= 2;
 
-				if (index <= startIndex)
+				if (index < minIndex)
 					return false;
 			} while (true);
+
+			if (matchIndex - index > MaxLocalPartLength)
+				return false;
 
 			match.StartIndex = index;
 
@@ -450,7 +526,13 @@ namespace MimeKit.Text {
 
 			if (text[index] != '[') {
 				// domain
+				int domainIndex = index;
+
 				if (!SkipDomain (text, endIndex, ref index))
+					return false;
+
+				// Note: To reduce false positives (e.g. "foo@bar"), require bare addresses to have a fully-qualified domain.
+				if (!IsFullyQualifiedDomain (text, domainIndex, index))
 					return false;
 
 				match.EndIndex = index;
@@ -482,6 +564,55 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		static bool IsTrailingPunctuation (char c)
+		{
+			switch (c) {
+			case '.': case ',': case ':': case ';': case '!': case '?': case '\'': case '"': case '*':
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		// Trailing punctuation is far more likely to belong to the surrounding prose than to the URL (e.g. "See
+		// http://example.com/path." or "(see http://example.com/path)"), so strip it from the end of the URL. Closing
+		// brackets are only stripped if they are unbalanced within the URL so that links such as
+		// http://en.wikipedia.org/wiki/Foo_(bar) remain intact.
+		static void TrimTrailingPunctuation (char[] text, int startIndex, ref int index)
+		{
+			int parens = 0, brackets = 0, braces = 0;
+
+			for (int i = startIndex; i < index; i++) {
+				switch (text[i]) {
+				case '(': parens++; break;
+				case ')': parens--; break;
+				case '[': brackets++; break;
+				case ']': brackets--; break;
+				case '{': braces++; break;
+				case '}': braces--; break;
+				}
+			}
+
+			while (index > startIndex) {
+				char c = text[index - 1];
+
+				if (IsTrailingPunctuation (c)) {
+					index--;
+				} else if (c == ')' && parens < 0) {
+					parens++;
+					index--;
+				} else if (c == ']' && brackets < 0) {
+					brackets++;
+					index--;
+				} else if (c == '}' && braces < 0) {
+					braces++;
+					index--;
+				} else {
+					break;
+				}
+			}
+		}
+
 		static bool GetFileStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			match.StartIndex = matchIndex;
@@ -496,6 +627,8 @@ namespace MimeKit.Text {
 			while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
 				index++;
 
+			TrimTrailingPunctuation (text, matchIndex + match.Pattern.Length, ref index);
+
 			match.EndIndex = index;
 
 			return index > matchIndex + match.Pattern.Length;
@@ -509,21 +642,30 @@ namespace MimeKit.Text {
 
 		static bool SkipAddrspec (char[] text, int endIndex, ref int index)
 		{
-			if (!SkipWord (text, endIndex, ref index) || index >= endIndex)
+			// Note: Limit how far forward we scan the local-part so that the cost of each candidate is bounded. We allow
+			// scanning 1 char beyond the maximum local-part length so that we can detect (and reject) local-parts that
+			// are too long.
+			int localPartEndIndex = Math.Min (endIndex, index + MaxLocalPartLength + 1);
+			int localPartStartIndex = index;
+
+			if (!SkipWord (text, localPartEndIndex, ref index) || index >= localPartEndIndex)
 				return false;
 
 			while (text[index] == '.') {
 				index++;
 
-				if (index >= endIndex)
+				if (index >= localPartEndIndex)
 					return false;
 
-				if (!SkipWord (text, endIndex, ref index))
+				if (!SkipWord (text, localPartEndIndex, ref index))
 					return false;
 
-				if (index >= endIndex)
+				if (index >= localPartEndIndex)
 					return false;
 			}
+
+			if (index - localPartStartIndex > MaxLocalPartLength)
+				return false;
 
 			if (index + 1 >= endIndex || text[index++] != '@')
 				return false;
@@ -569,10 +711,14 @@ namespace MimeKit.Text {
 				index = contentIndex;
 
 			if (index < endIndex && text[index] == '?') {
+				int queryIndex = index;
+
 				index++;
 
 				while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
 					index++;
+
+				TrimTrailingPunctuation (text, queryIndex, ref index);
 			}
 
 			match.EndIndex = index;
@@ -591,7 +737,10 @@ namespace MimeKit.Text {
 			char close = GetClosingBrace (match, text, startIndex);
 			int index = matchIndex + match.Pattern.Length;
 
-			if (index >= endIndex || !SkipDomain (text, endIndex, ref index))
+			// Note: For patterns such as "www." and "ftp.", the pattern is part of the hostname.
+			int hostIndex = match.Pattern[match.Pattern.Length - 1] == '.' ? matchIndex : index;
+
+			if (index >= endIndex || !SkipDomain (text, endIndex, hostIndex, ref index))
 				return false;
 
 			// check for a port
@@ -604,6 +753,8 @@ namespace MimeKit.Text {
 
 			// check for a path or query in cases where the link looks like this: https://www.domain.com?query
 			if (index < endIndex && (text[index] == '/' || text[index] == '?')) {
+				int pathIndex = index;
+
 				if (text[index] == '/')
 					index++;
 
@@ -619,6 +770,8 @@ namespace MimeKit.Text {
 
 					index++;
 				}
+
+				TrimTrailingPunctuation (text, pathIndex, ref index);
 			}
 
 			match.EndIndex = index;

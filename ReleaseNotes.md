@@ -272,6 +272,29 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   Previously the partial tag was written to the output as-is without ever being passed to the
   `HtmlTagCallback`, so it could be completed by whatever markup the output was later combined with.
 
+* Fixed a number of bugs in the URL detection used by `TextToHtml` and `FlowedToHtml`:
+  * A pattern that was not part of a valid URL (e.g. the `@` in `email me @ home`) no longer prevents the
+    URLs that follow it on the same line from being detected.
+  * Text in which a prefix of one pattern was followed by another pattern (e.g. `wwww.example.com` or
+    `sftp.example.com`) could cause the wrong link text to be detected.
+  * Pattern matching is now culture-invariant. Previously, in some cultures (e.g. Turkish), `FILE://` and
+    `MAILTO:` were not detected while `fİle://` was.
+  * Non-ASCII whitespace (e.g. a non-breaking space), control characters and invisible formatting characters
+    (e.g. bidirectional overrides such as U+202E or zero-width spaces) are no longer considered part of a URL
+    or email address, since they could be used to disguise the link target.
+  * Email addresses with a dot-atom local-part at the start of a line (e.g. `a.b@example.com`) are now detected.
+  * To reduce false positives, email addresses (that are not preceded by `mailto:`) now require a fully-qualified
+    domain whose last label consists of at least 2 letters (e.g. `user@example.com`, but not `user@localhost`
+    or `user@host.123`). Address literals such as `user@[127.0.0.1]` are still detected.
+  * Email address local-parts are now limited to 64 characters and domains to 255 characters (as per rfc5321),
+    web link hostnames are now limited to 255 characters, and domain labels are now limited to 63 characters (as
+    per rfc1035). IP address literals are validated without scanning arbitrarily long runs of digits. Together,
+    these limits keep the cost of detecting URLs linear.
+  * Trailing punctuation (`.`, `,`, `:`, `;`, `!`, `?`, `'`, `"` and `*`) is no longer included in the URL
+    (e.g. `See http://example.com/path.`), and neither are unbalanced closing parentheses, brackets or braces
+    (e.g. `(see http://example.com/path)`). Balanced ones are kept, so URLs such as
+    `http://en.wikipedia.org/wiki/Foo_(bar)` are still detected in full.
+
 * Brought `HtmlTokenizer` into conformance with the html5lib tokenizer test suite. Every test now passes
   except for a few deliberate differences (valueless attributes have a `null` value, DOCTYPE names keep
   their case, CR/LF is not normalized) and the newly specified processing-instruction tokens. Changes

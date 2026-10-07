@@ -220,5 +220,27 @@ namespace UnitTests.Text {
 
 			Assert.That (result, Is.EqualTo (expected));
 		}
+
+		[Test]
+		public void TestUrlsAfterInvalidUrlCandidateToHtml ()
+		{
+			const string expected = "Email me @ home or visit <a href=\"http://www.example.com\">http://www.example.com</a> or <a href=\"mailto:me@example.com\">me@example.com</a><br/>";
+			string text = "Email me @ home or visit http://www.example.com or me@example.com" + Environment.NewLine;
+			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestUrlsExcludeInvisibleCharactersToHtml ()
+		{
+			const string expected = "<a href=\"http://example.com/\">http://example.com/</a>&#8238;gpj.exe<br/>";
+			string text = "http://example.com/\u202Egpj.exe" + Environment.NewLine;
+			var converter = new TextToHtml { OutputHtmlFragment = true };
+			var result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
 	}
 }

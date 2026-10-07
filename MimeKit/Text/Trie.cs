@@ -40,11 +40,19 @@ namespace MimeKit.Text {
 			public TrieState? Next;
 			public TrieState? Fail;
 			public TrieMatch? Match;
-			public string? Pattern;
-			public int Depth;
 
-			public TrieState (TrieState? fail)
+			// The pattern that ends at this state (if any).
+			public string? Pattern;
+
+			// The longest pattern that is a suffix of the string represented by this state (if any).
+			public string? Output;
+
+			// The length of the string represented by this state.
+			public readonly int Depth;
+
+			public TrieState (TrieState? fail, int depth)
 			{
+				Depth = depth;
 				Fail = fail;
 			}
 		}
@@ -72,11 +80,11 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// Creates a new <see cref="Trie"/>.
 		/// </remarks>
-		/// <param name="ignoreCase"><see langword="true" /> if searching should ignore case; otherwise, <see langword="false" />.</param>
+		/// <param name="ignoreCase"><see langword="true" /> if searching should ignore the case of ASCII letters; otherwise, <see langword="false" />.</param>
 		public Trie (bool ignoreCase)
 		{
 			failStates = new List<TrieState?> ();
-			root = new TrieState (null);
+			root = new TrieState (null, 0);
 			icase = ignoreCase;
 		}
 
@@ -112,9 +120,16 @@ namespace MimeKit.Text {
 			return match;
 		}
 
+		// Note: Only ASCII letters are folded. Culture-sensitive case conversion would make the matching depend on the current
+		// culture (e.g. 'I' does not lowercase to 'i' in Turkish) and could allow non-ASCII characters to match ASCII patterns.
+		char Fold (char c)
+		{
+			return icase && c >= 'A' && c <= 'Z' ? (char) (c + 32) : c;
+		}
+
 		TrieState Insert (TrieState state, int depth, char value)
 		{
-			var inserted = new TrieState (root);
+			var inserted = new TrieState (root, depth + 1);
 			var match = new TrieMatch (value, state.Match, inserted);
 			state.Match = match;
 
@@ -170,7 +185,7 @@ namespace MimeKit.Text {
 
 			// Step 1: Add the pattern to the trie
 			for (int i = 0; i < pattern.Length; i++) {
-				c = icase ? char.ToLower (pattern[i]) : pattern[i];
+				c = Fold (pattern[i]);
 				match = FindMatch (state, c);
 				if (match is null)
 					state = Insert (state, depth, c);
@@ -181,16 +196,15 @@ namespace MimeKit.Text {
 			}
 
 			state.Pattern = pattern;
-			state.Depth = depth;
 
-			// Step 2: Compute the failure graph
+			// Step 2: Compute the failure graph and the output of each state. The states are visited breadth-first so that
+			// the failure state of each state (which is always shallower) has already been computed by the time it is needed.
 			for (int i = 0; i < failStates.Count; i++) {
-				state = failStates[i];
+				for (state = failStates[i]; state != null; state = state.Next) {
+					// Note: Fail is never null for non-root states.
+					state.Output = state.Pattern ?? state.Fail!.Output;
 
-				while (state != null) {
-					match = state.Match;
-					while (match != null) {
-						TrieState matchedState = match.State;
+					for (match = state.Match; match != null; match = match.Next) {
 						TrieState? failState = state.Fail;
 						TrieMatch? nextMatch = null;
 
@@ -199,51 +213,30 @@ namespace MimeKit.Text {
 						while (failState != null && (nextMatch = FindMatch (failState, c)) is null)
 							failState = failState.Fail;
 
-						if (failState != null) {
-							// Note: nextMatch is not null when the while loop exits with failState != null
-							matchedState.Fail = nextMatch!.State;
-							if (matchedState.Fail.Depth > matchedState.Depth)
-								matchedState.Depth = matchedState.Fail.Depth;
-						} else {
-							if ((nextMatch = FindMatch (root, c)) != null)
-								matchedState.Fail = nextMatch.State;
-							else
-								matchedState.Fail = root;
-						}
-
-						match = match.Next;
+						// Note: nextMatch is not null when the while loop exits with failState != null
+						match.State.Fail = failState != null ? nextMatch!.State : root;
 					}
-
-					state = state.Next;
 				}
 			}
 		}
 
 		//
-		// Aho-Corasick
+		// Aho-Corasick (leftmost-longest)
 		//
-		// q = root
-		// FOR i = 1 TO n
-		//   WHILE q != fail AND g(q, text[i]) == fail
-		//     q = h(q)
-		//   ENDWHILE
-		//   IF q == fail
-		//     q = root
-		//   ELSE
-		//     q = g(q, text[i])
-		//   ENDIF
-		//   IF isElement(q, final)
-		//     RETURN TRUE
-		//   ENDIF
-		// ENDFOR
-		// RETURN FALSE
+		// Each state represents a prefix of one or more patterns and its failure state represents the longest proper
+		// suffix of that prefix that is also a prefix of a pattern. The output of a state is the longest pattern that
+		// is a suffix of the state's prefix.
+		//
+		// Once a match has been found, the search continues only as long as a longer match starting at the same
+		// offset (or a match starting at an earlier offset) is still possible.
 		//
 
 		/// <summary>
 		/// Search the text for any of the patterns added to the trie.
 		/// </summary>
 		/// <remarks>
-		/// Searches the text for any of the patterns added to the trie.
+		/// Searches the text for the left-most occurrence of any of the patterns added to the trie. If more
+		/// than one pattern matches at that offset, the longest pattern is returned.
 		/// </remarks>
 		/// <returns>The first index of a matched pattern if successful; otherwise, <c>-1</c>.</returns>
 		/// <param name="text">The text to search.</param>
@@ -261,47 +254,38 @@ namespace MimeKit.Text {
 		{
 			ValidateArguments (text, startIndex, count);
 
-			int endIndex = Math.Min (text.Length, startIndex + count);
-			TrieState? state = root;
-			TrieMatch? match = null;
-			int matched = 0;
+			int endIndex = startIndex + count;
+			TrieState state = root;
 			int offset = -1;
-			char c;
 
 			pattern = null;
 
 			for (int i = startIndex; i < endIndex; i++) {
-				c = icase ? char.ToLower (text[i]) : text[i];
+				char c = Fold (text[i]);
+				TrieMatch? match;
 
-				while (state != null && (match = FindMatch (state, c)) is null && matched == 0)
-					state = state.Fail;
+				// Note: Fail is never null for non-root states.
+				while ((match = FindMatch (state, c)) is null && state != root)
+					state = state.Fail!;
 
-				if (state == root) {
-					if (matched > 0)
-						return offset;
+				state = match?.State ?? root;
 
-					offset = i;
-				}
+				// If the current state's prefix starts after the offset of the match that we've already found, then
+				// no longer (or earlier) match is possible.
+				if (pattern != null && i + 1 - state.Depth > offset)
+					break;
 
-				if (state is null) {
-					if (matched > 0)
-						return offset;
+				if (state.Output != null) {
+					int index = i + 1 - state.Output.Length;
 
-					state = root;
-					offset = i;
-				} else if (match != null) {
-					state = match.State;
-
-					if (state.Depth > matched) {
-						pattern = state.Pattern;
-						matched = state.Depth;
+					if (pattern is null || index < offset || (index == offset && state.Output.Length > pattern.Length)) {
+						pattern = state.Output;
+						offset = index;
 					}
-				} else if (matched > 0) {
-					return offset;
 				}
 			}
 
-			return matched > 0 ? offset : -1;
+			return offset;
 		}
 
 		/// <summary>

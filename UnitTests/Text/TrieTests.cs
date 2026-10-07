@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Globalization;
+
 using MimeKit.Text;
 
 namespace UnitTests.Text {
@@ -92,6 +94,131 @@ namespace UnitTests.Text {
 				substr = TestCases[i].Substring (index);
 
 				Assert.That (substr.StartsWith (pattern, StringComparison.OrdinalIgnoreCase), Is.True, $"Search returned wrong index for {TestCases[i]}");
+			}
+		}
+
+		static Trie CreateTrie (bool ignoreCase, params string[] patterns)
+		{
+			var trie = new Trie (ignoreCase);
+
+			foreach (var pattern in patterns)
+				trie.Add (pattern);
+
+			return trie;
+		}
+
+		static void AssertSearch (Trie trie, string text, int expectedIndex, string expectedPattern)
+		{
+			int index = trie.Search (text.ToCharArray (), out var pattern);
+
+			Assert.That (index, Is.EqualTo (expectedIndex), $"index for \"{text}\"");
+			Assert.That (pattern, Is.EqualTo (expectedPattern), $"pattern for \"{text}\"");
+		}
+
+		[Test]
+		public void TestMismatchAfterPartialMatch ()
+		{
+			var trie = CreateTrie (true, TriePatterns);
+
+			AssertSearch (trie, "wwww.example.com", 1, "www.");
+			AssertSearch (trie, "sftp.example.com", 1, "ftp.");
+			AssertSearch (trie, "hhttp://example.com", 1, "http://");
+			AssertSearch (trie, "http://wwww.example.com", 0, "http://");
+		}
+
+		[Test]
+		public void TestMatchWithinFailedPrefix ()
+		{
+			var trie = CreateTrie (false, "abcd", "bc");
+
+			AssertSearch (trie, "abcx", 1, "bc");
+			AssertSearch (trie, "abcd", 0, "abcd");
+			AssertSearch (trie, "xxabx", -1, null);
+		}
+
+		[Test]
+		public void TestLeftmostLongest ()
+		{
+			var trie = CreateTrie (false, "b", "abc", "ab", "bcde");
+
+			AssertSearch (trie, "abcde", 0, "abc");
+			AssertSearch (trie, "abx", 0, "ab");
+			AssertSearch (trie, "xbcdex", 1, "bcde");
+			AssertSearch (trie, "xbcdx", 1, "b");
+		}
+
+		[Test]
+		public void TestCultureInvariantIgnoreCase ()
+		{
+			var culture = CultureInfo.CurrentCulture;
+
+			try {
+				CultureInfo.CurrentCulture = new CultureInfo ("tr-TR");
+
+				var trie = CreateTrie (true, "file://", "mailto:");
+
+				AssertSearch (trie, "FILE://", 0, "file://");
+				AssertSearch (trie, "MAILTO:", 0, "mailto:");
+				AssertSearch (trie, "f\u0130le://", -1, null);
+				AssertSearch (trie, "f\u0131le://", -1, null);
+			} finally {
+				CultureInfo.CurrentCulture = culture;
+			}
+		}
+
+		static int NaiveSearch (string text, string[] patterns, bool ignoreCase, out string pattern)
+		{
+			var comparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+			pattern = null;
+
+			for (int i = 0; i < text.Length; i++) {
+				foreach (var p in patterns) {
+					if (i + p.Length <= text.Length && string.Compare (text, i, p, 0, p.Length, comparison) == 0 && (pattern is null || p.Length > pattern.Length))
+						pattern = p;
+				}
+
+				if (pattern != null)
+					return i;
+			}
+
+			return -1;
+		}
+
+		[Test]
+		public void TestRandomizedAgainstNaiveSearch ()
+		{
+			var random = new Random (42);
+
+			for (int iteration = 0; iteration < 2000; iteration++) {
+				var patterns = new string[random.Next (1, 6)];
+
+				for (int i = 0; i < patterns.Length; i++) {
+					var chars = new char[random.Next (1, 6)];
+
+					for (int j = 0; j < chars.Length; j++)
+						chars[j] = "abcAB"[random.Next (5)];
+
+					patterns[i] = new string (chars);
+				}
+
+				patterns = patterns.Distinct (StringComparer.OrdinalIgnoreCase).ToArray ();
+
+				bool ignoreCase = random.Next (2) == 0;
+				var trie = CreateTrie (ignoreCase, patterns);
+				var text = new char[random.Next (0, 30)];
+
+				for (int j = 0; j < text.Length; j++)
+					text[j] = "abcAB"[random.Next (5)];
+
+				var input = new string (text);
+				int expected = NaiveSearch (input, patterns, ignoreCase, out var expectedPattern);
+				int actual = trie.Search (text, out var actualPattern);
+
+				Assert.That (actual, Is.EqualTo (expected), $"index for \"{input}\" with patterns [{string.Join (", ", patterns)}] (ignoreCase={ignoreCase})");
+
+				if (expected != -1)
+					Assert.That (actualPattern, Is.EqualTo (expectedPattern).Using ((IEqualityComparer<string>) (ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)), $"pattern for \"{input}\" with patterns [{string.Join (", ", patterns)}] (ignoreCase={ignoreCase})");
 			}
 		}
 	}

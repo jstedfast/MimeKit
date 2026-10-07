@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Globalization;
+
 using MimeKit.Text;
 
 namespace UnitTests.Text {
@@ -251,6 +253,238 @@ namespace UnitTests.Text {
 		public void TestTextEndingWithFtpDot ()
 		{
 			TestUrlScanner ("This is some text with that ends with ftp.", null);
+		}
+
+		[TestCase ("See http://example.com/path.", "http://example.com/path")]
+		[TestCase ("See http://example.com/path, then", "http://example.com/path")]
+		[TestCase ("See http://example.com/path; then", "http://example.com/path")]
+		[TestCase ("See http://example.com/path: it", "http://example.com/path")]
+		[TestCase ("See http://example.com/path!", "http://example.com/path")]
+		[TestCase ("See http://example.com/path?!", "http://example.com/path")]
+		[TestCase ("See http://example.com/path...", "http://example.com/path")]
+		[TestCase ("See 'http://example.com/path'", "http://example.com/path")]
+		[TestCase ("See \"http://example.com/path\"", "http://example.com/path")]
+		[TestCase ("See *http://example.com/path*", "http://example.com/path")]
+		[TestCase ("See http://example.com/.", "http://example.com/")]
+		[TestCase ("See http://example.com/path?q=1.", "http://example.com/path?q=1")]
+		[TestCase ("See http://example.com/a.b/c.html.", "http://example.com/a.b/c.html")]
+		[TestCase ("(see http://example.com/path).", "http://example.com/path")]
+		[TestCase ("see http://example.com/path).", "http://example.com/path")]
+		[TestCase ("see http://example.com/path]", "http://example.com/path")]
+		[TestCase ("see http://example.com/path}", "http://example.com/path")]
+		[TestCase ("see http://en.wikipedia.org/wiki/Foo_(bar) now", "http://en.wikipedia.org/wiki/Foo_(bar)")]
+		[TestCase ("see http://en.wikipedia.org/wiki/Foo_(bar)).", "http://en.wikipedia.org/wiki/Foo_(bar)")]
+		[TestCase ("see http://example.com/a[0]", "http://example.com/a[0]")]
+		[TestCase ("see http://example.com/a{0}", "http://example.com/a{0}")]
+		[TestCase ("see www.example.com/path.", "www.example.com/path")]
+		[TestCase ("see file:///path/to/file.txt.", "file:///path/to/file.txt")]
+		[TestCase ("see file:///path/to/file.txt, ok", "file:///path/to/file.txt")]
+		[TestCase ("mail mailto:user@example.com?subject=hi.", "mailto:user@example.com?subject=hi")]
+		[TestCase ("mail mailto:user@example.com?", "mailto:user@example.com")]
+		[TestCase ("mail mailto:?subject=hi!", "mailto:?subject=hi")]
+		[TestCase ("mail mailto:?.", null)]
+		public void TestTrailingPunctuation (string input, string expected)
+		{
+			TestUrlScanner (input, expected);
+		}
+
+		[Test]
+		public void TestContinueScanningAfterInvalidCandidate ()
+		{
+			TestUrlScanner ("Email me @ home or visit http://www.example.com", "http://www.example.com");
+			TestUrlScanner ("Visit ftp. or www. or http:// or mailto: or file:// or http://example.com", "http://example.com");
+		}
+
+		[Test]
+		public void TestPatternPrefixedByPartialPattern ()
+		{
+			TestUrlScanner ("wwww.example.com", "www.example.com");
+			TestUrlScanner ("sftp.example.com", "ftp.example.com");
+			TestUrlScanner ("hhttp://example.com", "http://example.com");
+		}
+
+		[Test]
+		public void TestDotAtomAddrspecAtStartOfText ()
+		{
+			TestUrlScanner ("a.b@example.com", "a.b@example.com");
+			TestUrlScanner ("a.b.c@example.com", "a.b.c@example.com");
+			TestUrlScanner (".b@example.com", null);
+		}
+
+		[Test]
+		public void TestCultureInvariantPatternMatching ()
+		{
+			var culture = CultureInfo.CurrentCulture;
+
+			try {
+				CultureInfo.CurrentCulture = new CultureInfo ("tr-TR");
+
+				TestUrlScanner ("FILE://server/share", "FILE://server/share");
+				TestUrlScanner ("MAILTO:user@example.com", "MAILTO:user@example.com");
+				TestUrlScanner ("f\u0130le://server/share", null);
+				TestUrlScanner ("f\u0131le://server/share", null);
+			} finally {
+				CultureInfo.CurrentCulture = culture;
+			}
+		}
+
+		[TestCase ("http://example.com\u00A0click here", "http://example.com")]
+		[TestCase ("http://example.com\u2028next", "http://example.com")]
+		[TestCase ("http://example.com\u3000next", "http://example.com")]
+		[TestCase ("http://example.com/\u202Egpj.exe", "http://example.com/")]
+		[TestCase ("http://example.com/\u200Bhidden", "http://example.com/")]
+		[TestCase ("http://example.com/\u2066x", "http://example.com/")]
+		[TestCase ("http://example.com/\uFEFFx", "http://example.com/")]
+		[TestCase ("http://example.com/\u0085x", "http://example.com/")]
+		[TestCase ("http://ex\u202Eample.com", "http://ex")]
+		[TestCase ("user\u202E@example.com", null)]
+		[TestCase ("user@example.com\u00A0x", "user@example.com")]
+		[TestCase ("http://bücher.example/straße", "http://bücher.example/straße")]
+		[TestCase ("josé@bücher.example", "josé@bücher.example")]
+		public void TestNonAsciiCharacters (string input, string expected)
+		{
+			TestUrlScanner (input, expected);
+		}
+
+		[TestCase ("Email me at user@localhost please", null)]
+		[TestCase ("Email me at user@example please", null)]
+		[TestCase ("Email me at user@example.c please", null)]
+		[TestCase ("Email me at user@example.c0m please", null)]
+		[TestCase ("Email me at user@example.123 please", null)]
+		[TestCase ("Email me at user@example.co please", "user@example.co")]
+		[TestCase ("Email me at user@example.com please", "user@example.com")]
+		[TestCase ("Email me at user@example.info please", "user@example.info")]
+		[TestCase ("Email me at user@mail.example.co.uk please", "user@mail.example.co.uk")]
+		[TestCase ("Email me at user@пример.рф please", "user@пример.рф")]
+		[TestCase ("Email me at mailto:user@localhost please", "mailto:user@localhost")]
+		[TestCase ("Email me at user@[127.0.0.1] please", "user@[127.0.0.1]")]
+		public void TestAddrspecRequiresFullyQualifiedDomain (string input, string expected)
+		{
+			TestUrlScanner (input, expected);
+		}
+
+		[Test]
+		public void TestDomainLengthLimit ()
+		{
+			var label = new string ('a', 63);
+			var maxDomain = $"{label}.{label}.{label}.{new string ('a', 59)}.com"; // 255
+			var tooLongDomain = $"{label}.{label}.{label}.{new string ('a', 60)}.com"; // 256
+
+			Assert.That (maxDomain.Length, Is.EqualTo (255));
+
+			TestUrlScanner ($"x user@{maxDomain} x", $"user@{maxDomain}");
+			TestUrlScanner ($"x user@{tooLongDomain} x", null);
+			TestUrlScanner ($"x user@{maxDomain}. x", $"user@{maxDomain}");
+
+			TestUrlScanner ($"x mailto:user@{maxDomain} x", $"mailto:user@{maxDomain}");
+			TestUrlScanner ($"x mailto:user@{tooLongDomain} x", null);
+
+			// a domain that is too long must not be truncated at the maximum length
+			var longDomain = $"{label}.{label}.{label}.{label}.com";
+
+			TestUrlScanner ($"x user@{longDomain} x", null);
+		}
+
+		[Test]
+		public void TestDomainLabelLengthLimit ()
+		{
+			var maxLabel = new string ('a', 63);
+			var tooLongLabel = new string ('a', 64);
+
+			TestUrlScanner ($"x user@{maxLabel}.com x", $"user@{maxLabel}.com");
+			TestUrlScanner ($"x user@{tooLongLabel}.com x", null);
+			TestUrlScanner ($"x user@example.{tooLongLabel}.com x", null);
+			TestUrlScanner ($"x mailto:user@{tooLongLabel}.com x", null);
+
+			TestUrlScanner ($"x http://{maxLabel}.com/path x", $"http://{maxLabel}.com/path");
+			TestUrlScanner ($"x http://{tooLongLabel}.com/path x", null);
+			TestUrlScanner ($"x http://example.{tooLongLabel}.com/path x", null);
+			TestUrlScanner ($"x www.{tooLongLabel}.com x", null);
+		}
+
+		[Test]
+		public void TestWebHostnameLengthLimit ()
+		{
+			var label = new string ('a', 63);
+			var maxHost = $"{label}.{label}.{label}.{new string ('a', 59)}.com"; // 255
+			var tooLongHost = $"{label}.{label}.{label}.{new string ('a', 60)}.com"; // 256
+
+			Assert.That (maxHost.Length, Is.EqualTo (255));
+
+			TestUrlScanner ($"x http://{maxHost}/path x", $"http://{maxHost}/path");
+			TestUrlScanner ($"x http://{tooLongHost}/path x", null);
+			TestUrlScanner ($"x https://{maxHost}:8080 x", $"https://{maxHost}:8080");
+
+			// the "www." prefix is part of the hostname
+			var maxWwwHost = "www." + maxHost.Substring (4);
+			var tooLongWwwHost = "www." + tooLongHost.Substring (4);
+
+			TestUrlScanner ($"x {maxWwwHost} x", maxWwwHost);
+			TestUrlScanner ($"x {tooLongWwwHost} x", null);
+		}
+
+		[Test]
+		public void TestLocalPartLengthLimit ()
+		{
+			var maxLocalPart = new string ('a', 64);
+			var tooLongLocalPart = new string ('a', 65);
+
+			TestUrlScanner ($"{maxLocalPart}@example.com", $"{maxLocalPart}@example.com");
+			TestUrlScanner ($"x {tooLongLocalPart}@example.com", null);
+			TestUrlScanner ($"x {new string ('a', 32)}.{new string ('b', 31)}@example.com", $"{new string ('a', 32)}.{new string ('b', 31)}@example.com");
+			TestUrlScanner ($"x {new string ('a', 32)}.{new string ('b', 32)}@example.com", null);
+			TestUrlScanner ($"x \"{new string ('a', 62)}\"@example.com", $"\"{new string ('a', 62)}\"@example.com");
+			TestUrlScanner ($"x \"{new string ('a', 63)}\"@example.com", null);
+
+			TestUrlScanner ($"mailto:{maxLocalPart}@example.com", $"mailto:{maxLocalPart}@example.com");
+			TestUrlScanner ($"mailto:\"{new string ('a', 62)}\"@example.com", $"mailto:\"{new string ('a', 62)}\"@example.com");
+			TestUrlScanner ($"mailto:\"{new string ('a', 63)}\"@example.com", null);
+		}
+
+		[Test]
+		public void TestInvalidIPLiterals ()
+		{
+			TestUrlScanner ("a@[99999999999999999999.1.1.1]", null);
+			TestUrlScanner ("a@[1.2.3.4444]", null);
+			TestUrlScanner ("a@[IPv6:fffff::1]", null);
+			TestUrlScanner ("a@[IPv6:" + new string ('f', 100000) + "]", null);
+		}
+
+		static void AssertLinearTime (Func<int, string> generate)
+		{
+			var scanner = new UrlScanner ();
+
+			for (int i = 0; i < TextConverter.UrlPatterns.Count; i++)
+				scanner.Add (TextConverter.UrlPatterns[i]);
+
+			char[] text = generate (100000).ToCharArray ();
+			int startIndex = 0;
+			int candidates = 0;
+
+			var stopwatch = System.Diagnostics.Stopwatch.StartNew ();
+
+			while (startIndex < text.Length && scanner.Scan (text, startIndex, text.Length - startIndex, out var match)) {
+				startIndex = match.EndIndex;
+				candidates++;
+			}
+
+			stopwatch.Stop ();
+
+			// Note: A quadratic algorithm would take minutes on these inputs.
+			Assert.That (stopwatch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (10)), $"Scanning took {stopwatch.Elapsed} ({candidates} matches)");
+		}
+
+		[Test]
+		public void TestAdversarialInputsAreLinear ()
+		{
+			AssertLinearTime (n => "\"" + string.Concat (Enumerable.Repeat ("\\\"@", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("a@-", n)));
+			AssertLinearTime (n => new string ('a', n) + string.Concat (Enumerable.Repeat ("@-", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("mailto:\"x\\\"", n)));
+			AssertLinearTime (n => "mailto:" + new string ('a', n) + string.Concat (Enumerable.Repeat ("mailto:", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("a.", n)) + string.Concat (Enumerable.Repeat ("@-", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("www.", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("http:// ", n)));
 		}
 	}
 }
