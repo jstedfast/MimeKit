@@ -113,6 +113,23 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
+		[TestCase ("foo<img src=x onerror=alert(1)", "foo")]
+		[TestCase ("foo <a href=\"javascript:alert(1)", "foo ")]
+		[TestCase ("foo<div class=x ", "foo")]
+		[TestCase ("foo</div", "foo")]
+		[TestCase ("foo</div x", "foo")]
+		[TestCase ("foo<", "foo&lt;")]
+		[TestCase ("foo</", "foo&lt;/")]
+		public void TestTruncatedTagsAreDropped (string html, string expected)
+		{
+			// A tag that is cut off by the end of the input never reaches the HtmlTagCallback, so it must not be
+			// written as-is or it could be completed by whatever markup the output is later combined with.
+			var converter = new HtmlToHtml { Header = null, Footer = null };
+			var result = converter.Convert (html);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
 		void SupressInnerContentCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
 			ctx.InvokeCallbackForEndTag = true;

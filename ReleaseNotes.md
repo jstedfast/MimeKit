@@ -255,6 +255,10 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   character reference in an unquoted attribute value of the next tag would resume tokenizing in the quoted
   attribute value state, causing the tag (and the markup that followed) to be emitted as character data.
 
+* Fixed `HtmlToHtml` to drop a tag that is truncated by the end of the input (e.g. `foo<img src=x onerror=...`).
+  Previously the partial tag was written to the output as-is without ever being passed to the
+  `HtmlTagCallback`, so it could be completed by whatever markup the output was later combined with.
+
 * Brought `HtmlTokenizer` into conformance with the html5lib tokenizer test suite. Every test now passes
   except for a few deliberate differences (valueless attributes have a `null` value, DOCTYPE names keep
   their case, CR/LF is not normalized) and the newly specified processing-instruction tokens. Changes

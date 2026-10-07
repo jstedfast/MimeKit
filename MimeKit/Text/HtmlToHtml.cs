@@ -32,7 +32,9 @@ namespace MimeKit.Text {
 	/// An HTML to HTML converter.
 	/// </summary>
 	/// <remarks>
-	/// Used to convert HTML into HTML.
+	/// <para>Used to convert HTML into HTML.</para>
+	/// <para>A tag that is truncated by the end of the input (e.g. <c>&lt;img src=x</c>) is dropped rather than
+	/// being written to the output.</para>
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\MimeVisitorExamples.cs" region="HtmlPreviewVisitor" />
@@ -249,6 +251,7 @@ namespace MimeKit.Text {
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false,
 					ScriptingEnabled = ScriptingEnabled,
+					IgnoreTruncatedTags = true,
 					ReuseDataTokens = true
 				};
 				HtmlToHtmlTagContext? ctx;
