@@ -45,6 +45,8 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) (-1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) 3);
 
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
@@ -74,10 +76,10 @@ namespace UnitTests.Text {
 			Assert.That (converter.InputFormat, Is.EqualTo (TextFormat.Html), "InputFormat");
 			Assert.That (converter.InputStreamBufferSize, Is.EqualTo (4096), "InputStreamBufferSize");
 			Assert.That (converter.MaxElementDepth, Is.EqualTo (4096), "MaxElementDepth");
+			Assert.That (converter.NoScriptHandling, Is.EqualTo (HtmlNoScriptHandling.Unwrap), "NoScriptHandling");
 			Assert.That (converter.OutputEncoding, Is.EqualTo (Encoding.UTF8), "OutputEncoding");
 			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Html), "OutputFormat");
 			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
-			Assert.That (converter.ScriptingEnabled, Is.True, "ScriptingEnabled");
 		}
 
 		void ReplaceUrlsWithFileNames (HtmlTagContext ctx, HtmlWriter htmlWriter)
@@ -226,10 +228,71 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestNoScriptUnwrap ()
+		{
+			const string input = "<p>text</p><noscript><img src=\"http://example.com/tracker.png\"><p>fallback</p></noscript>";
+			const string expected = "<p>text</p><p>fallback</p>";
+			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesCallback };
+
+			// Note: the content of the <noscript> element is passed to the callback and the <noscript> tags are removed
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestNoScriptUnwrapNoCallback ()
+		{
+			const string input = "<head><noscript><link rel=\"stylesheet\" href=\"x.css\"></noscript></head><body><noscript/>a<NOSCRIPT>b</NoScript>c</body>";
+			const string expected = "<head><link rel=\"stylesheet\" href=\"x.css\"/></head><body>abc</body>";
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		static void RecordTagsCallback (HtmlTagContext ctx, HtmlWriter htmlWriter, List<string> tags)
+		{
+			tags.Add (ctx.IsEndTag ? "/" + ctx.TagName : ctx.TagName);
+			ctx.WriteTag (htmlWriter, true);
+		}
+
+		[Test]
+		public void TestNoScriptUnwrapCallbackNeverSeesNoScriptTags ()
+		{
+			const string input = "<div><noscript><b>x</b></noscript></div>";
+			var tags = new List<string> ();
+			var converter = new HtmlToHtml { HtmlTagCallback = (ctx, writer) => {
+				ctx.InvokeCallbackForEndTag = true;
+				RecordTagsCallback (ctx, writer, tags);
+			} };
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo ("<div><b>x</b></div>"));
+			Assert.That (tags, Is.EqualTo (new[] { "div", "b", "/b", "/div" }));
+		}
+
+		[TestCase ("<noscript><style></noscript><img src=x onerror=alert(1)></style></noscript>", "<style></noscript><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<noscript><!--</noscript><img src=x onerror=alert(1)>--></noscript>", "<!--</noscript><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<noscript><p title=\"</noscript><img src=x onerror=alert(1)>\"></p></noscript>", "<p title=\"&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;\"></p>")]
+		public void TestNoScriptUnwrapXss (string input, string expected)
+		{
+			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesCallback };
+
+			// Note: without the <noscript> tags, the output is interpreted the same regardless of whether
+			// scripting is enabled in the renderer, so the embedded "</noscript>" is harmless.
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestNoScriptScriptingEnabled ()
 		{
 			const string input = "<p>text</p><noscript><img src=\"http://example.com/tracker.png\"></noscript>";
-			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesCallback };
+			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesCallback, NoScriptHandling = HtmlNoScriptHandling.ScriptingEnabled };
 
 			// Note: the content of the <noscript> element is raw text and is not passed to the callback
 			var result = converter.Convert (input);
@@ -242,7 +305,7 @@ namespace UnitTests.Text {
 		{
 			const string input = "<p>text</p><noscript><img src=\"http://example.com/tracker.png\"></noscript>";
 			const string expected = "<p>text</p><noscript></noscript>";
-			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesCallback, ScriptingEnabled = false };
+			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesCallback, NoScriptHandling = HtmlNoScriptHandling.ScriptingDisabled };
 
 			var result = converter.Convert (input);
 
@@ -254,7 +317,7 @@ namespace UnitTests.Text {
 		[TestCase ("<noscript><p title=\"</noscript><img src=x onerror=alert(1)>\"></p></noscript>", "<p title=\"&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;\"></p>")]
 		public void TestNoScriptScriptingDisabledRemoveNoScriptTags (string input, string expected)
 		{
-			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesAndNoScriptTagsCallback, ScriptingEnabled = false };
+			var converter = new HtmlToHtml { HtmlTagCallback = RemoveImagesAndNoScriptTagsCallback, NoScriptHandling = HtmlNoScriptHandling.ScriptingDisabled };
 
 			// Note: without the <noscript> tags, the output is interpreted the same regardless of whether
 			// scripting is enabled in the renderer, so the embedded "</noscript>" is harmless.

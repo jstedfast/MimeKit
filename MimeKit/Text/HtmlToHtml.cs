@@ -41,7 +41,9 @@ namespace MimeKit.Text {
 	/// </example>
 	public class HtmlToHtml : TextConverter
 	{
+		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlToHtml"/> class.
 		/// </summary>
@@ -149,49 +151,54 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set whether the HTML should be tokenized as if scripting is enabled.
+		/// Get or set how <c>&lt;noscript&gt;</c> elements should be handled.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets whether the HTML should be tokenized as if scripting is enabled.</para>
-		/// <para>This corresponds to the scripting flag described in the HTML5 specification and controls
-		/// how the content of <c>&lt;noscript&gt;</c> elements is tokenized (see
-		/// <see cref="HtmlTokenizer.ScriptingEnabled"/>). When <see langword="true" />, the content of a
-		/// <c>&lt;noscript&gt;</c> element is treated as raw text and is written to the output verbatim
-		/// <em>without</em> being passed to the <see cref="HtmlTagCallback"/>. When <see langword="false" />,
-		/// the content is tokenized as normal markup and each tag is passed to the <see cref="HtmlTagCallback"/>.</para>
+		/// <para>Gets or sets how <c>&lt;noscript&gt;</c> elements should be handled.</para>
+		/// <para>The HTML5 specification tokenizes the content of a <c>&lt;noscript&gt;</c> element differently
+		/// depending on whether scripting is enabled in the application that renders the HTML (see
+		/// <see cref="HtmlTokenizer.ScriptingEnabled"/>). When scripting is enabled, the content is raw text;
+		/// when scripting is disabled, the content is normal markup.</para>
 		/// <note type="security">
 		/// <para>If the <see cref="HtmlTagCallback"/> is being used to filter the HTML (for example, to remove
-		/// remote images or event handler attributes), then the output is only filtered correctly if this
-		/// value matches whether scripting is enabled in the application that will eventually render the
-		/// output. A mismatch in either direction allows content to bypass the callback:</para>
+		/// remote images or event handler attributes), then the output is only filtered correctly if the
+		/// <c>&lt;noscript&gt;</c> content is tokenized the same way that the application that eventually renders
+		/// the output will interpret it. A mismatch in either direction allows content to bypass the callback:</para>
 		/// <list type="bullet">
-		/// <item><description>If this value is <see langword="true" /> but the output is rendered with
-		/// scripting disabled (as is typical for email clients), markup inside <c>&lt;noscript&gt;</c>
+		/// <item><description>When using <see cref="HtmlNoScriptHandling.ScriptingEnabled"/>, if the output is
+		/// rendered with scripting disabled (as is typical for email clients), markup inside <c>&lt;noscript&gt;</c>
 		/// elements, such as tracking images, remote content and forms, is never seen by the callback but
 		/// <em>is</em> rendered.</description></item>
-		/// <item><description>If this value is <see langword="false" /> but the output is rendered with
-		/// scripting enabled, a <c>&lt;/noscript&gt;</c> hidden inside a comment or a raw text element such as
-		/// <c>&lt;style&gt;</c> within a <c>&lt;noscript&gt;</c> element will close the
+		/// <item><description>When using <see cref="HtmlNoScriptHandling.ScriptingDisabled"/>, if the output is
+		/// rendered with scripting enabled, a <c>&lt;/noscript&gt;</c> hidden inside a comment or a raw text element
+		/// such as <c>&lt;style&gt;</c> within a <c>&lt;noscript&gt;</c> element will close the
 		/// <c>&lt;noscript&gt;</c> element in the renderer, allowing markup that the callback never saw
 		/// (including script event handlers) to be rendered. This is a cross-site scripting (XSS)
 		/// vulnerability.</description></item>
 		/// </list>
-		/// <para>The default value is <see langword="true" /> because a mismatch then cannot lead to script
-		/// execution, since any markup that bypasses the callback is only rendered when scripting is disabled.
-		/// Applications that render with scripting disabled should set this value to <see langword="false" />
-		/// so that the content of <c>&lt;noscript&gt;</c> elements is filtered. To produce output that is
-		/// interpreted the same way regardless of whether scripting is enabled, set this value to
-		/// <see langword="false" /> and remove the <c>&lt;noscript&gt;</c> start and end tags (but not their
-		/// content) in the <see cref="HtmlTagCallback"/> by setting <see cref="HtmlTagContext.DeleteTag"/> and
-		/// <see cref="HtmlTagContext.DeleteEndTag"/>.</para>
+		/// <para>The default value is <see cref="HtmlNoScriptHandling.Unwrap"/>, which tokenizes the content of
+		/// <c>&lt;noscript&gt;</c> elements as normal markup (so that it is passed to the <see cref="HtmlTagCallback"/>)
+		/// and removes the <c>&lt;noscript&gt;</c> start and end tags from the output. Since the output then contains no
+		/// <c>&lt;noscript&gt;</c> elements, it is interpreted the same way regardless of whether scripting is enabled
+		/// in the renderer. The trade-off is that the fallback content of <c>&lt;noscript&gt;</c> elements is always
+		/// displayed, even by renderers that have scripting enabled.</para>
 		/// <para>Note that <see cref="HtmlToHtml"/> is not an HTML sanitizer. For displaying untrusted HTML,
 		/// use a dedicated HTML sanitizer library.</para>
 		/// </note>
 		/// </remarks>
-		/// <value><see langword="true" /> if the HTML should be tokenized as if scripting is enabled; otherwise, <see langword="false" />.</value>
-		public bool ScriptingEnabled {
-			get; set;
-		} = true;
+		/// <value>The method for handling <c>&lt;noscript&gt;</c> elements.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a valid <see cref="HtmlNoScriptHandling"/> value.
+		/// </exception>
+		public HtmlNoScriptHandling NoScriptHandling {
+			get { return noScriptHandling; }
+			set {
+				if (value < HtmlNoScriptHandling.Unwrap || value > HtmlNoScriptHandling.ScriptingDisabled)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				noScriptHandling = value;
+			}
+		}
 
 #if false
 		/// <summary>
@@ -272,11 +279,12 @@ namespace MimeKit.Text {
 			}
 
 			using (var htmlWriter = new HtmlWriter (writer, true)) {
+				var unwrapNoScript = noScriptHandling == HtmlNoScriptHandling.Unwrap;
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new HtmlTagContextStack<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
 					DecodeCharacterReferences = false,
-					ScriptingEnabled = ScriptingEnabled,
+					ScriptingEnabled = noScriptHandling == HtmlNoScriptHandling.ScriptingEnabled,
 					IgnoreTruncatedTags = true,
 					MaxElementDepth = maxElementDepth,
 					ReuseDataTokens = true
@@ -295,6 +303,11 @@ namespace MimeKit.Text {
 						break;
 					case HtmlTokenKind.Tag:
 						var tag = (HtmlTagToken) token;
+
+						// Note: The content of <noscript> elements has been tokenized as markup (as if scripting is disabled), so
+						// remove the <noscript> tags themselves so that renderers with scripting enabled interpret it the same way.
+						if (unwrapNoScript && tag.Id == HtmlTagId.NoScript)
+							break;
 
 						if (!tag.IsEndTag) {
 							// Note: A self-closing tag such as <style/> or <script/> still switches the tokenizer into a raw content

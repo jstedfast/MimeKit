@@ -245,7 +245,7 @@ namespace MimeKit.Text {
 		/// another application (such as a web browser), then this value should match whether scripting will
 		/// be enabled in that application. Otherwise, the renderer may interpret the content of
 		/// <c>&lt;noscript&gt;</c> elements differently than the tokenizer did, allowing markup to bypass the
-		/// filter. See <see cref="HtmlToHtml.ScriptingEnabled"/> for details.</note>
+		/// filter. See <see cref="HtmlToHtml.NoScriptHandling"/> for details.</note>
 		/// </remarks>
 		/// <value><see langword="true" /> if the tokenizer should behave as if scripting is enabled; otherwise, <see langword="false" />.</value>
 		public bool ScriptingEnabled {

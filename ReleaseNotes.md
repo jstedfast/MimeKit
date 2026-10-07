@@ -165,12 +165,16 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
 
 ### Other Enhancements
 
-* Added `HtmlTokenizer.ScriptingEnabled` and `HtmlToHtml.ScriptingEnabled`, which correspond to the
-  HTML5 scripting flag and control whether `<noscript>` content is tokenized as raw text (`true`, the
-  default and previous behavior) or as normal markup (`false`). When `true`, `<noscript>` content is
-  not passed to the `HtmlToHtml.HtmlTagCallback`, so applications that use the callback to filter HTML
-  that will be rendered with scripting disabled (as is typical for email) should set it to `false`.
-  See the `HtmlToHtml.ScriptingEnabled` documentation for the security implications of each setting.
+* Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
+  `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
+  markup (`false`).
+* Added `HtmlToHtml.NoScriptHandling`. Previously, `<noscript>` content was always treated as raw text and was
+  never passed to the `HtmlToHtml.HtmlTagCallback`, so markup such as tracking images inside `<noscript>`
+  elements bypassed any filtering when the output was rendered with scripting disabled (as is typical for email).
+  The new default, `HtmlNoScriptHandling.Unwrap`, tokenizes `<noscript>` content as normal markup (so that it is
+  passed to the callback) and removes the `<noscript>` tags themselves, producing output that is interpreted the
+  same way regardless of whether the renderer has scripting enabled. See the `HtmlToHtml.NoScriptHandling`
+  documentation for the security implications of each setting.
 * Added `ParserOptions.MaxHeaderLength` to limit how much memory the parser will use to buffer any
   single header. A header whose raw length exceeds the limit causes the parser to throw a `FormatException`.
   The default limit is 16 MB.
