@@ -776,7 +776,7 @@ namespace MimeKit.Text {
 
 				if (!TryPeek (out c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					data.Append (entity.GetPushedInput ());
+					data.Append (entity.GetValue ());
 					entity.Reset ();
 
 					return EmitDataToken (true, false);
@@ -811,7 +811,7 @@ namespace MimeKit.Text {
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (decoded, true);
+				return EmitDataToken (decoded, false);
 			}
 
 			if (IsAsciiLetter (c)) {
@@ -835,7 +835,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (decoded, true);
+					return EmitDataToken (decoded, false);
 				}
 
 				switch (c) {
@@ -1044,9 +1044,10 @@ namespace MimeKit.Text {
 		HtmlToken? ReadTagOpen ()
 		{
 			if (!TryPeek (out char c)) {
-				var token = IgnoreTruncatedTags ? null : CreateDataToken ("<");
+				// eof-before-tag-name parse error: emit '<' as character data
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return token;
+				data.Append ('<');
+				return EmitDataToken (true, false);
 			}
 
 			// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1092,8 +1093,9 @@ namespace MimeKit.Text {
 		HtmlToken? ReadEndTagOpen ()
 		{
 			if (!TryRead (out char c)) {
+				// eof-before-tag-name parse error: emit "</" as character data
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (false, true);
+				return EmitDataToken (true, false);
 			}
 
 			// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1113,7 +1115,7 @@ namespace MimeKit.Text {
 				} else {
 					TokenizerState = HtmlTokenizerState.BogusComment;
 					data.Length = 1;
-					data[0] = c;
+					data[0] = c == '\0' ? '\uFFFD' : c;
 				}
 				break;
 			}
@@ -1405,7 +1407,7 @@ namespace MimeKit.Text {
 					break;
 				default:
 					TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
-					data.Append (c);
+					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.ScriptDataEscapedDashDash);
@@ -1943,33 +1945,23 @@ namespace MimeKit.Text {
 
 				entity.Push ('&');
 
+				// Note: 'data' already contains the '&' and accumulates the raw text in case the tag is truncated.
 				while (entity.Push (c)) {
 					ConsumeCharacter (c);
+					data.Append (c);
 
 					if (c == ';')
 						break;
 
 					if (!TryPeek (out c)) {
 						TokenizerState = HtmlTokenizerState.EndOfFile;
-						data.Length--;
-						data.Append (entity.GetPushedInput ());
 						entity.Reset ();
 
 						return EmitDataToken (false, true);
 					}
 				}
 
-				var pushed = entity.GetPushedInput ();
-				string value;
-
-				if (c == '=' || IsAlphaNumeric (c))
-					value = pushed;
-				else
-					value = entity.GetValue ();
-
-				data.Length--;
-				data.Append (pushed);
-				name.Append (value);
+				name.Append (entity.GetAttributeValue (c));
 				entity.Reset ();
 				break;
 			}
@@ -2064,10 +2056,8 @@ namespace MimeKit.Text {
 			char c = '\0';
 
 			while (count < 2) {
-				if (!TryPeek (out c)) {
-					TokenizerState = HtmlTokenizerState.EndOfFile;
-					return EmitDataToken (false, true);
-				}
+				if (!TryPeek (out c))
+					break;
 
 				if (c != '-')
 					break;
@@ -2099,11 +2089,8 @@ namespace MimeKit.Text {
 					count = 1;
 
 					while (count < 7) {
-						if (!TryPeek (out c)) {
-							TokenizerState = HtmlTokenizerState.EndOfFile;
-							name.Length = 0;
-							return EmitDataToken (false, true);
-						}
+						if (!TryPeek (out c))
+							break;
 
 						if (ToLower (c) != DocType[count])
 							break;
@@ -2130,10 +2117,8 @@ namespace MimeKit.Text {
 					count = 1;
 
 					while (count < 7) {
-						if (!TryPeek (out c)) {
-							TokenizerState = HtmlTokenizerState.EndOfFile;
-							return EmitDataToken (false, true);
-						}
+						if (!TryPeek (out c))
+							break;
 
 						if (c != CData[count])
 							break;
@@ -2432,8 +2417,21 @@ namespace MimeKit.Text {
 
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
+					if (name.Length > 0) {
+						// parse error: not "PUBLIC" or "SYSTEM"
+						TokenizerState = HtmlTokenizerState.BogusDocType;
+						doctype!.ForceQuirksMode = true;
+						name.Length = 0;
+						return null;
+					}
 					break;
 				case '>':
+					if (name.Length > 0) {
+						// parse error: not "PUBLIC" or "SYSTEM"
+						doctype!.ForceQuirksMode = true;
+						name.Length = 0;
+					}
+
 					TokenizerState = HtmlTokenizerState.Data;
 					return EmitDocType ();
 				default:
@@ -2449,6 +2447,7 @@ namespace MimeKit.Text {
 						doctype!.SystemKeyword = name.ToString ();
 					} else {
 						TokenizerState = HtmlTokenizerState.BogusDocType;
+						doctype!.ForceQuirksMode = true;
 					}
 
 					name.Length = 0;
@@ -2777,8 +2776,8 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					// Note: unlike most DOCTYPE states, EOF in the bogus DOCTYPE state does not set force-quirks.
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				}
 

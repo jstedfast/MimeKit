@@ -35,11 +35,14 @@ namespace MimeKit.Text {
 	/// </remarks>
 	public partial class HtmlEntityDecoder
 	{
+		const int MaxCodePoint = 0x10FFFF;
+
 		readonly char[] pushed;
 		readonly int[] states;
+		int numericValue;
 		bool semicolon;
 		bool numeric;
-		byte digits;
+		bool digits;
 		byte xbase;
 		int index;
 
@@ -61,14 +64,21 @@ namespace MimeKit.Text {
 
 			if (xbase == 0) {
 				if (c == 'X' || c == 'x') {
-					states[index] = 0;
-					pushed[index] = c;
+					pushed[index++] = c;
 					xbase = 16;
-					index++;
 					return true;
 				}
 
 				xbase = 10;
+			}
+
+			if (c == ';') {
+				if (!digits)
+					return false;
+
+				semicolon = true;
+				AppendNumeric (c);
+				return true;
 			}
 
 			if (c <= '9') {
@@ -77,9 +87,9 @@ namespace MimeKit.Text {
 
 				v = c - '0';
 			} else if (xbase == 16) {
-				if (c >= 'a') {
+				if (c >= 'a' && c <= 'f') {
 					v = (c - 'a') + 10;
-				} else if (c >= 'A') {
+				} else if (c >= 'A' && c <= 'F') {
 					v = (c - 'A') + 10;
 				} else {
 					return false;
@@ -88,25 +98,24 @@ namespace MimeKit.Text {
 				return false;
 			}
 
-			if (v >= (int) xbase)
-				return false;
+			// Per the HTML specification, a numeric character reference consumes every digit no matter how many
+			// there are. Saturate just above the maximum code point so that the value cannot overflow and is
+			// still recognized as out-of-range when it is decoded.
+			if (numericValue <= MaxCodePoint)
+				numericValue = Math.Min ((numericValue * xbase) + v, MaxCodePoint + 1);
 
-			int state = states[index - 1];
-
-			// check for overflow
-			if (state > int.MaxValue / xbase)
-				return false;
-
-			if (state == int.MaxValue / xbase && v > int.MaxValue % xbase)
-				return false;
-
-			state = (state * xbase) + v;
-			states[index] = state;
-			pushed[index] = c;
-			digits++;
-			index++;
+			AppendNumeric (c);
+			digits = true;
 
 			return true;
+		}
+
+		void AppendNumeric (char c)
+		{
+			// Only the leading characters of an arbitrarily long run of digits are retained. The raw text is
+			// only ever needed when no digits were consumed (e.g. "&#x"), in which case it is always short.
+			if (index < MaxEntityLength)
+				pushed[index++] = c;
 		}
 
 		/// <summary>
@@ -136,6 +145,9 @@ namespace MimeKit.Text {
 				return true;
 			}
 
+			if (numeric)
+				return PushNumericEntity (c);
+
 			if (index + 1 > MaxEntityLength)
 				return false;
 
@@ -147,30 +159,22 @@ namespace MimeKit.Text {
 				return true;
 			}
 
+			if (!PushNamedEntity (c))
+				return false;
+
 			semicolon = c == ';';
 
-			if (numeric) {
-				if (c == ';') {
-					states[index] = states[index - 1];
-					pushed[index] = ';';
-					index++;
-					return true;
-				}
-
-				return PushNumericEntity (c);
-			}
-
-			return PushNamedEntity (c);
+			return true;
 		}
 
+		// 13.2.5.80 Numeric character reference end state
 		string GetNumericEntityValue ()
 		{
-			if (digits == 0 || !semicolon)
+			if (!digits)
 				return new string (pushed, 0, index);
 
-			int state = states[index - 1];
+			int state = numericValue;
 
-			// the following states are parse errors
 			switch (state) {
 			case 0x00: return "\uFFFD"; // REPLACEMENT CHARACTER
 			case 0x80: return "\u20AC"; // EURO SIGN (€)
@@ -200,27 +204,38 @@ namespace MimeKit.Text {
 			case 0x9C: return "\u0153"; // LATIN SMALL LIGATURE OE (œ)
 			case 0x9E: return "\u017E"; // LATIN SMALL LETTER Z WITH CARON (ž)
 			case 0x9F: return "\u0178"; // LATIN CAPITAL LETTER Y WITH DIAERESIS (Ÿ)
-			case 0x0000B: case 0x0FFFE: case 0x1FFFE: case 0x1FFFF: case 0x2FFFE: case 0x2FFFF: case 0x3FFFE:
-			case 0x3FFFF: case 0x4FFFE: case 0x4FFFF: case 0x5FFFE: case 0x5FFFF: case 0x6FFFE: case 0x6FFFF:
-			case 0x7FFFE: case 0x7FFFF: case 0x8FFFE: case 0x8FFFF: case 0x9FFFE: case 0x9FFFF: case 0xAFFFE:
-			case 0xAFFFF: case 0xBFFFE: case 0xBFFFF: case 0xCFFFE: case 0xCFFFF: case 0xDFFFE: case 0xDFFFF:
-			case 0xEFFFE: case 0xEFFFF: case 0xFFFFE: case 0xFFFFF: case 0x10FFFE: case 0x10FFFF:
-				// parse error
-				return new string (pushed, 0, index);
 			default:
-				if ((state >= 0xD800 && state <= 0xDFFF) || state > 0x10FFFF) {
-					// parse error, emit REPLACEMENT CHARACTER
+				// Surrogates and values beyond the Unicode range are replaced. Noncharacters and the remaining
+				// control characters are parse errors, but are still emitted as-is.
+				if ((state >= 0xD800 && state <= 0xDFFF) || state > MaxCodePoint)
 					return "\uFFFD";
-				}
-
-				if ((state >= 0x0001 && state <= 0x0008) || (state >= 0x000D && state <= 0x001F) ||
-					(state >= 0x007F && state <= 0x009F) || (state >= 0xFDD0 && state <= 0xFDEF)) {
-					return new string (pushed, 0, index);
-				}
 				break;
 			}
 
 			return char.ConvertFromUtf32 (state);
+		}
+
+		// 13.2.5.73 Named character reference state: if the character reference was consumed as part of an
+		// attribute, and the last character matched is not ';', and the next input character is either '=' or
+		// an ASCII alphanumeric, then the matched characters are flushed as-is (for historical reasons).
+		internal string GetAttributeValue (char next)
+		{
+			if (numeric)
+				return GetNumericEntityValue ();
+
+			int matched = index;
+
+			while (matched > 1 && !NamedEntities.ContainsKey (states[matched - 1]))
+				matched--;
+
+			if (matched > 1 && pushed[matched - 1] != ';') {
+				char c = matched < index ? pushed[matched] : next;
+
+				if (c == '=' || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+					return new string (pushed, 0, index);
+			}
+
+			return GetNamedEntityValue ();
 		}
 
 		/// <summary>
@@ -235,11 +250,6 @@ namespace MimeKit.Text {
 			return numeric ? GetNumericEntityValue () : GetNamedEntityValue ();
 		}
 
-		internal string GetPushedInput ()
-		{
-			return new string (pushed, 0, index);
-		}
-
 		/// <summary>
 		/// Reset the entity decoder.
 		/// </summary>
@@ -248,9 +258,10 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public void Reset ()
 		{
+			numericValue = 0;
 			semicolon = false;
 			numeric = false;
-			digits = 0;
+			digits = false;
 			xbase = 0;
 			index = 0;
 		}

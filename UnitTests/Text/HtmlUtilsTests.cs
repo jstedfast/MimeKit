@@ -260,6 +260,17 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestHtmlDecodeNumericCharacterReferences ()
+		{
+			const string encoded = "&#65 &#x42;&#x110000;&#xD800;&#x96;&#1;&#;";
+			const string expected = "A B\uFFFD\uFFFD\u2013\u0001&#;";
+
+			var decoded = HtmlUtils.HtmlDecode (encoded);
+
+			Assert.That (decoded, Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestHtmlNamespaces ()
 		{
 			string nullspace = null;

@@ -255,6 +255,26 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   character reference in an unquoted attribute value of the next tag would resume tokenizing in the quoted
   attribute value state, causing the tag (and the markup that followed) to be emitted as character data.
 
+* Brought `HtmlTokenizer` into conformance with the html5lib tokenizer test suite. Every test now passes
+  except for a few deliberate differences (valueless attributes have a `null` value, DOCTYPE names keep
+  their case, CR/LF is not normalized) and the newly specified processing-instruction tokens. Changes
+  include:
+  * Numeric character references now follow the specification: they consume any number of digits, the
+    trailing `;` is optional (`&#65` is `A`), values outside the Unicode range become U+FFFD, and control
+    characters and noncharacters are decoded rather than left as literal text. This also affects
+    `HtmlEntityDecoder` and `HtmlUtils.HtmlDecode`.
+  * In attribute values, a legacy named character reference without a `;` that is followed by `=` or an
+    alphanumeric character is now left as-is (e.g. `href="?a=1&not=2"`), as browsers do. Named
+    character references at the end of the input are now decoded.
+  * Unrecognized text after a DOCTYPE name (e.g. `<!DOCTYPE html PUB>`) now sets `ForceQuirksMode`, while
+    an end-of-file in the bogus DOCTYPE state no longer does.
+  * A `<` or `</` at the end of the input, and an incomplete end tag at the end of RCDATA or RAWTEXT
+    content (e.g. `<title>foo</ti`), are now emitted as character data even when `IgnoreTruncatedTags` is
+    enabled, since they are text rather than truncated tags. A `<!`, `<!-`, `<!DOC` or `<![CDATA` at the
+    end of the input is now a (bogus) comment rather than character data.
+  * NUL characters in bogus comments started by `</` and after `--` in escaped script data are now
+    replaced with U+FFFD.
+
 * Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
   `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
   against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a

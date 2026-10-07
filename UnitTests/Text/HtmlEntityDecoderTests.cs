@@ -135,12 +135,29 @@ namespace UnitTests.Text {
 			TestDecodeNumericEntity ("&#x9E;", "\u017E"); // LATIN SMALL LETTER Z WITH CARON (ž)
 			TestDecodeNumericEntity ("&#x9F;", "\u0178"); // LATIN CAPITAL LETTER Y WITH DIAERESIS (Ÿ)
 
-			// parse error
-			TestDecodeNumericEntity ("&#X10FFFF;", "&#X10FFFF;");
+			// noncharacters are a parse error, but the code point is still emitted
+			TestDecodeNumericEntity ("&#X10FFFF;", "\uDBFF\uDFFF");
+			TestDecodeNumericEntity ("&#xFDD0;", "\uFDD0");
 
 			TestDecodeNumericEntity ("&#xD800;", "\uFFFD");
 
-			TestDecodeNumericEntity ("&#1;", "&#1;");
+			// control characters are a parse error, but the code point is still emitted
+			TestDecodeNumericEntity ("&#1;", "\u0001");
+			TestDecodeNumericEntity ("&#x7F;", "\u007F");
+
+			// values beyond U+10FFFF are replaced with U+FFFD
+			TestDecodeNumericEntity ("&#x110000;", "\uFFFD");
+			TestDecodeNumericEntity ("&#xFFFFFFFF;", "\uFFFD");
+			TestDecodeNumericEntity ("&#x7FFFFFFF0", "\uFFFD");
+			TestDecodeNumericEntity ($"&#{int.MaxValue / 10}{(int.MaxValue % 10) + 1}", "\uFFFD");
+			TestDecodeNumericEntity ("&#99999999999999999999999999999999999999999999;", "\uFFFD");
+
+			// leading zeros are unbounded
+			TestDecodeNumericEntity ("&#x00000000000000000000000000000000000000000041;", "A");
+
+			// the trailing semicolon is optional
+			TestDecodeNumericEntity ("&#65", "A");
+			TestDecodeNumericEntity ("&#x41", "A");
 
 			TestDecodeNumericEntity ("&#32;", " ");
 			TestDecodeNumericEntity ("&#x7a;", "z");
@@ -166,9 +183,8 @@ namespace UnitTests.Text {
 			TestPushInvalidNumericEntity ("&#x@");
 			TestPushInvalidNumericEntity ("&#xG");
 			TestPushInvalidNumericEntity ("&#xg");
-			TestPushInvalidNumericEntity ("&#xFFFFFFFF");
-			TestPushInvalidNumericEntity ("&#x7FFFFFFF0");
-			TestPushInvalidNumericEntity ($"&#{int.MaxValue / 10}{(int.MaxValue % 10) + 1}");
+			TestPushInvalidNumericEntity ("&#;");
+			TestPushInvalidNumericEntity ("&#x;");
 		}
 
 		[Test]
@@ -183,7 +199,7 @@ namespace UnitTests.Text {
 			Assert.That (decoder.Push ('5'), Is.True);
 
 			var value = decoder.GetValue ();
-			Assert.That (value, Is.EqualTo ("&#x95"));
+			Assert.That (value, Is.EqualTo ("\u2022"));
 		}
 	}
 }
