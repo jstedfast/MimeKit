@@ -107,6 +107,13 @@ namespace MimeKit.Tnef {
 		/// This is not a defect in the TNEF message, but the exceptions beyond the limit were not written to the
 		/// <c>text/calendar</c> part. The embedded messages for any of those exceptions are kept as ordinary attachments.
 		/// </remarks>
-		CalendarExceptionLimitExceeded
+		CalendarExceptionLimitExceeded,
+
+		/// <summary>
+		/// An OLE object attachment was not rendered as an image, either because
+		/// <see cref="TnefConversionOptions.OleObjectConverter"/> was not set or because it did not produce an image.
+		/// The OLE compound file was attached unchanged, so mail clients will most likely be unable to display it.
+		/// </summary>
+		OleObjectNotRendered
 	}
 }

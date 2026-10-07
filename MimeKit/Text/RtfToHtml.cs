@@ -1136,13 +1136,37 @@ namespace MimeKit.Text {
 			return counter.Extract ? -1 : counter.Count;
 		}
 
+		/// <summary>
+		/// Determines whether <see cref="Convert(TextReader, TextWriter)"/> would extract the HTML encapsulated within
+		/// the document rather than render the RTF.
+		/// </summary>
+		/// <remarks>
+		/// Only the beginning of the document is normally read ([MS-OXRTFEX] 2.2.3.1).
+		/// </remarks>
+		/// <returns><see langword="true"/> if the encapsulated HTML would be extracted; otherwise, <see langword="false"/>.</returns>
+		internal bool ExtractsEncapsulatedHtml (TextReader reader, CancellationToken cancellationToken)
+		{
+			var counter = new PlaceholderCounter ();
+			var interpreter = new RtfInterpreter (reader, counter, MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
+				ExtractHtml = ExtractEncapsulatedHtml
+			};
+
+			while (!counter.Begun && interpreter.Step ())
+				cancellationToken.ThrowIfCancellationRequested ();
+
+			return counter.Extract;
+		}
+
 		internal sealed class PlaceholderCounter : RtfContentHandler
 		{
 			public bool Extract;
+			public bool Begun;
 			public int Count;
 
 			public override void OnBegin (RtfInterpreter rtf)
 			{
+				Begun = true;
+
 				// Mirrors HtmlHandler.OnBegin.
 				if (rtf.FromHtml && rtf.ExtractHtml)
 					Extract = true;

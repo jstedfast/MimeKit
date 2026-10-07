@@ -789,6 +789,55 @@ namespace UnitTests.Tnef {
 			Assert.That (result.Html, Does.Not.Contain ("<img"));
 		}
 
+		[Test]
+		public void TestRtfEncapsulatedHtmlReferencedAttachmentsAreRelated ()
+		{
+			// The HTML extracted from the RTF refers to attachments like an HTML best body does ([MS-OXCMAIL] 2.1.3.4.1.2).
+			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <p>}A{\\*\\htmltag <img src=\"cid:image1@example.com\">}{\\*\\htmltag <img src=\"cid:image2@example.com\">}B{\\*\\htmltag </p>}}";
+			var result = ConvertRtf (rtf,
+				new Attachment { Flags = TnefAttachFlags.RenderedInBody, ContentId = "image1@example.com", FileName = "image1.png", Content = Png },
+				new Attachment { Flags = TnefAttachFlags.RenderedInBody, ContentId = "other@example.com", FileName = "other.png", Content = Png },
+				new Attachment { ContentId = "image2@example.com", FileName = "image2.png", Content = Png });
+
+			Assert.That (result.Related, Has.Count.EqualTo (1));
+			Assert.That (result.Related[0].FileName, Is.EqualTo ("image1.png"));
+			Assert.That (result.Related[0].ContentId, Is.EqualTo ("image1@example.com"));
+			Assert.That (IsInline (result.Related[0]), Is.True);
+
+			// Not referenced, and not flagged with afRenderedInBody, respectively.
+			Assert.That (result.Attachments, Has.Count.EqualTo (2));
+			Assert.That (result.Attachments[0].FileName, Is.EqualTo ("other.png"));
+			Assert.That (IsInline (result.Attachments[0]), Is.False);
+			Assert.That (result.Attachments[1].FileName, Is.EqualTo ("image2.png"));
+			Assert.That (IsInline (result.Attachments[1]), Is.False);
+
+			Assert.That (result.Html, Does.Contain ("<p>A<img src=\"cid:image1@example.com\"/><img src=\"cid:image2@example.com\"/>B</p>"));
+			Assert.That (result.Text, Does.Contain ("AB"));
+		}
+
+		[Test]
+		public void TestRtfEncapsulatedHtmlContentLocationIsRelated ()
+		{
+			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <img src=\"http://example.com/image.png\">}}";
+			var result = ConvertRtf (rtf,
+				new Attachment { Flags = TnefAttachFlags.RenderedInBody, ContentLocation = "http://example.com/image.png", Content = Png });
+
+			Assert.That (result.Related, Has.Count.EqualTo (1));
+			Assert.That (result.Attachments, Is.Empty);
+			Assert.That (result.Html, Does.Contain ("<img src=\"http://example.com/image.png\"/>"));
+		}
+
+		[Test]
+		public void TestRtfWithoutEncapsulatedHtmlIgnoresContentIds ()
+		{
+			// Rendered RTF does not refer to attachments by Content-Id, even if it contains text that looks like a reference.
+			var result = ConvertRtf ("{\\rtf1 <img src=\"cid:image1@example.com\">}", Flagged ());
+
+			Assert.That (result.Related, Is.Empty);
+			Assert.That (result.Attachments, Has.Count.EqualTo (1));
+			Assert.That (IsInline (result.Attachments[0]), Is.False);
+		}
+
 		static string FileNamePlaceholder (TnefAttachment attachment, MimeEntity entity)
 		{
 			return "<<" + attachment.FileName + ">>";
@@ -1020,6 +1069,46 @@ namespace UnitTests.Tnef {
 				result.Attachments[0].Content.DecodeTo (memory);
 				Assert.That (memory.ToArray (), Is.EqualTo (new byte[] { 0xD0, 0xCF, 0x11, 0xE0 }));
 			}
+		}
+
+		static TnefConversionLossKind[] ConvertOleLosses (TnefConversionOptions options, Attachment attachment)
+		{
+			var builder = CreateMessage (Bodies.Rtf, rtf: CompressedRtf ("{\\rtf1 A\\objattph\\'20 B}"));
+
+			AddAttachment (builder, attachment);
+
+			using (var tnef = TnefMessage.Load (builder.ToStream ())) {
+				var result = tnef.ConvertToMime (options ?? new TnefConversionOptions ());
+
+				return result.Losses.Select (loss => loss.Kind).ToArray ();
+			}
+		}
+
+		[Test]
+		public void TestOleObjectNotRenderedWithoutConverterIsALoss ()
+		{
+			Assert.That (ConvertOleLosses (null, Ole ()), Is.EqualTo (new[] { TnefConversionLossKind.OleObjectNotRendered }));
+		}
+
+		[Test]
+		public void TestOleObjectNotRenderedByConverterIsALoss ()
+		{
+			var options = new TnefConversionOptions { OleObjectConverter = new OleConverter (attachment => null) };
+
+			Assert.That (ConvertOleLosses (options, Ole ()), Is.EqualTo (new[] { TnefConversionLossKind.OleObjectNotRendered }));
+
+			options = new TnefConversionOptions { OleObjectConverter = new OleConverter (attachment => new MemoryStream (new byte[] { 1, 2, 3 }, false)) };
+
+			Assert.That (ConvertOleLosses (options, Ole ()), Is.EqualTo (new[] { TnefConversionLossKind.OleObjectNotRendered }));
+		}
+
+		[Test]
+		public void TestOleObjectRenderedIsNotALoss ()
+		{
+			var options = new TnefConversionOptions { OleObjectConverter = new OleConverter (attachment => new MemoryStream (Png, false)) };
+
+			Assert.That (ConvertOleLosses (options, Ole ()), Is.Empty);
+			Assert.That (ConvertOleLosses (null, new Attachment { FileName = "a.bin" }), Is.Empty);
 		}
 
 		[Test]

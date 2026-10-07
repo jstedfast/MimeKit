@@ -105,6 +105,8 @@ namespace MimeKit.Tnef {
 		HtmlReferences? htmlReferences;
 		HashSet<MimeEntity>? displayedImages;
 		MemoryBlockStream? decodedRtf;
+		MemoryBlockStream? rtfHtml;
+		bool? rtfExtractsHtml;
 		TnefMessageBody? rtfBody;
 		BestBodyFormat? bestBody;
 		byte[]? buffer;
@@ -163,6 +165,8 @@ namespace MimeKit.Tnef {
 			} finally {
 				decodedRtf?.Dispose ();
 				decodedRtf = null;
+				rtfHtml?.Dispose ();
+				rtfHtml = null;
 			}
 		}
 
@@ -426,20 +430,15 @@ namespace MimeKit.Tnef {
 			return tnef.TextBody is null && tnef.HtmlBody is null;
 		}
 
-		// Generates a text/plain or text/html body part from the decoded RTF body. The output is UTF-8. A
-		// replacement fallback (rather than CharsetUtils.UTF8's exception fallback) is used because malformed RTF can
-		// produce unpaired surrogates (e.g. from a lone \uN), and no byte order mark is written.
-		TextPart CreateRtfBodyPart (string subtype, TextConverter converter)
+		// Converts the decoded RTF body to text or HTML. The output is UTF-8. A replacement fallback (rather than
+		// CharsetUtils.UTF8's exception fallback) is used because malformed RTF can produce unpaired surrogates (e.g.
+		// from a lone \uN), and no byte order mark is written.
+		MemoryBlockStream ConvertRtf (TextConverter converter)
 		{
 			var rtf = decodedRtf ??= DecodeRtf (rtfBody!, out _);
-			var part = new TextPart (subtype);
+			var content = new MemoryBlockStream ();
 
 			try {
-				var content = new MemoryBlockStream ();
-
-				part.Content = new MimeContent (content);
-				part.ContentType.Charset = "utf-8";
-
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				converter.OutputEncoding = new UTF8Encoding (false);
@@ -447,11 +446,32 @@ namespace MimeKit.Tnef {
 				converter.Convert (rtf, content);
 				content.Position = 0;
 			} catch {
-				part.Dispose ();
+				content.Dispose ();
 				throw;
 			}
 
+			return content;
+		}
+
+		// Generates a text/plain or text/html body part from the output of ConvertRtf.
+		static TextPart CreateRtfBodyPart (string subtype, MemoryBlockStream content)
+		{
+			var part = new TextPart (subtype) {
+				Content = new MimeContent (content)
+			};
+
+			part.ContentType.Charset = "utf-8";
+
 			return part;
+		}
+
+		// Whether the RTF body encapsulates HTML ([MS-OXRTFEX] 2.1.3.1.2) that RtfToHtml extracts rather than renders,
+		// in which case the text/html body is the original HTML.
+		bool RtfExtractsHtml ()
+		{
+			rtfExtractsHtml ??= ReadRtf (new RtfToHtml ().ExtractsEncapsulatedHtml);
+
+			return rtfExtractsHtml.Value;
 		}
 
 		TextPart CreateCalendarPart (TnefCalendarBuilder calendar)
@@ -560,11 +580,11 @@ namespace MimeKit.Tnef {
 
 			// The placeholders are matched with the attachment list only if their numbers are equal. Otherwise, the
 			// position list is emptied and the attachments SHOULD be appended to the end of the body.
-			int htmlCount = CountObjectPlaceholders (html.CountObjectPlaceholders);
+			int htmlCount = ReadRtf (html.CountObjectPlaceholders);
 
 			if (texts != null) {
 				// Both converters report the same placeholders, unless RtfToHtml extracts encapsulated HTML.
-				int textCount = htmlCount != -1 ? htmlCount : CountObjectPlaceholders (text.CountObjectPlaceholders);
+				int textCount = htmlCount != -1 ? htmlCount : ReadRtf (text.CountObjectPlaceholders);
 
 				if (textCount == texts.Length) {
 					text.ObjectPlaceholderCallback = (index, writer) => {
@@ -583,7 +603,7 @@ namespace MimeKit.Tnef {
 				}
 			}
 
-			// The RTF encapsulates HTML, which refers to its images by itself (see GetHtmlReferences).
+			// The RTF encapsulates HTML, which refers to its images by itself (see GetHtmlReferences and IsInline).
 			if (htmlCount == -1)
 				return;
 
@@ -611,14 +631,14 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		int CountObjectPlaceholders (Func<TextReader, CancellationToken, int> count)
+		T ReadRtf<T> (Func<TextReader, CancellationToken, T> read)
 		{
 			var rtf = decodedRtf ??= DecodeRtf (rtfBody!, out _);
 
 			rtf.Position = 0;
 
 			using (var reader = new StreamReader (rtf, CharsetUtils.Latin1, false, BufferSize, true))
-				return count (reader, cancellationToken);
+				return read (reader, cancellationToken);
 		}
 
 		static void WritePlaceholder (HtmlWriter writer, MimePart? image, string? text)
@@ -742,8 +762,14 @@ namespace MimeKit.Tnef {
 
 					PrepareRtfPlaceholders (html, text, attachments);
 
-					parts.Add (CreateRtfBodyPart ("plain", text));
-					parts.Add (CreateRtfBodyPart ("html", html));
+					parts.Add (CreateRtfBodyPart ("plain", ConvertRtf (text)));
+
+					// GetHtmlReferences may already have extracted the encapsulated HTML.
+					var content = rtfHtml ?? ConvertRtf (html);
+					rtfHtml = null;
+					content.Position = 0;
+
+					parts.Add (CreateRtfBodyPart ("html", content));
 				} else {
 					if (tnef.TextBody != null)
 						parts.Add (CreateBodyPart ("plain", tnef.TextBody));
@@ -1010,7 +1036,16 @@ namespace MimeKit.Tnef {
 
 			htmlReferences = new HtmlReferences ();
 
-			if (body != null && htmlReferences.AddCandidates (tnef.Attachments)) {
+			if (UseRtfBody ()) {
+				// The text/html body is generated from the RTF. Only HTML that the RTF encapsulates can refer to
+				// attachments. It is extracted once and reused as the text/html body (see CreateBody).
+				if (RtfExtractsHtml () && htmlReferences.AddCandidates (tnef.Attachments)) {
+					rtfHtml = ConvertRtf (new RtfToHtml ());
+
+					using (var reader = new StreamReader (rtfHtml, Encoding.UTF8, false, BufferSize, true))
+						htmlReferences.Scan (reader, cancellationToken);
+				}
+			} else if (body != null && htmlReferences.AddCandidates (tnef.Attachments)) {
 				// Decode the HTML the same way SetBodyContent labels it.
 				var encoding = body.Tag.ValueTnefType == TnefPropertyType.Unicode ? Encoding.Unicode : GetHtmlEncoding (body);
 
@@ -1031,14 +1066,21 @@ namespace MimeKit.Tnef {
 			if (attachment.IsEmbeddedMessage || attachment.Method == TnefAttachMethod.EmbeddedMessage)
 				return false;
 
-			switch (GetBestBody ()) {
-			case BestBodyFormat.Rtf:
+			if (UseRtfBody ()) {
 				// [MS-OXCMAIL] 2.1.3.4.1.1 says that, with an RTF best body, all OLE attachments (afOle, [MS-OXCMSG]
 				// 2.2.2.9) and only OLE attachments are inline, rendered in place of the RTF's \objattph placeholders.
 				// The generated HTML body can only display images, so this converter instead makes exactly the
 				// attachments that it displays inline (see PrepareRtfPlaceholders). The others keep the disposition
-				// that PidTagAttachmentDisposition gave them.
-				return false;
+				// that PidTagAttachmentDisposition gave them. This also applies when the bodies are generated from
+				// the RTF because it is the only body (see UseRtfBody).
+				//
+				// RTF that encapsulates HTML ([MS-OXRTFEX] 2.1.3.1.2) is the exception. Its text/html body is the
+				// original HTML, which refers to its images by Content-Id or Content-Location like an HTML best body
+				// does, so the attachments that it references are inline by the rules of 2.1.3.4.1.2 instead.
+				return RtfExtractsHtml () && IsReferencedByHtml (attachment);
+			}
+
+			switch (GetBestBody ()) {
 			case BestBodyFormat.PlainText when tnef.HtmlBody != null:
 				// [MS-OXCMAIL] 2.1.3.4.1 says that, with a plain text best body (which includes plain text + HTML without
 				// RTF, [MS-OXBBODY] 2.1.3.1 row 10, and PidTagNativeBody = 1), writers SHOULD ignore afRenderedInBody,
@@ -1047,21 +1089,26 @@ namespace MimeKit.Tnef {
 				// inline. If the HTML was generated from the plain text it references nothing, so no attachment
 				// becomes inline and the result matches the specified behavior.
 			case BestBodyFormat.Html:
-				// [MS-OXCMAIL] 2.1.3.4.1.2: with an HTML best body, an attachment is inline only if afRenderedInBody
-				// ([MS-OXCMSG] 2.2.2.18, PidTagAttachFlags) is set, it has a PidTagAttachContentId or a
-				// PidTagAttachContentLocation, and the HTML body refers to it. Writers SHOULD NOT rely on the flag alone.
-				if ((attachment.Flags & TnefAttachFlags.RenderedInBody) == 0)
-					return false;
-
-				return GetHtmlReferences ().IsReferenced (attachment);
+				return IsReferencedByHtml (attachment);
 			default:
 				// [MS-OXCMAIL] 2.1.3.4.1: with a plain text best body (and no HTML body), writers SHOULD ignore
-				// afRenderedInBody,
-				// PidTagAttachContentId and PidTagAttachContentLocation when deciding whether an attachment is inline,
-				// so none is. Those properties still produce Content-Id and Content-Location headers (2.1.3.4.2.3).
-				// With no body at all (best body Undefined) there is nothing to render an attachment in.
+				// afRenderedInBody, PidTagAttachContentId and PidTagAttachContentLocation when deciding whether an
+				// attachment is inline, so none is. Those properties still produce Content-Id and Content-Location
+				// headers (2.1.3.4.2.3). With no body at all (best body Undefined) there is nothing to render an
+				// attachment in.
 				return false;
 			}
+		}
+
+		bool IsReferencedByHtml (TnefAttachment attachment)
+		{
+			// [MS-OXCMAIL] 2.1.3.4.1.2: with an HTML best body, an attachment is inline only if afRenderedInBody
+			// ([MS-OXCMSG] 2.2.2.18, PidTagAttachFlags) is set, it has a PidTagAttachContentId or a
+			// PidTagAttachContentLocation, and the HTML body refers to it. Writers SHOULD NOT rely on the flag alone.
+			if ((attachment.Flags & TnefAttachFlags.RenderedInBody) == 0)
+				return false;
+
+			return GetHtmlReferences ().IsReferenced (attachment);
 		}
 
 		void ApplyAttachmentProperties (MimeEntity entity, TnefAttachment attachment, string label)
@@ -1371,11 +1418,15 @@ namespace MimeKit.Tnef {
 			// object needs the application that created it, so that is left to the caller's OleObjectConverter. Without
 			// one (or if it cannot render the object), the object is passed through unchanged rather than being labeled
 			// with a content type that it does not have.
-			if (method == TnefAttachMethod.Ole && options.OleObjectConverter != null) {
-				var image = CreateOleImageAttachment (attachment, label);
+			if (method == TnefAttachMethod.Ole) {
+				if (options.OleObjectConverter != null) {
+					var image = CreateOleImageAttachment (attachment, label);
 
-				if (image != null)
-					return image;
+					if (image != null)
+						return image;
+				}
+
+				AddLoss (TnefConversionLossKind.OleObjectNotRendered, $"OLE object attachment {label} was not rendered as an image and was attached unchanged.");
 			}
 
 			var mimeType = attachment.MimeType;
@@ -1800,7 +1851,6 @@ namespace MimeKit.Tnef {
 				}
 
 				body = CreateBody (calendar, entities);
-				bool rtf = UseRtfBody ();
 				MultipartRelated? related = null;
 
 				// [MS-OXCMAIL] 2.1.3.4: attachments are added in attachment-table order. [MS-OXCMAIL] 2.1.3.3 requires the
@@ -1815,8 +1865,9 @@ namespace MimeKit.Tnef {
 
 					// [MS-OXCMAIL] 2.1.3.3.6: the inline attachments that the HTML body refers to are children of a
 					// multipart/related whose first child is the body; every other attachment is a peer of the
-					// multipart/related. An HTML body generated from RTF refers to the images that it displays.
-					bool inline = rtf ? displayedImages != null && displayedImages.Contains (attachment) : IsInline (tnef.Attachments[i]);
+					// multipart/related. An HTML body generated from RTF refers to the images that it displays, or to the
+					// attachments that the HTML that it encapsulates references (see IsInline).
+					bool inline = (displayedImages != null && displayedImages.Contains (attachment)) || IsInline (tnef.Attachments[i]);
 
 					if (body != null && inline) {
 						if (related is null) {
