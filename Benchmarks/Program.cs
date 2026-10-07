@@ -54,7 +54,12 @@ namespace Benchmarks {
 			));
 #endif
 
-			var summary = BenchmarkRunner.Run (typeof (Program).Assembly, config);
+			// Supports the standard BenchmarkDotNet command-line arguments (e.g. --filter "*HtmlToHtml*", --list flat).
+			// Without arguments, run every benchmark rather than prompting interactively.
+			if (args.Length == 0)
+				args = new[] { "--filter", "*" };
+
+			BenchmarkSwitcher.FromAssembly (typeof (Program).Assembly).Run (args, config);
 		}
 	}
 }
