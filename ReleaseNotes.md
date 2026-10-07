@@ -205,6 +205,10 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   document could consume minutes of CPU time (100,000 unclosed `<b>` tags followed by 100,000 unmatched end
   tags, about 700 KB of HTML, took over 2 minutes in `HtmlToHtml`). Every open-element operation is now O(1),
   so the same input is converted in about 50 ms.
+* Reduced memory allocations in `HtmlTokenizer` and `HtmlToHtml` by about 40%. `HtmlTagToken` no longer
+  allocates an attribute collection for tags without attributes, `HtmlAttributeCollection` no longer allocates
+  a redundant list, recently used tag names, attribute names and short attribute values are shared rather than
+  allocated again for every occurrence, and `HtmlToHtml` no longer allocates a node for every open element.
 
 ### Bug Fixes
 

@@ -3657,5 +3657,52 @@ namespace UnitTests.Text {
 
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
+
+		// Tag names, attribute names and short attribute values are shared via a small direct-mapped cache, so
+		// make sure that cache collisions and evictions never cause the wrong string to be returned.
+		[Test]
+		public void TestCachedTagAndAttributeNames ()
+		{
+			const int count = 4096;
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < count; i++) {
+				builder.Append ($"<t{i} a{i}=\"v{i}\" A{i % 7}='{new string ('x', i % 40)}'>");
+				builder.Append ($"</t{i}><t{i % 13}/>");
+			}
+
+			var tokenizer = CreateTokenizer (builder.ToString ());
+
+			for (int i = 0; i < count; i++) {
+				Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+				var tag = (HtmlTagToken) token;
+				Assert.That (tag.Name, Is.EqualTo ($"t{i}"));
+				Assert.That (tag.IsEndTag, Is.False);
+				Assert.That (tag.Attributes, Has.Count.EqualTo (2));
+				Assert.That (tag.Attributes[0].Name, Is.EqualTo ($"a{i}"));
+				Assert.That (tag.Attributes[0].Value, Is.EqualTo ($"v{i}"));
+				Assert.That (tag.Attributes[1].Name, Is.EqualTo ($"A{i % 7}"));
+				Assert.That (tag.Attributes[1].Value, Is.EqualTo (new string ('x', i % 40)));
+
+				Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+				tag = (HtmlTagToken) token;
+				Assert.That (tag.Name, Is.EqualTo ($"t{i}"));
+				Assert.That (tag.IsEndTag, Is.True);
+				Assert.That (tag.Attributes, Is.Empty);
+
+				Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+				tag = (HtmlTagToken) token;
+				Assert.That (tag.Name, Is.EqualTo ($"t{i % 13}"));
+				Assert.That (tag.IsEmptyElement, Is.True);
+				Assert.That (tag.Attributes, Is.Empty);
+				Assert.That (tag.Attributes.IndexOf ("a"), Is.EqualTo (-1));
+				Assert.That (tag.Attributes.IndexOf (HtmlAttributeId.Href), Is.EqualTo (-1));
+				Assert.That (tag.Attributes.Contains ("a"), Is.False);
+				Assert.That (tag.Attributes.TryGetValue ("a", out _), Is.False);
+				Assert.Throws<ArgumentOutOfRangeException> (() => _ = tag.Attributes[0]);
+			}
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
 	}
 }

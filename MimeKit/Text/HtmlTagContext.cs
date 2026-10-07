@@ -53,6 +53,10 @@ namespace MimeKit.Text {
 			TagId = tagId;
 		}
 
+		// Note: These are used by HtmlTagContextStack to chain open elements with the same name without allocating a node per element.
+		internal HtmlTagContext? NextOpenElement;
+		internal bool SuppressInnerContentWhenOpened;
+
 		/// <summary>
 		/// Get the HTML tag attributes.
 		/// </summary>

@@ -432,10 +432,11 @@ namespace MimeKit.Text {
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
-			Attributes = new HtmlAttributeCollection ();
 			IsEndTag = isEndTag;
 			Name = name;
 		}
+
+		HtmlAttributeCollection? attributes;
 
 		/// <summary>
 		/// Get the attributes.
@@ -445,7 +446,14 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The attributes.</value>
 		public HtmlAttributeCollection Attributes {
-			get; private set;
+			get { return attributes ?? HtmlAttributeCollection.Empty; }
+			private set { attributes = value; }
+		}
+
+		internal void AddAttribute (HtmlAttribute attribute)
+		{
+			attributes ??= new HtmlAttributeCollection ();
+			attributes.Add (attribute);
 		}
 
 		/// <summary>

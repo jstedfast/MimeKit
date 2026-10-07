@@ -576,8 +576,8 @@ namespace MimeKit.Text {
 
 		void EmitTagAttribute ()
 		{
-			attribute = CreateAttribute (name.ToString ());
-			tag!.Attributes.Add (attribute);
+			attribute = CreateAttribute (name.ToCachedString ());
+			tag!.AddAttribute (attribute);
 			name.Length = 0;
 		}
 
@@ -821,7 +821,7 @@ namespace MimeKit.Text {
 				case '>':
 					if (NameIs (activeTagName)) {
 						ConsumeCharacter (c);
-						tag = CreateTagToken (name.ToString (), true);
+						tag = CreateTagToken (name.ToCachedString (), true);
 						name.Length = 0;
 						return EmitTagToken ();
 					}
@@ -844,7 +844,7 @@ namespace MimeKit.Text {
 				data.Append (c);
 			} while (TokenizerState == current);
 
-			tag = CreateTagToken (name.ToString (), true);
+			tag = CreateTagToken (name.ToCachedString (), true);
 			name.Length = 0;
 
 			return null;
@@ -1109,7 +1109,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.SelfClosingStartTag;
 					break;
 				case '>':
-					tag = CreateTagToken (name.ToString (), isEndTag);
+					tag = CreateTagToken (name.ToCachedString (), isEndTag);
 					data.Length = 0;
 					name.Length = 0;
 
@@ -1120,7 +1120,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.TagName);
 
-			tag = CreateTagToken (name.ToString (), isEndTag);
+			tag = CreateTagToken (name.ToCachedString (), isEndTag);
 			name.Length = 0;
 
 			return null;
@@ -1230,7 +1230,7 @@ namespace MimeKit.Text {
 				case '>':
 					if (NameIs ("script")) {
 						ConsumeCharacter (c);
-						tag = CreateTagToken (name.ToString (), true);
+						tag = CreateTagToken (name.ToCachedString (), true);
 						name.Length = 0;
 						return EmitTagToken ();
 					}
@@ -1252,7 +1252,7 @@ namespace MimeKit.Text {
 				data.Append (c);
 			} while (TokenizerState == HtmlTokenizerState.ScriptDataEndTagName);
 
-			tag = CreateTagToken (name.ToString (), true);
+			tag = CreateTagToken (name.ToCachedString (), true);
 			name.Length = 0;
 
 			return null;
@@ -1454,7 +1454,7 @@ namespace MimeKit.Text {
 				case '>':
 					if (NameIs ("script")) {
 						ConsumeCharacter (c);
-						tag = CreateTagToken (name.ToString (), true);
+						tag = CreateTagToken (name.ToCachedString (), true);
 						name.Length = 0;
 						return EmitTagToken ();
 					}
@@ -1476,7 +1476,7 @@ namespace MimeKit.Text {
 				data.Append (c);
 			} while (TokenizerState == HtmlTokenizerState.ScriptDataEscapedEndTagName);
 
-			tag = CreateTagToken (name.ToString (), true);
+			tag = CreateTagToken (name.ToCachedString (), true);
 			name.Length = 0;
 
 			return null;
@@ -1836,7 +1836,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.AttributeValueQuoted);
 
-			attribute!.Value = name.ToString ();
+			attribute!.Value = name.ToCachedString ();
 			name.Length = 0;
 
 			return null;
@@ -1864,7 +1864,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
 					return null;
 				case '>':
-					attribute!.Value = name.ToString ();
+					attribute!.Value = name.ToCachedString ();
 					name.Length = 0;
 
 					return EmitTagToken ();
@@ -1877,7 +1877,7 @@ namespace MimeKit.Text {
 				}
 			} while (TokenizerState == HtmlTokenizerState.AttributeValueUnquoted);
 
-			attribute!.Value = name.ToString ();
+			attribute!.Value = name.ToCachedString ();
 			name.Length = 0;
 
 			return null;

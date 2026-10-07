@@ -46,7 +46,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public static readonly HtmlAttributeCollection Empty = new HtmlAttributeCollection ();
 
-		readonly List<HtmlAttribute> attributes = new List<HtmlAttribute> ();
+		List<HtmlAttribute>? attributes;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlAttributeCollection"/> class.
@@ -62,7 +62,6 @@ namespace MimeKit.Text {
 
 		internal HtmlAttributeCollection ()
 		{
-			attributes = new List<HtmlAttribute> ();
 		}
 
 		/// <summary>
@@ -73,7 +72,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The number of attributes in the collection.</value>
 		public int Count {
-			get { return attributes.Count; }
+			get { return attributes?.Count ?? 0; }
 		}
 
 		internal void Add (HtmlAttribute attribute)
@@ -81,6 +80,7 @@ namespace MimeKit.Text {
 			if (attribute is null)
 				throw new ArgumentNullException (nameof (attribute));
 
+			attributes ??= new List<HtmlAttribute> ();
 			attributes.Add (attribute);
 		}
 
@@ -123,6 +123,9 @@ namespace MimeKit.Text {
 		/// <returns><see langword="true" /> if the attribute exists within the collection; otherwise, <see langword="false" />.</returns>
 		public int IndexOf (HtmlAttributeId id)
 		{
+			if (attributes is null)
+				return -1;
+
 			for (int i = 0; i < attributes.Count; i++) {
 				if (attributes[i].Id == id)
 					return i;
@@ -147,6 +150,9 @@ namespace MimeKit.Text {
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
+			if (attributes is null)
+				return -1;
+
 			for (int i = 0; i < attributes.Count; i++) {
 				if (attributes[i].Name.Equals (name, StringComparison.OrdinalIgnoreCase))
 					return i;
@@ -167,7 +173,12 @@ namespace MimeKit.Text {
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
 		public HtmlAttribute this[int index] {
-			get { return attributes[index]; }
+			get {
+				if (attributes is null)
+					throw new ArgumentOutOfRangeException (nameof (index));
+
+				return attributes[index];
+			}
 		}
 
 		/// <summary>
@@ -188,7 +199,7 @@ namespace MimeKit.Text {
 				return false;
 			}
 
-			attribute = attributes[index];
+			attribute = attributes![index];
 
 			return true;
 		}
@@ -214,7 +225,7 @@ namespace MimeKit.Text {
 				return false;
 			}
 
-			attribute = attributes[index];
+			attribute = attributes![index];
 
 			return true;
 		}
@@ -228,6 +239,9 @@ namespace MimeKit.Text {
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<HtmlAttribute> GetEnumerator ()
 		{
+			if (attributes is null)
+				return ((IEnumerable<HtmlAttribute>) Array.Empty<HtmlAttribute> ()).GetEnumerator ();
+
 			return attributes.GetEnumerator ();
 		}
 
@@ -240,7 +254,7 @@ namespace MimeKit.Text {
 		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
-			return attributes.GetEnumerator ();
+			return GetEnumerator ();
 		}
 	}
 }

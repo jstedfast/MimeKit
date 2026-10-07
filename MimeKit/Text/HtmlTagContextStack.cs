@@ -46,25 +46,10 @@ namespace MimeKit.Text {
 	/// </remarks>
 	sealed class HtmlTagContextStack<T> where T : HtmlTagContext
 	{
-		sealed class Node
-		{
-			public readonly T Context;
-			public readonly bool SuppressInnerContent;
-			public readonly Node? Next;
-
-			public Node (T context, Node? next)
-			{
-				// Snapshot SuppressInnerContent when the element is opened so that the suppression count
-				// remains consistent even if the context is modified after it has been pushed.
-				SuppressInnerContent = context.SuppressInnerContent;
-				Context = context;
-				Next = next;
-			}
-		}
-
-		// Maps a tag name to the innermost open element with that name. Each node links to the next
-		// (outer) open element with the same name. HTML tag names are ASCII case-insensitive.
-		readonly Dictionary<string, Node> open = new Dictionary<string, Node> (StringComparer.OrdinalIgnoreCase);
+		// Maps a tag name to the innermost open element with that name. Each element links to the next
+		// (outer) open element with the same name via HtmlTagContext.NextOpenElement. HTML tag names are
+		// ASCII case-insensitive.
+		readonly Dictionary<string, T> open = new Dictionary<string, T> (StringComparer.OrdinalIgnoreCase);
 		int suppressed;
 
 		/// <summary>
@@ -84,12 +69,15 @@ namespace MimeKit.Text {
 
 			open.TryGetValue (name, out var next);
 
-			var node = new Node (context, next);
+			// Snapshot SuppressInnerContent when the element is opened so that the suppression count
+			// remains consistent even if the context is modified after it has been pushed.
+			context.SuppressInnerContentWhenOpened = context.SuppressInnerContent;
+			context.NextOpenElement = next;
 
-			if (node.SuppressInnerContent)
+			if (context.SuppressInnerContentWhenOpened)
 				suppressed++;
 
-			open[name] = node;
+			open[name] = context;
 		}
 
 		/// <summary>
@@ -99,18 +87,22 @@ namespace MimeKit.Text {
 		/// <returns>The tag context of the closed element, or <see langword="null"/> if no element with that name is open.</returns>
 		public T? Pop (string name)
 		{
-			if (!open.TryGetValue (name, out var node))
+			if (!open.TryGetValue (name, out var context))
 				return null;
 
-			if (node.Next != null)
-				open[name] = node.Next;
+			var next = (T?) context.NextOpenElement;
+
+			if (next != null)
+				open[name] = next;
 			else
 				open.Remove (name);
 
-			if (node.SuppressInnerContent)
+			context.NextOpenElement = null;
+
+			if (context.SuppressInnerContentWhenOpened)
 				suppressed--;
 
-			return node.Context;
+			return context;
 		}
 	}
 }

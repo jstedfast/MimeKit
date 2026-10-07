@@ -85,6 +85,46 @@ namespace MimeKit.Text {
 			return new string (buffer, 0, Length);
 		}
 
+		// A small, direct-mapped cache of recently used short strings (e.g. HTML tag and attribute names) shared by all
+		// instances. Since string references are read and written atomically and a cached string is only returned if its
+		// content is identical to the content of the buffer, concurrent access can at worst cause a cache miss.
+		const int StringCacheSize = 512;
+		const int MaxCachedStringLength = 32;
+		static readonly string?[] StringCache = new string?[StringCacheSize];
+
+		/// <summary>
+		/// Get a string with the content of the buffer, reusing a previously created string with the same content if possible.
+		/// </summary>
+		/// <returns>The string.</returns>
+		public string ToCachedString ()
+		{
+			if (Length > MaxCachedStringLength || Length == 0)
+				return ToString ();
+
+			uint hash = 2166136261;
+
+			for (int i = 0; i < Length; i++)
+				hash = (hash ^ buffer[i]) * 16777619;
+
+			int index = (int) (hash & (StringCacheSize - 1));
+			var cached = StringCache[index];
+
+			if (cached != null && cached.Length == Length) {
+				int i = 0;
+
+				while (i < Length && cached[i] == buffer[i])
+					i++;
+
+				if (i == Length)
+					return cached;
+			}
+
+			var value = ToString ();
+			StringCache[index] = value;
+
+			return value;
+		}
+
 		//public static implicit operator string (CharBuffer buffer)
 		//{
 		//	return buffer.ToString ();
