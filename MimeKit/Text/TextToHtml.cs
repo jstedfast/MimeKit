@@ -117,8 +117,12 @@ namespace MimeKit.Text {
 		/// Get or set whether the converter should only output an HTML fragment.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether the converter should only output an entire
-		/// HTML document or just a fragment of the HTML body content.
+		/// <para>Gets or sets whether the converter should output an entire HTML document or just a fragment
+		/// of the HTML body content.</para>
+		/// <para>When <see langword="false" />, the output (including the <see cref="TextConverter.Header"/> and
+		/// <see cref="TextConverter.Footer"/>) is wrapped in <c>&lt;html&gt;&lt;body&gt;</c> and
+		/// <c>&lt;/body&gt;&lt;/html&gt;</c> tags. When <see langword="true" />, these tags are omitted so that
+		/// the output can be embedded within another HTML document.</para>
 		/// </remarks>
 		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
