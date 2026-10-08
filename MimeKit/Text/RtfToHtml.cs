@@ -69,6 +69,7 @@ namespace MimeKit.Text {
 		int maxFontTableEntries = RtfToText.DefaultLimit;
 		int maxColorTableEntries = RtfToText.DefaultLimit;
 		int maxGroupDepth = RtfToText.DefaultLimit;
+		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 
 		/// <summary>
@@ -294,6 +295,27 @@ namespace MimeKit.Text {
 			set { maxGroupDepth = RtfToText.ValidateLimit (value); }
 		}
 
+		/// <summary>
+		/// Get or set the maximum element depth of encapsulated HTML.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of distinct nested elements that will be tracked while
+		/// tokenizing HTML extracted from the RTF (see <see cref="HtmlToHtml.MaxElementDepth"/>).</para>
+		/// <para>This only applies when <see cref="ExtractEncapsulatedHtml"/> is <see langword="true" /> and the
+		/// document encapsulates HTML. Consecutive nested elements that are identical share a single entry, so
+		/// arbitrarily deep nesting of the same element does not count towards this limit. If a start tag exceeds
+		/// this limit, then it is the last tag passed to the <see cref="HtmlTagCallback"/> and the remainder of the
+		/// extracted HTML is written to the output as encoded text.</para>
+		/// </remarks>
+		/// <value>The maximum element depth.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is less than <c>1</c>.
+		/// </exception>
+		public int MaxElementDepth {
+			get { return maxElementDepth; }
+			set { maxElementDepth = RtfToText.ValidateLimit (value); }
+		}
+
 		class RtfToHtmlTagContext : HtmlTagContext
 		{
 			readonly HtmlAttributeCollection attrs;
@@ -328,32 +350,6 @@ namespace MimeKit.Text {
 			public void SetIsEndTag (bool value)
 			{
 				isEndTag = value;
-			}
-		}
-
-		class ExtractedHtmlTagContext : HtmlTagContext
-		{
-			readonly HtmlTagToken tag;
-
-			public ExtractedHtmlTagContext (HtmlTagToken htmlTag) : base (htmlTag.Id)
-			{
-				tag = htmlTag;
-			}
-
-			public override string TagName {
-				get { return tag.Name; }
-			}
-
-			public override HtmlAttributeCollection Attributes {
-				get { return tag.Attributes; }
-			}
-
-			public override bool IsEmptyElementTag {
-				get { return tag.IsEmptyElement || tag.Id.IsEmptyElement (); }
-			}
-
-			public override bool IsEndTag {
-				get { return tag.IsEndTag; }
 			}
 		}
 
@@ -977,93 +973,18 @@ namespace MimeKit.Text {
 			}
 		}
 
-		static bool IsDocumentStructureTag (HtmlTagId id)
-		{
-			return id == HtmlTagId.Html || id == HtmlTagId.Head || id == HtmlTagId.Body;
-		}
-
-		// This mirrors HtmlToHtml.Convert(), with the addition of OutputHtmlFragment support. Like HtmlToHtml, the
-		// open elements are tracked by an HtmlTagContextStack so that every token is processed in O(1) time; the
-		// encapsulated HTML is attacker-controlled, and a flat list would make many unclosed (or unmatched end)
-		// tags cost time quadratic in the size of the input.
+		// The encapsulated HTML is just as untrusted as any other HTML, so it is filtered by the same logic as HtmlToHtml.
 		void ConvertExtractedHtml (TextReader reader, TextWriter writer)
 		{
+			var converter = new HtmlToHtml {
+				OutputHtmlFragment = OutputHtmlFragment,
+				NoScriptHandling = NoScriptHandling,
+				MaxElementDepth = maxElementDepth,
+				HtmlTagCallback = HtmlTagCallback
+			};
+
 			WriteHeader (writer);
-
-			using (var htmlWriter = new HtmlWriter (writer, true)) {
-				var unwrapNoScript = noScriptHandling == HtmlNoScriptHandling.Unwrap;
-				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
-				var stack = new HtmlTagContextStack<ExtractedHtmlTagContext> ();
-				var tokenizer = new HtmlTokenizer (reader) {
-					DecodeCharacterReferences = false,
-					ScriptingEnabled = noScriptHandling == HtmlNoScriptHandling.ScriptingEnabled
-				};
-				ExtractedHtmlTagContext? ctx;
-
-				while (tokenizer.ReadNextToken (out var token)) {
-					switch (token.Kind) {
-					default:
-						if (!stack.SuppressContent)
-							htmlWriter.WriteToken (token);
-						break;
-					case HtmlTokenKind.DocType:
-						if (!OutputHtmlFragment && !stack.SuppressContent)
-							htmlWriter.WriteToken (token);
-						break;
-					case HtmlTokenKind.Tag:
-						var tag = (HtmlTagToken) token;
-
-						// Note: The content of <noscript> elements has been tokenized as markup (as if scripting is disabled), so
-						// remove the <noscript> tags themselves so that renderers with scripting enabled interpret it the same way.
-						if (unwrapNoScript && tag.Id == HtmlTagId.NoScript)
-							break;
-
-						if (!tag.IsEndTag) {
-							ctx = new ExtractedHtmlTagContext (tag);
-
-							if (OutputHtmlFragment && IsDocumentStructureTag (tag.Id)) {
-								// Drop the tag (and the content of <head>) without consulting the callback.
-								ctx.SuppressInnerContent = tag.Id == HtmlTagId.Head;
-								ctx.DeleteEndTag = true;
-								ctx.DeleteTag = true;
-
-								if (!tag.IsEmptyElement)
-									stack.Push (ctx);
-							} else if (!tag.IsEmptyElement) {
-								if (!stack.SuppressContent)
-									callback (ctx, htmlWriter);
-
-								stack.Push (ctx);
-							} else if (!stack.SuppressContent) {
-								callback (ctx, htmlWriter);
-							}
-						} else {
-							if ((ctx = stack.Pop (tag.Name)) != null) {
-								if (!stack.SuppressContent) {
-									if (ctx.InvokeCallbackForEndTag) {
-										ctx = new ExtractedHtmlTagContext (tag) {
-											InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
-											SuppressInnerContent = ctx.SuppressInnerContent,
-											DeleteEndTag = ctx.DeleteEndTag,
-											DeleteTag = ctx.DeleteTag
-										};
-										callback (ctx, htmlWriter);
-									} else if (!ctx.DeleteEndTag) {
-										htmlWriter.WriteEndTag (tag.Name);
-									}
-								}
-							} else if (!stack.SuppressContent && !(OutputHtmlFragment && IsDocumentStructureTag (tag.Id))) {
-								ctx = new ExtractedHtmlTagContext (tag);
-								callback (ctx, htmlWriter);
-							}
-						}
-						break;
-					}
-				}
-
-				htmlWriter.Flush ();
-			}
-
+			converter.ConvertHtml (reader, writer);
 			WriteFooter (writer);
 		}
 

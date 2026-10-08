@@ -299,7 +299,9 @@ namespace MimeKit.Text {
 			return id == HtmlTagId.Html || id == HtmlTagId.Head || id == HtmlTagId.Body;
 		}
 
-		void ConvertHtml (TextReader reader, TextWriter writer)
+		// Note: This is also used by RtfToHtml to convert the HTML encapsulated within RTF (which is just as untrusted
+		// as any other HTML), so that both converters share the same filtering logic.
+		internal void ConvertHtml (TextReader reader, TextWriter writer)
 		{
 			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var unwrapNoScript = noScriptHandling == HtmlNoScriptHandling.Unwrap;

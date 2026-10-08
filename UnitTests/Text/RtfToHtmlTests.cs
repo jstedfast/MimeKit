@@ -54,6 +54,8 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxColorTableEntries = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxGroupDepth = 0);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxGroupDepth = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = -1);
 
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
@@ -89,6 +91,7 @@ namespace UnitTests.Text {
 			Assert.That (converter.MaxFontTableEntries, Is.EqualTo (4096), "MaxFontTableEntries");
 			Assert.That (converter.MaxColorTableEntries, Is.EqualTo (4096), "MaxColorTableEntries");
 			Assert.That (converter.MaxGroupDepth, Is.EqualTo (4096), "MaxGroupDepth");
+			Assert.That (converter.MaxElementDepth, Is.EqualTo (4096), "MaxElementDepth");
 		}
 
 		static string Convert (string rtf, Action<RtfToHtml> configure = null)
@@ -544,6 +547,45 @@ namespace UnitTests.Text {
 			Assert.That (html, Is.EqualTo ("<p>ab</p>"));
 		}
 
+		[TestCase ("<style/>body{background:url(http://example.com/x)}</style><p>x</p>")]
+		[TestCase ("<script/>alert(1)</script><p>x</p>")]
+		public void TestExtractSelfClosingRawTextSuppressed (string encapsulated)
+		{
+			// A self-closing <style/> or <script/> still switches the tokenizer into a raw content state, so content
+			// suppressed by the callback must include the raw text that follows.
+			var html = Convert (Encapsulate (encapsulated), c => {
+				c.HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Style || ctx.TagId == HtmlTagId.Script) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+						return;
+					}
+
+					ctx.WriteTag (writer, true);
+				};
+			});
+
+			Assert.That (html, Is.EqualTo ("<p>x</p>"));
+		}
+
+		[Test]
+		public void TestExtractMaxElementDepth ()
+		{
+			// Once the depth limit is exceeded, the rest of the extracted HTML is written as encoded text so that no
+			// tags can be hidden from the HtmlTagCallback.
+			var html = Convert (Encapsulate ("<div><span><b><i>x<img src=x onerror=alert(1)></i></b>"), c => c.MaxElementDepth = 3);
+
+			Assert.That (html, Is.EqualTo ("<div><span><b><i>x&lt;img src=x onerror=alert(1)&gt;&lt;/i&gt;&lt;/b&gt;"));
+		}
+
+		[Test]
+		public void TestExtractTruncatedTag ()
+		{
+			// A tag that is truncated by the end of the input is dropped rather than written as text.
+			Assert.That (Convert (Encapsulate ("<p>x</p><img src=\"http://example.com/x\" onerror=")), Is.EqualTo ("<p>x</p>"));
+		}
+
 		[Test]
 		public void TestExtractBogusDocType ()
 		{
@@ -730,6 +772,7 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) (-1));
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) 3);
 		}
+
 		[Test]
 		public void TestNestedHyperlinks ()
 		{
