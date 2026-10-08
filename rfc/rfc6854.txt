@@ -1,0 +1,507 @@
+
+
+
+
+
+
+Internet Engineering Task Force (IETF)                          B. Leiba
+Request for Comments: 6854                           Huawei Technologies
+Updates: 5322                                                 March 2013
+Category: Standards Track
+ISSN: 2070-1721
+
+
+       Update to Internet Message Format to Allow Group Syntax in
+                the "From:" and "Sender:" Header Fields
+
+Abstract
+
+   The Internet Message Format (RFC 5322) allows "group" syntax in some
+   email header fields, such as "To:" and "CC:", but not in "From:" or
+   "Sender:".  This document updates RFC 5322 to relax that restriction,
+   allowing group syntax in those latter fields, as well as in
+   "Resent-From:" and "Resent-Sender:", in certain situations.
+
+Status of This Memo
+
+   This is an Internet Standards Track document.
+
+   This document is a product of the Internet Engineering Task Force
+   (IETF).  It represents the consensus of the IETF community.  It has
+   received public review and has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Further information on
+   Internet Standards is available in Section 2 of RFC 5741.
+
+   Information about the current status of this document, any errata,
+   and how to provide feedback on it may be obtained at
+   http://www.rfc-editor.org/info/rfc6854.
+
+Copyright Notice
+
+   Copyright (c) 2013 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+
+Leiba                        Standards Track                    [Page 1]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+     1.1.  Notational Conventions  . . . . . . . . . . . . . . . . . . 3
+       1.1.1.  Requirements Notation . . . . . . . . . . . . . . . . . 3
+       1.1.2.  Syntactic Notation  . . . . . . . . . . . . . . . . . . 3
+   2.  Allowing Group Syntax in "From:" and "Sender:"  . . . . . . . . 3
+     2.1.  Replacement of RFC 5322, Section 3.6.2. Originator Fields . 4
+     2.2.  Update to RFC 5322, Section 3.6.6. Resent Fields  . . . . . 5
+   3.  Applicability Statement . . . . . . . . . . . . . . . . . . . . 6
+   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 8
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . . . 9
+     7.2.  Informative References  . . . . . . . . . . . . . . . . . . 9
+
+1.  Introduction
+
+   The Internet Message Format, as far back as RFC 822 [RFC0822], has
+   always required a usable address to appear in the "From:" header
+   field of messages in order to allow replies to be sent.  To this end,
+   the syntax of messages, up to and including the current specification
+   [RFC5322], has required the use of the mailbox address form in the
+   originator ("From:" and "Sender:") fields of messages and has
+   specifically forbidden the use of the group address form, which
+   permits an empty list of addresses (that is, an address list with no
+   address included that might be used for a reply).
+
+   However, the use cases for the "From:" field have evolved.  There are
+   numerous instances of automated systems that wish to send email but
+   cannot handle replies, and a "From:" field with no usable addresses
+   would be extremely useful for that purpose.  More recently, work with
+   internationalized email addresses [RFC6530] creates a real need to
+   take a message with an internationalized email address and hand it to
+   an older client that would have no ability to reply to such an
+   address but might still wish to display the contents of the message.
+   The group construct provides an existing syntax for unusable
+   addresses (using the empty list of addresses) and also allows for a
+   text label that describes the originator.  For example:
+
+      From: Automated System:;
+
+   A review of many current email programs finds that all reviewed
+   clients will properly display a message with group syntax in the
+   "From:" field.  At worst, such programs generate an error message
+   when an attempt is made to reply to such a message.  No other
+   interoperability problems have been discovered.
+
+
+
+Leiba                        Standards Track                    [Page 2]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+   This document therefore updates the Internet Message Format
+   specification [RFC5322] to relax that restriction, allowing group
+   syntax to be used in the originator ("From:" and "Sender:") fields,
+   as well as in their corresponding resent ("Resent-From:" and
+   "Resent-Sender:") fields.  This change permits empty groups, as
+   described above, and also permits named groups of mailboxes (groups
+   with non-empty lists of addresses; see Section 4).  Nevertheless,
+   this document recommends against the general use of group syntax in
+   these fields at this time (see Section 3).
+
+1.1.  Notational Conventions
+
+   The notational conventions here are the same as those in RFC 5322,
+   and the following two subsections are copied directly from that
+   document.
+
+1.1.1.  Requirements Notation
+
+   This document occasionally uses terms that appear in capital letters.
+   When the terms "MUST", "SHOULD", "RECOMMENDED", "MUST NOT", "SHOULD
+   NOT", and "MAY" appear capitalized, they are being used to indicate
+   particular requirements of this specification.  A discussion of the
+   meanings of these terms appears in the Key Words document [RFC2119].
+
+1.1.2.  Syntactic Notation
+
+   This specification uses the Augmented Backus-Naur Form (ABNF)
+   [RFC5234] notation for the formal definitions of the syntax of
+   messages.  Characters will be specified either by a decimal value
+   (e.g., the value %d65 for uppercase A and %d97 for lowercase A) or by
+   a case-insensitive literal value enclosed in quotation marks (e.g.,
+   "A" for either uppercase or lowercase A).
+
+2.  Allowing Group Syntax in "From:" and "Sender:"
+
+   Section 3.6.2 of RFC 5322 defines the "From:" header field as
+   containing a <mailbox-list> syntax element.  This specification
+   changes that definition to use the <address-list> syntax element, as
+   is used in other fields, such as "To:", "CC:", and "Reply-To:".  This
+   specification also changes the definition of the "Sender:" header
+   field from the <mailbox> syntax element to the <address> syntax
+   element.  While the <address> element includes the <mailbox> element
+   already, we have chosen to specify both in the updated syntax as a
+   way of highlighting the limited use intended for the change (see
+   Section 3).
+
+
+
+
+
+
+Leiba                        Standards Track                    [Page 3]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+   Section 2.1 below is a full replacement for Section 3.6.2 of RFC
+   5322, containing the new syntax as well as a new description of the
+   semantics for the "From:" and "Sender:" fields.  Section 2.2 below is
+   a replacement of only the ABNF syntax for the "Resent-From:" and
+   "Resent-Sender:" fields in Section 3.6.6 of RFC 5322; the rest of the
+   syntax as well as the descriptive text of Section 3.6.6 of RFC 5322
+   remains unchanged.
+
+   [The text in the following section is not consistent within itself
+   nor with the rest of this document in how it refers to message header
+   fields, sometimes putting the field name in quotation marks and
+   sometimes not, sometimes capitalizing the field name and sometimes
+   not, and sometimes including the final colon and sometimes not.
+   Because minimizing changes to the original text is more important, in
+   this case, than attaining consistency, the text in Section 2.1, as
+   well as that in Sections 1.1.1 and 1.1.2 above, is left as it was in
+   RFC 5322.]
+
+2.1.  Replacement of RFC 5322, Section 3.6.2. Originator Fields
+
+   The originator fields of a message consist of the from field, the
+   sender field (when applicable), and optionally the reply-to field.
+   The from field consists of the field name "From" and a
+   comma-separated list of one or more addresses (either mailbox or
+   group syntax).  If the from field contains more than one mailbox
+   specification (including all mailboxes included in any groups), then
+   the sender field, containing the field name "Sender" and a single
+   address, MUST appear in the message.  The from field and the sender
+   field SHOULD NOT use group syntax; rather, the from field SHOULD use
+   only the mailbox-list syntax and the sender field SHOULD use only
+   mailbox syntax (see RFC 6854, Section 3).  If the sender field uses
+   group syntax, the group MUST NOT contain more than one mailbox.  In
+   either case, an optional reply-to field MAY also be included, which
+   contains the field name "Reply-To" and a comma-separated list of one
+   or more addresses.
+
+   from = "From:" (mailbox-list / address-list) CRLF
+
+   sender = "Sender:" (mailbox / address) CRLF
+
+   reply-to = "Reply-To:" address-list CRLF
+
+   The originator fields indicate the mailbox(es) of the source of the
+   message.  The "From:" field specifies the author(s) of the message,
+   that is, the mailbox(es) of the person(s) or system(s) responsible
+   for the writing of the message.  The "Sender:" field specifies the
+   mailbox of the agent responsible for the actual transmission of the
+   message.  For example, if a secretary were to send a message for
+
+
+
+Leiba                        Standards Track                    [Page 4]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+   another person, the mailbox of the secretary would appear in the
+   "Sender:" field and the mailbox of the actual author would appear in
+   the "From:" field.  If the originator of the message can be indicated
+   by a single mailbox and the author and transmitter are identical, the
+   "Sender:" field SHOULD NOT be used.  Otherwise, both fields SHOULD
+   appear.
+
+      Note: The transmitter information is always present.  The absence
+      of the "Sender:" field is sometimes mistakenly taken to mean that
+      the agent responsible for transmission of the message has not been
+      specified.  This absence merely means that the transmitter is
+      identical to the author and is therefore not redundantly placed
+      into the "Sender:" field.
+
+   The originator fields also provide the information required when
+   replying to a message.  When the "Reply-To:" field is present, it
+   indicates the address(es) to which the author of the message suggests
+   that replies be sent.  In the absence of the "Reply-To:" field,
+   replies SHOULD by default be sent to the mailbox(es) specified in the
+   "From:" field unless otherwise specified by the person composing the
+   reply.
+
+   In all cases, the "From:" field SHOULD NOT contain any mailbox that
+   does not belong to the author(s) of the message.  See also Section
+   3.6.3 of RFC 5322 [RFC5322] for more information on forming the
+   destination addresses for a reply.
+
+2.2.  Update to RFC 5322, Section 3.6.6. Resent Fields
+
+   This section updates RFC 5322, Section 3.6.6, to allow groups (via
+   the address-list ABNF production) in the "Resent-From:" and
+   "Resent-Sender:" fields, to parallel the change to "From:" and
+   "Sender:" above.  The ABNF for these fields is changed as follows:
+
+   resent-from = "Resent-From:" (mailbox-list / address-list) CRLF
+
+   resent-sender = "Resent-Sender:" (mailbox / address) CRLF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Leiba                        Standards Track                    [Page 5]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+3.  Applicability Statement
+
+   Mailbox syntax is the normal syntax to use in the "From:" and
+   "Sender:" header fields; the address syntax defined in Section 2.1,
+   which allows the specification of a group, is only for Limited Use
+   (see RFC 2026 [RFC2026], Section 3.3, item (d)) for the reasons
+   described below.
+
+   Many Internet email procedures and much software assumes that the
+   addresses in the "From:" and "Sender:" fields can be replied to and
+   are suitable for use in organizing and filtering mail.  The use of
+   groups instead of mailboxes can disrupt these uses.  Consequently,
+   while this specification legitimizes the use of groups, it does so
+   only to enable circumstances when that use is necessary.  Because the
+   use of this mechanism is new, it is important that its use be limited
+   to these circumstances and that it be used with caution.  In
+   particular, user agents SHOULD NOT permit the use of groups in those
+   fields in outgoing messages.
+
+4.  Examples
+
+   First, consider an email message that is sent by an automated nightly
+   monitor program, to which replies should not be sent.  Such messages
+   commonly include a valid, replyable address that will discard any
+   replies that are sent to it, but recipients who do reply might be
+   unaware that their replies will be discarded.  If the message is
+   instead presented as follows, the recipients' email clients will not
+   allow them to reply in the first place:
+
+      From: Nightly Monitor Robot:;
+
+   Second, consider an email message that is meant to be "from" the two
+   managing partners of a business, Ben and Carol, and that is sent by
+   their assistant, Dave.  This message could always have been presented
+   this way:
+
+      From: ben@example.com,carol@example.com
+      Sender: dave@example.com
+
+   This change allows it to be represented this way:
+
+      From: Managing Partners:ben@example.com,carol@example.com;
+      Sender: dave@example.com
+
+
+
+
+
+
+
+
+Leiba                        Standards Track                    [Page 6]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+5.  Security Considerations
+
+   See the Internet Message Format specification [RFC5322] for general
+   discussion of security considerations related to the formatting of
+   email messages.
+
+   The "From:" address is special, in that most user agents display this
+   address, or the "friendly" text associated with it, to the end user,
+   and label it so as to identify it as the origin of the message (as
+   implied in Section 3.6.2 of RFC 5322).  Group syntax in the "From:"
+   header field can be used to hide the identity of the message
+   originator.  It is just as easy to use a fabricated "From:" address
+   to accomplish the same thing, so allowing groups in this field does
+   not exacerbate the security problem.
+
+   Some protocols attempt to validate the originator address by matching
+   the "From:" address to a particular verified domain (for one such
+   protocol, see the Author Domain Signing Practices (ADSP) document
+   [RFC5617]).  Such protocols will not be applicable to messages that
+   lack an actual email address (whether real or fake) in the "From:"
+   field.  Local policy will determine how such messages are handled,
+   and senders, therefore, need to be aware that using groups in the
+   "From:" might adversely affect deliverability of the message.
+
+   Because groups have previously not been allowed in the "From:" and
+   "Sender:" header fields, it is possible that some implementations
+   that conform to RFC 5322 might not be prepared to handle the group
+   syntax, and, indeed, might not even recognize that group syntax is
+   being used.  Of those implementations, some subset might, when
+   presented with group syntax in those header fields, behave in a way
+   that is exploitable by an attacker.  It is deemed unlikely that this
+   will be a serious problem in practice: address field parsing is
+   generally an integral component of implementations, and address field
+   parsers are required to understand group syntax.  In addition, if any
+   implementations should be exploitable through this mechanism, it is
+   already possible for attackers to do it by violating RFC 5322.  Other
+   violations of RFC 5322 are commonly used by malefactors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Leiba                        Standards Track                    [Page 7]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+6.  IANA Considerations
+
+   IANA has updated the "Permanent Message Header Field Names" registry
+   to include this document as a reference as follows:
+
+   OLD
+   +----------------+--------+------------+--------------------------+
+   |  From          |  mail  |  standard  |  [RFC5322]               |
+   +----------------+--------+------------+--------------------------+
+
+   +----------------+--------+------------+--------------------------+
+   |  Sender        |  mail  |  standard  |  [RFC5322]               |
+   +----------------+--------+------------+--------------------------+
+
+   +----------------+--------+------------+--------------------------+
+   |  Resent-From   |  mail  |  standard  |  [RFC5322]               |
+   +----------------+--------+------------+--------------------------+
+
+   +----------------+--------+------------+--------------------------+
+   |  Resent-Sender |  mail  |  standard  |  [RFC5322]               |
+   +----------------+--------+------------+--------------------------+
+
+   NEW
+   +----------------+--------+------------+--------------------------+
+   |  From          |  mail  |  standard  |  [RFC5322] [RFC6854]     |
+   +----------------+--------+------------+--------------------------+
+
+   +----------------+--------+------------+--------------------------+
+   |  Sender        |  mail  |  standard  |  [RFC5322] [RFC6854]     |
+   +----------------+--------+------------+--------------------------+
+
+   +----------------+--------+------------+--------------------------+
+   |  Resent-From   |  mail  |  standard  |  [RFC5322] [RFC6854]     |
+   +----------------+--------+------------+--------------------------+
+
+   +----------------+--------+------------+--------------------------+
+   |  Resent-Sender |  mail  |  standard  |  [RFC5322] [RFC6854]     |
+   +----------------+--------+------------+--------------------------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Leiba                        Standards Track                    [Page 8]
+
+RFC 6854          Group Syntax in "From:" and "Sender:"       March 2013
+
+
+7.  References
+
+7.1.  Normative References
+
+   [RFC2026]  Bradner, S., "The Internet Standards Process -- Revision
+              3", BCP 9, RFC 2026, October 1996.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC5234]  Crocker, D. and P. Overell, "Augmented BNF for Syntax
+              Specifications: ABNF", STD 68, RFC 5234, January 2008.
+
+   [RFC5322]  Resnick, P., Ed., "Internet Message Format", RFC 5322,
+              October 2008.
+
+7.2.  Informative References
+
+   [RFC0822]  Crocker, D., "Standard for the format of ARPA Internet
+              text messages", STD 11, RFC 822, August 1982.
+
+   [RFC5617]  Allman, E., Fenton, J., Delany, M., and J. Levine,
+              "DomainKeys Identified Mail (DKIM) Author Domain Signing
+              Practices (ADSP)", RFC 5617, August 2009.
+
+   [RFC6530]  Klensin, J. and Y. Ko, "Overview and Framework for
+              Internationalized Email", RFC 6530, February 2012.
+
+Author's Address
+
+   Barry Leiba
+   Huawei Technologies
+
+   Phone: +1 646 827 0648
+   EMail: barryleiba@computer.org
+   URI:   http://internetmessagingtechnology.org/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Leiba                        Standards Track                    [Page 9]
+
