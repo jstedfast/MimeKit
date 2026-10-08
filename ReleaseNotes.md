@@ -294,6 +294,9 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     (e.g. `See http://example.com/path.`), and neither are unbalanced closing parentheses, brackets or braces
     (e.g. `(see http://example.com/path)`). Balanced ones are kept, so URLs such as
     `http://en.wikipedia.org/wiki/Foo_(bar)` are still detected in full.
+  * URL detection is now 2-3x faster. Instead of feeding every character through a state machine, the scanner
+    now jumps between the `@`, `:` and `.` characters that every supported URL pattern contains, using
+    `IndexOfAny`, which is vectorized on modern runtimes.
 
 * Brought `HtmlTokenizer` into conformance with the html5lib tokenizer test suite. Every test now passes
   except for a few deliberate differences (valueless attributes have a `null` value, DOCTYPE names keep

@@ -81,59 +81,154 @@ namespace MimeKit.Text {
 		// rfc1035, section 2.3.4: Labels are limited to 63 octets or less.
 		const int MaxLabelLength = 63;
 
-		readonly Dictionary<string, UrlPattern> patterns = new Dictionary<string, UrlPattern> (StringComparer.Ordinal);
-		readonly Trie trie = new Trie (true);
+		// Every pattern contains exactly one anchor character and the anchor character determines which patterns need to be
+		// checked. Since the portion of each pattern that precedes its anchor does not contain any anchor characters, the
+		// patterns that match at an earlier anchor always start before the patterns that match at a later anchor.
+		const char AddrspecAnchor = '@';
+		const char SchemeAnchor = ':';
+		const char HostAnchor = '.';
+
+		readonly List<AnchoredPattern> addrspecPatterns = new List<AnchoredPattern> ();
+		readonly List<AnchoredPattern> schemePatterns = new List<AnchoredPattern> ();
+		readonly List<AnchoredPattern> hostPatterns = new List<AnchoredPattern> ();
+
+		readonly struct AnchoredPattern
+		{
+			public readonly UrlPattern Url;
+
+			// The offset of the anchor character within the pattern.
+			public readonly int AnchorOffset;
+
+			public AnchoredPattern (UrlPattern url, int anchorOffset)
+			{
+				AnchorOffset = anchorOffset;
+				Url = url;
+			}
+		}
 
 		public UrlScanner ()
 		{
 		}
 
+		static bool IsAnchor (char c)
+		{
+			return c == AddrspecAnchor || c == SchemeAnchor || c == HostAnchor;
+		}
+
 		public void Add (UrlPattern pattern)
 		{
-			patterns.Add (pattern.Pattern, pattern);
-			trie.Add (pattern.Pattern);
+			int anchorOffset = -1;
+
+			for (int i = 0; i < pattern.Pattern.Length; i++) {
+				if (IsAnchor (pattern.Pattern[i])) {
+					if (anchorOffset != -1)
+						throw new ArgumentException ("The pattern must contain exactly one anchor character.", nameof (pattern));
+
+					anchorOffset = i;
+				}
+			}
+
+			if (anchorOffset == -1)
+				throw new ArgumentException ("The pattern must contain exactly one anchor character.", nameof (pattern));
+
+			List<AnchoredPattern> list;
+
+			switch (pattern.Pattern[anchorOffset]) {
+			case AddrspecAnchor: list = addrspecPatterns; break;
+			case SchemeAnchor: list = schemePatterns; break;
+			default: list = hostPatterns; break;
+			}
+
+			// Note: Keep the patterns sorted such that the patterns that would start earliest in the text are checked first and,
+			// for patterns that would start at the same offset, the longest patterns are checked first (i.e. leftmost-longest).
+			int index = 0;
+
+			while (index < list.Count && (list[index].AnchorOffset > anchorOffset || (list[index].AnchorOffset == anchorOffset && list[index].Url.Pattern.Length >= pattern.Pattern.Length)))
+				index++;
+
+			list.Insert (index, new AnchoredPattern (pattern, anchorOffset));
+		}
+
+		static char ToLowerAscii (char c)
+		{
+			return c >= 'A' && c <= 'Z' ? (char) (c + 32) : c;
+		}
+
+		// Note: Pattern matching only folds the case of ASCII letters so that it is culture-invariant.
+		static bool IsMatch (string pattern, char[] text, int index)
+		{
+			for (int i = 0; i < pattern.Length; i++) {
+				if (ToLowerAscii (text[index + i]) != ToLowerAscii (pattern[i]))
+					return false;
+			}
+
+			return true;
 		}
 
 		public bool Scan (char[] text, int startIndex, int count, [NotNullWhen (true)] out UrlMatch? match)
 		{
-			GetIndexDelegate getStartIndex, getEndIndex;
 			int endIndex = startIndex + count;
 			int searchIndex = startIndex;
-			int index;
+			int anchorIndex;
 
 			// Note: If a pattern is found but it is not part of a valid URL (e.g. a lone '@'), keep searching the remainder of
 			// the text. Each failed candidate only examines a bounded amount of text around the pattern, so this remains linear.
-			while ((index = trie.Search (text, searchIndex, endIndex - searchIndex, out var pattern)) != -1) {
-				searchIndex = index + 1;
+			while (searchIndex < endIndex && (anchorIndex = text.AsSpan (searchIndex, endIndex - searchIndex).IndexOfAny (AddrspecAnchor, SchemeAnchor, HostAnchor)) != -1) {
+				List<AnchoredPattern> list;
 
-				// Note: pattern is not null when Trie.Search != -1
-				if (!patterns.TryGetValue (pattern!, out var url))
-					continue;
+				anchorIndex += searchIndex;
+				searchIndex = anchorIndex + 1;
 
-				switch (url.Type) {
-				case UrlPatternType.Addrspec:
-					getStartIndex = GetAddrspecStartIndex;
-					getEndIndex = GetAddrspecEndIndex;
-					break;
-				case UrlPatternType.MailTo:
-					getStartIndex = GetMailToStartIndex;
-					getEndIndex = GetMailToEndIndex;
-					break;
-				case UrlPatternType.File:
-					getStartIndex = GetFileStartIndex;
-					getEndIndex = GetFileEndIndex;
-					break;
-				default:
-					getStartIndex = GetWebStartIndex;
-					getEndIndex = GetWebEndIndex;
-					break;
+				switch (text[anchorIndex]) {
+				case AddrspecAnchor: list = addrspecPatterns; break;
+				case SchemeAnchor: list = schemePatterns; break;
+				default: list = hostPatterns; break;
 				}
 
-				match = new UrlMatch (url.Pattern, url.Prefix);
+				for (int i = 0; i < list.Count; i++) {
+					var url = list[i].Url;
+					int index = anchorIndex - list[i].AnchorOffset;
 
-				if (getStartIndex (match, text, startIndex, index, endIndex) && getEndIndex (match, text, startIndex, index, endIndex))
-					return true;
+					if (index < startIndex || index + url.Pattern.Length > endIndex || !IsMatch (url.Pattern, text, index))
+						continue;
+
+					if (TryMatch (url, text, startIndex, index, endIndex, out match))
+						return true;
+				}
 			}
+
+			match = null;
+
+			return false;
+		}
+
+		static bool TryMatch (UrlPattern url, char[] text, int startIndex, int index, int endIndex, [NotNullWhen (true)] out UrlMatch? match)
+		{
+			GetIndexDelegate getStartIndex, getEndIndex;
+
+			switch (url.Type) {
+			case UrlPatternType.Addrspec:
+				getStartIndex = GetAddrspecStartIndex;
+				getEndIndex = GetAddrspecEndIndex;
+				break;
+			case UrlPatternType.MailTo:
+				getStartIndex = GetMailToStartIndex;
+				getEndIndex = GetMailToEndIndex;
+				break;
+			case UrlPatternType.File:
+				getStartIndex = GetFileStartIndex;
+				getEndIndex = GetFileEndIndex;
+				break;
+			default:
+				getStartIndex = GetWebStartIndex;
+				getEndIndex = GetWebEndIndex;
+				break;
+			}
+
+			match = new UrlMatch (url.Pattern, url.Prefix);
+
+			if (getStartIndex (match, text, startIndex, index, endIndex) && getEndIndex (match, text, startIndex, index, endIndex))
+				return true;
 
 			match = null;
 

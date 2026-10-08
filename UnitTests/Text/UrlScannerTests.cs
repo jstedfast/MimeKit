@@ -303,6 +303,51 @@ namespace UnitTests.Text {
 			TestUrlScanner ("hhttp://example.com", "http://example.com");
 		}
 
+		[TestCase ("sftp://example.com", "sftp://example.com")]
+		[TestCase ("SFTP://example.com", "SFTP://example.com")]
+		[TestCase ("https://example.com", "https://example.com")]
+		[TestCase ("HtTpS://example.com", "HtTpS://example.com")]
+		[TestCase ("WWW.example.com", "WWW.example.com")]
+		[TestCase ("ftp:example.com", null)]
+		[TestCase ("http:/example.com", null)]
+		[TestCase ("http//example.com", null)]
+		[TestCase ("http:", null)]
+		[TestCase ("file:/", null)]
+		[TestCase ("www", null)]
+		[TestCase ("ww.example.com", null)]
+		public void TestPatternMatching (string input, string expected)
+		{
+			TestUrlScanner (input, expected);
+		}
+
+		[Test]
+		public void TestPatternsMustBeWithinRange ()
+		{
+			const string input = "http://example.com and www.example.org";
+			char[] text = input.ToCharArray ();
+			UrlMatch match;
+
+			// A pattern that starts before the range must not be matched even though its anchor is within the range.
+			int startIndex = 2;
+			Assert.That (scanner.Scan (text, startIndex, text.Length - startIndex, out match), Is.True);
+			Assert.That (new string (text, match.StartIndex, match.EndIndex - match.StartIndex), Is.EqualTo ("www.example.org"));
+
+			// A pattern that ends after the range must not be matched even though its anchor is within the range.
+			Assert.That (scanner.Scan (text, 0, 6, out _), Is.False);
+
+			startIndex = input.IndexOf ("www.", StringComparison.Ordinal) + 1;
+			Assert.That (scanner.Scan (text, startIndex, text.Length - startIndex, out _), Is.False);
+		}
+
+		[Test]
+		public void TestAddPatternWithoutExactlyOneAnchor ()
+		{
+			var scanner = new UrlScanner ();
+
+			Assert.Throws<ArgumentException> (() => scanner.Add (new UrlPattern (UrlPatternType.Web, "web", "")));
+			Assert.Throws<ArgumentException> (() => scanner.Add (new UrlPattern (UrlPatternType.Web, "web.example:", "")));
+		}
+
 		[Test]
 		public void TestDotAtomAddrspecAtStartOfText ()
 		{
