@@ -229,6 +229,8 @@ namespace UnitTests {
 
 			AssertParseArguments (typeof (DateUtils));
 			AssertParseArguments (typeof (MimeUtils));
+
+			AssertParseArguments (typeof (DmarcRecord));
 		}
 
 		static void AssertTryParseArguments (Type type)
@@ -331,6 +333,8 @@ namespace UnitTests {
 
 			AssertTryParseArguments (typeof (DateUtils));
 			AssertTryParseArguments (typeof (MimeUtils));
+
+			AssertTryParseArguments (typeof (DmarcRecord));
 		}
 
 		[Test]
