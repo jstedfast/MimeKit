@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 
@@ -592,13 +593,105 @@ namespace MimeKit.Text {
 			return false;
 		}
 
+		// Reads characters into 'data' until one of the 'specials' is found, then consumes and returns that character
+		// like TryRead() does. Note: 'specials' MUST contain '\n' for proper line number tracking.
+#if NET8_0_OR_GREATER
+		bool TryReadDataUntil (SearchValues<char> specials, out char c)
+#else
+		bool TryReadDataUntil (ReadOnlySpan<char> specials, out char c)
+#endif
+		{
+			FillBuffer ();
+
+			while (bufferIndex < bufferEnd) {
+				int left = bufferEnd - bufferIndex;
+				var span = new ReadOnlySpan<char> (buffer, bufferIndex, left);
+				int count = span.IndexOfAny (specials);
+
+				if (count == -1) {
+					data.Append (buffer, bufferIndex, left);
+					linePosition += left;
+					bufferIndex += left;
+					FillBuffer ();
+					continue;
+				}
+
+				if (count > 0) {
+					data.Append (buffer, bufferIndex, count);
+					linePosition += count;
+					bufferIndex += count;
+				}
+
+				c = buffer[bufferIndex++];
+
+				if (c == '\n') {
+					IncrementLineNumber ();
+				} else {
+					linePosition++;
+				}
+
+				return true;
+			}
+
+			c = '\0';
+
+			return false;
+		}
+
+		// Reads characters into both 'data' and 'name' until one of the 'specials' is found, then consumes and returns that
+		// character like TryRead() does. Note: 'specials' MUST contain '\n' for proper line number tracking.
+#if NET8_0_OR_GREATER
+		bool TryReadNameUntil (SearchValues<char> specials, out char c)
+#else
+		bool TryReadNameUntil (ReadOnlySpan<char> specials, out char c)
+#endif
+		{
+			FillBuffer ();
+
+			while (bufferIndex < bufferEnd) {
+				int left = bufferEnd - bufferIndex;
+				var span = new ReadOnlySpan<char> (buffer, bufferIndex, left);
+				int count = span.IndexOfAny (specials);
+
+				if (count == -1) {
+					data.Append (buffer, bufferIndex, left);
+					name.Append (buffer, bufferIndex, left);
+					linePosition += left;
+					bufferIndex += left;
+					FillBuffer ();
+					continue;
+				}
+
+				if (count > 0) {
+					data.Append (buffer, bufferIndex, count);
+					name.Append (buffer, bufferIndex, count);
+					linePosition += count;
+					bufferIndex += count;
+				}
+
+				c = buffer[bufferIndex++];
+
+				if (c == '\n') {
+					IncrementLineNumber ();
+				} else {
+					linePosition++;
+				}
+
+				return true;
+			}
+
+			c = '\0';
+
+			return false;
+		}
+
 		bool NameIs (string value)
 		{
 			if (name.Length != value.Length)
 				return false;
 
 			for (int i = 0; i < name.Length; i++) {
-				if (ToLower (name[i]) != ToLower (value[i]))
+				if (ToLower (name[i]) != value[i])
 					return false;
 			}
 
@@ -728,11 +821,11 @@ namespace MimeKit.Text {
 				switch (tag.Id) {
 				case HtmlTagId.Style: case HtmlTagId.Xmp: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed: case HtmlTagId.NoFrames:
 					TokenizerState = HtmlTokenizerState.RawText;
-					activeTagName = tag.Name;
+					activeTagName = tag.Id.ToHtmlTagName ();
 					break;
 				case HtmlTagId.Title: case HtmlTagId.TextArea:
 					TokenizerState = HtmlTokenizerState.RcData;
-					activeTagName = tag.Name;
+					activeTagName = tag.Id.ToHtmlTagName ();
 					break;
 				case HtmlTagId.PlainText:
 					TokenizerState = HtmlTokenizerState.PlainText;
@@ -743,7 +836,7 @@ namespace MimeKit.Text {
 				case HtmlTagId.NoScript:
 					if (scriptingEnabled) {
 						TokenizerState = HtmlTokenizerState.RawText;
-						activeTagName = tag.Name;
+						activeTagName = tag.Id.ToHtmlTagName ();
 					} else {
 						TokenizerState = HtmlTokenizerState.Data;
 					}
@@ -1047,30 +1140,17 @@ namespace MimeKit.Text {
 			return EmitScriptDataToken ();
 		}
 
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<char> PlainTextSpecials = SearchValues.Create (new char[] { '\0', '\n' });
+#else
+		static readonly char[] PlainTextSpecials = new char[] { '\0', '\n' };
+#endif
+
 		// 8.2.4.7 PLAINTEXT state
 		HtmlToken? ReadPlainText ()
 		{
-			do {
-				while (bufferIndex < bufferEnd) {
-					char c = buffer[bufferIndex++];
-
-					linePosition++;
-
-					switch (c) {
-					case '\0':
-						data.Append ('\uFFFD');
-						break;
-					case '\n':
-						IncrementLineNumber ();
-						goto default;
-					default:
-						data.Append (c);
-						break;
-					}
-				}
-
-				FillBuffer ();
-			} while (!eof);
+			while (TryReadDataUntil (PlainTextSpecials, out char c))
+				data.Append (c == '\0' ? '\uFFFD' : c);
 
 			TokenizerState = HtmlTokenizerState.EndOfFile;
 
@@ -1853,8 +1933,12 @@ namespace MimeKit.Text {
 				switch (c) {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
 					break;
-				case '"': case '\'':
-					TokenizerState = HtmlTokenizerState.AttributeValueQuoted;
+				case '"':
+					TokenizerState = HtmlTokenizerState.AttributeValueDoubleQuoted;
+					quote = c;
+					return null;
+				case '\'':
+					TokenizerState = HtmlTokenizerState.AttributeValueSingleQuoted;
 					quote = c;
 					return null;
 				case '&':
@@ -1878,11 +1962,17 @@ namespace MimeKit.Text {
 			} while (true);
 		}
 
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<char> AttributeValueDoubleQuotedSpecials = SearchValues.Create (new char[] { '\0', '\n', '&', '"' });
+#else
+		static readonly char[] AttributeValueDoubleQuotedSpecials = new char[] { '\0', '\n', '&', '"' };
+#endif
+
 		// 8.2.4.38 Attribute value (double-quoted) state
-		HtmlToken? ReadAttributeValueQuoted ()
+		HtmlToken? ReadAttributeValueDoubleQuoted ()
 		{
 			do {
-				if (!TryRead (out char c)) {
+				if (!TryReadNameUntil (AttributeValueDoubleQuotedSpecials, out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
@@ -1896,20 +1986,61 @@ namespace MimeKit.Text {
 				case '&':
 					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
 					return null;
+				case '"':
+					TokenizerState = HtmlTokenizerState.AfterAttributeValueQuoted;
+					quote = '\0';
+					break;
 				case '\0':
 					name.Append ('\uFFFD');
 					break;
-				default:
-					if (c == quote) {
-						TokenizerState = HtmlTokenizerState.AfterAttributeValueQuoted;
-						quote = '\0';
-						break;
-					}
-
+				default: // '\n'
 					name.Append (c);
 					break;
 				}
-			} while (TokenizerState == HtmlTokenizerState.AttributeValueQuoted);
+			} while (TokenizerState == HtmlTokenizerState.AttributeValueDoubleQuoted);
+
+			attribute!.Value = name.ToCachedString ();
+			name.Length = 0;
+
+			return null;
+		}
+
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<char> AttributeValueSingleQuotedSpecials = SearchValues.Create (new char[] { '\0', '\n', '&', '\'' });
+#else
+		static readonly char[] AttributeValueSingleQuotedSpecials = new char[] { '\0', '\n', '&', '\'' };
+#endif
+
+		// 8.2.4.39 Attribute value (single-quoted) state
+		HtmlToken? ReadAttributeValueSingleQuoted ()
+		{
+			do {
+				if (!TryReadNameUntil (AttributeValueSingleQuotedSpecials, out char c)) {
+					TokenizerState = HtmlTokenizerState.EndOfFile;
+					name.Length = 0;
+
+					return EmitDataToken (false, true);
+				}
+
+				// Note: we save the data in case we hit a parse error and have to emit a data token
+				data.Append (c);
+
+				switch (c) {
+				case '&':
+					TokenizerState = HtmlTokenizerState.CharacterReferenceInAttributeValue;
+					return null;
+				case '\'':
+					TokenizerState = HtmlTokenizerState.AfterAttributeValueQuoted;
+					quote = '\0';
+					break;
+				case '\0':
+					name.Append ('\uFFFD');
+					break;
+				default: // '\n'
+					name.Append (c);
+					break;
+				}
+			} while (TokenizerState == HtmlTokenizerState.AttributeValueSingleQuoted);
 
 			attribute!.Value = name.ToCachedString ();
 			name.Length = 0;
@@ -2005,10 +2136,11 @@ namespace MimeKit.Text {
 				break;
 			}
 
-			if (quote == '\0')
-				TokenizerState = HtmlTokenizerState.AttributeValueUnquoted;
-			else
-				TokenizerState = HtmlTokenizerState.AttributeValueQuoted;
+			switch (quote) {
+			case '"': TokenizerState = HtmlTokenizerState.AttributeValueDoubleQuoted; break;
+			case '\'': TokenizerState = HtmlTokenizerState.AttributeValueSingleQuoted; break;
+			default: TokenizerState = HtmlTokenizerState.AttributeValueUnquoted; break;
+			}
 
 			return null;
 		}
@@ -2865,9 +2997,7 @@ namespace MimeKit.Text {
 
 			TokenizerState = HtmlTokenizerState.EndOfFile;
 
-			for (int i = 0; i < cdataIndex; i++)
-				data.Append (cdata[i]);
-
+			data.Append (cdata, 0, cdataIndex);
 			cdataIndex = 0;
 
 			return EmitCDataToken ();
@@ -2999,8 +3129,11 @@ namespace MimeKit.Text {
 				case HtmlTokenizerState.BeforeAttributeValue:
 					token = ReadBeforeAttributeValue ();
 					break;
-				case HtmlTokenizerState.AttributeValueQuoted:
-					token = ReadAttributeValueQuoted ();
+				case HtmlTokenizerState.AttributeValueDoubleQuoted:
+					token = ReadAttributeValueDoubleQuoted ();
+					break;
+				case HtmlTokenizerState.AttributeValueSingleQuoted:
+					token = ReadAttributeValueSingleQuoted ();
 					break;
 				case HtmlTokenizerState.AttributeValueUnquoted:
 					token = ReadAttributeValueUnquoted ();

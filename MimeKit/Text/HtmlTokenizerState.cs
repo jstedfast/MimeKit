@@ -292,11 +292,18 @@ namespace MimeKit.Text {
 		BeforeAttributeValue,
 
 		/// <summary>
-		/// The attribute value quoted state as described at
+		/// The attribute value (double-quoted) state as described at
 		/// <a href="http://www.w3.org/TR/html5/syntax.html#attribute-value-(double-quoted)-state">
 		/// http://www.w3.org/TR/html5/syntax.html#attribute-value-(double-quoted)-state</a>.
 		/// </summary>
-		AttributeValueQuoted,
+		AttributeValueDoubleQuoted,
+
+		/// <summary>
+		/// The attribute value (single-quoted) state as described at
+		/// <a href="http://www.w3.org/TR/html5/syntax.html#attribute-value-(single-quoted)-state">
+		/// http://www.w3.org/TR/html5/syntax.html#attribute-value-(single-quoted)-state</a>.
+		/// </summary>
+		AttributeValueSingleQuoted,
 
 		/// <summary>
 		/// The attribute value unquoted state as described at

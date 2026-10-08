@@ -119,6 +119,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
     receivers can choose to defer the message and try again later rather than seal it with `cv=fail`.
   * `ArcHeaderValidationResult` has new `Reason` and `Exception` properties that describe why an
     ARC-Message-Signature or ARC-Seal did not pass.
+* Replaced `HtmlTokenizerState.AttributeValueQuoted` with separate `AttributeValueDoubleQuoted` and
+  `AttributeValueSingleQuoted` states, matching the HTML specification. This also changes the numeric
+  values of the `HtmlTokenizerState` members that follow them.
 
 ### DMARC
 
@@ -319,6 +322,11 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   allocates a redundant list, recently used tag names, attribute names and short attribute values are shared
   rather than allocated again for every occurrence, and `HtmlToHtml` no longer allocates a node for every open
   element or a string for every run of character data.
+* Optimized `HtmlTokenizer` to scan plain text and quoted attribute values in bulk (using `SearchValues<char>`
+  on .NET 8 and later) rather than one character at a time. Combined with the allocation reductions above,
+  tokenizing HTML is now about 6-13% faster than in MimeKit 4.18.1 and allocates 34-39% less memory.
+  `HtmlToHtml` allocates 25-52% less memory and is about 7-20% faster when converting to a `TextWriter`,
+  depending on the document.
 
 ### Bug Fixes
 

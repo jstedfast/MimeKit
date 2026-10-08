@@ -1831,6 +1831,54 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestTruncatedAttributeValueSingleQuoted ()
+		{
+			const string content = "<name attr='value";
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("<name attr='value"));
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
+		[Test]
+		public void TestTruncatedAttributeValueSingleQuotedWithAbortedCharacterReference ()
+		{
+			const string content = "<name attr='one & two";
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo ("<name attr='one & two"));
+
+			tokenizer = CreateTokenizer (content);
+			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
+		[TestCase ("<a title=\"it's &amp; \0 ok\" b=c>", "it's & \uFFFD ok")]
+		[TestCase ("<a title='say &quot;hi&quot; & \"bye\"' b=c>", "say \"hi\" & \"bye\"")]
+		public void TestQuotedAttributeValueContainingOtherQuote (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+
+			var tag = (HtmlTagToken) token;
+			Assert.That (tag.Attributes, Has.Count.EqualTo (2));
+			Assert.That (tag.Attributes[0].Value, Is.EqualTo (expected));
+			Assert.That (tag.Attributes[1].Name, Is.EqualTo ("b"));
+			Assert.That (tag.Attributes[1].Value, Is.EqualTo ("c"));
+		}
+
+		[Test]
 		public void TestTruncatedAttributeValueUnquoted ()
 		{
 			const string content = "<name attr=value";
@@ -1842,6 +1890,42 @@ namespace UnitTests.Text {
 
 			tokenizer = CreateTokenizer (content);
 			tokenizer.IgnoreTruncatedTags = true;
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+		}
+
+		[TestCase ('"')]
+		[TestCase ('\'')]
+		public void TestLinePositionAfterLongQuotedAttributeValue (char quote)
+		{
+			var run = new string ('x', 5000);
+			var content = "<a\nhref=" + quote + run + "\n" + run + "&amp;\0" + run + quote + ">";
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (((HtmlTagToken) token).Attributes[0].Value, Is.EqualTo (run + "\n" + run + "&\uFFFD" + run));
+			Assert.That (tokenizer.LineNumber, Is.EqualTo (3));
+			Assert.That (tokenizer.LinePosition, Is.EqualTo (1 + run.Length + "&amp;\0".Length + run.Length + "\">".Length));
+		}
+
+		[Test]
+		public void TestLinePositionAfterLongPlainText ()
+		{
+			var run = new string ('x', 5000);
+			var content = "<plaintext>" + run + "\n" + run + "\0" + run;
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+			Assert.That (tokenizer.LineNumber, Is.EqualTo (1));
+			Assert.That (tokenizer.LinePosition, Is.EqualTo (1 + "<plaintext>".Length));
+
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Data));
+			Assert.That (((HtmlDataToken) token).Data, Is.EqualTo (run + "\n" + run + "\uFFFD" + run));
+			Assert.That (tokenizer.LineNumber, Is.EqualTo (2));
+			Assert.That (tokenizer.LinePosition, Is.EqualTo (1 + run.Length + 1 + run.Length));
 
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
@@ -3721,6 +3805,17 @@ namespace UnitTests.Text {
 		[TestCase ("<svg><foreignObject><![CDATA[ x ><img>]]>", "Tag(svg) Tag(foreignObject) Data( x ><img>)")]
 		[TestCase ("<svg></svg><![CDATA[ x ><img>]]>", "Tag(svg) EndTag(svg) Bogus([CDATA[ x ) Tag(img) Data(]]>)")]
 		public void TestCDataSectionContext (string content, string expected)
+		{
+			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
+		}
+
+		// The appropriate end tag for RAWTEXT/RCDATA elements must be matched case-insensitively.
+		[TestCase ("<STYLE>a</style>b", "Tag(STYLE) Data(a) EndTag(style) Data(b)")]
+		[TestCase ("<style>a</STYLE>b", "Tag(style) Data(a) EndTag(STYLE) Data(b)")]
+		[TestCase ("<TiTlE>a</tItLe>b", "Tag(TiTlE) Data(a) EndTag(tItLe) Data(b)")]
+		[TestCase ("<XMP>a</Xmp >b", "Tag(XMP) Data(a) EndTag(Xmp) Data(b)")]
+		[TestCase ("<TextArea>a</TEXTAREA/>b", "Tag(TextArea) Data(a) EndTag(TEXTAREA/) Data(b)")]
+		public void TestMixedCaseAppropriateEndTag (string content, string expected)
 		{
 			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
 		}

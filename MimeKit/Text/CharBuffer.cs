@@ -73,6 +73,14 @@ namespace MimeKit.Text {
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public void Append (char[] chars, int startIndex, int count)
+		{
+			EnsureCapacity (Length + count);
+			Array.Copy (chars, startIndex, buffer, Length, count);
+			Length += count;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		public void Append (string str)
 		{
 			EnsureCapacity (Length + str.Length);
