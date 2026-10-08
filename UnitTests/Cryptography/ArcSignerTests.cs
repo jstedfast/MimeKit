@@ -84,8 +84,8 @@ namespace UnitTests.Cryptography {
 		public void TestArgumentExceptions ()
 		{
 			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem");
-			var locator = new DkimPublicKeyLocator ();
-			var verifier = new DkimVerifier (locator);
+			var resolver = new MockDnsResolver ();
+			var verifier = new DkimVerifier (resolver);
 			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
 			var arcHeader = new Header (HeaderId.ArcMessageSignature, "value");
 			var options = FormatOptions.Default;
@@ -185,7 +185,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static void AssertSignResults (string description, MimeMessage message, DkimPublicKeyLocator locator, DkimSignatureAlgorithm algorithm, string aar, string ams, string seal)
+		static void AssertSignResults (string description, MimeMessage message, MockDnsResolver resolver, DkimSignatureAlgorithm algorithm, string aar, string ams, string seal)
 		{
 			Header header;
 			int index;
@@ -213,7 +213,7 @@ namespace UnitTests.Cryptography {
 				var expected = ArcSignatureValidationResult.Pass;
 				if (header.Value.Contains ("cv=fail;"))
 					expected = ArcSignatureValidationResult.Fail;
-				var verifier = new ArcVerifier (locator);
+				var verifier = new ArcVerifier (resolver);
 				ArcValidationResult result;
 
 				if (!verifier.IsEnabled (algorithm)) {
@@ -230,7 +230,7 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
-		static void Sign (string description, string input, DkimPublicKeyLocator locator, string srvid, string domain, string selector,
+		static void Sign (string description, string input, MockDnsResolver resolver, string srvid, string domain, string selector,
 			string privateKey, long t, string[] hdrs, string aar, string ams, string seal,
 			DkimSignatureAlgorithm algorithm = DkimSignatureAlgorithm.RsaSha256,
 			DkimCanonicalizationAlgorithm headerAlgorithm = DkimCanonicalizationAlgorithm.Relaxed,
@@ -251,7 +251,7 @@ namespace UnitTests.Cryptography {
 
 			signer.HeaderCanonicalizationAlgorithm = headerAlgorithm;
 			signer.BodyCanonicalizationAlgorithm = bodyAlgorithm;
-			signer.PublicKeyLocator = locator;
+			signer.DnsResolver = resolver;
 			signer.Timestamp = t;
 			signer.SrvId = srvid;
 
@@ -260,14 +260,14 @@ namespace UnitTests.Cryptography {
 
 				// Test Sign(..., string[] headers, ...)
 				signer.Sign (message, hdrs);
-				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
+				AssertSignResults (description, message, resolver, algorithm, aar, ams, seal);
 
 				stream.Position = 0;
 				message = MimeMessage.Load (stream);
 
 				// Test SignAsync(..., string[] headers, ...)
 				signer.SignAsync (message, hdrs).GetAwaiter ().GetResult ();
-				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
+				AssertSignResults (description, message, resolver, algorithm, aar, ams, seal);
 
 				var ids = new HeaderId[hdrs.Length];
 				for (int i = 0; i < hdrs.Length; i++)
@@ -278,14 +278,14 @@ namespace UnitTests.Cryptography {
 
 				// Test Sign(..., HeaderId[] headers, ...)
 				signer.Sign (message, ids);
-				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
+				AssertSignResults (description, message, resolver, algorithm, aar, ams, seal);
 
 				stream.Position = 0;
 				message = MimeMessage.Load (stream);
 
 				// Test SignAsync(..., HeaderId[] headers, ...)
 				signer.SignAsync (message, ids).GetAwaiter ().GetResult ();
-				AssertSignResults (description, message, locator, algorithm, aar, ams, seal);
+				AssertSignResults (description, message, resolver, algorithm, aar, ams, seal);
 			}
 		}
 
@@ -331,11 +331,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "i=1; a=rsa-sha1; d=example.org; s=dummy; c=relaxed/relaxed; t=12345; h=mime-version:date:from:to:subject; bh=bIxxaeIQvmOBdTAitYfSNFgzPP4=; b=qh2z8AFVMdUI4pG3EBTn9+3Af3KU0tmlLUOeUnCsWuigUdE7TTGLirz2ZOeFUAjAeHuKFxJjEPbtYtQh9ptuxZ8Mn9sE/AfIBd85q2yHWu3WOGQFwRrEuLekiH/zXG3d7VUhf8PNveHEXx/NI40qBpPLjXF4o8qxoApGEQZ6CjA=";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("a=rsa-sha1", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.RsaSha1);
+			Sign ("a=rsa-sha1", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.RsaSha1);
 		}
 
 		[Test]
@@ -363,11 +363,11 @@ This is a test message.
 			const string ams = "i=1; a=ed25519-sha256; d=example.org; s=dummy; c=relaxed/relaxed; t=12345; h=mime-version:date:from:to:subject; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; b=f3EEIg6djos7u74HzwTwQaZmCt3jhoQe/PnDsLfnOd5i6slE0MJdoR4lgBOAZMh+nTLF7YfsHF/qopJwoPBQDg==";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
 
-			Sign ("a=ed25519-sha256", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.Ed25519Sha256);
+			Sign ("a=ed25519-sha256", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.Ed25519Sha256);
 		}
 
 		[Test]
@@ -410,11 +410,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "i=1; a=rsa-sha256; d=example.org; s=dummy; c=simple/simple; t=12345; h=mime-version:date:from:to:subject; bh=hhFbTjokraRYc/Af+8v4zyKm/9ApHGkBSLO129NtPbo=; b=GTpRE34Ud8TOECxNCRNw4jSncvc1nTlLNr6OJC6AjxmumsW2dvQglYIYJK5NO7zPKwzTVUlVB6ZznpIzaKJzsy5oBxV2frl5p5ZBFKGeiU94O0byPiATdwHe4lQiYUK5hBQV0Ei2sxSSlbQPXqjDymnZDcMPp/fLhDQETrjE6AI=";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("a=rsa-sha256", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
+			Sign ("a=rsa-sha256", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal, DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
 		}
 
 		#region Canonicalization
@@ -459,11 +459,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("message body eol whitespace ignored", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("message body eol whitespace ignored", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -506,11 +506,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("message body inline whitespace reduced", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("message body inline whitespace reduced", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -553,11 +553,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("message body ignore trailing empty lines", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("message body ignore trailing empty lines", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -600,11 +600,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("message body add crlf to end if na", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("message body add crlf to end if na", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -647,11 +647,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("header field names case insensitive", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("header field names case insensitive", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -695,11 +695,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("header", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("header", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -742,11 +742,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("headers ignore eol whitespace", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("headers ignore eol whitespace", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -789,11 +789,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("header reduce inline whitespace", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("header reduce inline whitespace", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -836,11 +836,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("headers whitespace surrounding colon ignored", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("headers whitespace surrounding colon ignored", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		#endregion
@@ -886,11 +886,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=0 basic test", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("i=0 basic test", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -954,11 +954,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=UaNJhLFAa56Gpc+wKk0SL2Jq/LJgT9CYSZl59wcGYkpG0D5bjhDdj3qers6hD+3BpljNgn mFxq8zWssoPon3ydvTSCSjVwPRNgLol9zBP+FZo/QGQQbj74ZcGv04jOVe8TKDTFSaVe41L7 mH16ZdoLgRdSa2Ys+p9f0+DVFYTO4=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=2; s=dummy; t=12346";
 			const string aar = "i=2; lists.example.org; arc=pass; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=1 basic test", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12346, hdrs, aar, ams, seal);
+			Sign ("i=1 basic test", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12346, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -1038,11 +1038,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=QmCd8uJdwnr6wMmniYA/VHCuWButAIlcPZSpNWvk8KHgTuFMZlCPQToT2qVpf2BUfdNpnC mSCED02aLfV6Grc6caqO4PIaxyu3Z+/HNxh0NugIW2JVHT1cZicWkwlgZa4V9i+CYFBAYmzb L0n4ibTxSX8XPxR9ffZdknwiLmYsA=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=3; s=dummy; t=12347";
 			const string aar = "i=3; lists.example.org; arc=pass; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=2 basic test", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12347, hdrs, aar, ams, seal);
+			Sign ("i=2 basic test", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12347, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -1106,11 +1106,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=UaNJhLFAa56Gpc+wKk0SL2Jq/LJgT9CYSZl59wcGYkpG0D5bjhDdj3qers6hD+3BpljNgn mFxq8zWssoPon3ydvTSCSjVwPRNgLol9zBP+FZo/QGQQbj74ZcGv04jOVe8TKDTFSaVe41L7 mH16ZdoLgRdSa2Ys+p9f0+DVFYTO4=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=2; s=dummy; t=12346";
 			const string aar = "i=2; lists.example.org; arc=fail; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=1 basic test with failing arc set", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12346, hdrs, aar, ams, seal);
+			Sign ("i=1 basic test with failing arc set", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12346, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -1190,11 +1190,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=QmCd8uJdwnr6wMmniYA/VHCuWButAIlcPZSpNWvk8KHgTuFMZlCPQToT2qVpf2BUfdNpnC mSCED02aLfV6Grc6caqO4PIaxyu3Z+/HNxh0NugIW2JVHT1cZicWkwlgZa4V9i+CYFBAYmzb L0n4ibTxSX8XPxR9ffZdknwiLmYsA=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=3; s=dummy; t=12347";
 			const string aar = "i=3; lists.example.org; arc=fail; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=1 basic test", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12347, hdrs, aar, ams, seal);
+			Sign ("i=1 basic test", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12347, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -1274,11 +1274,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "";
 			const string aar = "";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("if a chain is failing, dont add another set", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12346, hdrs, aar, ams, seal);
+			Sign ("if a chain is failing, dont add another set", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12346, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -1322,11 +1322,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=0 basic test", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("i=0 basic test", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		[Test]
@@ -1370,11 +1370,11 @@ uEzxBDAr518Z8VFbR41in3W4Y3yCDgQlLlcETrS+zYcL
 			const string ams = "a=rsa-sha256; b=XWeK9DxQ8MUm+Me5GLZ5lQ3L49RdoFv7m7VlrAkKb3/C7jjw33TrTY0KYI5lkowvEGnAtm 5lAqLz67FxA/VrJc2JiYFQR/mBoJLLz/hh9y77byYmSO9tLfIDe2A83+6QsXHO3K6PxTz7+v rCB4wHD9GADeUKVfHzmpZhFuYOa88=; bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed; d=example.org; h=mime-version:date:from:to:subject; i=1; s=dummy; t=12345";
 			const string aar = "i=1; lists.example.org; arc=none; spf=pass smtp.mfrom=jqd@d1.example; dkim=pass (1024-bit key) header.i=@d1.example; dmarc=pass";
 			var hdrs = new string[] { "mime-version", "date", "from", "to", "subject" };
-			var locator = new DkimPublicKeyLocator ();
+			var resolver = new MockDnsResolver ();
 
-			locator.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("dummy._domainkey.example.org", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
-			Sign ("i=0 basic test", input, locator, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
+			Sign ("i=0 basic test", input, resolver, "lists.example.org", "example.org", "dummy", keyblock, 12345, hdrs, aar, ams, seal);
 		}
 
 		#endregion

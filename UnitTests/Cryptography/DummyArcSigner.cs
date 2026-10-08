@@ -44,7 +44,7 @@ namespace UnitTests.Cryptography {
 		{
 		}
 
-		public IDkimPublicKeyLocator PublicKeyLocator {
+		public IDnsResolver DnsResolver {
 			get; set;
 		}
 

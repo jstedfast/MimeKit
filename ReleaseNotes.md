@@ -82,6 +82,20 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   excluded only from the `endOffset` reported to the corresponding `End` callback, so subclasses that
   buffered the content had to trim it themselves. The bytes passed to the `Read` callbacks now match the
   range between the `Begin` and `End` offsets exactly. Preamble content is unchanged.
+* Replaced `IDkimPublicKeyLocator` and `DkimPublicKeyLocatorBase` with a new, more general
+  `IDnsResolver` interface. `DkimVerifier` and `ArcVerifier` now take an `IDnsResolver`, and the
+  protected `DkimVerifierBase.PublicKeyLocator` property has been replaced by `DnsResolver`.
+  * Implementations only need to perform DNS TXT queries and return the raw record strings in a
+    `DnsTxtResponse`, along with a `DnsQueryStatus` that distinguishes a successful query, a
+    non-existent domain (NXDOMAIN) and a temporary failure. MimeKit now builds the
+    `<selector>._domainkey.<domain>` query name and parses the DKIM key records itself.
+  * DKIM key records are parsed more strictly per RFC 6376: records with duplicate tags, a `v=` tag
+    that is not first or not `DKIM1`, an unrecognized `k=` key type, or an `s=` tag that excludes
+    `email` are ignored. Keys whose `h=` tag does not permit the signature's hash algorithm or whose
+    key type does not match the signature algorithm are rejected, revoked keys (an empty `p=`) are
+    recognized, and the `t=s` flag is enforced for DKIM signatures.
+  * A failed key lookup or an unparsable key record now causes verification to fail rather than
+    throwing an exception.
 
 ### MIME Compliance Violation Reporting
 

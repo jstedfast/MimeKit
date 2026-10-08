@@ -26,6 +26,7 @@
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit;
@@ -39,23 +40,30 @@ namespace UnitTests.Cryptography {
 		static readonly AsymmetricKeyParameter Ed25519PrivateKey;
 		static readonly AsymmetricCipherKeyPair DkimKeys;
 
-		class DummyPublicKeyLocator : IDkimPublicKeyLocator
+		class DummyDnsResolver : IDnsResolver
 		{
-			readonly AsymmetricKeyParameter key;
+			readonly DnsTxtResponse response;
 
-			public DummyPublicKeyLocator (AsymmetricKeyParameter publicKey)
+			public DummyDnsResolver (AsymmetricKeyParameter publicKey)
 			{
-				key = publicKey;
+				string txt;
+
+				if (publicKey is Ed25519PublicKeyParameters ed25519)
+					txt = "v=DKIM1; k=ed25519; p=" + Convert.ToBase64String (ed25519.GetEncoded ());
+				else
+					txt = "v=DKIM1; k=rsa; p=" + Convert.ToBase64String (SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo (publicKey).GetEncoded ());
+
+				response = new DnsTxtResponse (new[] { txt });
 			}
 
-			public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default)
+			public DnsTxtResponse QueryTxt (string domain, CancellationToken cancellationToken = default)
 			{
-				return key;
+				return response;
 			}
 
-			public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default)
+			public Task<DnsTxtResponse> QueryTxtAsync (string domain, CancellationToken cancellationToken = default)
 			{
-				return Task.FromResult (key);
+				return Task.FromResult (response);
 			}
 		}
 
@@ -81,6 +89,156 @@ namespace UnitTests.Cryptography {
 				AgentOrUserIdentifier = "@eng.example.com",
 				QueryMethod = "dns/txt"
 			};
+		}
+
+		const string ExampleKeyName = "1433868189.example._domainkey.example.com";
+
+		static string ExamplePublicKey {
+			get { return Convert.ToBase64String (SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo (DkimKeys.Public).GetEncoded ()); }
+		}
+
+		static MimeMessage CreateSignedMessage (out Header dkim)
+		{
+			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Relaxed, DkimCanonicalizationAlgorithm.Relaxed);
+			var message = new MimeMessage ();
+
+			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
+			message.To.Add (new MailboxAddress ("", "mimekit@example.com"));
+			message.Subject = "Key lookup test";
+			message.Date = new DateTimeOffset (2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+			message.Body = new TextPart ("plain") { Text = "This is the body." };
+
+			signer.Sign (message, new HeaderId[] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date });
+
+			dkim = message.Headers[0];
+
+			return message;
+		}
+
+		static async Task AssertVerifyAsync (MockDnsResolver resolver, bool expected, string description, Action<Header> modify = null)
+		{
+			var verifier = new DkimVerifier (resolver);
+
+			using var message = CreateSignedMessage (out var dkim);
+
+			modify?.Invoke (dkim);
+
+			Assert.That (verifier.Verify (message, dkim), Is.EqualTo (expected), description);
+			Assert.That (await verifier.VerifyAsync (message, dkim), Is.EqualTo (expected), description + " (async)");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookup ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=rsa; p=" + ExamplePublicKey);
+
+			await AssertVerifyAsync (resolver, true, "valid key");
+			Assert.That (resolver.Queries, Is.EqualTo (new[] { ExampleKeyName, ExampleKeyName }));
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupSkipsInvalidRecords ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "this is not a dkim record");
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=rsa; p=" + ExamplePublicKey);
+
+			await AssertVerifyAsync (resolver, true, "valid key after invalid and incompatible records");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupNonExistentDomain ()
+		{
+			await AssertVerifyAsync (new MockDnsResolver (), false, "NXDOMAIN");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupNoRecords ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.AddFailure (ExampleKeyName, DnsQueryStatus.Success);
+
+			await AssertVerifyAsync (resolver, false, "NODATA");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupTemporaryFailure ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.AddFailure (ExampleKeyName, DnsQueryStatus.TemporaryFailure);
+
+			await AssertVerifyAsync (resolver, false, "SERVFAIL");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupResolverThrows ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.AddException (ExampleKeyName, new IOException ("network unreachable"));
+
+			await AssertVerifyAsync (resolver, false, "resolver exception");
+		}
+
+		[Test]
+		public void TestVerifyKeyLookupCancelled ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.AddException (ExampleKeyName, new OperationCanceledException ());
+
+			var verifier = new DkimVerifier (resolver);
+			using var message = CreateSignedMessage (out var dkim);
+
+			Assert.Throws<OperationCanceledException> (() => verifier.Verify (message, dkim));
+			Assert.ThrowsAsync<OperationCanceledException> (() => verifier.VerifyAsync (message, dkim));
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupRevoked ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=rsa; p=");
+
+			await AssertVerifyAsync (resolver, false, "revoked key");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupKeyTypeMismatch ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+
+			await AssertVerifyAsync (resolver, false, "key type mismatch");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupHashAlgorithmMismatch ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=rsa; h=sha1; p=" + ExamplePublicKey);
+
+			await AssertVerifyAsync (resolver, false, "h=sha1 does not permit rsa-sha256");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupStrictFlag ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=rsa; t=s; p=" + ExamplePublicKey);
+
+			// The signer uses i=@eng.example.com which is a subdomain of d=example.com
+			await AssertVerifyAsync (resolver, false, "t=s with a subdomain AUID");
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupUnsupportedQueryMethod ()
+		{
+			var resolver = new MockDnsResolver ();
+			resolver.Add (ExampleKeyName, "v=DKIM1; k=rsa; p=" + ExamplePublicKey);
+
+			await AssertVerifyAsync (resolver, false, "q=dns/other", dkim => dkim.Value = dkim.Value.Replace ("q=dns/txt", "q=dns/other"));
+			Assert.That (resolver.Queries, Is.Empty);
 		}
 
 		[Test]
@@ -124,7 +282,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDkimVerifierDefaults ()
 		{
-			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
 
 			Assert.That (verifier.MinimumRsaKeyLength, Is.EqualTo (1024), "MinimumRsaKeyLength");
 			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), Is.False, "rsa-sha1");
@@ -134,7 +292,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestDkimVerifierEnableDisable ()
 		{
-			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
 
 			Assert.That (verifier.IsEnabled (DkimSignatureAlgorithm.RsaSha1), Is.False, "initial value");
 
@@ -273,7 +431,7 @@ namespace UnitTests.Cryptography {
 		{
 			var signer = CreateSigner (signatureAlgorithm, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
-			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
 			var message = new MimeMessage ();
 
 			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
@@ -304,8 +462,8 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var locator = new DummyPublicKeyLocator (DkimKeys.Public);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (DkimKeys.Public);
+			var verifier = new DkimVerifier (resolver);
 			var dkimHeader = new Header (HeaderId.DkimSignature, "value");
 			var arcHeader = new Header (HeaderId.ArcMessageSignature, "value");
 			var options = FormatOptions.Default;
@@ -375,7 +533,7 @@ namespace UnitTests.Cryptography {
 		public void TestFormatExceptions ()
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
-			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
 			var index = message.Headers.IndexOf (HeaderId.DkimSignature);
 			var dkim = message.Headers[index];
 			var original = dkim.Value;
@@ -454,7 +612,7 @@ namespace UnitTests.Cryptography {
 		{
 			var signer = CreateSigner (signatureAlgorithm, DkimCanonicalizationAlgorithm.Simple, bodyAlgorithm);
 			var headers = new [] { HeaderId.From, HeaderId.To, HeaderId.Subject, HeaderId.Date };
-			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
 			var message = new MimeMessage ();
 
 			message.From.Add (new MailboxAddress ("", "mimekit@example.com"));
@@ -518,8 +676,8 @@ namespace UnitTests.Cryptography {
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (resolver);
 
 			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
@@ -529,8 +687,8 @@ namespace UnitTests.Cryptography {
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (resolver);
 
 			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
@@ -540,8 +698,8 @@ namespace UnitTests.Cryptography {
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (resolver);
 
 			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
@@ -551,8 +709,8 @@ namespace UnitTests.Cryptography {
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "related.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (resolver);
 
 			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
@@ -562,8 +720,8 @@ namespace UnitTests.Cryptography {
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (resolver);
 
 			Assert.That (verifier.Verify (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
@@ -573,8 +731,8 @@ namespace UnitTests.Cryptography {
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "multipart-no-end-boundary.msg"));
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DummyPublicKeyLocator (GMailDkimPublicKey);
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DummyDnsResolver (GMailDkimPublicKey);
+			var verifier = new DkimVerifier (resolver);
 
 			Assert.That (await verifier.VerifyAsync (message, message.Headers[index]), Is.True, "Failed to verify GMail signature.");
 		}
@@ -593,12 +751,12 @@ namespace UnitTests.Cryptography {
 			signer.Sign (message, headers);
 
 			int index = message.Headers.IndexOf (HeaderId.DkimSignature);
-			var locator = new DkimPublicKeyLocator ();
-			var verifier = new DkimVerifier (locator);
+			var resolver = new MockDnsResolver ();
+			var verifier = new DkimVerifier (resolver);
 			var dkim = message.Headers[index];
 
-			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
-			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			resolver.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
 			Assert.That (verifier.Verify (message, dkim), Is.True, "Failed to verify ed25519-sha256");
 		}
@@ -607,12 +765,12 @@ namespace UnitTests.Cryptography {
 		public void TestVerifyRfc8463Example ()
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
-			var locator = new DkimPublicKeyLocator ();
-			var verifier = new DkimVerifier (locator);
+			var resolver = new MockDnsResolver ();
+			var verifier = new DkimVerifier (resolver);
 			int index;
 
-			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
-			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			resolver.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
 			// the last DKIM-Signature uses rsa-sha256
 			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
@@ -627,12 +785,12 @@ namespace UnitTests.Cryptography {
 		public async Task TestVerifyRfc8463ExampleAsync ()
 		{
 			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
-			var locator = new DkimPublicKeyLocator ();
-			var verifier = new DkimVerifier (locator);
+			var resolver = new MockDnsResolver ();
+			var verifier = new DkimVerifier (resolver);
 			int index;
 
-			locator.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
-			locator.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
+			resolver.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+			resolver.Add ("test._domainkey.football.example.com", "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB");
 
 			// the last DKIM-Signature uses rsa-sha256
 			index = message.Headers.LastIndexOf (HeaderId.DkimSignature);
@@ -646,7 +804,7 @@ namespace UnitTests.Cryptography {
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
 		{
 			var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };
-			var verifier = new DkimVerifier (new DummyPublicKeyLocator (DkimKeys.Public));
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
 			var signer = CreateSigner (signatureAlgorithm, headerAlgorithm, bodyAlgorithm);
 
 			signer.Sign (message, headers);

@@ -28,12 +28,15 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -55,16 +58,16 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// Initializes the <see cref="DkimVerifierBase"/>.
 		/// </remarks>
-		/// <param name="publicKeyLocator">The public key locator.</param>
+		/// <param name="resolver">The DNS resolver used to look up the public keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="publicKeyLocator"/> is <see langword="null"/>.
+		/// <paramref name="resolver"/> is <see langword="null"/>.
 		/// </exception>
-		protected DkimVerifierBase (IDkimPublicKeyLocator publicKeyLocator)
+		protected DkimVerifierBase (IDnsResolver resolver)
 		{
-			if (publicKeyLocator == null)
-				throw new ArgumentNullException (nameof (publicKeyLocator));
+			if (resolver == null)
+				throw new ArgumentNullException (nameof (resolver));
 
-			PublicKeyLocator = publicKeyLocator;
+			DnsResolver = resolver;
 
 			Enable (DkimSignatureAlgorithm.Ed25519Sha256);
 			Enable (DkimSignatureAlgorithm.RsaSha256);
@@ -73,13 +76,13 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
-		/// Get the public key locator.
+		/// Get the DNS resolver.
 		/// </summary>
 		/// <remarks>
-		/// Gets the public key locator.
+		/// Gets the DNS resolver used to look up the public keys.
 		/// </remarks>
-		/// <value>The public key locator.</value>
-		protected IDkimPublicKeyLocator PublicKeyLocator {
+		/// <value>The DNS resolver.</value>
+		protected IDnsResolver DnsResolver {
 			get; private set;
 		}
 
@@ -149,6 +152,145 @@ namespace MimeKit.Cryptography {
 		public bool IsEnabled (DkimSignatureAlgorithm algorithm)
 		{
 			return (enabledSignatureAlgorithms & (1 << (int) algorithm)) != 0;
+		}
+
+		static bool SupportsDnsTxtQueryMethod (string methods)
+		{
+			foreach (var method in TagValueList.SplitColonList (methods)) {
+				if (method.Equals ("dns/txt", StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+
+			return false;
+		}
+
+		static bool TryGetKeyRecordName (string methods, string domain, string selector, [NotNullWhen (true)] out string? name, [NotNullWhen (false)] out DkimPublicKeyLookupResult? error)
+		{
+			name = null;
+
+			if (!SupportsDnsTxtQueryMethod (methods)) {
+				error = DkimPublicKeyLookupResult.PermError (string.Format (CultureInfo.InvariantCulture, "unsupported query method: q={0}", methods));
+				return false;
+			}
+
+			if (!DnsDomainName.TryNormalize (domain, out var normalizedDomain)) {
+				error = DkimPublicKeyLookupResult.PermError ("invalid domain");
+				return false;
+			}
+
+			if (!DnsDomainName.TryNormalize (selector, out var normalizedSelector) || !DnsDomainName.TryCombine (normalizedSelector + "._domainkey", normalizedDomain, out name)) {
+				error = DkimPublicKeyLookupResult.PermError ("invalid selector");
+				return false;
+			}
+
+			error = null;
+
+			return true;
+		}
+
+		static DkimPublicKeyLookupResult GetPublicKeyRecord (DnsTxtResponse? response, DkimSignatureAlgorithm algorithm)
+		{
+			if (response is null)
+				return DkimPublicKeyLookupResult.TempError ("key query failed");
+
+			switch (response.Status) {
+			case DnsQueryStatus.Success:
+				break;
+			case DnsQueryStatus.NonExistentDomain:
+				return DkimPublicKeyLookupResult.PermError ("no key for signature");
+			default:
+				return DkimPublicKeyLookupResult.TempError ("key query failed");
+			}
+
+			bool incompatible = false;
+
+			// Note: If multiple key records are returned, the order is unspecified and the verifier may choose any
+			// one of them. Use the first valid record that is compatible with the signature algorithm.
+			for (int i = 0; i < response.Records.Count; i++) {
+				if (!DkimPublicKeyRecord.TryParse (response.Records[i], out var record))
+					continue;
+
+				if (!record.IsCompatible (algorithm)) {
+					incompatible = true;
+					continue;
+				}
+
+				if (record.IsRevoked)
+					return DkimPublicKeyLookupResult.PermError ("key revoked");
+
+				return new DkimPublicKeyLookupResult (DkimPublicKeyLookupStatus.Success, record, null, null);
+			}
+
+			if (incompatible)
+				return DkimPublicKeyLookupResult.PermError ("inappropriate key algorithm");
+
+			if (response.Records.Count == 0)
+				return DkimPublicKeyLookupResult.PermError ("no key for signature");
+
+			return DkimPublicKeyLookupResult.PermError ("key syntax error");
+		}
+
+		internal DkimPublicKeyLookupResult LookupPublicKey (string methods, string domain, string selector, DkimSignatureAlgorithm algorithm, CancellationToken cancellationToken)
+		{
+			DnsTxtResponse? response;
+
+			if (!TryGetKeyRecordName (methods, domain, selector, out var name, out var error))
+				return error;
+
+			try {
+				response = DnsResolver.QueryTxt (name, cancellationToken);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch (Exception ex) {
+				return DkimPublicKeyLookupResult.TempError ("key query failed", ex);
+			}
+
+			return GetPublicKeyRecord (response, algorithm);
+		}
+
+		internal async Task<DkimPublicKeyLookupResult> LookupPublicKeyAsync (string methods, string domain, string selector, DkimSignatureAlgorithm algorithm, CancellationToken cancellationToken)
+		{
+			DnsTxtResponse? response;
+
+			if (!TryGetKeyRecordName (methods, domain, selector, out var name, out var error))
+				return error;
+
+			try {
+				response = await DnsResolver.QueryTxtAsync (name, cancellationToken).ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch (Exception ex) {
+				return DkimPublicKeyLookupResult.TempError ("key query failed", ex);
+			}
+
+			return GetPublicKeyRecord (response, algorithm);
+		}
+
+		internal DkimPublicKeyLookupResult LookupPublicKey (DkimSignatureInfo info, CancellationToken cancellationToken)
+		{
+			return LookupPublicKey (info.QueryMethods, info.Domain, info.Selector, info.SignatureAlgorithm, cancellationToken);
+		}
+
+		internal Task<DkimPublicKeyLookupResult> LookupPublicKeyAsync (DkimSignatureInfo info, CancellationToken cancellationToken)
+		{
+			return LookupPublicKeyAsync (info.QueryMethods, info.Domain, info.Selector, info.SignatureAlgorithm, cancellationToken);
+		}
+
+		internal bool TryGetVerificationKey (DkimPublicKeyLookupResult lookup, [NotNullWhen (true)] out AsymmetricKeyParameter? key)
+		{
+			key = null;
+
+			if (lookup.Status != DkimPublicKeyLookupStatus.Success)
+				return false;
+
+			var publicKey = lookup.Record!.PublicKey!;
+
+			if ((publicKey is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
+				return false;
+
+			key = publicKey;
+
+			return true;
 		}
 
 		static bool IsWhiteSpace (char c)
@@ -564,6 +706,76 @@ namespace MimeKit.Cryptography {
 
 				return stream.VerifySignature (signature);
 			}
+		}
+	}
+
+	enum DkimPublicKeyLookupStatus
+	{
+		Success,
+		PermError,
+		TempError
+	}
+
+	sealed class DkimSignatureInfo
+	{
+		public DkimSignatureInfo (FormatOptions options, Header header, DkimSignatureAlgorithm signatureAlgorithm, string domain, string selector, string queryMethods, string signature)
+		{
+			SignatureAlgorithm = signatureAlgorithm;
+			QueryMethods = queryMethods;
+			Signature = signature;
+			Selector = selector;
+			Options = options;
+			Domain = domain;
+			Header = header;
+		}
+
+		public FormatOptions Options { get; }
+
+		public Header Header { get; }
+
+		public DkimSignatureAlgorithm SignatureAlgorithm { get; }
+
+		public DkimCanonicalizationAlgorithm HeaderAlgorithm { get; set; }
+
+		public string Domain { get; }
+
+		public string Selector { get; }
+
+		public string QueryMethods { get; }
+
+		public string Signature { get; }
+
+		public string[]? Headers { get; set; }
+
+		public string? AgentOrUserIdentifier { get; set; }
+	}
+
+	sealed class DkimPublicKeyLookupResult
+	{
+		public DkimPublicKeyLookupResult (DkimPublicKeyLookupStatus status, DkimPublicKeyRecord? record, string? reason, Exception? exception)
+		{
+			Exception = exception;
+			Status = status;
+			Record = record;
+			Reason = reason;
+		}
+
+		public DkimPublicKeyLookupStatus Status { get; }
+
+		public DkimPublicKeyRecord? Record { get; }
+
+		public string? Reason { get; }
+
+		public Exception? Exception { get; }
+
+		public static DkimPublicKeyLookupResult PermError (string reason)
+		{
+			return new DkimPublicKeyLookupResult (DkimPublicKeyLookupStatus.PermError, null, reason, null);
+		}
+
+		public static DkimPublicKeyLookupResult TempError (string reason, Exception? exception = null)
+		{
+			return new DkimPublicKeyLookupResult (DkimPublicKeyLookupStatus.TempError, null, reason, exception);
 		}
 	}
 }

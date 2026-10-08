@@ -874,94 +874,99 @@ As you can see, it's fairly straight forward.
 ### Verifying DKIM Signatures
 
 Verifying DKIM signatures is slightly more involved than creating them because you'll need to write a custom
-implementation of the `IDkimPublicKeyLocator` interface. Typically, this custom class will need to download
-the DKIM public keys via your chosen DNS library as they are requested by MimeKit during verification of
-DKIM signature headers.
+implementation of the `IDnsResolver` interface. Typically, this custom class will use your chosen DNS library
+to look up the DNS TXT records requested by MimeKit during verification of DKIM signature headers. MimeKit
+takes care of parsing the DKIM public key records, so all your resolver needs to do is return the raw TXT
+record strings along with whether the domain exists or the lookup failed.
 
-Once you've implemented a custom `IDkimPublicKeyLocator`, verifying signatures is fairly trivial. Most of the work
-needed will be in the `IDkimPublicKeyLocator` implementation. As an example of how to implement this interface,
-here is one possible implementation using the [Heijden.DNS](https://www.nuget.org/packages/Heijden.Dns/) library:
+Once you've implemented a custom `IDnsResolver`, verifying signatures is fairly trivial. Most of the work
+needed will be in the `IDnsResolver` implementation. As an example of how to implement this interface,
+here is one possible implementation using the [DnsClient](https://www.nuget.org/packages/DnsClient/) library:
 
 ```csharp
 using System;
 using System.IO;
-using System.Text;
+using System.Net;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
-using Heijden.DNS;
-
-using Org.BouncyCastle.Crypto;
+using DnsClient;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
 namespace DkimVerifierExample
 {
-    // Note: By using the DkimPublicKeyLocatorBase, we avoid having to parse the DNS TXT records
-    // in order to get the public key ourselves.
-    class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
+    class DnsResolver : IDnsResolver
     {
-        readonly Dictionary<string, AsymmetricKeyParameter> cache;
-        readonly Resolver resolver;
+        readonly ConcurrentDictionary<string, DnsTxtResponse> cache;
+        readonly LookupClient dnsClient;
 
-        public DkimPublicKeyLocator ()
+        public DnsResolver ()
         {
-            cache = new Dictionary<string, AsymmetricKeyParameter> ();
+            cache = new ConcurrentDictionary<string, DnsTxtResponse> (StringComparer.OrdinalIgnoreCase);
 
-            resolver = new Resolver ("8.8.8.8") {
-                TransportType = TransportType.Udp,
+            var options = new LookupClientOptions (IPAddress.Parse ("8.8.8.8")) {
                 UseCache = true,
                 Retries = 3
             };
+
+            dnsClient = new LookupClient (options);
         }
 
-        AsymmetricKeyParameter DnsLookup (string domain, string selector, CancellationToken cancellationToken)
+        DnsTxtResponse GetTxtResponse (string domain, IDnsQueryResponse response)
         {
-            var query = selector + "._domainkey." + domain;
-            AsymmetricKeyParameter pubkey;
+            DnsTxtResponse result;
 
-            // checked if we've already fetched this key
-            if (cache.TryGetValue (query, out pubkey))
-                return pubkey;
+            if (response.HasError) {
+                if (response.Header.ResponseCode == DnsHeaderResponseCode.NotExistentDomain)
+                    result = new DnsTxtResponse (DnsQueryStatus.NonExistentDomain);
+                else
+                    return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
+            } else {
+                // Each TXT record may be split into multiple character-strings which must be concatenated.
+                // Note: separate TXT records must *not* be concatenated together.
+                var records = response.Answers.TxtRecords ().Select (record => string.Concat (record.Text));
 
-            // make a DNS query
-            var response = resolver.Query (query, QType.TXT);
-            var builder = new StringBuilder ();
-
-            // combine the TXT records into 1 string buffer
-            foreach (var record in response.RecordsTXT) {
-                foreach (var text in record.TXT)
-                    builder.Append (text);
+                result = new DnsTxtResponse (records);
             }
 
-            var txt = builder.ToString ();
+            // only cache definitive answers
+            cache[domain] = result;
 
-            // DkimPublicKeyLocatorBase provides us with this helpful method.
-            pubkey = GetPublicKey (txt);
-
-            cache.Add (query, pubkey);
-
-            return pubkey;
+            return result;
         }
 
-        public AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+        public DnsTxtResponse QueryTxt (string domain, CancellationToken cancellationToken = default)
         {
-            var methodList = methods.Split (new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < methodList.Length; i++) {
-                if (methodList[i] == "dns/txt")
-                    return DnsLookup (domain, selector, cancellationToken);
+            // check if we've already fetched this record
+            if (cache.TryGetValue (domain, out var cached))
+                return cached;
+
+            try {
+                var response = dnsClient.Query (domain, QueryType.TXT, QueryClass.IN);
+
+                return GetTxtResponse (domain, response);
+            } catch (DnsResponseException) {
+                return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
             }
-
-            throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
         }
 
-        public Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
+        public async Task<DnsTxtResponse> QueryTxtAsync (string domain, CancellationToken cancellationToken = default)
         {
-            return Task.Run (() => {
-                return LocatePublicKey (methods, domain, selector, cancellationToken);
-            }, cancellationToken);
+            // check if we've already fetched this record
+            if (cache.TryGetValue (domain, out var cached))
+                return cached;
+
+            try {
+                var response = await dnsClient.QueryAsync (domain, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait (false);
+
+                return GetTxtResponse (domain, response);
+            } catch (DnsResponseException) {
+                return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
+            }
         }
     }
 
@@ -981,8 +986,8 @@ namespace DkimVerifierExample
                 }
             }
 
-            var locator = new DkimPublicKeyLocator ();
-            var verifier = new DkimVerifier (locator);
+            var resolver = new DnsResolver ();
+            var verifier = new DkimVerifier (resolver);
 
             for (int i = 0; i < args.Length; i++) {
                 if (!File.Exists (args[i])) {
@@ -1116,9 +1121,9 @@ namespace ArcSignerExample
             const string AuthenticationServiceIdentifier = "lists.example.com";
 
             var results = new AuthenticationResults (AuthenticationServiceIdentifier);
-            var locator = new DkimPublicKeyLocator (); // from the DKIM example above
-            var dkimVerifier = new DkimVerifier (locator);
-            var arcVerifier = new ArcVerifier (locator);
+            var resolver = new DnsResolver (); // from the DKIM example above
+            var dkimVerifier = new DkimVerifier (resolver);
+            var arcVerifier = new ArcVerifier (resolver);
             AuthenticationMethodResult method;
 
             // Add the ARC authentication results
@@ -1195,7 +1200,7 @@ signer.Sign (message, headers); // or SignAsync
 
 ### Verifying ARC Signatures
 
-Just like with verifying DKIM signatures, you will need to implement the `IDkimPublicKeyLocator`
+Just like with verifying DKIM signatures, you will need to implement the `IDnsResolver`
 interface. To see an example of how to implement this interface, see the DKIM signature verification
 example above.
 
@@ -1203,7 +1208,7 @@ The `ArcVerifier` works exactly the same as the `DkimVerifier` except that it is
 to provide a `Header` argument to the `Verify` or `VerifyAsync` method.
 
 ```csharp
-var verifier = new ArcVerifier (new DkimPublicKeyLocator ());
+var verifier = new ArcVerifier (new DnsResolver ());
 var results = await verifier.VerifyAsync (message);
 
 // The Chain results are the only real important results.

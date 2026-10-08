@@ -31,9 +31,6 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-
 using MimeKit.IO;
 
 namespace MimeKit.Cryptography {
@@ -364,11 +361,11 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\ArcVerifierExample.cs" />
 		/// </example>
-		/// <param name="publicKeyLocator">The public key locator.</param>
+		/// <param name="resolver">The DNS resolver used to look up the public keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="publicKeyLocator"/> is <see langword="null"/>.
+		/// <paramref name="resolver"/> is <see langword="null"/>.
 		/// </exception>
-		public ArcVerifier (IDkimPublicKeyLocator publicKeyLocator) : base (publicKeyLocator)
+		public ArcVerifier (IDnsResolver resolver) : base (resolver)
 		{
 		}
 
@@ -386,11 +383,10 @@ namespace MimeKit.Cryptography {
 				throw new FormatException ("Malformed ARC-Seal header: the 'h' parameter tag is not allowed.");
 		}
 
-		async Task<bool> VerifyArcMessageSignatureAsync (FormatOptions options, MimeMessage message, Header arcSignature, Dictionary<string, string> parameters, bool doAsync, CancellationToken cancellationToken)
+		DkimSignatureInfo? PrepareArcMessageSignatureVerification (FormatOptions options, MimeMessage message, Header arcSignature, Dictionary<string, string> parameters)
 		{
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
-			AsymmetricKeyParameter key;
 			string d, s, q, bh, b;
 			string[] headers;
 			int maxLength;
@@ -399,49 +395,101 @@ namespace MimeKit.Cryptography {
 				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
 			if (!IsEnabled (signatureAlgorithm))
-				return false;
+				return null;
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
 			if (!VerifyBodyHash (options, message, signatureAlgorithm, bodyAlgorithm, maxLength, bh))
-				return false;
+				return null;
 
-			if (doAsync)
-				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
-			else
-				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
-
-			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
-				return false;
-
-			return VerifySignature (options, message, arcSignature, signatureAlgorithm, key, headers, headerAlgorithm, b);
+			return new DkimSignatureInfo (options, arcSignature, signatureAlgorithm, d, s, q, b) {
+				HeaderAlgorithm = headerAlgorithm,
+				Headers = headers
+			};
 		}
 
-		async Task<bool> VerifyArcSealAsync (FormatOptions options, ArcHeaderSet[] sets, int i, bool doAsync, CancellationToken cancellationToken)
+		bool CompleteArcMessageSignatureVerification (DkimSignatureInfo info, MimeMessage message, DkimPublicKeyLookupResult lookup)
+		{
+			if (!TryGetVerificationKey (lookup, out var key))
+				return false;
+
+			return VerifySignature (info.Options, message, info.Header, info.SignatureAlgorithm, key, info.Headers!, info.HeaderAlgorithm, info.Signature);
+		}
+
+		bool VerifyArcMessageSignature (FormatOptions options, MimeMessage message, Header arcSignature, Dictionary<string, string> parameters, CancellationToken cancellationToken)
+		{
+			var info = PrepareArcMessageSignatureVerification (options, message, arcSignature, parameters);
+
+			if (info == null)
+				return false;
+
+			var lookup = LookupPublicKey (info, cancellationToken);
+
+			return CompleteArcMessageSignatureVerification (info, message, lookup);
+		}
+
+		async Task<bool> VerifyArcMessageSignatureAsync (FormatOptions options, MimeMessage message, Header arcSignature, Dictionary<string, string> parameters, CancellationToken cancellationToken)
+		{
+			var info = PrepareArcMessageSignatureVerification (options, message, arcSignature, parameters);
+
+			if (info == null)
+				return false;
+
+			var lookup = await LookupPublicKeyAsync (info, cancellationToken).ConfigureAwait (false);
+
+			return CompleteArcMessageSignatureVerification (info, message, lookup);
+		}
+
+		DkimSignatureInfo? PrepareArcSealVerification (FormatOptions options, ArcHeaderSet[] sets, int i)
 		{
 			DkimSignatureAlgorithm algorithm;
-			AsymmetricKeyParameter key;
 			string d, s, q, b;
 
 			ValidateArcSealParameters (sets[i].ArcSealParameters!, out algorithm, out d, out s, out q, out b);
 
 			if (!IsEnabled (algorithm))
-				return false;
-
-			if (doAsync)
-				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
-			else
-				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
-
-			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
-				return false;
+				return null;
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
-			using (var stream = new DkimSignatureStream (CreateVerifyContext (algorithm, key))) {
+			return new DkimSignatureInfo (options, sets[i].ArcSeal!, algorithm, d, s, q, b);
+		}
+
+		bool VerifyArcSeal (FormatOptions options, ArcHeaderSet[] sets, int i, CancellationToken cancellationToken)
+		{
+			var info = PrepareArcSealVerification (options, sets, i);
+
+			if (info == null)
+				return false;
+
+			var lookup = LookupPublicKey (info, cancellationToken);
+
+			return CompleteArcSealVerification (info, sets, i, lookup, cancellationToken);
+		}
+
+		async Task<bool> VerifyArcSealAsync (FormatOptions options, ArcHeaderSet[] sets, int i, CancellationToken cancellationToken)
+		{
+			var info = PrepareArcSealVerification (options, sets, i);
+
+			if (info == null)
+				return false;
+
+			var lookup = await LookupPublicKeyAsync (info, cancellationToken).ConfigureAwait (false);
+
+			return CompleteArcSealVerification (info, sets, i, lookup, cancellationToken);
+		}
+
+		bool CompleteArcSealVerification (DkimSignatureInfo info, ArcHeaderSet[] sets, int i, DkimPublicKeyLookupResult lookup, CancellationToken cancellationToken)
+		{
+			if (!TryGetVerificationKey (lookup, out var key))
+				return false;
+
+			var options = info.Options;
+
+			using (var stream = new DkimSignatureStream (CreateVerifyContext (info.SignatureAlgorithm, key))) {
 				using (var filtered = new FilteredStream (stream)) {
 					filtered.Add (options.CreateNewLineFilter ());
 
@@ -463,7 +511,7 @@ namespace MimeKit.Cryptography {
 					filtered.Flush (cancellationToken);
 				}
 
-				return stream.VerifySignature (b);
+				return stream.VerifySignature (info.Signature);
 			}
 		}
 
@@ -647,7 +695,7 @@ namespace MimeKit.Cryptography {
 			return errors == ArcValidationErrors.None ? ArcSignatureValidationResult.Pass : ArcSignatureValidationResult.Fail;
 		}
 
-		async Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, bool doAsync, CancellationToken cancellationToken)
+		static bool PrepareChainVerification (FormatOptions options, MimeMessage message, out ArcValidationResult result, out ArcHeaderSet[] sets, out int count)
 		{
 			const ArcValidationErrors ArcSealCvParamErrors = ArcValidationErrors.InvalidArcSealChainValidationValue | ArcValidationErrors.MissingArcSealChainValidationValue;
 
@@ -657,10 +705,10 @@ namespace MimeKit.Cryptography {
 			if (message == null)
 				throw new ArgumentNullException (nameof (message));
 
-			var result = new ArcValidationResult ();
+			result = new ArcValidationResult ();
 
-			switch (GetArcHeaderSets (message, false, out ArcHeaderSet[] sets, out int count, out var errors)) {
-			case ArcSignatureValidationResult.None: return result;
+			switch (GetArcHeaderSets (message, false, out sets, out count, out var errors)) {
+			case ArcSignatureValidationResult.None: return false;
 			case ArcSignatureValidationResult.Fail:
 				result.Chain = ArcSignatureValidationResult.Fail;
 				result.ChainErrors = errors;
@@ -669,7 +717,7 @@ namespace MimeKit.Cryptography {
 				if ((errors & ~ArcSealCvParamErrors) == 0)
 					break;
 
-				return result;
+				return false;
 			default:
 				result.Chain = ArcSignatureValidationResult.Pass;
 				break;
@@ -678,51 +726,33 @@ namespace MimeKit.Cryptography {
 			int newest = count - 1;
 
 			result.Seals = new ArcHeaderValidationResult[count];
+			result.MessageSignature = new ArcHeaderValidationResult (sets[newest].ArcMessageSignature!);
 
-			var parameters = sets[newest].ArcMessageSignatureParameters;
-			var header = sets[newest].ArcMessageSignature;
+			return true;
+		}
 
-			result.MessageSignature = new ArcHeaderValidationResult (header!);
-
-			// validate the most recent Arc-Message-Signature
-			try {
-				if (await VerifyArcMessageSignatureAsync (options, message, header!, parameters!, doAsync, cancellationToken).ConfigureAwait (false)) {
-					result.MessageSignature.Signature = ArcSignatureValidationResult.Pass;
-				} else {
-					result.MessageSignature.Signature = ArcSignatureValidationResult.Fail;
-					result.ChainErrors |= ArcValidationErrors.MessageSignatureValidationFailed;
-					result.Chain = ArcSignatureValidationResult.Fail;
-				}
-			} catch (OperationCanceledException) {
-				throw;
-			} catch {
-				result.MessageSignature.Signature = ArcSignatureValidationResult.Fail;
+		static void SetMessageSignatureResult (ArcValidationResult result, bool valid)
+		{
+			if (valid) {
+				result.MessageSignature!.Signature = ArcSignatureValidationResult.Pass;
+			} else {
+				result.MessageSignature!.Signature = ArcSignatureValidationResult.Fail;
 				result.ChainErrors |= ArcValidationErrors.MessageSignatureValidationFailed;
 				result.Chain = ArcSignatureValidationResult.Fail;
 			}
+		}
 
-			// validate all Arc-Seals starting with the most recent and proceeding to the oldest
-			for (int i = newest; i >= 0; i--) {
-				result.Seals[i] = new ArcHeaderValidationResult (sets[i].ArcSeal!);
+		static void SetSealResult (ArcValidationResult result, ArcHeaderSet[] sets, int i, bool valid)
+		{
+			result.Seals![i] = new ArcHeaderValidationResult (sets[i].ArcSeal!);
 
-				try {
-					if (await VerifyArcSealAsync (options, sets, i, doAsync, cancellationToken).ConfigureAwait (false)) {
-						result.Seals[i].Signature = ArcSignatureValidationResult.Pass;
-					} else {
-						result.Seals[i].Signature = ArcSignatureValidationResult.Fail;
-						result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
-						result.Chain = ArcSignatureValidationResult.Fail;
-					}
-				} catch (OperationCanceledException) {
-					throw;
-				} catch {
-					result.Seals[i].Signature = ArcSignatureValidationResult.Fail;
-					result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
-					result.Chain = ArcSignatureValidationResult.Fail;
-				}
+			if (valid) {
+				result.Seals[i].Signature = ArcSignatureValidationResult.Pass;
+			} else {
+				result.Seals[i].Signature = ArcSignatureValidationResult.Fail;
+				result.ChainErrors |= ArcValidationErrors.SealValidationFailed;
+				result.Chain = ArcSignatureValidationResult.Fail;
 			}
-
-			return result;
 		}
 
 		/// <summary>
@@ -748,7 +778,37 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public ArcValidationResult Verify (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default)
 		{
-			return VerifyAsync (options, message, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (!PrepareChainVerification (options, message, out var result, out var sets, out int count))
+				return result;
+
+			int newest = count - 1;
+			bool valid;
+
+			// validate the most recent Arc-Message-Signature
+			try {
+				valid = VerifyArcMessageSignature (options, message, sets[newest].ArcMessageSignature!, sets[newest].ArcMessageSignatureParameters!, cancellationToken);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch {
+				valid = false;
+			}
+
+			SetMessageSignatureResult (result, valid);
+
+			// validate all Arc-Seals starting with the most recent and proceeding to the oldest
+			for (int i = newest; i >= 0; i--) {
+				try {
+					valid = VerifyArcSeal (options, sets, i, cancellationToken);
+				} catch (OperationCanceledException) {
+					throw;
+				} catch {
+					valid = false;
+				}
+
+				SetSealResult (result, sets, i, valid);
+			}
+
+			return result;
 		}
 
 		/// <summary>
@@ -772,9 +832,39 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default)
+		public async Task<ArcValidationResult> VerifyAsync (FormatOptions options, MimeMessage message, CancellationToken cancellationToken = default)
 		{
-			return VerifyAsync (options, message, true, cancellationToken);
+			if (!PrepareChainVerification (options, message, out var result, out var sets, out int count))
+				return result;
+
+			int newest = count - 1;
+			bool valid;
+
+			// validate the most recent Arc-Message-Signature
+			try {
+				valid = await VerifyArcMessageSignatureAsync (options, message, sets[newest].ArcMessageSignature!, sets[newest].ArcMessageSignatureParameters!, cancellationToken).ConfigureAwait (false);
+			} catch (OperationCanceledException) {
+				throw;
+			} catch {
+				valid = false;
+			}
+
+			SetMessageSignatureResult (result, valid);
+
+			// validate all Arc-Seals starting with the most recent and proceeding to the oldest
+			for (int i = newest; i >= 0; i--) {
+				try {
+					valid = await VerifyArcSealAsync (options, sets, i, cancellationToken).ConfigureAwait (false);
+				} catch (OperationCanceledException) {
+					throw;
+				} catch {
+					valid = false;
+				}
+
+				SetSealResult (result, sets, i, valid);
+			}
+
+			return result;
 		}
 
 		/// <summary>

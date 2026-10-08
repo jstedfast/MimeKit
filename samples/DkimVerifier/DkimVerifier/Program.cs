@@ -28,29 +28,25 @@ using System;
 using System.IO;
 using System.Net;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using DnsClient;
-
-using Org.BouncyCastle.Crypto;
 
 using MimeKit;
 using MimeKit.Cryptography;
 
 namespace DkimVerifierExample
 {
-	class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
+	class DnsResolver : IDnsResolver
 	{
-		static readonly char[] ColonDelimeter = new char[] { ':' };
-		readonly Dictionary<string, AsymmetricKeyParameter> cache;
+		readonly ConcurrentDictionary<string, DnsTxtResponse> cache;
 		readonly LookupClient dnsClient;
 
-		public DkimPublicKeyLocator ()
+		public DnsResolver ()
 		{
-			cache = new Dictionary<string, AsymmetricKeyParameter> ();
+			cache = new ConcurrentDictionary<string, DnsTxtResponse> (StringComparer.OrdinalIgnoreCase);
 
 			var options = new LookupClientOptions (IPAddress.Parse ("8.8.8.8")) {
 				UseCache = true,
@@ -60,72 +56,57 @@ namespace DkimVerifierExample
 			dnsClient = new LookupClient (options);
 		}
 
-		AsymmetricKeyParameter GetPublicKey (string query, IDnsQueryResponse response)
+		DnsTxtResponse GetTxtResponse (string domain, IDnsQueryResponse response)
 		{
-			var builder = new StringBuilder ();
+			DnsTxtResponse result;
 
-			// combine the TXT records into 1 string buffer
-			foreach (var record in response.Answers.TxtRecords ()) {
-				foreach (var text in record.Text)
-					builder.Append (text);
+			if (response.HasError) {
+				if (response.Header.ResponseCode == DnsHeaderResponseCode.NotExistentDomain)
+					result = new DnsTxtResponse (DnsQueryStatus.NonExistentDomain);
+				else
+					return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
+			} else {
+				// Each TXT record may be split into multiple character-strings which must be concatenated.
+				// Note: separate TXT records must *not* be concatenated together.
+				var records = response.Answers.TxtRecords ().Select (record => string.Concat (record.Text));
+
+				result = new DnsTxtResponse (records);
 			}
 
-			var txt = builder.ToString ();
+			// only cache definitive answers
+			cache[domain] = result;
 
-			var pubkey = GetPublicKey (txt);
-			cache.Add (query, pubkey);
-
-			return pubkey;
+			return result;
 		}
 
-		AsymmetricKeyParameter DnsLookup (string domain, string selector, CancellationToken cancellationToken)
+		public DnsTxtResponse QueryTxt (string domain, CancellationToken cancellationToken = default)
 		{
-			var query = selector + "._domainkey." + domain;
+			// check if we've already fetched this record
+			if (cache.TryGetValue (domain, out var cached))
+				return cached;
 
-			// checked if we've already fetched this key
-			if (cache.TryGetValue (query, out var pubkey))
-				return pubkey;
+			try {
+				var response = dnsClient.Query (domain, QueryType.TXT, QueryClass.IN);
 
-			// make a DNS query
-			var response = dnsClient.Query (query, QueryType.TXT, QueryClass.IN);
-			
-			return GetPublicKey (query, response);
-		}
-
-		public override AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			var methodList = methods.Split (ColonDelimeter, StringSplitOptions.RemoveEmptyEntries);
-			for (int i = 0; i < methodList.Length; i++) {
-				if (methodList[i] == "dns/txt")
-					return DnsLookup (domain, selector, cancellationToken);
+				return GetTxtResponse (domain, response);
+			} catch (DnsResponseException) {
+				return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
 			}
-
-			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
 		}
 
-		async Task<AsymmetricKeyParameter> DnsLookupAsync (string domain, string selector, CancellationToken cancellationToken)
+		public async Task<DnsTxtResponse> QueryTxtAsync (string domain, CancellationToken cancellationToken = default)
 		{
-			var query = selector + "._domainkey." + domain;
+			// check if we've already fetched this record
+			if (cache.TryGetValue (domain, out var cached))
+				return cached;
 
-			// checked if we've already fetched this key
-			if (cache.TryGetValue (query, out var pubkey))
-				return pubkey;
+			try {
+				var response = await dnsClient.QueryAsync (domain, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait (false);
 
-			// make a DNS query
-			var response = await dnsClient.QueryAsync (query, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait (false);
-
-			return GetPublicKey (query, response);
-		}
-
-		public override Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default (CancellationToken))
-		{
-			var methodList = methods.Split (ColonDelimeter, StringSplitOptions.RemoveEmptyEntries);
-			for (int i = 0; i < methodList.Length; i++) {
-				if (methodList[i] == "dns/txt")
-					return DnsLookupAsync (domain, selector, cancellationToken);
+				return GetTxtResponse (domain, response);
+			} catch (DnsResponseException) {
+				return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
 			}
-
-			throw new NotSupportedException (string.Format ("{0} does not include any suported lookup methods.", methods));
 		}
 	}
 
@@ -145,8 +126,8 @@ namespace DkimVerifierExample
 				}
 			}
 
-			var locator = new DkimPublicKeyLocator ();
-			var verifier = new DkimVerifier (locator);
+			var resolver = new DnsResolver ();
+			var verifier = new DkimVerifier (resolver);
 
 			// RSA-SHA1 is disabled by default starting with MimeKit 2.2.0
 			verifier.Enable (DkimSignatureAlgorithm.RsaSha1);

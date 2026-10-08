@@ -1,5 +1,5 @@
 ﻿//
-// DkimPublicKeyLocator.cs
+// DnsQueryStatus.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -24,38 +24,35 @@
 // THE SOFTWARE.
 //
 
-using Org.BouncyCastle.Crypto;
-
-using MimeKit.Cryptography;
-
-namespace UnitTests.Cryptography {
-	class DkimPublicKeyLocator : DkimPublicKeyLocatorBase
+namespace MimeKit.Cryptography {
+	/// <summary>
+	/// The outcome of a DNS query.
+	/// </summary>
+	/// <remarks>
+	/// The outcome of a DNS query performed by an <see cref="IDnsResolver"/>.
+	/// </remarks>
+	/// <seealso cref="DnsTxtResponse"/>
+	/// <seealso cref="IDnsResolver"/>
+	public enum DnsQueryStatus
 	{
-		readonly Dictionary<string, string> keys;
+		/// <summary>
+		/// The query completed successfully (the DNS response code was <c>NOERROR</c>).
+		/// </summary>
+		/// <remarks>
+		/// A successful response may contain no records at all if the domain name exists but has no records of
+		/// the requested type (sometimes referred to as a <c>NODATA</c> response).
+		/// </remarks>
+		Success,
 
-		public DkimPublicKeyLocator ()
-		{
-			keys = new Dictionary<string, string> ();
-		}
+		/// <summary>
+		/// The domain name does not exist (the DNS response code was <c>NXDOMAIN</c>).
+		/// </summary>
+		NonExistentDomain,
 
-		public void Add (string key, string value)
-		{
-			keys.Add (key, value);
-		}
-
-		public override AsymmetricKeyParameter LocatePublicKey (string methods, string domain, string selector, CancellationToken cancellationToken = default)
-		{
-			var query = selector + "._domainkey." + domain;
-
-			if (keys.TryGetValue (query, out string txt))
-				return GetPublicKey (txt);
-
-			throw new Exception (string.Format ("Failed to look up public key for: {0}", domain));
-		}
-
-		public override Task<AsymmetricKeyParameter> LocatePublicKeyAsync (string methods, string domain, string selector, CancellationToken cancellationToken = default)
-		{
-			return Task.FromResult (LocatePublicKey (methods, domain, selector, cancellationToken));
-		}
+		/// <summary>
+		/// The query could not be completed, for example due to a timeout, a network error or a <c>SERVFAIL</c>
+		/// response. Retrying the query later may succeed.
+		/// </summary>
+		TemporaryFailure
 	}
 }

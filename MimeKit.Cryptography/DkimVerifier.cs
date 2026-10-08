@@ -29,9 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// A DKIM-Signature verifier.
@@ -53,11 +50,11 @@ namespace MimeKit.Cryptography {
 		/// <example>
 		/// <code language="c#" source="Examples\DkimVerifierExample.cs" />
 		/// </example>
-		/// <param name="publicKeyLocator">The public key locator.</param>
+		/// <param name="resolver">The DNS resolver used to look up the public keys.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="publicKeyLocator"/> is <see langword="null"/>.
+		/// <paramref name="resolver"/> is <see langword="null"/>.
 		/// </exception>
-		public DkimVerifier (IDkimPublicKeyLocator publicKeyLocator) : base (publicKeyLocator)
+		public DkimVerifier (IDnsResolver resolver) : base (resolver)
 		{
 		}
 
@@ -97,7 +94,14 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
-		async Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, bool doAsync, CancellationToken cancellationToken)
+		static bool IsSameDomain (string auid, string domain)
+		{
+			var auidDomain = auid.AsSpan (auid.LastIndexOf ('@') + 1);
+
+			return auidDomain.Equals (domain.AsSpan (), StringComparison.OrdinalIgnoreCase);
+		}
+
+		DkimSignatureInfo? PrepareVerification (FormatOptions options, MimeMessage message, Header dkimSignature)
 		{
 			if (options == null)
 				throw new ArgumentNullException (nameof (options));
@@ -114,7 +118,6 @@ namespace MimeKit.Cryptography {
 			var parameters = ParseParameterTags (dkimSignature.Id, dkimSignature.Value);
 			DkimCanonicalizationAlgorithm headerAlgorithm, bodyAlgorithm;
 			DkimSignatureAlgorithm signatureAlgorithm;
-			AsymmetricKeyParameter key;
 			string d, s, q, bh, b;
 			string[] headers;
 			int maxLength;
@@ -123,24 +126,35 @@ namespace MimeKit.Cryptography {
 				out d, out s, out q, out headers, out bh, out b, out maxLength);
 
 			if (!IsEnabled (signatureAlgorithm))
-				return false;
+				return null;
 
 			options = options.Clone ();
 			options.NewLineFormat = NewLineFormat.Dos;
 
 			// first check the body hash (if that's invalid, then the entire signature is invalid)
 			if (!VerifyBodyHash (options, message, signatureAlgorithm, bodyAlgorithm, maxLength, bh))
+				return null;
+
+			parameters.TryGetValue ("i", out var auid);
+
+			return new DkimSignatureInfo (options, dkimSignature, signatureAlgorithm, d, s, q, b) {
+				HeaderAlgorithm = headerAlgorithm,
+				AgentOrUserIdentifier = auid,
+				Headers = headers
+			};
+		}
+
+		bool CompleteVerification (DkimSignatureInfo info, MimeMessage message, DkimPublicKeyLookupResult lookup)
+		{
+			if (!TryGetVerificationKey (lookup, out var key))
 				return false;
 
-			if (doAsync)
-				key = await PublicKeyLocator.LocatePublicKeyAsync (q, d, s, cancellationToken).ConfigureAwait (false);
-			else
-				key = PublicKeyLocator.LocatePublicKey (q, d, s, cancellationToken);
-
-			if ((key is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
+			// If the key record specifies the "s" flag, the domain in the i= tag MUST NOT be a subdomain of d=.
+			// (RFC 6376, Section 3.6.1)
+			if (lookup.Record!.IsStrict && info.AgentOrUserIdentifier != null && !IsSameDomain (info.AgentOrUserIdentifier, info.Domain))
 				return false;
 
-			return VerifySignature (options, message, dkimSignature, signatureAlgorithm, key, headers, headerAlgorithm, b);
+			return VerifySignature (info.Options, message, info.Header, info.SignatureAlgorithm, key, info.Headers!, info.HeaderAlgorithm, info.Signature);
 		}
 
 		/// <summary>
@@ -175,7 +189,14 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public bool Verify (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
-			return VerifyAsync (options, message, dkimSignature, false, cancellationToken).GetAwaiter ().GetResult ();
+			var info = PrepareVerification (options, message, dkimSignature);
+
+			if (info == null)
+				return false;
+
+			var lookup = LookupPublicKey (info, cancellationToken);
+
+			return CompleteVerification (info, message, lookup);
 		}
 
 		/// <summary>
@@ -208,9 +229,16 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
+		public async Task<bool> VerifyAsync (FormatOptions options, MimeMessage message, Header dkimSignature, CancellationToken cancellationToken = default)
 		{
-			return VerifyAsync (options, message, dkimSignature, true, cancellationToken);
+			var info = PrepareVerification (options, message, dkimSignature);
+
+			if (info == null)
+				return false;
+
+			var lookup = await LookupPublicKeyAsync (info, cancellationToken).ConfigureAwait (false);
+
+			return CompleteVerification (info, message, lookup);
 		}
 
 		/// <summary>
