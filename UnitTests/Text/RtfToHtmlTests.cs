@@ -802,7 +802,7 @@ namespace UnitTests.Text {
 			// character that follows it (written as \'20 or as a literal space) is replaced.
 			const string rtf = "{\\rtf1 A\\objattph\\'20 B{\\b\\objattph  C}}";
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteImage),
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteImage),
 				Is.EqualTo ("<div>A<img src=\"cid:0\"/> B<span style=\"font-weight: bold;\"><img src=\"cid:1\"/>C</span></div>" + NewLine));
 			Assert.That (Convert (rtf), Is.EqualTo ("<div>A B<span style=\"font-weight: bold;\">C</span></div>" + NewLine));
 			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (2));
@@ -811,7 +811,7 @@ namespace UnitTests.Text {
 		[Test]
 		public void TestObjectPlaceholderStartsParagraph ()
 		{
-			Assert.That (Convert ("{\\rtf1\\objattph\\'20}", c => c.ObjectPlaceholderCallback = WriteImage),
+			Assert.That (Convert ("{\\rtf1\\objattph\\'20}", c => c.AttachmentPlaceholderCallback = WriteImage),
 				Is.EqualTo ("<div><img src=\"cid:0\"/></div>" + NewLine));
 		}
 
@@ -819,7 +819,7 @@ namespace UnitTests.Text {
 		public void TestObjectPlaceholderOutputIsNotEncoded ()
 		{
 			// The callback writes HTML, not text.
-			var html = Convert ("{\\rtf1 A\\objattph\\'20}", c => c.ObjectPlaceholderCallback = (index, writer) => writer.WriteText ("<&>"));
+			var html = Convert ("{\\rtf1 A\\objattph\\'20}", c => c.AttachmentPlaceholderCallback = (index, writer) => writer.WriteText ("<&>"));
 
 			Assert.That (html, Is.EqualTo ("<div>A&lt;&amp;&gt;</div>" + NewLine));
 		}
@@ -832,7 +832,7 @@ namespace UnitTests.Text {
 			const string rtf = "{\\rtf1 A{\\*\\unknown \\objattph}{\\v \\objattph}{\\pict \\objattph}{\\fonttbl \\objattph}" +
 				"{\\*\\htmltag \\objattph}B\\objattph\\'20 C}";
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteImage), Is.EqualTo ("<div>AB<img src=\"cid:0\"/> C</div>" + NewLine));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteImage), Is.EqualTo ("<div>AB<img src=\"cid:0\"/> C</div>" + NewLine));
 			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (1));
 		}
 
@@ -844,7 +844,7 @@ namespace UnitTests.Text {
 			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <p>}A\\objattph\\'20 B{\\*\\htmltag </p>}}";
 			int calls = 0;
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = (index, writer) => calls++), Is.EqualTo ("<p>A B</p>"));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = (index, writer) => calls++), Is.EqualTo ("<p>A B</p>"));
 			Assert.That (calls, Is.EqualTo (0));
 			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (-1));
 		}
@@ -859,7 +859,7 @@ namespace UnitTests.Text {
 				builder.Append ("\\objattph\\'20");
 			builder.Append ('}');
 
-			Convert (builder.ToString (), c => c.ObjectPlaceholderCallback = (index, writer) => {
+			Convert (builder.ToString (), c => c.AttachmentPlaceholderCallback = (index, writer) => {
 				Assert.That (index, Is.EqualTo (last + 1));
 				last = index;
 				count++;

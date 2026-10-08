@@ -416,7 +416,7 @@ namespace UnitTests.Text {
 			// character that follows it (written as \'20 or as a literal space) is replaced.
 			const string rtf = "{\\rtf1 A\\objattph\\'20 B\\objattph  C}";
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("A[0] B[1]C"));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteIndex), Is.EqualTo ("A[0] B[1]C"));
 			Assert.That (Convert (rtf), Is.EqualTo ("A BC"));
 			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (2));
 		}
@@ -428,7 +428,7 @@ namespace UnitTests.Text {
 		public void TestObjectPlaceholderCharacterIsOptional (string rtf, string expected)
 		{
 			// Only a space that immediately follows \objattph is consumed; other content is never lost.
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo (expected.Replace ("\r\n", NewLine)));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteIndex), Is.EqualTo (expected.Replace ("\r\n", NewLine)));
 		}
 
 		[Test]
@@ -439,7 +439,7 @@ namespace UnitTests.Text {
 			const string rtf = "{\\rtf1 A{\\*\\unknown \\objattph}{\\v \\objattph}{\\pict \\objattph}{\\fonttbl \\objattph}" +
 				"{\\*\\htmltag \\objattph}B\\objattph\\'20 C}";
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("AB[0] C"));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteIndex), Is.EqualTo ("AB[0] C"));
 			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (1));
 		}
 
@@ -448,7 +448,7 @@ namespace UnitTests.Text {
 		{
 			const string rtf = "{\\rtf1\\trowd\\cellx1000\\cellx2000\\pard\\intbl a\\cell\\objattph\\'20\\cell\\row}";
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("a\t[0]" + NewLine));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteIndex), Is.EqualTo ("a\t[0]" + NewLine));
 		}
 
 		[Test]
@@ -457,7 +457,7 @@ namespace UnitTests.Text {
 			// RtfToText always renders the RTF, so the placeholders are reported even if the RTF encapsulates HTML.
 			const string rtf = "{\\rtf1\\ansi\\fromhtml1 {\\*\\htmltag <p>}A\\objattph\\'20 B{\\*\\htmltag </p>}}";
 
-			Assert.That (Convert (rtf, c => c.ObjectPlaceholderCallback = WriteIndex), Is.EqualTo ("A[0] B"));
+			Assert.That (Convert (rtf, c => c.AttachmentPlaceholderCallback = WriteIndex), Is.EqualTo ("A[0] B"));
 			Assert.That (CountObjectPlaceholders (rtf), Is.EqualTo (1));
 		}
 
@@ -471,7 +471,7 @@ namespace UnitTests.Text {
 				builder.Append ("\\objattph\\'20");
 			builder.Append ('}');
 
-			var text = Convert (builder.ToString (), c => c.ObjectPlaceholderCallback = (index, writer) => {
+			var text = Convert (builder.ToString (), c => c.AttachmentPlaceholderCallback = (index, writer) => {
 				Assert.That (index, Is.EqualTo (last + 1));
 				last = index;
 				count++;

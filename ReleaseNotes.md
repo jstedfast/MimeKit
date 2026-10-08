@@ -193,8 +193,8 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `http`, `https`, `mailto`, `ftp` and `tel` hyperlinks. The extracted HTML is filtered by the same logic as
   `HtmlToHtml`: `RtfToHtml.HtmlTagCallback` is applied to it, `RtfToHtml.MaxElementDepth` limits its element
   nesting (see `HtmlToHtml.MaxElementDepth` below), and `RtfToHtml.NoScriptHandling` controls how `<noscript>`
-  elements are handled (see `HtmlToHtml.NoScriptHandling` below). `RtfToHtml.ObjectPlaceholderCallback` and
-  `RtfToText.ObjectPlaceholderCallback` let the caller write content at each `\objattph` attachment
+  elements are handled (see `HtmlToHtml.NoScriptHandling` below). `RtfToHtml.AttachmentPlaceholderCallback` and
+  `RtfToText.AttachmentPlaceholderCallback` let the caller write content at each `\objattph` attachment
   placeholder.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal

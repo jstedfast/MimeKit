@@ -1,5 +1,5 @@
 ﻿//
-// RtfHtmlObjectPlaceholderCallback.cs
+// RtfToHtmlAttachmentPlaceholderCallback.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -26,10 +26,10 @@
 
 namespace MimeKit.Text {
 	/// <summary>
-	/// An RTF to HTML object placeholder callback delegate.
+	/// An RTF to HTML attachment placeholder callback delegate.
 	/// </summary>
 	/// <remarks>
-	/// <para>The <see cref="RtfHtmlObjectPlaceholderCallback"/> delegate is called by <see cref="RtfToHtml"/> for each
+	/// <para>The <see cref="RtfToHtmlAttachmentPlaceholderCallback"/> delegate is called by <see cref="RtfToHtml"/> for each
 	/// <c>\objattph</c> control word that it renders. Microsoft Outlook and Exchange use <c>\objattph</c> to mark the
 	/// location in an RTF message body at which each of the message's attachments is rendered, as described by
 	/// [MS-OXRTFEX] section 2.2.3.4.</para>
@@ -42,5 +42,5 @@ namespace MimeKit.Text {
 	/// </remarks>
 	/// <param name="index">The zero-based index of the placeholder.</param>
 	/// <param name="htmlWriter">The HTML writer.</param>
-	public delegate void RtfHtmlObjectPlaceholderCallback (int index, HtmlWriter htmlWriter);
+	public delegate void RtfToHtmlAttachmentPlaceholderCallback (int index, HtmlWriter htmlWriter);
 }

@@ -587,7 +587,7 @@ namespace MimeKit.Tnef {
 				int textCount = htmlCount != -1 ? htmlCount : ReadRtf (text.CountObjectPlaceholders);
 
 				if (textCount == texts.Length) {
-					text.ObjectPlaceholderCallback = (index, writer) => {
+					text.AttachmentPlaceholderCallback = (index, writer) => {
 						if (texts[index] is string value)
 							writer.Write (value);
 					};
@@ -611,7 +611,7 @@ namespace MimeKit.Tnef {
 				PrepareDisplayedImages (images, attachments);
 
 			if (htmlCount == images.Length) {
-				html.ObjectPlaceholderCallback = (index, writer) => WritePlaceholder (writer, images[index], texts?[index]);
+				html.AttachmentPlaceholderCallback = (index, writer) => WritePlaceholder (writer, images[index], texts?[index]);
 			} else {
 				using (var footer = new StringWriter ()) {
 					using (var writer = new HtmlWriter (footer)) {
