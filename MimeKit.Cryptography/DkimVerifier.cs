@@ -169,7 +169,7 @@ namespace MimeKit.Cryptography {
 
 		DkimSignatureInfo? PrepareVerification (FormatOptions options, MimeMessage message, DkimSignatureValidationResult result)
 		{
-			var dkimSignature = result.Header;
+			var dkimSignature = result.Header!;
 
 			try {
 				var parameters = ParseParameterTags (dkimSignature.Id, dkimSignature.Value);

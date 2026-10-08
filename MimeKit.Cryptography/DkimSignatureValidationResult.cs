@@ -45,13 +45,51 @@ namespace MimeKit.Cryptography {
 		}
 
 		/// <summary>
+		/// Initialize a new instance of the <see cref="DkimSignatureValidationResult"/> class.
+		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="DkimSignatureValidationResult"/> for a DKIM-Signature that was verified by
+		/// some other means, such as an upstream MTA that recorded its results in an Authentication-Results header.</para>
+		/// <para>This is useful for passing DKIM results to
+		/// <see cref="DmarcVerifier.Verify(MimeMessage, System.Collections.Generic.IEnumerable{DkimSignatureValidationResult}, SpfCheckResult, System.Threading.CancellationToken)"/>.</para>
+		/// </remarks>
+		/// <param name="status">The verification status.</param>
+		/// <param name="domain">The signing domain (the value of the signature's <c>d=</c> tag).</param>
+		/// <param name="selector">The selector (the value of the signature's <c>s=</c> tag).</param>
+		/// <param name="header">The DKIM-Signature header, if available.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="status"/> is not a valid <see cref="DkimSignatureStatus"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="domain"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="selector"/> is <see langword="null"/>.</para>
+		/// </exception>
+		public DkimSignatureValidationResult (DkimSignatureStatus status, string domain, string selector, Header? header = null)
+		{
+			if (status < DkimSignatureStatus.Pass || status > DkimSignatureStatus.PermError)
+				throw new ArgumentOutOfRangeException (nameof (status));
+
+			if (domain is null)
+				throw new ArgumentNullException (nameof (domain));
+
+			if (selector is null)
+				throw new ArgumentNullException (nameof (selector));
+
+			Selector = selector;
+			Domain = domain;
+			Status = status;
+			Header = header;
+		}
+
+		/// <summary>
 		/// Get the DKIM-Signature header that was verified.
 		/// </summary>
 		/// <remarks>
 		/// Gets the DKIM-Signature header that was verified.
 		/// </remarks>
-		/// <value>The DKIM-Signature header.</value>
-		public Header Header {
+		/// <value>The DKIM-Signature header or <see langword="null"/> if the result was created without one.</value>
+		public Header? Header {
 			get;
 		}
 
