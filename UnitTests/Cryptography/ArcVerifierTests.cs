@@ -530,6 +530,259 @@ This is a test message.
 			}
 		}
 
+		#region Diagnostics
+
+		const string DiagnosticsKeyName = "dummy._domainkey.example.org";
+		const string DiagnosticsPublicKey = "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDkHlOQoBTzWRiGs5V6NpP3idY6Wk08a5qhdR6wy5bdOKb2jLQiY/J16JYi0Qvx/byYzCNb3W91y3FutACDfzwQ/BC/e/8uBsCR+yz1Lxj+PL6lHvqMKrM3rG4hstT5QjvHO9PzoxZyVYLzBfO2EeC3Ip3G+2kryOTIKT+l/K4w3QIDAQAB";
+		const string DiagnosticsMessage = @"MIME-Version: 1.0
+Return-Path: <jqd@d1.example.org>
+ARC-Seal: a=rsa-sha256;
+    b=dOdFEyhrk/tw5wl3vMIogoxhaVsKJkrkEhnAcq2XqOLSQhPpGzhGBJzR7k1sWGokon3TmQ
+    7TX9zQLO6ikRpwd/pUswiRW5DBupy58fefuclXJAhErsrebfvfiueGyhHXV7C1LyJTztywzn
+    QGG4SCciU/FTlsJ0QANrnLRoadfps=; cv=none; d=example.org; i=1; s=dummy;
+    t=12345
+ARC-Message-Signature: a=rsa-sha256;
+    b=QsRzR/UqwRfVLBc1TnoQomlVw5qi6jp08q8lHpBSl4RehWyHQtY3uOIAGdghDk/mO+/Xpm
+    9JA5UVrPyDV0f+2q/YAHuwvP11iCkBQkocmFvgTSxN8H+DwFFPrVVUudQYZV7UDDycXoM6UE
+    cdfzLLzVNPOAHEDIi/uzoV4sUqZ18=;
+    bh=KWSe46TZKCcDbH4klJPo+tjk5LWJnVRlP5pvjXFZYLQ=; c=relaxed/relaxed;
+    d=example.org; h=from:to:date:subject:mime-version:arc-authentication-results;
+    i=1; s=dummy; t=12345
+ARC-Authentication-Results: i=1; lists.example.org;
+    spf=pass smtp.mfrom=jqd@d1.example;
+    dkim=pass (1024-bit key) header.i=@d1.example;
+    dmarc=pass
+Received: from segv.d1.example (segv.d1.example [72.52.75.15])
+    by lists.example.org (8.14.5/8.14.5) with ESMTP id t0EKaNU9010123
+    for <arc@example.org>; Thu, 14 Jan 2015 15:01:30 -0800 (PST)
+    (envelope-from jqd@d1.example)
+Authentication-Results: lists.example.org;
+    spf=pass smtp.mfrom=jqd@d1.example;
+    dkim=pass (1024-bit key) header.i=@d1.example;
+    dmarc=pass
+Received: by 10.157.14.6 with HTTP; Tue, 3 Jan 2017 12:22:54 -0800 (PST)
+Message-ID: <54B84785.1060301@d1.example.org>
+Date: Thu, 14 Jan 2015 15:00:01 -0800
+From: John Q Doe <jqd@d1.example.org>
+To: arc@dmarc.org
+Subject: Example 1
+
+Hey gang,
+This is a test message.
+--J.
+";
+
+		static MimeMessage LoadDiagnosticsMessage (string input = DiagnosticsMessage)
+		{
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (input), false))
+				return MimeMessage.Load (stream);
+		}
+
+		static MockDnsResolver CreateDiagnosticsResolver ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			resolver.Add (DiagnosticsKeyName, DiagnosticsPublicKey);
+
+			return resolver;
+		}
+
+		static void AssertHeaderResult (ArcHeaderValidationResult result, ArcSignatureValidationResult expected, string reason, Exception exception, string description)
+		{
+			Assert.That (result.Signature, Is.EqualTo (expected), $"{description}: Signature");
+
+			if (reason != null)
+				Assert.That (result.Reason, Is.EqualTo (reason), $"{description}: Reason");
+			else if (expected == ArcSignatureValidationResult.Pass)
+				Assert.That (result.Reason, Is.Null, $"{description}: Reason");
+			else
+				Assert.That (result.Reason, Is.Not.Null.And.Not.Empty, $"{description}: Reason");
+
+			Assert.That (result.Exception, Is.SameAs (exception), $"{description}: Exception");
+		}
+
+		static void AssertPass (ArcValidationResult result)
+		{
+			Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Pass), "Chain");
+			Assert.That (result.ChainErrors, Is.EqualTo (ArcValidationErrors.None), "ChainErrors");
+			AssertHeaderResult (result.MessageSignature, ArcSignatureValidationResult.Pass, null, null, "AMS");
+			AssertHeaderResult (result.Seals[0], ArcSignatureValidationResult.Pass, null, null, "AS");
+		}
+
+		[Test]
+		public void TestDiagnosticsPass ()
+		{
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			AssertPass (verifier.Verify (LoadDiagnosticsMessage ()));
+		}
+
+		[Test]
+		public async Task TestDiagnosticsPassAsync ()
+		{
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			AssertPass (await verifier.VerifyAsync (LoadDiagnosticsMessage ()));
+		}
+
+		static void AssertTemporaryFailure (ArcValidationResult result, Exception exception)
+		{
+			const ArcValidationErrors expected = ArcValidationErrors.MessageSignatureValidationFailed | ArcValidationErrors.SealValidationFailed | ArcValidationErrors.DnsTemporaryFailure;
+
+			// RFC 8617, Section 5.2.1: All failures (including DNS failures) are permanent.
+			Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Fail), "Chain");
+			Assert.That (result.ChainErrors, Is.EqualTo (expected), "ChainErrors");
+			AssertHeaderResult (result.MessageSignature, ArcSignatureValidationResult.Fail, null, exception, "AMS");
+			AssertHeaderResult (result.Seals[0], ArcSignatureValidationResult.Fail, null, exception, "AS");
+		}
+
+		[Test]
+		public void TestDiagnosticsDnsTemporaryFailure ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			resolver.AddFailure (DiagnosticsKeyName, DnsQueryStatus.TemporaryFailure);
+
+			var verifier = new ArcVerifier (resolver);
+
+			AssertTemporaryFailure (verifier.Verify (LoadDiagnosticsMessage ()), null);
+		}
+
+		[Test]
+		public async Task TestDiagnosticsDnsTemporaryFailureAsync ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			resolver.AddFailure (DiagnosticsKeyName, DnsQueryStatus.TemporaryFailure);
+
+			var verifier = new ArcVerifier (resolver);
+
+			AssertTemporaryFailure (await verifier.VerifyAsync (LoadDiagnosticsMessage ()), null);
+		}
+
+		[Test]
+		public void TestDiagnosticsResolverException ()
+		{
+			var resolver = new MockDnsResolver ();
+			var exception = new IOException ("Network unreachable");
+
+			resolver.AddException (DiagnosticsKeyName, exception);
+
+			var verifier = new ArcVerifier (resolver);
+
+			AssertTemporaryFailure (verifier.Verify (LoadDiagnosticsMessage ()), exception);
+		}
+
+		[Test]
+		public async Task TestDiagnosticsResolverExceptionAsync ()
+		{
+			var resolver = new MockDnsResolver ();
+			var exception = new IOException ("Network unreachable");
+
+			resolver.AddException (DiagnosticsKeyName, exception);
+
+			var verifier = new ArcVerifier (resolver);
+
+			AssertTemporaryFailure (await verifier.VerifyAsync (LoadDiagnosticsMessage ()), exception);
+		}
+
+		static void AssertNonExistentDomain (ArcValidationResult result)
+		{
+			Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Fail), "Chain");
+			Assert.That (result.ChainErrors, Is.EqualTo (ArcValidationErrors.MessageSignatureValidationFailed | ArcValidationErrors.SealValidationFailed), "ChainErrors");
+			AssertHeaderResult (result.MessageSignature, ArcSignatureValidationResult.Fail, null, null, "AMS");
+			AssertHeaderResult (result.Seals[0], ArcSignatureValidationResult.Fail, null, null, "AS");
+		}
+
+		[Test]
+		public void TestDiagnosticsNonExistentDomain ()
+		{
+			var verifier = new ArcVerifier (new MockDnsResolver ());
+
+			AssertNonExistentDomain (verifier.Verify (LoadDiagnosticsMessage ()));
+		}
+
+		[Test]
+		public async Task TestDiagnosticsNonExistentDomainAsync ()
+		{
+			var verifier = new ArcVerifier (new MockDnsResolver ());
+
+			AssertNonExistentDomain (await verifier.VerifyAsync (LoadDiagnosticsMessage ()));
+		}
+
+		static void AssertMessageSignatureFailure (ArcValidationResult result, string reason)
+		{
+			Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Fail), "Chain");
+			Assert.That (result.ChainErrors, Is.EqualTo (ArcValidationErrors.MessageSignatureValidationFailed), "ChainErrors");
+			AssertHeaderResult (result.MessageSignature, ArcSignatureValidationResult.Fail, reason, null, "AMS");
+			AssertHeaderResult (result.Seals[0], ArcSignatureValidationResult.Pass, null, null, "AS");
+		}
+
+		[Test]
+		public void TestDiagnosticsBodyHashMismatch ()
+		{
+			var message = LoadDiagnosticsMessage (DiagnosticsMessage.Replace ("This is a test message.", "This is a modified message."));
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			AssertMessageSignatureFailure (verifier.Verify (message), "body hash did not verify");
+		}
+
+		[Test]
+		public async Task TestDiagnosticsBodyHashMismatchAsync ()
+		{
+			var message = LoadDiagnosticsMessage (DiagnosticsMessage.Replace ("This is a test message.", "This is a modified message."));
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			AssertMessageSignatureFailure (await verifier.VerifyAsync (message), "body hash did not verify");
+		}
+
+		[Test]
+		public void TestDiagnosticsSignatureMismatch ()
+		{
+			var message = LoadDiagnosticsMessage (DiagnosticsMessage.Replace ("Subject: Example 1", "Subject: Example 2"));
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			AssertMessageSignatureFailure (verifier.Verify (message), "signature did not verify");
+		}
+
+		[Test]
+		public async Task TestDiagnosticsSignatureMismatchAsync ()
+		{
+			var message = LoadDiagnosticsMessage (DiagnosticsMessage.Replace ("Subject: Example 1", "Subject: Example 2"));
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			AssertMessageSignatureFailure (await verifier.VerifyAsync (message), "signature did not verify");
+		}
+
+		static void AssertAlgorithmDisabled (ArcValidationResult result)
+		{
+			Assert.That (result.Chain, Is.EqualTo (ArcSignatureValidationResult.Fail), "Chain");
+			Assert.That (result.ChainErrors, Is.EqualTo (ArcValidationErrors.MessageSignatureValidationFailed | ArcValidationErrors.SealValidationFailed), "ChainErrors");
+			AssertHeaderResult (result.MessageSignature, ArcSignatureValidationResult.Fail, "signature algorithm disabled", null, "AMS");
+			AssertHeaderResult (result.Seals[0], ArcSignatureValidationResult.Fail, "signature algorithm disabled", null, "AS");
+		}
+
+		[Test]
+		public void TestDiagnosticsAlgorithmDisabled ()
+		{
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			verifier.Disable (DkimSignatureAlgorithm.RsaSha256);
+
+			AssertAlgorithmDisabled (verifier.Verify (LoadDiagnosticsMessage ()));
+		}
+
+		[Test]
+		public async Task TestDiagnosticsAlgorithmDisabledAsync ()
+		{
+			var verifier = new ArcVerifier (CreateDiagnosticsResolver ());
+
+			verifier.Disable (DkimSignatureAlgorithm.RsaSha256);
+
+			AssertAlgorithmDisabled (await verifier.VerifyAsync (LoadDiagnosticsMessage ()));
+		}
+
+		#endregion Diagnostics
 		#pragma warning disable IDE1006 // Naming Styles
 
 		#region Chain Validation

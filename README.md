@@ -1136,18 +1136,16 @@ namespace ArcSignerExample
             AuthenticationMethodResult method;
 
             // Add the ARC authentication results
-            try {
-                var arc = await arcVerifier.VerifyAsync (message, cancellationToken);
-                var result = arc.Chain.ToString ().ToLowerInvariant ();
+            var arc = await arcVerifier.VerifyAsync (message, cancellationToken);
 
-                method = new AuthenticationMethodResult ("arc", result);
-                results.Results.Add (method);
-            } catch {
-                // Likely a DNS error
-                method = new AuthenticationMethodResult ("arc", "fail");
-                method.Reason = "DNS error";
-                results.Results.Add (method);
-            }
+            // Note: As required by RFC 8617, any failure to validate the ARC chain (including DNS failures)
+            // results in a "fail". If the failure was due to a temporary DNS failure, you may prefer to
+            // temporarily reject (defer) the message and try again later rather than sealing it with cv=fail.
+            if ((arc.ChainErrors & ArcValidationErrors.DnsTemporaryFailure) != 0)
+                throw new TimeoutException ("Temporary DNS failure while validating the ARC chain.");
+
+            method = new AuthenticationMethodResult ("arc", arc.Chain.ToString ().ToLowerInvariant ());
+            results.Results.Add (method);
 
             // Add authentication results for each DKIM signature
             // (the dkim method results include the header.d, header.i, header.s, header.a and header.b properties)
@@ -1196,6 +1194,14 @@ var results = await verifier.VerifyAsync (message);
 
 // The Chain results are the only real important results.
 Console.WriteLine ("ARC results: {0}", results.Chain);
+
+// As required by RFC 8617, any validation error (including DNS failures) results in a Fail.
+// The ChainErrors and the Reason/Exception properties of each header result provide diagnostics.
+if ((results.ChainErrors & ArcValidationErrors.DnsTemporaryFailure) != 0)
+    Console.WriteLine ("The ARC chain could not be validated due to a temporary DNS failure; try again later.");
+
+if (results.MessageSignature?.Reason != null)
+    Console.WriteLine ("ARC-Message-Signature: {0}", results.MessageSignature.Reason);
 ```
 
 ## Contributing

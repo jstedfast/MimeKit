@@ -112,6 +112,13 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     in a message, up to the new `DkimVerifier.MaxSignatures` limit (default: 10).
 * `DkimSigner` now always writes the `x=` tag as an integer, even when `SignaturesExpireAfter` has a
   fractional number of seconds.
+* `ArcVerifier.Verify[Async] ()` now provides diagnostics for ARC chain validation failures. As required
+  by RFC 8617, any error (including a DNS failure) still results in a `Chain` result of `Fail`, but:
+  * The new `ArcValidationErrors.DnsTemporaryFailure` flag indicates that a public key could not be
+    retrieved due to a temporary DNS failure (or an exception thrown by the `IDnsResolver`), so that
+    receivers can choose to defer the message and try again later rather than seal it with `cv=fail`.
+  * `ArcHeaderValidationResult` has new `Reason` and `Exception` properties that describe why an
+    ARC-Message-Signature or ARC-Seal did not pass.
 
 ### MIME Compliance Violation Reporting
 

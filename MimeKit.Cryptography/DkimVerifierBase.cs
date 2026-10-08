@@ -302,11 +302,6 @@ namespace MimeKit.Cryptography {
 			return DkimSignatureStatus.Pass;
 		}
 
-		internal bool TryGetVerificationKey (DkimPublicKeyLookupResult lookup, [NotNullWhen (true)] out AsymmetricKeyParameter? key)
-		{
-			return GetVerificationKey (lookup, out key, out _) == DkimSignatureStatus.Pass && key != null;
-		}
-
 		static bool IsWhiteSpace (char c)
 		{
 			return c == ' ' || c == '\t';
