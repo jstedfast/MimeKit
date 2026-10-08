@@ -128,6 +128,7 @@ namespace DkimVerifierExample
 
 			var resolver = new DnsResolver ();
 			var verifier = new DkimVerifier (resolver);
+			var dmarcVerifier = new DmarcVerifier (resolver, verifier);
 
 			// RSA-SHA1 is disabled by default starting with MimeKit 2.2.0
 			verifier.Enable (DkimSignatureAlgorithm.RsaSha1);
@@ -146,10 +147,9 @@ namespace DkimVerifierExample
 
 				if (results.Length == 0) {
 					Console.WriteLine ("NO SIGNATURE");
-					continue;
+				} else {
+					Console.WriteLine ();
 				}
-
-				Console.WriteLine ();
 
 				foreach (var result in results) {
 					Console.Write ("  d={0}; s={1} -> ", result.Domain, result.Selector);
@@ -170,6 +170,35 @@ namespace DkimVerifierExample
 					// Note: result.ToAuthenticationMethodResult () can be used to add the result to an
 					// Authentication-Results header.
 				}
+
+				// Evaluate the author domain's DMARC policy using the DKIM results from above. A real receiver would
+				// also pass the result of an SPF check of the SMTP MAIL FROM domain, but SPF cannot be evaluated from
+				// a message file alone, so DMARC can only pass here if an aligned DKIM signature passed.
+				var dmarc = dmarcVerifier.Verify (message, results, null);
+
+				Console.Write ("  dmarc ({0}) -> ", dmarc.AuthorDomain ?? "no author domain");
+
+				switch (dmarc.Status) {
+				case DmarcStatus.Pass:
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine ("PASS (aligned d={0})", dmarc.AlignedDkimResult?.Domain);
+					break;
+				case DmarcStatus.Fail:
+					// the policy that the domain owner requested for failing messages (none, quarantine or reject)
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("FAIL (p={0})", dmarc.Policy.ToString ().ToLowerInvariant ());
+					break;
+				case DmarcStatus.None:
+					Console.WriteLine ("NONE");
+					break;
+				default:
+					// TempError (e.g. a DNS failure) or PermError (e.g. multiple From headers)
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("{0} ({1})", dmarc.Status.ToString ().ToUpperInvariant (), dmarc.Errors);
+					break;
+				}
+
+				Console.ResetColor ();
 			}
 		}
 

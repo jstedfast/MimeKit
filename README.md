@@ -1204,6 +1204,60 @@ if (results.MessageSignature?.Reason != null)
     Console.WriteLine ("ARC-Message-Signature: {0}", results.MessageSignature.Reason);
 ```
 
+### Verifying DMARC
+
+The `DmarcVerifier` determines whether a message's author domain (the domain in the `From` header)
+was authenticated by an aligned DKIM signature or SPF check, and which policy the domain owner has
+requested for messages that fail. It uses the same `IDnsResolver` interface as the `DkimVerifier`
+to discover the DMARC policy and determine Organizational Domains, so no Public Suffix List is needed.
+
+MimeKit does not implement SPF, so you will need to supply the result of your own SPF check of the
+`MAIL FROM` (or `HELO`) domain. If you have not already verified the DKIM signatures, the
+`DmarcVerifier` will do it for you using its `DkimVerifier` property.
+
+```csharp
+var resolver = new DnsResolver (); // from the DKIM example above
+var verifier = new DmarcVerifier (resolver);
+
+// The result of an SPF check performed by your SMTP server or a third-party SPF library.
+var spf = new SpfCheckResult (SpfStatus.Pass, "bounces.example.com");
+
+var result = await verifier.VerifyAsync (message, spf);
+
+Console.WriteLine ("DMARC result for {0}: {1}", result.AuthorDomain, result.Status);
+
+switch (result.Status) {
+case DmarcStatus.Pass:
+    // An aligned DKIM signature (result.AlignedDkimResult) or SPF result passed.
+    break;
+case DmarcStatus.Fail:
+    // result.Policy is the policy requested by the domain owner (already adjusted for the
+    // sp=, np= and t= tags): None, Quarantine or Reject. The final decision is up to you.
+    Console.WriteLine ("Requested policy: {0}", result.Policy);
+    break;
+case DmarcStatus.TempError:
+    // A DNS failure or a DKIM/SPF temporary error prevented a definitive result; try again later.
+    break;
+case DmarcStatus.PermError:
+    // The message has no From header, multiple From headers, or no usable author domain.
+    break;
+case DmarcStatus.None:
+    // The author domain does not publish a DMARC policy.
+    break;
+}
+
+// result.Errors provides additional diagnostics, and the result can be added to an
+// Authentication-Results header using result.ToAuthenticationMethodResult ().
+```
+
+If you have already verified the DKIM signatures, you can pass those results to the `DmarcVerifier`
+to avoid verifying them twice:
+
+```csharp
+var dkimResults = await verifier.DkimVerifier.VerifyAsync (message);
+var result = await verifier.VerifyAsync (message, dkimResults, spf);
+```
+
 ## Contributing
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. For instructions on how to

@@ -12,7 +12,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>MimeKit.Cryptography</AssemblyName>
     <PackageId>MimeKit.Cryptography</PackageId>
-    <PackageTags>mime;encryption;dkim;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef</PackageTags>
+    <PackageTags>mime;encryption;dkim;dmarc;security;smime;s/mime;openpgp;pgp;mbox;email;parser;tnef</PackageTags>
     <PackageProjectUrl>https://github.com/jstedfast/MimeKit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/jstedfast/MimeKit/blob/master/License.md</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>

@@ -4,7 +4,7 @@
 
 MimeKit 5.0 is a major release containing a number of breaking changes. The headline changes are
 the split of the cryptography support into its own assembly, the promotion of the new MIME parser,
-a redesigned TNEF implementation, and a new MIME compliance violation reporting API.
+a redesigned TNEF implementation, DMARC validation, and a new MIME compliance violation reporting API.
 
 ### Breaking Changes
 
@@ -119,6 +119,32 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     receivers can choose to defer the message and try again later rather than seal it with `cv=fail`.
   * `ArcHeaderValidationResult` has new `Reason` and `Exception` properties that describe why an
     ARC-Message-Signature or ARC-Seal did not pass.
+
+### DMARC
+
+* Added `DmarcVerifier`, which validates a message's author domain against its DMARC policy as defined
+  by RFC 9989 (DMARCbis). (issue [#1180](https://github.com/jstedfast/MimeKit/issues/1180))
+  * Policy discovery and Organizational Domain determination use the RFC 9989 DNS tree walk via the
+    `IDnsResolver` interface, so no Public Suffix List is required. The walk is bounded to at most 8
+    queries per domain, and results are cached for the duration of each verification.
+  * DKIM and SPF identifiers are checked for relaxed or strict alignment as requested by the policy's
+    `adkim` and `aspf` tags. Unrelated identifier domains never trigger DNS queries.
+  * DKIM signatures are verified automatically (using the `DkimVerifier` property) unless the caller
+    supplies existing `DkimSignatureValidationResult`s, and only once a DMARC policy has been found.
+    `DkimSignatureValidationResult` now has a public constructor for this purpose.
+  * MimeKit does not implement SPF. Callers supply the result of their own SPF check as an
+    `SpfCheckResult`, using the new `SpfStatus` enum.
+  * The `DmarcValidationResult` exposes the `DmarcStatus` (`None`, `Pass`, `Fail`, `TempError` or
+    `PermError`), the policy to apply (after the `sp=`, `np=` and `t=y` rules), the requested policy,
+    the policy and Organizational Domains, the aligned DKIM and SPF results, and `DmarcErrors`
+    diagnostics. `ToAuthenticationMethodResult ()` can be used to build an Authentication-Results entry.
+  * Messages with multiple From headers, or with no usable author domain, are reported as `PermError`.
+    Messages with multiple author domains are rejected by default; raising `MaxAuthorDomains` evaluates
+    each one and reports the most severe result.
+* Added `DmarcRecord` for parsing DMARC policy records (`DmarcRecord.Parse ()` and `TryParse ()`),
+  including the new RFC 9989 `np=`, `psd=` and `t=` tags. As required by RFC 9989, the parser is lenient:
+  invalid tag values are discarded in favor of their defaults and reported via `DmarcRecordErrors` rather
+  than causing the whole record to be rejected.
 
 ### MIME Compliance Violation Reporting
 

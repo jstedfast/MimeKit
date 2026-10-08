@@ -14,7 +14,7 @@
     <description>
       MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
-      As of v5.0, MimeKit is a meta-package that references both MimeKit.Core (MIME creation and parsing) and MimeKit.Cryptography (OpenPGP, S/MIME and DKIM/ARC support). This preserves backwards compatibility for consumers that expect cryptography support out of the box. If you do not need cryptography, reference MimeKit.Core directly instead.
+      As of v5.0, MimeKit is a meta-package that references both MimeKit.Core (MIME creation and parsing) and MimeKit.Cryptography (OpenPGP, S/MIME, DKIM, ARC and DMARC support). This preserves backwards compatibility for consumers that expect cryptography support out of the box. If you do not need cryptography, reference MimeKit.Core directly instead.
 
       API documentation can be found on the web at http://www.mimekit.net/docs
 
@@ -25,7 +25,7 @@
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef</tags>
+    <tags>mime encryption arc dkim dmarc security smime s/mime openpgp pgp mbox mail email parser tnef</tags>
     <readme>docs\README.md</readme>
     <dependencies>
       <group targetFramework="net462">
