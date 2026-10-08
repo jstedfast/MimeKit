@@ -134,7 +134,38 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
-		[TestCase ("<div><span><b><i>x<img src=x onerror=alert(1)>&amp;</i></b>", "<div><span><b><i>x&lt;img src=x onerror=alert(1)&gt;&amp;amp;&lt;/i&gt;&lt;/b&gt;")]
+		[TestCase ("<!DOCTYPE html><html><head><title>t</title><style>p{}</style></head><body><p>x<br/></p></body></html>", "<p>x<br/></p>")]
+		[TestCase ("<html><body/><body>x</body></html>", "x")]
+		[TestCase ("<head><meta charset=utf-8></head>x</body></html><p>y</p>", "x<p>y</p>")]
+		[TestCase ("<p>no structure</p>", "<p>no structure</p>")]
+		public void TestOutputHtmlFragment (string html, string expected)
+		{
+			var tags = new List<string> ();
+			var converter = new HtmlToHtml {
+				Header = null, Footer = null, OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, writer) => {
+					tags.Add (ctx.TagName);
+					ctx.WriteTag (writer, true);
+				}
+			};
+			var result = converter.Convert (html);
+
+			// The document structure tags are dropped without being passed to the HtmlTagCallback.
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (tags, Has.None.AnyOf ("html", "head", "body", "title", "meta", "style"));
+		}
+
+		[Test]
+		public void TestOutputHtmlFragmentFalse ()
+		{
+			const string html = "<!DOCTYPE html><html><head><title>t</title></head><body>x</body></html>";
+			var converter = new HtmlToHtml { Header = null, Footer = null };
+
+			Assert.That (converter.OutputHtmlFragment, Is.False);
+			Assert.That (converter.Convert (html), Is.EqualTo (html));
+		}
+
+		[TestCase ("<div><span><b><i>x<img src=x onerror=alert(1)>&amp;</i></b>",  "<div><span><b><i>x&lt;img src=x onerror=alert(1)&gt;&amp;amp;&lt;/i&gt;&lt;/b&gt;")]
 		[TestCase ("<div><span><svg><style><img src=x onerror=alert(1)></style>", "<div><span><svg><style>&lt;img src=x onerror=alert(1)&gt;&lt;/style&gt;")]
 		[TestCase ("<div><div><div><div><span><b>x</b><img src=x>", "<div><div><div><div><span><b>x</b><img src=\"x\"/>")]
 		public void TestMaxElementDepthExceeded (string html, string expected)

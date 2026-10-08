@@ -200,18 +200,20 @@ namespace MimeKit.Text {
 			}
 		}
 
-#if false
 		/// <summary>
 		/// Get or set whether the converter should only output an HTML fragment.
 		/// </summary>
 		/// <remarks>
-		/// Gets or sets whether the converter should only output an HTML fragment.
+		/// <para>Gets or sets whether the converter should output an entire HTML document or just a fragment
+		/// of the HTML body content.</para>
+		/// <para>When <see langword="true" />, the <c>&lt;!DOCTYPE&gt;</c>, <c>&lt;html&gt;</c>, <c>&lt;head&gt;</c>
+		/// (including its content) and <c>&lt;body&gt;</c> tags are removed without being passed to the
+		/// <see cref="HtmlTagCallback"/>.</para>
 		/// </remarks>
 		/// <value><see langword="true" /> if the converter should only output an HTML fragment; otherwise, <see langword="false" />.</value>
 		public bool OutputHtmlFragment {
 			get; set;
 		}
-#endif
 
 		class HtmlToHtmlTagContext : HtmlTagContext
 		{
@@ -278,8 +280,30 @@ namespace MimeKit.Text {
 				}
 			}
 
+			ConvertHtml (reader, writer);
+
+			if (!string.IsNullOrEmpty (Footer)) {
+				if (FooterFormat == HeaderFooterFormat.Text) {
+					var converter = new TextToHtml { OutputHtmlFragment = true };
+
+					using (var sr = new StringReader (Footer))
+						converter.Convert (sr, writer);
+				} else {
+					writer.Write (Footer);
+				}
+			}
+		}
+
+		static bool IsDocumentStructureTag (HtmlTagId id)
+		{
+			return id == HtmlTagId.Html || id == HtmlTagId.Head || id == HtmlTagId.Body;
+		}
+
+		void ConvertHtml (TextReader reader, TextWriter writer)
+		{
 			using (var htmlWriter = new HtmlWriter (writer, true)) {
 				var unwrapNoScript = noScriptHandling == HtmlNoScriptHandling.Unwrap;
+				var fragment = OutputHtmlFragment;
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new HtmlTagContextStack<HtmlToHtmlTagContext> ();
 				var tokenizer = new HtmlTokenizer (reader) {
@@ -301,6 +325,10 @@ namespace MimeKit.Text {
 						if (!FilterComments && !stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
+					case HtmlTokenKind.DocType:
+						if (!fragment && !stack.SuppressContent)
+							htmlWriter.WriteToken (token);
+						break;
 					case HtmlTokenKind.Tag:
 						var tag = (HtmlTagToken) token;
 
@@ -310,10 +338,21 @@ namespace MimeKit.Text {
 							break;
 
 						if (!tag.IsEndTag) {
-							// Note: A self-closing tag such as <style/> or <script/> still switches the tokenizer into a raw content
-							// state (browsers ignore the self-closing flag on non-void HTML elements), so treat it as an open element
-							// so that SuppressInnerContent applies to the raw content that follows.
-							if (!tag.IsEmptyElement || tokenizer.TokenizerState != HtmlTokenizerState.Data) {
+							if (fragment && IsDocumentStructureTag (tag.Id)) {
+								// Drop the tag (and the content of <head>) without consulting the callback.
+								if (!tag.IsEmptyElement) {
+									ctx = new HtmlToHtmlTagContext (tag) {
+										SuppressInnerContent = tag.Id == HtmlTagId.Head,
+										DeleteEndTag = true,
+										DeleteTag = true
+									};
+
+									stack.Push (ctx);
+								}
+							} else if (!tag.IsEmptyElement || tokenizer.TokenizerState != HtmlTokenizerState.Data) {
+								// Note: A self-closing tag such as <style/> or <script/> still switches the tokenizer into a raw content
+								// state (browsers ignore the self-closing flag on non-void HTML elements), so treat it as an open element
+								// so that SuppressInnerContent applies to the raw content that follows.
 								ctx = new HtmlToHtmlTagContext (tag);
 
 								if (!stack.SuppressContent)
@@ -339,7 +378,7 @@ namespace MimeKit.Text {
 										htmlWriter.WriteEndTag (tag.Name);
 									}
 								}
-							} else if (!stack.SuppressContent) {
+							} else if (!stack.SuppressContent && !(fragment && IsDocumentStructureTag (tag.Id))) {
 								ctx = new HtmlToHtmlTagContext (tag);
 								callback (ctx, htmlWriter);
 							}
@@ -349,17 +388,6 @@ namespace MimeKit.Text {
 				}
 
 				htmlWriter.Flush ();
-			}
-
-			if (!string.IsNullOrEmpty (Footer)) {
-				if (FooterFormat == HeaderFooterFormat.Text) {
-					var converter = new TextToHtml { OutputHtmlFragment = true };
-
-					using (var sr = new StringReader (Footer))
-						converter.Convert (sr, writer);
-				} else {
-					writer.Write (Footer);
-				}
 			}
 		}
 	}

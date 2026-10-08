@@ -187,6 +187,8 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `HtmlToHtml` writes as encoded text) so that no markup can be hidden from the `HtmlToHtml.HtmlTagCallback`.
   The default limit is 4096. The tracked elements are also now stored in fixed-size chunks rather than in a
   single array that is copied every time it grows, keeping allocations off the large object heap.
+* Added `HtmlToHtml.OutputHtmlFragment`, which removes the `<!DOCTYPE>`, `<html>`, `<head>` (including its
+  content) and `<body>` tags so that the output can be embedded within another HTML document.
 
 ### Performance
 
