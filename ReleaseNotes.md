@@ -172,7 +172,9 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
   `MaxColorTableEntries` and `MaxGroupDepth` properties (4096 by default) bound the resources used by
   hostile documents, nested groups that do not change any formatting are folded so that arbitrarily deep
   nesting uses constant memory, `\binN` data is skipped without buffering, and `RtfToHtml` only renders
-  `http`, `https`, `mailto`, `ftp` and `tel` hyperlinks.
+  `http`, `https`, `mailto`, `ftp` and `tel` hyperlinks. `RtfToHtml.HtmlTagCallback` is applied to the
+  extracted HTML, and `RtfToHtml.NoScriptHandling` controls how `<noscript>` elements in the extracted HTML
+  are handled (see `HtmlToHtml.NoScriptHandling` below).
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).

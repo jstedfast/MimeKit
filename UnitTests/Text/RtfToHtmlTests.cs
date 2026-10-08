@@ -85,6 +85,7 @@ namespace UnitTests.Text {
 			Assert.That (converter.OutputFormat, Is.EqualTo (TextFormat.Html), "OutputFormat");
 			Assert.That (converter.OutputHtmlFragment, Is.False, "OutputHtmlFragment");
 			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
+			Assert.That (converter.NoScriptHandling, Is.EqualTo (HtmlNoScriptHandling.Unwrap), "NoScriptHandling");
 			Assert.That (converter.MaxFontTableEntries, Is.EqualTo (4096), "MaxFontTableEntries");
 			Assert.That (converter.MaxColorTableEntries, Is.EqualTo (4096), "MaxColorTableEntries");
 			Assert.That (converter.MaxGroupDepth, Is.EqualTo (4096), "MaxGroupDepth");
@@ -651,6 +652,63 @@ namespace UnitTests.Text {
 			Assert.That (html, Is.EqualTo ("<p>ab</p>" + NewLine + "<p><span style=\"font-style: italic;\">x</span></p>" + NewLine + "<p>c</p>" + NewLine));
 		}
 
+		static void RemoveImages (HtmlTagContext ctx, HtmlWriter writer)
+		{
+			if (ctx.TagId == HtmlTagId.Image) {
+				ctx.DeleteTag = true;
+				ctx.DeleteEndTag = true;
+				return;
+			}
+
+			ctx.WriteTag (writer, true);
+		}
+
+		[TestCase ("<p>text</p><noscript><img src=\"http://example.com/tracker.png\"></noscript>", "<p>text</p>")]
+		[TestCase ("<noscript><style></noscript><img src=x onerror=alert(1)></style></noscript>", "<style></noscript><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<noscript><!--</noscript><img src=x onerror=alert(1)>--></noscript>", "<!--</noscript><img src=x onerror=alert(1)>-->")]
+		public void TestExtractNoScriptUnwrap (string html, string expected)
+		{
+			// By default, <noscript> content is tokenized as markup so the callback sees every tag, and the <noscript>
+			// tags are removed so that the output means the same thing whether or not scripting is enabled.
+			var result = Convert (Encapsulate (html), c => c.HtmlTagCallback = RemoveImages);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestExtractNoScriptScriptingEnabled ()
+		{
+			// With scripting enabled, <noscript> content is raw text and is not passed to the callback.
+			const string html = "<p>text</p><noscript><img src=\"http://example.com/tracker.png\"></noscript>";
+			var result = Convert (Encapsulate (html), c => {
+				c.HtmlTagCallback = RemoveImages;
+				c.NoScriptHandling = HtmlNoScriptHandling.ScriptingEnabled;
+			});
+
+			Assert.That (result, Is.EqualTo (html));
+		}
+
+		[Test]
+		public void TestExtractNoScriptScriptingDisabled ()
+		{
+			// With scripting disabled, <noscript> content is tokenized as markup and the <noscript> tags are kept.
+			const string html = "<p>text</p><noscript><img src=\"http://example.com/tracker.png\"></noscript>";
+			var result = Convert (Encapsulate (html), c => {
+				c.HtmlTagCallback = RemoveImages;
+				c.NoScriptHandling = HtmlNoScriptHandling.ScriptingDisabled;
+			});
+
+			Assert.That (result, Is.EqualTo ("<p>text</p><noscript></noscript>"));
+		}
+
+		[Test]
+		public void TestNoScriptHandlingOutOfRange ()
+		{
+			var converter = new RtfToHtml ();
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) (-1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) 3);
+		}
 		[Test]
 		public void TestNestedHyperlinks ()
 		{
