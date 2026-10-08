@@ -28,6 +28,7 @@
 
 * [How would I parse multipart/form-data from an HTTP web request?](#parse-web-request-form-data)
 * [How do I port my TNEF (winmail.dat) code from MimeKit 4.x to MimeKit 5.0?](#port-tnef-code)
+* [How do I convert RTF to plain text or HTML?](#convert-rtf)
 
 ## General
 
@@ -1325,3 +1326,183 @@ properties directly.
 The [TNEF Porting Guide](TnefPortingGuide.md) covers everything else. It has old-to-new mapping tables for
 every member, a compliance-flag-to-violation table, the semantic changes, before/after recipes and a
 porting checklist.
+
+### <a name="convert-rtf">Q: How do I convert RTF to plain text or HTML?</a>
+
+Starting with MimeKit 5.0, the `MimeKit.Text` namespace includes two `TextConverter`s for Rich Text Format
+(RTF) documents: `RtfToText` and `RtfToHtml`. They work just like the other text converters.
+
+RTF is rare in email, but you might come across it as a `text/rtf` or `application/rtf` attachment, or as
+the RTF body of a TNEF (`winmail.dat`) attachment.
+
+Note: If you convert TNEF attachments with `TnefMessage.ConvertToMime ()`, you don't need to do anything.
+The TNEF converter already generates the `text/plain` and `text/html` bodies from the RTF body when RTF is the
+message's best body.
+
+The simplest case is converting an RTF document that you already have as a string:
+
+```csharp
+var converter = new RtfToText ();
+var text = converter.Convert (rtf);
+```
+
+RTF is a 7-bit format: non-ASCII characters are escaped, and the document itself declares the code pages
+used to decode them. So, when the RTF comes from a MIME part, convert the decoded content stream rather than
+using `TextPart.Text`. The `charset` parameter of the `Content-Type` header (if any) does not apply to RTF.
+
+```csharp
+static string ConvertRtfToText (MimePart part)
+{
+    var converter = new RtfToText ();
+
+    using (var stream = part.Content.Open ()) {
+        using (var writer = new StringWriter ()) {
+            converter.Convert (stream, writer);
+
+            return writer.ToString ();
+        }
+    }
+}
+```
+
+Converting RTF to HTML works the same way. By default, `RtfToHtml` outputs a complete `<html><body>...</body></html>`
+document. If you plan to embed the result in a page of your own, set `OutputHtmlFragment` to `true`.
+
+```csharp
+static string ConvertRtfToHtml (MimePart part)
+{
+    var converter = new RtfToHtml {
+        HtmlTagCallback = HtmlTagCallback,
+        OutputHtmlFragment = true
+    };
+
+    using (var stream = part.Content.Open ()) {
+        using (var writer = new StringWriter ()) {
+            converter.Convert (stream, writer);
+
+            return writer.ToString ();
+        }
+    }
+}
+```
+
+The `HtmlTagCallback` works just like it does for `HtmlToHtml`. It is called for the tags that `RtfToHtml`
+generates (`div`, `span`, `a`, `br`, `table`, `tr` and `td`).
+
+The HTML that Outlook and Exchange encapsulate in their RTF bodies is extracted by default. The callback is
+called for every tag of that HTML too, so treat it as untrusted HTML, just like any other HTML message body:
+
+```csharp
+static void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+{
+    if (ctx.TagId == HtmlTagId.Image && !ctx.IsEndTag) {
+        // Only allow images that refer to MIME parts within the message (no remote images).
+        foreach (var attribute in ctx.Attributes) {
+            if (attribute.Id == HtmlAttributeId.Src && attribute.Value != null &&
+                !attribute.Value.StartsWith ("cid:", StringComparison.OrdinalIgnoreCase)) {
+                ctx.DeleteTag = true;
+                return;
+            }
+        }
+
+        ctx.WriteTag (htmlWriter, true);
+    } else if (ctx.TagId == HtmlTagId.A && !ctx.IsEndTag) {
+        // Open links in a new window.
+        ctx.WriteTag (htmlWriter, false);
+
+        foreach (var attribute in ctx.Attributes) {
+            if (attribute.Id != HtmlAttributeId.Target)
+                htmlWriter.WriteAttribute (attribute);
+        }
+
+        htmlWriter.WriteAttribute (HtmlAttributeId.Target, "_blank");
+    } else {
+        ctx.WriteTag (htmlWriter, true);
+    }
+}
+```
+
+If you would rather have the RTF itself rendered as HTML, set `ExtractEncapsulatedHtml` to `false`.
+
+Note: `RtfToHtml` is not an HTML sanitizer. If you are going to display the HTML, use a dedicated HTML
+sanitizer library.
+
+To convert an RTF file into an HTML file, use the `Stream` overload. The output is UTF-8 by default
+(see `OutputEncoding`):
+
+```csharp
+static void ConvertFile (string rtfFileName, string htmlFileName)
+{
+    var converter = new RtfToHtml ();
+
+    using (var input = File.OpenRead (rtfFileName)) {
+        using (var output = File.Create (htmlFileName))
+            converter.Convert (input, output);
+    }
+}
+```
+
+To convert the RTF body of a TNEF attachment yourself, decompress it with `OpenDecodedRead ()`:
+
+```csharp
+static string GetTnefBodyAsText (TnefPart tnefPart)
+{
+    using (var tnef = tnefPart.LoadTnefMessage ()) {
+        if (tnef.RtfBody == null)
+            return null;
+
+        var converter = new RtfToText ();
+
+        using (var rtf = tnef.RtfBody.OpenDecodedRead ()) {
+            using (var writer = new StringWriter ()) {
+                converter.Convert (rtf, writer);
+
+                return writer.ToString ();
+            }
+        }
+    }
+}
+```
+
+Outlook writes an attachment placeholder (`\objattph`) into the RTF wherever an attachment is displayed in
+the body. Placeholders are dropped by default, but you can render them with an `AttachmentPlaceholderCallback`.
+The `index` argument is the placeholder's position in the document: 0 for the first placeholder, 1 for the
+next, and so on.
+
+Matching placeholders with attachments is up to you. `TnefMessage.ConvertToMime ()` does that for you.
+
+```csharp
+var text = new RtfToText {
+    AttachmentPlaceholderCallback = (index, writer) => writer.Write ($"[attachment #{index + 1}]")
+};
+
+var html = new RtfToHtml {
+    AttachmentPlaceholderCallback = (index, htmlWriter) => {
+        if (index < contentIds.Count) {
+            htmlWriter.WriteEmptyElementTag (HtmlTagId.Image);
+            htmlWriter.WriteAttribute (HtmlAttributeId.Src, "cid:" + contentIds[index]);
+        }
+    }
+};
+```
+
+Both converters are designed for untrusted input, and their memory usage doesn't depend on the size of the
+document. The size of the font table, the color table and the group nesting depth are bounded by
+`MaxFontTableEntries`, `MaxColorTableEntries` and `MaxGroupDepth`. `RtfToHtml` also bounds the element
+nesting depth of encapsulated HTML with `MaxElementDepth`. Each of these limits defaults to 4096, and
+you can lower them if you like:
+
+```csharp
+var converter = new RtfToHtml {
+    MaxFontTableEntries = 256,
+    MaxColorTableEntries = 256,
+    MaxGroupDepth = 256,
+    MaxElementDepth = 256
+};
+```
+
+Font and color table entries beyond the limit are ignored. Text that uses them is decoded with the
+document's default code page, or rendered with the default color.
+
+Consecutive nested groups that don't change the formatting only count once toward `MaxGroupDepth`.
+The content of any group that would exceed the limit is discarded.
