@@ -276,21 +276,35 @@ namespace MimeKit.Cryptography {
 			return LookupPublicKeyAsync (info.QueryMethods, info.Domain, info.Selector, info.SignatureAlgorithm, cancellationToken);
 		}
 
-		internal bool TryGetVerificationKey (DkimPublicKeyLookupResult lookup, [NotNullWhen (true)] out AsymmetricKeyParameter? key)
+		internal DkimSignatureStatus GetVerificationKey (DkimPublicKeyLookupResult lookup, out AsymmetricKeyParameter? key, out string? reason)
 		{
 			key = null;
 
-			if (lookup.Status != DkimPublicKeyLookupStatus.Success)
-				return false;
+			switch (lookup.Status) {
+			case DkimPublicKeyLookupStatus.TempError:
+				reason = lookup.Reason;
+				return DkimSignatureStatus.TempError;
+			case DkimPublicKeyLookupStatus.PermError:
+				reason = lookup.Reason;
+				return DkimSignatureStatus.PermError;
+			}
 
 			var publicKey = lookup.Record!.PublicKey!;
 
-			if ((publicKey is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength)
-				return false;
+			if ((publicKey is RsaKeyParameters rsa) && rsa.Modulus.BitLength < MinimumRsaKeyLength) {
+				reason = "key too short";
+				return DkimSignatureStatus.Policy;
+			}
 
 			key = publicKey;
+			reason = null;
 
-			return true;
+			return DkimSignatureStatus.Pass;
+		}
+
+		internal bool TryGetVerificationKey (DkimPublicKeyLookupResult lookup, [NotNullWhen (true)] out AsymmetricKeyParameter? key)
+		{
+			return GetVerificationKey (lookup, out key, out _) == DkimSignatureStatus.Pass && key != null;
 		}
 
 		static bool IsWhiteSpace (char c)
@@ -386,7 +400,7 @@ namespace MimeKit.Cryptography {
 				throw new FormatException (string.Format ("Malformed {0} header: empty signature parameter detected.", header));
 
 			if (parameters.TryGetValue ("t", out string? t)) {
-				if (!int.TryParse (t, NumberStyles.None, CultureInfo.InvariantCulture, out int timestamp) || timestamp < 0)
+				if (!long.TryParse (t, NumberStyles.None, CultureInfo.InvariantCulture, out _))
 					throw new FormatException (string.Format ("Malformed {0} header: invalid timestamp parameter: t={1}.", header, t));
 			}
 		}

@@ -96,6 +96,22 @@ a redesigned TNEF implementation, and a new MIME compliance violation reporting 
     recognized, and the `t=s` flag is enforced for DKIM signatures.
   * A failed key lookup or an unparsable key record now causes verification to fail rather than
     throwing an exception.
+* `DkimVerifier.Verify[Async] ()` now returns a `DkimSignatureValidationResult` instead of a `bool`.
+  * The result's `Status` is one of `Pass`, `Fail`, `Policy`, `TempError` or `PermError` (matching the
+    RFC 8601 `dkim` method results), and the `Reason` property describes why a signature did not pass.
+    The result also exposes the signature's `Domain`, `Selector`, `AgentOrUserIdentifier` and
+    `SignatureAlgorithm`, and `ToAuthenticationMethodResult ()` can be used to build an
+    Authentication-Results entry.
+  * Malformed DKIM-Signature headers no longer throw a `FormatException`; they are reported as
+    `PermError` and the `FormatException` is available via the result's `Exception` property. DNS
+    temporary failures (including exceptions thrown by the `IDnsResolver`) are reported as `TempError`.
+    Only argument errors and cancellation throw.
+  * Signatures whose `x=` expiration time has passed are now reported as `PermError`, and `t=`
+    timestamps beyond the year 2038 are now accepted.
+  * Added `DkimVerifier.Verify[Async] (MimeMessage)` overloads that verify every DKIM-Signature header
+    in a message, up to the new `DkimVerifier.MaxSignatures` limit (default: 10).
+* `DkimSigner` now always writes the `x=` tag as an integer, even when `SignaturesExpireAfter` has a
+  fractional number of seconds.
 
 ### MIME Compliance Violation Reporting
 

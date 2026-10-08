@@ -998,25 +998,34 @@ namespace DkimVerifierExample
                 Console.Write ("{0} -> ", args[i]);
 
                 var message = MimeMessage.Load (args[i]);
-                var index = message.Headers.IndexOf (HeaderId.DkimSignature);
+                // verify each of the DKIM-Signature headers (up to verifier.MaxSignatures)
+                var results = verifier.Verify (message);
 
-                if (index == -1) {
+                if (results.Length == 0) {
                     Console.WriteLine ("NO SIGNATURE");
                     continue;
                 }
 
-                var dkim = message.Headers[index];
+                Console.WriteLine ();
 
-                if (verifier.Verify (message, dkim)) {
-                    // the DKIM-Signature header is valid!
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine ("VALID");
+                foreach (var result in results) {
+                    Console.Write ("  d={0}; s={1} -> ", result.Domain, result.Selector);
+
+                    if (result.Status == DkimSignatureStatus.Pass) {
+                        // the DKIM-Signature header is valid!
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine ("PASS");
+                    } else {
+                        // the DKIM-Signature header is invalid (Fail), uses a disallowed algorithm or key (Policy),
+                        // could not be verified due to a DNS error (TempError) or is malformed (PermError).
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine ("{0} ({1})", result.Status.ToString ().ToUpperInvariant (), result.Reason);
+                    }
+
                     Console.ResetColor ();
-                } else {
-                    // the DKIM-Signature is invalid!
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine ("INVALID");
-                    Console.ResetColor ();
+
+                    // Note: result.ToAuthenticationMethodResult () can be used to add the result to an
+                    // Authentication-Results header.
                 }
             }
         }
@@ -1141,35 +1150,9 @@ namespace ArcSignerExample
             }
 
             // Add authentication results for each DKIM signature
-            foreach (var dkimHeader in message.Headers.Where (h => h.Id == HeaderId.DkimSignature)) {
-                string result;
-
-                try {
-                    if (await dkimVerifier.VerifyAsync (message, cancellationToken)) {
-                        result = "pass";
-                    } else {
-                        result = "fail";
-                    }
-                } catch {
-                    result = "fail";
-                }
-
-                method = new AuthenticationMethodResult ("dkim", result);
-
-                // Parse the DKIM-Signature header so that we can add some
-                // properties to our method result.
-                var params = dkimHeader.Value.Replace (" ", "").Split (new char[] { ';' });
-                var i = params.FirstOrDefault (p => p.StartsWith ("i=", StringComparison.Ordinal));
-                var b = params.FirstOrDefault (p => p.StartsWith ("b=", StringComparison.Ordinal));
-
-                if (i != null)
-                    method.Parameters.Add ("header.i", i.Substring (2));
-
-                if (b != null)
-                    method.Parameters.Add ("header.b", b.Substring (2, 8));
-
-                results.Results.Add (method);
-            }
+            // (the dkim method results include the header.d, header.i, header.s, header.a and header.b properties)
+            foreach (var dkim in await dkimVerifier.VerifyAsync (message, cancellationToken))
+                results.Results.Add (dkim.ToAuthenticationMethodResult ());
 
             return results;
         }
