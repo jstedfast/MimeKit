@@ -201,25 +201,25 @@ namespace MimeKit.Tnef {
 		/// </summary>
 		internal static string? GetMethod (TnefMessage tnef)
 		{
-			var messageClass = tnef.MessageClass?.Trim ();
+			var messageClass = tnef.MessageClass;
 
-			if (string.IsNullOrEmpty (messageClass))
+			if (messageClass is null)
 				return null;
 
 			// [MS-OXCICAL] 2.1.3.1.1.16: the METHOD depends on the message class.
-			if (IsMessageClass (messageClass!, "IPM.Appointment"))
+			if (IsMessageClass (messageClass, "IPM.Appointment"))
 				return "PUBLISH";
 
-			if (IsMessageClass (messageClass!, "IPM.Schedule.Meeting.Request"))
+			if (IsMessageClass (messageClass, "IPM.Schedule.Meeting.Request"))
 				return "REQUEST";
 
-			if (IsMessageClass (messageClass!, "IPM.Schedule.Meeting.Canceled"))
+			if (IsMessageClass (messageClass, "IPM.Schedule.Meeting.Canceled"))
 				return "CANCEL";
 
-			if (IsMessageClass (messageClass!, "IPM.Schedule.Meeting.Resp.Pos") || IsMessageClass (messageClass!, "IPM.Schedule.Meeting.Resp.Neg"))
+			if (IsMessageClass (messageClass, "IPM.Schedule.Meeting.Resp.Pos") || IsMessageClass (messageClass, "IPM.Schedule.Meeting.Resp.Neg"))
 				return "REPLY";
 
-			if (IsMessageClass (messageClass!, "IPM.Schedule.Meeting.Resp.Tent")) {
+			if (IsMessageClass (messageClass, "IPM.Schedule.Meeting.Resp.Tent")) {
 				// A tentative response that proposes a new time is a counter proposal.
 				return GetBoolean (tnef.Properties, TnefNameId.AppointmentCounterProposal) == true ? "COUNTER" : "REPLY";
 			}

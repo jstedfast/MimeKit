@@ -64,10 +64,6 @@ namespace MimeKit.Tnef {
 			index = 0;
 		}
 
-		public int Remaining {
-			get { return buffer.Length - index; }
-		}
-
 		void Ensure (long count)
 		{
 			if (count < 0 || count > buffer.Length - index)
@@ -214,11 +210,6 @@ namespace MimeKit.Tnef {
 		public static DateTime ToDateTime (uint minutes)
 		{
 			return Epoch.AddMinutes (minutes);
-		}
-
-		public static uint ToMinutes (DateTime value)
-		{
-			return (uint) ((value.Ticks - Epoch.Ticks) / TimeSpan.TicksPerMinute);
 		}
 
 		/// <summary>

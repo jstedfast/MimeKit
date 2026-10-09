@@ -945,6 +945,26 @@ X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>
 		}
 
 		[Test]
+		public void TestMimeSkeletonWithoutAttachmentPartFallsBackToProperties ()
+		{
+			// The skeleton has a body, but nothing for the attachment.
+			using (var result = Convert (CreateSkeletonMessage ("Subject: Headers only\r\n"))) {
+				AssertSkeletonFallback (result);
+				Assert.That (result.Losses.Single (loss => loss.Kind == TnefConversionLossKind.InvalidMimeSkeleton).Description, Does.Contain ("does not contain attachment"));
+			}
+		}
+
+		[TestCase ("Not a header\r\n\r\nBody\r\n")]
+		[TestCase ("\0\0\0\0")]
+		public void TestUnparsableMimeSkeletonFallsBackToProperties (string skeleton)
+		{
+			using (var result = Convert (CreateSkeletonMessage (skeleton))) {
+				AssertSkeletonFallback (result);
+				Assert.That (result.Losses.Single (loss => loss.Kind == TnefConversionLossKind.InvalidMimeSkeleton).Description, Does.Contain ("could not be parsed"));
+			}
+		}
+
+		[Test]
 		public void TestEmptyMimeSkeletonIsIgnored ()
 		{
 			var properties = new TnefMapiPropertyBuilder ();

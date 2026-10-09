@@ -557,6 +557,151 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		[Test]
+		public async Task TestAttributeStreamAsync ()
+		{
+			var data = new byte[100000];
+
+			new Random (42).NextBytes (data);
+
+			var expected = Write (writer => {
+				writer.WriteAttribute (TnefAttributeTag.AttachRenderData, RenderData);
+
+				using (var stream = writer.OpenAttributeStream (TnefAttributeTag.AttachData))
+					stream.Write (data, 0, data.Length);
+
+				using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.Attachment)) {
+					properties.WritePropertyTag (TnefPropertyTag.AttachLongFilenameW);
+					properties.WriteValue ("data.bin");
+				}
+
+				writer.WriteAttribute (TnefAttributeTag.AttachRenderData, RenderData);
+			});
+
+			var actual = await WriteAsync (async writer => {
+				await writer.WriteAttributeAsync (TnefAttributeTag.AttachRenderData, RenderData);
+
+				using (var stream = writer.OpenAttributeStream (TnefAttributeTag.AttachData)) {
+					await stream.WriteAsync (data, 0, data.Length);
+					await stream.FlushAsync ();
+				}
+
+				using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.Attachment)) {
+					properties.WritePropertyTag (TnefPropertyTag.AttachLongFilenameW);
+					properties.WriteValue ("data.bin");
+				}
+
+				// Writing the next attribute writes the buffered ones first.
+				await writer.WriteAttributeAsync (TnefAttributeTag.AttachRenderData, RenderData);
+			});
+
+			Assert.That (actual, Is.EqualTo (expected));
+			AssertConformant (actual);
+		}
+
+		[Test]
+		public async Task TestAttributeStreamIsWrittenByFlushAsync ()
+		{
+			var expected = Write (writer => {
+				using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body))
+					stream.Write (new byte[] { 1, 2, 3 }, 0, 3);
+			});
+
+			var actual = await WriteAsync (writer => {
+				using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body))
+					stream.Write (new byte[] { 1, 2, 3 }, 0, 3);
+
+				return Task.CompletedTask;
+			});
+
+			Assert.That (actual, Is.EqualTo (expected));
+			Assert.That (ReadAttributes (actual).Select (a => a.Tag), Is.EqualTo (new[] { TnefAttributeTag.TnefVersion, TnefAttributeTag.OemCodepage, TnefAttributeTag.Body }));
+		}
+
+		[Test]
+		public async Task TestAttributeStreamUnsupportedOperations ()
+		{
+			using var output = new MemoryStream ();
+			using var writer = new TnefWriter (output);
+
+			var stream = writer.OpenAttributeStream (TnefAttributeTag.Body);
+			var buffer = new byte[16];
+
+			stream.Write (buffer, 0, 3);
+
+			Assert.That (stream.Position, Is.EqualTo (3));
+			Assert.Throws<NotSupportedException> (() => stream.Position = 0);
+			Assert.Throws<NotSupportedException> (() => stream.Seek (0, SeekOrigin.Begin));
+			Assert.Throws<NotSupportedException> (() => stream.SetLength (0));
+			Assert.Throws<NotSupportedException> (() => stream.Read (buffer, 0, buffer.Length));
+
+			Assert.Throws<ArgumentNullException> (() => stream.Write (null, 0, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, -1, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 17, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 0, -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => stream.Write (buffer, 8, 9));
+
+			using (var cts = new CancellationTokenSource ()) {
+				cts.Cancel ();
+
+				Assert.ThrowsAsync<OperationCanceledException> (() => stream.WriteAsync (buffer, 0, 1, cts.Token));
+				Assert.ThrowsAsync<OperationCanceledException> (() => stream.FlushAsync (cts.Token));
+			}
+
+			stream.Dispose ();
+			stream.Dispose ();
+
+			Assert.That (stream.CanWrite, Is.False);
+			Assert.Throws<ObjectDisposedException> (() => stream.Write (buffer, 0, 1));
+			Assert.Throws<ObjectDisposedException> (() => stream.Flush ());
+			Assert.ThrowsAsync<ObjectDisposedException> (() => stream.FlushAsync ());
+
+			await writer.FlushAsync ();
+
+			Assert.That (ReadAttributes (output.ToArray ()).Last ().Tag, Is.EqualTo (TnefAttributeTag.Body));
+		}
+
+		sealed class ThrowingStream : MemoryStream
+		{
+			public bool Disposed;
+
+			public override void Write (byte[] buffer, int offset, int count)
+			{
+				throw new IOException ("Write failed.");
+			}
+
+			public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+			{
+				throw new IOException ("Write failed.");
+			}
+
+			protected override void Dispose (bool disposing)
+			{
+				Disposed = true;
+				base.Dispose (disposing);
+			}
+		}
+
+		[Test]
+		public void TestDisposeWithFailingStream ()
+		{
+			var output = new ThrowingStream ();
+			var writer = new TnefWriter (output);
+
+			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body))
+				stream.Write (new byte[] { 1, 2, 3 }, 0, 3);
+
+			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Subject))
+				stream.Write (new byte[] { 1, 2, 3 }, 0, 3);
+
+			Assert.Throws<IOException> (() => writer.Flush ());
+			Assert.ThrowsAsync<IOException> (() => writer.FlushAsync ());
+
+			// Dispose must not throw, even though the queued attributes cannot be written.
+			Assert.DoesNotThrow (() => writer.Dispose ());
+			Assert.That (output.Disposed, Is.True);
+		}
+
 		#endregion
 
 		#region Properties

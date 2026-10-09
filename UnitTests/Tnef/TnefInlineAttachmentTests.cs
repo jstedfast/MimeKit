@@ -1155,6 +1155,66 @@ namespace UnitTests.Tnef {
 			}
 		}
 
+		static byte[] Bmp (int dibHeaderSize)
+		{
+			var bmp = new byte[18];
+
+			bmp[0] = (byte) 'B';
+			bmp[1] = (byte) 'M';
+			BitConverter.GetBytes (dibHeaderSize).CopyTo (bmp, 14);
+
+			return bmp;
+		}
+
+		static IEnumerable<TestCaseData> OleImages ()
+		{
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("GIF87a"), "image/gif", "Chart.gif");
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("GIF89a"), "image/gif", "Chart.gif");
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("RIFF\0\0\0\0WEBPVP8 "), "image/webp", "Chart.webp");
+
+			foreach (var size in new[] { 12, 40, 52, 56, 64, 108, 124 })
+				yield return new TestCaseData (Bmp (size), "image/bmp", "Chart.bmp");
+
+			// Signatures that are close, but not quite.
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("GIF88a"), null, null);
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("GIF89b"), null, null);
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("RIFF\0\0\0\0WAVEfmt "), null, null);
+			yield return new TestCaseData (Bmp (41), null, null);
+			yield return new TestCaseData (Encoding.ASCII.GetBytes ("BM"), null, null);
+			yield return new TestCaseData (new byte[] { 0xFF, 0xD8 }, null, null);
+			yield return new TestCaseData (new byte[] { 0x89, (byte) 'P', (byte) 'N', (byte) 'G', 0x0D, 0x0A, 0x1A, 0x00 }, null, null);
+		}
+
+		[TestCaseSource (nameof (OleImages))]
+		public void TestOleObjectConverterImageFormats (byte[] image, string mimeType, string fileName)
+		{
+			var converter = new OleConverter (attachment => new MemoryStream (image, false));
+			var options = new TnefConversionOptions { OleObjectConverter = converter };
+			var result = ConvertRtf ("{\\rtf1 A\\objattph\\'20 B}", options, Ole ());
+
+			if (mimeType is null) {
+				Assert.That (result.Related, Is.Empty);
+				Assert.That (result.Attachments, Has.Count.EqualTo (1));
+				Assert.That (result.Attachments[0].FileName, Is.EqualTo ("ole.bin"));
+				return;
+			}
+
+			Assert.That (result.Related, Has.Count.EqualTo (1));
+			Assert.That (result.Related[0].ContentType.MimeType, Is.EqualTo (mimeType));
+			Assert.That (result.Related[0].FileName, Is.EqualTo (fileName));
+		}
+
+		[TestCase ("", "ole.bin.png")]
+		[TestCase (null, "ole.bin.png")]
+		public void TestOleObjectConverterDescriptionFallback (string displayName, string expected)
+		{
+			var converter = new OleConverter (attachment => new MemoryStream (Png, false));
+			var options = new TnefConversionOptions { OleObjectConverter = converter };
+			var result = ConvertRtf ("{\\rtf1 A\\objattph\\'20 B}", options, Ole (displayName));
+
+			Assert.That (result.Related[0].FileName, Is.EqualTo (expected));
+		}
+
 		#endregion
 	}
 }

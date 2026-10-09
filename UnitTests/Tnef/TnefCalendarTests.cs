@@ -75,6 +75,17 @@ namespace UnitTests.Tnef {
 				properties.WritePropertyHeader (tag, guid, nameId: id);
 			}
 
+			public void Strings (string name, Guid guid, params string[] values)
+			{
+				var tag = new TnefPropertyTag ((TnefPropertyId) (0x8000 + index++), TnefPropertyType.Unicode | TnefPropertyType.MultiValued);
+
+				properties.WritePropertyHeader (tag, guid, name: name);
+				properties.WriteValueCount (values.Length);
+
+				foreach (var value in values)
+					properties.WriteUnicodeValue (value);
+			}
+
 			public void Time (int id, DateTime utc, Guid? guid = null)
 			{
 				Header (TnefPropertyType.SysTime, guid ?? TnefPropertySetGuid.Appointment, id);
@@ -237,7 +248,7 @@ namespace UnitTests.Tnef {
 		}
 
 		// A TZDefinition ([MS-OXOCAL] 2.2.1.41) for US Eastern time.
-		internal static byte[] CreateEasternTimeZoneDefinition (string keyName = EasternId)
+		internal static byte[] CreateEasternTimeZoneDefinition (string keyName = EasternId, int bias = 300)
 		{
 			using (var stream = new MemoryStream ())
 			using (var writer = new BinaryWriter (stream)) {
@@ -256,7 +267,7 @@ namespace UnitTests.Tnef {
 				writer.Write ((ushort) 0x0002);
 				writer.Write ((ushort) 2007);
 				writer.Write (new byte[14]);
-				writer.Write (300);
+				writer.Write (bias);
 				writer.Write (0);
 				writer.Write (-60);
 				writer.Write (SystemTime (11, 0, 1, 2));
@@ -671,17 +682,23 @@ namespace UnitTests.Tnef {
 			}
 		}
 
-		internal static TnefBuilder CreateRecurringMeeting (byte[] recurrence, bool addException = true, byte[] timeZone = null, string body = null)
+		internal static TnefBuilder CreateRecurringMeeting (byte[] recurrence, bool addException = true, byte[] timeZone = null, string body = null, Action<NamedProperties> configure = null)
 		{
 			var properties = CreateAppointment (new DateTime (2024, 7, 1, 14, 0, 0, DateTimeKind.Utc), new DateTime (2024, 7, 1, 15, 0, 0, DateTimeKind.Utc), out var named);
 
 			if (body != null)
 				properties.WriteStringProperty (TnefPropertyTag.BodyW, body);
 
+			timeZone ??= CreateEasternTimeZoneDefinition ();
+
 			named.Binary (PidLidAppointmentRecur, recurrence);
-			named.Binary (PidLidAppointmentTimeZoneDefinitionRecur, timeZone ?? CreateEasternTimeZoneDefinition ());
+
+			if (timeZone.Length > 0)
+				named.Binary (PidLidAppointmentTimeZoneDefinitionRecur, timeZone);
+
 			named.Int32 (PidLidAppointmentStateFlags, 1);
 			named.String (PidLidLocation, "Room 1");
+			configure?.Invoke (named);
 
 			var builder = CreateMessage ("IPM.Schedule.Meeting.Request", properties,
 				Recipient (TnefRecipientType.To, "Alice", "alice@example.com", 0x03),
@@ -802,6 +819,755 @@ namespace UnitTests.Tnef {
 				var lines = ReadCalendar (GetCalendarPart (result.Message));
 
 				Assert.That (lines, Does.Contain ("RRULE:FREQ=MONTHLY;BYMONTHDAY=10;COUNT=10"));
+			}
+		}
+
+		const int PidLidAppointmentDuration = 0x8213;
+		const int PidLidIntendedBusyStatus = 0x8224;
+		const int PidLidTimeZoneStruct = 0x8233;
+		const int PidLidTimeZoneDescription = 0x8234;
+		const int PidLidAppointmentTimeZoneDefinitionEndDisplay = 0x825F;
+		const int PidLidPrivate = 0x8506;
+		const int PidLidIsException = 0x000A;
+		const int PidLidStartRecurrenceTime = 0x000E;
+
+		static readonly uint StartDate = ToMinutes (new DateTime (2024, 7, 1));
+
+		// An AppointmentRecurrencePattern ([MS-OXOCAL] 2.2.1.44.5) with the specified pattern, starting on 2024-07-01
+		// at 10:00 (local time) and, unless otherwise specified, ending after 10 occurrences.
+		static byte[] CreateRecurrence (ushort patternType, uint period, uint[] patternSpecific, ushort calendarType = 0, uint endType = 0x2022, uint firstDayOfWeek = 0, Action<BinaryWriter> writeExceptions = null)
+		{
+			using (var stream = new MemoryStream ())
+			using (var writer = new BinaryWriter (stream)) {
+				writer.Write ((ushort) 0x3004);
+				writer.Write ((ushort) 0x3004);
+				writer.Write ((ushort) 0x200B);
+				writer.Write (patternType);
+				writer.Write (calendarType);
+				writer.Write (0u); // FirstDateTime
+				writer.Write (period);
+				writer.Write (0u); // SlidingFlag
+
+				foreach (var value in patternSpecific)
+					writer.Write (value);
+
+				writer.Write (endType);
+				writer.Write (10u); // OccurrenceCount
+				writer.Write (firstDayOfWeek);
+				writer.Write (0u); // DeletedInstanceCount
+				writer.Write (0u); // ModifiedInstanceCount
+				writer.Write (StartDate);
+				writer.Write (ToMinutes (new DateTime (2024, 7, 31)));
+				writer.Write (0x3006u); // ReaderVersion2
+				writer.Write (0x3009u); // WriterVersion2
+				writer.Write (600u); // StartTimeOffset
+				writer.Write (660u); // EndTimeOffset
+
+				if (writeExceptions != null) {
+					writeExceptions (writer);
+				} else {
+					writer.Write ((ushort) 0); // ExceptionCount
+					writer.Write (0u); // ReservedBlock1Size
+				}
+
+				writer.Flush ();
+
+				return stream.ToArray ();
+			}
+		}
+
+		static string[] GetMasterEvent (TnefConversionResult result)
+		{
+			return GetComponent (ReadCalendar (GetCalendarPart (result.Message)), "VEVENT");
+		}
+
+		static string GetRecurrenceRule (TnefConversionResult result)
+		{
+			return GetMasterEvent (result).SingleOrDefault (line => line.StartsWith ("RRULE:", StringComparison.Ordinal));
+		}
+
+		[TestCase ((ushort) 0x0000, 2880u, new uint[0], 0u, ExpectedResult = "RRULE:FREQ=DAILY;INTERVAL=2;COUNT=10")]
+		[TestCase ((ushort) 0x0001, 2u, new uint[] { 0x02 }, 1u, ExpectedResult = "RRULE:FREQ=WEEKLY;BYDAY=MO;INTERVAL=2;COUNT=10;WKST=MO")]
+		[TestCase ((ushort) 0x0001, 2u, new uint[] { 0x02 }, 7u, ExpectedResult = "RRULE:FREQ=WEEKLY;BYDAY=MO;INTERVAL=2;COUNT=10")]
+		[TestCase ((ushort) 0x0002, 12u, new uint[] { 10 }, 0u, ExpectedResult = "RRULE:FREQ=YEARLY;BYMONTHDAY=10;BYMONTH=7;COUNT=10")]
+		[TestCase ((ushort) 0x0002, 24u, new uint[] { 10 }, 0u, ExpectedResult = "RRULE:FREQ=YEARLY;BYMONTHDAY=10;BYMONTH=7;INTERVAL=2;COUNT=10")]
+		[TestCase ((ushort) 0x0002, 1u, new uint[] { 31 }, 0u, ExpectedResult = "RRULE:FREQ=MONTHLY;BYMONTHDAY=-1;COUNT=10")]
+		[TestCase ((ushort) 0x0004, 1u, new uint[] { 0 }, 0u, ExpectedResult = "RRULE:FREQ=MONTHLY;BYMONTHDAY=-1;COUNT=10")]
+		[TestCase ((ushort) 0x0003, 1u, new uint[] { 0x02, 5 }, 0u, ExpectedResult = "RRULE:FREQ=MONTHLY;BYDAY=MO;BYSETPOS=-1;COUNT=10")]
+		[TestCase ((ushort) 0x0003, 2u, new uint[] { 0x14, 2 }, 0u, ExpectedResult = "RRULE:FREQ=MONTHLY;BYDAY=TU,TH;BYSETPOS=2;INTERVAL=2;COUNT=10")]
+		[TestCase ((ushort) 0x0003, 12u, new uint[] { 0x02, 1 }, 0u, ExpectedResult = "RRULE:FREQ=YEARLY;BYDAY=MO;BYMONTH=7;BYSETPOS=1;COUNT=10")]
+		public string TestRecurrenceRule (ushort patternType, uint period, uint[] patternSpecific, uint firstDayOfWeek)
+		{
+			var recurrence = CreateRecurrence (patternType, period, patternSpecific, firstDayOfWeek: firstDayOfWeek);
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses, Is.Empty);
+
+				return GetRecurrenceRule (result);
+			}
+		}
+
+		[TestCase ((ushort) 0x000A, (ushort) 0x0001, new uint[] { 10 }, ExpectedResult = "RRULE:FREQ=MONTHLY;BYMONTHDAY=10;COUNT=10")]
+		[TestCase ((ushort) 0x000B, (ushort) 0x0009, new uint[] { 0x02, 5 }, ExpectedResult = "RRULE:FREQ=MONTHLY;BYDAY=MO;BYSETPOS=-1;COUNT=10")]
+		[TestCase ((ushort) 0x000C, (ushort) 0x000C, new uint[] { 0 }, ExpectedResult = "RRULE:FREQ=MONTHLY;BYMONTHDAY=-1;COUNT=10")]
+		public string TestHijriPatternWithGregorianCalendar (ushort patternType, ushort calendarType, uint[] patternSpecific)
+		{
+			// [MS-OXCICAL] 2.1.3.2.1: the Hijri patterns are the same as the Gregorian patterns when the calendar is Gregorian.
+			var recurrence = CreateRecurrence (patternType, 1, patternSpecific, calendarType);
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses, Is.Empty);
+
+				return GetRecurrenceRule (result);
+			}
+		}
+
+		[TestCase ((ushort) 0x000A, (ushort) 0x0000, new uint[] { 10 }, Description = "Hijri pattern with the default calendar")]
+		[TestCase ((ushort) 0x0001, (ushort) 0x0006, new uint[] { 0x02 }, Description = "Weekly pattern with the Hijri calendar")]
+		[TestCase ((ushort) 0x0002, (ushort) 0x000E, new uint[] { 10 }, Description = "Monthly pattern with the lunar calendar")]
+		public void TestUnsupportedRecurrenceCalendar (ushort patternType, ushort calendarType, uint[] patternSpecific)
+		{
+			var recurrence = CreateRecurrence (patternType, 1, patternSpecific, calendarType);
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.UnsupportedCalendarData }));
+				Assert.That (GetRecurrenceRule (result), Is.Null);
+			}
+		}
+
+		[TestCase ((ushort) 0x0000, 0u, new uint[0], Description = "Daily with a zero period")]
+		[TestCase ((ushort) 0x0000, 1000u, new uint[0], Description = "Daily with a period that is not a whole number of days")]
+		[TestCase ((ushort) 0x0001, 1u, new uint[] { 0x80 }, Description = "Weekly without any days")]
+		[TestCase ((ushort) 0x0001, 0u, new uint[] { 0x02 }, Description = "Weekly with a zero period")]
+		[TestCase ((ushort) 0x0002, 0u, new uint[] { 10 }, Description = "Monthly with a zero period")]
+		[TestCase ((ushort) 0x0002, 1u, new uint[] { 0 }, Description = "Monthly on day 0")]
+		[TestCase ((ushort) 0x0002, 1u, new uint[] { 32 }, Description = "Monthly on day 32")]
+		[TestCase ((ushort) 0x0003, 1u, new uint[] { 0, 1 }, Description = "MonthNth without any days")]
+		[TestCase ((ushort) 0x0003, 1u, new uint[] { 0x02, 0 }, Description = "MonthNth in week 0")]
+		[TestCase ((ushort) 0x0003, 1u, new uint[] { 0x02, 6 }, Description = "MonthNth in week 6")]
+		public void TestInvalidRecurrencePattern (ushort patternType, uint period, uint[] patternSpecific)
+		{
+			var recurrence = CreateRecurrence (patternType, period, patternSpecific);
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.InvalidCalendarData }));
+				Assert.That (result.Losses[0].Description, Does.Contain ("The recurrence pattern is not valid"));
+				Assert.That (GetRecurrenceRule (result), Is.Null);
+			}
+		}
+
+		[Test]
+		public void TestRecurrenceEndAfterDate ()
+		{
+			var recurrence = CreateRecurrence (0x0000, 1440, Array.Empty<uint> (), endType: 0x2021);
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses, Is.Empty);
+
+				// UNTIL is the start of the last instance (10:00 EDT) in UTC.
+				Assert.That (GetRecurrenceRule (result), Is.EqualTo ("RRULE:FREQ=DAILY;UNTIL=20240731T140000Z"));
+			}
+		}
+
+		[Test]
+		public void TestRecurrenceNeverEnds ()
+		{
+			var recurrence = CreateRecurrence (0x0000, 1440, Array.Empty<uint> (), endType: 0x2023);
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses, Is.Empty);
+				Assert.That (GetRecurrenceRule (result), Is.EqualTo ("RRULE:FREQ=DAILY"));
+			}
+		}
+
+		[Test]
+		public void TestAllDayRecurrence ()
+		{
+			var builder = CreateRecurringMeeting (CreateWeeklyRecurrence (), configure: named => named.Boolean (PidLidAppointmentSubType, true));
+
+			using (var result = Convert (builder)) {
+				Assert.That (result.Losses, Is.Empty);
+
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+				var master = GetComponent (lines, "VEVENT", 0);
+				var exception = GetComponent (lines, "VEVENT", 1);
+
+				Assert.That (master, Does.Contain ("DTSTART;VALUE=DATE:20240701"));
+				Assert.That (master, Does.Contain ("RRULE:FREQ=WEEKLY;BYDAY=MO,WE;COUNT=10"));
+				Assert.That (master, Does.Contain ("EXDATE;VALUE=DATE:20240708"));
+				Assert.That (exception, Does.Contain ("RECURRENCE-ID;VALUE=DATE:20240710"));
+				Assert.That (exception, Does.Contain ("DTSTART;VALUE=DATE:20240710"));
+			}
+
+			var untilRecurrence = CreateRecurrence (0x0000, 1440, Array.Empty<uint> (), endType: 0x2021);
+
+			builder = CreateRecurringMeeting (untilRecurrence, false, configure: named => named.Boolean (PidLidAppointmentSubType, true));
+
+			using (var result = Convert (builder))
+				Assert.That (GetRecurrenceRule (result), Is.EqualTo ("RRULE:FREQ=DAILY;UNTIL=20240731"));
+		}
+
+		// A PidLidTimeZoneStruct ([MS-OXOCAL] 2.2.1.39) for US Eastern time.
+		static byte[] CreateEasternTimeZoneStruct ()
+		{
+			var structure = new byte[48];
+
+			BitConverter.GetBytes (300).CopyTo (structure, 0);
+			BitConverter.GetBytes (0).CopyTo (structure, 4);
+			BitConverter.GetBytes (-60).CopyTo (structure, 8);
+			SystemTime (11, 0, 1, 2).CopyTo (structure, 14);
+			SystemTime (3, 0, 2, 2).CopyTo (structure, 32);
+
+			return structure;
+		}
+
+		// A TZID parameter that contains a ':' must be quoted.
+		[TestCase (null, "UTC-05:00", "\"UTC-05:00\"")]
+		[TestCase (" ", "UTC-05:00", "\"UTC-05:00\"")]
+		[TestCase ("Eastern Time ", "Eastern Time", "Eastern Time")]
+		public void TestRecurrenceTimeZoneStruct (string description, string expectedId, string expectedParam)
+		{
+			var builder = CreateRecurringMeeting (CreateRecurrence (0x0000, 1440, Array.Empty<uint> ()), false, Array.Empty<byte> (), configure: named => {
+				named.Binary (PidLidTimeZoneStruct, CreateEasternTimeZoneStruct ());
+
+				if (description != null)
+					named.String (PidLidTimeZoneDescription, description);
+			});
+
+			using (var result = Convert (builder)) {
+				Assert.That (result.Losses, Is.Empty);
+
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ($"DTSTART;TZID={expectedParam}:20240701T100000"));
+				Assert.That (lines, Does.Contain ($"TZID:{expectedId}"));
+			}
+		}
+
+		[Test]
+		public void TestRecurrenceWithoutTimeZone ()
+		{
+			// A PidLidTimeZoneStruct that is too short is ignored.
+			var builder = CreateRecurringMeeting (CreateRecurrence (0x0000, 1440, Array.Empty<uint> ()), false, Array.Empty<byte> (), configure: named => named.Binary (PidLidTimeZoneStruct, new byte[47]));
+
+			using (var result = Convert (builder)) {
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.InvalidCalendarData }));
+
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("DTSTART;TZID=UTC:20240701T140000"));
+				Assert.That (lines, Does.Contain ("RRULE:FREQ=DAILY;COUNT=10"));
+			}
+		}
+
+		[Test]
+		public void TestDisplayTimeZonesWithTheSameRules ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 7, 1, 14, 0, 0, DateTimeKind.Utc), new DateTime (2024, 7, 1, 15, 0, 0, DateTimeKind.Utc), out var named);
+
+			named.Binary (PidLidAppointmentTimeZoneDefinitionStartDisplay, CreateEasternTimeZoneDefinition ());
+			named.Binary (PidLidAppointmentTimeZoneDefinitionEndDisplay, CreateEasternTimeZoneDefinition ());
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("DTSTART;TZID=Eastern Standard Time:20240701T100000"));
+				Assert.That (lines, Does.Contain ("DTEND;TZID=Eastern Standard Time:20240701T110000"));
+				Assert.That (lines.Count (line => line == "BEGIN:VTIMEZONE"), Is.EqualTo (1));
+			}
+		}
+
+		[Test]
+		public void TestDisplayTimeZonesWithTheSameName ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 7, 1, 14, 0, 0, DateTimeKind.Utc), new DateTime (2024, 7, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+
+			// Two different time zones that claim the same name must get different TZIDs.
+			named.Binary (PidLidAppointmentTimeZoneDefinitionStartDisplay, CreateEasternTimeZoneDefinition ());
+			named.Binary (PidLidAppointmentTimeZoneDefinitionEndDisplay, CreateEasternTimeZoneDefinition (bias: 360));
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("DTSTART;TZID=Eastern Standard Time:20240701T100000"));
+				Assert.That (lines, Does.Contain ("DTEND;TZID=Eastern Standard Time (2):20240701T110000"));
+				Assert.That (lines, Does.Contain ("TZID:Eastern Standard Time"));
+				Assert.That (lines, Does.Contain ("TZID:Eastern Standard Time (2)"));
+				Assert.That (lines.Count (line => line == "BEGIN:VTIMEZONE"), Is.EqualTo (2));
+			}
+		}
+
+		[Test]
+		public void TestRecurrenceIdFromExceptionReplaceTime ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 7, 10, 17, 0, 0, DateTimeKind.Utc), new DateTime (2024, 7, 10, 18, 0, 0, DateTimeKind.Utc), out var named);
+
+			named.Binary (PidLidAppointmentTimeZoneDefinitionStartDisplay, CreateEasternTimeZoneDefinition ());
+			named.Time (PidLidExceptionReplaceTime, new DateTime (2024, 7, 10, 14, 0, 0, DateTimeKind.Utc));
+
+			using (var result = Convert (CreateMessage ("IPM.Schedule.Meeting.Request", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("RECURRENCE-ID;TZID=Eastern Standard Time:20240710T100000"));
+				Assert.That (lines, Does.Contain ("DTSTART;TZID=Eastern Standard Time:20240710T130000"));
+			}
+		}
+
+		static string GetRecurrenceIdFromGlobalObjectId (byte[] globalObjectId, int? startRecurrenceTime, bool timeZone, bool allDay = false)
+		{
+			var properties = CreateAppointment (new DateTime (2024, 7, 10, 17, 0, 0, DateTimeKind.Utc), new DateTime (2024, 7, 10, 18, 0, 0, DateTimeKind.Utc), out var named);
+
+			named.Boolean (PidLidIsException, true, TnefPropertySetGuid.Meeting);
+			named.Binary (PidLidGlobalObjectId, globalObjectId, TnefPropertySetGuid.Meeting);
+
+			if (startRecurrenceTime.HasValue)
+				named.Int32 (PidLidStartRecurrenceTime, startRecurrenceTime.Value, TnefPropertySetGuid.Meeting);
+
+			if (timeZone)
+				named.Binary (PidLidAppointmentTimeZoneDefinitionStartDisplay, CreateEasternTimeZoneDefinition ());
+
+			if (allDay)
+				named.Boolean (PidLidAppointmentSubType, true);
+
+			using (var result = Convert (CreateMessage ("IPM.Schedule.Meeting.Request", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				return lines.SingleOrDefault (line => line.StartsWith ("RECURRENCE-ID", StringComparison.Ordinal));
+			}
+		}
+
+		[Test]
+		public void TestRecurrenceIdFromGlobalObjectId ()
+		{
+			var id = CreateGlobalObjectId (year: 2024, month: 7, day: 10);
+			int time = (10 << 12) | (30 << 6) | 15;
+
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, time, true), Is.EqualTo ("RECURRENCE-ID;TZID=Eastern Standard Time:20240710T103015"));
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, time, false), Is.EqualTo ("RECURRENCE-ID:20240710T103015Z"));
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, null, false), Is.EqualTo ("RECURRENCE-ID:20240710T000000Z"));
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, time, true, true), Is.EqualTo ("RECURRENCE-ID;VALUE=DATE:20240710"));
+
+			// An invalid PidLidStartRecurrenceTime is ignored.
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, 24 << 12, false), Is.EqualTo ("RECURRENCE-ID:20240710T000000Z"));
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, 60 << 6, false), Is.EqualTo ("RECURRENCE-ID:20240710T000000Z"));
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, 60, false), Is.EqualTo ("RECURRENCE-ID:20240710T000000Z"));
+		}
+
+		[TestCase (0, 7, 10)]
+		[TestCase (1600, 7, 10)]
+		[TestCase (10000, 7, 10)]
+		[TestCase (2024, 0, 10)]
+		[TestCase (2024, 13, 10)]
+		[TestCase (2024, 7, 0)]
+		[TestCase (2023, 2, 29)]
+		public void TestRecurrenceIdWithInvalidGlobalObjectIdDate (int year, int month, int day)
+		{
+			var id = CreateGlobalObjectId (year: year, month: month, day: day);
+
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (id, null, true), Is.Null);
+		}
+
+		[Test]
+		public void TestRecurrenceIdWithShortGlobalObjectId ()
+		{
+			Assert.That (GetRecurrenceIdFromGlobalObjectId (new byte[19], null, true), Is.Null);
+		}
+
+		[Test]
+		public void TestVCalUidWithoutValue ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+			var data = Encoding.ASCII.GetBytes ("vCal-Uid\u0001\0\0\0\0");
+
+			named.Binary (PidLidGlobalObjectId, CreateGlobalObjectId (data), TnefPropertySetGuid.Meeting);
+
+			using (var result = Convert (CreateMessage ("IPM.Schedule.Meeting.Request", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				// An empty vCal-Uid falls back to the hex-encoded GlobalObjectId.
+				Assert.That (lines.Single (line => line.StartsWith ("UID:", StringComparison.Ordinal)), Does.StartWith ("UID:040000008200E00074C5B7101A82E008"));
+			}
+		}
+
+		[TestCase (90, "DTEND:20240301T163000Z")]
+		[TestCase (0, "DTEND:20240301T150000Z")]
+		[TestCase (-1, null)]
+		[TestCase (null, null)]
+		public void TestAppointmentDuration (int? duration, string expected)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var named = new NamedProperties (properties);
+
+			properties.WriteStringProperty (TnefPropertyTag.SubjectW, "Team sync");
+			named.Time (PidLidAppointmentStartWhole, new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc));
+
+			if (duration.HasValue)
+				named.Int32 (PidLidAppointmentDuration, duration.Value);
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.SingleOrDefault (line => line.StartsWith ("DTEND", StringComparison.Ordinal)), Is.EqualTo (expected));
+			}
+		}
+
+		[TestCase (0, null, "CLASS:PUBLIC")]
+		[TestCase (1, null, "CLASS:X-PERSONAL")]
+		[TestCase (2, null, "CLASS:PRIVATE")]
+		[TestCase (3, null, "CLASS:CONFIDENTIAL")]
+		[TestCase (4, true, null)]
+		[TestCase (null, true, "CLASS:PRIVATE")]
+		[TestCase (null, false, null)]
+		[TestCase (0, true, "CLASS:PUBLIC")]
+		public void TestSensitivity (int? sensitivity, bool? isPrivate, string expected)
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+
+			if (sensitivity.HasValue)
+				properties.WriteInt32Property (TnefPropertyTag.Sensitivity, sensitivity.Value);
+
+			if (isPrivate.HasValue)
+				named.Boolean (PidLidPrivate, isPrivate.Value, TnefPropertySetGuid.Common);
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.SingleOrDefault (line => line.StartsWith ("CLASS:", StringComparison.Ordinal)), Is.EqualTo (expected));
+			}
+		}
+
+		[TestCase (0, "PRIORITY:9")]
+		[TestCase (1, "PRIORITY:5")]
+		[TestCase (2, "PRIORITY:1")]
+		[TestCase (3, null)]
+		public void TestImportance (int importance, string expected)
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out _);
+
+			properties.WriteInt32Property (TnefPropertyTag.Importance, importance);
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.SingleOrDefault (line => line.StartsWith ("PRIORITY:", StringComparison.Ordinal)), Is.EqualTo (expected));
+
+				if (expected != null)
+					Assert.That (lines, Does.Contain ("X-MICROSOFT-CDO-IMPORTANCE:" + importance));
+				else
+					Assert.That (lines.Any (line => line.StartsWith ("X-MICROSOFT-CDO-IMPORTANCE", StringComparison.Ordinal)), Is.False);
+			}
+		}
+
+		[Test]
+		public void TestMicrosoftExtensions ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+
+			properties.WriteInt32Property (TnefPropertyTag.OwnerApptId, 42);
+			named.Int32 (PidLidIntendedBusyStatus, 0);
+			named.Boolean (PidLidReminderSet, true, TnefPropertySetGuid.Common);
+			named.Int32 (PidLidReminderDelta, 0x5AE980E1, TnefPropertySetGuid.Common);
+			named.Strings ("Keywords", TnefPropertySetGuid.PublicStrings, "Work", string.Empty, "Urgent, important");
+
+			using (var result = Convert (CreateMessage ("IPM.Schedule.Meeting.Request", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("X-MICROSOFT-CDO-OWNERAPPTID:42"));
+				Assert.That (lines, Does.Contain ("X-MICROSOFT-CDO-INTENDEDSTATUS:FREE"));
+				Assert.That (lines, Does.Contain ("CATEGORIES:Work,Urgent\\, important"));
+
+				// The "default" reminder delta means 15 minutes.
+				Assert.That (lines, Does.Contain ("TRIGGER:-PT15M"));
+			}
+		}
+
+		[Test]
+		public void TestEmptyCategories ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+
+			named.Strings ("Keywords", TnefPropertySetGuid.PublicStrings, string.Empty);
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.Any (line => line.StartsWith ("CATEGORIES", StringComparison.Ordinal)), Is.False);
+			}
+		}
+
+		[Test]
+		public void TestIntendedBusyStatusIsOnlyForRequests ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+
+			named.Int32 (PidLidIntendedBusyStatus, 2);
+
+			using (var result = Convert (CreateMessage ("IPM.Appointment", properties))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.Any (line => line.StartsWith ("X-MICROSOFT-CDO-INTENDEDSTATUS", StringComparison.Ordinal)), Is.False);
+			}
+		}
+
+		[Test]
+		public void TestPublishedMeetingAttendeeStatus ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out var named);
+
+			named.Int32 (PidLidAppointmentStateFlags, 1);
+
+			TnefMapiPropertyBuilder Attendee (string name, int status)
+			{
+				var row = Recipient (TnefRecipientType.To, name, name.ToLowerInvariant () + "@example.com");
+
+				row.WriteInt32Property (TnefPropertyTag.RecipientTrackStatus, status);
+
+				return row;
+			}
+
+			var builder = CreateMessage ("IPM.Appointment", properties,
+				Recipient (TnefRecipientType.To, "Alice", "alice@example.com", 0x03),
+				Attendee ("Bob", 0),
+				Attendee ("Carol", 2),
+				Attendee ("Dave", 3),
+				Attendee ("Erin", 4));
+
+			using (var result = Convert (builder)) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("METHOD:PUBLISH"));
+				Assert.That (lines, Does.Contain ("ORGANIZER;CN=Alice:mailto:alice@example.com"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Bob:mailto:bob@example.com"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=TENTATIVE;CN=Carol:mailto:carol@example.com"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=Dave:mailto:dave@example.com"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=DECLINED;CN=Erin:mailto:erin@example.com"));
+			}
+		}
+
+		[Test]
+		public void TestAttendeeAddressSources ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out _);
+
+			// An Exchange recipient with a PidTagSmtpAddress.
+			var exchange = new TnefMapiPropertyBuilder ();
+			exchange.WriteInt32Property (TnefPropertyTag.RecipientType, (int) TnefRecipientType.To);
+			exchange.WriteStringProperty (TnefPropertyTag.DisplayNameW, "Eve");
+			exchange.WriteStringProperty (TnefPropertyTag.AddrtypeW, "EX");
+			exchange.WriteStringProperty (TnefPropertyTag.EmailAddressW, "/o=Example/cn=Recipients/cn=eve");
+			exchange.WriteStringProperty (TnefPropertyTag.SmtpAddressW, "eve@example.com");
+
+			// A recipient that only has a PidTagSearchKey.
+			var searchKey = new TnefMapiPropertyBuilder ();
+			searchKey.WriteInt32Property (TnefPropertyTag.RecipientType, (int) TnefRecipientType.To);
+			searchKey.WriteStringProperty (TnefPropertyTag.DisplayNameW, "Frank");
+			searchKey.WriteBinaryProperty (TnefPropertyTag.SearchKey, Encoding.ASCII.GetBytes ("SMTP:FRANK@EXAMPLE.COM\0"));
+
+			// An Exchange recipient without any SMTP address.
+			var unresolved = new TnefMapiPropertyBuilder ();
+			unresolved.WriteInt32Property (TnefPropertyTag.RecipientType, (int) TnefRecipientType.To);
+			unresolved.WriteStringProperty (TnefPropertyTag.DisplayNameW, "Grace");
+			unresolved.WriteStringProperty (TnefPropertyTag.AddrtypeW, "EX");
+			unresolved.WriteBinaryProperty (TnefPropertyTag.SearchKey, Encoding.ASCII.GetBytes ("EX:/O=EXAMPLE\0"));
+
+			using (var result = Convert (CreateMessage ("IPM.Schedule.Meeting.Request", properties, exchange, searchKey, unresolved))) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=Eve:mailto:eve@example.com"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=Frank:mailto:FRANK@EXAMPLE.COM"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;CN=Grace:invalid:nomail"));
+			}
+		}
+
+		[Test]
+		public void TestReplyWithPaddedMessageClass ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out _);
+
+			properties.WriteStringProperty (TnefPropertyTag.SentRepresentingNameW, "Bob");
+			properties.WriteStringProperty (TnefPropertyTag.SentRepresentingAddrtypeW, "SMTP");
+			properties.WriteStringProperty (TnefPropertyTag.SentRepresentingEmailAddressW, "bob@example.com");
+
+			var builder = CreateMessage (" IPM.Schedule.Meeting.Resp.Pos ", properties, Recipient (TnefRecipientType.To, "Alice", "alice@example.com"));
+
+			using (var result = Convert (builder)) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines, Does.Contain ("METHOD:REPLY"));
+				Assert.That (lines, Does.Contain ("ATTENDEE;PARTSTAT=ACCEPTED;CN=Bob:mailto:bob@example.com"));
+			}
+		}
+
+		[Test]
+		public void TestReplyWithoutOrganizerRecipient ()
+		{
+			var properties = CreateAppointment (new DateTime (2024, 3, 1, 15, 0, 0, DateTimeKind.Utc), new DateTime (2024, 3, 1, 16, 0, 0, DateTimeKind.Utc), out _);
+
+			properties.WriteStringProperty (TnefPropertyTag.SentRepresentingNameW, "Bob");
+
+			var builder = CreateMessage ("IPM.Schedule.Meeting.Resp.Neg", properties, Recipient (TnefRecipientType.Cc, "Alice", "alice@example.com"));
+
+			using (var result = Convert (builder)) {
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				// Only a To recipient is the organizer; a sender without an address is "invalid:nomail".
+				Assert.That (lines.Any (line => line.StartsWith ("ORGANIZER", StringComparison.Ordinal)), Is.False);
+				Assert.That (lines, Does.Contain ("ATTENDEE;PARTSTAT=DECLINED;CN=Bob:invalid:nomail"));
+			}
+		}
+
+		static void WriteExceptionInfo (BinaryWriter writer, DateTime original, DateTime start, ushort flags, params uint[] values)
+		{
+			writer.Write (ToMinutes (start));
+			writer.Write (ToMinutes (start.AddHours (1)));
+			writer.Write (ToMinutes (original));
+			writer.Write (flags);
+
+			foreach (var value in values)
+				writer.Write (value);
+		}
+
+		static void WriteEmptyExtendedExceptions (BinaryWriter writer, int count)
+		{
+			writer.Write (0u); // ReservedBlock1Size
+
+			for (int i = 0; i < count; i++) {
+				writer.Write (0u); // ChangeHighlightSize
+				writer.Write (0u); // ReservedBlockEE1Size
+			}
+		}
+
+		[Test]
+		public void TestExceptionOverrides ()
+		{
+			var recurrence = CreateRecurrence (0x0001, 1, new uint[] { 0x0A }, writeExceptions: writer => {
+				writer.Write ((ushort) 3);
+
+				// ReminderDelta | Reminder | BusyStatus: a free occurrence with a 5 minute reminder.
+				WriteExceptionInfo (writer, new DateTime (2024, 7, 3, 10, 0, 0), new DateTime (2024, 7, 3, 10, 0, 0), 0x002C, 5, 1, 0);
+
+				// Reminder: an occurrence without a reminder.
+				WriteExceptionInfo (writer, new DateTime (2024, 7, 8, 10, 0, 0), new DateTime (2024, 7, 8, 10, 0, 0), 0x0008, 0);
+
+				// Reminder: an occurrence with the default reminder.
+				WriteExceptionInfo (writer, new DateTime (2024, 7, 10, 10, 0, 0), new DateTime (2024, 7, 10, 10, 0, 0), 0x0008, 1);
+
+				WriteEmptyExtendedExceptions (writer, 3);
+			});
+
+			using (var result = Convert (CreateRecurringMeeting (recurrence, false))) {
+				Assert.That (result.Losses, Is.Empty);
+
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.Count (line => line == "BEGIN:VEVENT"), Is.EqualTo (4));
+				Assert.That (GetComponent (lines, "VEVENT", 0).Any (line => line.StartsWith ("TRIGGER", StringComparison.Ordinal)), Is.False);
+
+				var free = GetComponent (lines, "VEVENT", 1);
+				Assert.That (free, Does.Contain ("RECURRENCE-ID;TZID=Eastern Standard Time:20240703T100000"));
+				Assert.That (free, Does.Contain ("TRANSP:TRANSPARENT"));
+				Assert.That (free, Does.Contain ("X-MICROSOFT-CDO-BUSYSTATUS:FREE"));
+				Assert.That (free, Does.Contain ("TRIGGER:-PT5M"));
+
+				var noReminder = GetComponent (lines, "VEVENT", 2);
+				Assert.That (noReminder, Does.Contain ("RECURRENCE-ID;TZID=Eastern Standard Time:20240708T100000"));
+				Assert.That (noReminder.Any (line => line.StartsWith ("TRIGGER", StringComparison.Ordinal)), Is.False);
+
+				var defaultReminder = GetComponent (lines, "VEVENT", 3);
+				Assert.That (defaultReminder, Does.Contain ("RECURRENCE-ID;TZID=Eastern Standard Time:20240710T100000"));
+				Assert.That (defaultReminder, Does.Contain ("TRIGGER:-PT15M"));
+			}
+		}
+
+		static void AddEmbeddedAttachment (TnefBuilder builder, int attachmentFlags, byte[] embedded, Action<TnefMapiPropertyBuilder> configure = null)
+		{
+			var value = new byte[16 + embedded.Length];
+
+			IID_IMessage.ToByteArray ().CopyTo (value, 0);
+			embedded.CopyTo (value, 16);
+
+			var properties = new TnefMapiPropertyBuilder ();
+			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) TnefAttachMethod.EmbeddedMessage);
+			properties.WriteStringProperty (TnefPropertyTag.DisplayNameW, "Embedded");
+			properties.WriteInt32Property (TnefPropertyTag.AttachmentFlags, attachmentFlags);
+			configure?.Invoke (properties);
+			properties.WriteBinaryProperty (TnefPropertyTag.AttachDataObj, value);
+
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[14]);
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
+		}
+
+		static byte[] CreateEmbeddedMessage (Action<TnefMapiPropertyBuilder, NamedProperties> configure)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			configure (properties, new NamedProperties (properties));
+
+			return new TnefBuilder ().WriteTnefVersion ().WriteMapiProperties (TnefAttributeLevel.Message, properties).ToArray ();
+		}
+
+		[Test]
+		public void TestExceptionAttachmentProperties ()
+		{
+			var recurrence = CreateRecurrence (0x0001, 1, new uint[] { 0x0A }, writeExceptions: writer => {
+				writer.Write ((ushort) 2);
+				WriteExceptionInfo (writer, new DateTime (2024, 7, 3, 10, 0, 0), new DateTime (2024, 7, 3, 10, 0, 0), 0);
+				WriteExceptionInfo (writer, new DateTime (2024, 7, 10, 10, 0, 0), new DateTime (2024, 7, 10, 12, 0, 0), 0);
+				WriteEmptyExtendedExceptions (writer, 2);
+			});
+
+			var builder = CreateRecurringMeeting (recurrence, false);
+
+			// An embedded message that is not an exception.
+			AddEmbeddedAttachment (builder, 0, CreateEmbeddedMessage ((properties, named) => properties.WriteStringProperty (TnefPropertyTag.SubjectW, "Forwarded")));
+
+			// An exception that is matched by its PidLidExceptionReplaceTime and that overrides everything.
+			AddEmbeddedAttachment (builder, 0x02, CreateEmbeddedMessage ((properties, named) => {
+				properties.WriteStringProperty (TnefPropertyTag.SubjectW, "Attachment subject");
+				properties.WriteStringProperty (TnefPropertyTag.BodyW, "Attachment body");
+				named.Time (PidLidExceptionReplaceTime, new DateTime (2024, 7, 3, 14, 0, 0, DateTimeKind.Utc));
+				named.String (PidLidLocation, "Room 9");
+				named.Int32 (PidLidBusyStatus, 3);
+				named.Boolean (PidLidReminderSet, true, TnefPropertySetGuid.Common);
+				named.Int32 (PidLidReminderDelta, 20, TnefPropertySetGuid.Common);
+				named.Boolean (PidLidAppointmentSubType, false);
+				named.Time (PidLidAppointmentStartWhole, new DateTime (2024, 7, 3, 15, 0, 0, DateTimeKind.Utc));
+				named.Time (PidLidAppointmentEndWhole, new DateTime (2024, 7, 3, 16, 30, 0, DateTimeKind.Utc));
+			}));
+
+			// An exception that is matched by the PidTagExceptionStartTime of the attachment.
+			AddEmbeddedAttachment (builder, 0x02, CreateEmbeddedMessage ((properties, named) => {
+				properties.WriteStringProperty (TnefPropertyTag.BodyW, "Second body");
+				named.Boolean (PidLidReminderSet, false, TnefPropertySetGuid.Common);
+			}), properties => properties.WriteInt64Property (TnefPropertyTag.ExceptionStartTime, new DateTime (2024, 7, 10, 12, 0, 0, DateTimeKind.Utc).ToFileTimeUtc ()));
+
+			// An exception that cannot be loaded.
+			AddEmbeddedAttachment (builder, 0x02, new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 });
+
+			using (var result = Convert (builder)) {
+				Assert.That (result.Losses.Select (loss => loss.Kind), Does.Contain (TnefConversionLossKind.InvalidCalendarData));
+				Assert.That (result.Losses.Any (loss => loss.Description.Contains ("could not be loaded")), Is.True);
+
+				var lines = ReadCalendar (GetCalendarPart (result.Message));
+
+				Assert.That (lines.Count (line => line == "BEGIN:VEVENT"), Is.EqualTo (3));
+
+				var first = GetComponent (lines, "VEVENT", 1);
+				Assert.That (first, Does.Contain ("RECURRENCE-ID;TZID=Eastern Standard Time:20240703T100000"));
+				Assert.That (first, Does.Contain ("SUMMARY:Attachment subject"));
+				Assert.That (first, Does.Contain ("DESCRIPTION:Attachment body"));
+				Assert.That (first, Does.Contain ("LOCATION:Room 9"));
+				Assert.That (first, Does.Contain ("X-MICROSOFT-CDO-BUSYSTATUS:OOF"));
+				Assert.That (first, Does.Contain ("TRIGGER:-PT20M"));
+				Assert.That (first, Does.Contain ("DTSTART;TZID=Eastern Standard Time:20240703T110000"));
+				Assert.That (first, Does.Contain ("DTEND;TZID=Eastern Standard Time:20240703T123000"));
+
+				var second = GetComponent (lines, "VEVENT", 2);
+				Assert.That (second, Does.Contain ("RECURRENCE-ID;TZID=Eastern Standard Time:20240710T100000"));
+				Assert.That (second, Does.Contain ("DTSTART;TZID=Eastern Standard Time:20240710T120000"));
+				Assert.That (second, Does.Contain ("DESCRIPTION:Second body"));
+				Assert.That (second, Does.Contain ("SUMMARY:Team sync"));
+				Assert.That (second.Any (line => line.StartsWith ("TRIGGER", StringComparison.Ordinal)), Is.False);
 			}
 		}
 	}

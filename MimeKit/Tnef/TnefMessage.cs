@@ -191,11 +191,16 @@ namespace MimeKit.Tnef {
 		/// Get the message class.
 		/// </summary>
 		/// <remarks>
-		/// Gets the message class from the <see cref="TnefPropertyId.MessageClass"/> property, such as <c>"IPM.Note"</c>.
+		/// <para>Gets the message class from the <see cref="TnefPropertyId.MessageClass"/> property, such as <c>"IPM.Note"</c>.</para>
+		/// <para>Leading and trailing whitespace is removed from the value.</para>
 		/// </remarks>
 		/// <value>The message class, or <see langword="null"/> if it is not known.</value>
 		public string? MessageClass {
-			get { return Properties.GetString (TnefPropertyTag.MessageClassW); }
+			get {
+				var messageClass = Properties.GetString (TnefPropertyTag.MessageClassW)?.Trim ();
+
+				return string.IsNullOrEmpty (messageClass) ? null : messageClass;
+			}
 		}
 
 		/// <summary>

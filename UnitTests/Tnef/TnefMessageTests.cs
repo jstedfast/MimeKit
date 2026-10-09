@@ -410,6 +410,34 @@ namespace UnitTests.Tnef {
 		[Test]
 		public Task TestOwnerOfMeetingResponseAsync () => RunTestOwnerOfMeetingResponseAsync (true);
 
+		[TestCase ("  IPM.Schedule.Meeting.Resp.Pos  ", "IPM.Schedule.Meeting.Resp.Pos")]
+		[TestCase (" ", null)]
+		public void TestMessageClassPropertyIsTrimmed (string value, string expected)
+		{
+			using var output = new MemoryStream ();
+
+			using (var writer = new TnefWriter (output, leaveOpen: true)) {
+				writer.WriteAttribute (TnefAttributeTag.Owner, OwnerPayload ("Bob", "SMTP:bob@example.com"));
+
+				using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)) {
+					properties.WritePropertyTag (TnefPropertyTag.MessageClassW);
+					properties.WriteValue (value);
+				}
+			}
+
+			output.Position = 0;
+
+			using (var message = TnefMessage.Load (output)) {
+				Assert.That (message.MessageClass, Is.EqualTo (expected));
+				Assert.That (message.Properties.GetString (TnefPropertyTag.MessageClassW), Is.EqualTo (value), "the property itself is unchanged");
+
+				// attOwner identifies the delegator of a meeting response, even when the message class is padded.
+				var nameTag = expected != null ? TnefPropertyTag.RcvdRepresentingNameW : TnefPropertyTag.SentRepresentingNameW;
+
+				Assert.That (message.Properties.GetString (nameTag), Is.EqualTo ("Bob"));
+			}
+		}
+
 		[TestCase ("Microsoft Mail v3.0 IPM.Microsoft Mail.Read Receipt", "Report.IPM.Note.IPNRN")]
 		[TestCase ("IPM.Microsoft Mail.Non-Delivery", "Report.IPM.Note.NDR")]
 		[TestCase ("IPM.Microsoft Schedule.MtgRespN", "IPM.Schedule.Meeting.Resp.Neg")]
@@ -417,6 +445,9 @@ namespace UnitTests.Tnef {
 		[TestCase ("IPM.Microsoft Schedule.MtgReq", "IPM.Schedule.Meeting.Request")]
 		[TestCase ("IPM.Microsoft Schedule.MtgCncl", "IPM.Schedule.Meeting.Canceled")]
 		[TestCase ("IPM.Note.Custom", "IPM.Note.Custom")]
+		[TestCase ("  IPM.Microsoft Schedule.MtgReq  ", "IPM.Schedule.Meeting.Request")]
+		[TestCase ("\tIPM.Note \r\n", "IPM.Note")]
+		[TestCase ("   ", null)]
 		public void TestMessageClassTranslation (string legacy, string expected)
 		{
 			var builder = new TnefBuilder ();

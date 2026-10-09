@@ -290,7 +290,7 @@ namespace MimeKit.Tnef {
 
 		void ProcessMessageClass (TnefPropertyTag tag, byte[] value)
 		{
-			var messageClass = DecodeString (value);
+			var messageClass = DecodeString (value).Trim ();
 
 			if (messageClass.Length > 0)
 				AddLegacy (tag, TranslateMessageClass (messageClass));
@@ -498,7 +498,7 @@ namespace MimeKit.Tnef {
 			if (!hasOwner)
 				return;
 
-			var messageClass = properties.GetString (TnefPropertyId.MessageClass);
+			var messageClass = properties.GetString (TnefPropertyId.MessageClass)?.Trim ();
 			TnefPropertyTag nameTag, addressTypeTag, addressTag, entryIdTag;
 
 			// Note: For meeting responses, attOwner identifies the delegator rather than the sender.
