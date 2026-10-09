@@ -150,5 +150,141 @@ namespace UnitTests.Utils {
 
 			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (949)), Is.EqualTo ("euc-kr"));
 		}
+
+		[Test]
+		public void TestParseInvalidCodePageNames ()
+		{
+			Assert.That (CharsetUtils.ParseCodePage ("cp-"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("cp125x"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("ibm-"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("ibm437x"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("windows_"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.ParseCodePage ("windows-125x"), Is.EqualTo (-1));
+		}
+
+		[Test]
+		public void TestParseCodePageAliases ()
+		{
+			Assert.That (CharsetUtils.ParseCodePage ("ibm437"), Is.EqualTo (437));
+			Assert.That (CharsetUtils.ParseCodePage ("ibm-437"), Is.EqualTo (437));
+			Assert.That (CharsetUtils.ParseCodePage ("windowscp1252"), Is.EqualTo (1252));
+		}
+
+		[Test]
+		public void TestParseCodePageIsCaseInsensitive ()
+		{
+			Assert.That (CharsetUtils.ParseCodePage ("WINDOWS-CP1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("Windows-Cp1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("windows_cP1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("WINDOWSCP1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("IBM-437"), Is.EqualTo (437));
+			Assert.That (CharsetUtils.ParseCodePage ("CP-1252"), Is.EqualTo (1252));
+			Assert.That (CharsetUtils.ParseCodePage ("ISO-8859-1"), Is.EqualTo (28591));
+			Assert.That (CharsetUtils.ParseCodePage ("ISO-2022-JP"), Is.EqualTo (50220));
+			Assert.That (CharsetUtils.ParseCodePage ("LATIN1"), Is.EqualTo (28591));
+		}
+
+		[Test]
+		public void TestGetCodePageUnsupportedCharsets ()
+		{
+			Assert.That (CharsetUtils.GetCodePage ("x-undefined"), Is.EqualTo (-1));
+			Assert.That (CharsetUtils.GetCodePage ("cp999999"), Is.EqualTo (-1));
+		}
+
+		[Test]
+		public void TestGetEncodingWithReplacementFallback ()
+		{
+			var encoding = CharsetUtils.GetEncoding ("us-ascii", "_");
+
+			Assert.That (encoding.GetString (new byte[] { 0x41, 0xff, 0x42 }), Is.EqualTo ("A_B"));
+			Assert.That (encoding.GetString (encoding.GetBytes ("A\u0100B")), Is.EqualTo ("A_B"));
+		}
+
+		[Test]
+		public void TestGetEncodingOrDefault ()
+		{
+			Assert.That (CharsetUtils.GetEncodingOrDefault (65001, Encoding.ASCII).CodePage, Is.EqualTo (65001));
+			Assert.That (CharsetUtils.GetEncodingOrDefault (999999, Encoding.ASCII), Is.SameAs (Encoding.ASCII));
+		}
+
+		[Test]
+		public void TestConvertToUnicodeFallsBackToLatin1 ()
+		{
+			var input = new byte[] { 0x48, 0x65, 0xc3, 0x28, 0x6f };
+
+			Assert.That (CharsetUtils.ConvertToUnicode (ParserOptions.Default, input, 0, input.Length), Is.EqualTo ("HeÃ(o"));
+		}
+
+		[Test]
+		public void TestConvertToUnicodeWithUnsupportedCodePageFallsBackToBestEncoding ()
+		{
+			var input = Encoding.UTF8.GetBytes ("hello");
+			var output = CharsetUtils.ConvertToUnicode (ParserOptions.Default, 999999, input, 0, input.Length, out int charCount);
+
+			Assert.That (charCount, Is.EqualTo (5));
+			Assert.That (new string (output, 0, charCount), Is.EqualTo ("hello"));
+		}
+
+		[Test]
+		public void TestConvertToUnicodeReturnsEmptyStringWhenDecoderGetCharsThrows ()
+		{
+			var input = new byte[] { 0x41 };
+
+			Assert.That (CharsetUtils.ConvertToUnicode (new ThrowingGetCharsEncoding (), input, 0, input.Length), Is.EqualTo (string.Empty));
+		}
+
+		class ThrowingGetCharsEncoding : Encoding
+		{
+			public override int GetByteCount (char[] chars, int index, int count)
+			{
+				return count;
+			}
+
+			public override int GetBytes (char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
+			{
+				for (int i = 0; i < charCount; i++)
+					bytes[byteIndex + i] = (byte) chars[charIndex + i];
+
+				return charCount;
+			}
+
+			public override int GetCharCount (byte[] bytes, int index, int count)
+			{
+				return count;
+			}
+
+			public override int GetChars (byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
+			{
+				throw new DecoderFallbackException ("GetChars failed.");
+			}
+
+			public override Decoder GetDecoder ()
+			{
+				return new ThrowingGetCharsDecoder ();
+			}
+
+			public override int GetMaxByteCount (int charCount)
+			{
+				return charCount;
+			}
+
+			public override int GetMaxCharCount (int byteCount)
+			{
+				return byteCount;
+			}
+		}
+
+		class ThrowingGetCharsDecoder : Decoder
+		{
+			public override int GetCharCount (byte[] bytes, int index, int count)
+			{
+				return count;
+			}
+
+			public override int GetChars (byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
+			{
+				throw new DecoderFallbackException ("GetChars failed.");
+			}
+		}
 	}
 }

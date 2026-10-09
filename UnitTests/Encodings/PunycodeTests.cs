@@ -102,5 +102,29 @@ namespace UnitTests.Encodings {
 		{
 			return punycode.Decode (value, index, count);
 		}
+
+		[Test]
+		public void TestEncodeInvalidDomainFallsBackToOriginalSubstring ()
+		{
+			var domain = new string ('a', 64) + ".example";
+			var mailbox = "user@" + domain;
+			var wrapped = "(" + mailbox + ")";
+
+			Assert.That (punycode.Encode (domain), Is.EqualTo (domain), "Encode(string)");
+			Assert.That (punycode.Encode (mailbox, 5), Is.EqualTo (domain), "Encode(string,int)");
+			Assert.That (punycode.Encode (wrapped, 6, domain.Length), Is.EqualTo (domain), "Encode(string,int,int)");
+		}
+
+		[Test]
+		public void TestDecodeInvalidPunycodeFallsBackToOriginalSubstring ()
+		{
+			const string domain = "xn--.example";
+			const string mailbox = "user@xn--.example";
+			const string wrapped = "(user@xn--.example)";
+
+			Assert.That (punycode.Decode (domain), Is.EqualTo (domain), "Decode(string)");
+			Assert.That (punycode.Decode (mailbox, 5), Is.EqualTo (domain), "Decode(string,int)");
+			Assert.That (punycode.Decode (wrapped, 6, domain.Length), Is.EqualTo (domain), "Decode(string,int,int)");
+		}
 	}
 }

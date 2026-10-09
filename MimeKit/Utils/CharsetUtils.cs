@@ -245,7 +245,7 @@ namespace MimeKit.Utils {
 					i++;
 				}
 
-				if (i + 2 < charset.Length && charset[i] == 'c' && charset[i + 1] == 'p')
+				if (i + 2 < charset.Length && (charset[i] == 'c' || charset[i] == 'C') && (charset[i + 1] == 'p' || charset[i + 1] == 'P'))
 					i += 2;
 
 				if (TryParseInt32 (charset, i, charset.Length - i, out codepage))

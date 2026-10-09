@@ -205,7 +205,7 @@ namespace UnitTests {
 			Assert.That (message.Headers.Count, Is.EqualTo (2), "Header count");
 			Assert.That (message.From.ToString (), Is.EqualTo ("sender@example.org"));
 			Assert.That (message.Subject, Is.EqualTo ("preheader resize"));
-			Assert.That (GetText (message), Is.EqualTo ("body\r\n"));
+			Assert.That (GetText (message), Is.EqualTo ("body" + Environment.NewLine));
 		}
 
 		[Test]
@@ -7451,7 +7451,7 @@ Content-Type: text/plain; charset=utf-8
 			Assert.That (message.Headers[2].Offset, Is.EqualTo (subjectOffset), "Subject Offset");
 			Assert.That (message.Subject, Is.EqualTo ("huge header"));
 			Assert.That (message.To.Count, Is.EqualTo (lines));
-			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("This is the body.\r\n"));
+			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("This is the body." + Environment.NewLine));
 		}
 
 		[Test]

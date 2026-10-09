@@ -89,5 +89,28 @@ namespace UnitTests.Encodings {
 
 			Assert.That (actual, Is.EqualTo (expected));
 		}
+
+		[Test]
+		public void TestEstimateOutputLengthIncludesPendingEscapeBytes ()
+		{
+			var decoder = new HexDecoder ();
+			var output = new byte[8];
+			var input = Encoding.ASCII.GetBytes ("%");
+
+			Assert.That (decoder.Decode (input, 0, input.Length, output), Is.EqualTo (0), "pending percent decode length");
+			Assert.That (decoder.EstimateOutputLength (0), Is.EqualTo (1), "pending percent empty estimate");
+			Assert.That (decoder.EstimateOutputLength (1), Is.EqualTo (2), "pending percent estimate");
+
+			input = Encoding.ASCII.GetBytes ("X");
+			Assert.That (decoder.Decode (input, 0, input.Length, output), Is.EqualTo (0), "pending first hex digit decode length");
+			Assert.That (decoder.EstimateOutputLength (0), Is.EqualTo (2), "pending first digit empty estimate");
+			Assert.That (decoder.EstimateOutputLength (1), Is.EqualTo (3), "pending first digit estimate");
+
+			input = Encoding.ASCII.GetBytes ("Y");
+			int n = decoder.Decode (input, 0, input.Length, output);
+			var actual = Encoding.ASCII.GetString (output, 0, n);
+
+			Assert.That (actual, Is.EqualTo ("%XY"));
+		}
 	}
 }

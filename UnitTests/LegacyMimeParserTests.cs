@@ -6765,7 +6765,7 @@ ABC
 			Assert.That (message.Headers[2].Offset, Is.EqualTo (subjectOffset), "Subject Offset");
 			Assert.That (message.Subject, Is.EqualTo ("huge header"));
 			Assert.That (message.To.Count, Is.EqualTo (lines));
-			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("This is the body.\r\n"));
+			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("This is the body." + Environment.NewLine));
 		}
 
 		[Test]

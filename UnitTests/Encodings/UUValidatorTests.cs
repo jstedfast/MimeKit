@@ -276,5 +276,16 @@ namespace UnitTests.Encodings {
 
 			TestValidator (logger, new UUValidator (logger, MimeComplianceContext.Transport, 0, 1), "photo.uu", photo_uu, bufferSize);
 		}
+
+		[Test]
+		public void TestValidateInvalidLineLength ()
+		{
+			const string text = "begin 644 photo.jpg\r\nNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodedLineLength, text.IndexOf ('N'), 2, 1)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
 	}
 }

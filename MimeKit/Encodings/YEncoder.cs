@@ -110,7 +110,11 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return (inputLength * 2) + (inputLength / lineLength) + 1;
+			// Worst case: every byte is escaped (2 octets each), a line may already be
+			// partially filled from a previous Encode() call, and Flush() appends a final newline.
+			int encodedLength = inputLength * 2;
+
+			return encodedLength + (encodedLength / lineLength) + 2;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
