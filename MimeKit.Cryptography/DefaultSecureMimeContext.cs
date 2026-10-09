@@ -56,7 +56,7 @@ namespace MimeKit.Cryptography {
 	/// (encrypted) private keys in a SQL database.</para>
 	/// <para>If an <see cref="IX509CertificateDatabase"/> implementation is not provided, then
 	/// it will probe the system for a platform-specific SQLite database implementation such as
-	/// System.Data.SQLite on Windows or Mono.Data.Sqlite on Linux, macOS, iOS, and Android.</para>
+	/// System.Data.SQLite, Mono.Data.Sqlite or Microsoft.Data.Sqlite.</para>
 	/// </remarks>
 	public class DefaultSecureMimeContext : BouncyCastleSecureMimeContext
 	{
@@ -106,7 +106,7 @@ namespace MimeKit.Cryptography {
 		static void CheckIsAvailable ()
 		{
 			if (!SqliteCertificateDatabase.IsAvailable)
-				throw new NotSupportedException ("SQLite is not available. Install the System.Data.SQLite nuget package.");
+				throw new NotSupportedException ("SQLite is not available. Install the System.Data.SQLite or Microsoft.Data.Sqlite nuget package.");
 		}
 
 		/// <summary>

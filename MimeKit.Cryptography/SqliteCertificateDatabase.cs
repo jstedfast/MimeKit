@@ -154,6 +154,20 @@ namespace MimeKit.Cryptography {
 				}
 			}
 #endif
+
+#if NET5_0_OR_GREATER
+			// Note: System.Data.SQLite does not ship native libraries for some platforms (e.g. macOS on arm64), so fall back to
+			// Microsoft.Data.Sqlite which does.
+			if ((sqliteAssembly = SQLiteAssembly.Load ("Microsoft.Data.Sqlite")) != null) {
+				// Make sure that the runtime can load the native sqlite library
+				if (VerifySQLiteAssemblyIsUsable ()) {
+					IsAvailable = true;
+					return;
+				}
+			}
+#endif
+
+			sqliteAssembly = null;
 #endif // __MOBILE__
 		}
 
