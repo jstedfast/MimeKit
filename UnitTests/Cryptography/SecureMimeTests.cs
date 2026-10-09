@@ -3193,6 +3193,39 @@ namespace UnitTests.Cryptography {
 			return singleton;
 		}
 
+		static MimeMessage LoadThunderbirdSignedWithUnixNewLines ()
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "thunderbird-signed.txt");
+			var text = Encoding.Latin1.GetString (File.ReadAllBytes (path)).Replace ("\r\n", "\n");
+			using var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false);
+
+			return MimeMessage.Load (stream);
+		}
+
+		[Test]
+		public void TestSecureMimeVerifyThunderbirdUnixNewLines ()
+		{
+			// The raw boundary markers preserved by the parser are LF-terminated; they must be canonicalized to
+			// CRLF along with the rest of the signed content or the digest won't match (e.g. on Linux checkouts).
+			using var message = LoadThunderbirdSignedWithUnixNewLines ();
+			var multipart = (MultipartSigned) message.Body;
+			var signatures = multipart.Verify (CreateContext ());
+
+			Assert.That (signatures, Has.Count.EqualTo (1));
+			Assert.That (signatures[0].Verify (true), Is.True);
+		}
+
+		[Test]
+		public async Task TestSecureMimeVerifyThunderbirdUnixNewLinesAsync ()
+		{
+			using var message = LoadThunderbirdSignedWithUnixNewLines ();
+			var multipart = (MultipartSigned) message.Body;
+			var signatures = await multipart.VerifyAsync (CreateContext ());
+
+			Assert.That (signatures, Has.Count.EqualTo (1));
+			Assert.That (signatures[0].Verify (true), Is.True);
+		}
+
 		[Test]
 		public void TestVerifyRevokedCertificate ()
 		{

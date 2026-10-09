@@ -531,6 +531,77 @@ namespace MimeKit {
 			return options;
 		}
 
+		// Writes a raw boundary marker (which may consist of multiple lines in the case of a "double boundary").
+		//
+		// Normally, the raw boundary is written out byte-for-byte exactly as it was parsed. However, when verifying
+		// a signature, the content must be canonicalized to CRLF (options.NewLineFormat is always Dos in that case),
+		// so any bare LF gets converted to CRLF. Runs of bytes that are already CRLF-terminated are written as-is.
+		static void WriteRawBoundary (ICancellableStream stream, FormatOptions options, byte[] rawBoundary, CancellationToken cancellationToken)
+		{
+			int startIndex = 0;
+
+			if (options.VerifyingSignature) {
+				int index = 0, n;
+
+				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
+					index += n;
+
+					if (index == 0 || rawBoundary[index - 1] != (byte) '\r') {
+						stream.Write (rawBoundary, startIndex, index - startIndex, cancellationToken);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+						startIndex = index + 1;
+					}
+
+					index++;
+				}
+			}
+
+			if (startIndex < rawBoundary.Length)
+				stream.Write (rawBoundary, startIndex, rawBoundary.Length - startIndex, cancellationToken);
+		}
+
+		static void WriteBoundary (ICancellableStream stream, FormatOptions options, byte[]? rawBoundary, byte[] defaultBoundary, CancellationToken cancellationToken)
+		{
+			if (rawBoundary != null) {
+				WriteRawBoundary (stream, options, rawBoundary, cancellationToken);
+			} else {
+				stream.Write (defaultBoundary, 0, defaultBoundary.Length, cancellationToken);
+			}
+		}
+
+		static void WriteRawBoundary (Stream stream, FormatOptions options, byte[] rawBoundary)
+		{
+			int startIndex = 0;
+
+			if (options.VerifyingSignature) {
+				int index = 0, n;
+
+				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
+					index += n;
+
+					if (index == 0 || rawBoundary[index - 1] != (byte) '\r') {
+						stream.Write (rawBoundary, startIndex, index - startIndex);
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+						startIndex = index + 1;
+					}
+
+					index++;
+				}
+			}
+
+			if (startIndex < rawBoundary.Length)
+				stream.Write (rawBoundary, startIndex, rawBoundary.Length - startIndex);
+		}
+
+		static void WriteBoundary (Stream stream, FormatOptions options, byte[]? rawBoundary, byte[] defaultBoundary)
+		{
+			if (rawBoundary != null) {
+				WriteRawBoundary (stream, options, rawBoundary);
+			} else {
+				stream.Write (defaultBoundary, 0, defaultBoundary.Length);
+			}
+		}
+
 		/// <summary>
 		/// Write the <see cref="Multipart"/> to the specified output stream.
 		/// </summary>
@@ -569,12 +640,11 @@ namespace MimeKit {
 
 			if (stream is ICancellableStream cancellable) {
 				for (int i = 0; i < children.Count; i++) {
-					var boundary = rawBoundaries?[i] ?? defaultBoundary;
 					var rfc822 = children[i] as MessagePart;
 					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
-					cancellable.Write (boundary, 0, boundary.Length, cancellationToken);
+					WriteBoundary (cancellable, options, rawBoundaries?[i], defaultBoundary, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
 					if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
@@ -594,7 +664,7 @@ namespace MimeKit {
 					if (RawEndBoundary.Length == 0)
 						return;
 
-					cancellable.Write (RawEndBoundary, 0, RawEndBoundary.Length, cancellationToken);
+					WriteRawBoundary (cancellable, options, RawEndBoundary, cancellationToken);
 				} else {
 					var endBoundary = string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty);
 					var boundary = Encoding.ASCII.GetBytes (endBoundary);
@@ -603,13 +673,12 @@ namespace MimeKit {
 				}
 			} else {
 				for (int i = 0; i < children.Count; i++) {
-					var boundary = rawBoundaries?[i] ?? defaultBoundary;
 					var rfc822 = children[i] as MessagePart;
 					var multi = children[i] as Multipart;
 					var part = children[i] as MimePart;
 
 					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (boundary, 0, boundary.Length);
+					WriteBoundary (stream, options, rawBoundaries?[i], defaultBoundary);
 
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
@@ -633,7 +702,7 @@ namespace MimeKit {
 					if (RawEndBoundary.Length == 0)
 						return;
 
-					stream.Write (RawEndBoundary, 0, RawEndBoundary.Length);
+					WriteRawBoundary (stream, options, RawEndBoundary);
 				} else {
 					var endBoundary = string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty);
 					var boundary = Encoding.ASCII.GetBytes (endBoundary);
@@ -644,6 +713,43 @@ namespace MimeKit {
 
 			if (RawEpilogue != null && RawEpilogue.Length > 0)
 				WriteBytes (options, stream, RawEpilogue, EnsureNewLine, cancellationToken);
+		}
+
+		// Writes a raw boundary marker (which may consist of multiple lines in the case of a "double boundary").
+		//
+		// Normally, the raw boundary is written out byte-for-byte exactly as it was parsed. However, when verifying
+		// a signature, the content must be canonicalized to CRLF (options.NewLineFormat is always Dos in that case),
+		// so any bare LF gets converted to CRLF. Runs of bytes that are already CRLF-terminated are written as-is.
+		static async Task WriteRawBoundaryAsync (Stream stream, FormatOptions options, byte[] rawBoundary, CancellationToken cancellationToken)
+		{
+			int startIndex = 0;
+
+			if (options.VerifyingSignature) {
+				int index = 0, n;
+
+				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
+					index += n;
+
+					if (index == 0 || rawBoundary[index - 1] != (byte) '\r') {
+						await stream.WriteAsync (rawBoundary, startIndex, index - startIndex, cancellationToken).ConfigureAwait (false);
+						await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+						startIndex = index + 1;
+					}
+
+					index++;
+				}
+			}
+
+			if (startIndex < rawBoundary.Length)
+				await stream.WriteAsync (rawBoundary, startIndex, rawBoundary.Length - startIndex, cancellationToken).ConfigureAwait (false);
+		}
+
+		static Task WriteBoundaryAsync (Stream stream, FormatOptions options, byte[]? rawBoundary, byte[] defaultBoundary, CancellationToken cancellationToken)
+		{
+			if (rawBoundary != null)
+				return WriteRawBoundaryAsync (stream, options, rawBoundary, cancellationToken);
+
+			return stream.WriteAsync (defaultBoundary, 0, defaultBoundary.Length, cancellationToken);
 		}
 
 		/// <summary>
@@ -684,12 +790,11 @@ namespace MimeKit {
 			var defaultBoundary = Encoding.ASCII.GetBytes ("--" + Boundary + options.NewLine);
 
 			for (int i = 0; i < children.Count; i++) {
-				var boundary = rawBoundaries?[i] ?? defaultBoundary;
 				var rfc822 = children[i] as MessagePart;
 				var multi = children[i] as Multipart;
 				var part = children[i] as MimePart;
 
-				await stream.WriteAsync (boundary, 0, boundary.Length, cancellationToken).ConfigureAwait (false);
+				await WriteBoundaryAsync (stream, options, rawBoundaries?[i], defaultBoundary, cancellationToken).ConfigureAwait (false);
 				await children[i].WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
 
 				if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
@@ -709,7 +814,7 @@ namespace MimeKit {
 				if (RawEndBoundary.Length == 0)
 					return;
 
-				await stream.WriteAsync (RawEndBoundary, 0, RawEndBoundary.Length, cancellationToken).ConfigureAwait (false);
+				await WriteRawBoundaryAsync (stream, options, RawEndBoundary, cancellationToken).ConfigureAwait (false);
 			} else {
 				var endBoundary = string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty);
 				var boundary = Encoding.ASCII.GetBytes (endBoundary);

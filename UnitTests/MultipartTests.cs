@@ -25,6 +25,7 @@
 //
 
 using MimeKit;
+using MimeKit.IO;
 using MimeKit.Text;
 
 using System.Collections;
@@ -436,6 +437,96 @@ namespace UnitTests {
 			using var output = new MemoryStream ();
 			multipart.WriteTo (options, output);
 			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		// {N} is a newline written by MimeKit (honors options.NewLineFormat); {R} is a newline that belongs to a raw
+		// boundary marker preserved by the parser. Covers a "double boundary" (two consecutive boundary markers
+		// whose raw bytes get preserved together), trailing whitespace on a boundary line, and an end boundary with
+		// no trailing newline (no epilogue).
+		const string RawBoundaryTemplate = "Content-Type: multipart/mixed; boundary=\"b\"{N}{N}--b{R}--b  {R}Content-Type: text/plain{N}{N}one{N}--b{R}Content-Type: text/plain{N}{N}two{N}--b--";
+
+		static Multipart LoadRawBoundaryMultipart (string newLine)
+		{
+			var text = RawBoundaryTemplate.Replace ("{N}", newLine).Replace ("{R}", newLine);
+			using var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false);
+
+			return (Multipart) MimeEntity.Load (stream);
+		}
+
+		static FormatOptions GetRawBoundaryFormatOptions (NewLineFormat format, bool verifyingSignature)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = format;
+			options.VerifyingSignature = verifyingSignature;
+			return options;
+		}
+
+		static string GetExpectedRawBoundaryOutput (string inputNewLine, NewLineFormat format, bool verifyingSignature)
+		{
+			var newLine = format == NewLineFormat.Dos ? "\r\n" : "\n";
+
+			// raw boundaries are preserved byte-for-byte unless canonicalizing for signature verification
+			var rawNewLine = verifyingSignature ? "\r\n" : inputNewLine;
+
+			return RawBoundaryTemplate.Replace ("{N}", newLine).Replace ("{R}", rawNewLine);
+		}
+
+		[TestCase ("\n", NewLineFormat.Dos, false, TestName = "TestWriteRawBoundaries_UnixToDos")]
+		[TestCase ("\r\n", NewLineFormat.Unix, false, TestName = "TestWriteRawBoundaries_DosToUnix")]
+		[TestCase ("\n", NewLineFormat.Unix, false, TestName = "TestWriteRawBoundaries_UnixToUnix")]
+		[TestCase ("\r\n", NewLineFormat.Dos, false, TestName = "TestWriteRawBoundaries_DosToDos")]
+		[TestCase ("\n", NewLineFormat.Dos, true, TestName = "TestWriteRawBoundaries_UnixVerifyingSignature")]
+		[TestCase ("\r\n", NewLineFormat.Dos, true, TestName = "TestWriteRawBoundaries_DosVerifyingSignature")]
+		public void TestWriteRawBoundaries (string inputNewLine, NewLineFormat format, bool verifyingSignature)
+		{
+			var expected = GetExpectedRawBoundaryOutput (inputNewLine, format, verifyingSignature);
+			var options = GetRawBoundaryFormatOptions (format, verifyingSignature);
+			var multipart = LoadRawBoundaryMultipart (inputNewLine);
+
+			using var output = new MemoryStream ();
+			multipart.WriteTo (options, output);
+			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[TestCase ("\n", NewLineFormat.Dos, false, TestName = "TestWriteRawBoundariesAsync_UnixToDos")]
+		[TestCase ("\r\n", NewLineFormat.Unix, false, TestName = "TestWriteRawBoundariesAsync_DosToUnix")]
+		[TestCase ("\n", NewLineFormat.Unix, false, TestName = "TestWriteRawBoundariesAsync_UnixToUnix")]
+		[TestCase ("\r\n", NewLineFormat.Dos, false, TestName = "TestWriteRawBoundariesAsync_DosToDos")]
+		[TestCase ("\n", NewLineFormat.Dos, true, TestName = "TestWriteRawBoundariesAsync_UnixVerifyingSignature")]
+		[TestCase ("\r\n", NewLineFormat.Dos, true, TestName = "TestWriteRawBoundariesAsync_DosVerifyingSignature")]
+		public async Task TestWriteRawBoundariesAsync (string inputNewLine, NewLineFormat format, bool verifyingSignature)
+		{
+			var expected = GetExpectedRawBoundaryOutput (inputNewLine, format, verifyingSignature);
+			var options = GetRawBoundaryFormatOptions (format, verifyingSignature);
+			var multipart = LoadRawBoundaryMultipart (inputNewLine);
+
+			using var output = new MemoryStream ();
+			await multipart.WriteToAsync (options, output);
+			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[TestCase ("\n", NewLineFormat.Dos, false, TestName = "TestWriteRawBoundariesCancellableStream_UnixToDos")]
+		[TestCase ("\r\n", NewLineFormat.Unix, false, TestName = "TestWriteRawBoundariesCancellableStream_DosToUnix")]
+		[TestCase ("\n", NewLineFormat.Dos, true, TestName = "TestWriteRawBoundariesCancellableStream_UnixVerifyingSignature")]
+		[TestCase ("\r\n", NewLineFormat.Dos, true, TestName = "TestWriteRawBoundariesCancellableStream_DosVerifyingSignature")]
+		public void TestWriteRawBoundariesCancellableStream (string inputNewLine, NewLineFormat format, bool verifyingSignature)
+		{
+			var expected = GetExpectedRawBoundaryOutput (inputNewLine, format, verifyingSignature);
+			var options = GetRawBoundaryFormatOptions (format, verifyingSignature);
+			var multipart = LoadRawBoundaryMultipart (inputNewLine);
+
+			using var output = new MemoryStream ();
+			using (var stream = new FilteredStream (output)) {
+				multipart.WriteTo (options, stream);
+				stream.Flush ();
+			}
+			var actual = Encoding.ASCII.GetString (output.ToArray ());
 
 			Assert.That (actual, Is.EqualTo (expected));
 		}
