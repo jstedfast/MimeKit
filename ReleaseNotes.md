@@ -286,6 +286,12 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   single array that is copied every time it grows, keeping allocations off the large object heap.
 * Added `HtmlToHtml.OutputHtmlFragment`, which removes the `<!DOCTYPE>`, `<html>`, `<head>` (including its
   content) and `<body>` tags so that the output can be embedded within another HTML document.
+* `SqliteCertificateDatabase` (and therefore `DefaultSecureMimeContext`) now falls back to
+  `Microsoft.Data.Sqlite` on .NET 8 and later if neither `System.Data.SQLite` nor `Mono.Data.Sqlite`
+  is usable. Previously, they were unavailable on platforms for which `System.Data.SQLite` does not ship
+  a native library, such as macOS on Apple Silicon (arm64). Connection pooling is disabled for
+  `Microsoft.Data.Sqlite` connections, as with the other SQLite bindings, so that the database file is not
+  left open (and locked on Windows) after the database is disposed.
 
 ### Performance
 
@@ -472,6 +478,15 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Fixed `Base64Encoder.EstimateOutputLength ()` to account for a partially-filled line left over from
   previous `Encode ()` calls. It could previously underestimate by 1 byte, so a caller allocating an
   output buffer of the estimated size could have its output buffer overrun.
+* Fixed `Multipart.WriteTo ()` and `WriteToAsync ()` to convert bare LFs to CRLF in the boundary markers
+  preserved by the parser when `FormatOptions.VerifyingSignature` is set. Previously, the parsed boundary
+  markers were always written verbatim, so verifying a `multipart/signed` message that was stored with LF
+  line endings (for example, in a Unix mbox or a Git checkout on Linux) hashed a mix of LF and CRLF line
+  endings and failed. Otherwise, the boundary markers are still written exactly as they were parsed.
+* Fixed the `SqliteCertificateDatabase (string fileName, string password)` and
+  `SqliteCertificateDatabase (string fileName, string password, SecureRandom random)` constructors to
+  validate the `password` and `random` arguments before creating the database file. Previously, a `null`
+  argument threw an `ArgumentNullException` but left an empty database file behind.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
