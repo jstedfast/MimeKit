@@ -37,7 +37,6 @@ namespace MimeKit.Utils {
 	static class Memory
 	{
 #if NETCOREAPP
-		const ulong XorPowerOfTwoToHighByte = (0x07ul | 0x06ul << 8 | 0x05ul << 16 | 0x04ul << 24 | 0x03ul << 32 | 0x02ul << 40 | 0x01ul << 48) + 1;
 		static readonly Vector<byte> VectorHighBits = new Vector<byte> (0x80);
 		static readonly Vector256<byte> Avx2Zero = Vector256<byte>.Zero;
 		static readonly Vector128<byte> Sse2Zero = Vector128<byte>.Zero;
@@ -733,7 +732,7 @@ namespace MimeKit.Utils {
 		// Vector sub-search adapted from https://github.com/aspnet/KestrelHttpServer/pull/1138
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static int IndexOfFirstMatch (Vector<byte> match)
+		internal static int IndexOfFirstMatch (Vector<byte> match)
 		{
 			Vector<ulong> vector64 = Vector.AsVectorUInt64 (match);
 			ulong candidate = 0;
@@ -752,16 +751,12 @@ namespace MimeKit.Utils {
 
 		[SkipLocalsInit]
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static int IndexOfFirstMatch (ulong match)
+		internal static int IndexOfFirstMatch (ulong match)
 		{
-			if (Bmi1.X64.IsSupported)
-				return (int) (Bmi1.X64.TrailingZeroCount (match) >> 3);
-
-			// Flag least significant power of two bit
-			ulong powerOfTwoFlag = match ^ (match - 1);
-
-			// Shift all powers of two into the high byte and extract
-			return (int) ((powerOfTwoFlag * XorPowerOfTwoToHighByte) >> 57);
+			// Note: Each matched byte may have any non-zero value (e.g. 0xFF from Vector.Equals() or 0x80 when masking the high bits),
+			// so the byte index must be derived from the lowest set bit. BitOperations.TrailingZeroCount() uses TZCNT on x86/x64 and
+			// RBIT+CLZ on ARM64 with a software fallback elsewhere.
+			return BitOperations.TrailingZeroCount (match) >> 3;
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]

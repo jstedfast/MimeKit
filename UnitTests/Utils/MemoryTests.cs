@@ -932,5 +932,49 @@ namespace UnitTests.Utils {
 				ArrayPool<byte>.Shared.Return (buffer);
 			}
 		}
+
+#if NETCOREAPP
+		// Matched bytes may be any non-zero value: 0xFF from Vector.Equals(), 0x80 when masking the high bit, etc.
+		static readonly byte[] MatchByteValues = new byte[] { 0x01, 0x80, 0xFF };
+
+		[Test]
+		public void TestIndexOfFirstMatchUInt64 ()
+		{
+			foreach (var value in MatchByteValues) {
+				for (int i = 0; i < 8; i++) {
+					ulong match = (ulong) value << (i * 8);
+
+					Assert.That (Memory.IndexOfFirstMatch (match), Is.EqualTo (i), $"0x{value:X2} at byte {i}");
+
+					// Any matches after the first must be ignored.
+					for (int j = i + 1; j < 8; j++)
+						match |= (ulong) value << (j * 8);
+
+					Assert.That (Memory.IndexOfFirstMatch (match), Is.EqualTo (i), $"0x{value:X2} at bytes {i}-7");
+				}
+			}
+		}
+
+		[Test]
+		public void TestIndexOfFirstMatchVector ()
+		{
+			var bytes = new byte[Vector<byte>.Count];
+
+			foreach (var value in MatchByteValues) {
+				for (int i = 0; i < bytes.Length; i++) {
+					Array.Clear (bytes, 0, bytes.Length);
+					bytes[i] = value;
+
+					Assert.That (Memory.IndexOfFirstMatch (new Vector<byte> (bytes)), Is.EqualTo (i), $"0x{value:X2} at byte {i}");
+
+					// Any matches after the first must be ignored.
+					for (int j = i + 1; j < bytes.Length; j++)
+						bytes[j] = value;
+
+					Assert.That (Memory.IndexOfFirstMatch (new Vector<byte> (bytes)), Is.EqualTo (i), $"0x{value:X2} at bytes {i}-{bytes.Length - 1}");
+				}
+			}
+		}
+#endif
 	}
 }
