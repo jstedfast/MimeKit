@@ -357,6 +357,42 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEmptyQuotedDispositionValue ()
+		{
+			var expected = new ContentDisposition ("attachment");
+
+			AssertParse ("\"\"", expected, true, 0, 0);
+		}
+
+		[Test]
+		public void TestIncompleteComments ()
+		{
+			Assert.That (ContentDisposition.TryParse ("(comment", out var disposition), Is.False, "(comment");
+			Assert.That (disposition, Is.Null, "(comment");
+
+			foreach (var text in new [] { "attachment(comment", "attachment;(comment" }) {
+				Assert.That (ContentDisposition.TryParse (text, out disposition), Is.False, text);
+				Assert.That (disposition, Is.Not.Null, text);
+				Assert.That (disposition.Disposition, Is.EqualTo (ContentDisposition.Attachment), text);
+				Assert.That (disposition.Parameters, Is.Empty, text);
+			}
+		}
+
+		[Test]
+		public void TestIncompleteQuotedDispositionValue ()
+		{
+			AssertParse ("\"attachment", null, false, 0, 0);
+		}
+
+		[Test]
+		public void TestSemicolonWithoutParameters ()
+		{
+			var expected = new ContentDisposition ("attachment");
+
+			AssertParse ("attachment; ", expected);
+		}
+
+		[Test]
 		public void TestMistakenlyQuotedEncodedParameterValues ()
 		{
 			const string text = "attachment;\n filename*0*=\"ISO-8859-2''%C8%50%50%20%2D%20%BE%E1%64%6F%73%74%20%6F%20%61%6B%63%65\";\n " +
@@ -368,6 +404,14 @@ namespace UnitTests {
 			expected.Parameters.Add (Encoding.GetEncoding ("ISO-8859-2"), "filename", filename);
 
 			AssertParse (text, expected);
+		}
+
+		[Test]
+		public void TestInvalidDispositionParameters ()
+		{
+			var expected = new ContentDisposition ("attachment");
+
+			AssertParse ("attachment; name*", expected, false, 12, 17);
 		}
 
 		[Test]
@@ -553,6 +597,22 @@ namespace UnitTests {
 			disposition.IsAttachment = false;
 			Assert.That (disposition.Disposition, Is.EqualTo (ContentDisposition.Inline), "The disposition should be 'inline'.");
 			Assert.That (disposition.IsAttachment, Is.False, "IsAttachment should be false.");
+		}
+
+		[Test]
+		public void TestInvalidDateAndSizeParameters ()
+		{
+			var disposition = new ContentDisposition (ContentDisposition.Attachment);
+
+			disposition.Parameters["creation-date"] = "not a date";
+			disposition.Parameters["modification-date"] = "also not a date";
+			disposition.Parameters["read-date"] = "still not a date";
+			disposition.Parameters["size"] = "not-a-size";
+
+			Assert.That (disposition.CreationDate, Is.Null, "CreationDate");
+			Assert.That (disposition.ModificationDate, Is.Null, "ModificationDate");
+			Assert.That (disposition.ReadDate, Is.Null, "ReadDate");
+			Assert.That (disposition.Size, Is.Null, "Size");
 		}
 
 		[Test]

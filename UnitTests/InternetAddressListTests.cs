@@ -65,6 +65,50 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => list[0] = null);
 		}
 
+		[Test]
+		public void TestCollectionMembers ()
+		{
+			var first = new MailboxAddress ("First", "first@example.com");
+			var second = new MailboxAddress ("Second", "second@example.com");
+			var list = new InternetAddressList { first };
+
+			list[0] = first;
+			Assert.That (list[0], Is.SameAs (first));
+
+			list[0] = second;
+			Assert.That (list[0], Is.SameAs (second));
+
+			var array = new InternetAddress[1];
+			list.CopyTo (array, 0);
+			Assert.That (array[0], Is.SameAs (second));
+
+			Assert.That (((System.Collections.IEnumerable) list).GetEnumerator ().MoveNext (), Is.True);
+			Assert.That (list.Remove (first), Is.False);
+
+			list.Clear ();
+			Assert.That (list, Is.Empty);
+
+			list.Clear ();
+			Assert.That (list, Is.Empty);
+		}
+
+		[Test]
+		public void TestEqualsAndCompareToEdges ()
+		{
+			var first = new InternetAddressList { new MailboxAddress ("First", "first@example.com") };
+			var second = new InternetAddressList { new MailboxAddress ("Second", "second@example.com") };
+			var longer = new InternetAddressList {
+				new MailboxAddress ("First", "first@example.com"),
+				new MailboxAddress ("Second", "second@example.com")
+			};
+
+			Assert.That (first.Equals ((object) second), Is.False);
+			Assert.That (first.CompareTo (second), Is.Not.EqualTo (0));
+			Assert.That (first.CompareTo (longer), Is.LessThan (0));
+			Assert.That (longer.CompareTo (first), Is.GreaterThan (0));
+			Assert.That (first.GetHashCode (), Is.EqualTo (first.ToString ().GetHashCode ()));
+		}
+
 		static void AssertInternetAddressListsEqual (string text, InternetAddressList expected, InternetAddressList result)
 		{
 			Assert.That (result.Count, Is.EqualTo (expected.Count), $"Unexpected number of addresses: {text}");
@@ -874,6 +918,51 @@ namespace UnitTests {
 			mailbox = (MailboxAddress) parsed[1];
 			Assert.That (mailbox.Name, Is.EqualTo ("Kevin Arnold"), "Second address name does not match.");
 			Assert.That (mailbox.Address, Is.EqualTo ("kevin@wonder-years.com"), "Second address does not match.");
+		}
+
+		[TestCase ("\"broken, Good <good@example.com>", true, TestName = "TestInternalTryParseRecoveryStopsAtBrokenQuote")]
+		[TestCase ("(broken, Good <good@example.com>", false, TestName = "TestInternalTryParseRecoveryStopsAtBrokenComment")]
+		public void TestInternalTryParseRecoveryStopsAtUnclosedToken (string text, bool expectedResult)
+		{
+			var options = ParserOptions.Default.Clone ();
+			var rawValue = Encoding.UTF8.GetBytes (text);
+			int index = 0;
+
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			var result = InternetAddressList.TryParse (AddressParserFlags.InternalTryParse, options, rawValue, ref index, rawValue.Length, false, 0, out var parsed);
+
+			Assert.That (result, Is.EqualTo (expectedResult), "result");
+			Assert.That (index, Is.EqualTo (rawValue.Length), "index");
+
+			if (expectedResult)
+				Assert.That (parsed, Is.Empty, "parsed");
+			else
+				Assert.That (parsed, Is.Null, "parsed");
+		}
+
+		[Test]
+		public void TestStrictListRequiresSeparators ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddressList.Parse (options, "a@example.com b@example.com"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (14));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (14));
+		}
+
+		[Test]
+		public void TestStrictGroupListRequiresSeparators ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddressList.Parse (options, "Friends: a@example.com b@example.com;"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (23));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (23));
 		}
 
 		#region Rfc7103

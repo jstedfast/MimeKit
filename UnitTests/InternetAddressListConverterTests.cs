@@ -38,7 +38,9 @@ namespace UnitTests
 		{
 			var converter = TypeDescriptor.GetConverter (typeof (InternetAddressList));
 			Assert.That (converter.CanConvertFrom (typeof (string)), Is.True);
+			Assert.That (converter.CanConvertFrom (typeof (int)), Is.False);
 			Assert.That (converter.CanConvertTo (typeof (string)), Is.True);
+			Assert.That (converter.CanConvertTo (typeof (int)), Is.False);
 		}
 
 		[TestCase ("")]
@@ -87,6 +89,7 @@ namespace UnitTests
 			Assert.Throws<ParseException> (() => converter.ConvertFrom (" "));
 			Assert.Throws<NotSupportedException> (() => converter.ConvertFrom (5));
 			Assert.Throws<NotSupportedException> (() => converter.ConvertTo (new InternetAddressList (), typeof (int)));
+			Assert.That (converter.ConvertTo (5, typeof (string)), Is.EqualTo ("5"));
 		}
 
 		[Test]

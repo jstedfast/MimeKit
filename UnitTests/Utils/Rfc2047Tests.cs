@@ -370,16 +370,16 @@ namespace UnitTests.Utils {
 			var latin1 = Encoding.GetEncoding ("iso-8859-1", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
 			string result;
 
-			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text));
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (latin1, text));
 			Assert.That (result, Is.EqualTo (expected), "EncodePhrase(Encoding, string)");
 
-			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (Encoding.UTF8, text, 0, text.Length));
+			result = Encoding.ASCII.GetString (Rfc2047.EncodePhrase (latin1, text, 0, text.Length));
 			Assert.That (result, Is.EqualTo (expected), "EncodePhrase(Encoding, string, int, int)");
 
-			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text));
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text));
 			Assert.That (result, Is.EqualTo (expected), "EncodeText(Encoding, string)");
 
-			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (Encoding.UTF8, text, 0, text.Length));
+			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text, 0, text.Length));
 			Assert.That (result, Is.EqualTo (expected), "EncodeText(Encoding, string, int, int)");
 		}
 

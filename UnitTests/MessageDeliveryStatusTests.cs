@@ -35,6 +35,50 @@ namespace UnitTests {
 	[TestFixture]
 	public class MessageDeliveryStatusTests
 	{
+		class ThrowingMimeContent : IMimeContent
+		{
+			public ContentEncoding Encoding {
+				get { return ContentEncoding.Default; }
+			}
+
+			public NewLineFormat? NewLineFormat {
+				get { return null; }
+			}
+
+			public Stream Stream {
+				get { return null; }
+			}
+
+			public void DecodeTo (Stream stream, CancellationToken cancellationToken = default)
+			{
+				throw new FormatException ();
+			}
+
+			public Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default)
+			{
+				throw new FormatException ();
+			}
+
+			public void Dispose ()
+			{
+			}
+
+			public Stream Open ()
+			{
+				throw new FormatException ();
+			}
+
+			public void WriteTo (Stream stream, CancellationToken cancellationToken = default)
+			{
+				throw new FormatException ();
+			}
+
+			public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default)
+			{
+				throw new FormatException ();
+			}
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -154,6 +198,51 @@ namespace UnitTests {
 			Assert.That (groups[1]["Status"], Is.EqualTo ("5.1.1"));
 			Assert.That (groups[1]["Remote-MTA"], Is.EqualTo ("dns; https://urldefense.proofpoint.com/v2/url?u=http-3A__mx1-2Deu1.ppe-2Dhosted.com&d=DwICAQ&c=euGZstcaTDllvimEN8b7jXrwqOf-v5A_CdpgnVfiiMM&r=xGEu8UUVNHyj_BIRW7SVPK81Hnp-FSanq3-_T1am-Kg&m=RMniPmjTykiwdgbzUU7Cewy0BeD_osytuQLS6cflj30&s=0Q-rn8HZSqF10OISjAJdmdg7HT9iADG2jsaaaxtt7tE&e="));
 			Assert.That (groups[1]["Diagnostic-Code"], Is.EqualTo ("smtp; 550 5.1.1 <netec.test@netecgc.com>: Recipient address    rejected: User unknown"));
+		}
+
+		[Test]
+		public void TestStatusGroupsWithSevenBitContentTransferEncoding ()
+		{
+			using var delivery = CreateDeliveryStatus ("Reporting-MTA: dns; mm1\r\nContent-Transfer-Encoding: 7bit\r\n\r\nFinal-Recipient: rfc822; user@example.com\r\n\r\n");
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (2), "Expected 2 groups of headers.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[0]["Content-Transfer-Encoding"], Is.EqualTo ("7bit"));
+			Assert.That (groups[1]["Final-Recipient"], Is.EqualTo ("rfc822; user@example.com"));
+		}
+
+		[Test]
+		public void TestStatusGroupsWithEncodedBlankRemainder ()
+		{
+			using var delivery = CreateDeliveryStatus ("Reporting-MTA: dns; mm1\r\nContent-Transfer-Encoding: base64\r\n\r\nDQo=\r\n");
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (1), "Expected only the first group of headers.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[0]["Content-Transfer-Encoding"], Is.EqualTo ("base64"));
+		}
+
+		[Test]
+		public void TestStatusGroupsWithInvalidEncodedRemainder ()
+		{
+			using var delivery = CreateDeliveryStatus ("Reporting-MTA: dns; mm1\r\nContent-Transfer-Encoding: base64\r\n\r\n!!!!\r\n");
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (1), "Expected only the first group of headers.");
+			Assert.That (groups[0]["Reporting-MTA"], Is.EqualTo ("dns; mm1"));
+			Assert.That (groups[0]["Content-Transfer-Encoding"], Is.EqualTo ("base64"));
+		}
+
+		[Test]
+		public void TestStatusGroupsCatchesFormatException ()
+		{
+			using var delivery = new MessageDeliveryStatus {
+				Content = new ThrowingMimeContent ()
+			};
+			var groups = delivery.StatusGroups;
+
+			Assert.That (groups.Count, Is.EqualTo (0), "Expected no groups.");
 		}
 
 		static MessageDeliveryStatus CreateDeliveryStatus (string text, bool readOneByteAtATime = false)

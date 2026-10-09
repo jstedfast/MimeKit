@@ -166,6 +166,20 @@ namespace UnitTests {
 			Assert.That (raw, Is.EqualTo (expected), "The folded address header does not match the expected value.");
 		}
 
+		[Test]
+		public void TestInternationalAddressHeaderFolding ()
+		{
+			var format = FormatOptions.Default.Clone ();
+			var header = new Header ("To", "=?utf-8?q?=C4=BDubo=C5=A1?= <lubos@example.com>");
+
+			format.International = true;
+			header.SetValue (format, Encoding.UTF8, "Ľuboš <lubos@example.com>");
+
+			var raw = Encoding.UTF8.GetString (header.RawValue);
+
+			Assert.That (raw, Is.EqualTo (" Ľuboš <lubos@example.com>" + format.NewLine));
+		}
+
 		static readonly string[] ArcAuthenticationResultsHeaderValues = {
 			" i=1; lists.example.org;" + FormatOptions.Default.NewLine + "\tspf=pass smtp.mfrom=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=pass (1024 - bit key) header.i=@d1.example; dmarc=pass",
 			" i=2; gmail.example;" + FormatOptions.Default.NewLine + "\tspf=fail smtp.from=jqd@d1.example;" + FormatOptions.Default.NewLine + "\tdkim=fail (512-bit key) header.i=@example.org; dmarc=fail;" + FormatOptions.Default.NewLine + "\tarc=pass (as.1.lists.example.org=pass, ams.1.lists.example.org=pass)",
@@ -201,6 +215,15 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestDispositionNotificationOptionsHeaderFolding ()
+		{
+			var header = new Header ("Disposition-Notification-Options", "  signed-receipt-protocol = required,pkcs7-signature;  signed-receipt-micalg = required,sha256");
+			var raw = ByteArrayToString (header.RawValue);
+
+			Assert.That (raw, Is.EqualTo (" signed-receipt-protocol=required,pkcs7-signature;" + FormatOptions.Default.NewLine + "\tsigned-receipt-micalg=required,sha256" + FormatOptions.Default.NewLine));
+		}
+
+		[Test]
 		public void TestSubjectHeaderFolding ()
 		{
 			const string expected = " =?utf-8?b?0KLQtdGB0YLQvtCy0YvQuSDQt9Cw0LPQvtC70L7QstC+0Log0L/QuNGB0YzQvNCw?=\n";
@@ -208,6 +231,23 @@ namespace UnitTests {
 			var actual = ByteArrayToString (header.RawValue).Replace ("\r", "");
 
 			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestLongUnstructuredHeaderFoldingAtSurrogatePair ()
+		{
+			var format = FormatOptions.Default.Clone ();
+			var header = new Header ("Subject", string.Empty);
+
+			format.MaxLineLength = 60;
+			format.NewLineFormat = NewLineFormat.Unix;
+
+			header.SetValue (format, Encoding.UTF8, new string ('a', 50) + "😀" + new string ('b', 20));
+
+			var raw = Encoding.ASCII.GetString (header.RawValue);
+
+			// the surrogate pair must not be split across encoded-words
+			Assert.That (raw, Is.EqualTo (" =?utf-8?q?aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?=\n =?utf-8?q?aaaaaaaaaaaaaaa=F0=9F=98=80bbbbbbbbbbbbbbbbbbb?=\n =?utf-8?q?b?=\n"));
 		}
 
 		static readonly string[] ReceivedHeaderValues = {
@@ -935,6 +975,24 @@ namespace UnitTests {
 			var result = Encoding.UTF8.GetString (header.GetRawValue (options));
 
 			Assert.That (result, Is.EqualTo (expected.ReplaceLineEndings ()));
+		}
+
+		[Test]
+		public void TestEncodeListCommandHeaderWithOnlyWhiteSpace ()
+		{
+			var header = new Header (HeaderId.ListHelp, "   ");
+
+			Assert.That (Encoding.UTF8.GetString (header.RawValue), Is.EqualTo (FormatOptions.Default.NewLine));
+		}
+
+		[Test]
+		public void TestEncodeListCommandHeaderWithMalformedUrlAndComment ()
+		{
+			var url = new Header (HeaderId.ListHelp, "<unterminated");
+			var comment = new Header (HeaderId.ListHelp, "(unterminated");
+
+			Assert.That (Encoding.UTF8.GetString (url.RawValue), Is.EqualTo (" <unterminated" + FormatOptions.Default.NewLine));
+			Assert.That (Encoding.UTF8.GetString (comment.RawValue), Is.EqualTo (" (unterminated" + FormatOptions.Default.NewLine));
 		}
 
 		[Test]

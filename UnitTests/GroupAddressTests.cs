@@ -386,5 +386,37 @@ namespace UnitTests {
 
 			AssertParseFailure (overflow, false, 24, 30);
 		}
+
+		[Test]
+		public void TestLongGroupNameFolds ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.MaxLineLength = 60;
+
+			var group = new GroupAddress ("Very Long Group Name For Folding Across Multiple Header Lines In Unit Tests");
+			group.Members.Add (new MailboxAddress ("User", "user@example.com"));
+
+			var encoded = group.ToString (options, true);
+
+			Assert.That (encoded, Is.EqualTo ("Very Long Group Name For Folding Across Multiple Header\n Lines In Unit Tests: User <user@example.com>;"));
+		}
+
+		[Test]
+		public void TestToStringNullOptions ()
+		{
+			var group = new GroupAddress ("Group");
+
+			Assert.Throws<ArgumentNullException> (() => group.ToString (null, true));
+		}
+
+		[Test]
+		public void TestEqualsNonGroup ()
+		{
+			var group = new GroupAddress ("Group");
+			var mailbox = new MailboxAddress ("User", "user@example.com");
+
+			Assert.That (group.Equals (mailbox), Is.False);
+		}
 	}
 }

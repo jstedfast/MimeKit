@@ -1230,7 +1230,7 @@ X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
 
 		sealed class NullOleObjectConverter : TnefOleObjectConverter
 		{
-			public override Stream? Convert (TnefAttachment attachment, CancellationToken cancellationToken = default)
+			public override Stream Convert (TnefAttachment attachment, CancellationToken cancellationToken = default)
 			{
 				return null;
 			}

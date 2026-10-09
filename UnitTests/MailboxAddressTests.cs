@@ -784,6 +784,12 @@ namespace UnitTests {
 			encoded = MailboxAddress.DecodeAddrspec (string.Empty);
 			Assert.That (encoded, Is.EqualTo (string.Empty), "Empty (Decode)");
 
+			encoded = MailboxAddress.EncodeAddrspec ("not an address");
+			Assert.That (encoded, Is.EqualTo ("not an address"), "Invalid (Encode)");
+
+			encoded = MailboxAddress.DecodeAddrspec ("not an address");
+			Assert.That (encoded, Is.EqualTo ("not an address"), "Invalid (Decode)");
+
 			encoded = MailboxAddress.EncodeAddrspec (domainUnicode);
 			Assert.That (encoded, Is.EqualTo (domainAscii), "Domain (Encode)");
 
@@ -823,6 +829,24 @@ namespace UnitTests {
 			encoded = mailbox.ToString (false);
 
 			Assert.That (encoded, Is.EqualTo (expectedNoName), "ToString mailbox does not match after setting Name to null.");
+		}
+
+		[Test]
+		public void TestRoutedMailboxWithoutNameWrapsInsideList ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.MaxLineLength = 60;
+
+			var list = new InternetAddressList {
+				new MailboxAddress ("First", "first@example.com"),
+				new MailboxAddress (string.Empty, new [] { "relay.example.com" }, "second@example.com"),
+				new MailboxAddress (string.Empty, "averyverylonglocalpart@example.com")
+			};
+
+			var encoded = list.ToString (options, true);
+
+			Assert.That (encoded, Is.EqualTo ("First <first@example.com>, \n\t<@relay.example.com:second@example.com>,\n averyverylonglocalpart@example.com"));
 		}
 
 		[Test]

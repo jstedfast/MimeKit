@@ -141,6 +141,48 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeControlCharacter ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "control\u0001character.txt");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment;\r\n\tfilename*=iso-8859-1''control%01character.txt"));
+		}
+
+		[Test]
+		public void TestEncodeRfc2231ResizesBuffers ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", new string ('☃', 40));
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+			var encoded = builder.ToString ();
+
+			const string snowman = "%E2%98%83";
+			var expected = "Content-Disposition: attachment;\r\n" +
+				"\tfilename*0*=utf-8''" + string.Concat (Enumerable.Repeat (snowman, 6)) + ";\r\n" +
+				"\tfilename*1*=" + string.Concat (Enumerable.Repeat (snowman, 7)) + ";\r\n" +
+				"\tfilename*2*=" + string.Concat (Enumerable.Repeat (snowman, 7)) + ";\r\n" +
+				"\tfilename*3*=" + string.Concat (Enumerable.Repeat (snowman, 7)) + ";\r\n" +
+				"\tfilename*4*=" + string.Concat (Enumerable.Repeat (snowman, 7)) + ";\r\n" +
+				"\tfilename*5*=" + string.Concat (Enumerable.Repeat (snowman, 6));
+
+			Assert.That (encoded, Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestEncodeRfc2047 ()
 		{
 			var builder = new ValueStringBuilder (256);
@@ -155,6 +197,26 @@ namespace UnitTests {
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 
 			Assert.That (builder.ToString (), Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?5rWL6K+V5paH5pysLmRv?=\r\n\t=?utf-8?q?c?=\""));
+		}
+
+		[Test]
+		public void TestEncodeRfc2047WithEncoderExceptionFallback ()
+		{
+			var encoding = Encoding.GetEncoding ("us-ascii", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter (encoding, "filename", "snowman-☃.txt");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?c25vd21hbi3imIMu?=\r\n\t=?us-ascii?q?txt?=\""));
+			Assert.That (ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length)).FileName, Is.EqualTo ("snowman-☃.txt"));
 		}
 
 		[Test]

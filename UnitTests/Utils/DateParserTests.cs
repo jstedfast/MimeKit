@@ -179,6 +179,21 @@ namespace UnitTests.Utils {
 			}
 		}
 
+		[Test]
+		public void TestMalformedDateTokens ()
+		{
+			foreach (var date in new [] {
+				"999999999999 Jan 2025 09:00:00 -0500",
+				"Fri, 999999999999 Jan 2025 09:00:00 -0500",
+				"Fri, 31 Feb 2025 09:00:00 -0500",
+				"Feb 31 2025 09:00:00 -0500"
+			}) {
+				Assert.That (DateUtils.TryParse (date, out _), Is.False, $"Should not have parsed '{date}'");
+			}
+
+			Assert.That (DateUtils.TryParse ("123 Feb 28 2025 09:00:00 -0500", out _), Is.True);
+		}
+
 		[TestCase ("Wed, 1 Jan 2025 09:00:00 -0500", 1)]
 		[TestCase ("Sat, 1 Feb 2025 09:00:00 -0500", 2)]
 		[TestCase ("Sat, 1 Mar 2025 09:00:00 -0500", 3)]

@@ -30,6 +30,68 @@ namespace UnitTests {
 	[TestFixture]
 	public class MessagePartialTests
 	{
+		class ThrowingReadStream : Stream
+		{
+			long position;
+
+			public override bool CanRead {
+				get { return true; }
+			}
+
+			public override bool CanSeek {
+				get { return true; }
+			}
+
+			public override bool CanWrite {
+				get { return false; }
+			}
+
+			public override long Length {
+				get { return 1; }
+			}
+
+			public override long Position {
+				get { return position; }
+				set { position = value; }
+			}
+
+			public override void Flush ()
+			{
+			}
+
+			public override int Read (byte[] buffer, int offset, int count)
+			{
+				throw new InvalidOperationException ("Read failed.");
+			}
+
+			public override long Seek (long offset, SeekOrigin origin)
+			{
+				switch (origin) {
+				case SeekOrigin.Begin:
+					position = offset;
+					break;
+				case SeekOrigin.Current:
+					position += offset;
+					break;
+				case SeekOrigin.End:
+					position = Length + offset;
+					break;
+				}
+
+				return position;
+			}
+
+			public override void SetLength (long value)
+			{
+				throw new NotSupportedException ();
+			}
+
+			public override void Write (byte[] buffer, int offset, int count)
+			{
+				throw new NotSupportedException ();
+			}
+		}
+
 		static MimeMessage Load (string path)
 		{
 			using (var file = File.OpenRead (path)) {
@@ -237,6 +299,36 @@ namespace UnitTests {
 				msg.Dispose ();
 
 			AssertRawMessageStreams (message, combined);
+		}
+
+		[Test]
+		public void TestSplitReturnsOriginalWhenMessageIsSmallEnough ()
+		{
+			using var message = new MimeMessage ();
+			message.From.Add (new MailboxAddress ("Sender", "sender@example.com"));
+			message.To.Add (new MailboxAddress ("Recipient", "recipient@example.com"));
+			message.Subject = "Small message";
+			message.Body = new TextPart ("plain") {
+				Text = "This message should not need to be split."
+			};
+
+			var split = MessagePartial.Split (message, 1024 * 1024).ToList ();
+
+			Assert.That (split.Count, Is.EqualTo (1), "Unexpected count");
+			Assert.That (split[0], Is.SameAs (message), "Message");
+		}
+
+		[Test]
+		public void TestSplitDisposesBufferWhenWriteFails ()
+		{
+			using var message = new MimeMessage ();
+			var part = new MimePart ("application", "octet-stream") {
+				Content = new MimeContent (new ThrowingReadStream ())
+			};
+
+			message.Body = part;
+
+			Assert.Throws<InvalidOperationException> (() => MessagePartial.Split (message, 1024).ToList ());
 		}
 	}
 }

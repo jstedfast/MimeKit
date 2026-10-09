@@ -138,6 +138,48 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestEncodeVeryLongResultMethodWithVersion ()
+		{
+			const string method = "really-really-really-really-really-really-really-long-method";
+			const string expected = "Authentication-Results: lists.example.com 1;\n\t" + method + "\n\t/2147483647=pass\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult (method, "pass") {
+				Version = int.MaxValue
+			});
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.MaxLineLength = 60;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.That (encoded.ToString (), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestEncodeVeryLongResultMethodWithoutVersion ()
+		{
+			const string method = "really-really-really-really-really-really-really-long-method";
+			const string expected = "Authentication-Results: lists.example.com 1;\n\t" + method + "\n\t=pass\n";
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult (method, "pass"));
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.MaxLineLength = 60;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			Assert.That (encoded.ToString (), Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestEncodeQuotedPropertyValue ()
 		{
 			const string expected = "Authentication-Results: lists.example.com 1;\n\tfoo=pass (2 of 3 tests OK) ptype.prop=\"value1;value2\"\n";
@@ -202,6 +244,46 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestEncodeVeryLongReasonActionAndPropertyTokens ()
+		{
+			var encoded = new StringBuilder ("Authentication-Results:");
+			var authres = new AuthenticationResults ("lists.example.com");
+			var options = FormatOptions.Default.Clone ();
+
+			authres.Results.Add (new AuthenticationMethodResult ("spf", "fail") {
+				Reason = "this is a really really really really really long reason"
+			});
+			authres.Results[0].Properties.Add (new AuthenticationMethodProperty ("really-really-really-really-long-ptype", "really-really-really-really-long-property", "value"));
+			authres.Results.Add (new AuthenticationMethodResult ("dmarc", "fail") {
+				Action = "this is a really really really really really long action"
+			});
+			authres.Version = 1;
+
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.MaxLineLength = 60;
+
+			authres.Encode (options, encoded, encoded.Length);
+
+			const string expected = "Authentication-Results: lists.example.com 1; spf=fail\n" +
+				"\treason=\n" +
+				"\t\"this is a really really really really really long reason\"\n" +
+				"\treally-really-really-really-long-ptype.\n" +
+				"\treally-really-really-really-long-property=value; dmarc=fail\n" +
+				"\taction=\n" +
+				"\t\"this is a really really really really really long action\"\n";
+
+			Assert.That (encoded.ToString (), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestAuthenticationMethodPropertyToString ()
+		{
+			var property = new AuthenticationMethodProperty ("smtp", "mailfrom", "example.com");
+
+			Assert.That (property.ToString (), Is.EqualTo ("smtp.mailfrom=example.com"));
+		}
+
+		[Test]
 		public void TestEncodeLongOffice365RandomDomainTokensAndAction ()
 		{
 			const string expected = "Authentication-Results: lists.example.com 1;\n\tspf=fail (sender IP is 1.1.1.1) smtp.mailfrom=eu-west-1.amazonses.com;\n\treally-really-long-receivingdomain.com; dkim=pass (signature was verified)\n\theader.d=domain.com; another-really-really-long-receivingdomain.com;\n\tdmarc=bestguesspass action=\"none\" header.from=domain.com\n";
@@ -256,6 +338,31 @@ namespace UnitTests.Cryptography {
 			authres.Encode (options, encoded, "ARC-Authentication-Results:".Length);
 
 			Assert.That (encoded.ToString (), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestParseQuotedAuthServId ()
+		{
+			const string input = "\"example.com\"; foo=pass";
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out var authres), Is.True);
+			Assert.That (authres.AuthenticationServiceIdentifier, Is.EqualTo ("example.com"), "authserv-id");
+			Assert.That (authres.Results.Count, Is.EqualTo (1), "methods");
+			Assert.That (authres.Results[0].Method, Is.EqualTo ("foo"));
+			Assert.That (authres.Results[0].Result, Is.EqualTo ("pass"));
+		}
+
+		[Test]
+		public void TestParseInvalidComments ()
+		{
+			var buffer = Encoding.ASCII.GetBytes ("example.com; gateway.spf (unterminated");
+
+			Assert.That (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out _), Is.False, "dotted method comment");
+
+			buffer = Encoding.ASCII.GetBytes ("\"example.com\" (unterminated");
+
+			Assert.That (AuthenticationResults.TryParse (buffer, 0, buffer.Length, out _), Is.False, "authserv-id comment");
 		}
 
 		[Test]

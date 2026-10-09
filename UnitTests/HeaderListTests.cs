@@ -165,6 +165,16 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public async Task TestLoadAsyncDefaultOptionsOverload ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes ("Subject: test\r\n\r\n"))) {
+				var headers = await HeaderList.LoadAsync (stream);
+
+				Assert.That (headers[HeaderId.Subject], Is.EqualTo ("test"));
+			}
+		}
+
+		[Test]
 		public void TestGetEnumerator ()
 		{
 			var headers = new HeaderList {

@@ -578,5 +578,135 @@ namespace UnitTests {
 
 			AssertParse (text);
 		}
+
+		[Test]
+		public void TestEncodingAndNameSetters ()
+		{
+			var address = new MailboxAddress ("Unit Tests", "tests@mimekit.net");
+
+			address.Encoding = Encoding.UTF8;
+			Assert.That (address.Encoding, Is.SameAs (Encoding.UTF8));
+
+			address.Encoding = Encoding.ASCII;
+			Assert.That (address.Encoding, Is.SameAs (Encoding.ASCII));
+
+			address.Name = address.Name;
+			Assert.That (address.Name, Is.EqualTo ("Unit Tests"));
+
+			address.Name = "MimeKit Tests";
+			Assert.That (address.Name, Is.EqualTo ("MimeKit Tests"));
+		}
+
+		[Test]
+		public void TestEqualsObjectAndGetHashCode ()
+		{
+			var address = new MailboxAddress ("Unit Tests", "tests@mimekit.net");
+			object same = new MailboxAddress ("Unit Tests", "tests@mimekit.net");
+
+			Assert.That (address.Equals (same), Is.True);
+			Assert.That (address.Equals ("not an address"), Is.False);
+			Assert.That (address.GetHashCode (), Is.EqualTo (address.ToString ().GetHashCode ()));
+		}
+
+		[Test]
+		public void TestParseLocalPartWithEscapedAtInLooserMode ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Looser;
+
+			var mailbox = (MailboxAddress) InternetAddress.Parse (options, "Escaped <escaped\\@local@example.com>");
+
+			Assert.That (mailbox.Address, Is.EqualTo ("escaped%40local@example.com"));
+		}
+
+		[Test]
+		public void TestParseInvalidLocalPartToken ()
+		{
+			const string text = ".user@example.com";
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (text));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (0));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (0));
+		}
+
+		[Test]
+		public void TestParseAddrspecWithIncompleteTrailingCommentAfterNameComment ()
+		{
+			const string text = "jeff@example.com (Jeff) (unterminated";
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (text));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (text.LastIndexOf ('(')));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (text.Length));
+		}
+
+		[Test]
+		public void TestParseStrictExcessiveAngleBrackets ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, "<<user@example.com>"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (0));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestParseStrictUnexpectedGreaterThanAfterDomainlessAddress ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+			options.AllowAddressesWithoutDomain = true;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, "local>"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (0));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (5));
+		}
+
+		[Test]
+		public void TestParseStrictUnquotedAddrspecDisplayName ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, "user@example.com <user@example.com>"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (0));
+			Assert.That (ex.ErrorIndex, Is.EqualTo (17));
+		}
+
+		[Test]
+		public void TestParseStrictMissingGroupTerminator ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, "Friends: a@example.com"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (0));
+			Assert.That (ex.ErrorIndex, Is.EqualTo ("Friends: a@example.com".Length));
+		}
+
+		[Test]
+		public void TestParseMaxAddressGroupDepth ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.MaxAddressGroupDepth = 0;
+
+			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, "Friends: a@example.com;"));
+
+			Assert.That (ex.TokenIndex, Is.EqualTo (0));
+			Assert.That (ex.ErrorIndex, Is.EqualTo ("Friends".Length));
+		}
+
+		[Test]
+		public void TestParseGroupNameWithTrimmedLeadingQuote ()
+		{
+			var group = (GroupAddress) InternetAddress.Parse ("\"Friends: a@example.com;");
+
+			Assert.That (group.Name, Is.EqualTo ("Friends"));
+			Assert.That (group.Members, Has.Count.EqualTo (1));
+		}
 	}
 }

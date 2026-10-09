@@ -25,6 +25,7 @@
 //
 
 using System.Net;
+using System.Reflection;
 using System.Text;
 
 using MimeKit;
@@ -68,6 +69,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => received.By = "abc\\def");
 			Assert.Throws<ArgumentException> (() => received.By = "smtp..server.com");
 			Assert.Throws<ArgumentException> (() => received.By = "smtp.-server.com");
+			Assert.DoesNotThrow (() => received.By = "smtp.server.com");
 
 			Assert.Throws<ArgumentException> (() => received.Via = string.Empty);
 			Assert.Throws<ArgumentException> (() => received.Via = "illegal\achar");
@@ -103,6 +105,25 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => new ReceivedClause ("key!word", "value"));
 
 			Assert.Throws<ArgumentException> (() => new ReceivedClause ("keyword", string.Empty));
+		}
+
+		[Test]
+		public void TestNullClausesAreIgnoredAndSortedLast ()
+		{
+			var received = new Received ();
+			var comparerType = typeof (Received).GetNestedType ("ReceivedClauseComparer", BindingFlags.NonPublic);
+			var instance = comparerType.GetField ("Instance", BindingFlags.Public | BindingFlags.Static).GetValue (null);
+			var compare = comparerType.GetMethod ("Compare", BindingFlags.Public | BindingFlags.Instance);
+			var clause = new ReceivedClause ("from", "smtp.source.com");
+
+			Assert.That (compare.Invoke (instance, new object[] { null, clause }), Is.EqualTo (-1), "null x");
+			Assert.That (compare.Invoke (instance, new object[] { clause, null }), Is.EqualTo (1), "null y");
+
+			received.From = "smtp.source.com";
+			received.By = "smtp.target.com";
+			received.Clauses.Add (null);
+
+			Assert.That (received.ToString (), Is.EqualTo (" from smtp.source.com by smtp.target.com\r\n".ReplaceLineEndings ()), "ToString");
 		}
 
 		class ReceivedResults
@@ -246,6 +267,30 @@ namespace UnitTests {
 			var encoded = received.ToString ();
 
 			Assert.That (encoded, Is.EqualTo (expected.ReplaceLineEndings ()), "ToString");
+		}
+
+		[Test]
+		public void TestEscapedCommentWhitespace ()
+		{
+			const string input = " from smtp.source.com (escaped\\\tspace\\\r\nignored) by smtp.target.com\r\n";
+			var buffer = Encoding.UTF8.GetBytes (input);
+			var received = Received.Parse (buffer);
+
+			Assert.That (received.FromTcpInfo, Is.EqualTo ("escaped spaceignored"), "FromTcpInfo");
+			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
+		}
+
+		[Test]
+		public void TestUnknownClause ()
+		{
+			const string input = " x-custom value by smtp.target.com\r\n";
+			var buffer = Encoding.UTF8.GetBytes (input);
+			var received = Received.Parse (buffer);
+
+			Assert.That (received.Clauses[0].Id, Is.EqualTo (ReceivedClauseId.Unknown), "Id");
+			Assert.That (received.Clauses[0].Keyword, Is.EqualTo ("x-custom"), "Keyword");
+			Assert.That (received.Clauses[0].Value, Is.EqualTo ("value"), "Value");
+			Assert.That (received.By, Is.EqualTo ("smtp.target.com"), "By");
 		}
 
 		[Test]

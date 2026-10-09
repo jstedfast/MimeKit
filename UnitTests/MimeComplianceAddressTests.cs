@@ -153,6 +153,78 @@ namespace UnitTests {
 			AssertViolation (value, expected);
 		}
 
+		[TestCase ("(unterminated\\", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("\"unterminated\\", MimeComplianceViolation.UnbalancedQuotesInAddress)]
+		public void TestEscapedEndOfCommentAndQuotedStringIsReported (string value, MimeComplianceViolation expected)
+		{
+			AssertViolation (value, expected);
+		}
+
+		[TestCase ("user@[127.0.0.1", MimeComplianceViolation.NonConformantAddress)]
+		[TestCase ("user@example (unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("user@example. (unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("<(unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("<<(unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("<@route:(unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		[TestCase ("<user@example.com (unterminated", MimeComplianceViolation.UnbalancedParenthesesInAddress)]
+		public void TestUnfinishedCfwsStopsValidationAtCurrentProduction (string value, MimeComplianceViolation expected)
+		{
+			AssertViolation (value, expected);
+		}
+
+		[Test]
+		public void TestMissingSeparatorScansPastQuotedTextAndComments ()
+		{
+			var quoted = Validate ("To", "\"not \\\"<\\\"\" <a@example.com> b@example.com");
+			var commented = Validate ("To", "(not \\(< (nested)) A <a@example.com> b@example.com");
+
+			Assert.That (quoted.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.AmbiguousMailboxBoundary));
+			Assert.That (commented.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.AmbiguousMailboxBoundary));
+		}
+
+		[Test]
+		public void TestDisplayNameAddressShapeSkipsCommentsAndEscapes ()
+		{
+			var commented = Validate ("To", "(admin@example.com (comment)) <attacker@example.org>");
+			var escaped = Validate ("To", "admin\\@example.com <attacker@example.org>");
+			var leadingDot = Validate ("To", "admin@.example <attacker@example.org>");
+
+			Assert.That (commented.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.UnquotedAddressInDisplayName));
+			Assert.That (escaped.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.UnquotedAddressInDisplayName));
+			Assert.That (leadingDot.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.UnquotedAddressInDisplayName));
+		}
+
+		[Test]
+		public void TestUnquotedCommaLookaheadSkipsQuotedText ()
+		{
+			var issues = Validate ("To", "local, \"not \\\"<\\\"\"; next@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.AddressWithoutDomain));
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.UnquotedDisplayName));
+		}
+
+		[TestCase ("Friends: (unterminated")]
+		[TestCase ("Friends: a@example.com (unterminated")]
+		[TestCase ("Friends: \"unterminated;")]
+		public void TestUnfinishedGroupCfwsOrAddressStopsValidation (string value)
+		{
+			var issues = Validate ("To", value);
+			var violations = issues.Select (i => i.Violation).ToList ();
+
+			Assert.That (violations.Contains (MimeComplianceViolation.UnbalancedParenthesesInAddress) ||
+				violations.Contains (MimeComplianceViolation.UnbalancedQuotesInAddress), Is.True,
+				$"Expected an unfinished comment or quoted-string for \"{value}\" but got: {string.Join (", ", violations)}");
+		}
+
+		[Test]
+		public void TestDamagedLocalPartBeforeGroupTerminatorConsumesTerminator ()
+		{
+			var issues = Validate ("To", "Friends: a]; b@example.com");
+
+			Assert.That (issues.Select (i => i.Violation), Has.Some.EqualTo (MimeComplianceViolation.InvalidLocalPart));
+			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.NonConformantAddress));
+		}
+
 		[Test]
 		public void TestNestedGroupIsReported ()
 		{

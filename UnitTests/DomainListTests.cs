@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Collections;
+
 using MimeKit;
 
 namespace UnitTests {
@@ -120,6 +122,40 @@ namespace UnitTests {
 
 			Assert.That (list.Count, Is.EqualTo (1));
 			Assert.That (list[0], Is.EqualTo ("domain"));
+
+			list[0] = "domain";
+
+			Assert.That (list[0], Is.EqualTo ("domain"));
+		}
+
+		[Test]
+		public void TestNonGenericEnumerator ()
+		{
+			var list = new DomainList (new [] { "domain1", "domain2" });
+			var enumerator = ((IEnumerable) list).GetEnumerator ();
+
+			Assert.That (enumerator.MoveNext (), Is.True, "MoveNext #1");
+			Assert.That (enumerator.Current, Is.EqualTo ("domain1"), "Current #1");
+			Assert.That (enumerator.MoveNext (), Is.True, "MoveNext #2");
+			Assert.That (enumerator.Current, Is.EqualTo ("domain2"), "Current #2");
+			Assert.That (enumerator.MoveNext (), Is.False, "MoveNext #3");
+		}
+
+		[Test]
+		public void TestEncodeSkipsWhitespaceDomainsAndIdnEncodes ()
+		{
+			var mailbox = new MailboxAddress ("", "user@example.com") {
+				Route = {
+					"  \t ",
+					"bücher.example",
+					"example.net"
+				}
+			};
+			var options = FormatOptions.Default.Clone ();
+
+			options.International = false;
+
+			Assert.That (mailbox.ToString (options, true), Is.EqualTo ("<@xn--bcher-kva.example,@example.net:user@example.com>"));
 		}
 
 		[Test]
@@ -156,6 +192,21 @@ namespace UnitTests {
 		public void TestParseInvalidDomain ()
 		{
 			AssertParseFailure ("@[invalid.domain");
+		}
+
+		[Test]
+		public void TestParseIncompleteRouteThrows ()
+		{
+			var buffer = new byte[] { (byte) '@' };
+			int index = 0;
+
+			Assert.Throws<ParseException> (() => DomainList.TryParse (buffer, ref index, buffer.Length, true, out _));
+		}
+
+		[Test]
+		public void TestParseUnterminatedCommentAfterDomain ()
+		{
+			AssertParseFailure ("@example.com (unterminated");
 		}
 
 		[Test]

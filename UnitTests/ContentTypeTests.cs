@@ -328,6 +328,32 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestIncompleteComments ()
+		{
+			var expected = new ContentType ("text", "plain");
+
+			foreach (var text in new [] { "(comment", "text(comment", "text/(comment" }) {
+				Assert.That (ContentType.TryParse (text, out var type), Is.False, text);
+				Assert.That (type, Is.Null, text);
+			}
+
+			Assert.That (ContentType.TryParse ("text/plain(comment", out var parsed), Is.False, "text/plain(comment");
+			Assert.That (parsed, Is.Null, "text/plain(comment");
+
+			Assert.That (ContentType.TryParse ("text/plain;(comment", out parsed), Is.False, "text/plain;(comment");
+			Assert.That (parsed, Is.Not.Null, "text/plain;(comment");
+			AssertParseResults (parsed, expected);
+		}
+
+		[Test]
+		public void TestSemicolonWithoutParameters ()
+		{
+			var expected = new ContentType ("text", "plain");
+
+			AssertParse ("text/plain; ", expected);
+		}
+
+		[Test]
 		public void TestMultipartParameterExampleFromRfc2231 ()
 		{
 			const string text = "message/external-body; access-type=URL;\n      URL*0=\"ftp://\";\n      URL*1=\"cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar\"";

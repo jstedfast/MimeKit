@@ -213,6 +213,97 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestBoundaryChangedEvents ()
+		{
+			var list = new ParameterList ();
+			int changed = 0;
+
+			list.BoundaryChanged += (sender, args) => changed++;
+
+			list.Add ("boundary", "boundary-1");
+			Assert.That (changed, Is.EqualTo (1), "Add boundary");
+
+			list.Clear ();
+			Assert.That (changed, Is.EqualTo (2), "Clear boundary");
+
+			list.Insert (0, new Parameter ("boundary", "boundary-2"));
+			Assert.That (changed, Is.EqualTo (3), "Insert boundary");
+
+			list.RemoveAt (0);
+			Assert.That (changed, Is.EqualTo (4), "RemoveAt boundary");
+
+			list.Add ("name", "value");
+			list[0] = new Parameter ("boundary", "boundary-3");
+			Assert.That (changed, Is.EqualTo (5), "Replace with boundary");
+
+			list[0] = list[0];
+			Assert.That (changed, Is.EqualTo (5), "Replace with same instance");
+		}
+
+		[Test]
+		public void TestNameValuePairComparisons ()
+		{
+			var type = typeof (ParameterList).GetNestedType ("NameValuePair", System.Reflection.BindingFlags.NonPublic);
+			var ctor = type.GetConstructor (new [] { typeof (int), typeof (int), typeof (bool), typeof (byte[]), typeof (string), typeof (int?) });
+			var unnumbered = ctor.Invoke (new object[] { 0, 0, false, Array.Empty<byte> (), "name", null });
+			var numbered = ctor.Invoke (new object[] { 0, 0, false, Array.Empty<byte> (), "name", 1 });
+			var compareTo = type.GetMethod ("CompareTo");
+
+			Assert.That (compareTo.Invoke (numbered, new object[] { null }), Is.EqualTo (1), "null");
+			Assert.That (compareTo.Invoke (unnumbered, new [] { numbered }), Is.EqualTo (-1), "unnumbered vs numbered");
+			Assert.That (compareTo.Invoke (unnumbered, new [] { unnumbered }), Is.EqualTo (0), "unnumbered vs unnumbered");
+			Assert.That (compareTo.Invoke (numbered, new [] { unnumbered }), Is.EqualTo (1), "numbered vs unnumbered");
+		}
+
+		[Test]
+		public void TestIncompleteComments ()
+		{
+			var options = ParserOptions.Default.Clone ();
+
+			foreach (var text in new [] { "(comment", "name(comment", "name*(comment", "name*0(comment", "name*0*(comment", "name=(comment" }) {
+				var input = Encoding.ASCII.GetBytes (text);
+				var index = 0;
+
+				Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.False, text);
+				Assert.That (paramList, Is.Null, text);
+			}
+
+			options.ParameterComplianceMode = RfcComplianceMode.Strict;
+
+			{
+				const string text = "name=value(comment";
+				var input = Encoding.ASCII.GetBytes (text);
+				var index = 0;
+
+				Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.False, text);
+				Assert.That (paramList, Is.Null, text);
+			}
+		}
+
+		[Test]
+		public void TestStrictInvalidParameterListToken ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			var input = Encoding.ASCII.GetBytes ("name=value x=y");
+			var index = 0;
+
+			options.ParameterComplianceMode = RfcComplianceMode.Strict;
+
+			Assert.Throws<ParseException> (() => ParameterList.TryParse (options, input, ref index, input.Length, true, out _));
+		}
+
+		[Test]
+		public void TestEmptyUnquotedParameterValue ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			var input = Encoding.ASCII.GetBytes ("name=;");
+			var index = 0;
+
+			Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.True);
+			Assert.That (paramList["name"], Is.EqualTo (string.Empty));
+		}
+
+		[Test]
 		public void TestParseRfc2231ParemeterValueWithoutCharsetDeclaration ()
 		{
 			const string text = "name*0*=This%20is%20some%20encoded%20ascii%20text";

@@ -381,5 +381,27 @@ namespace UnitTests.Utils {
 			// FIXME: should this succeed and produce "id@domain@" as the msgid?
 			Assert.That (ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out msgid), Is.False, "TryParseMsgId");
 		}
+
+		[Test]
+		public void TestSkipNestedStringComment ()
+		{
+			const string text = "(outer (inner\\) still inner) done) rest";
+			int index = 0;
+
+			Assert.That (ParseUtils.SkipComment (text, ref index, text.Length), Is.True);
+			Assert.That (index, Is.EqualTo (text.IndexOf (" rest", StringComparison.Ordinal)));
+		}
+
+		[Test]
+		public void TestSkipIncompleteStringComment ()
+		{
+			const string text = "(unterminated";
+			int index = 0;
+
+			Assert.That (ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, false), Is.False);
+
+			index = 0;
+			Assert.Throws<ParseException> (() => ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, text.Length, true));
+		}
 	}
 }

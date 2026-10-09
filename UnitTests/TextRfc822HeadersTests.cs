@@ -41,6 +41,15 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => entity.Accept (null));
 		}
 
+		[Test]
+		public void TestConstructorIgnoresNullArguments ()
+		{
+			var message = new MimeMessage ();
+			var entity = new TextRfc822Headers (null, message);
+
+			Assert.That (entity.Message, Is.SameAs (message));
+		}
+
 		class TextRfc822HeadersVisitor : MimeVisitor
 		{
 			public TextRfc822Headers Rfc822Headers;
