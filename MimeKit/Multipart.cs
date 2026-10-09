@@ -217,10 +217,15 @@ namespace MimeKit {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
+				value = value.Trim ();
+
+				// TODO: Consider validating the boundary according to rfc2046 (i.e. 1-70 characters long
+				// and only containing bchars, not ending with a space) and throw ArgumentException if invalid.
+
 				if (Boundary == value)
 					return;
 
-				ContentType.Boundary = value.Trim ();
+				ContentType.Boundary = value;
 			}
 		}
 
@@ -299,7 +304,7 @@ namespace MimeKit {
 					// for sanity, we pretend that it doesn't.
 					if ((RawEpilogue.Length > 1 && RawEpilogue[0] == (byte) '\r' && RawEpilogue[1] == (byte) '\n'))
 						index += 2;
-					else if (RawEpilogue.Length > 1 && RawEpilogue[0] == (byte) '\n')
+					else if (RawEpilogue.Length > 0 && RawEpilogue[0] == (byte) '\n')
 						index++;
 
 					epilogue = CharsetUtils.ConvertToUnicode (Headers.Options, RawEpilogue, index, RawEpilogue.Length - index);

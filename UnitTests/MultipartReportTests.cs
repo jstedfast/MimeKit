@@ -61,5 +61,15 @@ namespace UnitTests {
 			Assert.That (multipart[0].ContentType.MimeType, Is.EqualTo ("text/plain"), "MimeType[0]");
 			Assert.That (multipart[1].ContentType.MimeType, Is.EqualTo ("image/gif"), "MimeType[1]");
 		}
+
+		[Test]
+		public void TestSettingSameReportTypeIsNoOp ()
+		{
+			var report = new MultipartReport ("disposition-notification");
+
+			report.ReportType = "disposition-notification";
+
+			Assert.That (report.ReportType, Is.EqualTo ("disposition-notification"));
+		}
 	}
 }

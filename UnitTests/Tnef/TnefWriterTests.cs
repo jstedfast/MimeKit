@@ -28,6 +28,8 @@ using System.Text;
 
 using MimeKit.Tnef;
 
+using UnitTests.IO;
+
 namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefWriterTests
@@ -661,31 +663,10 @@ namespace UnitTests.Tnef {
 			Assert.That (ReadAttributes (output.ToArray ()).Last ().Tag, Is.EqualTo (TnefAttributeTag.Body));
 		}
 
-		sealed class ThrowingStream : MemoryStream
-		{
-			public bool Disposed;
-
-			public override void Write (byte[] buffer, int offset, int count)
-			{
-				throw new IOException ("Write failed.");
-			}
-
-			public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-			{
-				throw new IOException ("Write failed.");
-			}
-
-			protected override void Dispose (bool disposing)
-			{
-				Disposed = true;
-				base.Dispose (disposing);
-			}
-		}
-
 		[Test]
 		public void TestDisposeWithFailingStream ()
 		{
-			var output = new ThrowingStream ();
+			var output = new ThrowingWriteStream ();
 			var writer = new TnefWriter (output);
 
 			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body))
@@ -699,7 +680,7 @@ namespace UnitTests.Tnef {
 
 			// Dispose must not throw, even though the queued attributes cannot be written.
 			Assert.DoesNotThrow (() => writer.Dispose ());
-			Assert.That (output.Disposed, Is.True);
+			Assert.That (output.IsDisposed, Is.True);
 		}
 
 		#endregion

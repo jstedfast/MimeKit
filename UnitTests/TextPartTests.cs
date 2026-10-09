@@ -54,6 +54,15 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestConstructorIgnoresNullArgs ()
+		{
+			var part = new TextPart ("plain", null, Encoding.UTF8, "hello");
+
+			Assert.That (part.ContentType.Charset, Is.EqualTo ("utf-8"));
+			Assert.That (part.Text, Is.EqualTo ("hello"));
+		}
+
+		[Test]
 		public void TestFormat ()
 		{
 			TextPart text;
@@ -85,6 +94,10 @@ namespace UnitTests {
 			Assert.That (text.Format, Is.EqualTo (TextFormat.Flowed), "Format");
 			Assert.That (text.IsFormat (TextFormat.Plain), Is.True, "IsFormat"); // special: Flowed is both Plain *and* Flowed
 			Assert.That (text.IsFormat (TextFormat.Flowed), Is.True, "IsFormat");
+
+			text = new TextPart ("plain");
+			text.ContentType.Parameters["format"] = " flowed ";
+			Assert.That (text.Format, Is.EqualTo (TextFormat.Flowed), "Format");
 
 			text = new TextPart (TextFormat.RichText);
 			Assert.That (text.IsHtml, Is.False, "IsHtml");
@@ -377,6 +390,22 @@ namespace UnitTests {
 				Assert.That (part.TryDetectEncoding (out encoding, out confidence), Is.True);
 				Assert.That (confidence, Is.EqualTo (TextEncodingConfidence.Tentative));
 				Assert.That (encoding.WebName.ToLowerInvariant (), Is.EqualTo ("windows-1252"));
+			}
+		}
+
+		[Test]
+		public void TestTryDetectHtmlEncodingUTF16MetaFallsBackToUTF8 ()
+		{
+			const string html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-16\" /></head><body><p>Hello, world!</p></body></html>";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (html), false)) {
+				var part = new TextPart (TextFormat.Html) {
+					Content = new MimeContent (stream)
+				};
+
+				Assert.That (part.TryDetectEncoding (out var encoding, out var confidence), Is.True);
+				Assert.That (confidence, Is.EqualTo (TextEncodingConfidence.Tentative));
+				Assert.That (encoding.WebName, Is.EqualTo ("utf-8"));
 			}
 		}
 

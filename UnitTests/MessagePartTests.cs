@@ -68,5 +68,15 @@ namespace UnitTests {
 				Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Prepare #4");
 			}
 		}
+
+		[Test]
+		public void TestPrepareValidatesMaxLineLengthBeforeDisposed ()
+		{
+			var rfc822 = new MessagePart ();
+
+			rfc822.Dispose ();
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => rfc822.Prepare (EncodingConstraint.SevenBit, 1));
+		}
 	}
 }

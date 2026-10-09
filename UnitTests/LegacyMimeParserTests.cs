@@ -33,6 +33,8 @@ using MimeKit.IO;
 using MimeKit.Utils;
 using MimeKit.IO.Filters;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class LegacyMimeParserTests
@@ -6778,7 +6780,7 @@ ABC
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
 			}
 
-			using (var stream = new MimeReaderTests.ChunkedReadStream (data, 7)) {
+			using (var stream = new ChunkedReadStream (data, 7)) {
 				var parser = new LegacyMimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
@@ -6798,7 +6800,7 @@ ABC
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
 			}
 
-			using (var stream = new MimeReaderTests.ChunkedReadStream (data, 7)) {
+			using (var stream = new ChunkedReadStream (data, 7)) {
 				var parser = new LegacyMimeParser (stream, MimeFormat.Entity);
 				var message = await parser.ParseMessageAsync ();
 
@@ -6808,7 +6810,7 @@ ABC
 
 		static Stream CreateStream (byte[] data, bool chunked)
 		{
-			return chunked ? new MimeReaderTests.ChunkedReadStream (data, 7) : new MemoryStream (data, false);
+			return chunked ? new ChunkedReadStream (data, 7) : new MemoryStream (data, false);
 		}
 
 		static void AssertExcessiveHeaderLength (FormatException ex, long offset, int maxHeaderLength)

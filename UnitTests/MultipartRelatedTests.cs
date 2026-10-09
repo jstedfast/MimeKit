@@ -127,6 +127,34 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestDocumentRootWithUnbracketedStart ()
+		{
+			var html = new TextPart ("html") { Text = "<p>html</p>", ContentId = MimeUtils.GenerateMessageId () };
+			var image = new MimePart ("image", "png") { ContentId = MimeUtils.GenerateMessageId () };
+			var related = new MultipartRelated (image, html);
+
+			related.ContentType.Parameters["start"] = html.ContentId;
+
+			Assert.That (related.Root, Is.SameAs (html));
+		}
+
+		[Test]
+		public void TestDocumentRootWithNoMatches ()
+		{
+			var related = new MultipartRelated {
+				new MimePart ("image", "png")
+			};
+
+			Assert.That (new MultipartRelated ().Root, Is.Null);
+
+			related.ContentType.Parameters["type"] = "text/html";
+
+			Assert.That (related.Root, Is.SameAs (related[0]));
+			Assert.That (related.TryGetValue (TextFormat.Html, out var body), Is.False);
+			Assert.That (body, Is.Null);
+		}
+
+		[Test]
 		public void TestReferenceByContentId ()
 		{
 			var builder = new BodyBuilder {
@@ -205,6 +233,55 @@ namespace UnitTests {
 
 				Assert.DoesNotThrow (() => related.Open (related[i].ContentLocation).Dispose ());
 			}
+		}
+
+		[Test]
+		public void TestReferenceByRelativeContentLocationWithBase ()
+		{
+			var image = new MimePart ("image", "png") {
+				Content = new MimeContent (new MemoryStream (new byte[] { 1, 2, 3 }, false)),
+				ContentLocation = new Uri ("images/logo.png", UriKind.Relative)
+			};
+			var related = new MultipartRelated (new TextPart ("html") { Text = "<img src=\"images/logo.png\">" }, image) {
+				ContentBase = new Uri ("http://example.com/")
+			};
+			var uri = new Uri ("http://example.com/images/logo.png");
+
+			Assert.That (related.Contains (uri), Is.True);
+			Assert.That (related.IndexOf (uri), Is.EqualTo (1));
+
+			using (var stream = related.Open (uri, out var mimeType, out var charset)) {
+				Assert.That (mimeType, Is.EqualTo ("image/png"));
+				Assert.That (charset, Is.Null);
+				Assert.That (stream.ReadByte (), Is.EqualTo (1));
+			}
+		}
+
+		[Test]
+		public void TestReferenceByRelativeContentLocationWithoutBaseDoesNotMatch ()
+		{
+			var image = new MimePart ("image", "png") {
+				ContentLocation = new Uri ("images/logo.png", UriKind.Relative)
+			};
+			var related = new MultipartRelated (new TextPart ("html") { Text = "<img src=\"images/logo.png\">" }, image);
+			var uri = new Uri ("http://example.com/images/logo.png");
+
+			Assert.That (related.Contains (uri), Is.False);
+			Assert.That (related.IndexOf (uri), Is.EqualTo (-1));
+		}
+
+		[Test]
+		public void TestOpenNonMimePartThrows ()
+		{
+			var related = new MultipartRelated {
+				new MessagePart {
+					ContentLocation = new Uri ("http://example.com/message.eml"),
+					Message = new MimeMessage { Body = new TextPart ("plain") { Text = "body" } }
+				}
+			};
+
+			Assert.Throws<FileNotFoundException> (() => related.Open (new Uri ("http://example.com/message.eml")));
+			Assert.Throws<FileNotFoundException> (() => related.Open (new Uri ("http://example.com/message.eml"), out _, out _));
 		}
 	}
 }

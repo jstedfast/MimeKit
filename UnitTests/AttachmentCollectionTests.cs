@@ -28,6 +28,8 @@ using System.Collections;
 
 using MimeKit;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class AttachmentCollectionTests
@@ -613,6 +615,61 @@ namespace UnitTests {
 			Assert.That (attachments.Remove (attachment), Is.True, "Remove");
 			Assert.That (attachments.Count, Is.EqualTo (0));
 			attachments.Clear (true);
+		}
+
+		[Test]
+		public void TestAddDisposesPartWhenLoadingContentFails ()
+		{
+			var attachments = new AttachmentCollection ();
+			using var stream = new ThrowingReadStream ();
+
+			Assert.Throws<IOException> (() => attachments.Add ("file.txt", stream, new ContentType ("text", "plain")));
+			Assert.That (attachments.Count, Is.EqualTo (0));
+		}
+
+		[Test]
+		public async Task TestAddDisposesPartWhenLoadingContentFailsAsync ()
+		{
+			var attachments = new AttachmentCollection ();
+			using var stream = new ThrowingReadStream ();
+
+			Assert.ThrowsAsync<IOException> (async () => await attachments.AddAsync ("file.txt", stream, new ContentType ("text", "plain")));
+			Assert.That (attachments.Count, Is.EqualTo (0));
+		}
+
+		[Test]
+		public void TestAddExplicitInvalidMessageThrows ()
+		{
+			var attachments = new AttachmentCollection ();
+			using var stream = new MemoryStream (new byte[] { 0xff, 0x00, 0xff }, false);
+
+			Assert.Throws<FormatException> (() => attachments.Add ("message.eml", stream, new ContentType ("message", "rfc822")));
+			Assert.That (attachments.Count, Is.EqualTo (0));
+		}
+
+		[Test]
+		public void TestAddExplicitMessageData ()
+		{
+			var fileName = Path.Combine (TestHelper.ProjectDir, "TestData", "messages", "body.1.txt");
+			var attachments = new AttachmentCollection ();
+			var data = File.ReadAllBytes (fileName);
+
+			var attachment = attachments.Add ("message.eml", data, new ContentType ("message", "rfc822"));
+
+			Assert.That (attachment, Is.InstanceOf<MessagePart> ());
+			Assert.That (attachment.ContentType.MimeType, Is.EqualTo ("message/rfc822"));
+			Assert.That (attachment.ContentDisposition.Disposition, Is.EqualTo (ContentDisposition.Attachment));
+			Assert.That (attachment.ContentDisposition.FileName, Is.EqualTo ("message.eml"));
+		}
+
+		[Test]
+		public async Task TestAddExplicitInvalidMessageThrowsAsync ()
+		{
+			var attachments = new AttachmentCollection ();
+			using var stream = new MemoryStream (new byte[] { 0xff, 0x00, 0xff }, false);
+
+			Assert.ThrowsAsync<FormatException> (async () => await attachments.AddAsync ("message.eml", stream, new ContentType ("message", "rfc822")));
+			Assert.That (attachments.Count, Is.EqualTo (0));
 		}
 
 		[Test]

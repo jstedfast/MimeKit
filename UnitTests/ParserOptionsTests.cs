@@ -47,6 +47,13 @@ namespace UnitTests {
 		}
 	}
 
+	class CustomMessagePart : MessagePart
+	{
+		public CustomMessagePart (MimeEntityConstructorArgs args) : base (args)
+		{
+		}
+	}
+
 	[TestFixture]
 	public class ParserOptionsTests
 	{
@@ -154,6 +161,35 @@ Content-type: text/plain
 				var html = await MimeEntity.LoadAsync (options, stream);
 
 				Assert.That (html, Is.InstanceOf<CustomTextHtmlPart> (), "Expected the text/html part to use our custom type.");
+			}
+		}
+
+		[Test]
+		public void TestCustomMessagePartHonorsMaxMimeDepth ()
+		{
+			const string rawMimeData = "Content-Type: message/rfc822\n\nFrom: Example <example@example.com>\n\nBody";
+			var options = ParserOptions.Default.Clone ();
+			options.MaxMimeDepth = 0;
+			options.RegisterMimeType ("message/rfc822", typeof (CustomMessagePart));
+
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMimeData))) {
+				var entity = MimeEntity.Load (options, stream);
+
+				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected max depth to prevent custom message/rfc822 construction.");
+				Assert.That (entity, Is.Not.InstanceOf<CustomMessagePart> (), "Expected max depth to prevent custom message/rfc822 construction.");
+			}
+		}
+
+		[Test]
+		public void TestEncodedMessageGlobalHeadersFallsBackToMimePart ()
+		{
+			const string rawMimeData = "Content-Type: message/global-headers\nContent-Transfer-Encoding: base64\n\nRnJvbTogRXhhbXBsZSA8ZXhhbXBsZUBleGFtcGxlLmNvbT4K";
+
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMimeData))) {
+				var entity = MimeEntity.Load (stream);
+
+				Assert.That (entity, Is.InstanceOf<MimePart> (), "Expected encoded message/global-headers to be a MimePart.");
+				Assert.That (entity, Is.Not.InstanceOf<TextRfc822Headers> (), "Expected encoded message/global-headers not to be TextRfc822Headers.");
 			}
 		}
 	}

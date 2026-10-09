@@ -134,6 +134,207 @@ namespace UnitTests {
 			}
 		}
 
+		static string GetText (MimeMessage message)
+		{
+			return ((TextPart) message.Body).Text;
+		}
+
+		[Test]
+		public void TestSetStreamPersistentOverloads ()
+		{
+			var first = Encoding.ASCII.GetBytes ("Subject: first\r\n\r\nfirst body");
+			var second = Encoding.ASCII.GetBytes ("Subject: second\r\n\r\nsecond body");
+
+			var parser = new MimeParser (Stream.Null);
+
+			using (var stream = new MemoryStream (first, false)) {
+				parser.SetStream (stream, MimeFormat.Entity, true);
+
+				using var message = parser.ParseMessage ();
+
+				Assert.That (message.Subject, Is.EqualTo ("first"));
+				Assert.That (GetText (message), Is.EqualTo ("first body"));
+				Assert.That (parser.Position, Is.EqualTo (first.Length), "First position");
+			}
+
+			using (var stream = new MemoryStream (second, false)) {
+				parser.SetStream (stream, true);
+
+				using var message = parser.ParseMessage ();
+
+				Assert.That (message.Subject, Is.EqualTo ("second"));
+				Assert.That (GetText (message), Is.EqualTo ("second body"));
+				Assert.That (parser.Position, Is.EqualTo (second.Length), "Second position");
+			}
+		}
+
+		[Test]
+		public async Task TestSetStreamPersistentOverloadsAsync ()
+		{
+			var first = Encoding.ASCII.GetBytes ("Subject: first\r\n\r\nfirst body");
+			var second = Encoding.ASCII.GetBytes ("Subject: second\r\n\r\nsecond body");
+
+			var parser = new MimeParser (Stream.Null);
+
+			using (var stream = new MemoryStream (first, false)) {
+				parser.SetStream (stream, MimeFormat.Entity, true);
+
+				using var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Subject, Is.EqualTo ("first"));
+				Assert.That (GetText (message), Is.EqualTo ("first body"));
+				Assert.That (parser.Position, Is.EqualTo (first.Length), "First position");
+			}
+
+			using (var stream = new MemoryStream (second, false)) {
+				parser.SetStream (stream, true);
+
+				using var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Subject, Is.EqualTo ("second"));
+				Assert.That (GetText (message), Is.EqualTo ("second body"));
+				Assert.That (parser.Position, Is.EqualTo (second.Length), "Second position");
+			}
+		}
+
+		static void AssertPreHeaderResizeMessage (MimeMessage message)
+		{
+			const string expected = ">From first preheader\r\n>From second preheader line is longer\r\n";
+
+			Assert.That (Encoding.ASCII.GetString (message.MboxMarker), Is.EqualTo (expected), "MboxMarker");
+			Assert.That (message.Headers.Count, Is.EqualTo (2), "Header count");
+			Assert.That (message.From.ToString (), Is.EqualTo ("sender@example.org"));
+			Assert.That (message.Subject, Is.EqualTo ("preheader resize"));
+			Assert.That (GetText (message), Is.EqualTo ("body\r\n"));
+		}
+
+		[Test]
+		public void TestPreHeaderBufferResizesForMultipleInvalidLeadingHeaders ()
+		{
+			const string text = "Content-Type: message/rfc822\r\n\r\n>From first preheader\r\n>From second preheader line is longer\r\nFrom: sender@example.org\r\nSubject: preheader resize\r\n\r\nbody\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+				var rfc822 = (MessagePart) message.Body;
+
+				AssertPreHeaderResizeMessage (rfc822.Message);
+			}
+		}
+
+		[Test]
+		public async Task TestPreHeaderBufferResizesForMultipleInvalidLeadingHeadersAsync ()
+		{
+			const string text = "Content-Type: message/rfc822\r\n\r\n>From first preheader\r\n>From second preheader line is longer\r\nFrom: sender@example.org\r\nSubject: preheader resize\r\n\r\nbody\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+				var rfc822 = (MessagePart) message.Body;
+
+				AssertPreHeaderResizeMessage (rfc822.Message);
+			}
+		}
+
+		static byte[] CreateMessageThatFailsDuringBodyRead (out int throwOffset)
+		{
+			var headers = Encoding.ASCII.GetBytes ("Subject: broken\r\n\r\n");
+			var body = Encoding.ASCII.GetBytes (new string ('x', 4096));
+			var data = new byte[headers.Length + body.Length];
+
+			Buffer.BlockCopy (headers, 0, data, 0, headers.Length);
+			Buffer.BlockCopy (body, 0, data, headers.Length, body.Length);
+
+			throwOffset = headers.Length + 64;
+
+			return data;
+		}
+
+		static void AssertSuccessfulParseAfterFailure (MimeMessage message)
+		{
+			Assert.That (message.Subject, Is.EqualTo ("recovered"));
+			Assert.That (GetText (message), Is.EqualTo ("ok"));
+		}
+
+		[Test]
+		public void TestParseMessageRecoversAfterReadFailure ()
+		{
+			var failing = CreateMessageThatFailsDuringBodyRead (out var throwOffset);
+			var recovered = Encoding.ASCII.GetBytes ("Subject: recovered\r\n\r\nok");
+
+			var parser = new MimeParser (new ThrowingReadStream (failing, throwOffset, 7), MimeFormat.Entity);
+			var ex = Assert.Throws<IOException> (() => parser.ParseMessage ());
+
+			Assert.That (ex.Message, Is.EqualTo ("Read failed."));
+
+			using (var stream = new MemoryStream (recovered, false)) {
+				parser.SetStream (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				AssertSuccessfulParseAfterFailure (message);
+			}
+		}
+
+		[Test]
+		public async Task TestParseMessageRecoversAfterReadFailureAsync ()
+		{
+			var failing = CreateMessageThatFailsDuringBodyRead (out var throwOffset);
+			var recovered = Encoding.ASCII.GetBytes ("Subject: recovered\r\n\r\nok");
+
+			var parser = new MimeParser (new ThrowingReadStream (failing, throwOffset, 7), MimeFormat.Entity);
+			var ex = Assert.ThrowsAsync<IOException> (async () => await parser.ParseMessageAsync ());
+
+			Assert.That (ex.Message, Is.EqualTo ("Read failed."));
+
+			using (var stream = new MemoryStream (recovered, false)) {
+				parser.SetStream (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				AssertSuccessfulParseAfterFailure (message);
+			}
+		}
+
+		static void AssertDoubleBoundaryBeforePart (MimeMessage message, string text)
+		{
+			Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Body type");
+
+			var multipart = (Multipart) message.Body;
+
+			Assert.That (multipart.Count, Is.EqualTo (2), "Child count");
+			Assert.That (multipart[0], Is.InstanceOf<TextPart> (), "First child type");
+			Assert.That (((TextPart) multipart[0]).Text, Is.EqualTo (string.Empty), "First child text");
+			Assert.That (multipart[1], Is.InstanceOf<TextPart> (), "Second child type");
+			Assert.That (((TextPart) multipart[1]).Text, Is.EqualTo ("body"), "Second child text");
+
+			AssertSerialization (message, NewLineFormat.Dos, text);
+		}
+
+		[Test]
+		public void TestDoubleBoundaryBeforePartPreservesRawBoundary ()
+		{
+			const string text = "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\n--b\r\nContent-Type: text/plain\r\n\r\nbody\r\n--b--\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				AssertDoubleBoundaryBeforePart (message, text);
+			}
+		}
+
+		[Test]
+		public async Task TestDoubleBoundaryBeforePartPreservesRawBoundaryAsync ()
+		{
+			const string text = "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\n--b\r\nContent-Type: text/plain\r\n\r\nbody\r\n--b--\r\n";
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				AssertDoubleBoundaryBeforePart (message, text);
+			}
+		}
+
 		[Test]
 		public void TestHeaderParser ()
 		{
@@ -7265,7 +7466,7 @@ Content-Type: text/plain; charset=utf-8
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
 			}
 
-			using (var stream = new MimeReaderTests.ChunkedReadStream (data, 7)) {
+			using (var stream = new ChunkedReadStream (data, 7)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
@@ -7285,7 +7486,7 @@ Content-Type: text/plain; charset=utf-8
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
 			}
 
-			using (var stream = new MimeReaderTests.ChunkedReadStream (data, 7)) {
+			using (var stream = new ChunkedReadStream (data, 7)) {
 				var parser = new MimeParser (stream, MimeFormat.Entity);
 				var message = await parser.ParseMessageAsync ();
 
@@ -7295,7 +7496,7 @@ Content-Type: text/plain; charset=utf-8
 
 		static Stream CreateStream (byte[] data, bool chunked)
 		{
-			return chunked ? new MimeReaderTests.ChunkedReadStream (data, 7) : new MemoryStream (data, false);
+			return chunked ? new ChunkedReadStream (data, 7) : new MemoryStream (data, false);
 		}
 
 		static void AssertExcessiveHeaderLength (FormatException ex, long offset, int maxHeaderLength)

@@ -28,6 +28,8 @@ using System.Text;
 
 using MimeKit.Tnef;
 
+using UnitTests.IO;
+
 namespace UnitTests.Tnef {
 	[TestFixture]
 	public class TnefPropertySetTests
@@ -37,29 +39,6 @@ namespace UnitTests.Tnef {
 		static readonly Guid PublicStrings = new Guid ("00020329-0000-0000-C000-000000000046");
 		static readonly TnefPropertyTag SubjectA = new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.String8);
 		static readonly TnefPropertyTag SubjectW = new TnefPropertyTag (TnefPropertyId.Subject, TnefPropertyType.Unicode);
-
-		// A stream that cannot seek, so that the reader cannot verify declared lengths against the stream length.
-		class NonSeekableStream : Stream
-		{
-			readonly Stream source;
-
-			public NonSeekableStream (Stream source)
-			{
-				this.source = source;
-			}
-
-			public override bool CanRead => true;
-			public override bool CanSeek => false;
-			public override bool CanWrite => false;
-			public override long Length => throw new NotSupportedException ();
-			public override long Position { get => throw new NotSupportedException (); set => throw new NotSupportedException (); }
-			public override void Flush () { }
-			public override int Read (byte[] buffer, int offset, int count) => source.Read (buffer, offset, count);
-			public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken) => source.ReadAsync (buffer, offset, count, cancellationToken);
-			public override long Seek (long offset, SeekOrigin origin) => throw new NotSupportedException ();
-			public override void SetLength (long value) => throw new NotSupportedException ();
-			public override void Write (byte[] buffer, int offset, int count) => throw new NotSupportedException ();
-		}
 
 		#region Helpers
 

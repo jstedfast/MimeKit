@@ -40,6 +40,7 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => format.MaxLineLength = 59, "MaxLineLength too small");
 
 			Assert.DoesNotThrow (() => format.MaxLineLength = 72);
+			Assert.Throws<ArgumentOutOfRangeException> (() => format.NewLineFormat = (NewLineFormat) 100, "NewLineFormat");
 		}
 
 		[Test]

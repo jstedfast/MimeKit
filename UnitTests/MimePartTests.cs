@@ -31,6 +31,8 @@ using System.Buffers;
 using MimeKit;
 using MimeKit.Utils;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class MimePartTests
@@ -280,6 +282,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSettingSameContentDescriptionIsNoOp ()
+		{
+			using var part = new MimePart ();
+
+			part.ContentDescription = "description";
+			part.ContentDescription = "description";
+
+			Assert.That (part.ContentDescription, Is.EqualTo ("description"));
+			Assert.That (part.Headers[HeaderId.ContentDescription], Is.EqualTo ("description"));
+		}
+
+		[Test]
 		public void TestContentDuration ()
 		{
 			using var part = new MimePart ();
@@ -303,6 +317,18 @@ namespace UnitTests {
 			part.ContentDuration = 500;
 			part.Headers.Clear ();
 			Assert.That (part.ContentDuration, Is.Null, "Expected ContentDuration to be null again");
+		}
+
+		[Test]
+		public void TestSettingSameContentDurationIsNoOp ()
+		{
+			using var part = new MimePart ();
+
+			part.ContentDuration = 500;
+			part.ContentDuration = 500;
+
+			Assert.That (part.ContentDuration, Is.EqualTo (500));
+			Assert.That (part.Headers[HeaderId.ContentDuration], Is.EqualTo ("500"));
 		}
 
 		[Test]
@@ -381,6 +407,18 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSettingSameContentMd5IsNoOp ()
+		{
+			using var part = new MimePart ();
+
+			part.ContentMd5 = " XYZ ";
+			part.ContentMd5 = "XYZ";
+
+			Assert.That (part.ContentMd5, Is.EqualTo ("XYZ"));
+			Assert.That (part.Headers[HeaderId.ContentMd5], Is.EqualTo ("XYZ"));
+		}
+
+		[Test]
 		public void TestContentTransferEncoding ()
 		{
 			using var part = new MimePart ();
@@ -406,6 +444,26 @@ namespace UnitTests {
 			part.ContentTransferEncoding = ContentEncoding.UUEncode;
 			part.Headers.Clear ();
 			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected ContentTransferEncoding to be default again");
+		}
+
+		[Test]
+		public void TestSettingSameContentTransferEncodingIsNoOp ()
+		{
+			using var part = new MimePart ();
+
+			part.ContentTransferEncoding = ContentEncoding.Base64;
+			part.ContentTransferEncoding = ContentEncoding.Base64;
+
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64));
+			Assert.That (part.Headers[HeaderId.ContentTransferEncoding], Is.EqualTo ("base64"));
+		}
+
+		[Test]
+		public void TestGetBestEncodingWithNullTextContent ()
+		{
+			using var part = new MimePart ("text", "plain");
+
+			Assert.That (part.GetBestEncoding (EncodingConstraint.SevenBit), Is.EqualTo (ContentEncoding.SevenBit));
 		}
 
 		[Test]
@@ -587,6 +645,60 @@ namespace UnitTests {
 					Assert.That (content, Is.EqualTo (text));
 				}
 			}
+		}
+
+		[Test]
+		public void TestWriteToCancellableStreamWithUUEncode ()
+		{
+			const string expected = "begin 0644 file.txt\n#86)C\n`\nend\n";
+			using var part = new MimePart ("application", "octet-stream") {
+				Content = new MimeContent (new MemoryStream (Encoding.ASCII.GetBytes ("abc"), false)),
+				ContentTransferEncoding = ContentEncoding.UUEncode,
+				FileName = "file.txt"
+			};
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			using var output = new CancellableMemoryStream ();
+			part.WriteTo (options, output, true);
+			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+			Assert.That (actual, Is.EqualTo (expected));
+			Assert.That (output.CancellableWrites, Is.EqualTo (5));
+		}
+
+		[Test]
+		public void TestWriteToBinaryContentPreservesBytes ()
+		{
+			var bytes = new byte[] { (byte) 'a', (byte) '\r', (byte) 'b', (byte) '\n', (byte) 'c' };
+			using var part = new MimePart ("application", "octet-stream") {
+				Content = new MimeContent (new MemoryStream (bytes, false), ContentEncoding.Binary),
+				ContentTransferEncoding = ContentEncoding.Binary
+			};
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			using var output = new MemoryStream ();
+			part.WriteTo (options, output, true);
+
+			Assert.That (output.ToArray (), Is.EqualTo (bytes));
+		}
+
+		[Test]
+		public async Task TestWriteToBinaryContentPreservesBytesAsync ()
+		{
+			var bytes = new byte[] { (byte) 'a', (byte) '\r', (byte) 'b', (byte) '\n', (byte) 'c' };
+			using var part = new MimePart ("application", "octet-stream") {
+				Content = new MimeContent (new MemoryStream (bytes, false), ContentEncoding.Binary),
+				ContentTransferEncoding = ContentEncoding.Binary
+			};
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			using var output = new MemoryStream ();
+			await part.WriteToAsync (options, output, true);
+
+			Assert.That (output.ToArray (), Is.EqualTo (bytes));
 		}
 
 		[TestCase ("content", TestName = "TestWriteToFile_NoNewLine")]

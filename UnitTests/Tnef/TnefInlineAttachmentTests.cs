@@ -29,6 +29,8 @@ using System.Text;
 using MimeKit;
 using MimeKit.Tnef;
 
+using UnitTests.IO;
+
 namespace UnitTests.Tnef {
 	// [MS-OXCMAIL] 2.1.3.4.1: which attachments are rendered inline depends on the best body ([MS-OXBBODY] 2.1.3.1).
 	[TestFixture]
@@ -927,36 +929,6 @@ namespace UnitTests.Tnef {
 
 		#region OLE object converter
 
-		sealed class NonSeekableStream : Stream
-		{
-			readonly MemoryStream inner;
-
-			public bool Disposed;
-
-			public NonSeekableStream (byte[] data)
-			{
-				inner = new MemoryStream (data, false);
-			}
-
-			public override bool CanRead => true;
-			public override bool CanSeek => false;
-			public override bool CanWrite => false;
-			public override long Length => throw new NotSupportedException ();
-			public override long Position { get => throw new NotSupportedException (); set => throw new NotSupportedException (); }
-
-			public override int Read (byte[] buffer, int offset, int count) => inner.Read (buffer, offset, count);
-			public override long Seek (long offset, SeekOrigin origin) => throw new NotSupportedException ();
-			public override void SetLength (long value) => throw new NotSupportedException ();
-			public override void Write (byte[] buffer, int offset, int count) => throw new NotSupportedException ();
-			public override void Flush () { }
-
-			protected override void Dispose (bool disposing)
-			{
-				Disposed = true;
-				base.Dispose (disposing);
-			}
-		}
-
 		sealed class OleConverter : TnefOleObjectConverter
 		{
 			readonly Func<TnefAttachment, Stream> convert;
@@ -990,7 +962,7 @@ namespace UnitTests.Tnef {
 
 			Assert.That (converter.Attachments, Has.Count.EqualTo (1));
 			Assert.That (converter.Attachments[0].Method, Is.EqualTo (TnefAttachMethod.Ole));
-			Assert.That (stream.Disposed, Is.True, "Disposed");
+			Assert.That (stream.IsDisposed, Is.True, "Disposed");
 
 			// [MS-OXCMAIL] 2.1.3.4.4: the description string is the display name with the image's extension.
 			Assert.That (result.Related, Has.Count.EqualTo (1));
@@ -1060,7 +1032,7 @@ namespace UnitTests.Tnef {
 			var options = new TnefConversionOptions { OleObjectConverter = converter };
 			var result = ConvertRtf ("{\\rtf1 A\\objattph\\'20 B}", options, Ole ());
 
-			Assert.That (stream.Disposed, Is.True, "Disposed");
+			Assert.That (stream.IsDisposed, Is.True, "Disposed");
 			Assert.That (result.Related, Is.Empty);
 			Assert.That (result.Attachments, Has.Count.EqualTo (1));
 			Assert.That (result.Attachments[0].FileName, Is.EqualTo ("ole.bin"));

@@ -117,5 +117,19 @@ namespace UnitTests {
 			Assert.That (htmlBody.ContentType.Charset, Is.EqualTo ("iso-8859-1"), "Content-Type charset does not match.");
 			Assert.That (htmlBody.Text, Is.EqualTo (bodyBuilder.HtmlBody), "HTML body does not match.");
 		}
+
+		[Test]
+		public void TestToMessageBodySingleAttachmentOnly ()
+		{
+			var bodyBuilder = new BodyBuilder ();
+			var attachment = new MimePart ("text", "plain") {
+				FileName = "attachment.txt"
+			};
+
+			bodyBuilder.Attachments.Add (attachment);
+
+			var body = bodyBuilder.ToMessageBody ();
+			Assert.That (body, Is.SameAs (attachment));
+		}
 	}
 }

@@ -29,6 +29,8 @@ using System.Runtime.Intrinsics;
 
 using MimeKit;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	// Tests for the vectorized "skip lines that cannot be a boundary" fast path used by MimeReader.ScanContent().
 	[TestFixture]
@@ -282,27 +284,6 @@ namespace UnitTests {
 			protected override void OnMultipartEpilogueRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken) => Add (nameof (OnMultipartEpilogueRead), Text (buffer, startIndex, count));
 			protected override void OnMultipartEpilogueEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken) => Add (nameof (OnMultipartEpilogueEnd), beginOffset, beginLineNumber, endOffset, lines);
 			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken) => Add (nameof (OnMultipartEnd), Type (contentType), beginOffset, beginLineNumber, headersEndOffset, endOffset, lines);
-		}
-
-		// Returns at most 'chunkSize' bytes per read to force lines and line endings to be split across reads.
-		class ChunkedReadStream : MemoryStream
-		{
-			readonly int chunkSize;
-
-			public ChunkedReadStream (byte[] buffer, int chunkSize) : base (buffer, false)
-			{
-				this.chunkSize = chunkSize;
-			}
-
-			public override int Read (byte[] buffer, int offset, int count)
-			{
-				return base.Read (buffer, offset, Math.Min (count, chunkSize));
-			}
-
-			public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-			{
-				return base.ReadAsync (buffer, offset, Math.Min (count, chunkSize), cancellationToken);
-			}
 		}
 
 		sealed class NullComplianceLogger : IMimeComplianceLogger

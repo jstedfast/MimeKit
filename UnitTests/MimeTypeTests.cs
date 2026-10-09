@@ -96,5 +96,15 @@ namespace UnitTests {
 			Assert.That (MimeTypes.TryGetExtension ("application/vnd.bogus", out var extension), Is.True);
 			Assert.That (extension, Is.EqualTo (".bogus"));
 		}
+
+		[Test]
+		public void TestMimeTypeRegisterAddsLeadingDotToExtension ()
+		{
+			MimeTypes.Register ("application/vnd.no-dot", "nodot");
+
+			Assert.That (MimeTypes.GetMimeType ("filename.nodot"), Is.EqualTo ("application/vnd.no-dot"));
+			Assert.That (MimeTypes.TryGetExtension ("application/vnd.no-dot", out var extension), Is.True);
+			Assert.That (extension, Is.EqualTo (".nodot"));
+		}
 	}
 }

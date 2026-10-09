@@ -89,5 +89,27 @@ namespace UnitTests {
 				Assert.That (text, Is.EqualTo (expected));
 			}
 		}
+
+		class MessageFeedbackReportVisitor : MimeVisitor
+		{
+			public int Visits;
+
+			protected internal override void VisitMessageFeedbackReport (MessageFeedbackReport entity)
+			{
+				Visits++;
+				base.VisitMessageFeedbackReport (entity);
+			}
+		}
+
+		[Test]
+		public void TestAccept ()
+		{
+			using var mfr = new MessageFeedbackReport ();
+			var visitor = new MessageFeedbackReportVisitor ();
+
+			mfr.Accept (visitor);
+
+			Assert.That (visitor.Visits, Is.EqualTo (1));
+		}
 	}
 }

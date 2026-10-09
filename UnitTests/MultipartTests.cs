@@ -25,6 +25,10 @@
 //
 
 using MimeKit;
+using MimeKit.Text;
+
+using System.Collections;
+using System.Text;
 
 namespace UnitTests {
 	[TestFixture]
@@ -351,6 +355,113 @@ namespace UnitTests {
 			multipart.Epilogue = expected;
 			Assert.That (multipart.Epilogue, Is.EqualTo (expected), $"Epilogue should not have changed");
 			Assert.That (multipart.WriteEndBoundary, Is.True, "WriteEndBoundary should not have changed");
+		}
+
+		[Test]
+		public void TestSettingSameBoundaryIsNoOp ()
+		{
+			var multipart = new Multipart ("mixed") {
+				Boundary = "boundary"
+			};
+
+			multipart.Boundary = "boundary";
+
+			Assert.That (multipart.Boundary, Is.EqualTo ("boundary"));
+		}
+
+		[Test]
+		public void TestParsedEpilogueStartingWithUnixNewLine ()
+		{
+			const string message = "Content-Type: multipart/mixed; boundary=\"boundary\"\n\n--boundary\nContent-Type: text/plain\n\nbody\n--boundary--\nepilogue";
+			using var stream = new MemoryStream (Encoding.ASCII.GetBytes (message), false);
+			var multipart = (Multipart) MimeEntity.Load (stream);
+
+			Assert.That (multipart.Epilogue, Is.EqualTo ("epilogue"));
+		}
+
+		[TestCase ("\n", TestName = "TestParsedEpilogueOnlyNewLine_Unix")]
+		[TestCase ("\r\n", TestName = "TestParsedEpilogueOnlyNewLine_Dos")]
+		public void TestParsedEpilogueOnlyNewLine (string newLine)
+		{
+			var message = "Content-Type: multipart/mixed; boundary=\"boundary\"" + newLine + newLine + "--boundary" + newLine + "Content-Type: text/plain" + newLine + newLine + "body" + newLine + "--boundary--" + newLine;
+			using var stream = new MemoryStream (Encoding.ASCII.GetBytes (message), false);
+			var multipart = (Multipart) MimeEntity.Load (stream);
+
+			Assert.That (multipart.Epilogue, Is.EqualTo (string.Empty));
+		}
+
+		[Test]
+		public void TestTryGetValueStopsAfterNestedMultipart ()
+		{
+			var alternative = new Multipart ("alternative") {
+				new TextPart ("plain") { Text = "plain" }
+			};
+			var multipart = new Multipart ("mixed") {
+				alternative,
+				new TextPart ("html") { Text = "<p>html</p>" }
+			};
+
+			Assert.That (multipart.TryGetValue (TextFormat.Plain, out var plain), Is.True);
+			Assert.That (plain.Text, Is.EqualTo ("plain"));
+			Assert.That (multipart.TryGetValue (TextFormat.Html, out var html), Is.False);
+			Assert.That (html, Is.Null);
+		}
+
+		[Test]
+		public void TestNonGenericEnumerator ()
+		{
+			var plain = new TextPart ("plain") { Text = "plain" };
+			IEnumerable multipart = new Multipart ("mixed") {
+				plain
+			};
+			var enumerator = multipart.GetEnumerator ();
+
+			Assert.That (enumerator.MoveNext (), Is.True);
+			Assert.That (enumerator.Current, Is.SameAs (plain));
+			Assert.That (enumerator.MoveNext (), Is.False);
+		}
+
+		[Test]
+		public void TestBoundaryChangeRegeneratesParsedBoundaries ()
+		{
+			const string message = "Content-Type: multipart/mixed; boundary=\"old\"\n\n--old\nContent-Type: text/plain\n\nbody\n--old--\n";
+			const string expected = "Content-Type: multipart/mixed; boundary=new\n\n--new\nContent-Type: text/plain\n\nbody\n--new--\n";
+			using var stream = new MemoryStream (Encoding.ASCII.GetBytes (message), false);
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+			var multipart = (Multipart) MimeEntity.Load (stream);
+
+			multipart.Boundary = "new";
+
+			using var output = new MemoryStream ();
+			multipart.WriteTo (options, output);
+			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestMultipartSignedIgnoresHiddenHeadersForChildren ()
+		{
+			const string expected = "Content-Type: multipart/signed; boundary=boundary\n\n--boundary\nContent-Type: text/plain; charset=utf-8\nContent-Description: signed\n\nbody\n--boundary\nContent-Type: application/pgp-signature\n\nsig\n--boundary--\n";
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.HiddenHeaders.Add (HeaderId.ContentDescription);
+			options.International = true;
+			var multipart = new Multipart ("signed") {
+				new TextPart ("plain") { Text = "body", ContentDescription = "signed" },
+				new MimePart ("application", "pgp-signature") {
+					Content = new MimeContent (new MemoryStream (Encoding.ASCII.GetBytes ("sig"), false))
+				}
+			};
+
+			multipart.Boundary = "boundary";
+
+			using var output = new MemoryStream ();
+			multipart.WriteTo (options, output);
+			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
+
+			Assert.That (actual, Is.EqualTo (expected));
 		}
 	}
 }

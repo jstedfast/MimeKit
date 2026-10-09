@@ -108,6 +108,31 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestSettingSameMessageIdDoesNotNotifyChanged ()
+		{
+			var list = new MessageIdList ();
+			int changed = 0;
+
+			list.Add ("id@localhost");
+			list.Changed += (sender, args) => changed++;
+			list[0] = "id@localhost";
+
+			Assert.That (changed, Is.EqualTo (0));
+			Assert.That (list[0], Is.EqualTo ("id@localhost"));
+		}
+
+		[Test]
+		public void TestRemoveMissingMessageIdReturnsFalse ()
+		{
+			var list = new MessageIdList ();
+			list.Add ("id@localhost");
+
+			Assert.That (list.Remove ("missing@localhost"), Is.False);
+			Assert.That (list.Count, Is.EqualTo (1));
+			Assert.That (list[0], Is.EqualTo ("id@localhost"));
+		}
+
+		[Test]
 		public void TestGetEnumerator ()
 		{
 			var list = new MessageIdList ();

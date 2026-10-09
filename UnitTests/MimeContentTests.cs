@@ -71,5 +71,48 @@ namespace UnitTests {
 				}
 			}
 		}
+
+		[Test]
+		public void TestDisposedContentThrows ()
+		{
+			var content = new MimeContent (new MemoryStream ());
+
+			content.Dispose ();
+
+			Assert.Throws<ObjectDisposedException> (() => content.WriteTo (new MemoryStream ()));
+		}
+
+		[Test]
+		public void TestWriteToUsesCancellableStreams ()
+		{
+			var source = new CancellableMemoryStream ();
+			var expected = new byte[] { 1, 2, 3 };
+			source.Write (expected, 0, expected.Length);
+			source.Position = 0;
+			var content = new MimeContent (source);
+
+			using var output = new CancellableMemoryStream ();
+			content.WriteTo (output);
+
+			Assert.That (output.ToArray (), Is.EqualTo (expected));
+			Assert.That (source.CancellableReads, Is.EqualTo (2));
+			Assert.That (output.CancellableWrites, Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestWriteToIgnoresIOExceptionResettingAfterCancellation ()
+		{
+			var content = new MimeContent (new ThrowingReadStream (() => new OperationCanceledException ()) { SeekLimit = 1 });
+
+			Assert.Throws<OperationCanceledException> (() => content.WriteTo (new MemoryStream ()));
+		}
+
+		[Test]
+		public void TestWriteToAsyncIgnoresIOExceptionResettingAfterCancellation ()
+		{
+			var content = new MimeContent (new ThrowingReadStream (() => new OperationCanceledException ()) { SeekLimit = 1 });
+
+			Assert.ThrowsAsync<OperationCanceledException> (async () => await content.WriteToAsync (new MemoryStream ()));
+		}
 	}
 }

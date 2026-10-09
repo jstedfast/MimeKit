@@ -35,50 +35,6 @@ namespace UnitTests {
 	[TestFixture]
 	public class MessageDeliveryStatusTests
 	{
-		class ThrowingMimeContent : IMimeContent
-		{
-			public ContentEncoding Encoding {
-				get { return ContentEncoding.Default; }
-			}
-
-			public NewLineFormat? NewLineFormat {
-				get { return null; }
-			}
-
-			public Stream Stream {
-				get { return null; }
-			}
-
-			public void DecodeTo (Stream stream, CancellationToken cancellationToken = default)
-			{
-				throw new FormatException ();
-			}
-
-			public Task DecodeToAsync (Stream stream, CancellationToken cancellationToken = default)
-			{
-				throw new FormatException ();
-			}
-
-			public void Dispose ()
-			{
-			}
-
-			public Stream Open ()
-			{
-				throw new FormatException ();
-			}
-
-			public void WriteTo (Stream stream, CancellationToken cancellationToken = default)
-			{
-				throw new FormatException ();
-			}
-
-			public Task WriteToAsync (Stream stream, CancellationToken cancellationToken = default)
-			{
-				throw new FormatException ();
-			}
-		}
-
 		[Test]
 		public void TestArgumentExceptions ()
 		{

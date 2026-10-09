@@ -74,6 +74,9 @@ namespace UnitTests {
 		[TestCase (
 			" from unknown (this is a (nested comment) with an \\\"escaped quoted\")\r\n by AM4PR01MB1442.eurprd01.prod.exchangelabs.com (10.164.76.24) \r\n",
 			" from xxxxxxx (xxxx xx x (xxxxxx xxxxxxx) xxxx xx \\xxxxxxxx xxxxxxx)\r\n by xxxxxxxxxxxxx.xxxxxxxx.xxxx.xxxxxxxxxxxx.xxx (xx.xxx.xx.xx) \r\n")]
+		[TestCase (
+			" by mail.example.com with ESMTP id abc123\r\n",
+			" by xxxx.xxxxxxx.xxx with xxxxx id xxxxxx\r\n")]
 		public void TestAnonymizeReceivedHeaderValue (string value, string expected)
 		{
 			var rawValue = Encoding.UTF8.GetBytes (value);
@@ -240,6 +243,25 @@ namespace UnitTests {
 			var anonymized = Encoding.UTF8.GetString (anonymizedValue);
 
 			Assert.That (anonymized, Is.EqualTo (expected), "Anonymized value does not match expected value.");
+		}
+
+		[Test]
+		public void TestAnonymizeDkimSignatureHeader ()
+		{
+			const string rawMessageText = "DKIM-Signature: v=1; a=rsa-sha256; d=example.com; s=selector;\n\tbh=abc123==; b=def456==\n\n";
+			const string expected = "DKIM-Signature: x=xx x=xxxxxxxxxxx x=xxxxxxxxxxxx x=xxxxxxxxx\n\txx=xxxxxx==x x=xxxxxx==\n\n";
+			using var message = MimeMessage.Load (new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText)));
+			var anonymizer = new MimeAnonymizer ();
+
+			using (var memory = new MemoryStream ()) {
+				var options = FormatOptions.Default.Clone ();
+				options.NewLineFormat = NewLineFormat.Unix;
+
+				anonymizer.Anonymize (options, message, memory);
+
+				var anonymized = Encoding.UTF8.GetString (memory.ToArray ());
+				Assert.That (anonymized, Is.EqualTo (expected));
+			}
 		}
 
 		static void AssertAnonymizeMessage (string fileName)

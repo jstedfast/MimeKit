@@ -34,10 +34,12 @@ namespace UnitTests {
 		public void TestArgumentExceptions ()
 		{
 			var iter = new MimeIterator (new MimeMessage { Body = new TextPart ("plain") });
+			var enumerator = (System.Collections.IEnumerator) iter;
 
 			Assert.Throws<ArgumentNullException> (() => new MimeIterator (null));
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.Depth; });
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.Current; });
+			Assert.Throws<InvalidOperationException> (() => { var x = enumerator.Current; });
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.Parent; });
 			Assert.Throws<InvalidOperationException> (() => { var x = iter.PathSpecifier; });
 			Assert.Throws<ArgumentNullException> (() => iter.MoveTo (null));
@@ -184,6 +186,50 @@ namespace UnitTests {
 				Assert.That (iter.Current, Is.InstanceOf (expectedTypes[i]), $"Type {expectedPathSpecifiers[i]}");
 				Assert.That (iter.Depth, Is.EqualTo (expectedDepths[i]), $"Depth {expectedPathSpecifiers[i]}");
 			}
+		}
+
+		[Test]
+		public void TestMoveNextSkipsMessagePartWithoutBody ()
+		{
+			var message = new MimeMessage {
+				Body = new Multipart ("mixed") {
+					new MessagePart { Message = new MimeMessage () },
+					new TextPart ("plain") { Text = "plain" }
+				}
+			};
+			var iter = new MimeIterator (message);
+
+			Assert.That (iter.MoveNext (), Is.True);
+			Assert.That (iter.PathSpecifier, Is.EqualTo ("0"));
+			Assert.That (iter.Current, Is.InstanceOf<Multipart> ());
+			Assert.That (iter.MoveNext (), Is.True);
+			Assert.That (iter.PathSpecifier, Is.EqualTo ("1"));
+			Assert.That (iter.Current, Is.InstanceOf<MessagePart> ());
+			Assert.That (iter.MoveNext (), Is.True);
+			Assert.That (iter.PathSpecifier, Is.EqualTo ("2"));
+			Assert.That (iter.Current, Is.InstanceOf<TextPart> ());
+			Assert.That (iter.MoveNext (), Is.False);
+		}
+
+		[Test]
+		public void TestMoveToEmptyMessageReturnsFalse ()
+		{
+			var iter = new MimeIterator (new MimeMessage ());
+
+			Assert.That (iter.MoveTo ("1"), Is.False);
+		}
+
+		[Test]
+		public void TestMoveToMissingPathReturnsFalse ()
+		{
+			var message = new MimeMessage {
+				Body = new Multipart ("mixed") {
+					new TextPart ("plain") { Text = "plain" }
+				}
+			};
+			var iter = new MimeIterator (message);
+
+			Assert.That (iter.MoveTo ("2"), Is.False);
 		}
 	}
 }

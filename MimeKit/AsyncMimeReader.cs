@@ -494,33 +494,22 @@ namespace MimeKit {
 				// Check to see if this first line is a boundary marker.
 				unsafe {
 					fixed (byte* inbuf = input) {
-						var byteOptions = complianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 						byte* start = inbuf + inputIndex;
 						byte* inend = inbuf + inputEnd;
-						byte* inptr;
 
 						*inend = (byte) '\n';
 
-						if (complianceLogger != null && byteOptions != ByteDetectionOptions.None) {
-							inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
-
-							if ((detected & ByteDetectionResults.Detected8Bit) != 0)
-								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInBody, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
-
-							if ((detected & ByteDetectionResults.DetectedNulls) != 0)
-								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.UnexpectedNullBytesInBody, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
-						} else {
-							inptr = ParseUtils.EndOfLine (start, inend + 1);
-						}
-
-						if (complianceLogger != null && (inptr == start || inptr[-1] != (byte) '\r'))
-							complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber, (int) (inptr - start) + 1));
+						byte* inptr = ParseUtils.EndOfLine (start, inend + 1);
 
 						// Note: This isn't obvious, but if the "boundary" that was found is an Mbox "From " line, then
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
 						// *never* be an Mbox "From " marker in Entity mode.
-						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != MimeBoundaryType.None)
+						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != MimeBoundaryType.None) {
+							if (complianceLogger != null && (inptr == start || inptr[-1] != (byte) '\r'))
+								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber, (int) (inptr - start) + 1));
+
 							return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
+						}
 					}
 				}
 			}

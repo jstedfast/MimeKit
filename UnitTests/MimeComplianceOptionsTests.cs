@@ -218,13 +218,13 @@ namespace UnitTests {
 		sealed class DisablingComplianceLogger : IMimeComplianceLogger
 		{
 			public readonly List<MimeComplianceIssue> Issues = new List<MimeComplianceIssue> ();
-			public MimeReader? Reader;
+			public MimeReader Reader;
 
 			public void Log (in MimeComplianceIssue issue)
 			{
 				Issues.Add (issue);
 
-				Reader!.ComplianceOptions.EnabledValidators = MimeComplianceValidators.None;
+				Reader.ComplianceOptions.EnabledValidators = MimeComplianceValidators.None;
 			}
 		}
 

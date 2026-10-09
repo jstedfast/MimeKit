@@ -33,6 +33,8 @@ using MimeKit.Text;
 using MimeKit.Utils;
 using MimeKit.Cryptography;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class MimeMessageTests
@@ -197,6 +199,54 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestGetMailboxesIncludesSenders ()
+		{
+			using var message = new MimeMessage ();
+			message.Sender = new MailboxAddress ("Example Sender", "sender@example.com");
+			message.From.Add (new MailboxAddress ("Example From", "from@example.com"));
+			message.To.Add (new MailboxAddress ("Example To", "to@example.com"));
+
+			var mailboxes = message.GetMailboxes (true, false);
+			Assert.That (mailboxes.Count, Is.EqualTo (3), "Count");
+			Assert.That (mailboxes[0], Is.EqualTo (message.Sender), "mailboxes[0]");
+			Assert.That (mailboxes[1], Is.EqualTo (message.From.Mailboxes.First ()), "mailboxes[1]");
+			Assert.That (mailboxes[2], Is.EqualTo (message.To.Mailboxes.First ()), "mailboxes[2]");
+
+			message.ResentSender = new MailboxAddress ("Example Resent-Sender", "resent-sender@example.com");
+			message.ResentFrom.Add (new MailboxAddress ("Example Resent-From", "resent-from@example.com"));
+			message.ResentTo.Add (new MailboxAddress ("Example Resent-To", "resent-to@example.com"));
+
+			mailboxes = message.GetMailboxes (true, false);
+			Assert.That (mailboxes.Count, Is.EqualTo (3), "Resent Count");
+			Assert.That (mailboxes[0], Is.EqualTo (message.ResentSender), "resent mailboxes[0]");
+			Assert.That (mailboxes[1], Is.EqualTo (message.ResentFrom.Mailboxes.First ()), "resent mailboxes[1]");
+			Assert.That (mailboxes[2], Is.EqualTo (message.ResentTo.Mailboxes.First ()), "resent mailboxes[2]");
+		}
+
+		[Test]
+		public void TestGetMailboxesIncludesUniqueSenders ()
+		{
+			using var message = new MimeMessage ();
+			message.Sender = new MailboxAddress ("Example Sender", "sender@example.com");
+			message.From.Add (new MailboxAddress ("Example From Duplicate", "sender@example.com"));
+			message.To.Add (new MailboxAddress ("Example To", "to@example.com"));
+
+			var mailboxes = message.GetMailboxes (true, true);
+			Assert.That (mailboxes.Count, Is.EqualTo (2), "Count");
+			Assert.That (mailboxes[0], Is.EqualTo (message.Sender), "mailboxes[0]");
+			Assert.That (mailboxes[1], Is.EqualTo (message.To.Mailboxes.First ()), "mailboxes[1]");
+
+			message.ResentSender = new MailboxAddress ("Example Resent-Sender", "resent-sender@example.com");
+			message.ResentFrom.Add (new MailboxAddress ("Example Resent-From Duplicate", "resent-sender@example.com"));
+			message.ResentTo.Add (new MailboxAddress ("Example Resent-To", "resent-to@example.com"));
+
+			mailboxes = message.GetMailboxes (true, true);
+			Assert.That (mailboxes.Count, Is.EqualTo (2), "Resent Count");
+			Assert.That (mailboxes[0], Is.EqualTo (message.ResentSender), "resent mailboxes[0]");
+			Assert.That (mailboxes[1], Is.EqualTo (message.ResentTo.Mailboxes.First ()), "resent mailboxes[1]");
+		}
+
+		[Test]
 		public void TestSettingCommonInvalidMessageIds ()
 		{
 			const string msgid = "[d7e8bc604f797c18ba8120250cbd8c04-JFBVALKQOJXWILKCJQZFA7CDNRQXE2LUPF6EIYLUMFGG643TPRCXQ32TNV2HA===@microsoft.com]";
@@ -225,6 +275,50 @@ namespace UnitTests {
 			}
 
 			Assert.That (message.InReplyTo, Is.EqualTo (msgid), "InReplyTo");
+		}
+
+		[Test]
+		public void TestSettingSameLazyPropertiesDoesNotRewriteHeaders ()
+		{
+			using var message = new MimeMessage ();
+			var sender = new MailboxAddress ("Example Sender", "sender@example.com");
+			var resentSender = new MailboxAddress ("Example Resent-Sender", "resent-sender@example.com");
+
+			message.Sender = sender;
+			var senderHeader = message.Headers[HeaderId.Sender];
+			message.Sender = sender;
+			Assert.That (message.Headers[HeaderId.Sender], Is.EqualTo (senderHeader), "Sender");
+
+			message.ResentSender = resentSender;
+			var resentSenderHeader = message.Headers[HeaderId.ResentSender];
+			message.ResentSender = resentSender;
+			Assert.That (message.Headers[HeaderId.ResentSender], Is.EqualTo (resentSenderHeader), "ResentSender");
+
+			message.MessageId = "message-id@example.com";
+			var messageIdHeader = message.Headers[HeaderId.MessageId];
+			message.MessageId = "message-id@example.com";
+			Assert.That (message.Headers[HeaderId.MessageId], Is.EqualTo (messageIdHeader), "MessageId");
+
+			message.ResentMessageId = "resent-message-id@example.com";
+			var resentMessageIdHeader = message.Headers[HeaderId.ResentMessageId];
+			message.ResentMessageId = "resent-message-id@example.com";
+			Assert.That (message.Headers[HeaderId.ResentMessageId], Is.EqualTo (resentMessageIdHeader), "ResentMessageId");
+
+			message.InReplyTo = "in-reply-to@example.com";
+			var inReplyToHeader = message.Headers[HeaderId.InReplyTo];
+			message.InReplyTo = "in-reply-to@example.com";
+			Assert.That (message.Headers[HeaderId.InReplyTo], Is.EqualTo (inReplyToHeader), "InReplyTo");
+		}
+
+		[Test]
+		public void TestClearingHeadersClearsMaterializedAddressLists ()
+		{
+			using var message = new MimeMessage ();
+			message.To.Add (new MailboxAddress ("Example To", "to@example.com"));
+
+			message.Headers.Clear ();
+
+			Assert.That (message.To.Count, Is.EqualTo (0));
 		}
 
 		[Test]
@@ -258,6 +352,96 @@ This is the message body.
 
 					Assert.That (result, Is.EqualTo (expected), "Reserialized message is not identical to the original.");
 				}
+			}
+		}
+
+		[Test]
+		public async Task TestWriteToHeadersOnlyWithHiddenHeaders ()
+		{
+			const string expected = "From: Example From <from@example.com>\nDate: Fri, 22 Jan 2016 08:44:05 -0500\nMessage-Id: <message-id@example.com>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=utf-8\n\n";
+			using var message = new MimeMessage ();
+			message.Date = new DateTimeOffset (2016, 1, 22, 8, 44, 5, TimeSpan.FromHours (-5));
+			message.From.Add (new MailboxAddress ("Example From", "from@example.com"));
+			message.To.Add (new MailboxAddress ("Example To", "to@example.com"));
+			message.Subject = "Hidden subject";
+			message.MessageId = "message-id@example.com";
+			message.Body = new TextPart ("plain") { Text = "Body" };
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.HiddenHeaders.Add (HeaderId.Subject);
+			options.HiddenHeaders.Add (HeaderId.To);
+
+			using (var serialized = new MemoryStream ()) {
+				message.WriteTo (options, serialized, true);
+				var result = Encoding.UTF8.GetString (serialized.ToArray ());
+				Assert.That (result, Is.EqualTo (expected), "Sync");
+			}
+
+			using (var serialized = new MemoryStream ()) {
+				await message.WriteToAsync (options, serialized, true);
+				var result = Encoding.UTF8.GetString (serialized.ToArray ());
+				Assert.That (result, Is.EqualTo (expected), "Async");
+			}
+		}
+
+		[Test]
+		public async Task TestLoadPersistentDefaultOverloads ()
+		{
+			const string rawMessageText = "From: Example From <from@example.com>\nTo: Example To <to@example.com>\nSubject: Test\n\nBody";
+
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				using var message = MimeMessage.Load (stream, true);
+
+				Assert.That (message.Subject, Is.EqualTo ("Test"), "Subject");
+				Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("Body"), "Body");
+			}
+
+			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
+				using var message = await MimeMessage.LoadAsync (stream, true);
+
+				Assert.That (message.Subject, Is.EqualTo ("Test"), "Subject");
+				Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("Body"), "Body");
+			}
+		}
+
+		[Test]
+		public async Task TestWriteToDefaultAndFileOverloads ()
+		{
+			const string expectedUnix = "From: Example From <from@example.com>\nDate: Fri, 22 Jan 2016 08:44:05 -0500\nSubject: Test\nMessage-Id: <message-id@example.com>\n\n";
+			const string expectedDos = "From: Example From <from@example.com>\r\nDate: Fri, 22 Jan 2016 08:44:05 -0500\r\nSubject: Test\r\nMessage-Id: <message-id@example.com>\r\n\r\n";
+			var path = Path.Combine (TestContext.CurrentContext.WorkDirectory, "mime-message-file-overload.eml");
+			var expectedDefault = FormatOptions.Default.NewLineFormat == NewLineFormat.Dos ? expectedDos : expectedUnix;
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Unix;
+
+			using var message = new MimeMessage ();
+			message.From.Add (new MailboxAddress ("Example From", "from@example.com"));
+			message.Date = new DateTimeOffset (2016, 1, 22, 8, 44, 5, TimeSpan.FromHours (-5));
+			message.Subject = "Test";
+			message.MessageId = "message-id@example.com";
+
+			try {
+				using (var serialized = new MemoryStream ()) {
+					message.WriteTo (serialized, true);
+					var result = Encoding.UTF8.GetString (serialized.ToArray ());
+					Assert.That (result, Is.EqualTo (expectedDefault), "Default stream headersOnly overload");
+				}
+
+				message.WriteTo (options, path);
+				Assert.That (File.ReadAllText (path, Encoding.UTF8), Is.EqualTo (expectedUnix), "WriteTo options file");
+
+				await message.WriteToAsync (options, path);
+				Assert.That (File.ReadAllText (path, Encoding.UTF8), Is.EqualTo (expectedUnix), "WriteToAsync options file");
+
+				message.WriteTo (path);
+				Assert.That (File.ReadAllText (path, Encoding.UTF8), Is.EqualTo (expectedDefault), "WriteTo default file");
+
+				await message.WriteToAsync (path);
+				Assert.That (File.ReadAllText (path, Encoding.UTF8), Is.EqualTo (expectedDefault), "WriteToAsync default file");
+			} finally {
+				if (File.Exists (path))
+					File.Delete (path);
 			}
 		}
 
@@ -1046,6 +1230,94 @@ Subject: MIME & int'l mail
 			mail.Priority = MailPriority.Normal;
 			using (var message = (MimeMessage) mail)
 				Assert.That (message.Priority, Is.EqualTo (MessagePriority.Normal), "The message priority does not match.");
+		}
+
+		[Test]
+		public void TestMailMessageSubjectEncodingAndAlternateViewWithoutLinkedResources ()
+		{
+			using var mail = new MailMessage ();
+			mail.From = new MailAddress ("from@example.com", "Example From");
+			mail.To.Add (new MailAddress ("to@example.com", "Example To"));
+			mail.Subject = "Café";
+			mail.SubjectEncoding = Encoding.UTF8;
+			mail.Body = "This is plain text.";
+
+			var html = new MemoryStream (Encoding.UTF8.GetBytes ("<html><body>This is HTML.</body></html>"), false);
+			var view = new AlternateView (html, "text/html") {
+				BaseUri = new Uri ("http://example.com/base/")
+			};
+			mail.AlternateViews.Add (view);
+
+			using var message = MimeMessage.CreateFromMailMessage (mail);
+			Assert.That (message.Subject, Is.EqualTo ("Café"), "Subject");
+			Assert.That (message.Body, Is.InstanceOf<MultipartAlternative> (), "Body");
+
+			var alternative = (MultipartAlternative) message.Body;
+			Assert.That (alternative.Count, Is.EqualTo (2), "Count");
+			Assert.That (alternative[1], Is.InstanceOf<TextPart> (), "HTML part");
+
+			var htmlPart = (TextPart) alternative[1];
+			Assert.That (htmlPart.ContentBase, Is.EqualTo (new Uri ("http://example.com/base/")), "ContentBase");
+			Assert.That (htmlPart.Text, Is.EqualTo ("<html><body>This is HTML.</body></html>"), "HTML text");
+		}
+
+		[Test]
+		public void TestMailMessageAttachmentTransferEncodings ()
+		{
+			using var mail = new MailMessage ();
+			mail.From = new MailAddress ("from@example.com", "Example From");
+			mail.To.Add (new MailAddress ("to@example.com", "Example To"));
+			mail.Body = "This is plain text.";
+
+			var quotedPrintable = new Attachment (new MemoryStream (Encoding.ASCII.GetBytes ("quoted-printable"), false), "quoted-printable.txt", "text/plain") {
+				TransferEncoding = System.Net.Mime.TransferEncoding.QuotedPrintable
+			};
+			var sevenBit = new Attachment (new MemoryStream (Encoding.ASCII.GetBytes ("seven-bit"), false), "seven-bit.txt", "text/plain") {
+				TransferEncoding = System.Net.Mime.TransferEncoding.SevenBit
+			};
+			var eightBit = new Attachment (new MemoryStream (Encoding.ASCII.GetBytes ("eight-bit"), false), "eight-bit.txt", "text/plain") {
+				TransferEncoding = System.Net.Mime.TransferEncoding.EightBit
+			};
+
+			mail.Attachments.Add (quotedPrintable);
+			mail.Attachments.Add (sevenBit);
+			mail.Attachments.Add (eightBit);
+
+			using var message = MimeMessage.CreateFromMailMessage (mail);
+			Assert.That (message.Body, Is.InstanceOf<Multipart> (), "Body");
+
+			var mixed = (Multipart) message.Body;
+			Assert.That (mixed.Count, Is.EqualTo (4), "Count");
+			Assert.That (((MimePart) mixed[1]).ContentTransferEncoding, Is.EqualTo (ContentEncoding.QuotedPrintable), "QuotedPrintable");
+			Assert.That (((MimePart) mixed[2]).ContentTransferEncoding, Is.EqualTo (ContentEncoding.SevenBit), "SevenBit");
+			Assert.That (((MimePart) mixed[3]).ContentTransferEncoding, Is.EqualTo (ContentEncoding.EightBit), "EightBit");
+		}
+
+		[Test]
+		public void TestMailMessageAttachmentReadFailure ()
+		{
+			using var mail = new MailMessage ();
+			mail.From = new MailAddress ("from@example.com", "Example From");
+			mail.To.Add (new MailAddress ("to@example.com", "Example To"));
+			mail.Body = "This is plain text.";
+			mail.Attachments.Add (new Attachment (new ThrowingReadStream (), "broken.txt", "text/plain"));
+
+			var exception = Assert.Throws<IOException> (() => MimeMessage.CreateFromMailMessage (mail));
+			Assert.That (exception.Message, Is.EqualTo ("Read failed."));
+		}
+
+		[Test]
+		public void TestConstructorAddsMissingDefaultHeaders ()
+		{
+			var date = new Header (HeaderId.Date, "Fri, 22 Jan 2016 08:44:05 -0500");
+			using var message = new MimeMessage (date, new TextPart ("plain") { Text = "Body" });
+
+			Assert.That (message.Headers.Contains (HeaderId.From), Is.True, "From");
+			Assert.That (message.Headers[HeaderId.From], Is.EqualTo (string.Empty), "From value");
+			Assert.That (message.Headers[HeaderId.Date], Is.EqualTo ("Fri, 22 Jan 2016 08:44:05 -0500"), "Date");
+			Assert.That (message.Headers.Contains (HeaderId.Subject), Is.True, "Subject");
+			Assert.That (message.Headers[HeaderId.Subject], Is.EqualTo (string.Empty), "Subject value");
+			Assert.That (message.Headers.Contains (HeaderId.MessageId), Is.True, "MessageId");
 		}
 
 		[Test]
