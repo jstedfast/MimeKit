@@ -109,8 +109,13 @@ namespace UnitTests.Cryptography {
 		public void TestDSACryptoServiceProvider ()
 		{
 #if !MONO
-			using (var dsa = new DSACryptoServiceProvider (1024))
-				AssertDSA (dsa);
+			try {
+				using (var dsa = new DSACryptoServiceProvider (1024))
+					AssertDSA (dsa);
+			} catch (PlatformNotSupportedException ex) when (OperatingSystem.IsMacOS ()) {
+				// System.PlatformNotSupportedException: DSA keys can be imported, but new key generation is not supported on this platform.
+				Assert.Ignore ($"macOS does not support DSA key generation: {ex.Message}");
+			}
 #else
 			// System.Security.Cryptography.CryptographicException: Specified key is not a valid size for this algorithm.
 			// DSACryptoServiceProvider.set_KeySize = 1024;
@@ -306,8 +311,13 @@ namespace UnitTests.Cryptography {
 		[TestCase ("nistP521")]
 		public void TestECDsa (string namedCurve)
 		{
-			using (var ecdsa = ECDsa.Create (GetNamedCurve (namedCurve)))
-				AssertECDsa (ecdsa);
+			try {
+				using (var ecdsa = ECDsa.Create (GetNamedCurve (namedCurve)))
+					AssertECDsa (ecdsa);
+			} catch (PlatformNotSupportedException ex) when (OperatingSystem.IsMacOS () && namedCurve.StartsWith ("brainpool", StringComparison.Ordinal)) {
+				// System.PlatformNotSupportedException: The specified curve '1.3.36.3.3.2.8.1.1.1' or its parameters are not valid for this platform.
+				Assert.Ignore ($"macOS does not support the {namedCurve} curve: {ex.Message}");
+			}
 		}
 
 		[TestCase ("brainpoolP160r1")]

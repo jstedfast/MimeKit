@@ -151,6 +151,9 @@ namespace UnitTests.Cryptography {
 				try {
 					var cert = new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable);
 					signer = new CmsSigner (cert);
+				} catch (CryptographicException cex) when (OperatingSystem.IsMacOS () && cex.InnerException is PlatformNotSupportedException) {
+					// macOS cannot load the EC certificate's private key: "Only named curves are supported on this platform."
+					// Skip this constructor for this certificate but keep testing the others.
 				} catch (CryptographicException cex) {
 					if (!path.EndsWith ("\\ec\\smime.pfx", StringComparison.Ordinal) || !cex.Message.Equals ("Keyset does not exist", StringComparison.Ordinal))
 						Assert.Fail ($".ctor (X509Certificate2): {cex}");
