@@ -244,6 +244,33 @@ namespace MimeKit.Cryptography {
 #endif
 		}
 
+		// Validate the remaining arguments *before* creating the database file so that an invalid
+		// argument does not leave behind an empty database file.
+		static DbConnection CreateConnection (string fileName, string password)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			if (password == null)
+				throw new ArgumentNullException (nameof (password));
+
+			return CreateConnection (fileName);
+		}
+
+		static DbConnection CreateConnection (string fileName, string password, SecureRandom random)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException (nameof (fileName));
+
+			if (password == null)
+				throw new ArgumentNullException (nameof (password));
+
+			if (random == null)
+				throw new ArgumentNullException (nameof (random));
+
+			return CreateConnection (fileName);
+		}
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="SqliteCertificateDatabase"/> class.
 		/// </summary>
@@ -271,7 +298,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
-		public SqliteCertificateDatabase (string fileName, string password) : this (CreateConnection (fileName), password)
+		public SqliteCertificateDatabase (string fileName, string password) : this (CreateConnection (fileName, password), password)
 		{
 		}
 
@@ -305,7 +332,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.IO.IOException">
 		/// An error occurred reading the file.
 		/// </exception>
-		public SqliteCertificateDatabase (string fileName, string password, SecureRandom random) : this (CreateConnection (fileName), password, random)
+		public SqliteCertificateDatabase (string fileName, string password, SecureRandom random) : this (CreateConnection (fileName, password, random), password, random)
 		{
 		}
 

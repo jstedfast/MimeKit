@@ -3343,12 +3343,19 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class DefaultSecureMimeTests : SecureMimeTestsBase
 	{
+		static readonly string DatabaseDir = Path.Combine (Path.GetTempPath (), "MimeKit-" + Guid.NewGuid ().ToString ("N"));
+
+		static string GetDatabasePath (string fileName)
+		{
+			return Path.Combine (DatabaseDir, fileName);
+		}
+
 		class MySecureMimeContext : DefaultSecureMimeContext
 		{
 			public readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
 			readonly HttpClient client;
 
-			public MySecureMimeContext () : this ("smime.db", "no.secret")
+			public MySecureMimeContext () : this (GetDatabasePath ("smime.db"), "no.secret")
 			{
 			}
 
@@ -3370,64 +3377,62 @@ namespace UnitTests.Cryptography {
 			return new MySecureMimeContext ();
 		}
 
-		static DefaultSecureMimeTests ()
+		[OneTimeTearDown]
+		public void DeleteDatabases ()
 		{
-			if (File.Exists ("smime.db"))
-				File.Delete ("smime.db");
+			// Make sure that later fixtures do not instantiate MySecureMimeContext (and recreate the database).
+			CryptographyContext.Register (typeof (TemporarySecureMimeContext));
 
-			if (File.Exists ("revoked.db"))
-				File.Delete ("revoked.db");
-
-			if (File.Exists ("revoked-async.db"))
-				File.Delete ("revoked-async.db");
+			if (Directory.Exists (DatabaseDir))
+				Directory.Delete (DatabaseDir, true);
 		}
 
 		[Test]
 		public void TestVerifyRevokedCertificate ()
 		{
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret") { CheckCertificateRevocation = true }) {
+			using (var ctx = new MySecureMimeContext (GetDatabasePath ("revoked.db"), "no.secret") { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedCertificate);
 			}
 
-			File.Delete ("revoked.db");
+			File.Delete (GetDatabasePath ("revoked.db"));
 		}
 
 		[Test]
 		public async Task TestVerifyRevokedCertificateAsync ()
 		{
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret") { CheckCertificateRevocation = true }) {
+			using (var ctx = new MySecureMimeContext (GetDatabasePath ("revoked-async.db"), "no.secret") { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedCertificate);
 			}
 
-			File.Delete ("revoked-async.db");
+			File.Delete (GetDatabasePath ("revoked-async.db"));
 		}
 
 		[Test]
 		public void TestVerifyRevokedNoChainCertificate ()
 		{
-			using (var ctx = new MySecureMimeContext ("revoked.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
+			using (var ctx = new MySecureMimeContext (GetDatabasePath ("revoked.db"), "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
 				VerifyRevokedCertificate (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate);
 			}
 
-			File.Delete ("revoked.db");
+			File.Delete (GetDatabasePath ("revoked.db"));
 		}
 
 		[Test]
 		public async Task TestVerifyRevokedNoChainCertificateAsync ()
 		{
-			using (var ctx = new MySecureMimeContext ("revoked-async.db", "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
+			using (var ctx = new MySecureMimeContext (GetDatabasePath ("revoked-async.db"), "no.secret", CreateMockHttpMessageHandler (RevokedNoChainCertificateResponses ())) { CheckCertificateRevocation = true }) {
 				ImportTestCertificates (ctx);
 
 				await VerifyRevokedCertificateAsync (ctx, ctx.MockHttpMessageHandler, RevokedNoChainCertificate);
 			}
 
-			File.Delete ("revoked-async.db");
+			File.Delete (GetDatabasePath ("revoked-async.db"));
 		}
 	}
 

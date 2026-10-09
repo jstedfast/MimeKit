@@ -1,4 +1,4 @@
-//
+﻿//
 // ApplicationPkcs7MimeTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -1497,12 +1497,19 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class ApplicationPkcs7MimeSqliteTests : ApplicationPkcs7MimeTestsBase
 	{
+		static readonly string DatabaseDir = Path.Combine (Path.GetTempPath (), "MimeKit-" + Guid.NewGuid ().ToString ("N"));
+
+		static string GetDatabasePath (string fileName)
+		{
+			return Path.Combine (DatabaseDir, fileName);
+		}
+
 		class MySecureMimeContext : DefaultSecureMimeContext
 		{
 			public readonly Mock<HttpMessageHandler> MockHttpMessageHandler;
 			readonly HttpClient client;
 
-			public MySecureMimeContext () : this ("pkcs7.db", "no.secret")
+			public MySecureMimeContext () : this (GetDatabasePath ("pkcs7.db"), "no.secret")
 			{
 			}
 
@@ -1529,46 +1536,20 @@ namespace UnitTests.Cryptography {
 			return new MySecureMimeContext ();
 		}
 
-		static ApplicationPkcs7MimeSqliteTests ()
+		[OneTimeTearDown]
+		public void DeleteDatabases ()
 		{
-			if (File.Exists ("pkcs7.db"))
-				File.Delete ("pkcs7.db");
+			// Make sure that later fixtures do not instantiate MySecureMimeContext (and recreate the database).
+			CryptographyContext.Register (typeof (TemporarySecureMimeContext));
 
-			if (File.Exists ("revoked-pkcs7.db"))
-				File.Delete ("revoked-pkcs7.db");
-
-			if (File.Exists ("revoked-pkcs7-async.db"))
-				File.Delete ("revoked-pkcs7-async.db");
-
-			if (File.Exists ("partial-revoked-pkcs7.db"))
-				File.Delete ("partial-revoked-pkcs7.db");
-
-			if (File.Exists ("partial-revoked-pkcs7-async.db"))
-				File.Delete ("partial-revoked-pkcs7-async.db");
-
-			if (File.Exists ("valid-only-pkcs7.db"))
-				File.Delete ("valid-only-pkcs7.db");
-
-			if (File.Exists ("valid-only-pkcs7-async.db"))
-				File.Delete ("valid-only-pkcs7-async.db");
-
-			if (File.Exists ("valid-only-all-fail-pkcs7.db"))
-				File.Delete ("valid-only-all-fail-pkcs7.db");
-
-			if (File.Exists ("valid-only-subca-revoked-pkcs7.db"))
-				File.Delete ("valid-only-subca-revoked-pkcs7.db");
-
-			if (File.Exists ("valid-only-subca-revoked-pkcs7-async.db"))
-				File.Delete ("valid-only-subca-revoked-pkcs7-async.db");
-
-			if (File.Exists ("valid-only-subca-revoked-all-fail-pkcs7.db"))
-				File.Delete ("valid-only-subca-revoked-all-fail-pkcs7.db");
+			if (Directory.Exists (DatabaseDir))
+				Directory.Delete (DatabaseDir, true);
 		}
 
 		[Test]
 		public void TestEncryptRevokedRecipient ()
 		{
-			const string fileName = "revoked-pkcs7.db";
+			var fileName = GetDatabasePath ("revoked-pkcs7.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				ImportAll (ctx);
@@ -1606,7 +1587,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestEncryptRevokedRecipientAsync ()
 		{
-			const string fileName = "revoked-pkcs7-async.db";
+			var fileName = GetDatabasePath ("revoked-pkcs7-async.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				await ImportAllAsync (ctx);
@@ -1644,7 +1625,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEncryptPartialRevokedRecipients ()
 		{
-			const string fileName = "partial-revoked-pkcs7.db";
+			var fileName = GetDatabasePath ("partial-revoked-pkcs7.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				ImportAll (ctx);
@@ -1658,7 +1639,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestEncryptPartialRevokedRecipientsAsync ()
 		{
-			const string fileName = "partial-revoked-pkcs7-async.db";
+			var fileName = GetDatabasePath ("partial-revoked-pkcs7-async.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				await ImportAllAsync (ctx);
@@ -1672,7 +1653,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEncryptToValidRecipientsOnly ()
 		{
-			const string fileName = "valid-only-pkcs7.db";
+			var fileName = GetDatabasePath ("valid-only-pkcs7.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				ImportAll (ctx);
@@ -1686,7 +1667,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestEncryptToValidRecipientsOnlyAsync ()
 		{
-			const string fileName = "valid-only-pkcs7-async.db";
+			var fileName = GetDatabasePath ("valid-only-pkcs7-async.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				await ImportAllAsync (ctx);
@@ -1700,7 +1681,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEncryptToValidRecipientsOnlyAllFail ()
 		{
-			const string fileName = "valid-only-all-fail-pkcs7.db";
+			var fileName = GetDatabasePath ("valid-only-all-fail-pkcs7.db");
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret")) {
 				ImportAll (ctx);
@@ -1714,7 +1695,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEncryptToValidRecipientsOnlySubCaRevoked ()
 		{
-			const string fileName = "valid-only-subca-revoked-pkcs7.db";
+			var fileName = GetDatabasePath ("valid-only-subca-revoked-pkcs7.db");
 			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
@@ -1729,7 +1710,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public async Task TestEncryptToValidRecipientsOnlySubCaRevokedAsync ()
 		{
-			const string fileName = "valid-only-subca-revoked-pkcs7-async.db";
+			var fileName = GetDatabasePath ("valid-only-subca-revoked-pkcs7-async.db");
 			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {
@@ -1744,7 +1725,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEncryptToRevokedSubCaCertificateFails ()
 		{
-			const string fileName = "valid-only-subca-revoked-all-fail-pkcs7.db";
+			var fileName = GetDatabasePath ("valid-only-subca-revoked-all-fail-pkcs7.db");
 			var mockHandler = CreateSubCaRevokedMockHttpMessageHandler ();
 
 			using (var ctx = new MySecureMimeContext (fileName, "no.secret", mockHandler)) {

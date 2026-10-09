@@ -60,8 +60,19 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			var connection = SqliteCertificateDatabase.CreateConnection ("smime.db");
-			var database = new SqliteCertificateDatabase (connection, "no.secret");
+			var path = GetTempDatabasePath ();
+
+			try {
+				AssertArgumentExceptions (path);
+			} finally {
+				DeleteTempDatabase (path);
+			}
+		}
+
+		static void AssertArgumentExceptions (string path)
+		{
+			using var connection = SqliteCertificateDatabase.CreateConnection (path);
+			using var database = new SqliteCertificateDatabase (connection, "no.secret");
 			var random = new SecureRandom ();
 
 			// password
@@ -87,15 +98,15 @@ namespace UnitTests.Cryptography {
 
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((string) null, "password"));
 			Assert.Throws<ArgumentException> (() => new SqliteCertificateDatabase (string.Empty, "password"));
-			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ("smime.db", null));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (path, null));
 
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((DbConnection) null, "password"));
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (connection, null));
 
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((string) null, "password", random));
 			Assert.Throws<ArgumentException> (() => new SqliteCertificateDatabase (string.Empty, "password", random));
-			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ("smime.db", null, random));
-			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ("smime.db", "password", null));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (path, null, random));
+			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (path, "password", null));
 
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase ((DbConnection) null, "password", random));
 			Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (connection, null, random));
@@ -120,16 +131,16 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestImportCertificates ()
 		{
+			var path = GetTempDatabasePath ();
+
 			try {
-				var database = new SqliteCertificateDatabase ("smime.db", "no.secret");
+				using var database = new SqliteCertificateDatabase (path, "no.secret");
 				var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 				var certificates = new List<X509Certificate> ();
 
 				using (var ctx = new DefaultSecureMimeContext (database)) {
 					foreach (var filename in CertificateAuthorities) {
-						var path = Path.Combine (dataDir, filename);
-
-						using (var stream = File.OpenRead (path)) {
+						using (var stream = File.OpenRead (Path.Combine (dataDir, filename))) {
 							var parser = new X509CertificateParser ();
 
 							foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
@@ -149,8 +160,7 @@ namespace UnitTests.Cryptography {
 					}
 				}
 			} finally {
-				if (File.Exists ("smime.db"))
-					File.Delete ("smime.db");
+				DeleteTempDatabase (path);
 			}
 		}
 
@@ -158,9 +168,10 @@ namespace UnitTests.Cryptography {
 		public void TestImportX509Certificate2 ()
 		{
 			var rsa = SecureMimeTestsBase.RsaCertificate;
+			var path = GetTempDatabasePath ();
 
 			try {
-				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
+				using (var ctx = new DefaultSecureMimeContext (path, "no.secret")) {
 					using var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
 					var secure = new SecureMailboxAddress ("MimeKit UnitTests", rsa.EmailAddress, certificate.Thumbprint);
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
@@ -174,8 +185,7 @@ namespace UnitTests.Cryptography {
 					Assert.That (ctx.CanEncrypt (secure), Is.True, "CanEncrypt(SecureMailboxAddress)");
 				}
 			} finally {
-				if (File.Exists ("smime.db"))
-					File.Delete ("smime.db");
+				DeleteTempDatabase (path);
 			}
 		}
 
@@ -183,9 +193,10 @@ namespace UnitTests.Cryptography {
 		public async Task TestImportX509Certificate2Async ()
 		{
 			var rsa = SecureMimeTestsBase.RsaCertificate;
+			var path = GetTempDatabasePath ();
 
 			try {
-				using (var ctx = new DefaultSecureMimeContext ("smime.db", "no.secret")) {
+				using (var ctx = new DefaultSecureMimeContext (path, "no.secret")) {
 					using var certificate = new X509Certificate2 (rsa.FileName, "no.secret", X509KeyStorageFlags.Exportable);
 					var secure = new SecureMailboxAddress ("MimeKit UnitTests", rsa.EmailAddress, certificate.Thumbprint);
 					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
@@ -199,8 +210,7 @@ namespace UnitTests.Cryptography {
 					Assert.That (await ctx.CanEncryptAsync (secure), Is.True, "CanEncrypt(SecureMailboxAddress)");
 				}
 			} finally {
-				if (File.Exists ("smime.db"))
-					File.Delete ("smime.db");
+				DeleteTempDatabase (path);
 			}
 		}
 

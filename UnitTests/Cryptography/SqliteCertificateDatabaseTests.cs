@@ -77,6 +77,8 @@ namespace UnitTests.Cryptography {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
+		static readonly string TempDir = Path.Combine (Path.GetTempPath (), "MimeKit-" + Guid.NewGuid ().ToString ("N"));
+		static readonly string DatabasePath = Path.Combine (TempDir, "sqlite.db");
 		readonly X509Certificate[] chain;
 		readonly string dataDir;
 
@@ -85,12 +87,9 @@ namespace UnitTests.Cryptography {
 			var rsa = SecureMimeTestsBase.RsaCertificate;
 			dataDir = Path.Combine (TestHelper.ProjectDir, "TestData", "smime");
 
-			if (File.Exists ("sqlite.db"))
-				File.Delete ("sqlite.db");
-
 			chain = rsa.Chain;
 
-			using (var ctx = new DefaultSecureMimeContext ("sqlite.db", "no.secret")) {
+			using (var ctx = new DefaultSecureMimeContext (DatabasePath, "no.secret")) {
 				foreach (var filename in StartComCertificates) {
 					var path = Path.Combine (dataDir, filename);
 					using (var stream = File.OpenRead (path))
@@ -106,15 +105,15 @@ namespace UnitTests.Cryptography {
 
 		public void Dispose ()
 		{
-			if (File.Exists ("sqlite.db"))
-				File.Delete ("sqlite.db");
+			if (Directory.Exists (TempDir))
+				Directory.Delete (TempDir, true);
 
 			GC.SuppressFinalize (this);
 		}
 
 		static string GetUniqueDatabasePath ()
 		{
-			return Path.Combine (TestContext.CurrentContext.WorkDirectory, Guid.NewGuid ().ToString ("N"), "sqlite.db");
+			return Path.Combine (TempDir, Guid.NewGuid ().ToString ("N"), "sqlite.db");
 		}
 
 		static void DeleteDatabaseDirectory (string path)
@@ -136,6 +135,10 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentException> (() => SqliteCertificateDatabase.CreateConnection (string.Empty));
 				Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (nullPasswordPath, null));
 				Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (nullRandomPath, "no.secret", null));
+
+				// Invalid arguments should not leave behind an empty database file.
+				Assert.That (File.Exists (nullPasswordPath), Is.False, "null password created a database file");
+				Assert.That (File.Exists (nullRandomPath), Is.False, "null random created a database file");
 			} finally {
 				DeleteDatabaseDirectory (nullPasswordPath);
 				DeleteDatabaseDirectory (nullRandomPath);
@@ -202,12 +205,10 @@ namespace UnitTests.Cryptography {
 		public void TestAutoUpgradeVersion0 ()
 		{
 			var path = Path.Combine (dataDir, "smimev0.db");
-			const string tmp = "smimev0-tmp.db";
+			var tmp = Path.Combine (TempDir, "smimev0-tmp.db");
 
-			if (File.Exists (tmp))
-				File.Delete (tmp);
-
-			File.Copy (path, tmp);
+			Directory.CreateDirectory (TempDir);
+			File.Copy (path, tmp, true);
 
 			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
 				// Verify that we can select the Root Certificate
@@ -229,12 +230,10 @@ namespace UnitTests.Cryptography {
 		public void TestAutoUpgradeVersion1 ()
 		{
 			var path = Path.Combine (dataDir, "smimev1.db");
-			const string tmp = "smimev1-tmp.db";
+			var tmp = Path.Combine (TempDir, "smimev1-tmp.db");
 
-			if (File.Exists (tmp))
-				File.Delete (tmp);
-
-			File.Copy (path, tmp);
+			Directory.CreateDirectory (TempDir);
+			File.Copy (path, tmp, true);
 
 			using (var dbase = new SqliteCertificateDatabase (tmp, "no.secret")) {
 				// Verify that we can select the Root Certificate
@@ -255,7 +254,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestEnumerateMatches ()
 		{
-			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+			using (var dbase = new SqliteCertificateDatabase (DatabasePath, "no.secret")) {
 				var certificates = ((IStore<X509Certificate>) dbase).EnumerateMatches (null).ToList ();
 
 				Assert.That (certificates, Has.Count.EqualTo (6), "Did not find the expected # of certificate");
@@ -264,7 +263,7 @@ namespace UnitTests.Cryptography {
 
 		static void AssertFindBy (ISelector<X509Certificate> selector, X509Certificate expected)
 		{
-			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+			using (var dbase = new SqliteCertificateDatabase (DatabasePath, "no.secret")) {
 				// Verify that we can select the Root Certificate
 				bool found = false;
 				foreach (var record in dbase.Find (selector, false, X509CertificateRecordFields.Certificate)) {
@@ -328,7 +327,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestFindPrivateKeys ()
 		{
-			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+			using (var dbase = new SqliteCertificateDatabase (DatabasePath, "no.secret")) {
 				var privateKeys = dbase.FindPrivateKeys (null).ToList ();
 
 				Assert.That (privateKeys, Has.Count.EqualTo (1), "Did not find the expected # of private keys");
@@ -338,7 +337,7 @@ namespace UnitTests.Cryptography {
 		[Test]
 		public void TestFindCrl ()
 		{
-			using (var dbase = new SqliteCertificateDatabase ("sqlite.db", "no.secret")) {
+			using (var dbase = new SqliteCertificateDatabase (DatabasePath, "no.secret")) {
 				foreach (var crl in SecureMimeTestsBase.ObsoleteCrls) {
 					var record = dbase.Find (crl, X509CrlRecordFields.Id | X509CrlRecordFields.IsDelta | X509CrlRecordFields.IssuerName | X509CrlRecordFields.ThisUpdate | X509CrlRecordFields.NextUpdate | X509CrlRecordFields.Crl);
 
