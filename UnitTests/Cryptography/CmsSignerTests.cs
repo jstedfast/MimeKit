@@ -31,6 +31,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Asn1.X509;
 
 using MimeKit.Cryptography;
 
@@ -41,6 +42,31 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class CmsSignerTests
 	{
+		static string GetUniqueFileName (string extension)
+		{
+			return Path.Combine (TestContext.CurrentContext.WorkDirectory, Guid.NewGuid ().ToString ("N") + extension);
+		}
+
+		static string GenerateNonSigningCertificate (out List<X509Certificate> certificates, out AsymmetricKeyParameter key)
+		{
+			var path = GetUniqueFileName (".pfx");
+			var options = new X509CertificateGenerator.GeneratorOptions {
+				BasicConstraints = "critical, ca:false",
+				DaysValid = 7,
+				Issuer = "this",
+				KeyUsage = "critical, KeyEncipherment",
+				Output = path,
+				Password = "no.secret"
+			};
+			var privateKeyOptions = new X509CertificateGenerator.PrivateKeyOptions ();
+			var certificateOptions = new X509CertificateGenerator.CertificateOptions ();
+
+			certificateOptions.Add (X509Name.CN, "Encryption Only");
+			certificates = X509CertificateGenerator.Generate (options, privateKeyOptions, certificateOptions, out key).ToList ();
+
+			return path;
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -254,6 +280,45 @@ namespace UnitTests.Cryptography {
 
 			signer.RsaSignaturePadding = RsaSignaturePadding.Pss;
 			Assert.That (signer.RsaSignaturePadding, Is.EqualTo (RsaSignaturePadding.Pss), "RsaSignaturePadding #4");
+		}
+
+		[Test]
+		public void TestPkcs12WithoutPrivateKey ()
+		{
+			var certificate = SecureMimeTestsBase.LoadCertificate (Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt"));
+			var store = new Pkcs12StoreBuilder ().Build ();
+			using var stream = new MemoryStream ();
+
+			store.SetCertificateEntry ("StartCom Certification Authority", new X509CertificateEntry (certificate));
+			store.Save (stream, "no.secret".ToCharArray (), new SecureRandom ());
+			stream.Position = 0;
+
+			var exception = Assert.Throws<ArgumentException> (() => new CmsSigner (stream, "no.secret"));
+
+			Assert.That (exception.ParamName, Is.EqualTo ("stream"));
+			Assert.That (exception.Message, Is.EqualTo ("The stream did not contain a private key. (Parameter 'stream')"));
+		}
+
+		[Test]
+		public void TestCertificateCannotBeUsedForSigning ()
+		{
+			var path = GenerateNonSigningCertificate (out var certificates, out var key);
+
+			try {
+				var pathException = Assert.Throws<ArgumentException> (() => new CmsSigner (path, "no.secret"));
+				var chainException = Assert.Throws<ArgumentException> (() => new CmsSigner (certificates, key));
+				var certificateException = Assert.Throws<ArgumentException> (() => new CmsSigner (certificates[0], key));
+
+				Assert.That (pathException.ParamName, Is.EqualTo ("stream"));
+				Assert.That (pathException.Message, Is.EqualTo ("The stream did not contain a certificate that could be used to create digital signatures. (Parameter 'stream')"));
+				Assert.That (chainException.ParamName, Is.EqualTo ("certificate"));
+				Assert.That (chainException.Message, Is.EqualTo ("The certificate cannot be used for signing. (Parameter 'certificate')"));
+				Assert.That (certificateException.ParamName, Is.EqualTo ("certificate"));
+				Assert.That (certificateException.Message, Is.EqualTo ("The certificate cannot be used for signing. (Parameter 'certificate')"));
+			} finally {
+				if (File.Exists (path))
+					File.Delete (path);
+			}
 		}
 	}
 }

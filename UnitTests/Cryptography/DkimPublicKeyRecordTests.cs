@@ -26,6 +26,7 @@
 
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit.Cryptography;
@@ -87,6 +88,24 @@ namespace UnitTests.Cryptography {
 		{
 			Assert.That (DkimPublicKeyRecord.TryParse (";; v=DKIM1 ;; k = rsa ; p = " + RsaKey + " ;", out var record), Is.True);
 			Assert.That (record.PublicKey, Is.InstanceOf<RsaKeyParameters> ());
+		}
+
+		[Test]
+		public void TestTryParseRsaRejectsNonSequenceKey ()
+		{
+			Assert.That (DkimPublicKeyRecord.TryParse ("v=DKIM1; k=rsa; p=AgEB", out var record), Is.False);
+			Assert.That (record, Is.Null);
+		}
+
+		[Test]
+		public void TestTryParseRsaRejectsNonRsaSubjectPublicKeyInfo ()
+		{
+			var raw = Convert.FromBase64String (Ed25519Key);
+			var key = new Ed25519PublicKeyParameters (raw, 0);
+			var encoded = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo (key).GetEncoded ();
+
+			Assert.That (DkimPublicKeyRecord.TryParse ("v=DKIM1; k=rsa; p=" + Convert.ToBase64String (encoded), out var record), Is.False);
+			Assert.That (record, Is.Null);
 		}
 
 		[Test]
@@ -180,6 +199,8 @@ namespace UnitTests.Cryptography {
 		[TestCase (".example.com")]
 		[TestCase ("exa mple.com")]
 		[TestCase ("example.com/")]
+		[TestCase ("example.com..")]
+		[TestCase ("\uD800.example")]
 		public void TestDnsDomainNameTryNormalizeInvalid (string domain)
 		{
 			Assert.That (DnsDomainName.TryNormalize (domain, out var normalized), Is.False);

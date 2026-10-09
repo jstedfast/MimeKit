@@ -53,6 +53,25 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public async Task TestImportWithNullContentDoesNothing ()
+		{
+			var rsa = SecureMimeTestsBase.RsaCertificate;
+			var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
+
+			using (var ctx = new TemporarySecureMimeContext ()) {
+				using (var pkcs7 = new ApplicationPkcs7Mime (SecureMimeType.CertsOnly, new MemoryStream ())) {
+					pkcs7.Content = null;
+
+					pkcs7.Import (ctx);
+					await pkcs7.ImportAsync (ctx);
+
+					Assert.That (ctx.CanSign (mailbox), Is.False);
+					Assert.That (await ctx.CanSignAsync (mailbox), Is.False);
+				}
+			}
+		}
+
+		[Test]
 		public void TestArgumentExceptions ()
 		{
 			var rsa = SecureMimeTestsBase.RsaCertificate;

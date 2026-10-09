@@ -38,11 +38,32 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class AsymmetricAlgorithmExtensionTests
 	{
+		class UnsupportedAsymmetricAlgorithm : AsymmetricAlgorithm
+		{
+			public override void FromXmlString (string xmlString)
+			{
+				throw new NotSupportedException ();
+			}
+
+			public override string ToXmlString (bool includePrivateParameters)
+			{
+				throw new NotSupportedException ();
+			}
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
 			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricKeyParameter (null));
 			Assert.Throws<ArgumentNullException> (() => AsymmetricAlgorithmExtensions.AsAsymmetricCipherKeyPair (null));
+
+			using (var unsupported = new UnsupportedAsymmetricAlgorithm ()) {
+				var keyParamException = Assert.Throws<NotSupportedException> (() => unsupported.AsAsymmetricKeyParameter ());
+				var keyPairException = Assert.Throws<NotSupportedException> (() => unsupported.AsAsymmetricCipherKeyPair ());
+
+				Assert.That (keyParamException.Message, Is.EqualTo ("'UnsupportedAsymmetricAlgorithm' is currently not supported."));
+				Assert.That (keyPairException.Message, Is.EqualTo ("'UnsupportedAsymmetricAlgorithm' is currently not supported."));
+			}
 		}
 
 		static void AssertAreEqual (byte[] expected, BigInteger actual, string paramName)

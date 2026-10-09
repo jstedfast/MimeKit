@@ -90,6 +90,21 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestCarriageReturnNotFollowedByLineFeed ()
+		{
+			const string text = "Hello\rWorld\n";
+			const string expected = "Hello\rWorld\n";
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimRelaxedBodyFilter ();
+			int outputIndex, outputLength;
+
+			var output = filter.Flush (input, 0, input.Length, out outputIndex, out outputLength);
+			var actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
 		public void TestNonEmptyBodyEndingWithMultipleNewLines ()
 		{
 			const string text = "This is a test of the relaxed body filter with a non-empty body ending with multiple new-lines\n\n\n";

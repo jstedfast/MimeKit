@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System.Collections;
 using System.Security.Cryptography.X509Certificates;
 
 using MimeKit.Cryptography;
@@ -42,6 +43,19 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((Stream) null));
 			Assert.Throws<ArgumentNullException> (() => new CmsRecipient ((string) null));
 
+			using (var stream = new MemoryStream ())
+				Assert.Throws<FormatException> (() => new CmsRecipient (stream));
+
+			var path = Path.Combine (TestContext.CurrentContext.WorkDirectory, "empty-recipient.crt");
+
+			try {
+				File.WriteAllBytes (path, Array.Empty<byte> ());
+				Assert.Throws<FormatException> (() => new CmsRecipient (path));
+			} finally {
+				if (File.Exists (path))
+					File.Delete (path);
+			}
+
 			var recipients = new CmsRecipientCollection ();
 
 			Assert.That (recipients.Count, Is.EqualTo (0));
@@ -52,6 +66,8 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentOutOfRangeException> (() => recipients.CopyTo (new CmsRecipient[1], -1));
 			Assert.Throws<ArgumentOutOfRangeException> (() => recipients.CopyTo (new CmsRecipient[1], 2));
 			Assert.Throws<ArgumentNullException> (() => recipients.Remove (null));
+
+			Assert.Throws<ArgumentNullException> (() => new CmsRecipientException ("message", null, new Exception ("inner")));
 		}
 
 		static void AssertDefaultValues (CmsRecipient recipient, X509Certificate certificate)
@@ -126,6 +142,9 @@ namespace UnitTests.Cryptography {
 			Assert.That (recipients.Count, Is.EqualTo (1), "Count");
 			Assert.That (recipients.Contains (recipient), Is.True, "Contains: True");
 
+			foreach (CmsRecipient item in (IEnumerable) recipients)
+				Assert.That (item, Is.EqualTo (recipient), "IEnumerable.GetEnumerator");
+
 			recipients.CopyTo (array, 0);
 			Assert.That (array[0], Is.EqualTo (recipient), "CopyTo");
 
@@ -134,6 +153,20 @@ namespace UnitTests.Cryptography {
 			Assert.That (recipients.Count, Is.EqualTo (0), "Count");
 
 			recipients.Clear ();
+		}
+
+		[Test]
+		public void TestCmsRecipientException ()
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "smime", "StartComCertificationAuthority.crt");
+			var recipient = new CmsRecipient (path);
+			var inner = new InvalidOperationException ("bad recipient");
+			var exception = new CmsRecipientException ("Cannot encrypt.", recipient, inner);
+
+			Assert.That (exception.Message, Is.EqualTo ("Cannot encrypt."));
+			Assert.That (exception.Recipient, Is.EqualTo (recipient));
+			Assert.That (exception.Mailbox, Is.Null);
+			Assert.That (exception.InnerException, Is.EqualTo (inner));
 		}
 	}
 }

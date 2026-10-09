@@ -27,6 +27,7 @@
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.X509.Store;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.Collections;
 
 using MimeKit.Cryptography;
@@ -35,6 +36,43 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class SqliteCertificateDatabaseTests : IDisposable
 	{
+		class TestSqliteCertificateDatabase : SqliteCertificateDatabase
+		{
+			public TestSqliteCertificateDatabase (string fileName, string password, SecureRandom random) : base (fileName, password, random)
+			{
+			}
+
+			public object GetCertificateValue (X509CertificateRecord record, string columnName)
+			{
+				return GetValue (record, columnName);
+			}
+
+			public object GetCrlValue (X509CrlRecord record, string columnName)
+			{
+				return GetValue (record, columnName);
+			}
+
+			public void ExecuteFailingTransaction ()
+			{
+				ExecuteWithinTransaction (() => {
+					using (var command = CreateCommand ()) {
+						command.CommandText = "CREATE TABLE ROLLBACK_TEST (ID INTEGER)";
+						ExecuteNonQuery (command);
+					}
+
+					throw new InvalidOperationException ("Rollback this transaction.");
+				});
+			}
+
+			public bool TableExists (string name)
+			{
+				using (var command = CreateCommand ()) {
+					command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '" + name + "'";
+					return Convert.ToInt64 (command.ExecuteScalar ()) != 0;
+				}
+			}
+		}
+
 		static readonly string[] StartComCertificates = {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
@@ -72,6 +110,92 @@ namespace UnitTests.Cryptography {
 				File.Delete ("sqlite.db");
 
 			GC.SuppressFinalize (this);
+		}
+
+		static string GetUniqueDatabasePath ()
+		{
+			return Path.Combine (TestContext.CurrentContext.WorkDirectory, Guid.NewGuid ().ToString ("N"), "sqlite.db");
+		}
+
+		static void DeleteDatabaseDirectory (string path)
+		{
+			var directory = Path.GetDirectoryName (path);
+
+			if (!string.IsNullOrEmpty (directory) && Directory.Exists (directory))
+				Directory.Delete (directory, true);
+		}
+
+		[Test]
+		public void TestArgumentExceptions ()
+		{
+			var nullPasswordPath = GetUniqueDatabasePath ();
+			var nullRandomPath = GetUniqueDatabasePath ();
+
+			try {
+				Assert.Throws<ArgumentNullException> (() => SqliteCertificateDatabase.CreateConnection (null));
+				Assert.Throws<ArgumentException> (() => SqliteCertificateDatabase.CreateConnection (string.Empty));
+				Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (nullPasswordPath, null));
+				Assert.Throws<ArgumentNullException> (() => new SqliteCertificateDatabase (nullRandomPath, "no.secret", null));
+			} finally {
+				DeleteDatabaseDirectory (nullPasswordPath);
+				DeleteDatabaseDirectory (nullRandomPath);
+			}
+		}
+
+		[Test]
+		public void TestCreateConnectionCreatesMissingDirectories ()
+		{
+			var path = GetUniqueDatabasePath ();
+
+			try {
+				using (var connection = SqliteCertificateDatabase.CreateConnection (path))
+					Assert.That (connection.ConnectionString, Does.Contain ("sqlite.db"));
+
+				Assert.That (File.Exists (path), Is.True, "Database file");
+			} finally {
+				DeleteDatabaseDirectory (path);
+			}
+		}
+
+		[Test]
+		public void TestProtectedHelpers ()
+		{
+			var path = GetUniqueDatabasePath ();
+
+			try {
+				using (var dbase = new TestSqliteCertificateDatabase (path, "no.secret", new SecureRandom ())) {
+					var certificateException = Assert.Throws<ArgumentException> (() => dbase.GetCertificateValue (new X509CertificateRecord (), "UNKNOWN"));
+					var crlException = Assert.Throws<ArgumentException> (() => dbase.GetCrlValue (new X509CrlRecord (), "UNKNOWN"));
+					var rollbackException = Assert.Throws<InvalidOperationException> (() => dbase.ExecuteFailingTransaction ());
+
+					Assert.That (certificateException.ParamName, Is.EqualTo ("columnName"), "Certificate ParamName");
+					Assert.That (certificateException.Message, Is.EqualTo ("Unknown column name: UNKNOWN (Parameter 'columnName')"), "Certificate Message");
+					Assert.That (crlException.ParamName, Is.EqualTo ("columnName"), "CRL ParamName");
+					Assert.That (crlException.Message, Is.EqualTo ("Unknown column name: UNKNOWN (Parameter 'columnName')"), "CRL Message");
+					Assert.That (rollbackException.Message, Is.EqualTo ("Rollback this transaction."));
+					Assert.That (dbase.TableExists ("ROLLBACK_TEST"), Is.False, "ROLLBACK_TEST table");
+				}
+			} finally {
+				DeleteDatabaseDirectory (path);
+			}
+		}
+
+		[Test]
+		public void TestObjectDisposedExceptions ()
+		{
+			var path = GetUniqueDatabasePath ();
+
+			try {
+				var dbase = new SqliteCertificateDatabase (path, "no.secret");
+
+				dbase.Dispose ();
+
+				var exception = Assert.Throws<ObjectDisposedException> (() => dbase.Find (null, false, X509CertificateRecordFields.Certificate).ToList ());
+
+				Assert.That (exception.ObjectName, Is.EqualTo ("SqliteCertificateDatabase"));
+			} finally {
+				DeleteDatabaseDirectory (path);
+			}
 		}
 
 		[Test]

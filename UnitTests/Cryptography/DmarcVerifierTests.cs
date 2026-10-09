@@ -198,6 +198,9 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (dkim.Status, Is.EqualTo (DkimSignatureStatus.Fail));
 			Assert.That (dkim.Header, Is.SameAs (header));
+
+			dkim.SignatureAlgorithm = DkimSignatureAlgorithm.Ed25519Sha256;
+			Assert.That (dkim.ToAuthenticationMethodResult ().Properties[2].Value, Is.EqualTo ("ed25519-sha256"));
 		}
 
 		[Test]
@@ -368,6 +371,29 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public async Task TestMaximumLengthAuthorDomainSkipsUnqueryablePolicyRecordName ()
+		{
+			var resolver = new MockDnsResolver ();
+			var label63 = new string ('a', 63);
+			var label61 = new string ('a', 61);
+			var domain = string.Join (".", label63, label63, label63, label61);
+
+			var result = await VerifyAsync (resolver, "user@" + domain);
+
+			Assert.That (result.Status, Is.EqualTo (DmarcStatus.None));
+			Assert.That (result.Errors, Is.EqualTo (DmarcErrors.None));
+			Assert.That (result.AuthorDomain, Is.EqualTo (domain));
+
+			// "_dmarc." + the 253-character Author Domain exceeds the maximum DNS name length, so the Tree Walk
+			// skips that query and continues with the parent domains.
+			Assert.That (resolver.Queries, Is.EqualTo (new[] {
+				"_dmarc." + string.Join (".", label63, label63, label61),
+				"_dmarc." + string.Join (".", label63, label61),
+				"_dmarc." + label61
+			}));
+		}
+
+		[Test]
 		public async Task TestNoPolicyRecord ()
 		{
 			var resolver = new MockDnsResolver ();
@@ -432,6 +458,51 @@ namespace UnitTests.Cryptography {
 			Assert.That (authResult.Properties[0].PropertyType, Is.EqualTo ("header"));
 			Assert.That (authResult.Properties[0].Property, Is.EqualTo ("from"));
 			Assert.That (authResult.Properties[0].Value, Is.EqualTo ("example.com"));
+		}
+
+		[Test]
+		public async Task TestRepeatedIdentifierTreeWalkUsesCache ()
+		{
+			var resolver = new MockDnsResolver ();
+			var identifier = "bounces.example.com";
+
+			resolver.Add ("_dmarc.example.com", "v=DMARC1; p=reject");
+
+			var result = await VerifyAsync (resolver, "user@example.com", new SpfCheckResult (SpfStatus.Pass, identifier), Dkim (DkimSignatureStatus.Pass, identifier));
+
+			Assert.That (result.Status, Is.EqualTo (DmarcStatus.Pass));
+			Assert.That (result.DkimAligned, Is.True);
+			Assert.That (result.SpfAligned, Is.True);
+			Assert.That (resolver.Queries, Is.EqualTo (new[] { "_dmarc.example.com", "_dmarc.com", "_dmarc.bounces.example.com" }));
+		}
+
+		[Test]
+		public async Task TestInvalidSpfIdentifierIsNotAligned ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			resolver.Add ("_dmarc.example.com", "v=DMARC1; p=reject");
+
+			var result = await VerifyAsync (resolver, "user@example.com", new SpfCheckResult (SpfStatus.Pass, "bad/domain"));
+
+			Assert.That (result.Status, Is.EqualTo (DmarcStatus.Fail));
+			Assert.That (result.SpfAligned, Is.False);
+			Assert.That (result.Errors, Is.EqualTo (DmarcErrors.None));
+		}
+
+		[Test]
+		public async Task TestSpfPassWithUnknownAlignmentReportsTemporaryFailure ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			resolver.Add ("_dmarc.example.com", "v=DMARC1; p=reject");
+			resolver.AddFailure ("_dmarc.bounces.example.com", DnsQueryStatus.TemporaryFailure);
+
+			var result = await VerifyAsync (resolver, "user@example.com", new SpfCheckResult (SpfStatus.Pass, "bounces.example.com"));
+
+			Assert.That (result.Status, Is.EqualTo (DmarcStatus.TempError));
+			Assert.That (result.Errors, Is.EqualTo (DmarcErrors.DnsTemporaryFailure));
+			Assert.That (result.SpfAligned, Is.False);
 		}
 
 		[Test]
@@ -560,6 +631,24 @@ namespace UnitTests.Cryptography {
 			Assert.That (result.PolicyDomain, Is.EqualTo ("foo.example"));
 			Assert.That (result.PolicyDomainSource, Is.EqualTo (DmarcPolicyDomainSource.OrganizationalDomain));
 			Assert.That (result.Policy, Is.EqualTo (DmarcPolicy.None));
+		}
+
+		[Test]
+		public async Task TestPublicSuffixDomainRecordAtAuthorDomainIsAuthorDomainPolicy ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			resolver.Add ("_dmarc.example", "v=DMARC1; p=reject; psd=y");
+
+			var result = await VerifyAsync (resolver, "user@example");
+
+			Assert.That (result.Status, Is.EqualTo (DmarcStatus.Fail));
+			Assert.That (result.PolicyDomain, Is.EqualTo ("example"));
+			// RFC 9989, Section 4.10.1: a record published at the Author Domain is that domain's policy, even if it has psd=y.
+			Assert.That (result.PolicyDomainSource, Is.EqualTo (DmarcPolicyDomainSource.AuthorDomain));
+			Assert.That (result.OrganizationalDomain, Is.EqualTo ("example"));
+			Assert.That (result.Policy, Is.EqualTo (DmarcPolicy.Reject));
+			Assert.That (result.ToAuthenticationMethodResult ().Properties[1].Value, Is.EqualTo ("reject"));
 		}
 
 		[Test]

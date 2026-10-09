@@ -221,5 +221,17 @@ namespace UnitTests.Cryptography {
 					File.Delete ("exported.p12");
 			}
 		}
+
+		[Test]
+		public void TestImportPkcs12Data ()
+		{
+			var rsa = SecureMimeTestsBase.RsaCertificate;
+			var store = new X509CertificateStore ();
+
+			store.Import (File.ReadAllBytes (rsa.FileName), "no.secret");
+
+			Assert.That (store.Certificates.Count (), Is.EqualTo (4), "Unexpected number of certificates imported.");
+			Assert.That (store.GetPrivateKey (store.Certificates.First ()), Is.Not.Null, "Failed to get private key.");
+		}
 	}
 }

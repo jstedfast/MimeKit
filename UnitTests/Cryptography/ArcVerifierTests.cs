@@ -85,6 +85,15 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestArcHeaderSetRejectsUnexpectedHeader ()
+		{
+			var set = new ArcHeaderSet ();
+			var header = new Header (HeaderId.Subject, "unexpected");
+
+			Assert.That (set.Add (header, null), Is.False);
+		}
+
+		[Test]
 		public void TestGetArcHeaderSetsBrokenAAR ()
 		{
 			const string input = @"MIME-Version: 1.0
@@ -501,6 +510,38 @@ This is a test message.
 				} catch {
 					Assert.Fail ("Missing set throwOnError unexpected exception");
 				}
+			}
+		}
+
+		[Test]
+		public void TestGetArcHeaderSetsDuplicateHeaderThrows ()
+		{
+			using (var message = LoadDiagnosticsMessage ()) {
+				ArcValidationErrors errors;
+				ArcHeaderSet[] sets;
+				int count;
+
+				message.Headers.Insert (0, new Header (HeaderId.ArcSeal, message.Headers[HeaderId.ArcSeal]));
+
+				var ex = Assert.Throws<FormatException> (() => ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors));
+
+				Assert.That (ex.Message, Is.EqualTo ("Duplicate ARC-Seal header for i=1"));
+			}
+		}
+
+		[Test]
+		public void TestGetArcHeaderSetsMissingChainValidationThrows ()
+		{
+			using (var message = LoadDiagnosticsMessage ()) {
+				ArcValidationErrors errors;
+				ArcHeaderSet[] sets;
+				int count;
+
+				message.Headers[HeaderId.ArcSeal] = message.Headers[HeaderId.ArcSeal].Replace ("cv=none; ", string.Empty);
+
+				var ex = Assert.Throws<FormatException> (() => ArcVerifier.GetArcHeaderSets (message, true, out sets, out count, out errors));
+
+				Assert.That (ex.Message, Is.EqualTo ("Missing chain validation tag in ARC-Seal header for i=1."));
 			}
 		}
 

@@ -92,5 +92,16 @@ namespace UnitTests.Cryptography {
 			Assert.That (record.AlgorithmsUpdated, Is.EqualTo (DateTime.MinValue), "AlgorithmsUpdated #2");
 			AssertCertificateProperties (record, signer.Certificate);
 		}
+
+		[Test]
+		public void TestEmptyRecordProperties ()
+		{
+			var record = new X509CertificateRecord ();
+
+			Assert.That (record.Certificate, Is.Null, "Certificate");
+			Assert.That (record.SubjectEmail, Is.Null, "SubjectEmail");
+			Assert.That (record.SubjectDnsNames, Is.Null, "SubjectDnsNames");
+			Assert.That (record.Fingerprint, Is.Null, "Fingerprint");
+		}
 	}
 }

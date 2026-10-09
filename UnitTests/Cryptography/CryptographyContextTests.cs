@@ -47,10 +47,17 @@ namespace UnitTests.Cryptography
 
 		class TestableOpenPgpContext : GnuPGContext
 		{
+			readonly string directory;
+
 			// Note: an empty GnuPG home directory means that no keyrings or gpg.conf are loaded,
 			// so the context uses the OpenPgpContext defaults.
-			public TestableOpenPgpContext () : base (Path.Combine (Path.GetTempPath (), Guid.NewGuid ().ToString ("N")))
+			public TestableOpenPgpContext () : this (Path.Combine (Path.GetTempPath (), Guid.NewGuid ().ToString ("N")))
 			{
+			}
+
+			TestableOpenPgpContext (string path) : base (path)
+			{
+				directory = path;
 			}
 
 			public DigestAlgorithm[] GetDigestAlgorithmRank ()
@@ -66,6 +73,14 @@ namespace UnitTests.Cryptography
 			protected override string GetPasswordForKey (PgpSecretKey key)
 			{
 				throw new NotImplementedException ();
+			}
+
+			protected override void Dispose (bool disposing)
+			{
+				base.Dispose (disposing);
+
+				if (Directory.Exists (directory))
+					Directory.Delete (directory, true);
 			}
 		}
 
@@ -185,6 +200,57 @@ namespace UnitTests.Cryptography
 
 			Assert.Throws<ArgumentException> (() => CryptographyContext.Register (typeof (NoParameterlessCtorContext)));
 			Assert.Throws<ArgumentException> (() => CryptographyContext.Register (typeof (UnknownCryprographyContext)));
+		}
+
+		[Test]
+		public void TestRegisterFactoriesCreateContexts ()
+		{
+			using var secure = new TestableCryptographyContext ();
+			using var pgp = new TestableOpenPgpContext ();
+
+			try {
+				CryptographyContext.Register (() => secure);
+				CryptographyContext.Register (() => pgp);
+
+				Assert.That (CryptographyContext.Create ("Application/Pkcs7-Mime"), Is.SameAs (secure));
+				Assert.That (CryptographyContext.Create ("Application/Pgp-Signature"), Is.SameAs (pgp));
+				Assert.Throws<NotSupportedException> (() => CryptographyContext.Create ("application/octet-stream"));
+			} finally {
+				CryptographyContext.Register (typeof (TemporarySecureMimeContext));
+				CryptographyContext.Register (typeof (DummyOpenPgpContext));
+			}
+		}
+
+		[Test]
+		public void TestSecureMimeCapabilitiesIncludeLessCommonAlgorithms ()
+		{
+			var expected = new [] {
+				EncryptionAlgorithm.Blowfish,
+				EncryptionAlgorithm.Des,
+				EncryptionAlgorithm.Idea,
+				EncryptionAlgorithm.RC240,
+				EncryptionAlgorithm.RC264,
+				EncryptionAlgorithm.RC2128
+			};
+			var ctx = new TestableCryptographyContext ();
+			var algorithms = new List<EncryptionAlgorithm> ();
+
+			ctx.SetEncryptionAlgorithmRank (expected);
+
+			foreach (var algorithm in expected)
+				ctx.Enable (algorithm);
+
+			var attr = ctx.GetSecureMimeCapabilitiesAttribute (false);
+			var sequence = Asn1Sequence.GetInstance (attr.AttrValues[0]);
+
+			for (int i = 0; i < sequence.Count; i++) {
+				var identifier = AlgorithmIdentifier.GetInstance (sequence[i]);
+
+				Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (identifier, out var algorithm), Is.True);
+				algorithms.Add (algorithm);
+			}
+
+			Assert.That (algorithms, Is.EqualTo (expected));
 		}
 
 		[Test]

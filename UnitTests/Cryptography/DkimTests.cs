@@ -70,6 +70,19 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		class NullDnsResolver : IDnsResolver
+		{
+			public DnsTxtResponse QueryTxt (string domain, CancellationToken cancellationToken = default)
+			{
+				return null;
+			}
+
+			public Task<DnsTxtResponse> QueryTxtAsync (string domain, CancellationToken cancellationToken = default)
+			{
+				return Task.FromResult<DnsTxtResponse> (null);
+			}
+		}
+
 		static DkimTests ()
 		{
 			using (var reader = new PemReader (new StreamReader (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem"))))
@@ -549,6 +562,26 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public async Task TestVerifyKeyLookupInvalidSelector ()
+		{
+			var resolver = new MockDnsResolver ();
+
+			await AssertVerifyAsync (resolver, DkimSignatureStatus.PermError, "s=bad/selector", dkim => dkim.Value = dkim.Value.Replace ("s=1433868189.example", "s=bad/selector"));
+			Assert.That (resolver.Queries, Is.Empty);
+		}
+
+		[Test]
+		public async Task TestVerifyKeyLookupNullResponse ()
+		{
+			var verifier = new DkimVerifier (new NullDnsResolver ());
+			using var message = CreateSignedMessage (out var dkim);
+
+			var result = await AssertResultAsync (verifier, message, dkim, DkimSignatureStatus.TempError, "key query failed");
+
+			Assert.That (result.Exception, Is.Null);
+		}
+
+		[Test]
 		public async Task TestVerifyKeyLookupUnsupportedQueryMethod ()
 		{
 			var resolver = new MockDnsResolver ();
@@ -579,6 +612,18 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestDkimSignerRejectsPublicKeyStream ()
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "gmail.pub");
+
+			using (var stream = File.OpenRead (path)) {
+				var ex = Assert.Throws<FormatException> (() => new DkimSigner (stream, "example.com", "1433868189.example"));
+
+				Assert.That (ex.Message, Is.EqualTo ("Private key not found."));
+			}
+		}
+
+		[Test]
 		public void TestDkimSignerDefaults ()
 		{
 			var path = Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "example.pem");
@@ -594,6 +639,46 @@ namespace UnitTests.Cryptography {
 				signer = new DkimSigner (stream, "example.com", "1433868189.example");
 				Assert.That (signer.SignatureAlgorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256), "SignatureAlgorithm #3");
 			}
+		}
+
+		[Test]
+		public void TestDkimUnsupportedSignatureAlgorithm ()
+		{
+			var signer = CreateSigner (DkimSignatureAlgorithm.RsaSha256, DkimCanonicalizationAlgorithm.Simple, DkimCanonicalizationAlgorithm.Simple);
+			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));
+			var algorithm = (DkimSignatureAlgorithm) 500;
+
+			signer.SignatureAlgorithm = algorithm;
+
+			Assert.Throws<NotSupportedException> (() => signer.CreateSigningContext ());
+			Assert.Throws<NotSupportedException> (() => verifier.CreateVerifyContext (algorithm, DkimKeys.Public));
+		}
+
+		[Test]
+		public void TestDkimParameterParsingDefaults ()
+		{
+			var parameters = DkimVerifierBase.ParseParameterTags (HeaderId.DkimSignature, " a = rsa-sha256 ; d=example.com; s=selector; h=from; bh=abc; b=def;   ");
+
+			DkimVerifierBase.ValidateCommonSignatureParameters ("DKIM-Signature", parameters, out var algorithm, out var headerAlgorithm,
+				out var bodyAlgorithm, out var domain, out var selector, out var queryMethod, out var headers, out var bodyHash, out var signature, out var maxLength);
+
+			Assert.That (algorithm, Is.EqualTo (DkimSignatureAlgorithm.RsaSha256));
+			Assert.That (headerAlgorithm, Is.EqualTo (DkimCanonicalizationAlgorithm.Simple));
+			Assert.That (bodyAlgorithm, Is.EqualTo (DkimCanonicalizationAlgorithm.Simple));
+			Assert.That (domain, Is.EqualTo ("example.com"));
+			Assert.That (selector, Is.EqualTo ("selector"));
+			Assert.That (queryMethod, Is.EqualTo ("dns/txt"));
+			Assert.That (headers, Is.EqualTo (new[] { "from" }));
+			Assert.That (bodyHash, Is.EqualTo ("abc"));
+			Assert.That (signature, Is.EqualTo ("def"));
+			Assert.That (maxLength, Is.EqualTo (-1));
+
+			parameters["c"] = "relaxed";
+			DkimVerifierBase.ValidateCommonSignatureParameters ("DKIM-Signature", parameters, out algorithm, out headerAlgorithm,
+				out bodyAlgorithm, out domain, out selector, out queryMethod, out headers, out bodyHash, out signature, out maxLength);
+
+			Assert.That (headerAlgorithm, Is.EqualTo (DkimCanonicalizationAlgorithm.Relaxed));
+			Assert.That (bodyAlgorithm, Is.EqualTo (DkimCanonicalizationAlgorithm.Simple));
 		}
 
 		[Test]
@@ -647,6 +732,12 @@ namespace UnitTests.Cryptography {
 
 				stream.Flush ();
 			}
+
+			using (var stream = new DkimHashStream (DkimSignatureAlgorithm.RsaSha1)) {
+				stream.Dispose ();
+
+				Assert.Throws<ObjectDisposedException> (() => stream.Write (buffer, 0, 1));
+			}
 		}
 
 		[Test]
@@ -680,6 +771,12 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<ArgumentNullException> (() => stream.VerifySignature (null));
 
 				stream.Flush ();
+			}
+
+			using (var stream = new DkimSignatureStream (signer.CreateSigningContext ())) {
+				stream.Dispose ();
+
+				Assert.Throws<ObjectDisposedException> (() => stream.Write (buffer, 0, 1));
 			}
 		}
 

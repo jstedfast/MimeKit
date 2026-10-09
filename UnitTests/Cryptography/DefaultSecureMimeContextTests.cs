@@ -44,6 +44,19 @@ namespace UnitTests.Cryptography {
 			"StartComCertificationAuthority.crt", "StartComClass1PrimaryIntermediateClientCA.crt"
 		};
 
+		static string GetTempDatabasePath ()
+		{
+			return Path.Combine (Path.GetTempPath (), "MimeKit-" + Guid.NewGuid ().ToString ("N"), "smime.db");
+		}
+
+		static void DeleteTempDatabase (string path)
+		{
+			var directory = Path.GetDirectoryName (path);
+
+			if (!string.IsNullOrEmpty (directory) && Directory.Exists (directory))
+				Directory.Delete (directory, true);
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -188,6 +201,81 @@ namespace UnitTests.Cryptography {
 			} finally {
 				if (File.Exists ("smime.db"))
 					File.Delete ("smime.db");
+			}
+		}
+
+		[Test]
+		public void TestConstructorCreatesDatabaseDirectory ()
+		{
+			var path = GetTempDatabasePath ();
+
+			try {
+				using (var ctx = new DefaultSecureMimeContext (path, "no.secret", new SecureRandom ())) {
+					Assert.That (File.Exists (path), Is.True);
+				}
+			} finally {
+				DeleteTempDatabase (path);
+			}
+		}
+
+		[Test]
+		public void TestCanSignAndEncryptReturnFalseWithoutMatchingCertificate ()
+		{
+			var path = GetTempDatabasePath ();
+
+			try {
+				using (var ctx = new DefaultSecureMimeContext (path, "no.secret")) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", "unknown@example.com");
+
+					Assert.That (ctx.CanSign (mailbox), Is.False);
+					Assert.That (ctx.CanEncrypt (mailbox), Is.False);
+				}
+			} finally {
+				DeleteTempDatabase (path);
+			}
+		}
+
+		[Test]
+		public async Task TestImportAsyncPkcs12Stream ()
+		{
+			var rsa = SecureMimeTestsBase.RsaCertificate;
+			var path = GetTempDatabasePath ();
+
+			try {
+				using (var ctx = new DefaultSecureMimeContext (path, "no.secret")) {
+					var mailbox = new MailboxAddress ("MimeKit UnitTests", rsa.EmailAddress);
+
+					using (var stream = File.OpenRead (rsa.FileName))
+						await ctx.ImportAsync (stream, "no.secret");
+
+					Assert.That (ctx.CanSign (mailbox), Is.True);
+					Assert.That (ctx.CanEncrypt (mailbox), Is.True);
+				}
+			} finally {
+				DeleteTempDatabase (path);
+			}
+		}
+
+		[Test]
+		public void TestImportUpdatesExistingCertificateTrust ()
+		{
+			var path = GetTempDatabasePath ();
+
+			try {
+				using (var database = new SqliteCertificateDatabase (path, "no.secret")) {
+					using (var ctx = new DefaultSecureMimeContext (database)) {
+						var certificate = SecureMimeTestsBase.RootCertificate;
+
+						ctx.Import (certificate, false);
+						ctx.Import (certificate, true);
+
+						var record = database.Find (certificate, X509CertificateRecordFields.Trusted);
+
+						Assert.That (record.IsTrusted, Is.True);
+					}
+				}
+			} finally {
+				DeleteTempDatabase (path);
 			}
 		}
 	}

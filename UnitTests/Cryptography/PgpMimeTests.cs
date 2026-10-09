@@ -24,8 +24,12 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
+
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit;
 using MimeKit.IO;
@@ -77,6 +81,43 @@ namespace UnitTests.Cryptography {
 			GC.SuppressFinalize (this);
 		}
 
+		class CountingMimeVisitor : MimeVisitor
+		{
+			public int MimeParts;
+			public int Multiparts;
+
+			protected internal override void VisitMimePart (MimePart entity)
+			{
+				MimeParts++;
+			}
+
+			protected internal override void VisitMultipart (Multipart multipart)
+			{
+				Multiparts++;
+			}
+		}
+
+		class TestableGnuPGContext : DummyOpenPgpContext
+		{
+			public TestableGnuPGContext () : base ()
+			{
+			}
+
+			public TestableGnuPGContext (string gnupgDir) : base (gnupgDir)
+			{
+			}
+
+			public static bool PublicKeyMatches (PgpPublicKey key, MailboxAddress mailbox)
+			{
+				return IsMatch (key, mailbox);
+			}
+
+			public static bool SecretKeyMatches (PgpSecretKey key, MailboxAddress mailbox)
+			{
+				return IsMatch (key, mailbox);
+			}
+		}
+
 		static bool IsSupported (EncryptionAlgorithm algorithm)
 		{
 			switch (algorithm) {
@@ -111,6 +152,143 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		static string FilterText (MimeFilterBase filter, string input, int increment)
+		{
+			using (var stream = new MemoryStream ()) {
+				using (var filtered = new FilteredStream (stream)) {
+					var buffer = Encoding.ASCII.GetBytes (input);
+					int startIndex = 0;
+
+					filtered.Add (filter);
+
+					while (startIndex < buffer.Length) {
+						int n = Math.Min (increment, buffer.Length - startIndex);
+
+						filtered.Write (buffer, startIndex, n);
+						startIndex += n;
+					}
+
+					filtered.Flush ();
+
+					return Encoding.ASCII.GetString (stream.GetBuffer (), 0, (int) stream.Length);
+				}
+			}
+		}
+
+		static void AssertDetection (string input, string beginMarker, string endMarker, OpenPgpDataType expected)
+		{
+			var filter = new OpenPgpDetectionFilter ();
+			var output = FilterText (filter, input, 7);
+			var beginOffset = input.IndexOf (beginMarker, StringComparison.Ordinal);
+			var endOffset = input.IndexOf (endMarker, StringComparison.Ordinal) + endMarker.Length;
+
+			if (endOffset < input.Length && input[endOffset] == '\r')
+				endOffset++;
+
+			if (endOffset < input.Length && input[endOffset] == '\n')
+				endOffset++;
+
+			Assert.That (filter.DataType, Is.EqualTo (expected));
+			Assert.That (filter.BeginOffset, Is.EqualTo (beginOffset));
+			Assert.That (filter.EndOffset, Is.EqualTo (endOffset));
+			Assert.That (output, Is.EqualTo (input.Substring (beginOffset, endOffset - beginOffset)));
+		}
+
+		[Test]
+		public void TestOpenPgpDetectionFilterDetectsArmoredBlocks ()
+		{
+			AssertDetection ("prefix\r\n-----BEGIN PGP MESSAGE-----\r\nVersion: Test\r\n\r\nabc\r\n-----END PGP MESSAGE-----\r\nsuffix\r\n",
+				"-----BEGIN PGP MESSAGE-----", "-----END PGP MESSAGE-----", OpenPgpDataType.EncryptedMessage);
+			AssertDetection ("-----BEGIN PGP SIGNED MESSAGE-----\nHash: SHA256\n\nhello\n-----BEGIN PGP SIGNATURE-----\nabc\n-----END PGP SIGNATURE-----\n",
+				"-----BEGIN PGP SIGNED MESSAGE-----", "-----END PGP SIGNATURE-----", OpenPgpDataType.SignedMessage);
+			AssertDetection ("-----BEGIN PGP PUBLIC KEY BLOCK-----\nabc\n-----END PGP PUBLIC KEY BLOCK-----\n",
+				"-----BEGIN PGP PUBLIC KEY BLOCK-----", "-----END PGP PUBLIC KEY BLOCK-----", OpenPgpDataType.PublicKey);
+			AssertDetection ("-----BEGIN PGP PRIVATE KEY BLOCK-----\nabc\n-----END PGP PRIVATE KEY BLOCK-----\n",
+				"-----BEGIN PGP PRIVATE KEY BLOCK-----", "-----END PGP PRIVATE KEY BLOCK-----", OpenPgpDataType.PrivateKey);
+		}
+
+		[Test]
+		public void TestOpenPgpDetectionFilterUnterminatedBlockAndReset ()
+		{
+			var filter = new OpenPgpDetectionFilter ();
+
+			Assert.That (FilterText (filter, "-----BEGIN PGP MESSAGE-----\nabc", 64), Is.EqualTo ("-----BEGIN PGP MESSAGE-----\nabc"));
+			Assert.That (filter.DataType, Is.EqualTo (OpenPgpDataType.None));
+			Assert.That (filter.BeginOffset, Is.EqualTo (0));
+			Assert.That (filter.EndOffset, Is.Null);
+
+			filter.Reset ();
+
+			Assert.That (filter.BeginOffset, Is.Null);
+			Assert.That (filter.EndOffset, Is.Null);
+
+			Assert.That (FilterText (filter, "not a marker", 20), Is.EqualTo (string.Empty));
+			Assert.That (filter.DataType, Is.EqualTo (OpenPgpDataType.None));
+			Assert.That (filter.BeginOffset, Is.Null);
+			Assert.That (filter.EndOffset, Is.Null);
+		}
+
+		[Test]
+		public void TestOpenPgpBlockFilterHandlesCrlfAndMissingEndMarker ()
+		{
+			var complete = new OpenPgpBlockFilter ("-----BEGIN PGP MESSAGE-----", "-----END PGP MESSAGE-----");
+			const string expected = "-----BEGIN PGP MESSAGE-----\r\nVersion: Test\r\n\r\nabc\r\n-----END PGP MESSAGE-----\r\n";
+			var input = "noise\r\n" + expected + "trailing\r\n";
+
+			Assert.That (FilterText (complete, input, 9), Is.EqualTo (expected));
+
+			var partial = new OpenPgpBlockFilter ("-----BEGIN PGP MESSAGE-----", "-----END PGP MESSAGE-----");
+			const string unterminated = "-----BEGIN PGP MESSAGE-----\r\nVersion: Test\r\n\r\nabc";
+
+			Assert.That (FilterText (partial, "noise\n" + unterminated, 64), Is.EqualTo (unterminated));
+		}
+
+		[Test]
+		public void TestEd25519DigestSigner ()
+		{
+			var seed = Enumerable.Range (0, Ed25519PrivateKeyParameters.KeySize).Select (i => (byte) i).ToArray ();
+			var privateKey = new Ed25519PrivateKeyParameters (seed, 0);
+			var publicKey = privateKey.GeneratePublicKey ();
+			var signer = new Ed25519DigestSigner (new Sha256Digest ());
+			var message = Encoding.ASCII.GetBytes ("This is a test message.");
+
+			Assert.That (signer.AlgorithmName, Is.EqualTo ("SHA-256withEd25519"));
+			Assert.That (signer.GetMaxSignatureSize (), Is.EqualTo (Ed25519PrivateKeyParameters.SignatureSize));
+			Assert.Throws<InvalidOperationException> (() => signer.GenerateSignature ());
+			Assert.Throws<InvalidOperationException> (() => signer.VerifySignature (new byte[Ed25519PrivateKeyParameters.SignatureSize]));
+
+			signer.Init (true, privateKey);
+			signer.Update (message[0]);
+			signer.BlockUpdate (message, 1, message.Length - 1);
+			var signature = signer.GenerateSignature ();
+
+			Assert.That (signature.Length, Is.EqualTo (Ed25519PrivateKeyParameters.SignatureSize));
+
+			signer.Init (false, publicKey);
+			signer.BlockUpdate (message, 0, message.Length);
+			Assert.That (signer.VerifySignature (new byte[signature.Length - 1]), Is.False);
+			signer.Reset ();
+
+			signer.BlockUpdate (message, 0, message.Length);
+			Assert.That (signer.VerifySignature (signature), Is.True);
+
+			signature[0] ^= 0x80;
+			signer.BlockUpdate (message, 0, message.Length);
+			Assert.That (signer.VerifySignature (signature), Is.False);
+		}
+
+		[Test]
+		public void TestAcceptFallsBackToBaseVisitor ()
+		{
+			var visitor = new CountingMimeVisitor ();
+
+			new ApplicationPgpEncrypted ().Accept (visitor);
+			new MultipartEncrypted ().Accept (visitor);
+
+			Assert.That (visitor.MimeParts, Is.EqualTo (1));
+			Assert.That (visitor.Multiparts, Is.EqualTo (1));
+		}
+
 		[Test]
 		public void TestKeyEnumeration ()
 		{
@@ -138,6 +316,80 @@ namespace UnitTests.Cryptography {
 
 				Assert.That (ctx.CanEncrypt (knownMailbox), Is.True);
 				Assert.That (ctx.CanEncrypt (unknownMailbox), Is.False);
+			}
+		}
+
+		[Test]
+		public void TestGnuPGConfiguration ()
+		{
+			var gnupgDir = Path.Combine (TestHelper.ProjectDir, "Temp", "pgp-config-" + Guid.NewGuid ().ToString ("N"));
+
+			Directory.CreateDirectory (gnupgDir);
+
+			try {
+				var config = string.Join (Environment.NewLine,
+					"# ignored comment",
+					"   ",
+					"keyserver",
+					"keyserver not-a-uri",
+					"keyserver http://keys.example.org",
+					"keyserver-options auto-key-retrieve no-include-revoked",
+					"personal-cipher-preferences AES256 AES AES256 BLOWFISH",
+					"personal-digest-preferences SHA512 SHA256 SHA512") + Environment.NewLine;
+				File.WriteAllText (Path.Combine (gnupgDir, "gpg.conf"), config);
+
+				using (var ctx = new TestableGnuPGContext (gnupgDir)) {
+					Assert.That (ctx.KeyServer, Is.EqualTo (new Uri ("http://keys.example.org")));
+					Assert.That (ctx.AutoKeyRetrieve, Is.True);
+					Assert.That (ctx.EnabledEncryptionAlgorithms, Is.EqualTo (new [] { EncryptionAlgorithm.Aes256, EncryptionAlgorithm.Aes128, EncryptionAlgorithm.Blowfish, EncryptionAlgorithm.TripleDes }));
+					Assert.That (ctx.EnabledDigestAlgorithms, Is.EqualTo (new [] { DigestAlgorithm.Sha512, DigestAlgorithm.Sha256, DigestAlgorithm.Sha1 }));
+				}
+			} finally {
+				Directory.Delete (gnupgDir, true);
+			}
+		}
+
+		[Test]
+		public void TestKeyMatching ()
+		{
+			using (var ctx = new TestableGnuPGContext ()) {
+				var publicKey = ctx.EnumeratePublicKeys ().First (key => key.IsEncryptionKey);
+				var secretKey = ctx.EnumerateSecretKeys ().First (key => key.IsSigningKey);
+				var fingerprint = BitConverter.ToString (publicKey.GetFingerprint ()).Replace ("-", string.Empty);
+				var keyId = ((int) publicKey.KeyId).ToString ("X2");
+				var fullFingerprint = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", fingerprint.ToLowerInvariant ());
+				var shortFingerprint = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", keyId.ToLowerInvariant ());
+				var wrongFingerprint = new SecureMailboxAddress ("MimeKit UnitTests", "mimekit@example.com", "00000000");
+				var mailbox = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+				var unknown = new MailboxAddress ("Unknown", "unknown@example.com");
+
+				Assert.That (TestableGnuPGContext.PublicKeyMatches (publicKey, fullFingerprint), Is.True);
+				Assert.That (TestableGnuPGContext.PublicKeyMatches (publicKey, shortFingerprint), Is.True);
+				Assert.That (TestableGnuPGContext.PublicKeyMatches (publicKey, wrongFingerprint), Is.False);
+				Assert.That (TestableGnuPGContext.PublicKeyMatches (publicKey, mailbox), Is.True);
+				Assert.That (TestableGnuPGContext.PublicKeyMatches (publicKey, unknown), Is.False);
+				Assert.That (TestableGnuPGContext.SecretKeyMatches (secretKey, mailbox), Is.True);
+				Assert.That (TestableGnuPGContext.SecretKeyMatches (secretKey, unknown), Is.False);
+
+				Assert.Throws<ArgumentNullException> (() => TestableGnuPGContext.PublicKeyMatches (null, mailbox));
+				Assert.Throws<ArgumentNullException> (() => TestableGnuPGContext.PublicKeyMatches (publicKey, null));
+				Assert.Throws<ArgumentNullException> (() => TestableGnuPGContext.SecretKeyMatches (null, mailbox));
+				Assert.Throws<ArgumentNullException> (() => TestableGnuPGContext.SecretKeyMatches (secretKey, null));
+			}
+		}
+
+		[Test]
+		public void TestOpenPgpDigitalCertificateUsesMasterKeyUserIdForSubkeys ()
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				var keyring = ctx.EnumeratePublicKeyRings ().First ();
+				var subkey = keyring.GetPublicKeys ().Cast<PgpPublicKey> ().First (key => !key.IsMasterKey);
+				var certificate = new OpenPgpDigitalCertificate (keyring, subkey);
+
+				Assert.That (certificate.Email, Is.EqualTo ("mimekit@example.com"));
+				Assert.That (certificate.Name, Is.EqualTo ("MimeKit UnitTests"));
+				Assert.That (certificate.PublicKey, Is.SameAs (subkey));
+				Assert.That (certificate.KeyRing, Is.SameAs (keyring));
 			}
 		}
 
@@ -259,6 +511,31 @@ namespace UnitTests.Cryptography {
 				} catch (DigitalSignatureVerifyException ex) {
 					Assert.Fail ($"Failed to verify signature: {ex}");
 				}
+			}
+		}
+
+		[Test]
+		public void TestOpenPgpDigitalSignatureWithoutCertificateCachesException ()
+		{
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up signing..." };
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			using (var ctx = new DummyOpenPgpContext ()) {
+				using var signed = MultipartSigned.Create (ctx, self, DigestAlgorithm.Sha256, body);
+				var signatures = signed.Verify (ctx);
+				var signature = (OpenPgpDigitalSignature) signatures[0];
+				var keyId = signature.Signature.KeyId;
+				var unknown = new OpenPgpDigitalSignature (null, null, signature.Signature) {
+					CreationDate = signature.CreationDate,
+					DigestAlgorithm = signature.DigestAlgorithm,
+					PublicKeyAlgorithm = signature.PublicKeyAlgorithm
+				};
+				var expected = string.Format (System.Globalization.CultureInfo.InvariantCulture, "Failed to verify digital signature: no public key found for {0:X8}", (int) keyId);
+
+				var ex = Assert.Throws<DigitalSignatureVerifyException> (() => unknown.Verify ());
+				Assert.That (ex.KeyId, Is.EqualTo (keyId));
+				Assert.That (ex.Message, Is.EqualTo (expected));
+				Assert.That (Assert.Throws<DigitalSignatureVerifyException> (() => unknown.Verify (true)), Is.SameAs (ex));
 			}
 		}
 
@@ -615,6 +892,10 @@ namespace UnitTests.Cryptography {
 				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/ invalid version part");
 				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ invalid version part");
 
+				encrypted[0] = new Multipart ("mixed");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (), "Decrypt() w/ multipart version part");
+				Assert.Throws<FormatException> (() => encrypted.Decrypt (ctx), "Decrypt(ctx) w/ multipart version part");
+
 				var emptyContent = new MimePart ("application", "octet-stream");
 				var content = encrypted[1];
 				encrypted[1] = emptyContent;
@@ -683,6 +964,47 @@ namespace UnitTests.Cryptography {
 
 					// TODO: implement DecryptAsync
 					using (var decrypted = encrypted.Decrypt ()) {
+						Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+						Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestOpenPgpContextDecryptAsync ()
+		{
+			using var body = new TextPart ("plain") { Text = "This is some cleartext that we'll end up encrypting..." };
+			var self = new MailboxAddress ("MimeKit UnitTests", "mimekit@example.com");
+
+			using (var encrypted = MultipartEncrypted.Encrypt (new [] { self }, body)) {
+				var encryptedPart = (MimePart) encrypted[1];
+
+				using (var encryptedData = new MemoryStream ()) {
+					encryptedPart.Content.DecodeTo (encryptedData);
+					encryptedData.Position = 0;
+
+					using (var ctx = new DummyOpenPgpContext ()) {
+						using var decrypted = await ctx.DecryptAsync (encryptedData);
+
+						Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
+						Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
+					}
+				}
+
+				using (var encryptedData = new MemoryStream ()) {
+					using var decryptedData = new MemoryStream ();
+
+					encryptedPart.Content.DecodeTo (encryptedData);
+					encryptedData.Position = 0;
+
+					using (var ctx = new DummyOpenPgpContext ()) {
+						var signatures = await ctx.DecryptToAsync (encryptedData, decryptedData);
+
+						decryptedData.Position = 0;
+
+						using var decrypted = MimeEntity.Load (decryptedData);
+						Assert.That (signatures, Is.Null);
 						Assert.That (decrypted, Is.InstanceOf<TextPart> (), "Decrypted part is not the expected type.");
 						Assert.That (((TextPart) decrypted).Text, Is.EqualTo (body.Text), "Decrypted content is not the same as the original.");
 					}

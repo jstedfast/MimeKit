@@ -348,6 +348,7 @@ namespace UnitTests.Cryptography {
 		}
 
 		[TestCase ("")]
+		[TestCase ("   ")]
 		[TestCase ("0:1")]
 		[TestCase ("1:d:0")]
 		[TestCase ("d:d")]

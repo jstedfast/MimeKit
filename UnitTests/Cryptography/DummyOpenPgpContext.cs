@@ -40,6 +40,10 @@ namespace UnitTests.Cryptography {
 		{
 		}
 
+		public DummyOpenPgpContext (string gnupgDir) : base (gnupgDir)
+		{
+		}
+
 		protected override string GetPasswordForKey (PgpSecretKey key)
 		{
 			return "no.secret";

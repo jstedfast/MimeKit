@@ -26,9 +26,19 @@
 
 using System.Security.Cryptography.X509Certificates;
 
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.Smime;
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Operators;
+using Org.BouncyCastle.Crypto.Parameters;
 
+using MimeKit;
 using MimeKit.Cryptography;
 
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
@@ -38,6 +48,37 @@ namespace UnitTests.Cryptography {
 	[TestFixture]
 	public class CertificateExtensionTests
 	{
+		static X509Certificate GenerateCertificate (bool invalidSmimeCapabilities)
+		{
+			using var randomGenerator = new CryptoApiRandomGenerator ();
+			var random = new SecureRandom (randomGenerator);
+			var keyGenerator = new RsaKeyPairGenerator ();
+			keyGenerator.Init (new KeyGenerationParameters (random, 2048));
+			var keyPair = keyGenerator.GenerateKeyPair ();
+			var generator = new X509V3CertificateGenerator ();
+			var oids = new[] { X509Name.CN, X509Name.Name, X509Name.EmailAddress };
+			var values = new[] { "Extension Test", "Display Name", "User@Example.COM" };
+			var subject = new X509Name (oids, values);
+			var altNames = new GeneralNames (new[] {
+				new GeneralName (GeneralName.DnsName, MailboxAddress.IdnMapping.Encode ("bücher.example")),
+				new GeneralName (GeneralName.Rfc822Name, "alt@example.com"),
+				new GeneralName (GeneralName.DnsName, "www.example.com")
+			});
+
+			generator.SetSerialNumber (BigInteger.One);
+			generator.SetIssuerDN (subject);
+			generator.SetSubjectDN (subject);
+			generator.SetNotBefore (DateTime.UtcNow.AddDays (-1));
+			generator.SetNotAfter (DateTime.UtcNow.AddDays (1));
+			generator.SetPublicKey (keyPair.Public);
+			generator.AddExtension (X509Extensions.SubjectAlternativeName, false, altNames);
+
+			if (invalidSmimeCapabilities)
+				generator.AddExtension (SmimeAttributes.SmimeCapabilities, false, DerInteger.ValueOf (5));
+
+			return generator.Generate (new Asn1SignatureFactory ("SHA256WithRSA", keyPair.Private, random));
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
@@ -58,6 +99,12 @@ namespace UnitTests.Cryptography {
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetEncryptionAlgorithms (null));
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetPublicKeyAlgorithm (null));
 			Assert.Throws<ArgumentNullException> (() => X509Certificate2Extensions.GetSubjectDnsNames (null));
+
+			var certificate = GenerateCertificate (false).AsX509Certificate2 ();
+			certificate.Dispose ();
+
+			var exception = Assert.Throws<ArgumentException> (() => certificate.AsBouncyCastleCertificate ());
+			Assert.That (exception.ParamName, Is.EqualTo ("certificate"));
 		}
 
 		static X509KeyUsageFlags GetX509Certificate2KeyUsageFlags (X509Certificate2 certificate)
@@ -129,6 +176,39 @@ namespace UnitTests.Cryptography {
 				for (int i = 0; i < dnsNames.Length; i++)
 					Assert.That (dnsNames[i], Is.EqualTo (expectedDnsNames[i]), $"SubjectDnsNames[{i}] #2");
 			}
+		}
+
+		[Test]
+		public void TestGeneratedCertificateExtensions ()
+		{
+			var certificate = GenerateCertificate (false);
+			using var certificate2 = certificate.AsX509Certificate2 ();
+
+			Assert.That (certificate.GetIssuerNameInfo (X509Name.CN), Is.EqualTo ("Extension Test"));
+			Assert.That (certificate.GetSubjectName (), Is.EqualTo ("Display Name"));
+			Assert.That (certificate.GetSubjectEmailAddress (true), Is.EqualTo ("User@Example.COM"));
+
+			var dnsNames = certificate.GetSubjectDnsNames ();
+			Assert.That (dnsNames, Is.EqualTo (new[] { "bücher.example", "www.example.com" }));
+
+			dnsNames = certificate.GetSubjectDnsNames (true);
+			Assert.That (dnsNames, Is.EqualTo (new[] { "xn--bcher-kva.example", "www.example.com" }));
+
+			dnsNames = certificate2.GetSubjectDnsNames ();
+			Assert.That (dnsNames, Is.EqualTo (new[] { "bücher.example", "www.example.com" }));
+
+			dnsNames = certificate2.GetSubjectDnsNames (true);
+			Assert.That (dnsNames, Is.EqualTo (new[] { "xn--bcher-kva.example", "www.example.com" }));
+		}
+
+		[Test]
+		public void TestInvalidSmimeCapabilitiesFallBackToTripleDes ()
+		{
+			var certificate = GenerateCertificate (true);
+			using var certificate2 = certificate.AsX509Certificate2 ();
+
+			Assert.That (certificate.GetEncryptionAlgorithms (), Is.EqualTo (new[] { EncryptionAlgorithm.TripleDes }));
+			Assert.That (certificate2.GetEncryptionAlgorithms (), Is.EqualTo (new[] { EncryptionAlgorithm.TripleDes }));
 		}
 	}
 }

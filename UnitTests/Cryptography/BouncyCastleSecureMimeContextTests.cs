@@ -27,6 +27,7 @@
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Smime;
+using Org.BouncyCastle.Cms;
 
 using MimeKit.Cryptography;
 
@@ -54,6 +55,26 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (SmimeCapabilities.IdeaCbc, DerNull.Instance), out algorithm), Is.True);
 			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.Idea));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), DerInteger.ValueOf (128)), out algorithm), Is.True);
+			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.RC2128));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), DerInteger.ValueOf (64)), out algorithm), Is.True);
+			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.RC264));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), DerInteger.ValueOf (40)), out algorithm), Is.True);
+			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.RC240));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), new DerSequence (DerInteger.ValueOf (58))), out algorithm), Is.True);
+			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.RC2128));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), new DerSequence (DerInteger.ValueOf (120))), out algorithm), Is.True);
+			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.RC264));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), new DerSequence (DerInteger.ValueOf (160))), out algorithm), Is.True);
+			Assert.That (algorithm, Is.EqualTo (EncryptionAlgorithm.RC240));
+
+			Assert.That (BouncyCastleSecureMimeContext.TryGetEncryptionAlgorithm (new AlgorithmIdentifier (new DerObjectIdentifier (CmsEnvelopedGenerator.RC2Cbc), 			DerInteger.ValueOf (1)), out algorithm), Is.False);
 		}
 	}
 }
