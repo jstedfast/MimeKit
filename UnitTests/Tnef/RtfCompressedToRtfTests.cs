@@ -337,7 +337,8 @@ namespace UnitTests.Tnef {
 
 			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
 
-			Assert.That (allocated, Is.LessThan (16 * 1024 * 1024), "allocated");
+			if (!TestHelper.IsCodeCoverageEnabled)
+				Assert.That (allocated, Is.LessThan (16 * 1024 * 1024), "allocated");
 		}
 
 		static byte[] Decompress (byte[] input, RtfCompressedToRtf filter, int chunkSize = int.MaxValue)

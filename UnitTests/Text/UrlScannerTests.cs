@@ -495,18 +495,12 @@ namespace UnitTests.Text {
 			TestUrlScanner ("a@[IPv6:" + new string ('f', 100000) + "]", null);
 		}
 
-		static void AssertLinearTime (Func<int, string> generate)
+		static TimeSpan TimeScan (UrlScanner scanner, char[] text, out int candidates)
 		{
-			var scanner = new UrlScanner ();
-
-			for (int i = 0; i < TextConverter.UrlPatterns.Count; i++)
-				scanner.Add (TextConverter.UrlPatterns[i]);
-
-			char[] text = generate (100000).ToCharArray ();
-			int startIndex = 0;
-			int candidates = 0;
-
 			var stopwatch = System.Diagnostics.Stopwatch.StartNew ();
+			int startIndex = 0;
+
+			candidates = 0;
 
 			while (startIndex < text.Length && scanner.Scan (text, startIndex, text.Length - startIndex, out var match)) {
 				startIndex = match.EndIndex;
@@ -515,8 +509,30 @@ namespace UnitTests.Text {
 
 			stopwatch.Stop ();
 
+			return stopwatch.Elapsed;
+		}
+
+		static void AssertLinearTime (Func<int, string> generate)
+		{
+			const int n = 100000;
+			var scanner = new UrlScanner ();
+
+			for (int i = 0; i < TextConverter.UrlPatterns.Count; i++)
+				scanner.Add (TextConverter.UrlPatterns[i]);
+
+			var elapsed = TimeScan (scanner, generate (n).ToCharArray (), out int candidates);
+
 			// Note: A quadratic algorithm would take minutes on these inputs.
-			Assert.That (stopwatch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (10)), $"Scanning took {stopwatch.Elapsed} ({candidates} matches)");
+			if (elapsed < TimeSpan.FromSeconds (10))
+				return;
+
+			// The absolute budget can be blown on slow machines or in code-coverage (AltCover-instrumented)
+			// builds, so fall back to checking how the run time scales: quadrupling the input should take
+			// roughly 4x as long for a linear algorithm vs 16x for a quadratic algorithm.
+			var quarter = TimeScan (scanner, generate (n / 4).ToCharArray (), out _);
+			var ratio = elapsed.TotalMilliseconds / Math.Max (quarter.TotalMilliseconds, 1);
+
+			Assert.That (ratio, Is.LessThan (8.0), $"Scanning took {elapsed} ({candidates} matches) vs {quarter} for 1/4 of the input");
 		}
 
 		[Test]

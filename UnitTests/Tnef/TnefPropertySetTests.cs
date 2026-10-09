@@ -986,7 +986,7 @@ namespace UnitTests.Tnef {
 
 			// Note: Trusting the count would have allocated a 1 GB array. Async continuations may run on other
 			// threads, so the allocation can only be measured reliably for the synchronous code path.
-			if (!async)
+			if (!async && !TestHelper.IsCodeCoverageEnabled)
 				Assert.That (allocated, Is.LessThan (4 * 1024 * 1024));
 		}
 

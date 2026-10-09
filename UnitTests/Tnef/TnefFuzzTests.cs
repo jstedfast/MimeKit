@@ -185,6 +185,9 @@ namespace UnitTests.Tnef {
 			Assert.That (exception, Is.Null, what + " threw " + exception?.GetType ().Name + ": " + exception?.Message + Environment.NewLine + exception?.StackTrace);
 			Assert.That (stopwatch.ElapsedMilliseconds, Is.LessThan (TimeoutMilliseconds), what + " took too long");
 
+			if (TestHelper.IsCodeCoverageEnabled)
+				return;
+
 			var allocated = GC.GetAllocatedBytesForCurrentThread () - allocatedBefore;
 			var ceiling = (4 * 1024 * 1024) + (64L * Math.Max (data.Length, 1));
 
@@ -210,6 +213,9 @@ namespace UnitTests.Tnef {
 
 			Assert.That (exception, Is.Null, what + " threw " + exception?.GetType ().Name + ": " + exception?.Message + Environment.NewLine + exception?.StackTrace);
 			Assert.That (stopwatch.ElapsedMilliseconds, Is.LessThan (TimeoutMilliseconds), what + " took too long");
+
+			if (TestHelper.IsCodeCoverageEnabled)
+				return;
 
 			var allocated = GC.GetAllocatedBytesForCurrentThread () - allocatedBefore;
 			var ceiling = (4 * 1024 * 1024) + (64L * Math.Max (data.Length, 1));
