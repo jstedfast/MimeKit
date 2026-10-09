@@ -79,4 +79,13 @@
     <Copy SourceFiles="@(MySQLiteInteropFiles)" DestinationFiles="@(MySQLiteInteropFiles -> '$(OutDir)%(Filename)%(Extension)')" Condition=" !$(TargetFramework.StartsWith('net4')) " />
   </Target>
 
+  <!-- The NUnit console runner does not probe runtimes/<rid>/native via UnitTests.deps.json, so copy the native e_sqlite3
+       library used by Microsoft.Data.Sqlite for the current platform (e.g. osx-arm64) next to UnitTests.dll. -->
+  <Target Name="CopyMicrosoftDataSqliteNativeFiles" AfterTargets="Build" Condition=" !$(TargetFramework.StartsWith('net4')) ">
+    <ItemGroup>
+      <MicrosoftDataSqliteNativeFiles Include="$(OutDir)runtimes\$(NETCoreSdkRuntimeIdentifier)\native\*e_sqlite3*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MicrosoftDataSqliteNativeFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

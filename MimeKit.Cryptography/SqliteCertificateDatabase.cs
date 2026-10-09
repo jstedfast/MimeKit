@@ -67,8 +67,9 @@ namespace MimeKit.Cryptography {
 			public PropertyInfo ConnectionStringProperty { get; private set; }
 			public PropertyInfo? DateTimeFormatProperty { get; private set; }
 			public PropertyInfo DataSourceProperty { get; private set; }
+			public PropertyInfo? PoolingProperty { get; private set; }
 
-			SQLiteAssembly (Type connectionStringBuilderType, Type connectionType, Assembly assembly, PropertyInfo connectionStringProperty, PropertyInfo? dateTimeFormatProperty, PropertyInfo dataSourceProperty)
+			SQLiteAssembly (Type connectionStringBuilderType, Type connectionType, Assembly assembly, PropertyInfo connectionStringProperty, PropertyInfo? dateTimeFormatProperty, PropertyInfo dataSourceProperty, PropertyInfo? poolingProperty)
 			{
 				ConnectionStringBuilderType = connectionStringBuilderType;
 				ConnectionType = connectionType;
@@ -76,6 +77,7 @@ namespace MimeKit.Cryptography {
 				ConnectionStringProperty = connectionStringProperty;
 				DateTimeFormatProperty = dateTimeFormatProperty;
 				DataSourceProperty = dataSourceProperty;
+				PoolingProperty = poolingProperty;
 			}
 
 #if NET8_0_OR_GREATER
@@ -94,13 +96,18 @@ namespace MimeKit.Cryptography {
 					var dateTimeFormat = builderType.GetProperty ("DateTimeFormat");
 					var dataSource = builderType.GetRequiredProperty ("DataSource");
 
+					// Note: Microsoft.Data.Sqlite pools connections by default which keeps the database file open (and locked on Windows)
+					// after the connection is disposed. Disable pooling to match the behavior of System.Data.SQLite and Mono.Data.Sqlite.
+					var pooling = assemblyName == "Microsoft.Data.Sqlite" ? builderType.GetProperty ("Pooling") : null;
+
 					return new SQLiteAssembly (
 						assembly: assembly,
 						connectionType: connectionType,
 						connectionStringBuilderType: builderType,
 						connectionStringProperty: connectionString,
 						dateTimeFormatProperty: dateTimeFormat,
-						dataSourceProperty: dataSource
+						dataSourceProperty: dataSource,
+						poolingProperty: pooling
 					);
 				} catch {
 					return null;
@@ -222,6 +229,7 @@ namespace MimeKit.Cryptography {
 
 			sqliteAssembly.DataSourceProperty.SetValue (builder, fileName, null);
 			sqliteAssembly.DateTimeFormatProperty?.SetValue (builder, 0, null);
+			sqliteAssembly.PoolingProperty?.SetValue (builder, false, null);
 
 			var connectionString = (string?) sqliteAssembly.ConnectionStringProperty.GetValue (builder, null);
 
