@@ -48,6 +48,11 @@ namespace MimeKit.Cryptography {
 		static Func<OpenPgpContext>? PgpContextFactory;
 		static readonly object mutex = new object ();
 
+		static CryptographyContext ()
+		{
+			CryptographyModule.Initialize ();
+		}
+
 		EncryptionAlgorithm[] encryptionAlgorithmRank;
 		int enabledEncryptionAlgorithms;
 

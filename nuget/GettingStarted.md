@@ -352,21 +352,42 @@ builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
 message.Body = builder.ToMessageBody ();
 ```
 
+### Initializing MimeKit's Cryptography Support
+
+As of MimeKit 5.0, MimeKit's S/MIME, PGP/MIME, DKIM, ARC and DMARC support lives in the `MimeKit.Cryptography`
+assembly. In order for the parser to create cryptographic MIME entities such as `MultipartSigned`,
+`MultipartEncrypted` and `ApplicationPkcs7Mime` (instead of a plain `Multipart` or `MimePart`), the
+cryptography module needs to be initialized before any messages are parsed. The best place to do this
+is during your application's startup:
+
+```csharp
+using MimeKit.Cryptography;
+
+CryptographyModule.Initialize ();
+```
+
+Note: The cryptography module is also initialized automatically the first time the `CryptographyContext`
+class is used (for example, when calling `CryptographyContext.Register ()`), and it is safe to call
+`CryptographyModule.Initialize ()` more than once.
+
 ### Preparing to use MimeKit's S/MIME support
 
 Before you can begin using MimeKit's S/MIME support, you will need to decide which
-database to use for certificate storage.
+S/MIME implementation to use.
 
-If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
-anything (although you certainly can if you want to) because, by default, I've
-configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
+If your application runs exclusively on Windows, you'll probably want to use the
+`WindowsSecureMimeContext` backend which is based on the Windows Certificate
+Store and uses Microsoft's built-in S/MIME implementation.
 
-If you are on any of the Windows platforms, however, you'll need to decide on whether
-to use one of the conveniently available backends such as the `WindowsSecureMimeContext`
-backend or the `TemporarySecureMimeContext` backend or else you'll need to pick a
-System.Data provider such as
-[System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite) to use with
-the `DefaultSecureMimeContext` base class.
+On the other hand, if your application or service runs on other platforms such as Linux,
+macOS, iOS, or Android or is expected to run cross-platform, then you will need to use
+one of the BouncyCastle-based S/MIME context classes:
+
+- The `TemporarySecureMimeContext` backend uses an in-memory certificate store and will
+  require your application to load all of the certificates it expects to use into the
+  context before it can be used.
+- The `DefaultSecureMimeContext` backend is designed to use a SQL database for certificate
+  storage such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
 
 If you opt for using the `DefaultSecureMimeContext` backend, you'll need to implement
 your own `DefaultSecureMimeContext` subclass. Luckily, it's very simple to do.
@@ -377,7 +398,7 @@ Assuming you've chosen System.Data.SQLite, here's how you'd implement your own
 using System.Data.SQLite;
 using MimeKit.Cryptography;
 
-using MyAppNamespace {
+namespace MyAppNamespace {
     class MySecureMimeContext : DefaultSecureMimeContext
     {
         public MySecureMimeContext () : base (OpenDatabase ("C:\\wherever\\certdb.sqlite"))

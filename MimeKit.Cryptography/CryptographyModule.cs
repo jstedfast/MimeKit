@@ -41,7 +41,14 @@ namespace MimeKit.Cryptography {
 		/// Initializes the cryptography module.
 		/// </summary>
 		/// <remarks>
-		/// Initializes the cryptography module.
+		/// <para>Initializes the cryptography module by registering the cryptographic entity factory with
+		/// <see cref="ParserOptions"/> so that the parser will construct cryptographic MIME entities such as
+		/// <see cref="MultipartSigned"/>, <see cref="MultipartEncrypted"/> and <see cref="ApplicationPkcs7Mime"/>.
+		/// Without it, those entities will be parsed as a plain <see cref="Multipart"/> or <see cref="MimePart"/>.</para>
+		/// <para>This method is called automatically the first time the <see cref="CryptographyContext"/> class is used
+		/// (for example, via <see cref="CryptographyContext.Register(System.Type)"/>), but applications should call it
+		/// during startup if they might parse messages before then.</para>
+		/// <para>It is safe to call this method more than once.</para>
 		/// </remarks>
 		public static void Initialize ()
 		{

@@ -3,11 +3,15 @@
 |  Package  |Latest Release|Latest Build|
 |:----------|:------------:|:----------:|
 |**MimeKit**|[![MimeKit NuGet](https://img.shields.io/nuget/v/MimeKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.svg?style=flat-square)|[![MimeKit MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit)|
-|**MimeKit.Core**|[![MimeKit.Core NuGet](https://img.shields.io/nuget/v/MimeKit.Core.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Core)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Core.svg?style=flat-square)||
-|**MimeKit.Cryptography**|[![MimeKit.Cryptography NuGet](https://img.shields.io/nuget/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Cryptography)![MimeKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Cryptography.svg?style=flat-square)||
+|**MimeKit.Core**|[![MimeKit.Core NuGet](https://img.shields.io/nuget/v/MimeKit.Core.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Core)![MimeKit.Core NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Core.svg?style=flat-square)|[![MimeKit.Core MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.Core.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit.Core)|
+|**MimeKit.Cryptography**|[![MimeKit.Cryptography NuGet](https://img.shields.io/nuget/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Cryptography)![MimeKit.Cryptography NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Cryptography.svg?style=flat-square)|[![MimeKit.Cryptography MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit.Cryptography)|
 |**MailKit**|[![MailKit NuGet](https://img.shields.io/nuget/v/MailKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKit)![MailKit NuGet Downloads](https://img.shields.io/nuget/dt/MailKit.svg?style=flat-square)|[![MailKit MyGet](https://img.shields.io/myget/mimekit/v/MailKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MailKit)|
-|**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)||
 
+Obsolete Packages:
+|  Package  |Latest Release|Latest Build|
+|:----------|:------------:|:----------:|
+|**MimeKitLite**|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)||
+|**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)||
 
 |   Platform   |Build Status|Code Coverage|Static Analysis|
 |:-------------|:----------:|:-----------:|:-------------:|
@@ -159,19 +163,24 @@ directory and select **Git Sync...** in the menu. Once you do that, you'll need 
 
 ## Building
 
-In the top-level MimeKit directory, there are a number of solution files; they are:
+In the top-level MimeKit directory, you'll find the following solution file:
 
-* **MimeKit.sln** - includes projects for .NET Framework 4.6.2/4.7/4.8, .NETStandard 2.0/2.1, .NET 6.0 as well as the unit tests.
+* **MimeKit.sln** - includes the MimeKit.Core and MimeKit.Cryptography projects (targeting .NET Framework 4.6.2/4.7/4.8,
+  .NETStandard 2.0/2.1, .NET 8.0 and .NET 10.0) as well as the unit tests.
 
-Once you've opened the appropriate MimeKit solution file in [Visual Studio](https://www.visualstudio.com/downloads/),
+Once you've opened the MimeKit solution file in [Visual Studio](https://www.visualstudio.com/downloads/),
 you can choose the **Debug** or **Release** build configuration and then build.
 
-Both Visual Studio 2022 and Visual Studio 2019 should be able to build MimeKit without any issues, but older versions such as
-Visual Studio 2015 and 2017 will require modifications to the projects in order to build correctly. It has been reported that adding
-NuGet package references to [Microsoft.Net.Compilers](https://www.nuget.org/packages/Microsoft.Net.Compilers/) >= 3.6.0
-and [System.ValueTuple](https://www.nuget.org/packages/System.ValueTuple/) >= 4.5.0 will allow MimeKit to build successfully.
+Building MimeKit requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download) (or a version of Visual Studio that
+includes it). The unit tests target .NET 8.0, so you will also need the .NET 8.0 runtime in order to run them.
 
-Note: The **Release** build will generate the xml API documentation, but the **Debug** build will not.
+You can also build MimeKit from the command line:
+
+```
+dotnet build MimeKit.sln -c Release
+```
+
+Note: The .NET Framework 4.8 target is only built on Windows.
 
 ## Using MimeKit
 
@@ -529,12 +538,30 @@ builder.Attachments.Add (@"C:\Users\Joey\Documents\party.ics");
 message.Body = builder.ToMessageBody ();
 ```
 
+### Initializing MimeKit's Cryptography Support
+
+As of MimeKit 5.0, MimeKit's S/MIME, PGP/MIME, DKIM, ARC and DMARC support lives in the `MimeKit.Cryptography`
+assembly. In order for the parser to create cryptographic MIME entities such as `MultipartSigned`,
+`MultipartEncrypted` and `ApplicationPkcs7Mime` (instead of a plain `Multipart` or `MimePart`), the
+cryptography module needs to be initialized before any messages are parsed. The best place to do this
+is during your application's startup:
+
+```csharp
+using MimeKit.Cryptography;
+
+CryptographyModule.Initialize ();
+```
+
+Note: The cryptography module is also initialized automatically the first time the `CryptographyContext`
+class is used (for example, when calling `CryptographyContext.Register ()`), and it is safe to call
+`CryptographyModule.Initialize ()` more than once.
+
 ### Preparing to use MimeKit's S/MIME support
 
 Before you can begin using MimeKit's S/MIME support, you will need to decide which
 S/MIME implementation to use.
 
-If your application runs exclusively on Windows, you'll probably wanmt to use the
+If your application runs exclusively on Windows, you'll probably want to use the
 `WindowsSecureMimeContext` backend which is based on the Windows Certificate
 Store and uses Microsoft's built-in S/MIME implementation.
 
@@ -557,7 +584,7 @@ Assuming you've chosen System.Data.SQLite, here's how you'd implement your own
 using System.Data.SQLite;
 using MimeKit.Cryptography;
 
-using MyAppNamespace {
+namespace MyAppNamespace {
     class MySecureMimeContext : DefaultSecureMimeContext
     {
         public MySecureMimeContext () : base (OpenDatabase ("C:\\wherever\\certdb.sqlite"))

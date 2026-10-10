@@ -16,12 +16,20 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   * The assembly produced by the `MimeKit` project is now named `MimeKit.Core`. The `MimeKit`
     namespace is unchanged.
   * `MimeKitLite` has been retired. `MimeKit.Core` replaces it.
-  * Applications using `MimeKit.Cryptography` must call `CryptographyModule.Initialize ()` during
+  * Applications using `MimeKit.Cryptography` should call `CryptographyModule.Initialize ()` during
     startup to register the cryptographic entity factory. Without it, `multipart/signed` and
-    `multipart/encrypted` content will be parsed as a plain `Multipart`.
+    `multipart/encrypted` content will be parsed as a plain `Multipart`. This happens automatically
+    the first time `CryptographyContext` is used (for example, by `CryptographyContext.Register ()`),
+    but messages parsed before then will not contain any cryptographic MIME entities.
   * The `MimeMessage.Sign ()`, `Encrypt ()` and `SignAndEncrypt ()` methods (and their async
     counterparts) are now extension methods in `MimeKit.Cryptography`. Add a
     `using MimeKit.Cryptography;` directive to continue using them.
+  * The `VisitApplicationPgpEncrypted ()`, `VisitApplicationPgpSignature ()`,
+    `VisitApplicationPkcs7Mime ()`, `VisitApplicationPkcs7Signature ()`, `VisitMultipartEncrypted ()`
+    and `VisitMultipartSigned ()` methods have moved from `MimeVisitor` to the new
+    `CryptographicMimeVisitor` class in `MimeKit.Cryptography`. Visitors that override any of these
+    methods must now derive from `CryptographicMimeVisitor`. A visitor that derives from `MimeVisitor`
+    will visit these entities via `VisitMultipart ()` or `VisitMimePart ()` instead.
 * Promoted the new MIME parser. This is a source-compatible rename for most consumers, but the
   underlying implementation is different:
   * `ExperimentalMimeParser` has been renamed to `MimeParser`.
@@ -47,7 +55,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
     now internal.
   * The `HtmlToHtml.FilterHtml` property. Use a dedicated library such as HtmlSanitizer instead.
   * The obsolete `IX509CertificateDatabase` APIs.
-  * The obsolete `DkimSigner` and `ArcSigner` APIs.
+  * The obsolete `DkimSigner` and `ArcSigner` APIs, including the protected `DkimSignerBase.PrivateKey`
+    setter. Subclasses must now pass the private key to the base class constructor instead.
   * The obsolete `MimeReader` APIs.
   * `TnefPropertyTag.Puid`. Use `TnefPropertyTag.PuidA` or `TnefPropertyTag.PuidW`.
 * Changed the `partials` parameter of `MessagePartial.Join ()` from `IEnumerable<MessagePartial>` to
