@@ -7,16 +7,16 @@
 |**MimeKit.Cryptography**|[![MimeKit.Cryptography NuGet](https://img.shields.io/nuget/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKit.Cryptography)![MimeKit.Cryptography NuGet Downloads](https://img.shields.io/nuget/dt/MimeKit.Cryptography.svg?style=flat-square)|[![MimeKit.Cryptography MyGet](https://img.shields.io/myget/mimekit/v/MimeKit.Cryptography.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MimeKit.Cryptography)|
 |**MailKit**|[![MailKit NuGet](https://img.shields.io/nuget/v/MailKit.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKit)![MailKit NuGet Downloads](https://img.shields.io/nuget/dt/MailKit.svg?style=flat-square)|[![MailKit MyGet](https://img.shields.io/myget/mimekit/v/MailKit.svg?logo=nuget&style=flat-square&label=myget)](https://www.myget.org/feed/mimekit/package/nuget/MailKit)|
 
-Obsolete Packages:
-|  Package  |Latest Release|Latest Build|
-|:----------|:------------:|:----------:|
-|**MimeKitLite**|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)||
-|**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)||
-
 |   Platform   |Build Status|Code Coverage|Static Analysis|
 |:-------------|:----------:|:-----------:|:-------------:|
 |**Linux/Mac**|[![Build Status](https://github.com/jstedfast/MimeKit/actions/workflows/main.yml/badge.svg?event=push)](https://github.com/jstedfast/MimeKit/actions/workflows/main.yml)|[![Code Coverage](https://img.shields.io/coverallsCoverage/github/jstedfast/MimeKit?branch=master)](https://coveralls.io/r/jstedfast/MimeKit?branch=master)|[![Static Analysis](https://img.shields.io/coverity/scan/3201)](https://scan.coverity.com/projects/3201)|
 |**Windows**  |[![Build Status](https://github.com/jstedfast/MimeKit/actions/workflows/main.yml/badge.svg?event=push)](https://github.com/jstedfast/MimeKit/actions/workflows/main.yml)|[![Code Coverage](https://img.shields.io/coverallsCoverage/github/jstedfast/MimeKit?branch=master)](https://coveralls.io/r/jstedfast/MimeKit?branch=master)|[![Static Analysis](https://img.shields.io/coverity/scan/3201)](https://scan.coverity.com/projects/3201)|
+
+**Obsolete Packages:**
+|  Package  |Latest Release|
+|:----------|:------------:|
+|**MimeKitLite**|[![MimeKitLite NuGet](https://img.shields.io/nuget/v/MimeKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MimeKitLite)![MimeKit NuGet Downloads](https://img.shields.io/nuget/dt/MimeKitLite.svg?style=flat-square)|
+|**MailKitLite**|[![MailKitLite NuGet](https://img.shields.io/nuget/v/MailKitLite.svg?logo=nuget&style=flat-square)](https://www.nuget.org/packages/MailKitLite)![MailKitLite NuGet Downloads](https://img.shields.io/nuget/dt/MailKitLite.svg?style=flat-square)|
 
 ## What is MimeKit?
 
@@ -51,43 +51,29 @@ flexibility in that I'd be able to use Generics and create a more .NET-compliant
 
 ## Performance
 
-While mainstream beliefs may suggest that C# can never be as fast as C, it turns out that with a bit of creative
-parser design and a few clever optimizations 
-<sup>[[1](http://jeffreystedfast.blogspot.com/2013/09/optimization-tips-tricks-used-by.html)]
-[[2](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)]</sup>, MimeKit's
-performance is actually [on par with GMime](http://jeffreystedfast.blogspot.com/2014/03/gmime-gets-speed-boost.html).
+Performance has been a core design goal of MimeKit from the very beginning. MimeKit's parser works directly on
+raw byte buffers rather than first converting the input into strings or splitting it into lines, which keeps
+both CPU time and memory allocations to a minimum. Some of the techniques it relies on:
 
-Since GMime is pretty well-known as a high-performance native MIME parser and MimeKit more-or-less matches GMime's
-performance, it stands to reason that MimeKit is likely unsurpassed in performance in the .NET MIME parser space.
+* A low-level, allocation-conscious streaming reader (`MimeReader`) that the higher-level `MimeParser` builds on.
+* Pooled buffers and lazily-decoded headers so that only the data you actually access is ever decoded.
+* Hardware-accelerated (SIMD) scanning and base64/uuencode encoding and decoding on x64 and ARM64 platforms
+  when supported by the runtime.
+* Persistent stream support (`MimeParser` with `persistent: true`) so that MIME part content can reference
+  the original stream instead of being copied into memory.
 
-For a comparison, as I [blogged here](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)
-(I have since optimized MimeKit by at least another 30%), MimeKit is more than 25x faster than OpenPOP.NET, 75x
-faster than SharpMimeTools, and 65x faster than regex-based parsers. Even the commercial MIME parser offerings such
-as LimiLabs' Mail.dll and NewtonIdeas' Mime4Net cannot even come close to matching MimeKit's performance (they are
-both orders of magnitude slower than MimeKit).
+The result is a parser that can comfortably process very large messages and multi-gigabyte mbox files while
+remaining spec-compliant and resilient against malformed or malicious input.
 
-For comparison purposes, I've published a [MIME parser benchmark](https://github.com/jstedfast/MimeParserBenchmark)
-to make it easier for anyone else to compare the performance of MimeKit to their favourite MIME parser.
+Long before .NET Core made SIMD available to C# developers, MimeKit was already fast thanks to a number of
+parser design choices and optimizations that are described in more detail in the following blog posts:
 
-Here are the results:
+* [Optimization Tips & Tricks used by MimeKit: Part 1](http://jeffreystedfast.blogspot.com/2013/09/optimization-tips-tricks-used-by.html)
+* [Optimization Tips & Tricks used by MimeKit: Part 2](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)
 
-```
-Parsing startrek.msg (1000 iterations):
-MimeKit:        0.6989221 seconds
-OpenPop:        25.3056064 seconds
-AE.Net.Mail:    17.5971438 seconds
-MailSystem.NET: 26.3891218 seconds
-MIMER:          76.4538978 seconds
-
-Parsing xamarin3.msg (1000 iterations):
-MimeKit:        3.4215505 seconds
-OpenPop:        159.3308053 seconds
-AE.Net.Mail:    132.3044291 seconds
-MailSystem.NET: 133.5832078 seconds
-MIMER:          784.433441 seconds
-```
-
-How does your MIME parser compare?
+If you are curious about the details, the [Benchmarks](https://github.com/jstedfast/MimeKit/tree/master/Benchmarks)
+directory contains a [BenchmarkDotNet](https://benchmarkdotnet.org/) suite covering the parser, encoders,
+decoders, filters and more, which you can run on your own hardware.
 
 
 ## License Information
