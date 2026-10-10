@@ -1,4 +1,4 @@
-//
+﻿//
 // QuotedPrintableValidatorTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -209,6 +209,78 @@ namespace UnitTests.Encodings {
 			Assert.That (logger.Issues[0].Violation, Is.EqualTo (violation));
 			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length));
 			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1));
+		}
+
+		static List<(MimeComplianceViolation Violation, long StreamOffset, int LineNumber, int ColumnNumber)> ValidateInChunks (byte[] input, int chunkSize)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			for (int index = 0; index < input.Length; index += chunkSize)
+				validator.Write (input, index, Math.Min (chunkSize, input.Length - index));
+
+			validator.Flush ();
+
+			return logger.Issues.Select (issue => (issue.Violation, issue.StreamOffset, issue.LineNumber, issue.ColumnNumber)).ToList ();
+		}
+
+		[Test]
+		public void TestValidatePassThroughRunLengths ()
+		{
+			// Place line breaks, valid and invalid '=' sequences at, before and after the scalar scan length (16)
+			// as well as much further into the input so that both the scalar and IndexOfAny() paths are used.
+			foreach (var runLength in new[] { 0, 1, 15, 16, 17, 31, 32, 33, 100, 1000 }) {
+				var builder = new StringBuilder ();
+
+				for (int i = 0; i < 4; i++) {
+					builder.Append ('x', runLength);
+					builder.Append ("=C3=A9");
+					builder.Append ('y', runLength);
+					builder.Append ("=\r\n");
+					builder.Append ('z', runLength);
+					builder.Append ("\r\n");
+					builder.Append ('w', runLength);
+					builder.Append ("=~=A~\n");
+					builder.Append ('u', runLength);
+					builder.Append ("=\rX\r\n");
+				}
+
+				builder.Append ('v', runLength);
+				builder.Append ('=');
+
+				var input = Encoding.ASCII.GetBytes (builder.ToString ());
+
+				// Feeding the validator 1 byte at a time only ever uses the byte-by-byte scan, so it serves as the reference.
+				var expected = ValidateInChunks (input, 1);
+
+				Assert.That (expected, Has.Count.EqualTo (9), $"run length = {runLength}");
+
+				foreach (var chunkSize in new[] { 2, 3, 15, 16, 17, 33, 77, input.Length }) {
+					var actual = ValidateInChunks (input, chunkSize);
+
+					Assert.That (actual, Is.EqualTo (expected), $"run length = {runLength}, chunk size = {chunkSize}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestValidateLineTrackingAcrossShortAndLongLines ()
+		{
+			// Short lines are handled entirely by the scalar scan while the long line requires IndexOfAny().
+			var longLine = new string ('a', 100);
+			var text = "short\nline\n" + longLine + "\n=~\n";
+			var rawData = Encoding.ASCII.GetBytes (text);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1);
+
+			validator.Write (rawData, 0, rawData.Length);
+			validator.Flush ();
+
+			Assert.That (logger.Issues.Count, Is.EqualTo (1));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidQuotedPrintableEncoding));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.LastIndexOf ('~')));
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (4));
+			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (2));
 		}
 	}
 }

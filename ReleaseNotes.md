@@ -322,6 +322,10 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUEncoder` that encode whole 45-byte lines at a
   time (roughly 14x faster with SSSE3 and 16x faster with AVX2 than the scalar encoder). They can be
   disabled using the new `UUEncoder.EnableHardwareAcceleration` property.
+* Optimized `QuotedPrintableDecoder` to locate the next `=` using `IndexOf ()` and copy the literal text
+  that precedes it in bulk, rather than copying one byte at a time. Mostly-ASCII content now decodes about
+  4x faster. Content with a high density of encoded octets (e.g. non-Latin text) decodes at about the same
+  speed as before.
 * Fixed quadratic behavior when parsing very long (e.g. heavily folded) headers. `MimeReader` and
   `LegacyMimeParser` grew their header buffers by only a small fixed amount at a time, copying the entire
   header on every refill of the input buffer (or, for the legacy parser, on every line). The buffers now grow

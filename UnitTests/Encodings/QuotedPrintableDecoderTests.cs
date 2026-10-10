@@ -169,5 +169,107 @@ namespace UnitTests.Encodings {
 				ArrayPool<byte>.Shared.Return (output);
 			}
 		}
+
+		static byte[] DecodeInChunks (QuotedPrintableDecoder decoder, byte[] input, int chunkSize)
+		{
+			var output = new byte[decoder.EstimateOutputLength (input.Length) + 2];
+			int outputLength = 0;
+
+			for (int index = 0; index < input.Length; index += chunkSize) {
+				int length = Math.Min (chunkSize, input.Length - index);
+				var chunk = new byte[decoder.EstimateOutputLength (length)];
+				int n = decoder.Decode (input, index, length, chunk);
+
+				Buffer.BlockCopy (chunk, 0, output, outputLength, n);
+				outputLength += n;
+			}
+
+			Array.Resize (ref output, outputLength);
+
+			return output;
+		}
+
+		static IEnumerable<byte[]> GetPassThroughRunLengthInputs ()
+		{
+			// Place '=' sequences at, before and after the scalar scan length (16) as well as
+			// much further into the input so that both the scalar and IndexOf() paths are used.
+			foreach (var runLength in new[] { 0, 1, 15, 16, 17, 31, 32, 33, 100, 1000 }) {
+				var builder = new StringBuilder ();
+
+				for (int i = 0; i < 4; i++) {
+					builder.Append ('x', runLength);
+					builder.Append ("=C3=A9");
+					builder.Append ('y', runLength);
+					builder.Append ("=\r\n");
+					builder.Append ('z', runLength);
+					builder.Append ("=\n");
+					builder.Append ('w', runLength);
+					builder.Append ("==3D=g=\rX=");
+				}
+
+				builder.Append ('v', runLength);
+
+				yield return Encoding.ASCII.GetBytes (builder.ToString ());
+			}
+		}
+
+		[Test]
+		public void TestDecodePassThroughRunLengths ()
+		{
+			foreach (var input in GetPassThroughRunLengthInputs ()) {
+				// Feeding the decoder 1 byte at a time only ever uses the byte-by-byte scan, so it serves as the reference.
+				var expected = DecodeInChunks (new QuotedPrintableDecoder (), input, 1);
+
+				foreach (var chunkSize in new[] { 2, 3, 15, 16, 17, 33, 77, input.Length }) {
+					var actual = DecodeInChunks (new QuotedPrintableDecoder (), input, chunkSize);
+
+					Assert.That (actual, Is.EqualTo (expected), $"input length = {input.Length}, chunk size = {chunkSize}");
+				}
+			}
+		}
+
+		[Test]
+		public void TestDecodeLongPassThroughRun ()
+		{
+			var text = new string ('a', 1024) + "=3D" + new string ('b', 1024) + "=\r\n" + new string ('c', 1024);
+			var expected = new string ('a', 1024) + "=" + new string ('b', 1024) + new string ('c', 1024);
+			var input = Encoding.ASCII.GetBytes (text);
+			var decoder = new QuotedPrintableDecoder ();
+			var output = new byte[decoder.EstimateOutputLength (input.Length)];
+
+			int n = decoder.Decode (input, 0, input.Length, output);
+
+			Assert.That (Encoding.ASCII.GetString (output, 0, n), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestDecodeInPlace ()
+		{
+			foreach (var input in GetPassThroughRunLengthInputs ()) {
+				var expected = DecodeInChunks (new QuotedPrintableDecoder (), input, 1);
+				var decoder = new QuotedPrintableDecoder ();
+				var buffer = new byte[decoder.EstimateOutputLength (input.Length)];
+
+				Buffer.BlockCopy (input, 0, buffer, 0, input.Length);
+
+				int n = decoder.Decode (buffer, 0, input.Length, buffer);
+
+				Assert.That (buffer.AsSpan (0, n).ToArray (), Is.EqualTo (expected), $"input length = {input.Length}");
+			}
+		}
+
+		[Test]
+		public void TestDecodeRfc2047LongPassThroughRun ()
+		{
+			var text = new string ('_', 64) + "=C3=A9" + new string ('a', 64) + "_b";
+			var expected = new string (' ', 64) + "\u00e9" + new string ('a', 64) + " b";
+			var input = Encoding.ASCII.GetBytes (text);
+			var decoder = new QuotedPrintableDecoder (true);
+			var output = new byte[decoder.EstimateOutputLength (input.Length)];
+
+			int n = decoder.Decode (input, 0, input.Length, output);
+
+			Assert.That (Encoding.UTF8.GetString (output, 0, n), Is.EqualTo (expected));
+		}
 	}
 }

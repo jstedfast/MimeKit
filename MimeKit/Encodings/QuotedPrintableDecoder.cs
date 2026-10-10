@@ -39,6 +39,8 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class QuotedPrintableDecoder : IMimeDecoder
 	{
+		const int ScalarScanLength = 16;
+
 		enum QpDecoderState : byte {
 			PassThrough,
 			EqualSign,
@@ -156,17 +158,54 @@ namespace MimeKit.Encodings {
 			while (inptr < inend) {
 				switch (state) {
 				case QpDecoderState.PassThrough:
-					while (inptr < inend) {
+					if (rfc2047) {
+						while (inptr < inend) {
+							c = *inptr++;
+
+							if (c == '=') {
+								state = QpDecoderState.EqualSign;
+								break;
+							} else if (c == '_') {
+								*outptr++ = (byte) ' ';
+							} else {
+								*outptr++ = c;
+							}
+						}
+						break;
+					}
+
+					// Scan the first few bytes one at a time because heavily-encoded content (e.g. non-Latin text)
+					// tends to have very short runs between '=' characters and the fixed overhead of IndexOf()
+					// and MemoryCopy() outweighs their benefit for short runs.
+					byte* scanEnd = inend - inptr > ScalarScanLength ? inptr + ScalarScanLength : inend;
+
+					while (inptr < scanEnd) {
 						c = *inptr++;
 
 						if (c == '=') {
 							state = QpDecoderState.EqualSign;
 							break;
-						} else if (rfc2047 && c == '_') {
-							*outptr++ = (byte) ' ';
-						} else {
-							*outptr++ = c;
 						}
+
+						*outptr++ = c;
+					}
+
+					if (state == QpDecoderState.PassThrough && inptr < inend) {
+						int count = (int) (inend - inptr);
+						int index = new ReadOnlySpan<byte> (inptr, count).IndexOf ((byte) '=');
+
+						if (index != -1) {
+							state = QpDecoderState.EqualSign;
+							count = index;
+						}
+
+						// Note: Buffer.MemoryCopy() handles overlapping buffers, so decoding in-place still works.
+						Buffer.MemoryCopy (inptr, outptr, count, count);
+						outptr += count;
+						inptr += count;
+
+						if (state == QpDecoderState.EqualSign)
+							inptr++;
 					}
 					break;
 				case QpDecoderState.EqualSign:

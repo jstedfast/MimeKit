@@ -40,6 +40,10 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	class QuotedPrintableValidator : IEncodingValidator
 	{
+#if NET8_0_OR_GREATER
+		const int ScalarScanLength = 16;
+#endif
+
 		enum QpValidatorState : byte
 		{
 			PassThrough,
@@ -113,6 +117,34 @@ namespace MimeKit.Encodings {
 			while (inptr < inend) {
 				switch (state) {
 				case QpValidatorState.PassThrough:
+#if NET8_0_OR_GREATER
+					// Note: Scan the first few bytes one at a time because heavily-encoded content (e.g. non-Latin
+					// text) tends to have very short runs between '=' characters and the fixed overhead of
+					// IndexOfAny() outweighs its benefit for short runs. This is only done on .NET (Core) because
+					// the .NET Framework JIT generates code for this loop that is slow enough to make mostly-ASCII
+					// content slower to validate rather than faster.
+					byte* scanEnd = inend - inptr > ScalarScanLength ? inptr + ScalarScanLength : inend;
+
+					while (inptr < scanEnd) {
+						c = *inptr++;
+
+						if (c == '=') {
+							state = QpValidatorState.EqualSign;
+							break;
+						}
+
+						if (c == '\n') {
+							lineBeginOffset = streamOffset + (inptr - input);
+							lineNumber++;
+							reportedInvalidEncoding = false;
+							reportedInvalidSoftBreak = false;
+						}
+					}
+
+					if (state != QpValidatorState.PassThrough)
+						break;
+#endif
+
 					// Note: The bulk of quoted-printable content consists of literal characters that are
 					// simply passed through, so use a vectorized search to locate the next byte that the
 					// validator actually needs to inspect.
