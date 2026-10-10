@@ -48,7 +48,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestEncodeText ()
 		{
-			const string expected = "_=09=0D=0AABCabc123!=40#$%^&*=28=29=5F+`-=3D=5B=5D\\{}|=3B=3A'=22=2C=2E=2F=3C=3E=3F";
+			const string expected = "_=09=0D=0AABCabc123!=40#$%^&*=28=29=5F+`-=3D=5B=5D=5C{}|=3B=3A'=22=2C=2E=2F=3C=3E=3F";
 			const string input = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
 			var encoder = new Rfc2047QuotedPrintableEncoder (QEncodeMode.Text);
 			var encoding = Encoding.GetEncoding ("iso-8859-8");

@@ -512,6 +512,19 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
+		static unsafe bool IsEncodedWordStart (byte* inptr, byte* inend)
+		{
+			if (inptr + 1 >= inend || *inptr != '=' || *(inptr + 1) != '?')
+				return false;
+
+			inptr += 2;
+
+			while (inptr < inend && *inptr != '?' && !IsLwsp (*inptr))
+				inptr++;
+
+			return inptr + 2 < inend && *inptr == '?' && IsBbQq (*(inptr + 1)) && *(inptr + 2) == '?';
+		}
+
 		static unsafe void TokenizePhrase (ParserOptions options, ITokenWriter writer, ref ValueStringBuilder decoded, byte* inbuf, int startIndex, int length)
 		{
 			byte* text, word, inptr = inbuf + startIndex;
@@ -539,21 +552,27 @@ namespace MimeKit.Utils {
 							inptr += 2;
 
 							// skip past the charset (if one is even declared, sigh)
-							while (inptr < inend && *inptr != '?') {
+							while (inptr < inend && *inptr != '?' && !IsLwsp (*inptr)) {
 								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
 
 							// sanity check encoding type
 							if (inptr + 3 >= inend || *inptr != '?' || !IsBbQq (*(inptr + 1)) || *(inptr + 2) != '?') {
+								// not an encoded-word; rescan everything after the "=?"
+								inptr = word + 2;
 								ascii = true;
 								goto non_rfc2047;
 							}
 
 							inptr += 3;
 
-							// find the end of the rfc2047 encoded word token
+							// find the end of the rfc2047 encoded word token (but stop if we find the start of another encoded-word
+							// first, since that means this one was never terminated)
 							while (inptr + 2 < inend && !(*inptr == '?' && *(inptr + 1) == '=')) {
+								if (*inptr == '=' && IsEncodedWordStart (inptr, inend))
+									break;
+
 								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
@@ -660,21 +679,27 @@ namespace MimeKit.Utils {
 							inptr += 2;
 
 							// skip past the charset (if one is even declared, sigh)
-							while (inptr < inend && *inptr != '?') {
+							while (inptr < inend && *inptr != '?' && !IsLwsp (*inptr)) {
 								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
 
 							// sanity check encoding type
 							if (inptr + 3 >= inend || *inptr != '?' || !IsBbQq (*(inptr + 1)) || *(inptr + 2) != '?') {
+								// not an encoded-word; rescan everything after the "=?"
+								inptr = word + 2;
 								ascii = true;
 								goto non_rfc2047;
 							}
 
 							inptr += 3;
 
-							// find the end of the rfc2047 encoded word token
+							// find the end of the rfc2047 encoded word token (but stop if we find the start of another encoded-word
+							// first, since that means this one was never terminated)
 							while (inptr + 2 < inend && !(*inptr == '?' && *(inptr + 1) == '=')) {
+								if (*inptr == '=' && IsEncodedWordStart (inptr, inend))
+									break;
+
 								ascii = ascii && IsAscii (*inptr);
 								inptr++;
 							}
@@ -1255,6 +1280,11 @@ namespace MimeKit.Utils {
 							word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) WordEncoding.Latin1);
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount++;
+						} else if (c == '?' && i - 2 >= word.StartIndex && text[i - 2] == '=') {
+							// Note: Text that looks like the start of an encoded-word must be encoded, otherwise it
+							// would be decoded as an encoded-word.
+							word.Type = WordType.EncodedWord;
+							word.EncodeCount += 2;
 						} else if (phrase && !IsAtom (c)) {
 							// phrases can have quoted strings
 							if (word.Type == WordType.Atom)
@@ -1373,6 +1403,19 @@ namespace MimeKit.Utils {
 
 			if (word.ByteCount > 0)
 				words.Add (word);
+
+			// Note: When a long word gets split, the pieces are not separated by whitespace. If any of those pieces needs to
+			// be an encoded-word, then they all do, since adjacent encoded-words are the only type of word that can be
+			// rejoined without whitespace when decoded.
+			for (int j = words.Count - 1; j > 0; j--) {
+				if (words[j - 1].StartIndex + words[j - 1].CharCount == words[j].StartIndex && words[j].Type == WordType.EncodedWord)
+					words[j - 1].Type = WordType.EncodedWord;
+			}
+
+			for (int j = 1; j < words.Count; j++) {
+				if (words[j - 1].StartIndex + words[j - 1].CharCount == words[j].StartIndex && words[j - 1].Type == WordType.EncodedWord)
+					words[j].Type = WordType.EncodedWord;
+			}
 
 			return words;
 		}

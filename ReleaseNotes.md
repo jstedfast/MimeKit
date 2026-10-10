@@ -517,6 +517,19 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `FormatOptions.EnsureNewLine` to `true` if the output must end with a newline (for example, when
   appending to an mbox file). `LegacyMimeParser` still has other re-serialization issues, which is
   another reason to switch to the new `MimeParser`.
+* Fixed `Rfc2047.EncodeText ()` and `Rfc2047.EncodePhrase ()` (and so header encoding) to encode
+  text that looks like an rfc2047 encoded-word (e.g. `=?utf-8?b?...?=`) instead of writing it as-is,
+  which would cause it to be decoded into something else when parsed. This also applies to text that
+  follows a `"` in a display name (encoded-words within quoted-strings are decoded in Loose mode).
+* Fixed `Rfc2047.EncodePhrase ()` so that a word that is too long for a single line is not given
+  extra whitespace when it is split across lines (this affected display names in address headers).
+* Fixed rfc2047 Q-encoding (used for headers and for `ParameterEncodingMethod.Rfc2047` parameter
+  values) to encode `\` as `=5C`, so that it isn't treated as a quoting character when the encoded
+  value is inside a quoted-string.
+* Fixed the rfc2047 decoder so that a word containing `=?` that isn't an encoded-word no longer
+  prevents the encoded-word that follows it from being decoded (e.g. `abc=? =?utf-8?q?caf=C3=A9?=`).
+  Likewise, an unterminated encoded-word (e.g. `=?utf-8?q?foo bar =?utf-8?q?caf=C3=A9?=`) no longer
+  swallows the next encoded-word's `?=` terminator.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

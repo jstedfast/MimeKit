@@ -114,6 +114,11 @@ namespace MimeKit.Utils {
 			SetFlags (Specials, CharType.IsSpecial);
 			RemoveFlags (Specials, CharType.IsAtom | CharType.IsPhraseAtom);
 			RemoveFlags (EncodedWordSpecials, CharType.IsEncodedWordSafe);
+
+			// Note: '\\' is not an rfc2047 especial, but 'Q'-encoded words are also used within quoted-strings (e.g. parameter
+			// values) and comments where a literal '\\' would be interpreted as a quoted-pair (and rfc2047 section 5 (2) forbids
+			// '\\' in encoded-words within comments), so always encode it.
+			table['\\'] &= ~CharType.IsEncodedWordSafe;
 			RemoveFlags (AttributeSpecials + TokenSpecials, CharType.IsAttrChar);
 			SetFlags (EncodedPhraseSafe, CharType.IsEncodedPhraseSafe);
 

@@ -252,6 +252,25 @@ namespace UnitTests.Utils {
 			Assert.That (result, Is.EqualTo (text));
 		}
 
+		[TestCase ("abc=? =?utf-8?q?caf=C3=A9?=", "abc=? café")]
+		[TestCase ("=? =?utf-8?q?caf=C3=A9?=", "=? café")]
+		[TestCase ("x =?foo bar =?utf-8?q?caf=C3=A9?= end", "x =?foo bar café end")]
+		[TestCase ("=?utf-8?x? =?utf-8?q?caf=C3=A9?=", "=?utf-8?x? café")]
+		[TestCase ("=?utf-8?q?foo, bar =?utf-8?q?caf=C3=A9?=", "=?utf-8?q?foo, bar café")]
+		[TestCase ("=?utf-8?q?foo=?utf-8?q?caf=C3=A9?=", "=?utf-8?q?foocafé")]
+		[TestCase ("=?iso-8859-1?q?caf=E9 au lait?=", "café au lait")]
+		public void TestDecodeEncodedWordAfterIncompleteEncodedWord (string text, string expected)
+		{
+			var buffer = Encoding.UTF8.GetBytes (text);
+			string result;
+
+			result = Rfc2047.DecodePhrase (buffer);
+			Assert.That (result, Is.EqualTo (expected), "DecodePhrase");
+
+			result = Rfc2047.DecodeText (buffer);
+			Assert.That (result, Is.EqualTo (expected), "DecodeText");
+		}
+
 		[Test]
 		public void TestDecodeEncodedWordEmbeddedInAnotherWord ()
 		{
@@ -381,6 +400,57 @@ namespace UnitTests.Utils {
 
 			result = Encoding.ASCII.GetString (Rfc2047.EncodeText (latin1, text, 0, text.Length));
 			Assert.That (result, Is.EqualTo (expected), "EncodeText(Encoding, string, int, int)");
+		}
+
+		[Test]
+		public void TestEncodeTextThatLooksLikeEncodedWords ()
+		{
+			const string text = "Hello =?utf-8?b?4oI=?= =?utf-8?b?rA==?= and foo=?bar";
+
+			foreach (var phrase in new[] { false, true }) {
+				var encoded = phrase ? Rfc2047.EncodePhrase (Encoding.UTF8, text) : Rfc2047.EncodeText (Encoding.UTF8, text);
+				var result = Encoding.ASCII.GetString (encoded);
+
+				Assert.That (result, Does.Not.Contain ("=?utf-8?b?4oI="), $"Encoded (phrase = {phrase})");
+
+				var decoded = phrase ? Rfc2047.DecodePhrase (encoded) : Rfc2047.DecodeText (encoded);
+
+				Assert.That (decoded, Is.EqualTo (text), $"Decoded (phrase = {phrase})");
+			}
+		}
+
+		[TestCase ("Hello \"=?utf-8?b?4oI=?= quoted\" world")]
+		[TestCase ("Hello \"unterminated =?utf-8?b?4oI=?= quote")]
+		public void TestEncodePhraseWithQuotedTextThatLooksLikeEncodedWords (string text)
+		{
+			var encoded = Rfc2047.EncodePhrase (Encoding.UTF8, text);
+			var result = Encoding.ASCII.GetString (encoded);
+
+			Assert.That (result, Does.Not.Contain ("=?utf-8?b?4oI="), "Encoded");
+
+			var decoded = Rfc2047.DecodePhrase (encoded);
+
+			Assert.That (decoded, Is.EqualTo (text), "Decoded");
+
+			// Note: Loose mode also decodes encoded-words that appear within quoted-strings.
+			var mailbox = new MailboxAddress (text, "user@example.com");
+			var options = ParserOptions.Default.Clone ();
+			options.AddressParserComplianceMode = RfcComplianceMode.Loose;
+
+			Assert.That (MailboxAddress.TryParse (options, mailbox.ToString (true), out var parsed), Is.True, "TryParse");
+			Assert.That (parsed.Name, Is.EqualTo (text), "Name");
+		}
+
+		[Test]
+		public void TestEncodePhraseLongQuotedWord ()
+		{
+			// a single word that is too long to fit on a line and that requires quoting must not gain whitespace when it is split
+			var text = "S" + new string ('2', 12) + ";" + new string ('2', 60) + "-elr\0\0b" + new string ('2', 16) + "kywalker of the Jedi";
+			var mailbox = new MailboxAddress (text, "skyojedi@phoenix.net");
+			var encoded = mailbox.ToString (true);
+
+			Assert.That (MailboxAddress.TryParse (encoded, out var parsed), Is.True, "TryParse");
+			Assert.That (parsed.Name, Is.EqualTo (text), "Name");
 		}
 
 		[Test]
