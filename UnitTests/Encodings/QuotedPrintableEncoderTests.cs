@@ -93,6 +93,46 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
+		public void TestEstimateOutputLengthAccountsForPartialLine ([Range (60, 76)] int maxLineLength)
+		{
+			const byte guard = 0xCC;
+			var patterns = new byte[][] {
+				new byte[] { 0xFF },
+				new byte[] { (byte) 'a' },
+				new byte[] { (byte) ' ' },
+				new byte[] { (byte) 'a', 0xFF, (byte) '\t' },
+			};
+
+			foreach (var pattern in patterns) {
+				for (int prefix = 0; prefix <= 80; prefix++) {
+					for (int suffix = 0; suffix <= 80; suffix++) {
+						var input = new byte[prefix + suffix];
+						var encoder = new QuotedPrintableEncoder (maxLineLength);
+
+						for (int i = 0; i < input.Length; i++)
+							input[i] = pattern[i % pattern.Length];
+
+						int estimate = encoder.EstimateOutputLength (prefix);
+						var output = new byte[estimate + 16];
+						Array.Fill (output, guard);
+
+						int n = encoder.Encode (input, 0, prefix, output);
+						Assert.That (n, Is.LessThanOrEqualTo (estimate), $"Encode: pattern={pattern.Length} prefix={prefix}");
+						Assert.That (output.AsSpan (estimate).IndexOfAnyExcept (guard), Is.EqualTo (-1), $"Encode overrun: pattern={pattern.Length} prefix={prefix}");
+
+						estimate = encoder.EstimateOutputLength (suffix);
+						output = new byte[estimate + 16];
+						Array.Fill (output, guard);
+
+						n = encoder.Flush (input, prefix, suffix, output);
+						Assert.That (n, Is.LessThanOrEqualTo (estimate), $"Flush: pattern={pattern.Length} prefix={prefix} suffix={suffix}");
+						Assert.That (output.AsSpan (estimate).IndexOfAnyExcept (guard), Is.EqualTo (-1), $"Flush overrun: pattern={pattern.Length} prefix={prefix} suffix={suffix}");
+					}
+				}
+			}
+		}
+
+		[Test]
 		public void TestEncodeSpaceDosLineBreak ()
 		{
 			const string input = "This line ends with a space \r\nbefore a line break.";

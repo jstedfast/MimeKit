@@ -83,6 +83,24 @@ namespace UnitTests.Encodings {
 			TestDecoder (new UUDecoder (), photo, "photo.uu-states", bufferSize);
 		}
 
+		[TestCase ("x\0begin 644 photo.jpg\r\n")]
+		[TestCase ("\0begin 644 photo.jpg\r\n")]
+		[TestCase ("x\0\0\0\0\0\0\0\0 begin 644 photo.jpg\r\n")]
+		public void TestDecodeIgnoresBeginMarkerNotAtStartOfLine (string beginLine)
+		{
+			var input = Encoding.ASCII.GetBytes (beginLine + "M_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n");
+
+			for (int split = 0; split <= input.Length; split++) {
+				var decoder = new UUDecoder (false);
+				var output = new byte[decoder.EstimateOutputLength (input.Length)];
+
+				int n = decoder.Decode (input, 0, split, output);
+				n += decoder.Decode (input, split, input.Length - split, output);
+
+				Assert.That (n, Is.EqualTo (0), $"split={split}");
+			}
+		}
+
 		[Test]
 		public void TestDecodeEndOfLineStateAcrossChunks ([Values] CodePath path)
 		{

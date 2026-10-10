@@ -97,6 +97,9 @@ namespace MimeKit.Encodings {
 			this.lineBeginOffset = streamOffset;
 			this.streamOffset = streamOffset;
 			this.lineNumber = lineNumber;
+
+			// Note: While scanning for the begin-line, nsaved holds the previous character (so we start off at the beginning of a line).
+			nsaved = (byte) '\n';
 		}
 
 		// Note: The validator only ever tracks the offset that the current line begins at. The column
@@ -161,7 +164,7 @@ namespace MimeKit.Encodings {
 		{
 			while (inptr < inend) {
 				if (state == UUValidatorState.ExpectBegin) {
-					if (nsaved != 0 && nsaved != (byte) '\n') {
+					if (nsaved != (byte) '\n') {
 						// skip ahead to the next line...
 						SkipToLineFeed (ref inptr, inend);
 

@@ -197,7 +197,7 @@ namespace MimeKit.Encodings {
 		{
 			while (inptr < inend) {
 				if (state == UUDecoderState.ExpectBegin) {
-					if (nsaved != 0 && nsaved != (byte) '\n') {
+					if (nsaved != (byte) '\n') {
 						while (inptr < inend && *inptr != (byte) '\n')
 							inptr++;
 
@@ -877,7 +877,9 @@ namespace MimeKit.Encodings {
 		public void Reset ()
 		{
 			state = initial;
-			nsaved = 0;
+
+			// Note: While scanning for the begin-line, nsaved holds the previous character (so we start off at the beginning of a line).
+			nsaved = initial == UUDecoderState.ExpectBegin ? (byte) '\n' : (byte) 0;
 			saved = 0;
 			uulen = 0;
 			eoln = false;

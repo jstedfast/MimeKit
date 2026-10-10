@@ -114,7 +114,8 @@ namespace MimeKit.Tnef {
 		/// </remarks>
 		/// <value><see langword="true" /> if the crc32 is valid; otherwise, <see langword="false" />.</value>
 		public bool IsValidCrc32 {
-			get { return crc32.Checksum == checksum; }
+			// Note: The checksum is unknown until the entire header has been read.
+			get { return state > FilterState.Crc32 && crc32.Checksum == checksum; }
 		}
 
 		bool TryReadInt32 (byte[] buffer, ref int index, int endIndex, out int value)
@@ -190,7 +191,7 @@ namespace MimeKit.Tnef {
 
 			// read the compressed size if we haven't already...
 			if (state == FilterState.CompressedSize) {
-				if (!TryReadInt32 (input, ref index, endIndex, out compressedSize)) {
+				if (!TryReadInt32 (input, ref index, endIndex, out int compSize)) {
 					outputLength = 0;
 					outputIndex = 0;
 					return input;
@@ -201,17 +202,18 @@ namespace MimeKit.Tnef {
 				// Note: [MS-OXRTFCP] defines COMPSIZE as the length of the CONTENTS field plus 12 (the
 				// number of header bytes that follow it), so anything smaller is nonsensical and is
 				// treated as an empty CONTENTS field rather than allowed to go negative.
-				compressedSize = compressedSize >= 12 ? compressedSize - 12 : 0;
+				compressedSize = compSize >= 12 ? compSize - 12 : 0;
 			}
 
 			// read the uncompressed size if we haven't already...
 			if (state == FilterState.UncompressedSize) {
-				if (!TryReadInt32 (input, ref index, endIndex, out uncompressedSize)) {
+				if (!TryReadInt32 (input, ref index, endIndex, out int rawSize)) {
 					outputLength = 0;
 					outputIndex = 0;
 					return input;
 				}
 
+				uncompressedSize = rawSize;
 				state = FilterState.Magic;
 			}
 
@@ -229,12 +231,13 @@ namespace MimeKit.Tnef {
 
 			// read the crc32 checksum if we haven't already...
 			if (state == FilterState.Crc32) {
-				if (!TryReadInt32 (input, ref index, endIndex, out checksum)) {
+				if (!TryReadInt32 (input, ref index, endIndex, out int crc)) {
 					outputLength = 0;
 					outputIndex = 0;
 					return input;
 				}
 
+				checksum = crc;
 				state = FilterState.BeginControlRun;
 			}
 

@@ -216,6 +216,18 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
+		public void TestValidateNulBeforeMidLineBeginMarker ()
+		{
+			string text = "x\0begin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";
+			var issues = new MimeComplianceIssue[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidUUEncodePretext, 0, 1, 1),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.IncompleteUUEncodedContent, text.Length, 5, 1)
+			};
+
+			AssertInvalidInput (text, issues);
+		}
+
+		[Test]
 		public void TestValidateInvalidPretext ()
 		{
 			string text = "this is some random garbage...\r\nbegin 644 photo.jpg\r\nM_]C_X``02D9)1@`!`0$`2`!(``#_X@Q824-#7U!23T9)3$4``0$```Q(3&EN\r\n`\r\nend\r\n";

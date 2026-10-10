@@ -75,6 +75,30 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestRtfCompressedToRtfTruncatedHeader ()
+		{
+			var input = Convert.FromBase64String ("vgEAAExaRnUAAAAAAA==");
+
+			for (int length = 0; length <= input.Length; length++) {
+				var filter = new RtfCompressedToRtf ();
+
+				filter.Flush (input, 0, length, out _, out _);
+
+				Assert.That (filter.IsValidCrc32, Is.False, $"IsValidCrc32 (length = {length})");
+			}
+
+			for (int split = 1; split < input.Length; split++) {
+				var filter = new RtfCompressedToRtf ();
+
+				filter.Filter (input, 0, split, out _, out _);
+				filter.Flush (input, split, input.Length - split, out _, out _);
+
+				Assert.That (filter.IsValidCrc32, Is.False, $"IsValidCrc32 (split = {split})");
+				Assert.That (filter.CompressionMode, Is.EqualTo ((RtfCompressionMode) 0), $"CompressionMode (split = {split})");
+			}
+		}
+
+		[Test]
 		public void TestRtfCompressedToRtfInvalidCrc ()
 		{
 			var input = new byte[] { 0x10, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, (byte) 'L', (byte) 'Z', (byte) 'F', (byte) 'u', 0xff, 0xff, 0xff, 0xff };

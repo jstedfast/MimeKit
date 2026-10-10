@@ -517,8 +517,16 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `FormatOptions.EnsureNewLine` to `true` if the output must end with a newline (for example, when
   appending to an mbox file). `LegacyMimeParser` still has other re-serialization issues, which is
   another reason to switch to the new `MimeParser`.
+* Fixed `QuotedPrintableEncoder.EstimateOutputLength ()` to account for a partially-filled line left
+  over from previous `Encode ()` calls and for the soft line break that follows a full line of encoded
+  triplets when the maximum line length is a multiple of 3 (e.g. 60 or 75; the default of 76 was not
+  affected by the latter). It could previously underestimate, so a caller allocating an output buffer
+  of the estimated size could have its output buffer overrun.
 * Fixed `MimeReader` to report a line count of 0 rather than -1 for a multipart or message/rfc822
   entity with empty content that is immediately followed by a boundary marker or an mbox "From " line.
+* Fixed `RtfCompressedToRtf.IsValidCrc32` to return `false` when the input ends before the 16-byte
+  header has been read in full. Previously, a truncated header could report a valid CRC32, and the
+  result could change depending on how the input was split across `Filter ()` calls.
 * Fixed parameters with an empty value (e.g. `boundary=""`) to be serialized as a quoted empty string
   rather than `boundary=`, which MimeKit could not parse.
 * Fixed `MailboxAddress` to wrap an address without a domain in angle brackets when it is encoded
@@ -553,6 +561,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Fixed `Punycode.Encode` (and therefore address/domain serialization) to no longer emit IDNA output
   that contains ASCII whitespace or specials (e.g. U+2009 THIN SPACE maps to a space and U+FF20 maps
   to `@`); the original domain is used instead, the same as when IDNA encoding fails.
+* Fixed `UUDecoder` and `UUValidator` so that a NUL byte is no longer mistaken for the start of the
+  stream when looking for the `begin` line, which could cause a `begin` that wasn't at the start of a
+  line to be accepted depending on how the input was split into chunks.
 * `MimeParser.ParseMessage` now throws `FormatException` (`End of stream.`) for a stream that consists of
   nothing but mbox From-lines instead of returning an empty message with no headers (which could not be
   re-parsed once serialized).

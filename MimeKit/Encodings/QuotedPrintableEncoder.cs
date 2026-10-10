@@ -117,7 +117,15 @@ namespace MimeKit.Encodings {
 			if (saved != -1)
 				inputLength++;
 
-			return ((inputLength / tripletsPerLine) * (maxLineLength + 1)) + ((inputLength % tripletsPerLine) * 3) + 2;
+			// Note: In the worst case, every input byte is encoded as a triplet and every tripletsPerLine triplets are
+			// followed by a soft line break ("=\n"). A line that was started by a previous call to Encode() may require
+			// an additional soft line break and Flush() may append a trailing soft line break.
+			int estimate = ((inputLength / tripletsPerLine) * ((tripletsPerLine * 3) + 2)) + ((inputLength % tripletsPerLine) * 3) + 2;
+
+			if (currentLineLength > 0)
+				estimate += 2;
+
+			return estimate;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
