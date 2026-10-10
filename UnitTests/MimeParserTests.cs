@@ -7621,5 +7621,530 @@ Content-Type: text/plain; charset=utf-8
 				AssertExcessiveHeaderLength (ex, 0, 4);
 			}
 		}
+
+		const string CallbackForwardingMbox = "From sender@example.com Mon Jan  1 00:00:00 2024\n" +
+			"From: sender@example.com\n" +
+			"To: recipient@example.com\n" +
+			"Subject: multipart\n" +
+			"MIME-Version: 1.0\n" +
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n" +
+			"\n" +
+			"This is the preamble.\n" +
+			"--outer\n" +
+			"Content-Type: text/plain\n" +
+			"\n" +
+			"Hello.\n" +
+			"--outer\n" +
+			"Content-Type: message/rfc822\n" +
+			"\n" +
+			"From: inner@example.com\n" +
+			"Subject: inner\n" +
+			"\n" +
+			"Inner body.\n" +
+			"--outer--\n" +
+			"This is the epilogue.\n" +
+			"\n" +
+			"From sender@example.com Mon Jan  1 00:00:01 2024\n" +
+			"From: sender@example.com\n" +
+			"Subject: second\n" +
+			"\n" +
+			"Second body.\n";
+
+		static List<string> ReadCallbackEvents (bool async)
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (CallbackForwardingMbox), false)) {
+				var reader = new RecordingMimeReader (stream, MimeFormat.Mbox);
+
+				while (!reader.IsEndOfStream) {
+					if (async)
+						reader.ReadMessageAsync ().GetAwaiter ().GetResult ();
+					else
+						reader.ReadMessage ();
+				}
+
+				return reader.Events;
+			}
+		}
+
+		[Test]
+		public void TestMimeParserIsNotAMimeReader ()
+		{
+			// Note: MimeParser used to derive from MimeReader, which exposed ReadMessage(), ReadEntity() and
+			// ReadHeaders(). Calling those directly would corrupt the parser's internal state.
+			Assert.That (typeof (MimeReader).IsAssignableFrom (typeof (MimeParser)), Is.False);
+		}
+
+		[Test]
+		public void TestMimeParserForwardsAllCallbacks ()
+		{
+			var expected = ReadCallbackEvents (false);
+
+			Assert.That (ReadCallbackEvents (true), Is.EqualTo (expected), "MimeReader sync vs async");
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (CallbackForwardingMbox), false)) {
+				var parser = new RecordingMimeParser (stream, MimeFormat.Mbox);
+				var subjects = new List<string> ();
+
+				while (!parser.IsEndOfStream)
+					subjects.Add (parser.ParseMessage ().Subject);
+
+				Assert.That (subjects, Is.EqualTo (new[] { "multipart", "second" }));
+				Assert.That (parser.Events, Is.EqualTo (expected));
+			}
+		}
+
+		[Test]
+		public async Task TestMimeParserForwardsAllCallbacksAsync ()
+		{
+			var expected = ReadCallbackEvents (false);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (CallbackForwardingMbox), false)) {
+				var parser = new RecordingMimeParser (stream, MimeFormat.Mbox);
+				var subjects = new List<string> ();
+
+				// Note: RecordingMimeParser only overrides the synchronous callbacks, so this also verifies
+				// that the default asynchronous callbacks delegate to their synchronous counterparts.
+				while (!parser.IsEndOfStream)
+					subjects.Add ((await parser.ParseMessageAsync ()).Subject);
+
+				Assert.That (subjects, Is.EqualTo (new[] { "multipart", "second" }));
+				Assert.That (parser.Events, Is.EqualTo (expected));
+			}
+		}
+
+		class AsyncMboxMarkerMimeParser : MimeParser
+		{
+			public readonly List<string> Events = new List<string> ();
+
+			public AsyncMboxMarkerMimeParser (Stream stream) : base (stream, MimeFormat.Mbox)
+			{
+			}
+
+			protected override Task OnMboxMarkerBeginAsync (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"BeginAsync({beginOffset},{lineNumber})");
+				return base.OnMboxMarkerBeginAsync (beginOffset, lineNumber, cancellationToken);
+			}
+
+			protected override Task OnMboxMarkerEndAsync (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"EndAsync({beginOffset},{lineNumber},{endOffset})");
+				return base.OnMboxMarkerEndAsync (beginOffset, lineNumber, endOffset, cancellationToken);
+			}
+		}
+
+		[Test]
+		public void TestMboxMarkerAsyncCallbacksNotUsedBySyncParse ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (CallbackForwardingMbox), false)) {
+				var parser = new AsyncMboxMarkerMimeParser (stream);
+
+				while (!parser.IsEndOfStream)
+					parser.ParseMessage ();
+
+				Assert.That (parser.Events, Is.Empty);
+			}
+		}
+
+		[Test]
+		public async Task TestMboxMarkerAsyncCallbacksAsync ()
+		{
+			var expected = ReadCallbackEvents (false)
+				.Where (e => e.StartsWith ("OnMboxMarkerBegin(", StringComparison.Ordinal) || e.StartsWith ("OnMboxMarkerEnd(", StringComparison.Ordinal))
+				.Select (e => e.Replace ("OnMboxMarkerBegin(", "BeginAsync(").Replace ("OnMboxMarkerEnd(", "EndAsync("))
+				.ToList ();
+
+			Assert.That (expected, Has.Count.EqualTo (4));
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (CallbackForwardingMbox), false)) {
+				var parser = new AsyncMboxMarkerMimeParser (stream);
+				var markers = new List<string> ();
+
+				while (!parser.IsEndOfStream) {
+					await parser.ParseMessageAsync ();
+					markers.Add (parser.MboxMarker);
+				}
+
+				Assert.That (parser.Events, Is.EqualTo (expected));
+				Assert.That (markers, Is.EqualTo (new[] { "From sender@example.com Mon Jan  1 00:00:00 2024", "From sender@example.com Mon Jan  1 00:00:01 2024" }));
+			}
+		}
+
+		[Test]
+		public void TestMimeParserForwardsReaderProperties ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes ("From: sender@example.com\r\nThis is not a header\r\n\r\nBody\r\n"), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var complianceOptions = new MimeComplianceOptions ();
+				var logger = new TestMimeComplianceLogger ();
+				var options = new ParserOptions ();
+
+				parser.Options = options;
+				parser.ComplianceLogger = logger;
+				parser.ComplianceOptions = complianceOptions;
+
+				Assert.That (parser.Options, Is.SameAs (options));
+				Assert.That (parser.ComplianceLogger, Is.SameAs (logger));
+				Assert.That (parser.ComplianceOptions, Is.SameAs (complianceOptions));
+				Assert.That (parser.Position, Is.EqualTo (0));
+				Assert.That (parser.IsEndOfStream, Is.False);
+
+				parser.ParseMessage ();
+
+				Assert.That (logger.Issues, Is.Not.Empty);
+				Assert.That (parser.Position, Is.EqualTo (stream.Length));
+				Assert.That (parser.IsEndOfStream, Is.True);
+
+				Assert.Throws<ArgumentNullException> (() => parser.Options = null);
+				Assert.Throws<ArgumentNullException> (() => parser.ComplianceOptions = null);
+			}
+		}
+		class RecordingMimeReader : MimeReader
+		{
+			public readonly List<string> Events = new List<string> ();
+
+			public RecordingMimeReader (Stream stream, MimeFormat format) : base (stream, format)
+			{
+			}
+
+			protected override void OnMboxMarkerBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMboxMarkerBegin({beginOffset},{lineNumber})");
+			}
+
+			protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMboxMarkerRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+			}
+
+			protected override void OnMboxMarkerEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMboxMarkerEnd({beginOffset},{lineNumber},{endOffset})");
+			}
+
+			protected override void OnHeadersBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnHeadersBegin({beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnHeaderRead (Header header, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnHeaderRead({header.Field},{Encoding.Latin1.GetString (header.RawValue)},{beginLineNumber})");
+			}
+
+			protected override void OnHeadersEnd (long beginOffset, int beginLineNumber, long endOffset, int endLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnHeadersEnd({beginOffset},{beginLineNumber},{endOffset},{endLineNumber})");
+			}
+
+			protected override void OnBodySeparator (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnBodySeparator({beginOffset},{lineNumber},{endOffset})");
+			}
+
+			protected override void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimeMessageBegin({beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimeMessageEnd({beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+			}
+
+			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartBegin({contentType.MimeType},{beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMimePartContentBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartContentBegin({beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMimePartContentRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartContentRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+			}
+
+			protected override void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartContentEnd({beginOffset},{beginLineNumber},{endOffset},{lines},{newLineFormat})");
+			}
+
+			protected override void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartEnd({contentType.MimeType},{beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+			}
+
+			protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMessagePartBegin({contentType.MimeType},{beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMessagePartEnd({contentType.MimeType},{beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+			}
+
+			protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBegin({contentType.MimeType},{beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMultipartBoundaryBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBoundaryBegin({beginOffset},{lineNumber})");
+			}
+
+			protected override void OnMultipartBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBoundaryRead({Encoding.Latin1.GetString (buffer, startIndex, count)},{beginOffset},{lineNumber})");
+			}
+
+			protected override void OnMultipartBoundaryEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBoundaryEnd({beginOffset},{lineNumber},{endOffset})");
+			}
+
+			protected override void OnMultipartEndBoundaryBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEndBoundaryBegin({beginOffset},{lineNumber})");
+			}
+
+			protected override void OnMultipartEndBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEndBoundaryRead({Encoding.Latin1.GetString (buffer, startIndex, count)},{beginOffset},{lineNumber})");
+			}
+
+			protected override void OnMultipartEndBoundaryEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEndBoundaryEnd({beginOffset},{lineNumber},{endOffset})");
+			}
+
+			protected override void OnMultipartPreambleBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartPreambleBegin({beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMultipartPreambleRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartPreambleRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+			}
+
+			protected override void OnMultipartPreambleEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartPreambleEnd({beginOffset},{beginLineNumber},{endOffset},{lines})");
+			}
+
+			protected override void OnMultipartEpilogueBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEpilogueBegin({beginOffset},{beginLineNumber})");
+			}
+
+			protected override void OnMultipartEpilogueRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEpilogueRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+			}
+
+			protected override void OnMultipartEpilogueEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEpilogueEnd({beginOffset},{beginLineNumber},{endOffset},{lines})");
+			}
+
+			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEnd({contentType.MimeType},{beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+			}
+		}
+
+		class RecordingMimeParser : MimeParser
+		{
+			public readonly List<string> Events = new List<string> ();
+
+			public RecordingMimeParser (Stream stream, MimeFormat format) : base (stream, format)
+			{
+			}
+
+			protected override void OnMboxMarkerBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMboxMarkerBegin({beginOffset},{lineNumber})");
+				base.OnMboxMarkerBegin (beginOffset, lineNumber, cancellationToken);
+			}
+
+			protected override void OnMboxMarkerRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMboxMarkerRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+				base.OnMboxMarkerRead (buffer, startIndex, count, cancellationToken);
+			}
+
+			protected override void OnMboxMarkerEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMboxMarkerEnd({beginOffset},{lineNumber},{endOffset})");
+				base.OnMboxMarkerEnd (beginOffset, lineNumber, endOffset, cancellationToken);
+			}
+
+			protected override void OnHeadersBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnHeadersBegin({beginOffset},{beginLineNumber})");
+				base.OnHeadersBegin (beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnHeaderRead (Header header, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnHeaderRead({header.Field},{Encoding.Latin1.GetString (header.RawValue)},{beginLineNumber})");
+				base.OnHeaderRead (header, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnHeadersEnd (long beginOffset, int beginLineNumber, long endOffset, int endLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnHeadersEnd({beginOffset},{beginLineNumber},{endOffset},{endLineNumber})");
+				base.OnHeadersEnd (beginOffset, beginLineNumber, endOffset, endLineNumber, cancellationToken);
+			}
+
+			protected override void OnBodySeparator (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnBodySeparator({beginOffset},{lineNumber},{endOffset})");
+				base.OnBodySeparator (beginOffset, lineNumber, endOffset, cancellationToken);
+			}
+
+			protected override void OnMimeMessageBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimeMessageBegin({beginOffset},{beginLineNumber})");
+				base.OnMimeMessageBegin (beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMimeMessageEnd (long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimeMessageEnd({beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+				base.OnMimeMessageEnd (beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartBegin({contentType.MimeType},{beginOffset},{beginLineNumber})");
+				base.OnMimePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMimePartContentBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartContentBegin({beginOffset},{beginLineNumber})");
+				base.OnMimePartContentBegin (beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMimePartContentRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartContentRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+				base.OnMimePartContentRead (buffer, startIndex, count, cancellationToken);
+			}
+
+			protected override void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartContentEnd({beginOffset},{beginLineNumber},{endOffset},{lines},{newLineFormat})");
+				base.OnMimePartContentEnd (beginOffset, beginLineNumber, endOffset, lines, newLineFormat, cancellationToken);
+			}
+
+			protected override void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMimePartEnd({contentType.MimeType},{beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+				base.OnMimePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMessagePartBegin({contentType.MimeType},{beginOffset},{beginLineNumber})");
+				base.OnMessagePartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMessagePartEnd({contentType.MimeType},{beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+				base.OnMessagePartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBegin({contentType.MimeType},{beginOffset},{beginLineNumber})");
+				base.OnMultipartBegin (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartBoundaryBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBoundaryBegin({beginOffset},{lineNumber})");
+				base.OnMultipartBoundaryBegin (beginOffset, lineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBoundaryRead({Encoding.Latin1.GetString (buffer, startIndex, count)},{beginOffset},{lineNumber})");
+				base.OnMultipartBoundaryRead (buffer, startIndex, count, beginOffset, lineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartBoundaryEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartBoundaryEnd({beginOffset},{lineNumber},{endOffset})");
+				base.OnMultipartBoundaryEnd (beginOffset, lineNumber, endOffset, cancellationToken);
+			}
+
+			protected override void OnMultipartEndBoundaryBegin (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEndBoundaryBegin({beginOffset},{lineNumber})");
+				base.OnMultipartEndBoundaryBegin (beginOffset, lineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartEndBoundaryRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEndBoundaryRead({Encoding.Latin1.GetString (buffer, startIndex, count)},{beginOffset},{lineNumber})");
+				base.OnMultipartEndBoundaryRead (buffer, startIndex, count, beginOffset, lineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartEndBoundaryEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEndBoundaryEnd({beginOffset},{lineNumber},{endOffset})");
+				base.OnMultipartEndBoundaryEnd (beginOffset, lineNumber, endOffset, cancellationToken);
+			}
+
+			protected override void OnMultipartPreambleBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartPreambleBegin({beginOffset},{beginLineNumber})");
+				base.OnMultipartPreambleBegin (beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartPreambleRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartPreambleRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+				base.OnMultipartPreambleRead (buffer, startIndex, count, cancellationToken);
+			}
+
+			protected override void OnMultipartPreambleEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartPreambleEnd({beginOffset},{beginLineNumber},{endOffset},{lines})");
+				base.OnMultipartPreambleEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMultipartEpilogueBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEpilogueBegin({beginOffset},{beginLineNumber})");
+				base.OnMultipartEpilogueBegin (beginOffset, beginLineNumber, cancellationToken);
+			}
+
+			protected override void OnMultipartEpilogueRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEpilogueRead({Encoding.Latin1.GetString (buffer, startIndex, count)})");
+				base.OnMultipartEpilogueRead (buffer, startIndex, count, cancellationToken);
+			}
+
+			protected override void OnMultipartEpilogueEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEpilogueEnd({beginOffset},{beginLineNumber},{endOffset},{lines})");
+				base.OnMultipartEpilogueEnd (beginOffset, beginLineNumber, endOffset, lines, cancellationToken);
+			}
+
+			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+			{
+				Events.Add ($"OnMultipartEnd({contentType.MimeType},{beginOffset},{beginLineNumber},{headersEndOffset},{endOffset},{lines})");
+				base.OnMultipartEnd (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+		}
 	}
 }

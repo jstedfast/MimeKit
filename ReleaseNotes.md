@@ -36,6 +36,12 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   * The previous `MimeParser` implementation has been renamed to `LegacyMimeParser` and is retained
     for compatibility.
   * `MessageDeliveryStatus` now uses the new parser and is no longer tied to `LegacyMimeParser`.
+  * `MimeParser` no longer derives from `MimeReader`, so it no longer exposes the `ReadHeaders ()`,
+    `ReadEntity ()` and `ReadMessage ()` methods (or their `Async` variants), which could corrupt the
+    parser's state if called directly. It still exposes the `Options`, `IsEndOfStream`, `Position`,
+    `ComplianceLogger` and `ComplianceOptions` properties, and mirrors all of `MimeReader`'s `On*`
+    callbacks as `protected virtual` methods for subclasses. Subclasses that override them must call
+    the base implementation.
 * `CryptographyContext` no longer registers a default S/MIME implementation. Applications must now
   explicitly register the context they want (for example via `CryptographyContext.Register ()`).
   This change is what makes MimeKit AOT-compatible; the `DefaultSecureMimeContext` constructors that
@@ -257,6 +263,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   named property IDs.
 
 ### Other Enhancements
+
+* Added `MimeReader.OnMboxMarkerBeginAsync ()` and `OnMboxMarkerEndAsync ()` so that every `MimeReader`
+  callback now has an asynchronous counterpart. The default implementations call the synchronous methods.
 
 * Added the `RtfToText` and `RtfToHtml` text converters for `text/rtf` content (such as the
   `PR_RTF_COMPRESSED` body of TNEF attachments). `RtfToHtml` extracts the original HTML from RTF that

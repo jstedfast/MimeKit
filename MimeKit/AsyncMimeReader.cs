@@ -1,4 +1,4 @@
-//
+﻿//
 // AsyncMimeParser.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -101,7 +101,7 @@ namespace MimeKit {
 			var mboxMarkerOffset = GetOffset (inputIndex);
 			var mboxMarkerLineNumber = lineNumber;
 
-			OnMboxMarkerBegin (mboxMarkerOffset, lineNumber, cancellationToken);
+			await OnMboxMarkerBeginAsync (mboxMarkerOffset, mboxMarkerLineNumber, cancellationToken).ConfigureAwait (false);
 
 			do {
 				if (await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false) < 1) {
@@ -122,7 +122,7 @@ namespace MimeKit {
 				await OnMboxMarkerReadAsync (input, startIndex, count, cancellationToken).ConfigureAwait (false);
 			} while (!complete);
 
-			OnMboxMarkerEnd (mboxMarkerOffset, mboxMarkerLineNumber, GetOffset (inputIndex), cancellationToken);
+			await OnMboxMarkerEndAsync (mboxMarkerOffset, mboxMarkerLineNumber, GetOffset (inputIndex), cancellationToken).ConfigureAwait (false);
 
 			state = MimeParserState.MessageHeaders;
 		}

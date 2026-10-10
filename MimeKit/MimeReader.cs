@@ -368,6 +368,23 @@ namespace MimeKit {
 		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
 		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
 		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnMboxMarkerBeginAsync (long beginOffset, int lineNumber, CancellationToken cancellationToken)
+		{
+			OnMboxMarkerBegin (beginOffset, lineNumber, cancellationToken);
+			return Task.CompletedTask;
+		}
+
+		/// <summary>
+		/// Called when an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
 		/// <param name="buffer">The buffer containing the mbox marker.</param>
 		/// <param name="startIndex">The index denoting the starting position of the mbox marker within the buffer.</param>
 		/// <param name="count">The length of the mbox marker within the buffer, in bytes.</param>
@@ -407,6 +424,24 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMboxMarkerEnd (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
 		{
+		}
+
+		/// <summary>
+		/// Called when the end of an Mbox marker is encountered in the stream.
+		/// </summary>
+		/// <remarks>
+		/// <para>When the stream is specified to be in <see cref="MimeFormat.Mbox"/> format, this method will be called whenever the parser encounters the end of an Mbox marker.</para>
+		/// <para>It is not necessary to override this method unless it is desirable to track the offsets of mbox markers within a stream or to extract the mbox marker itself.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="beginOffset">The offset into the stream where the mbox marker begins.</param>
+		/// <param name="lineNumber">The line number where the mbox marker exists within the stream.</param>
+		/// <param name="endOffset">The offset into the stream where the mbox marker ends.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		protected virtual Task OnMboxMarkerEndAsync (long beginOffset, int lineNumber, long endOffset, CancellationToken cancellationToken)
+		{
+			OnMboxMarkerEnd (beginOffset, lineNumber, endOffset, cancellationToken);
+			return Task.CompletedTask;
 		}
 
 		#endregion Mbox Events
