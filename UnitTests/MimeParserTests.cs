@@ -575,6 +575,98 @@ namespace UnitTests {
 			}
 		}
 
+		[TestCase ("Header-1: value 1\r\nJunk")]
+		[TestCase ("Header-1: value 1\r\nJunk\r")]
+		[TestCase ("Header-1: value 1\r\nJunk\r\n")]
+		public void TestTruncatedInvalidHeaderAfterValidHeader (string text)
+		{
+			var bytes = Encoding.ASCII.GetBytes (text);
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Default);
+				var headers = parser.ParseHeaders ();
+
+				Assert.That (headers.Count, Is.EqualTo (2), "Unexpected header count.");
+				Assert.That (headers["Header-1"], Is.EqualTo ("value 1"), "Unexpected header value.");
+				Assert.That (headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (headers[1].Field.TrimEnd (), Is.EqualTo ("Junk"), "Field");
+			}
+		}
+
+		[TestCase ("Header-1: value 1\r\nJunk")]
+		[TestCase ("Header-1: value 1\r\nJunk\r")]
+		[TestCase ("Header-1: value 1\r\nJunk\r\n")]
+		public async Task TestTruncatedInvalidHeaderAfterValidHeaderAsync (string text)
+		{
+			var bytes = Encoding.ASCII.GetBytes (text);
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Default);
+				var headers = await parser.ParseHeadersAsync ();
+
+				Assert.That (headers.Count, Is.EqualTo (2), "Unexpected header count.");
+				Assert.That (headers["Header-1"], Is.EqualTo ("value 1"), "Unexpected header value.");
+				Assert.That (headers[1].IsInvalid, Is.True, "IsInvalid");
+				Assert.That (headers[1].Field.TrimEnd (), Is.EqualTo ("Junk"), "Field");
+			}
+		}
+
+		[TestCase ("From - \r\nThis is not a header\r\nSubject: test\r\n\r\nbody\r\n")]
+		[TestCase ("From - \r\n>From munged\r\nThis is not a header\r\n")]
+		public void TestInvalidHeaderAfterMboxMarker (string text)
+		{
+			var bytes = Encoding.ASCII.GetBytes (text);
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
+				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+			}
+		}
+
+		[TestCase ("From - \r\nThis is not a header\r\nSubject: test\r\n\r\nbody\r\n")]
+		[TestCase ("From - \r\n>From munged\r\nThis is not a header\r\n")]
+		public void TestInvalidHeaderAfterMboxMarkerAsync (string text)
+		{
+			var bytes = Encoding.ASCII.GetBytes (text);
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+
+				Assert.ThrowsAsync<FormatException> (() => parser.ParseMessageAsync ());
+			}
+		}
+
+		[Test]
+		public void TestMungedMboxMarkersBeforeHeaders ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From - \r\n>From munged\r\nSubject: test\r\n\r\nbody\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				Assert.That (message.Headers.Count, Is.EqualTo (1), "Header count");
+				Assert.That (message.Subject, Is.EqualTo ("test"));
+				Assert.That (Encoding.ASCII.GetString (message.MboxMarker), Is.EqualTo ("From - \r\n>From munged\r\n"), "MboxMarker");
+			}
+		}
+
+		[Test]
+		public async Task TestMungedMboxMarkersBeforeHeadersAsync ()
+		{
+			var bytes = Encoding.ASCII.GetBytes ("From - \r\n>From munged\r\nSubject: test\r\n\r\nbody\r\n");
+
+			using (var memory = new MemoryStream (bytes, false)) {
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				Assert.That (message.Headers.Count, Is.EqualTo (1), "Header count");
+				Assert.That (message.Subject, Is.EqualTo ("test"));
+				Assert.That (Encoding.ASCII.GetString (message.MboxMarker), Is.EqualTo ("From - \r\n>From munged\r\n"), "MboxMarker");
+			}
+		}
+
 		[Test]
 		public void TestTruncatedHeader ()
 		{
@@ -1186,6 +1278,54 @@ namespace UnitTests {
 					Assert.That (ex.Message, Is.EqualTo ("End of stream."));
 				} catch (Exception ex) {
 					Assert.Fail ($"Unexpected exception: {ex}");
+				}
+			}
+		}
+
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024", MimeFormat.Entity)]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n", MimeFormat.Entity)]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n>From sender@example.com Mon Jan  1 00:00:00 2024\r\n", MimeFormat.Entity)]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n>From sender@example.com Mon Jan  1 00:00:00 2024", MimeFormat.Mbox)]
+		public void TestMessageStreamWithOnlyMboxMarkers (string text, MimeFormat format)
+		{
+			using (var memory = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (memory, format);
+
+				var ex = Assert.Throws<FormatException> (() => parser.ParseMessage ());
+				Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+			}
+		}
+
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024", MimeFormat.Entity)]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n", MimeFormat.Entity)]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n>From sender@example.com Mon Jan  1 00:00:00 2024\r\n", MimeFormat.Entity)]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n>From sender@example.com Mon Jan  1 00:00:00 2024", MimeFormat.Mbox)]
+		public void TestMessageStreamWithOnlyMboxMarkersAsync (string text, MimeFormat format)
+		{
+			using (var memory = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (memory, format);
+
+				var ex = Assert.ThrowsAsync<FormatException> (() => parser.ParseMessageAsync ());
+				Assert.That (ex.Message, Is.EqualTo ("End of stream."));
+			}
+		}
+
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\nSubject: test", "Subject: test")]
+		[TestCase ("From sender@example.com Mon Jan  1 00:00:00 2024\r\n\r\n", "\r\n")]
+		public async Task TestMessageStreamWithMboxMarkerFollowedByMessage (string text, string expected)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			foreach (var async in new[] { false, true }) {
+				using (var memory = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+					var parser = new MimeParser (memory, MimeFormat.Entity);
+					using var message = async ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+					using var output = new MemoryStream ();
+
+					message.WriteTo (options, output);
+
+					Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo (expected), async ? "ParseMessageAsync" : "ParseMessage");
 				}
 			}
 		}

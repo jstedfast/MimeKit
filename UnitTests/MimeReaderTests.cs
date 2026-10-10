@@ -822,6 +822,114 @@ ABC
 			}
 		}
 
+		static readonly string[] EmptyContainerTypes = { "multipart/alternative; boundary=inner", "message/rfc822" };
+
+		static string CreateEmptyContainerInMultipart (string contentType, string newLine)
+		{
+			return $"Content-Type: multipart/mixed; boundary=outer{newLine}{newLine}--outer{newLine}Content-Type: {contentType}{newLine}{newLine}--outer--{newLine}";
+		}
+
+		[Test]
+		public void TestLineCountEmptyContainerInMultipart ([ValueSource (nameof (EmptyContainerTypes))] string contentType, [Values ("\n", "\r\n")] string newLine)
+		{
+			var text = CreateEmptyContainerInMultipart (contentType, newLine);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				reader.ReadEntity ();
+
+				Assert.That (reader.Offsets[0].Children[0].Lines, Is.EqualTo (0), "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountEmptyContainerInMultipartAsync ([ValueSource (nameof (EmptyContainerTypes))] string contentType, [Values ("\n", "\r\n")] string newLine)
+		{
+			var text = CreateEmptyContainerInMultipart (contentType, newLine);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Entity);
+
+				await reader.ReadEntityAsync ();
+
+				Assert.That (reader.Offsets[0].Children[0].Lines, Is.EqualTo (0), "Line count");
+			}
+		}
+
+		static string CreateEmptyContainerInMbox (string contentType, string newLine)
+		{
+			return $"From a@example.com{newLine}Content-Type: {contentType}{newLine}{newLine}From b@example.com{newLine}Subject: second{newLine}{newLine}body{newLine}";
+		}
+
+		[Test]
+		public void TestLineCountEmptyContainerInMbox ([ValueSource (nameof (EmptyContainerTypes))] string contentType, [Values ("\n", "\r\n")] string newLine)
+		{
+			var text = CreateEmptyContainerInMbox (contentType, newLine);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Mbox);
+
+				reader.ReadMessage ();
+
+				Assert.That (reader.Offsets[0].Body.Lines, Is.EqualTo (0), "Line count");
+			}
+		}
+
+		[Test]
+		public async Task TestLineCountEmptyContainerInMboxAsync ([ValueSource (nameof (EmptyContainerTypes))] string contentType, [Values ("\n", "\r\n")] string newLine)
+		{
+			var text = CreateEmptyContainerInMbox (contentType, newLine);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Mbox);
+
+				await reader.ReadMessageAsync ();
+
+				Assert.That (reader.Offsets[0].Body.Lines, Is.EqualTo (0), "Line count");
+			}
+		}
+
+		static void AssertEmptyEntityOffsets (MimeOffsets offsets, long expected, string what)
+		{
+			Assert.That (offsets.BeginOffset, Is.EqualTo (expected), $"{what} BeginOffset");
+			Assert.That (offsets.HeadersEndOffset, Is.EqualTo (expected), $"{what} HeadersEndOffset");
+			Assert.That (offsets.EndOffset, Is.EqualTo (expected), $"{what} EndOffset");
+			Assert.That (offsets.Lines ?? 0, Is.EqualTo (0), $"{what} Lines");
+		}
+
+		[Test]
+		public void TestOffsetsEmptyMessageInMbox ([Values ("\n", "\r\n")] string newLine)
+		{
+			var text = $"From -{newLine}From b@example.com{newLine}Subject: second{newLine}{newLine}body{newLine}";
+			long expected = "From -".Length + newLine.Length;
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Mbox);
+
+				reader.ReadMessage ();
+
+				AssertEmptyEntityOffsets (reader.Offsets[0], expected, "Message");
+				AssertEmptyEntityOffsets (reader.Offsets[0].Body, expected, "Body");
+			}
+		}
+
+		[Test]
+		public async Task TestOffsetsEmptyMessageInMboxAsync ([Values ("\n", "\r\n")] string newLine)
+		{
+			var text = $"From -{newLine}From b@example.com{newLine}Subject: second{newLine}{newLine}body{newLine}";
+			long expected = "From -".Length + newLine.Length;
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var reader = new CustomMimeReader (stream, MimeFormat.Mbox);
+
+				await reader.ReadMessageAsync ();
+
+				AssertEmptyEntityOffsets (reader.Offsets[0], expected, "Message");
+				AssertEmptyEntityOffsets (reader.Offsets[0].Body, expected, "Body");
+			}
+		}
+
 		[Test]
 		public void TestLineCountNonTerminatedSingleHeader ()
 		{

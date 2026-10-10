@@ -563,5 +563,15 @@ namespace UnitTests.IO.Filters {
 			TestDos2UnixFilter (text, expected, false);
 			TestDos2UnixFilter (text, expected, true);
 		}
+
+		[TestCase ("abc\r", "abc\r", "abc\n")]
+		[TestCase ("abc\r\r", "abc\r\r", "abc\r\n")]
+		[TestCase ("abc\r\n\r", "abc\n\r", "abc\n\n")]
+		[TestCase ("\r", "\r", "\n")]
+		public void TestDos2UnixFilterTrailingCarriageReturn (string text, string expected, string expectedWithNewLine)
+		{
+			TestDos2UnixFilter (text, expected, false);
+			TestDos2UnixFilter (text, expectedWithNewLine, true);
+		}
 	}
 }

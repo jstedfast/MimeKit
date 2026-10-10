@@ -71,6 +71,13 @@ namespace MimeKit.IO.Filters {
 				pc = c;
 			}
 
+			if (flush && pc == (byte) '\r') {
+				// Note: a trailing CR is held back until we know whether or not it is followed by a LF. If we are
+				// ensuring a new line, then the CR + the LF that we would append make a CRLF, which becomes a LF.
+				output[outputIndex++] = ensureNewLine ? (byte) '\n' : (byte) '\r';
+				pc = ensureNewLine ? (byte) '\n' : (byte) 0;
+			}
+
 			if (flush && ensureNewLine && pc != (byte) '\n') {
 				output[outputIndex++] = (byte) '\n';
 				pc = (byte) '\n';

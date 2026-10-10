@@ -135,6 +135,7 @@ namespace MimeKit {
 			headerBlockBegin = GetOffset (inputIndex);
 			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
+			validHeaderCount = 0;
 			headerCount = 0;
 
 			messageHeaderBlock = state == MimeParserState.MessageHeaders;
@@ -172,10 +173,12 @@ namespace MimeKit {
 					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
 				if (left == 0) {
-					// Note: The only way to get here is if this is the first-pass through this loop and we're at EOF, so headerCount should ALWAYS be 0.
+					// Note: We can only get here if we're at EOF and either no headers have been read or the previous line was a complete header.
 
-					if (toplevel && headerCount == 0) {
-						// EOF has been reached before any headers have been parsed for Parse[Headers,Entity,Message]Async.
+					if (toplevel && validHeaderCount == 0) {
+						// EOF has been reached before any valid headers have been parsed for Parse[Headers,Entity,Message]Async.
+						// Any headers read so far can only be (munged) mbox From-lines (anything else is an error), and a stream
+						// that consists of nothing but From-lines does not contain a message.
 						state = MimeParserState.Eos;
 						return;
 					}
@@ -276,7 +279,10 @@ namespace MimeKit {
 							complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.InvalidHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 					}
 
-					if (toplevel && eos && inputIndex + headerFieldLength >= inputEnd) {
+					// Note: Only treat this as a parse error if no headers have been parsed yet (i.e. the input is just a line of garbage).
+					// Otherwise, a trailing invalid header that is missing its line terminator would fail to parse when the same
+					// header followed by a newline would succeed.
+					if (toplevel && headerCount == 0 && eos && inputIndex + headerFieldLength >= inputEnd) {
 						state = MimeParserState.Error;
 						return;
 					}
@@ -314,8 +320,14 @@ namespace MimeKit {
 					}
 				} while (true);
 
-				if (toplevel && headerCount == 0 && invalid && !IsMboxMarker (headerBuffer)) {
+				if (toplevel && validHeaderCount == 0 && invalid && !IsMboxMarker (headerBuffer, true)) {
 					state = MimeParserState.Error;
+					return;
+				}
+
+				if (eof && toplevel && validHeaderCount == 0 && invalid) {
+					// The stream consists of nothing but (munged) mbox From-lines and does not contain a message.
+					state = MimeParserState.Eos;
 					return;
 				}
 
@@ -508,7 +520,7 @@ namespace MimeKit {
 							if (complianceLogger != null && (inptr == start || inptr[-1] != (byte) '\r'))
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber, (int) (inptr - start) + 1));
 
-							return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex));
+							return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex, beginOffset));
 						}
 					}
 				}
@@ -544,7 +556,7 @@ namespace MimeKit {
 				break;
 			}
 
-			var endOffset = GetEndOffset (inputIndex);
+			var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
 			currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
 
 			switch (entityType) {
@@ -622,7 +634,7 @@ namespace MimeKit {
 					break;
 				}
 
-				var endOffset = GetEndOffset (inputIndex);
+				var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
 				currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
 
 				switch (entityType) {
@@ -653,7 +665,7 @@ namespace MimeKit {
 				// Note: this will scan all content into the preamble...
 				await MultipartScanPreambleAsync (byteOptions, cancellationToken).ConfigureAwait (false);
 
-				endOffset = GetEndOffset (inputIndex);
+				endOffset = GetEndOffset (inputIndex, beginOffset);
 
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
@@ -676,7 +688,7 @@ namespace MimeKit {
 
 				await MultipartScanEpilogueAsync (byteOptions, cancellationToken).ConfigureAwait (false);
 
-				endOffset = GetEndOffset (inputIndex);
+				endOffset = GetEndOffset (inputIndex, beginOffset);
 
 				return GetLineCount (beginLineNumber, beginOffset, endOffset);
 			}
@@ -686,7 +698,7 @@ namespace MimeKit {
 
 			PopBoundary ();
 
-			endOffset = GetEndOffset (inputIndex);
+			endOffset = GetEndOffset (inputIndex, beginOffset);
 
 			return GetLineCount (beginLineNumber, beginOffset, endOffset);
 		}
@@ -778,7 +790,7 @@ namespace MimeKit {
 				break;
 			}
 
-			var endOffset = GetEndOffset (inputIndex);
+			var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
 			currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
 
 			switch (entityType) {
@@ -869,7 +881,7 @@ namespace MimeKit {
 				break;
 			}
 
-			var endOffset = GetEndOffset (inputIndex);
+			var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
 			currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
 
 			switch (entityType) {

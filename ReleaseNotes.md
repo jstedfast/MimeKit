@@ -517,11 +517,15 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `FormatOptions.EnsureNewLine` to `true` if the output must end with a newline (for example, when
   appending to an mbox file). `LegacyMimeParser` still has other re-serialization issues, which is
   another reason to switch to the new `MimeParser`.
+* Fixed `MimeReader` to report a line count of 0 rather than -1 for a multipart or message/rfc822
+  entity with empty content that is immediately followed by a boundary marker or an mbox "From " line.
 * Fixed parameters with an empty value (e.g. `boundary=""`) to be serialized as a quoted empty string
   rather than `boundary=`, which MimeKit could not parse.
 * Fixed `MailboxAddress` to wrap an address without a domain in angle brackets when it is encoded
   without a display name (e.g. `<user>` instead of `user`), so that the output can be parsed again
   when `ParserOptions.AllowAddressesWithoutDomain` is `false`.
+* Fixed `MimeReader` to never report an end offset smaller than the begin offset for an empty entity
+  that is immediately followed by a boundary marker or an mbox "From " line.
 * Fixed `Rfc2047.EncodeText ()` and `Rfc2047.EncodePhrase ()` (and so header encoding) to encode
   text that looks like an rfc2047 encoded-word (e.g. `=?utf-8?b?...?=`) instead of writing it as-is,
   which would cause it to be decoded into something else when parsed. This also applies to text that
@@ -532,6 +536,13 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   comment (e.g. `user@example.com (Display<TAB>Name)`), like it already did for other display names.
 * Fixed the address parser to preserve quotes and backslashes that appear inside an rfc2047
   encoded-word in a group name (they were previously removed after the name was decoded).
+* Fixed `Dos2UnixFilter` to output a trailing `\r` at the end of the stream rather than dropping it
+  (or, when `ensureNewLine` is `true`, to convert it into the final `\n`).
+* Fixed `MimeParser` and `MimeReader` so that an invalid header line (one without a `:`) at the
+  very end of the input no longer causes a parse failure when valid headers come before it.
+* Fixed `MimeParser` and `MimeReader` to report a parse error (like `LegacyMimeParser` does) when an
+  mbox "From " line at the start of a message is followed by lines that are not valid headers, rather
+  than treating all of the content as part of the mbox marker and losing it.
 * Fixed rfc2047 Q-encoding (used for headers and for `ParameterEncodingMethod.Rfc2047` parameter
   values) to encode `\` as `=5C`, so that it isn't treated as a quoting character when the encoded
   value is inside a quoted-string.
@@ -542,6 +553,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Fixed `Punycode.Encode` (and therefore address/domain serialization) to no longer emit IDNA output
   that contains ASCII whitespace or specials (e.g. U+2009 THIN SPACE maps to a space and U+FF20 maps
   to `@`); the original domain is used instead, the same as when IDNA encoding fails.
+* `MimeParser.ParseMessage` now throws `FormatException` (`End of stream.`) for a stream that consists of
+  nothing but mbox From-lines instead of returning an empty message with no headers (which could not be
+  re-parsed once serialized).
 * Fixed `Parameter` encoding to fall back to UTF-8 for characters that the parameter's `Encoding`
   cannot represent, rather than silently replacing them with `?` (e.g. after parsing an rfc2047-encoded
   value that mixes charsets) or, for rfc2231 with an exception fallback, throwing.
