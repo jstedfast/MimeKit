@@ -364,6 +364,21 @@ namespace UnitTests {
 			AssertParse ("\"\"", expected, true, 0, 0);
 		}
 
+		[TestCase ("\" inline \"", "inline")]
+		[TestCase ("\"From =51670(26)\"", "attachment")]
+		[TestCase ("\"attachment; filename=foo.txt\"", "attachment")]
+		public void TestInvalidQuotedDispositionValue (string text, string expected)
+		{
+			Assert.That (ContentDisposition.TryParse (text, out var disposition), Is.True);
+			Assert.That (disposition.Disposition, Is.EqualTo (expected));
+
+			var encoded = disposition.ToString (Encoding.UTF8, true);
+			var value = encoded.Substring ("Content-Disposition:".Length);
+
+			Assert.That (ContentDisposition.TryParse (value, out var reparsed), Is.True, encoded);
+			Assert.That (reparsed.Disposition, Is.EqualTo (expected));
+		}
+
 		[Test]
 		public void TestIncompleteComments ()
 		{

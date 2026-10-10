@@ -129,10 +129,8 @@ namespace MimeKit {
 				if (value.Length == 0)
 					throw new ArgumentException ("The disposition is not allowed to be empty.", nameof (value));
 
-				for (int i = 0; i < value.Length; i++) {
-					if (value[i] >= 127 || !IsAsciiAtom ((byte) value[i]))
-						throw new ArgumentException ("Illegal characters in disposition value.", nameof (value));
-				}
+				if (!IsValidDisposition (value))
+					throw new ArgumentException ("Illegal characters in disposition value.", nameof (value));
 
 				if (disposition == value)
 					return;
@@ -140,6 +138,19 @@ namespace MimeKit {
 				disposition = value;
 				OnChanged ();
 			}
+		}
+
+		static bool IsValidDisposition (string value)
+		{
+			if (value.Length == 0)
+				return false;
+
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] >= 127 || !IsAsciiAtom ((byte) value[i]))
+					return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -476,9 +487,11 @@ namespace MimeKit {
 					return false;
 
 				type = CharsetUtils.ConvertToUnicode (options, text, atom, index - atom);
-				type = MimeUtils.Unquote (type);
+				type = MimeUtils.Unquote (type).Trim ();
 
-				if (string.IsNullOrEmpty (type))
+				// Note: if the quoted value is not a valid atom, then we would not be able to serialize it in a way that
+				// could be parsed again, so treat it the same as an empty value.
+				if (!IsValidDisposition (type))
 					type = Attachment;
 			} else {
 				if (!ParseUtils.SkipAtom (text, ref index, endIndex)) {

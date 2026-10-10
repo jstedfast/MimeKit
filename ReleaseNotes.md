@@ -540,10 +540,15 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   follows a `"` in a display name (encoded-words within quoted-strings are decoded in Loose mode).
 * Fixed `Rfc2047.EncodePhrase ()` so that a word that is too long for a single line is not given
   extra whitespace when it is split across lines (this affected display names in address headers).
+* Fixed `DateUtils.FormatDate ()` to format negative UTC offsets that are not a whole number of hours
+  correctly (e.g. `-0330` rather than `-03-30`, and `-0005` rather than `+00-05`).
 * Fixed the address parser to convert tabs into spaces in a display name that comes from a trailing
   comment (e.g. `user@example.com (Display<TAB>Name)`), like it already did for other display names.
 * Fixed the address parser to preserve quotes and backslashes that appear inside an rfc2047
   encoded-word in a group name (they were previously removed after the name was decoded).
+* Fixed `ContentDisposition` parsing of a quoted disposition value (e.g. `"inline"`) to fall back to
+  `attachment` if the value is not a valid atom, rather than keeping a value that could not be
+  serialized in a way that could be parsed again.
 * Fixed `Dos2UnixFilter` to output a trailing `\r` at the end of the stream rather than dropping it
   (or, when `ensureNewLine` is `true`, to convert it into the final `\n`).
 * Fixed `MimeParser` and `MimeReader` so that an invalid header line (one without a `:`) at the

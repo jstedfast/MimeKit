@@ -158,6 +158,21 @@ namespace UnitTests.Utils {
 			}
 		}
 
+		[TestCase (-3, -30, "Thu, 09 Jan 1992 00:00:00 -0330")]
+		[TestCase (0, -5, "Thu, 09 Jan 1992 00:00:00 -0005")]
+		[TestCase (5, 45, "Thu, 09 Jan 1992 00:00:00 +0545")]
+		[TestCase (-5, 0, "Thu, 09 Jan 1992 00:00:00 -0500")]
+		[TestCase (0, 0, "Thu, 09 Jan 1992 00:00:00 +0000")]
+		public void TestFormatDateOffsets (int hours, int minutes, string expected)
+		{
+			var date = new DateTimeOffset (1992, 1, 9, 0, 0, 0, new TimeSpan (hours, minutes, 0));
+			var formatted = DateUtils.FormatDate (date);
+
+			Assert.That (formatted, Is.EqualTo (expected));
+			Assert.That (DateUtils.TryParse (formatted, out var parsed), Is.True);
+			Assert.That (parsed.Offset, Is.EqualTo (date.Offset));
+		}
+
 		static readonly string[] invalidDates = {
 			"this is pure junk",
 			"Sunday is the day of our Lord",
