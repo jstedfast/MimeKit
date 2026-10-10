@@ -8,3 +8,4 @@
 *.cs text
 *.md text
 *.rtf binary
+Fuzzing/Corpora/** binary

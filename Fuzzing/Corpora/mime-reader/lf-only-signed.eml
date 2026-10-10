@@ -1,0 +1,12 @@
+Content-Type: multipart/signed; boundary=s; protocol="application/pkcs7-signature"
+
+--s
+Content-Type: text/plain
+
+body
+--s
+Content-Type: application/pkcs7-signature
+Content-Transfer-Encoding: base64
+
+MIAG
+--s--

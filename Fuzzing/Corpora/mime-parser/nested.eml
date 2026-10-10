@@ -1,0 +1,31 @@
+From: a@example.com
+To: b@example.com
+Subject: nested
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="outer"
+
+preamble
+--outer
+Content-Type: multipart/alternative; boundary="inner"
+
+--inner
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+caf=C3=A9=
+
+--inner
+Content-Type: text/html
+
+<p>hi</p>
+--inner--
+--outer
+Content-Type: message/rfc822
+
+--outer
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: base64
+
+AAEC
+--outer--
+epilogue

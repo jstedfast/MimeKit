@@ -1,0 +1,5 @@
+Content-Type: message/partial; id="abc@example.com"; number=1; total=2
+
+Content-Type: text/plain
+
+part one

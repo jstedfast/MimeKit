@@ -1,0 +1,90 @@
+name: Fuzz
+
+on:
+  schedule:
+    # Every night at 03:17 UTC.
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'How long to fuzz each target (in seconds)'
+        required: false
+        default: '600'
+      target:
+        description: 'The fuzz target to run (or "all")'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: read
+
+jobs:
+  targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - name: Select the fuzz targets
+        id: targets
+        shell: pwsh
+        run: |
+          $all = @(
+            'address-parser', 'compliance-validators', 'decoders', 'header-values',
+            'mime-parser', 'mime-reader', 'rfc2047', 'rtf-compressed',
+            'rtf-converters', 'rtf-tokenizer', 'tnef-message', 'tnef-reader'
+          )
+          $target = '${{ inputs.target }}'
+          $targets = if ($target -eq '' -or $target -eq 'all') { $all } else { @($target) }
+          "matrix=$(ConvertTo-Json -Compress -InputObject $targets)" >> $env:GITHUB_OUTPUT
+
+  fuzz:
+    needs: targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.targets.outputs.matrix) }}
+    env:
+      DURATION: ${{ inputs.duration || '600' }}
+      CORPUS_PATH: artifacts/fuzz/${{ matrix.target }}/corpus
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup/Install the .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      # The corpus grows from run to run, so each run restores the newest corpus for its target and saves
+      # the result under a new key (caches are immutable).
+      - name: Restore the corpus
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.CORPUS_PATH }}
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: fuzz-corpus-${{ matrix.target }}-
+
+      - name: Fuzz ${{ matrix.target }}
+        shell: pwsh
+        run: ./scripts/fuzz.ps1 -Target ${{ matrix.target }} -Duration $env:DURATION
+
+      - name: Save the corpus
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.CORPUS_PATH }}
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+
+      - name: Upload the crashing inputs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-${{ matrix.target }}-crashes
+          path: |
+            artifacts/fuzz/${{ matrix.target }}/crashes/
+            artifacts/fuzz/${{ matrix.target }}/fuzz.log
+          if-no-files-found: ignore
+          retention-days: 30

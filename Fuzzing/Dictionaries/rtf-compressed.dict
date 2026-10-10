@@ -1,0 +1,18 @@
+# libFuzzer dictionary for the rtf-compressed target (MS-OXRTFCP).
+# All multi-byte integers are little-endian.
+
+magic_compressed="LZFu"
+magic_uncompressed="MELA"
+crc_zero="\x00\x00\x00\x00"
+size_small="\x10\x00\x00\x00"
+size_max="\xFF\xFF\xFF\x7F"
+control_all_literal="\x00"
+control_all_references="\xFF"
+reference_start="\x00\x00"
+reference_prefix_end="\x0C\xF0"
+
+prefix="{\\rtf1\\ansi\\mac\\deff0\\deftab720"
+prefix_fonttbl="{\\fonttbl;}"
+prefix_fonts="{\\f0\\fnil \\froman \\fswiss \\fmodern \\fscript \\fdecor MS Sans SerifSymbolArialTimes New RomanCourier"
+prefix_colortbl="{\\colortbl\\red0\\green0\\blue0"
+prefix_tail="\x0D\x0A\\par \\pard\\plain\\f0\\fs20\\b\\i\\u\\tab\\tx"

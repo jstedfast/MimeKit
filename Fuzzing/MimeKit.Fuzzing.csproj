@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Coverage-guided fuzzing harness for MimeKit (see FuzzingPlan.md and scripts/fuzz.ps1).
+
+    This project is intentionally not part of MimeKit.sln: build and publish it directly. The published
+    MimeKit.Core.dll is instrumented in place by sharpfuzz, so never reuse that output for anything else.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>MimeKit.Fuzzing</AssemblyName>
+    <RootNamespace>MimeKit.Fuzzing</RootNamespace>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\MimeKit\mimekit.snk</AssemblyOriginatorKeyFile>
+    <IsPackable>false</IsPackable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CA1822;IDE0017;IDE0063;IDE0090</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpFuzz" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
+  </ItemGroup>
+
+</Project>

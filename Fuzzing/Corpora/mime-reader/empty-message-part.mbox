@@ -1,0 +1,13 @@
+From a@example.com Mon Jan  1 00:00:00 2024
+From: a@example.com
+Content-Length: 6
+
+>From
+
+From b@example.com Mon Jan  1 00:00:01 2024
+Content-Type: multipart/mixed; boundary=x
+
+--x
+Content-Type: message/rfc822
+
+--x--

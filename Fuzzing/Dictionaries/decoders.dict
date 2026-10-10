@@ -1,0 +1,23 @@
+# libFuzzer dictionary for the decoders target. The first input byte selects the decoder
+# (low 3 bits) and where the input is split into two chunks (high 5 bits).
+
+"=\x0D\x0A"
+"=\x0A"
+"=3D"
+"=0D=0A"
+"=="
+"="
+"\x0D\x0A"
+"begin 644 "
+"begin-base64 644 "
+"\x0Aend\x0A"
+"`\x0A"
+"M"
+"=ybegin line=128 size="
+"=ybegin part=1 line=128 size="
+"=ypart begin=1 end="
+"=yend size="
+" crc32="
+"=y"
+"=\x0D"
+"0123456789abcdef"

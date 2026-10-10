@@ -1,0 +1,4 @@
+Content-Type: multipart/mixed;
+ boundary="=-abc123"; charset*=utf-8''%E2%82%AC;
+ name*0*=utf-8''long%20;
+ name*1="file name.txt"
