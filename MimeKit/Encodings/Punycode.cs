@@ -27,6 +27,8 @@
 using System;
 using System.Globalization;
 
+using MimeKit.Utils;
+
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// A class for encoding and decoding international domain names.
@@ -67,6 +69,20 @@ namespace MimeKit.Encodings {
 			idn = idnMapping;
 		}
 
+		// Some Unicode characters (e.g. U+2009 THIN SPACE or U+FF20 FULLWIDTH COMMERCIAL AT) get mapped to
+		// ASCII whitespace or specials by IDNA, which would produce an unparsable domain.
+		static bool IsSafeDomain (string domain)
+		{
+			for (int i = 0; i < domain.Length; i++) {
+				char c = domain[i];
+
+				if (c >= 128 || (c != '.' && !((byte) c).IsAtom ()))
+					return false;
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Encode a Unicode domain name, converting it to an ASCII-safe representation.
 		/// </summary>
@@ -79,10 +95,14 @@ namespace MimeKit.Encodings {
 		public string Encode (string unicode)
 		{
 			try {
-				return idn.GetAscii (unicode);
+				var ascii = idn.GetAscii (unicode);
+
+				if (IsSafeDomain (ascii))
+					return ascii;
 			} catch {
-				return unicode;
 			}
+
+			return unicode;
 		}
 
 		/// <summary>
@@ -100,10 +120,14 @@ namespace MimeKit.Encodings {
 		public string Encode (string unicode, int index)
 		{
 			try {
-				return idn.GetAscii (unicode, index);
+				var ascii = idn.GetAscii (unicode, index);
+
+				if (IsSafeDomain (ascii))
+					return ascii;
 			} catch {
-				return unicode.Substring (index);
 			}
+
+			return unicode.Substring (index);
 		}
 
 		/// <summary>
@@ -124,10 +148,14 @@ namespace MimeKit.Encodings {
 		public string Encode (string unicode, int index, int count)
 		{
 			try {
-				return idn.GetAscii (unicode, index, count);
+				var ascii = idn.GetAscii (unicode, index, count);
+
+				if (IsSafeDomain (ascii))
+					return ascii;
 			} catch {
-				return unicode.Substring (index, count);
 			}
+
+			return unicode.Substring (index, count);
 		}
 
 		/// <summary>

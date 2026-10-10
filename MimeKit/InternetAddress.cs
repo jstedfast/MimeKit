@@ -484,6 +484,24 @@ namespace MimeKit {
 			return true;
 		}
 
+		// Decodes the display name found in a trailing comment (e.g. "user@example.com (Display Name)"). Tabs are
+		// converted into spaces for consistency with how display names in a phrase are handled by MimeUtils.Unquote().
+		static string DecodeCommentName (ParserOptions options, byte[] text, int startIndex, int length)
+		{
+			if (text.AsSpan (startIndex, length).IndexOf ((byte) '\t') == -1)
+				return Rfc2047.DecodePhrase (options, text, startIndex, length).Trim ();
+
+			var buffer = new byte[length];
+
+			for (int i = 0; i < length; i++) {
+				byte c = text[startIndex + i];
+
+				buffer[i] = c == (byte) '\t' ? (byte) ' ' : c;
+			}
+
+			return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+		}
+
 		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => ",>;"u8;
 
 		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, [NotNullWhen (true)] out string? addrspec, out int at)
@@ -795,7 +813,7 @@ namespace MimeKit {
 					// Note: this can't fail because it has already been skipped in TryParseLocalPart() above.
 					ParseUtils.SkipComment (text, ref index, endIndex);
 
-					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
+					name = DecodeCommentName (options, text, comment, (index - 1) - comment);
 
 					ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError);
 				} else {
@@ -850,8 +868,11 @@ namespace MimeKit {
 					length--;
 				}
 
+				// Note: unquote *before* decoding so that quotes and backslashes that were inside of encoded-words are preserved.
 				if (length > 0) {
-					name = Rfc2047.DecodePhrase (options, text, nameIndex, length, out codepage);
+					var unquoted = MimeUtils.Unquote (text, nameIndex, length, true);
+
+					name = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
 				} else {
 					name = string.Empty;
 				}
@@ -859,7 +880,7 @@ namespace MimeKit {
 				if (codepage == -1)
 					codepage = 65001;
 
-				return TryParseGroup (flags, options, text, startIndex, ref index, endIndex, groupDepth + 1, MimeUtils.Unquote (name, true), codepage, out address);
+				return TryParseGroup (flags, options, text, startIndex, ref index, endIndex, groupDepth + 1, name, codepage, out address);
 			}
 
 			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
@@ -893,7 +914,7 @@ namespace MimeKit {
 
 					comment++;
 
-					name = Rfc2047.DecodePhrase (options, text, comment, (index - 1) - comment).Trim ();
+					name = DecodeCommentName (options, text, comment, (index - 1) - comment);
 				} else {
 					name = string.Empty;
 				}

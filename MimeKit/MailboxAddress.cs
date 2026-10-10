@@ -475,6 +475,18 @@ namespace MimeKit {
 				lineLength += addrspec.Length + 1;
 				builder.Append (addrspec);
 				builder.Append ('>');
+			} else if (at < 0 && addrspec.Length > 0) {
+				// Note: A bare addr-spec without a domain is only parseable when ParserOptions.AllowAddressesWithoutDomain
+				// is enabled, but an angle-addr without a domain is always parseable, so wrap it in angle brackets.
+				if (!firstToken && (lineLength + addrspec.Length + 2) > options.MaxLineLength) {
+					builder.LineWrap (options);
+					lineLength = 1;
+				}
+
+				lineLength += addrspec.Length + 2;
+				builder.Append ('<');
+				builder.Append (addrspec);
+				builder.Append ('>');
 			} else {
 				if (!firstToken && (lineLength + addrspec.Length) > options.MaxLineLength) {
 					builder.LineWrap (options);

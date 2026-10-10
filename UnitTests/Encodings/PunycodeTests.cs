@@ -26,6 +26,7 @@
 
 using System.Globalization;
 
+using MimeKit;
 using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
@@ -113,6 +114,30 @@ namespace UnitTests.Encodings {
 			Assert.That (punycode.Encode (domain), Is.EqualTo (domain), "Encode(string)");
 			Assert.That (punycode.Encode (mailbox, 5), Is.EqualTo (domain), "Encode(string,int)");
 			Assert.That (punycode.Encode (wrapped, 6, domain.Length), Is.EqualTo (domain), "Encode(string,int,int)");
+		}
+
+		[TestCase ("uccvm\u2009cop.edu")]
+		[TestCase ("example\uFF20evil.com")]
+		[TestCase ("ex\uFF08ample\uFF09.com")]
+		public void TestEncodeDomainThatMapsToAsciiSpecialsFallsBackToOriginal (string domain)
+		{
+			var mailbox = "user@" + domain;
+			var wrapped = "(" + mailbox + ")";
+
+			Assert.That (punycode.Encode (domain), Is.EqualTo (domain), "Encode(string)");
+			Assert.That (punycode.Encode (mailbox, 5), Is.EqualTo (domain), "Encode(string,int)");
+			Assert.That (punycode.Encode (wrapped, 6, domain.Length), Is.EqualTo (domain), "Encode(string,int,int)");
+		}
+
+		[Test]
+		public void TestEncodeMailboxWithDomainThatMapsToAsciiSpace ()
+		{
+			var mailbox = new MailboxAddress ("Data", "EDI-L@UCCVM\u2009COP.EDU");
+			var encoded = mailbox.ToString (true);
+
+			Assert.That (encoded, Is.EqualTo ("Data <EDI-L@UCCVM\u2009COP.EDU>"));
+			Assert.That (MailboxAddress.TryParse (encoded, out var parsed), Is.True);
+			Assert.That (parsed.Address, Is.EqualTo (mailbox.Address));
 		}
 
 		[Test]

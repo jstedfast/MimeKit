@@ -519,12 +519,19 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   another reason to switch to the new `MimeParser`.
 * Fixed parameters with an empty value (e.g. `boundary=""`) to be serialized as a quoted empty string
   rather than `boundary=`, which MimeKit could not parse.
+* Fixed `MailboxAddress` to wrap an address without a domain in angle brackets when it is encoded
+  without a display name (e.g. `<user>` instead of `user`), so that the output can be parsed again
+  when `ParserOptions.AllowAddressesWithoutDomain` is `false`.
 * Fixed `Rfc2047.EncodeText ()` and `Rfc2047.EncodePhrase ()` (and so header encoding) to encode
   text that looks like an rfc2047 encoded-word (e.g. `=?utf-8?b?...?=`) instead of writing it as-is,
   which would cause it to be decoded into something else when parsed. This also applies to text that
   follows a `"` in a display name (encoded-words within quoted-strings are decoded in Loose mode).
 * Fixed `Rfc2047.EncodePhrase ()` so that a word that is too long for a single line is not given
   extra whitespace when it is split across lines (this affected display names in address headers).
+* Fixed the address parser to convert tabs into spaces in a display name that comes from a trailing
+  comment (e.g. `user@example.com (Display<TAB>Name)`), like it already did for other display names.
+* Fixed the address parser to preserve quotes and backslashes that appear inside an rfc2047
+  encoded-word in a group name (they were previously removed after the name was decoded).
 * Fixed rfc2047 Q-encoding (used for headers and for `ParameterEncodingMethod.Rfc2047` parameter
   values) to encode `\` as `=5C`, so that it isn't treated as a quoting character when the encoded
   value is inside a quoted-string.
@@ -532,11 +539,16 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   prevents the encoded-word that follows it from being decoded (e.g. `abc=? =?utf-8?q?caf=C3=A9?=`).
   Likewise, an unterminated encoded-word (e.g. `=?utf-8?q?foo bar =?utf-8?q?caf=C3=A9?=`) no longer
   swallows the next encoded-word's `?=` terminator.
+* Fixed `Punycode.Encode` (and therefore address/domain serialization) to no longer emit IDNA output
+  that contains ASCII whitespace or specials (e.g. U+2009 THIN SPACE maps to a space and U+FF20 maps
+  to `@`); the original domain is used instead, the same as when IDNA encoding fails.
 * Fixed `Parameter` encoding to fall back to UTF-8 for characters that the parameter's `Encoding`
   cannot represent, rather than silently replacing them with `?` (e.g. after parsing an rfc2047-encoded
   value that mixes charsets) or, for rfc2231 with an exception fallback, throwing.
 * Fixed `Parameter` encoding of an empty value when the parameter name is too long to fit on a line;
   the value was written as `name=` (which cannot be parsed) rather than `name=""`.
+* `GroupAddress` now encodes an empty group name as `""` (rfc5322 requires a display-name), which also
+  allows an unnamed group nested inside another group to be parsed again.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

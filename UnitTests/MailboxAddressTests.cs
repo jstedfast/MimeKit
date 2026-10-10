@@ -578,6 +578,20 @@ namespace UnitTests {
 			Assert.That (mailbox.Address, Is.EqualTo ("jeff"));
 		}
 
+		[TestCase ("jeff (Jeffrey\tStedfast)", "jeff")]
+		[TestCase ("jeff@xamarin.com (Jeffrey\tStedfast)", "jeff@xamarin.com")]
+		public void TestParseAddrspecWithCommentContainingTab (string text, string address)
+		{
+			var mailbox = MailboxAddress.Parse (text);
+
+			Assert.That (mailbox.Name, Is.EqualTo ("Jeffrey Stedfast"));
+			Assert.That (mailbox.Address, Is.EqualTo (address));
+
+			var list = InternetAddressList.Parse (text);
+
+			Assert.That (list.Mailboxes.First ().Name, Is.EqualTo ("Jeffrey Stedfast"));
+		}
+
 		[Test]
 		public void TestParseAddrspec ()
 		{
@@ -636,6 +650,29 @@ namespace UnitTests {
 			const string text = "Jeffrey Stedfast < jeff@xamarin.com>";
 
 			AssertParse (text);
+		}
+
+		[Test]
+		public void TestEncodeMailboxWithoutDomain ()
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.AllowAddressesWithoutDomain = false;
+
+			var mailbox = MailboxAddress.Parse (options, "<hammer>");
+
+			Assert.That (mailbox.Address, Is.EqualTo ("hammer"), "Address");
+
+			var encoded = mailbox.ToString (true);
+
+			Assert.That (encoded, Is.EqualTo ("<hammer>"), "Encoded");
+			Assert.That (mailbox.ToString (), Is.EqualTo ("hammer"), "ToString");
+
+			// the encoded form must be parseable even when addresses without a domain are not allowed
+			Assert.That (MailboxAddress.TryParse (options, encoded, out var reparsed), Is.True, "TryParse");
+			Assert.That (reparsed.Address, Is.EqualTo ("hammer"), "Reparsed");
+
+			// addresses with a domain are still encoded as a bare addr-spec
+			Assert.That (new MailboxAddress (string.Empty, "hammer@example.com").ToString (true), Is.EqualTo ("hammer@example.com"));
 		}
 
 		[Test]
@@ -852,9 +889,9 @@ namespace UnitTests {
 		[Test]
 		public void TestInternationalRoutedMailbox ()
 		{
-			const string expectedIdn = "User Name <@route,@xn--@-216a8b89fj88ctw7c.xn--lhr59c:user@domain.com>";
-			const string expected = "User Name <@route,@伊昭傑@郵件.商務:user@domain.com>";
-			var route = new[] { "route", "伊昭傑@郵件.商務" };
+			const string expectedIdn = "User Name <@route,@xn--qoq00bf88b.xn--5nqv22n.xn--lhr59c:user@domain.com>";
+			const string expected = "User Name <@route,@伊昭傑.郵件.商務:user@domain.com>";
+			var route = new[] { "route", "伊昭傑.郵件.商務" };
 			var mailbox = new MailboxAddress ("User Name", route, "user@domain.com");
 			var options = FormatOptions.Default.Clone ();
 

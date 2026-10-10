@@ -292,7 +292,7 @@ namespace UnitTests {
 
 			text = "fejj";
 			mailbox.Address = "fejj";
-			AssertParseAndTryParse (text, text, expected);
+			AssertParseAndTryParse (text, "<fejj>", expected);
 		}
 
 		[Test]
@@ -419,7 +419,7 @@ namespace UnitTests {
 		public void TestLocalGroupWithoutSemicolon ()
 		{
 			const string text = "Local recipients: phil, joe, alex, bob";
-			const string encoded = "Local recipients: phil, joe, alex, bob;";
+			const string encoded = "Local recipients: <phil>, <joe>, <alex>, <bob>;";
 			var expected = new InternetAddressList {
 				new GroupAddress ("Local recipients", new InternetAddress[] {
 					new MailboxAddress ("", "phil"),
@@ -1198,7 +1198,7 @@ namespace UnitTests {
 			// Another approach would be to treat the first addr-spec as if it were a group name:
 			// e.g.: "user@spoofed-domain.com": user@legit-domain.com;
 			const string suspicious = "user@spoofed-domain.com: user@legit-domain.com;";
-			const string encoded = "user@spoofed-domain.com, : user@legit-domain.com;";
+			const string encoded = "user@spoofed-domain.com, \"\": user@legit-domain.com;";
 
 			var options = new ParserOptions { AddressParserComplianceMode = compliance };
 			var expected = new InternetAddressList {
@@ -1229,7 +1229,7 @@ namespace UnitTests {
 			// Another approach would be to treat the first addr-spec as if it were a group name:
 			// e.g.: "<user@spoofed-domain.com>": <user@legit-domain.com>;
 			const string suspicious = "<user@spoofed-domain.com>: <user@legit-domain.com>;";
-			const string encoded = "user@spoofed-domain.com, : user@legit-domain.com;";
+			const string encoded = "user@spoofed-domain.com, \"\": user@legit-domain.com;";
 
 			var options = new ParserOptions { AddressParserComplianceMode = compliance };
 			var expected = new InternetAddressList {

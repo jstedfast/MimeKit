@@ -169,6 +169,12 @@ namespace MimeKit {
 					lineLength += name.Length;
 					builder.Append (name);
 				}
+			} else {
+				// rfc5322 requires a display-name for a group, so use an empty quoted-string. This also ensures that an
+				// unnamed group nested within another group can be parsed again (the parser skips extraneous ':'s
+				// after a group name).
+				builder.Append ("\"\"");
+				lineLength += 2;
 			}
 
 			builder.Append (": ");
