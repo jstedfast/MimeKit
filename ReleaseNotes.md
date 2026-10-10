@@ -582,6 +582,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Fixed rfc2047 encoding of phrases and unstructured text (including address and group names that
   remember the charset they were decoded from) to fall back to UTF-8 for characters the charset cannot
   represent, rather than silently replacing them with `?`.
+* `Parameter` values that contain a literal `=?` sequence are now encoded rather than written as a plain
+  quoted-string, so that they are not mistaken for rfc2047 encoded-words when parsed again.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

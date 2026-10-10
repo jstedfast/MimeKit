@@ -358,6 +358,11 @@ namespace MimeKit {
 					if (c.IsCtrl ())
 						return encode;
 
+					// Note: Text that looks like the start of an rfc2047 encoded-word must be encoded, otherwise the
+					// parser would decode it when it parses the (quoted) value.
+					if (c == '?' && i > 0 && value[i - 1] == '=')
+						return encode;
+
 					if (!c.IsAttr ())
 						method = EncodeMethod.Quote;
 				} else if (options.International) {
@@ -386,6 +391,11 @@ namespace MimeKit {
 					var c = (byte) value[i];
 
 					if (c.IsCtrl ())
+						return EncodeMethod.Rfc2231;
+
+					// Note: If the value ends up being written as a single quoted-string, the parser would decode text
+					// that looks like an rfc2047 encoded-word, so the value needs to be encoded.
+					if (c == '?' && i > startIndex && value[i - 1] == '=')
 						return EncodeMethod.Rfc2231;
 
 					if (!c.IsAttr ())

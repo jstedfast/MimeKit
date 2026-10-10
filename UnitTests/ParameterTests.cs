@@ -154,6 +154,38 @@ namespace UnitTests {
 			Assert.That (contentType.Parameters[name], Is.EqualTo (string.Empty));
 		}
 
+		[TestCase (ParameterEncodingMethod.Default, "X-ingF=?iso-8859-1?q?QJg-V2?=.2")]
+		[TestCase (ParameterEncodingMethod.Rfc2231, "X-ingF=?iso-8859-1?q?QJg-V2?=.2")]
+		[TestCase (ParameterEncodingMethod.Rfc2047, "X-ingF=?iso-8859-1?q?QJg-V2?=.2")]
+		[TestCase (ParameterEncodingMethod.Default, "=?utf-8?q?caf=C3=A9?=")]
+		[TestCase (ParameterEncodingMethod.Rfc2231, "start-info=\"=?utf-8?q?caf=C3=A9?=\"")]
+		[TestCase (ParameterEncodingMethod.Rfc2047, "=?utf-8?q?caf=C3=A9?= au lait")]
+		public void TestEncodeValueThatLooksLikeEncodedWord (ParameterEncodingMethod method, string value)
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Type: text/plain");
+			var param = new Parameter ("name", value) { EncodingMethod = method };
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Does.Not.Contain (value), "Encoded");
+
+			foreach (var mode in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose }) {
+				var parserOptions = ParserOptions.Default.Clone ();
+				parserOptions.ParameterComplianceMode = mode;
+				parserOptions.Rfc2047ComplianceMode = mode;
+
+				Assert.That (ContentType.TryParse (parserOptions, encoded.Substring ("Content-Type:".Length), out var contentType), Is.True, $"TryParse ({mode})");
+				Assert.That (contentType.Parameters["name"], Is.EqualTo (value), $"Value ({mode})");
+			}
+		}
+
 		[Test]
 		public void TestEncodeAlwaysQuote ()
 		{
