@@ -517,6 +517,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `FormatOptions.EnsureNewLine` to `true` if the output must end with a newline (for example, when
   appending to an mbox file). `LegacyMimeParser` still has other re-serialization issues, which is
   another reason to switch to the new `MimeParser`.
+* Fixed parameters with an empty value (e.g. `boundary=""`) to be serialized as a quoted empty string
+  rather than `boundary=`, which MimeKit could not parse.
 * Fixed `Rfc2047.EncodeText ()` and `Rfc2047.EncodePhrase ()` (and so header encoding) to encode
   text that looks like an rfc2047 encoded-word (e.g. `=?utf-8?b?...?=`) instead of writing it as-is,
   which would cause it to be decoded into something else when parsed. This also applies to text that
@@ -530,6 +532,11 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   prevents the encoded-word that follows it from being decoded (e.g. `abc=? =?utf-8?q?caf=C3=A9?=`).
   Likewise, an unterminated encoded-word (e.g. `=?utf-8?q?foo bar =?utf-8?q?caf=C3=A9?=`) no longer
   swallows the next encoded-word's `?=` terminator.
+* Fixed `Parameter` encoding to fall back to UTF-8 for characters that the parameter's `Encoding`
+  cannot represent, rather than silently replacing them with `?` (e.g. after parsing an rfc2047-encoded
+  value that mixes charsets) or, for rfc2231 with an exception fallback, throwing.
+* Fixed `Parameter` encoding of an empty value when the parameter name is too long to fit on a line;
+  the value was written as `name=` (which cannot be parsed) rather than `name=""`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

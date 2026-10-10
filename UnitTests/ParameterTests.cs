@@ -107,6 +107,54 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeEmptyValue ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Type: multipart/mixed");
+			var param = new Parameter ("boundary", string.Empty);
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Is.EqualTo ("Content-Type: multipart/mixed; boundary=\"\""));
+
+			var contentType = ContentType.Parse (encoded.Substring ("Content-Type:".Length));
+
+			Assert.That (contentType.Parameters["boundary"], Is.EqualTo (string.Empty));
+		}
+
+		[TestCase (ParameterEncodingMethod.Default)]
+		[TestCase (ParameterEncodingMethod.Rfc2231)]
+		[TestCase (ParameterEncodingMethod.Rfc2047)]
+		public void TestEncodeEmptyValueWithLongParameterName (ParameterEncodingMethod method)
+		{
+			var name = "boundary" + new string ('x', 80);
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Type: multipart/mixed");
+			var param = new Parameter (name, string.Empty) { EncodingMethod = method };
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			options.AlwaysQuoteParameterValues = false;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Is.EqualTo ("Content-Type: multipart/mixed;\r\n\t" + name + "=\"\""));
+
+			Assert.That (ContentType.TryParse (encoded.Substring ("Content-Type:".Length), out var contentType), Is.True, "TryParse");
+			Assert.That (contentType.Parameters[name], Is.EqualTo (string.Empty));
+		}
+
+		[Test]
 		public void TestEncodeAlwaysQuote ()
 		{
 			var builder = new ValueStringBuilder (256);
@@ -200,6 +248,26 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeRfc2047WithBackslash ()
+		{
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter ("filename", "dir\\fichier-é.txt");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = ParameterEncodingMethod.Rfc2047;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Does.Not.Contain ("\\"));
+			Assert.That (encoded, Does.Contain ("=5C"));
+			Assert.That (ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length)).FileName, Is.EqualTo ("dir\\fichier-é.txt"));
+		}
+
+		[Test]
 		public void TestEncodeRfc2047WithEncoderExceptionFallback ()
 		{
 			var encoding = Encoding.GetEncoding ("us-ascii", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
@@ -217,6 +285,49 @@ namespace UnitTests {
 
 			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?c25vd21hbi3imIMu?=\r\n\t=?us-ascii?q?txt?=\""));
 			Assert.That (ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length)).FileName, Is.EqualTo ("snowman-☃.txt"));
+		}
+
+		[TestCase (ParameterEncodingMethod.Rfc2231, true)]
+		[TestCase (ParameterEncodingMethod.Rfc2231, false)]
+		[TestCase (ParameterEncodingMethod.Rfc2047, true)]
+		[TestCase (ParameterEncodingMethod.Rfc2047, false)]
+		public void TestEncodeCharactersNotRepresentableInParameterEncoding (ParameterEncodingMethod method, bool exceptionFallback)
+		{
+			var encoding = exceptionFallback
+				? Encoding.GetEncoding ("iso-8859-1", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback)
+				: Encoding.GetEncoding ("iso-8859-1");
+			var builder = new ValueStringBuilder (256);
+			builder.Append ("Content-Disposition: attachment");
+			var param = new Parameter (encoding, "filename", "café-☃.txt");
+			var options = FormatOptions.Default.Clone ();
+			int lineLength = builder.Length;
+
+			param.EncodingMethod = method;
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
+			var encoded = builder.ToString ();
+
+			if (method == ParameterEncodingMethod.Rfc2231)
+				Assert.That (encoded, Does.Contain ("filename*=utf-8''"));
+			else
+				Assert.That (encoded, Does.Contain ("=?utf-8?"));
+			Assert.That (encoded, Does.Not.Contain ("=3F").And.Not.Contain ("%3F"));
+			Assert.That (ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length)).FileName, Is.EqualTo ("café-☃.txt"));
+		}
+
+		[Test]
+		public void TestReencodeMixedCharsetRfc2047Value ()
+		{
+			const string value = " attachment; filename=\"=?iso-8859-1?q?caf=E9_au_lait?= =?iso-8859-1?q?_et_cr=E8me?= =?utf-8?b?4piD?=.txt\"";
+			var disposition = ContentDisposition.Parse (value);
+
+			Assert.That (disposition.FileName, Is.EqualTo ("café au lait et crème☃.txt"));
+
+			var encoded = disposition.ToString (FormatOptions.Default, Encoding.UTF8, true);
+			var reparsed = ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length));
+
+			Assert.That (reparsed.FileName, Is.EqualTo ("café au lait et crème☃.txt"));
 		}
 
 		[Test]

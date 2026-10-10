@@ -341,6 +341,13 @@ namespace MimeKit {
 
 			quoted = null;
 
+			// Note: A token must contain at least one character, so an empty value must be quoted. There is nothing to
+			// encode or split across lines, so this applies no matter how long the parameter name is.
+			if (value.Length == 0) {
+				quoted = "\"\"";
+				return EncodeMethod.Quote;
+			}
+
 			if (name.Length + 1 + value.Length >= options.MaxLineLength)
 				return encode;
 
@@ -433,6 +440,23 @@ namespace MimeKit {
 			case 0: return Encoding.ASCII;
 			case 1: return Encoding.GetEncoding (28591); // iso-8859-1
 			default: return defaultEncoding;
+			}
+		}
+
+		static bool CanEncode (Encoding encoding, string value)
+		{
+			switch (encoding.CodePage) {
+			case 1200: case 1201: case 12000: case 12001: case 65001:
+				return true;
+			}
+
+			try {
+				var clone = (Encoding) encoding.Clone ();
+				clone.EncoderFallback = EncoderFallback.ExceptionFallback;
+				clone.GetByteCount (value);
+				return true;
+			} catch (EncoderFallbackException) {
+				return false;
 			}
 		}
 
@@ -538,6 +562,12 @@ namespace MimeKit {
 		{
 			// Note: Arguably, this should be: bestEncoding = encoding ?? GetBestEncoding (Value, headerEncoding);
 			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
+
+			// rfc2231 only allows a single charset for the entire value, so fall back to UTF-8 if the
+			// charset cannot represent every character rather than silently replacing them with '?'.
+			if (!CanEncode (bestEncoding, Value))
+				bestEncoding = CharsetUtils.UTF8;
+
 			int maxLength = Math.Max (options.MaxLineLength - (Name.Length + 6), 3);
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var bytes = new byte[Math.Max (maxLength, 6)];
@@ -676,6 +706,14 @@ namespace MimeKit {
 		{
 			// Note: Arguably, this should be: bestEncoding = encoding ?? GetBestEncoding (Value, headerEncoding);
 			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
+
+			// If the charset cannot represent every character, make it throw so that each encoded-word
+			// that needs it falls back to UTF-8 rather than silently replacing characters with '?'.
+			if (!CanEncode (bestEncoding, Value)) {
+				bestEncoding = (Encoding) bestEncoding.Clone ();
+				bestEncoding.EncoderFallback = EncoderFallback.ExceptionFallback;
+			}
+
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = bestEncoding.GetEncoder ();
 			int index = 0;
