@@ -441,6 +441,33 @@ namespace UnitTests.Utils {
 			Assert.That (parsed.Name, Is.EqualTo (text), "Name");
 		}
 
+		[TestCase ("Hiller\u00f8 W\u200Bu")]
+		[TestCase ("Hiller\u00f8 \u65e5\u672c\u8a9e")]
+		[TestCase ("\U0001F600 Hiller\u00f8")]
+		public void TestEncodeCharactersNotRepresentableInCharset (string text)
+		{
+			var latin1 = Encoding.GetEncoding (28591);
+			var options = ParserOptions.Default.Clone ();
+
+			foreach (var phrase in new[] { true, false }) {
+				var encoded = phrase ? Rfc2047.EncodePhrase (latin1, text) : Rfc2047.EncodeText (latin1, text);
+				var decoded = phrase ? Rfc2047.DecodePhrase (encoded) : Rfc2047.DecodeText (encoded);
+
+				Assert.That (decoded, Is.EqualTo (text), $"Decoded (phrase = {phrase})");
+			}
+
+			// Note: An address name decoded from an iso-8859-1 encoded-word remembers that charset and uses it when re-encoding.
+			var mailbox = new MailboxAddress (latin1, text, "user@example.com");
+
+			Assert.That (MailboxAddress.TryParse (options, mailbox.ToString (true), out var parsed), Is.True, "TryParse");
+			Assert.That (parsed.Name, Is.EqualTo (text), "Name");
+
+			var group = new GroupAddress (latin1, text, new InternetAddress[] { parsed });
+
+			Assert.That (GroupAddress.TryParse (options, group.ToString (true), out var parsedGroup), Is.True, "TryParse group");
+			Assert.That (parsedGroup.Name, Is.EqualTo (text), "Group name");
+		}
+
 		[Test]
 		public void TestEncodePhraseLongQuotedWord ()
 		{

@@ -579,6 +579,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   the value was written as `name=` (which cannot be parsed) rather than `name=""`.
 * `GroupAddress` now encodes an empty group name as `""` (rfc5322 requires a display-name), which also
   allows an unnamed group nested inside another group to be parsed again.
+* Fixed rfc2047 encoding of phrases and unstructured text (including address and group names that
+  remember the charset they were decoded from) to fall back to UTF-8 for characters the charset cannot
+  represent, rather than silently replacing them with `?`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

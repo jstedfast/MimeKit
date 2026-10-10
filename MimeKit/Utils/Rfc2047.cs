@@ -1033,9 +1033,16 @@ namespace MimeKit.Utils {
 			}
 		}
 
-		static byte[] CharsetConvert (Encoding charset, char[] word, int length, out int converted)
+		static byte[] CharsetConvert (Encoding charset, char[] word, int length, bool strict, out int converted)
 		{
 			var encoder = charset.GetEncoder ();
+
+			// Note: The charset may not be able to represent every character (e.g. when re-encoding a value using the
+			// charset that it was originally decoded from), in which case the encoder's default fallback would silently
+			// replace those characters with '?'. Throw instead so that the caller can fall back to UTF-8.
+			if (strict)
+				encoder.Fallback = EncoderFallback.ExceptionFallback;
+
 			int count = encoder.GetByteCount (word, 0, length, true);
 			var encoded = new byte[count];
 
@@ -1079,10 +1086,10 @@ namespace MimeKit.Utils {
 			text.CopyTo (startIndex, chars, 0, length);
 
 			try {
-				word = CharsetConvert (charset, chars, length, out len);
+				word = CharsetConvert (charset, chars, length, true, out len);
 			} catch {
 				charset = Encoding.UTF8;
-				word = CharsetConvert (charset, chars, length, out len);
+				word = CharsetConvert (charset, chars, length, false, out len);
 			}
 
 			if (CharsetRequiresBase64 (charset) || GetBestContentEncoding (word, 0, len) == ContentEncoding.Base64) {
