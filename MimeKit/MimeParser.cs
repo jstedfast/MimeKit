@@ -843,7 +843,9 @@ namespace MimeKit {
 		protected virtual void OnMimePartContentEnd (long beginOffset, int beginLineNumber, long endOffset, int lines, NewLineFormat? newLineFormat, CancellationToken cancellationToken)
 		{
 			if (endOffset <= beginOffset && !newLineFormat.HasValue) {
-				// Note: This is a hack that makes Multipart.WriteTo() work properly.
+				// Note: Leave the part's Content null when there is no body at all. This tells Multipart.WriteTo() that the part
+				// ends with its header block, whose new-line sequence doubles as the new-line sequence that precedes the next
+				// boundary marker (see MimeEntity.EndsWithDelimiterNewLine).
 				content?.Dispose ();
 				content = null;
 				return;
@@ -1494,6 +1496,14 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			var multipart = (Multipart) stack.Peek ();
+
+			// If the multipart was truncated (no end boundary), preserve any boundary marker that was not followed by a MIME part.
+			if (multipart.RawEndBoundary != null && multipart.RawEndBoundary.Length == 0)
+				multipart.RawTrailingBoundary = rawBoundary;
+
+			rawBoundary = null;
+
 			PopEntity ();
 			depth--;
 		}

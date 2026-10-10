@@ -509,6 +509,14 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `SqliteCertificateDatabase (string fileName, string password, SecureRandom random)` constructors to
   validate the `password` and `random` arguments before creating the database file. Previously, a `null`
   argument threw an `ArgumentNullException` but left an empty database file behind.
+* Fixed reserialization of truncated multiparts parsed by `MimeParser`. A boundary marker at the very
+  end of the stream that is not followed by a MIME part is no longer dropped, and the last part of a
+  multipart without an end boundary no longer gets an extra newline appended to it. This was the last
+  fix needed for messages parsed by `MimeParser` to reliably re-serialize byte-for-byte identical to the
+  original input, including truncated messages that do not end with a newline. Set
+  `FormatOptions.EnsureNewLine` to `true` if the output must end with a newline (for example, when
+  appending to an mbox file). `LegacyMimeParser` still has other re-serialization issues, which is
+  another reason to switch to the new `MimeParser`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

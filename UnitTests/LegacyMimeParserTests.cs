@@ -1360,8 +1360,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1379,8 +1379,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "\r\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 		}
 
@@ -1419,8 +1419,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1438,8 +1438,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "\r\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 		}
 
@@ -1718,8 +1718,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1735,8 +1735,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "\r\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 		}
 
@@ -1773,8 +1773,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1790,8 +1790,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				// FIXME: output is missing the last boundary (and the new-line that precedes it)
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "\r\n------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
 			}
 		}
 
@@ -2451,8 +2451,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2477,8 +2476,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2528,8 +2526,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2554,8 +2551,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -3996,8 +3992,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4028,8 +4023,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4095,8 +4089,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4127,8 +4120,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 

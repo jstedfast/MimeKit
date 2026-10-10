@@ -555,5 +555,30 @@ In-Reply-To: <xx.x@xxxxxxx.xxx>
 
 			Assert.That (anonymized, Is.EqualTo (expected), "Anonymized data does not match expected data.");
 		}
+
+		const string TruncatedMultipartMessage = "Subject: truncated\r\nContent-Type: multipart/mixed; boundary=\"outer\"\r\n\r\n--outer\r\nContent-Type: multipart/alternative; boundary=\"inner\"\r\n\r\n--inner\r\nContent-Type: text/plain\r\n\r\ninner\r\n--outer\r\nContent-Type: text/plain\r\n--outer\r\nContent-Type: message/rfc822\r\n\r\nSubject: embedded\r\nContent-Type: multipart/alternative; boundary=\"inner\"\r\n\r\n--inner\r\nContent-Type: text/plain\r\n\r\nlast";
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestAnonymizeTruncatedMultipart (bool ensureNewLine)
+		{
+			const string anonymizedMessage = "Subject: xxxxxxxxx\r\nContent-Type: multipart/mixed; boundary=\"outer\"\r\n\r\n--outer\r\nContent-Type: multipart/alternative; boundary=\"inner\"\r\n\r\n--inner\r\nContent-Type: text/plain\r\n\r\nxxxxx\r\n--outer\r\nContent-Type: text/plain\r\n--outer\r\nContent-Type: message/rfc822\r\n\r\nSubject: xxxxxxxx\r\nContent-Type: multipart/alternative; boundary=\"inner\"\r\n\r\n--inner\r\nContent-Type: text/plain\r\n\r\nxxxx";
+			var expected = ensureNewLine ? anonymizedMessage + "\r\n" : anonymizedMessage;
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			options.EnsureNewLine = ensureNewLine;
+
+			using var message = MimeMessage.Load (new MemoryStream (Encoding.ASCII.GetBytes (TruncatedMultipartMessage), false));
+			var anonymizer = new MimeAnonymizer ();
+			string anonymized;
+
+			using (var memory = new MemoryStream ()) {
+				anonymizer.Anonymize (options, message, memory);
+
+				anonymized = Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length);
+			}
+
+			Assert.That (anonymized, Is.EqualTo (expected), "Anonymized data does not match expected data.");
+		}
 	}
 }

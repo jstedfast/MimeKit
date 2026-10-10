@@ -49,7 +49,7 @@ namespace UnitTests {
 			UnixFormatOptions.NewLineFormat = NewLineFormat.Unix;
 		}
 
-		static void AssertSerialization (MimeMessage message, NewLineFormat format, string expected)
+		static void AssertSerialization (MimeMessage message, NewLineFormat format, string expected, bool ensureNewLine = false)
 		{
 			if (expected.StartsWith ("From -", StringComparison.Ordinal)) {
 				int eoln = expected.IndexOf ('\n');
@@ -58,6 +58,7 @@ namespace UnitTests {
 
 			using (var memory = new MemoryStream ()) {
 				var options = FormatOptions.Default.Clone ();
+				options.EnsureNewLine = ensureNewLine;
 				options.NewLineFormat = format;
 
 				message.WriteTo (options, memory);
@@ -67,7 +68,7 @@ namespace UnitTests {
 			}
 		}
 
-		static async Task AssertSerializationAsync (MimeMessage message, NewLineFormat format, string expected)
+		static async Task AssertSerializationAsync (MimeMessage message, NewLineFormat format, string expected, bool ensureNewLine = false)
 		{
 			if (expected.StartsWith ("From -", StringComparison.Ordinal)) {
 				int eoln = expected.IndexOf ('\n');
@@ -76,6 +77,7 @@ namespace UnitTests {
 
 			using (var memory = new MemoryStream ()) {
 				var options = FormatOptions.Default.Clone ();
+				options.EnsureNewLine = ensureNewLine;
 				options.NewLineFormat = format;
 
 				await message.WriteToAsync (options, memory);
@@ -1612,8 +1614,8 @@ Content-Type: multipart/mixed;
 				var multipart = (Multipart) message.Body;
 				Assert.That (multipart.Count, Is.EqualTo (0));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				AssertSerialization (message, NewLineFormat.Unix, text);
+				AssertSerialization (message, NewLineFormat.Unix, text + "\n", true);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1625,8 +1627,8 @@ Content-Type: multipart/mixed;
 				var multipart = (Multipart) message.Body;
 				Assert.That (multipart.Count, Is.EqualTo (0));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				AssertSerialization (message, NewLineFormat.Dos, text);
+				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n", true);
 			}
 		}
 
@@ -1654,8 +1656,8 @@ Content-Type: multipart/mixed;
 				var multipart = (Multipart) message.Body;
 				Assert.That (multipart.Count, Is.EqualTo (0));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n", true);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1667,8 +1669,8 @@ Content-Type: multipart/mixed;
 				var multipart = (Multipart) message.Body;
 				Assert.That (multipart.Count, Is.EqualTo (0));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n", true);
 			}
 		}
 
@@ -1707,8 +1709,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				AssertSerialization (message, NewLineFormat.Unix, text);
+				AssertSerialization (message, NewLineFormat.Unix, text + "\n", true);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1726,8 +1728,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				AssertSerialization (message, NewLineFormat.Dos, text);
+				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n", true);
 			}
 		}
 
@@ -1766,8 +1768,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n", true);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -1785,8 +1787,8 @@ This is the message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n", true);
 			}
 		}
 
@@ -2057,8 +2059,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				AssertSerialization (message, NewLineFormat.Unix, text);
+				AssertSerialization (message, NewLineFormat.Unix, text + "\n", true);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2074,8 +2076,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				AssertSerialization (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				AssertSerialization (message, NewLineFormat.Dos, text);
+				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n", true);
 			}
 		}
 
@@ -2112,8 +2114,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n", true);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2129,8 +2131,8 @@ This is the message body.
 
 				Assert.That (body.Text, Is.EqualTo ("This is the message body." + Environment.NewLine));
 
-				// FIXME: output is missing last boundary
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text.Substring (0, text.Length - "------=_NextPart_000_003F_01CE98CE.6E826F90".Length));
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n", true);
 			}
 		}
 
@@ -2728,6 +2730,170 @@ Content-Type: text/plain; charset=utf-8
 			}
 		}
 
+		const string DelimiterNewLineHeaders = "From: mimekit@example.com\nTo: mimekit@example.com\nSubject: delimiter new-line test\nMIME-Version: 1.0\n";
+
+		static readonly string[] DelimiterNewLineMessages = {
+			// a nested multipart that is truncated by the outer boundary
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: multipart/alternative; boundary=\"inner\"\n\n--inner\nContent-Type: text/plain\n\ninner\n--outer\nContent-Type: text/plain\n\nlast\n--outer--\n",
+			// a nested multipart that is truncated by the outer boundary and whose last child has no body
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: multipart/alternative; boundary=\"inner\"\n\n--inner\nContent-Type: text/plain\n--outer\nContent-Type: text/plain\n\nlast\n--outer--\n",
+			// a nested multipart that is truncated by the outer boundary right after a boundary marker
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: multipart/alternative; boundary=\"inner\"\n\n--inner\nContent-Type: text/plain\n\ninner\n--inner\n--outer\nContent-Type: text/plain\n\nlast\n--outer--\n",
+			// a nested multipart with only a preamble that is truncated by the outer boundary
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: multipart/alternative; boundary=\"inner\"\n\npreamble\n--outer\nContent-Type: text/plain\n\nlast\n--outer--\n",
+			// a nested multipart with neither a preamble nor any children that is truncated by the outer boundary
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: multipart/alternative; boundary=\"inner\"\n--outer\nContent-Type: text/plain\n\nlast\n--outer--\n",
+			// a nested message/rfc822 whose multipart body is truncated by the outer boundary
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: message/rfc822\n\nSubject: embedded\nContent-Type: multipart/alternative; boundary=\"inner\"\n\n--inner\nContent-Type: text/plain\n\ninner\n--outer--\n",
+			// children without a body (with and without a blank line after the headers)
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n--b\nContent-Type: text/plain\n\n--b\nContent-Type: message/rfc822\n\n--b--\n",
+			// a double boundary
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\n--b\nContent-Type: text/plain\n\nbody\n--b--\n",
+			// a multipart truncated by the end of the stream
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n\n",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody",
+			// a multipart truncated by the end of the stream right after a boundary marker
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b\n",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b",
+			// a multipart truncated by the end of the stream whose last child has no body
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b\nContent-Type: text/plain\n",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b\nContent-Type: text/plain\n\n",
+			// a multipart truncated by the end of the stream with only a preamble
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\npreamble\n",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\npreamble",
+			// a close delimiter at the end of the stream (with and without an epilogue or a trailing new-line)
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b--",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b--\n\n",
+			"Content-Type: multipart/mixed; boundary=\"b\"\n\n--b\nContent-Type: text/plain\n\nbody\n--b--\nepilogue",
+			"Content-Type: multipart/mixed; boundary=\"outer\"\n\n--outer\nContent-Type: multipart/alternative; boundary=\"inner\"\n\n--inner\nContent-Type: text/plain\n\ninner\n--inner--\n--outer--",
+		};
+
+		static IEnumerable<TestCaseData> DelimiterNewLineTestCases ()
+		{
+			for (int i = 0; i < DelimiterNewLineMessages.Length; i++) {
+				yield return new TestCaseData (i, NewLineFormat.Unix);
+				yield return new TestCaseData (i, NewLineFormat.Dos);
+			}
+		}
+
+		static string GetDelimiterNewLineMessage (int index, NewLineFormat format, out string ensured)
+		{
+			var newLine = format == NewLineFormat.Dos ? "\r\n" : "\n";
+			var text = (DelimiterNewLineHeaders + DelimiterNewLineMessages[index]).Replace ("\n", newLine);
+
+			ensured = text.EndsWith ("\n", StringComparison.Ordinal) ? text : text + newLine;
+
+			return text;
+		}
+
+		[TestCaseSource (nameof (DelimiterNewLineTestCases))]
+		public void TestDelimiterNewLineRoundTrip (int index, NewLineFormat format)
+		{
+			var text = GetDelimiterNewLineMessage (index, format, out var ensured);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				AssertSerialization (message, format, text);
+				AssertSerialization (message, format, ensured, true);
+
+				// make sure that EnsureNewLine did not leave any state behind
+				AssertSerialization (message, format, text);
+			}
+		}
+
+		[TestCaseSource (nameof (DelimiterNewLineTestCases))]
+		public async Task TestDelimiterNewLineRoundTripAsync (int index, NewLineFormat format)
+		{
+			var text = GetDelimiterNewLineMessage (index, format, out var ensured);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				await AssertSerializationAsync (message, format, text);
+				await AssertSerializationAsync (message, format, ensured, true);
+
+				// make sure that EnsureNewLine did not leave any state behind
+				await AssertSerializationAsync (message, format, text);
+			}
+		}
+
+		static readonly string MultipartWithoutEndBoundaryOrTrailingNewLine = @"From: mimekit@example.com
+To: mimekit@example.com
+Subject: test of a truncated multipart w/o a trailing newline
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=""outer""
+
+--outer
+Content-Type: text/plain
+
+This is the first part.
+
+--outer
+Content-Type: message/rfc822
+
+From: mimekit@example.com
+Subject: embedded
+Content-Type: multipart/alternative; boundary=""inner""
+
+--inner
+Content-Type: text/plain
+
+This is the last part.".Replace ("\r\n", "\n");
+
+		[TestCase (NewLineFormat.Unix)]
+		[TestCase (NewLineFormat.Dos)]
+		public void TestMultipartWithoutEndBoundaryOrTrailingNewLine (NewLineFormat format)
+		{
+			var newLine = format == NewLineFormat.Dos ? "\r\n" : "\n";
+			var text = MultipartWithoutEndBoundaryOrTrailingNewLine.Replace ("\n", newLine);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
+
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (2));
+
+				var rfc822 = (MessagePart) multipart[1];
+				var alternative = (Multipart) rfc822.Message.Body;
+				Assert.That (alternative.Count, Is.EqualTo (1));
+				Assert.That (((TextPart) alternative[0]).Text, Is.EqualTo ("This is the last part."));
+
+				// Note: the output should match the input exactly unless FormatOptions.EnsureNewLine is set.
+				AssertSerialization (message, format, text);
+				AssertSerialization (message, format, text + newLine, true);
+			}
+		}
+
+		[TestCase (NewLineFormat.Unix)]
+		[TestCase (NewLineFormat.Dos)]
+		public async Task TestMultipartWithoutEndBoundaryOrTrailingNewLineAsync (NewLineFormat format)
+		{
+			var newLine = format == NewLineFormat.Dos ? "\r\n" : "\n";
+			var text = MultipartWithoutEndBoundaryOrTrailingNewLine.Replace ("\n", newLine);
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var parser = new MimeParser (stream, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
+
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (2));
+
+				var rfc822 = (MessagePart) multipart[1];
+				var alternative = (Multipart) rfc822.Message.Body;
+				Assert.That (alternative.Count, Is.EqualTo (1));
+				Assert.That (((TextPart) alternative[0]).Text, Is.EqualTo ("This is the last part."));
+
+				// Note: the output should match the input exactly unless FormatOptions.EnsureNewLine is set.
+				await AssertSerializationAsync (message, format, text);
+				await AssertSerializationAsync (message, format, text + newLine, true);
+			}
+		}
+
 		[Test]
 		public void TestMultipartWithoutEndBoundary ()
 		{
@@ -2774,8 +2940,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2800,8 +2965,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -2851,8 +3015,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -2877,8 +3040,7 @@ This is the second part.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the second part." + Environment.NewLine));
 
-				// FIXME: output includes an extra newline at the end
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4474,8 +4636,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: This is adding an extra newline to the end of the message
-				AssertSerialization (message, NewLineFormat.Unix, text + "\n");
+				AssertSerialization (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4506,8 +4667,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: This is adding an extra newline to the end of the message
-				AssertSerialization (message, NewLineFormat.Dos, text + "\r\n");
+				AssertSerialization (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -4573,8 +4733,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: This is adding an extra newline to the end of the message
-				await AssertSerializationAsync (message, NewLineFormat.Unix, text + "\n");
+				await AssertSerializationAsync (message, NewLineFormat.Unix, text);
 			}
 
 			text = text.Replace ("\n", "\r\n");
@@ -4605,8 +4764,7 @@ This is the embedded message body.
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"));
 				Assert.That (body.Text, Is.EqualTo ("This is the embedded message body." + Environment.NewLine));
 
-				// FIXME: This is adding an extra newline to the end of the message
-				await AssertSerializationAsync (message, NewLineFormat.Dos, text + "\r\n");
+				await AssertSerializationAsync (message, NewLineFormat.Dos, text);
 			}
 		}
 
@@ -6049,6 +6207,122 @@ This is the message body.
 			}
 		}
 
+		static IEnumerable<string> RoundTripMessageFiles ()
+		{
+			var dataDir = Path.Combine (TestHelper.ProjectDir, "TestData");
+			var sources = new (string Directory, string Pattern)[] {
+				("messages", "*.eml"),
+				("messages", "*.txt"),
+				("compliance", "*.eml"),
+				("partial", "*.eml"),
+				("openpgp", "*.eml"),
+				("dkim", "*.msg"),
+				("smime", "*-signed.txt"),
+			};
+
+			foreach (var source in sources) {
+				var files = Directory.GetFiles (Path.Combine (dataDir, source.Directory), source.Pattern);
+
+				Array.Sort (files, StringComparer.Ordinal);
+
+				foreach (var file in files)
+					yield return Path.Combine (source.Directory, Path.GetFileName (file));
+			}
+		}
+
+		static byte[] GetExpectedRoundTripOutput (string path, out MimeFormat format)
+		{
+			var expected = File.ReadAllBytes (path);
+
+			// Note: The parser skips over a leading UTF-8 BOM, so it will not be re-serialized.
+			if (expected.Length >= 3 && expected[0] == 0xEF && expected[1] == 0xBB && expected[2] == 0xBF)
+				expected = expected.AsSpan (3).ToArray ();
+
+			// Note: Files that start with an mbox "From " marker need to be parsed as mbox in order to preserve the marker.
+			if (expected.Length >= 5 && expected[0] == (byte) 'F' && expected[1] == (byte) 'r' && expected[2] == (byte) 'o' && expected[3] == (byte) 'm' && expected[4] == (byte) ' ')
+				format = MimeFormat.Mbox;
+			else
+				format = MimeFormat.Entity;
+
+			return expected;
+		}
+
+		static void AssertRoundTrip (string fileName, byte[] expected, MemoryStream output)
+		{
+			var actual = output.ToArray ();
+			int i;
+
+			for (i = 0; i < Math.Min (expected.Length, actual.Length); i++) {
+				if (actual[i] != expected[i])
+					break;
+			}
+
+			if (i == expected.Length && i == actual.Length)
+				return;
+
+			var start = Math.Max (0, i - 64);
+			var strExpected = CharsetUtils.Latin1.GetString (expected, start, Math.Min (128, expected.Length - start));
+			var strActual = CharsetUtils.Latin1.GetString (actual, start, Math.Min (128, actual.Length - start));
+
+			Assert.That (strActual, Is.EqualTo (strExpected), $"The re-serialized output of {fileName} differs from the original at offset {i} (expected length {expected.Length}, actual length {actual.Length}).");
+		}
+
+		[TestCaseSource (nameof (RoundTripMessageFiles))]
+		public void TestRoundTripTestDataMessages (string fileName)
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", fileName);
+			var expected = GetExpectedRoundTripOutput (path, out var mimeFormat);
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = DetectNewLineFormat (path);
+
+			foreach (var persistent in new bool[] { false, true }) {
+				using var stream = new MemoryStream (expected, false);
+				var parser = new MimeParser (stream, mimeFormat, persistent);
+				using var output = new MemoryStream ();
+
+				using var message = parser.ParseMessage ();
+
+				if (mimeFormat == MimeFormat.Mbox) {
+					var marker = Encoding.UTF8.GetBytes (parser.MboxMarker + options.NewLine);
+					output.Write (marker, 0, marker.Length);
+				}
+
+				message.WriteTo (options, output);
+
+				Assert.That (parser.IsEndOfStream, Is.True, $"Expected {fileName} to contain only a single message.");
+				AssertRoundTrip ($"{fileName} (persistent={persistent})", expected, output);
+			}
+		}
+
+		[TestCaseSource (nameof (RoundTripMessageFiles))]
+		public async Task TestRoundTripTestDataMessagesAsync (string fileName)
+		{
+			var path = Path.Combine (TestHelper.ProjectDir, "TestData", fileName);
+			var expected = GetExpectedRoundTripOutput (path, out var mimeFormat);
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = DetectNewLineFormat (path);
+
+			foreach (var persistent in new bool[] { false, true }) {
+				using var stream = new MemoryStream (expected, false);
+				var parser = new MimeParser (stream, mimeFormat, persistent);
+				using var output = new MemoryStream ();
+
+				using var message = await parser.ParseMessageAsync ();
+
+				if (mimeFormat == MimeFormat.Mbox) {
+					var marker = Encoding.UTF8.GetBytes (parser.MboxMarker + options.NewLine);
+					await output.WriteAsync (marker, 0, marker.Length);
+				}
+
+				await message.WriteToAsync (options, output);
+
+				Assert.That (parser.IsEndOfStream, Is.True, $"Expected {fileName} to contain only a single message.");
+				AssertRoundTrip ($"{fileName} (persistent={persistent})", expected, output);
+			}
+		}
+
 		static void AssertMboxResults (string baseName, string actual, Stream output, List<MimeOffsets> offsets, NewLineFormat newLineFormat)
 		{
 			// WORKAROUND: Mono's iso-2022-jp decoder breaks on this input in versions <= 3.2.3 but is fixed in 3.2.4+
@@ -6072,7 +6346,7 @@ This is the message body.
 
 				output.Position = 0;
 
-				//Assert.That (output.Length, Is.EqualTo (original.Length), "The length of the mbox did not match.");
+				Assert.That (output.Length, Is.EqualTo (original.Length), "The length of the mbox did not match.");
 
 				do {
 					nx = original.Read (expected, 0, expected.Length);

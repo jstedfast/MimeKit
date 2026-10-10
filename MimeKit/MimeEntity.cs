@@ -70,6 +70,15 @@ namespace MimeKit {
 		internal bool EnsureNewLine;
 		internal bool IsDisposed;
 
+		// Per rfc2046, the new-line sequence that precedes a multipart boundary marker belongs to the boundary marker and not
+		// to the content of the preceding entity, so the parser does not include it in the entity's content. The exceptions are
+		// entities that have no body (the new-line sequence that terminates the header block doubles as the new-line sequence
+		// that precedes the boundary marker) and truncated multiparts that end with their preamble (the preamble retains it).
+		// When this returns true, the parent multipart must not write another new-line sequence before the boundary marker.
+		internal virtual bool EndsWithDelimiterNewLine {
+			get { return false; }
+		}
+
 		ContentDisposition? disposition;
 		string? contentId;
 		Uri? location;

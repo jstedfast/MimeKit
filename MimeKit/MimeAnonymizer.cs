@@ -803,8 +803,15 @@ namespace MimeKit {
 			}
 
 			if (entity is MessagePart messagePart) {
-				if (messagePart.Message != null)
+				if (messagePart.Message != null) {
+					// Note: Only ensure that the embedded message ends with a new-line if this part is supposed to end with one.
+					if (options.EnsureNewLine != messagePart.EnsureNewLine) {
+						options = options.Clone ();
+						options.EnsureNewLine = messagePart.EnsureNewLine;
+					}
+
 					AnonymizeMessage (options, messagePart.Message, stream);
+				}
 			} else if (entity is Multipart multipart) {
 				var defaultBoundary = GenerateBoundaryMarker (multipart.Boundary ?? string.Empty, options.NewLineBytes);
 
@@ -812,30 +819,45 @@ namespace MimeKit {
 
 				for (int i = 0; i < multipart.Count; i++) {
 					var boundary = multipart.rawBoundaries?[i] ?? defaultBoundary;
-					var rfc822 = multipart[i] as MessagePart;
-					var multi = multipart[i] as Multipart;
-					var part = multipart[i] as MimePart;
+
+					if (i > 0 && !multipart[i - 1].EndsWithDelimiterNewLine)
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
 					stream.Write (boundary, 0, boundary.Length);
-					AnonymizeEntity (options, multipart[i], stream, false);
 
-					if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
-						multi = rfc822.Message.Body as Multipart;
-						part = rfc822.Message.Body as MimePart;
+					if (multipart.EnsureNewLine && multipart.IsLastChildOfTruncatedMultipart (i)) {
+						var child = multipart[i];
+						var ensureNewLine = child.EnsureNewLine;
+
+						try {
+							child.EnsureNewLine = true;
+							AnonymizeEntity (options, child, stream, false);
+						} finally {
+							child.EnsureNewLine = ensureNewLine;
+						}
+					} else {
+						AnonymizeEntity (options, multipart[i], stream, false);
 					}
-
-					if ((part != null && part.Content is null) ||
-						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
-						(multi != null && !multi.WriteEndBoundary))
-						continue;
-
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
-				if (multipart.RawEndBoundary != null) {
-					if (multipart.RawEndBoundary.Length == 0)
-						return;
+				if (multipart.IsTruncated) {
+					// The multipart was truncated, so there is no end boundary (or epilogue) to write.
+					if (multipart.RawTrailingBoundary != null) {
+						if (multipart.Count > 0 && !multipart[multipart.Count - 1].EndsWithDelimiterNewLine)
+							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
+						stream.Write (multipart.RawTrailingBoundary, 0, multipart.RawTrailingBoundary.Length);
+
+						if (multipart.EnsureNewLine && !Multipart.EndsWithNewLine (multipart.RawTrailingBoundary))
+							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
+					return;
+				}
+
+				if (multipart.Count > 0 && !multipart[multipart.Count - 1].EndsWithDelimiterNewLine)
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+				if (multipart.RawEndBoundary != null) {
 					stream.Write (multipart.RawEndBoundary, 0, multipart.RawEndBoundary.Length);
 				} else {
 					var boundary = GenerateEndBoundaryMarker (multipart.Boundary ?? string.Empty, multipart.RawEpilogue is null ? options.NewLineBytes : Array.Empty<byte> ());
@@ -843,7 +865,10 @@ namespace MimeKit {
 					stream.Write (boundary, 0, boundary.Length);
 				}
 
-				AnonymizeBytes (options, stream, multipart.RawEpilogue, multipart.EnsureNewLine);
+				if (multipart.RawEpilogue != null && multipart.RawEpilogue.Length > 0)
+					AnonymizeBytes (options, stream, multipart.RawEpilogue, multipart.EnsureNewLine);
+				else if (multipart.EnsureNewLine && (multipart.RawEndBoundary != null || multipart.RawEpilogue != null))
+					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 			} else if (entity is MessageDeliveryStatus mds && TryGetStatusGroups (mds, out var statusGroups)) {
 				for (int i = 0; i < statusGroups.Count; i++) {
 					var statusGroup = statusGroups[i];

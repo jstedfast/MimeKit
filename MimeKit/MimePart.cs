@@ -450,6 +450,10 @@ namespace MimeKit {
 			get; set;
 		}
 
+		internal override bool EndsWithDelimiterNewLine {
+			get { return Content is null; }
+		}
+
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
