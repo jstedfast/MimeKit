@@ -91,6 +91,11 @@ namespace MimeKit {
 		MimeBoundary? currentBoundary;
 		MimeBoundaryType boundaryType;
 
+		// Used by MimeParser to determine whether a multipart was terminated by the end of the stream.
+		internal bool IsBoundaryEndOfStream {
+			get { return boundaryType == MimeBoundaryType.Eos; }
+		}
+
 		ContentType? currentContentType;
 		int currentContentTypeLineNumber;
 		long currentContentTypeOffset;

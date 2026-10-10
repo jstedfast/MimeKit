@@ -281,6 +281,19 @@ namespace MimeKit {
 			get; set;
 		}
 
+		// A boundary marker that the parser read at the very end of the stream that was not followed by a MIME part.
+		// This is only written when RawEndBoundary is empty (i.e. the multipart was truncated).
+		internal byte[]? RawTrailingBoundary {
+			get; set;
+		}
+
+		// The child whose content extends all the way to the end of the stream (i.e. the multipart was truncated
+		// before the boundary that would normally follow it). The parser includes the trailing new-line sequence
+		// in the content in this case, so we must not write the new-line sequence that normally precedes a boundary.
+		internal MimeEntity? EndOfStreamChild {
+			get; set;
+		}
+
 		/// <summary>
 		/// Get or set the epilogue.
 		/// </summary>
@@ -342,6 +355,34 @@ namespace MimeKit {
 		/// <value><see langword="true" /> if the end boundary should be written; otherwise, <see langword="false" />.</value>
 		internal bool WriteEndBoundary {
 			get { return RawEndBoundary == null || RawEndBoundary.Length > 0; }
+		}
+
+		bool IsTruncated {
+			get { return RawEndBoundary != null && RawEndBoundary.Length == 0; }
+		}
+
+		// Check whether the new-line sequence that precedes the next boundary marker should be written after the specified child.
+		internal bool ShouldWriteNewLineAfter (int index)
+		{
+			var child = children[index];
+			var rfc822 = child as MessagePart;
+			var multi = child as Multipart;
+			var part = child as MimePart;
+
+			if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
+				multi = rfc822.Message.Body as Multipart;
+				part = rfc822.Message.Body as MimePart;
+			}
+
+			if ((part != null && part.Content is null) ||
+				(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
+				(multi != null && !multi.WriteEndBoundary))
+				return false;
+
+			if (IsTruncated && RawTrailingBoundary is null && index == children.Count - 1 && child == EndOfStreamChild)
+				return false;
+
+			return true;
 		}
 
 		/// <summary>
@@ -640,29 +681,21 @@ namespace MimeKit {
 
 			if (stream is ICancellableStream cancellable) {
 				for (int i = 0; i < children.Count; i++) {
-					var rfc822 = children[i] as MessagePart;
-					var multi = children[i] as Multipart;
-					var part = children[i] as MimePart;
-
 					WriteBoundary (cancellable, options, rawBoundaries?[i], defaultBoundary, cancellationToken);
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
-					if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
-						multi = rfc822.Message.Body as Multipart;
-						part = rfc822.Message.Body as MimePart;
-					}
-
-					if ((part != null && part.Content is null) ||
-						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
-						(multi != null && !multi.WriteEndBoundary))
-						continue;
-
-					cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+					if (ShouldWriteNewLineAfter (i))
+						cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
 				}
 
 				if (RawEndBoundary != null) {
-					if (RawEndBoundary.Length == 0)
+					if (RawEndBoundary.Length == 0) {
+						if (RawTrailingBoundary != null) {
+							WriteRawBoundary (cancellable, options, RawTrailingBoundary, cancellationToken);
+							cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+						}
 						return;
+					}
 
 					WriteRawBoundary (cancellable, options, RawEndBoundary, cancellationToken);
 				} else {
@@ -673,34 +706,27 @@ namespace MimeKit {
 				}
 			} else {
 				for (int i = 0; i < children.Count; i++) {
-					var rfc822 = children[i] as MessagePart;
-					var multi = children[i] as Multipart;
-					var part = children[i] as MimePart;
-
 					cancellationToken.ThrowIfCancellationRequested ();
 					WriteBoundary (stream, options, rawBoundaries?[i], defaultBoundary);
 
 					children[i].WriteTo (options, stream, false, cancellationToken);
 
-					if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
-						multi = rfc822.Message.Body as Multipart;
-						part = rfc822.Message.Body as MimePart;
+					if (ShouldWriteNewLineAfter (i)) {
+						cancellationToken.ThrowIfCancellationRequested ();
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
-
-					if ((part != null && part.Content is null) ||
-						(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
-						(multi != null && !multi.WriteEndBoundary))
-						continue;
-
-					cancellationToken.ThrowIfCancellationRequested ();
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 				}
 
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				if (RawEndBoundary != null) {
-					if (RawEndBoundary.Length == 0)
+					if (RawEndBoundary.Length == 0) {
+						if (RawTrailingBoundary != null) {
+							WriteRawBoundary (stream, options, RawTrailingBoundary);
+							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+						}
 						return;
+					}
 
 					WriteRawBoundary (stream, options, RawEndBoundary);
 				} else {
@@ -790,29 +816,21 @@ namespace MimeKit {
 			var defaultBoundary = Encoding.ASCII.GetBytes ("--" + Boundary + options.NewLine);
 
 			for (int i = 0; i < children.Count; i++) {
-				var rfc822 = children[i] as MessagePart;
-				var multi = children[i] as Multipart;
-				var part = children[i] as MimePart;
-
 				await WriteBoundaryAsync (stream, options, rawBoundaries?[i], defaultBoundary, cancellationToken).ConfigureAwait (false);
 				await children[i].WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
 
-				if (rfc822 != null && rfc822.Message != null && rfc822.Message.Body != null) {
-					multi = rfc822.Message.Body as Multipart;
-					part = rfc822.Message.Body as MimePart;
-				}
-
-				if ((part != null && part.Content is null) ||
-					(rfc822 != null && (rfc822.Message is null || rfc822.Message.Body is null)) ||
-					(multi != null && !multi.WriteEndBoundary))
-					continue;
-
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+				if (ShouldWriteNewLineAfter (i))
+					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 			}
 
 			if (RawEndBoundary != null) {
-				if (RawEndBoundary.Length == 0)
+				if (RawEndBoundary.Length == 0) {
+					if (RawTrailingBoundary != null) {
+						await WriteRawBoundaryAsync (stream, options, RawTrailingBoundary, cancellationToken).ConfigureAwait (false);
+						await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
+					}
 					return;
+				}
 
 				await WriteRawBoundaryAsync (stream, options, RawEndBoundary, cancellationToken).ConfigureAwait (false);
 			} else {
@@ -884,6 +902,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
+			RawTrailingBoundary = null;
 			rawBoundaries?.Add (null);
 			children.Add (entity);
 		}
@@ -921,6 +940,7 @@ namespace MimeKit {
 					children[i].Dispose ();
 			}
 
+			RawTrailingBoundary = null;
 			RawEndBoundary = null;
 			rawBoundaries = null;
 			children.Clear ();
@@ -1002,6 +1022,7 @@ namespace MimeKit {
 			if (index == -1)
 				return false;
 
+			RawTrailingBoundary = null;
 			rawBoundaries?.RemoveAt (index);
 			children.RemoveAt (index);
 
@@ -1063,6 +1084,7 @@ namespace MimeKit {
 
 			CheckDisposed ();
 
+			RawTrailingBoundary = null;
 			rawBoundaries?.Insert (index, null);
 			children.Insert (index, entity);
 		}
@@ -1085,6 +1107,7 @@ namespace MimeKit {
 		{
 			CheckDisposed ();
 
+			RawTrailingBoundary = null;
 			rawBoundaries?.RemoveAt (index);
 			children.RemoveAt (index);
 		}
@@ -1119,6 +1142,7 @@ namespace MimeKit {
 
 				CheckDisposed ();
 
+				RawTrailingBoundary = null;
 				children[index] = value;
 			}
 		}

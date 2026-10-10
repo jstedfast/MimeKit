@@ -822,6 +822,26 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
 		{
+			var multipart = (Multipart) stack.Peek ();
+
+			// If the multipart was truncated (no end boundary), preserve any boundary marker that was not followed
+			// by a MIME part and keep track of whether the last child's content extends to the end of the stream.
+			if (multipart.RawEndBoundary != null && multipart.RawEndBoundary.Length == 0) {
+				multipart.RawTrailingBoundary = rawBoundary;
+
+				if (rawBoundary is null && IsBoundaryEndOfStream && multipart.Count > 0) {
+					var child = multipart[multipart.Count - 1];
+
+					// Note: Since the content of the last child extends to the end of the stream, it includes any trailing
+					// new-line sequence. Make sure that it ends with a new-line when it gets written back out.
+					child.EnsureNewLine = true;
+
+					multipart.EndOfStreamChild = child;
+				}
+			}
+
+			rawBoundary = null;
+
 			PopEntity ();
 			depth--;
 		}

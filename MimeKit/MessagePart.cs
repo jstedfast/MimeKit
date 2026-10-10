@@ -252,9 +252,10 @@ namespace MimeKit {
 				}
 			}
 
-			if (options.EnsureNewLine) {
+			// Note: Only ensure that the embedded message ends with a new-line if this part is supposed to end with one.
+			if (options.EnsureNewLine != EnsureNewLine) {
 				options = options.Clone ();
-				options.EnsureNewLine = false;
+				options.EnsureNewLine = EnsureNewLine;
 			}
 
 			Message.WriteTo (options, stream, cancellationToken);
@@ -295,9 +296,10 @@ namespace MimeKit {
 			if (Message.MboxMarker != null && Message.MboxMarker.Length != 0)
 				await stream.WriteAsync (Message.MboxMarker, 0, Message.MboxMarker.Length, cancellationToken).ConfigureAwait (false);
 
-			if (options.EnsureNewLine) {
+			// Note: Only ensure that the embedded message ends with a new-line if this part is supposed to end with one.
+			if (options.EnsureNewLine != EnsureNewLine) {
 				options = options.Clone ();
-				options.EnsureNewLine = false;
+				options.EnsureNewLine = EnsureNewLine;
 			}
 
 			await Message.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
