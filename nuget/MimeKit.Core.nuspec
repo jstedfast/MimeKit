@@ -12,37 +12,32 @@
     <icon>icons\mimekit-50.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      MimeKit is an Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
+      MimeKit is an Open Source library for creating and parsing MIME messages on desktop and mobile platforms. It also supports parsing of Unix mbox files.
 
-      MimeKit.Core provides the core MIME creation and parsing functionality without any dependency on BouncyCastle. For OpenPGP, S/MIME and DKIM/ARC support, add the MimeKit.Cryptography package (or the MimeKit meta-package).
+      MimeKit.Core provides the core MIME creation and parsing functionality without any dependency on BouncyCastle. For S/MIME, PGP/MIME, DKIM, ARC and DMARC support, add the MimeKit.Cryptography package (or the MimeKit meta-package).
 
       API documentation can be found on the web at http://www.mimekit.net/docs
 
       For those that need SMTP, POP3 or IMAP support, check out https://github.com/jstedfast/MailKit
     </description>
-    <summary>An Open Source library for creating and parsing MIME, S/MIME and PGP messages on desktop and mobile platforms.</summary>
+    <summary>An Open Source library for creating and parsing MIME messages and Unix mbox files on desktop and mobile platforms.</summary>
     <releaseNotes>
-* Removed base, embed, input, link and source tags as "unsafe" tags. These are all void tags in HTML, meaning they do not have inner content. (issue #1247)
-* Fixed InternetAddressListConverter to allow conversion of empty strings into an empty list. (issue #1249)
-* Fixed NullReferenceException in BouncyCastleSecureMimeContext when SubjectKeyIdentifier is requested but not available. (issue #1250)
-* Fixed MimeReader to support MimePart content larger than 2GB. (issue #1252)
-* Fixed Message-Id parser to not decode international domains. (issue #1254)
-* Bumped System.Security.Cryptography.Pkcs dependency to 10.0.0.
-* Bumped System.Text.Encoding.CodePages dependency to 10.0.0.
-* Bumped BouncyCastle.Cryptography dependency to 2.7.0.
+MimeKit 5.0 is a major release containing a number of breaking changes. See https://github.com/jstedfast/MimeKit/blob/master/ReleaseNotes.md for the complete list of changes and migration notes.
 
-Note: As of BouncyCastle 2.7.0, decrypting S/MIME content encrypted with Blowfish, CAST5, RC2/40, RC2/64,
-or RC2/128 will fail with a `CmsException: no fixed size for content-encryption key; constant-time RSA unwrap unavailable.`
-
-Use the following code snippet to restore pre-2.7.0 behavior:
-
-```csharp
-Org.BouncyCastle.Utilities.Properties.SetThreadBoolean (Org.BouncyCastle.Utilities.Properties.CmsAllowLenientRsaPkcs1, true);
-```
+* Split MimeKit into two packages: MimeKit.Core (MIME creation and parsing) and MimeKit.Cryptography (S/MIME, PGP/MIME, DKIM, ARC and DMARC). The MimeKit package is now a meta-package that references both. MimeKitLite has been retired; use MimeKit.Core instead.
+* Promoted the new MIME parser: ExperimentalMimeParser has been renamed to MimeParser, and the previous implementation has been renamed to LegacyMimeParser. MimeParser no longer derives from MimeReader.
+* MimeParser now round-trips messages byte-for-byte, including truncated messages.
+* Added an API for reporting MIME compliance violations found while parsing (MimeReader.ComplianceLogger and MimeComplianceOptions).
+* Redesigned the TNEF API and added TnefWriter and TnefPropertyWriter. The TNEF reader has also been hardened against malformed input.
+* Added the RtfToText and RtfToHtml text converters.
+* Added ParserOptions.MaxHeaderLength, HtmlTokenizer.MaxElementDepth and HtmlToHtml.MaxElementDepth resource limits.
+* Brought HtmlTokenizer into conformance with the html5lib tokenizer test suite.
+* Removed previously obsoleted APIs.
+* Numerous performance improvements, including SIMD-accelerated uuencode/uudecode, faster base64, quoted-printable and MimeReader content scanning, and fewer allocations in HtmlTokenizer and HtmlToHtml.
     </releaseNotes>
     <copyright>.NET Foundation and Contributors</copyright>
     <language>en-US</language>
-    <tags>mime encryption arc dkim security smime s/mime openpgp pgp mbox mail email parser tnef</tags>
+    <tags>mime mbox mail email parser tnef</tags>
     <readme>docs\README.md</readme>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6.2" />
