@@ -604,7 +604,7 @@ namespace UnitTests {
 			object same = new MailboxAddress ("Unit Tests", "tests@mimekit.net");
 
 			Assert.That (address.Equals (same), Is.True);
-			Assert.That (address.Equals ("not an address"), Is.False);
+			Assert.That (address.Equals ((object) "not an address"), Is.False);
 			Assert.That (address.GetHashCode (), Is.EqualTo (address.ToString ().GetHashCode ()));
 		}
 

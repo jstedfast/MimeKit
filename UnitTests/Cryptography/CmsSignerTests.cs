@@ -149,6 +149,7 @@ namespace UnitTests.Cryptography {
 
 				try {
 					signer = new CmsSigner (path, password);
+					Assert.That (signer.Certificate, Is.Not.Null);
 				} catch (Exception ex) {
 					Assert.Fail ($".ctor (string, string): {ex.Message}");
 				}
@@ -156,6 +157,7 @@ namespace UnitTests.Cryptography {
 				try {
 					using (var stream = File.OpenRead (path))
 						signer = new CmsSigner (stream, password);
+					Assert.That (signer.Certificate, Is.Not.Null);
 				} catch (Exception ex) {
 					Assert.Fail ($".ctor (Stream, string): {ex.Message}");
 				}
@@ -164,12 +166,14 @@ namespace UnitTests.Cryptography {
 
 				try {
 					signer = new CmsSigner (certificates, key);
+					Assert.That (signer.Certificate, Is.Not.Null);
 				} catch (Exception ex) {
 					Assert.Fail ($".ctor (IEnumerable<X509Certificate>, AsymmetricKeyParameter): {ex.Message}");
 				}
 
 				try {
 					signer = new CmsSigner (certificates[0], key);
+					Assert.That (signer.Certificate, Is.Not.Null);
 				} catch (Exception ex) {
 					Assert.Fail ($".ctor (X509Certificate, AsymmetricKeyParameter): {ex.Message}");
 				}
@@ -177,6 +181,7 @@ namespace UnitTests.Cryptography {
 				try {
 					var cert = new X509Certificate2 (path, password, X509KeyStorageFlags.Exportable);
 					signer = new CmsSigner (cert);
+					Assert.That (signer.Certificate, Is.Not.Null);
 				} catch (CryptographicException cex) when (OperatingSystem.IsMacOS () && cex.InnerException is PlatformNotSupportedException) {
 					// macOS cannot load the EC certificate's private key: "Only named curves are supported on this platform."
 					// Skip this constructor for this certificate but keep testing the others.

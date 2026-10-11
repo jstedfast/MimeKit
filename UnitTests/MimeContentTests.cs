@@ -79,7 +79,9 @@ namespace UnitTests {
 
 			content.Dispose ();
 
-			Assert.Throws<ObjectDisposedException> (() => content.WriteTo (new MemoryStream ()));
+			using var output = new MemoryStream ();
+
+			Assert.Throws<ObjectDisposedException> (() => content.WriteTo (output));
 		}
 
 		[Test]
@@ -103,16 +105,18 @@ namespace UnitTests {
 		public void TestWriteToIgnoresIOExceptionResettingAfterCancellation ()
 		{
 			var content = new MimeContent (new ThrowingReadStream (() => new OperationCanceledException ()) { SeekLimit = 1 });
+			using var output = new MemoryStream ();
 
-			Assert.Throws<OperationCanceledException> (() => content.WriteTo (new MemoryStream ()));
+			Assert.Throws<OperationCanceledException> (() => content.WriteTo (output));
 		}
 
 		[Test]
 		public void TestWriteToAsyncIgnoresIOExceptionResettingAfterCancellation ()
 		{
 			var content = new MimeContent (new ThrowingReadStream (() => new OperationCanceledException ()) { SeekLimit = 1 });
+			using var output = new MemoryStream ();
 
-			Assert.ThrowsAsync<OperationCanceledException> (async () => await content.WriteToAsync (new MemoryStream ()));
+			Assert.ThrowsAsync<OperationCanceledException> (async () => await content.WriteToAsync (output));
 		}
 	}
 }

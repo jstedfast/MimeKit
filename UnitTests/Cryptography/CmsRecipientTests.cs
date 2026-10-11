@@ -142,7 +142,9 @@ namespace UnitTests.Cryptography {
 			Assert.That (recipients.Count, Is.EqualTo (1), "Count");
 			Assert.That (recipients.Contains (recipient), Is.True, "Contains: True");
 
-			foreach (CmsRecipient item in (IEnumerable) recipients)
+			IEnumerable enumerable = recipients;
+
+			foreach (CmsRecipient item in enumerable)
 				Assert.That (item, Is.EqualTo (recipient), "IEnumerable.GetEnumerator");
 
 			recipients.CopyTo (array, 0);

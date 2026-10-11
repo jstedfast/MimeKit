@@ -37,11 +37,11 @@ namespace UnitTests {
 			var enumerator = (System.Collections.IEnumerator) iter;
 
 			Assert.Throws<ArgumentNullException> (() => new MimeIterator (null));
-			Assert.Throws<InvalidOperationException> (() => { var x = iter.Depth; });
-			Assert.Throws<InvalidOperationException> (() => { var x = iter.Current; });
-			Assert.Throws<InvalidOperationException> (() => { var x = enumerator.Current; });
-			Assert.Throws<InvalidOperationException> (() => { var x = iter.Parent; });
-			Assert.Throws<InvalidOperationException> (() => { var x = iter.PathSpecifier; });
+			Assert.Throws<InvalidOperationException> (() => _ = iter.Depth);
+			Assert.Throws<InvalidOperationException> (() => _ = iter.Current);
+			Assert.Throws<InvalidOperationException> (() => _ = enumerator.Current);
+			Assert.Throws<InvalidOperationException> (() => _ = iter.Parent);
+			Assert.Throws<InvalidOperationException> (() => _ = iter.PathSpecifier);
 			Assert.Throws<ArgumentNullException> (() => iter.MoveTo (null));
 			Assert.Throws<ArgumentException> (() => iter.MoveTo (string.Empty));
 			Assert.Throws<FormatException> (() => iter.MoveTo ("xyz"));

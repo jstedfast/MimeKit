@@ -220,7 +220,7 @@ namespace UnitTests.Cryptography {
 			var path = GetTempDatabasePath ();
 
 			try {
-				using (var ctx = new DefaultSecureMimeContext (path, "no.secret", new SecureRandom ())) {
+				using (new DefaultSecureMimeContext (path, "no.secret", new SecureRandom ())) {
 					Assert.That (File.Exists (path), Is.True);
 				}
 			} finally {
