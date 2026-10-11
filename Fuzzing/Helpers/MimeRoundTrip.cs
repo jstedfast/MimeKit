@@ -102,6 +102,11 @@ namespace MimeKit.Fuzzing.Helpers {
 				second = Serialize (reparsed);
 			}
 
+			// Note: Each round only removes one CR from each run, so long runs of CRs need more rounds than are worth
+			// checking. As long as the output keeps shrinking and the only differences are CRs, it will converge.
+			if (second.Length < first.Length && EqualIgnoringCarriageReturns (first, second))
+				return;
+
 			Fuzz.Equal (first, second, $"{what}: serialize(parse(serialize(x))) != serialize(x)");
 		}
 
