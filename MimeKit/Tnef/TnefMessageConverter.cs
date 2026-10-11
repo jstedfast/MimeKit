@@ -1354,19 +1354,21 @@ namespace MimeKit.Tnef {
 
 			// Copy reads the stream from its current position (it need not be seekable) and disposes it.
 			var content = Copy (stream);
-			var subtype = SniffImageSubtype (content, out var extension);
-
-			if (subtype is null) {
-				content.Dispose ();
-				return null;
-			}
-
-			var part = new MimePart ("image", subtype) {
-				Content = new MimeContent (content),
-				ContentTransferEncoding = ContentEncoding.Base64
-			};
+			MimePart? part = null;
 
 			try {
+				var subtype = SniffImageSubtype (content, out var extension);
+
+				if (subtype is null) {
+					content.Dispose ();
+					return null;
+				}
+
+				part = new MimePart ("image", subtype) {
+					Content = new MimeContent (content),
+					ContentTransferEncoding = ContentEncoding.Base64
+				};
+
 				ApplyAttachmentProperties (part, attachment, label);
 
 				// [MS-OXCMAIL] 2.1.3.4.4: the description string is PidTagDisplayName, made to end with the image's
@@ -1389,7 +1391,11 @@ namespace MimeKit.Tnef {
 				part.ContentDescription = description;
 				part.ContentDisposition!.Size = null;
 			} catch {
-				part.Dispose ();
+				// Once the part has been created, it owns the content.
+				if (part != null)
+					part.Dispose ();
+				else
+					content.Dispose ();
 				throw;
 			}
 
@@ -1897,8 +1903,6 @@ namespace MimeKit.Tnef {
 					attachments.Clear ();
 					message.Body = mixed;
 				}
-
-				body = null;
 			} catch {
 				foreach (var entity in entities)
 					entity?.Dispose ();
