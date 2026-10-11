@@ -26,11 +26,6 @@
 
 using System;
 
-#if SERIALIZABLE
-using System.Security;
-using System.Runtime.Serialization;
-#endif
-
 namespace MimeKit {
 	/// <summary>
 	/// A Parse exception as thrown by the various Parse methods in MimeKit.
@@ -42,30 +37,8 @@ namespace MimeKit {
 	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
 	/// occurred.
 	/// </remarks>
-#if SERIALIZABLE
-	[Serializable]
-#endif
 	public class ParseException : FormatException
 	{
-#if SERIALIZABLE
-		/// <summary>
-		/// Initialize a new instance of the <see cref="ParseException"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="ParseException"/>.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The stream context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
-		{
-			TokenIndex = info.GetInt32 ("TokenIndex");
-			ErrorIndex = info.GetInt32 ("ErrorIndex");
-		}
-#endif
-
 		/// <summary>
 		/// Initialize a new instance of the <see cref="ParseException"/> class.
 		/// </summary>
@@ -96,30 +69,6 @@ namespace MimeKit {
 			TokenIndex = tokenIndex;
 			ErrorIndex = errorIndex;
 		}
-
-#if SERIALIZABLE
-		/// <summary>
-		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </summary>
-		/// <remarks>
-		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The streaming context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		[SecurityCritical]
-		public override void GetObjectData (SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData (info, context);
-
-			info.AddValue ("TokenIndex", TokenIndex);
-			info.AddValue ("ErrorIndex", ErrorIndex);
-		}
-#endif
 
 		/// <summary>
 		/// Get the byte index of the token that was malformed.

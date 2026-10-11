@@ -26,11 +26,6 @@
 
 using System;
 
-#if SERIALIZABLE
-using System.Security;
-using System.Runtime.Serialization;
-#endif
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An exception that is thrown when a private key could not be found for a specified mailbox or key id.
@@ -38,29 +33,8 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An exception that is thrown when a private key could not be found for a specified mailbox or key id.
 	/// </remarks>
-#if SERIALIZABLE
-	[Serializable]
-#endif
 	public class PrivateKeyNotFoundException : Exception
 	{
-#if SERIALIZABLE
-		/// <summary>
-		/// Initialize a new instance of the <see cref="PrivateKeyNotFoundException"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="PrivateKeyNotFoundException"/>.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The stream context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		protected PrivateKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
-		{
-			KeyId = info.GetString ("KeyId");
-		}
-#endif
-
 		/// <summary>
 		/// Initialize a new instance of the <see cref="PrivateKeyNotFoundException"/> class.
 		/// </summary>
@@ -114,29 +88,6 @@ namespace MimeKit.Cryptography {
 		{
 			KeyId = keyid.ToString ("X");
 		}
-
-#if SERIALIZABLE
-		/// <summary>
-		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </summary>
-		/// <remarks>
-		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The streaming context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		[SecurityCritical]
-		public override void GetObjectData (SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData (info, context);
-
-			info.AddValue ("KeyId", KeyId);
-		}
-#endif
 
 		/// <summary>
 		/// Gets the key id that could not be found.

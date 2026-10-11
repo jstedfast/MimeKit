@@ -48,11 +48,6 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
 
-  <!-- Enable serializable support for net4.x -->
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
-    <DefineConstants>$(DefineConstants);SERIALIZABLE</DefineConstants>
-  </PropertyGroup>
-
   <!-- Disable nullable warnings in .NET Framework and netstandard2.0 -->
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) Or '$(TargetFramework)' == 'netstandard2.0' ">
     <NoWarn>CS8601;CS8602;CS8604</NoWarn>

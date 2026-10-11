@@ -26,11 +26,6 @@
 
 using System;
 
-#if SERIALIZABLE
-using System.Security;
-using System.Runtime.Serialization;
-#endif
-
 namespace MimeKit.Tnef {
 	/// <summary>
 	/// A TNEF exception.
@@ -39,29 +34,8 @@ namespace MimeKit.Tnef {
 	/// A <see cref="TnefException"/> occurs when a TNEF stream is found to be
 	/// corrupted and cannot be read any further.
 	/// </remarks>
-#if SERIALIZABLE
-	[Serializable]
-#endif
 	public class TnefException : FormatException
 	{
-#if SERIALIZABLE
-		/// <summary>
-		/// Initialize a new instance of the <see cref="TnefException"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="TnefException"/>.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The stream context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		protected TnefException (SerializationInfo info, StreamingContext context) : base (info, context)
-		{
-			Violation = (TnefComplianceViolation) info.GetInt32 ("Violation");
-		}
-#endif
-
 		/// <summary>
 		/// Initialize a new instance of the <see cref="TnefException"/> class.
 		/// </summary>
@@ -88,29 +62,6 @@ namespace MimeKit.Tnef {
 		{
 			Violation = violation;
 		}
-
-#if SERIALIZABLE
-		/// <summary>
-		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </summary>
-		/// <remarks>
-		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The streaming context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		[SecurityCritical]
-		public override void GetObjectData (SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData (info, context);
-
-			info.AddValue ("Violation", (int) Violation);
-		}
-#endif
 
 		/// <summary>
 		/// Get the compliance violation that caused the error.

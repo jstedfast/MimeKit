@@ -26,11 +26,6 @@
 
 using System;
 
-#if SERIALIZABLE
-using System.Security;
-using System.Runtime.Serialization;
-#endif
-
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An exception that is thrown when a public key could not be found for a specified mailbox.
@@ -38,34 +33,8 @@ namespace MimeKit.Cryptography {
 	/// <remarks>
 	/// An exception that is thrown when a public key could not be found for a specified mailbox.
 	/// </remarks>
-#if SERIALIZABLE
-	[Serializable]
-#endif
 	public class PublicKeyNotFoundException : Exception
 	{
-#if SERIALIZABLE
-		/// <summary>
-		/// Initialize a new instance of the <see cref="PublicKeyNotFoundException"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new <see cref="PublicKeyNotFoundException"/>.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The stream context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		protected PublicKeyNotFoundException (SerializationInfo info, StreamingContext context) : base (info, context)
-		{
-			var text = info.GetString ("Mailbox");
-
-			if (MailboxAddress.TryParse (text, out var mailbox))
-				Mailbox = mailbox;
-			else
-				Mailbox = new MailboxAddress (string.Empty, string.Empty);
-		}
-#endif
-
 		/// <summary>
 		/// Initialize a new instance of the <see cref="PublicKeyNotFoundException"/> class.
 		/// </summary>
@@ -78,29 +47,6 @@ namespace MimeKit.Cryptography {
 		{
 			Mailbox = mailbox;
 		}
-
-#if SERIALIZABLE
-		/// <summary>
-		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </summary>
-		/// <remarks>
-		/// Sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
-		/// with information about the exception.
-		/// </remarks>
-		/// <param name="info">The serialization info.</param>
-		/// <param name="context">The streaming context.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="info"/> is <see langword="null"/>.
-		/// </exception>
-		[SecurityCritical]
-		public override void GetObjectData (SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData (info, context);
-
-			info.AddValue ("Mailbox", Mailbox.ToString (true));
-		}
-#endif
 
 		/// <summary>
 		/// Gets the key id that could not be found.

@@ -75,10 +75,15 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `System.Security.Cryptography` `RSA`, `DSA` and `ECDsa` instances. MimeKit no longer uses them.
   The `AsAsymmetricKeyParameter ()` and `AsAsymmetricCipherKeyPair ()` conversions in the other
   direction are unchanged.
-* Removed the dead `[Obsolete]` annotations on the legacy serialization members. The
-  `#if NET8_0_OR_GREATER` guard around `GetObjectData ()` could never be satisfied (`SERIALIZABLE` is
-  only defined for .NET Framework), and the unconditional attribute on the protected serialization
-  constructors emitted a spurious `CS0618` for .NET Framework consumers subclassing these exceptions.
+* Removed the legacy binary serialization support (`[Serializable]`, the protected
+  `(SerializationInfo, StreamingContext)` constructors and the `GetObjectData ()` overrides) from
+  `ParseException`, `TnefException`, `CertificateNotFoundException`, `DigitalSignatureVerifyException`,
+  `PrivateKeyNotFoundException` and `PublicKeyNotFoundException`. It was only available on .NET
+  Framework, and the APIs it is built on have been
+  [obsolete since .NET 8](https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/syslib0051).
+  Microsoft considers `BinaryFormatter` deserialization a security vulnerability that
+  [cannot be made secure](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide),
+  even for data believed to be trustworthy, and it always throws starting with .NET 9.
 * The `MimeMessage.Sign ()`, `SignAsync ()`, `SignAndEncrypt ()` and `SignAndEncryptAsync ()`
   extension method overloads that do not take a `DigestAlgorithm` now sign using SHA-256 instead of
   SHA-1. SHA-1 is no longer considered secure for digital signatures, and RFC 8551 requires S/MIME
