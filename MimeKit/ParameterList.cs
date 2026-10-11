@@ -1131,8 +1131,11 @@ namespace MimeKit {
 						value = string.Empty;
 					}
 
-					if (codepage != -1 && codepage != 65001) {
-						encoding = CharsetUtils.GetEncoding (codepage);
+					if (codepage != -1) {
+						// Note: UTF-8 is the default charset, so there is no need to remember it, but the value still needs to
+						// be re-encoded using rfc2047 (otherwise the encoding method would change on each round trip).
+						if (codepage != 65001)
+							encoding = CharsetUtils.GetEncoding (codepage);
 						method = ParameterEncodingMethod.Rfc2047;
 					}
 				} else {

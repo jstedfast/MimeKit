@@ -589,6 +589,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   represent, rather than silently replacing them with `?`.
 * `Parameter` values that contain a literal `=?` sequence are now encoded rather than written as a plain
   quoted-string, so that they are not mistaken for rfc2047 encoded-words when parsed again.
+* Parameter values that were rfc2047-encoded using UTF-8 now keep `ParameterEncodingMethod.Rfc2047` when parsed
+  (like values encoded with any other charset), so that re-serializing them does not switch to rfc2231.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

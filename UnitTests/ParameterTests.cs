@@ -186,6 +186,32 @@ namespace UnitTests {
 			}
 		}
 
+		[TestCase ("=?utf-8?q?caf=C3=A9?=", 65001)]
+		[TestCase ("=?iso-8859-1?q?caf=E9?=", 28591)]
+		public void TestParseRfc2047EncodedValuePreservesEncodingMethod (string encodedWord, int codepage)
+		{
+			var text = $" text/plain; name=\"{encodedWord}\"";
+
+			Assert.That (ContentType.TryParse (text, out var contentType), Is.True);
+
+			var param = contentType.Parameters.First (p => p.Name == "name");
+
+			Assert.That (param.Value, Is.EqualTo ("café"));
+			Assert.That (param.EncodingMethod, Is.EqualTo (ParameterEncodingMethod.Rfc2047));
+			Assert.That (param.Encoding.CodePage, Is.EqualTo (codepage));
+
+			// Re-encoding the value should produce the same output each time (and not alternate between rfc2047 and rfc2231)
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			var encoded = contentType.ToString (options, Encoding.UTF8, true);
+
+			Assert.That (encoded, Does.Contain ("=?"), "Encoded");
+			Assert.That (ContentType.TryParse (encoded.Substring ("Content-Type:".Length), out var reparsed), Is.True, encoded);
+			Assert.That (reparsed.Parameters["name"], Is.EqualTo ("café"));
+			Assert.That (reparsed.ToString (options, Encoding.UTF8, true), Is.EqualTo (encoded));
+		}
+
 		[Test]
 		public void TestEncodeAlwaysQuote ()
 		{
