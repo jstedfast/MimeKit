@@ -595,6 +595,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   (like values encoded with any other charset), so that re-serializing them does not switch to rfc2231.
 * `DomainList` parsing (used for obsolete mailbox routes) now skips domains that consist entirely of
   (non-ASCII) whitespace, which were already omitted when the route was serialized.
+* Fixed rfc2231 encoding of long `Parameter` values to never split a surrogate pair between two
+  continuation values, which caused the character to be replaced with `?` when parsed again.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

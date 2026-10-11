@@ -499,16 +499,23 @@ namespace MimeKit {
 				}
 			}
 
-			length = Math.Min (maxLength, length);
+			// Note: Never split a surrogate pair between values, or each half would get encoded separately (and lost).
+			int minLength = index + 1 < chars.Length && char.IsSurrogatePair (chars[index], chars[index + 1]) ? 2 : 1;
+
+			length = Math.Max (Math.Min (maxLength, length), minLength);
 			int ratio, count, n;
 
 			do {
+				if (length > minLength && index + length < chars.Length && char.IsSurrogatePair (chars[index + length - 1], chars[index + length]))
+					length--;
+
 				count = encoder.GetByteCount (chars, index, length, true);
-				if (count > maxLength && length > 1) {
+				if (count > maxLength && length > minLength) {
 					if ((ratio = (int) Math.Round ((double) count / (double) length)) > 1)
 						length -= Math.Max ((count - maxLength) / ratio, 1);
 					else
 						length--;
+					length = Math.Max (length, minLength);
 					continue;
 				}
 
@@ -539,7 +546,7 @@ namespace MimeKit {
 					Array.Resize<byte> (ref encoded, n);
 
 				n = HexEncoder.Encode (bytes, 0, count, encoded);
-				if (length > 1 && n > 3 && n > maxLength) {
+				if (length > minLength && n > 3 && n > maxLength) {
 					int x = 0;
 
 					for (int i = n - 1; i >= 0 && i >= maxLength; i--) {
@@ -553,6 +560,7 @@ namespace MimeKit {
 						length -= Math.Max (x / ratio, 1);
 					else
 						length--;
+					length = Math.Max (length, minLength);
 					continue;
 				}
 

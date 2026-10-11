@@ -347,6 +347,28 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeRfc2231DoesNotSplitSurrogatePairs ()
+		{
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			foreach (var suffix in new[] { "\U00021861", "\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600\U0001F600" }) {
+				for (int prefixLength = 0; prefixLength < 160; prefixLength++) {
+					var value = new string ('?', prefixLength) + suffix + new string ('x', 80);
+					var contentType = new ContentType ("text", "plain");
+
+					contentType.Parameters.Add (new Parameter ("name", value) { EncodingMethod = ParameterEncodingMethod.Rfc2231 });
+
+					var encoded = contentType.ToString (options, Encoding.UTF8, true);
+
+					Assert.That (ContentType.TryParse (encoded.Substring ("Content-Type:".Length), out var reparsed), Is.True, encoded);
+					Assert.That (reparsed.Parameters["name"], Is.EqualTo (value), encoded);
+				}
+			}
+		}
+
+		[Test]
 		public void TestEncodeRfc2047WithEncoderExceptionFallback ()
 		{
 			var encoding = Encoding.GetEncoding ("us-ascii", EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
