@@ -99,7 +99,8 @@ namespace MimeKit.Encodings {
 
 				if (IsSafeDomain (ascii))
 					return ascii;
-			} catch {
+			} catch (ArgumentException) {
+				// The name is not a valid IDN, so leave it as-is.
 			}
 
 			return unicode;
@@ -124,7 +125,8 @@ namespace MimeKit.Encodings {
 
 				if (IsSafeDomain (ascii))
 					return ascii;
-			} catch {
+			} catch (ArgumentException) {
+				// The name is not a valid IDN, so leave it as-is.
 			}
 
 			return unicode.Substring (index);
@@ -152,7 +154,8 @@ namespace MimeKit.Encodings {
 
 				if (IsSafeDomain (ascii))
 					return ascii;
-			} catch {
+			} catch (ArgumentException) {
+				// The name is not a valid IDN, so leave it as-is.
 			}
 
 			return unicode.Substring (index, count);

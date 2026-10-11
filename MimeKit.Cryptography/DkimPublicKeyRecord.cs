@@ -142,6 +142,7 @@ namespace MimeKit.Cryptography {
 
 				return null;
 			} catch {
+				// Not a SubjectPublicKeyInfo; try parsing it as a bare RSAPublicKey structure instead.
 			}
 
 			try {

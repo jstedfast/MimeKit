@@ -1087,7 +1087,8 @@ namespace MimeKit.Utils {
 
 			try {
 				word = CharsetConvert (charset, chars, length, true, out len);
-			} catch {
+			} catch (ArgumentException) {
+				// Note: EncoderFallbackException is an ArgumentException.
 				charset = Encoding.UTF8;
 				word = CharsetConvert (charset, chars, length, false, out len);
 			}

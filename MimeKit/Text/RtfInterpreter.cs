@@ -329,7 +329,7 @@ namespace MimeKit.Text {
 			// CodePagesEncodingProvider, so fall back to Latin-1, which is its closest built-in approximation.
 			try {
 				FallbackEncoding = Encoding.GetEncoding (DefaultCodePage);
-			} catch {
+			} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
 				FallbackEncoding = Encoding.GetEncoding (28591);
 			}
 		}
@@ -707,7 +707,7 @@ namespace MimeKit.Text {
 			if (codepage > 0) {
 				try {
 					encoding = Encoding.GetEncoding (codepage);
-				} catch {
+				} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
 					encoding = null;
 				}
 			}

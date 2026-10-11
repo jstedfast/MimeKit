@@ -218,7 +218,7 @@ namespace MimeKit.Tnef {
 
 			try {
 				return Encoding.GetEncoding (codepage.Value);
-			} catch {
+			} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
 				return null;
 			}
 		}
