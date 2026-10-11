@@ -137,6 +137,11 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Replaced `HtmlTokenizerState.AttributeValueQuoted` with separate `AttributeValueDoubleQuoted` and
   `AttributeValueSingleQuoted` states, matching the HTML specification. This also changes the numeric
   values of the `HtmlTokenizerState` members that follow them.
+* `InternetAddress.Name` (and therefore the names of `MailboxAddress` and `GroupAddress`) is now trimmed of
+  leading and trailing whitespace when it is set, including by the constructors and the address parser.
+  This whitespace could not be reliably preserved when encoding the address (folding collapses it and it is
+  dropped when adjacent to an rfc2047 encoded-word), so a name such as `" John Smith "` is now
+  `"John Smith"`, and a whitespace-only name becomes an empty string.
 
 ### DMARC
 

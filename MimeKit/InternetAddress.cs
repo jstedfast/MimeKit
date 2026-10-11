@@ -71,7 +71,7 @@ namespace MimeKit {
 				throw new ArgumentNullException (nameof (encoding));
 
 			this.encoding = encoding;
-			this.name = name;
+			this.name = name?.Trim ();
 		}
 
 		/// <summary>
@@ -109,11 +109,16 @@ namespace MimeKit {
 		/// <para><c>John Smith &lt;j.smith@example.com&gt;</c></para>
 		/// <para>Likewise, the <see cref="Name"/> property of the following <see cref="GroupAddress"/> would be <c>"undisclosed-recipients"</c>.</para>
 		/// <para><c>undisclosed-recipients: Alice &lt;alice@wonderland.com&gt;, Bob &lt;bob@the-builder.com&gt;;</c></para>
+		/// <para>Leading and trailing whitespace is removed from the name when it is set.</para>
 		/// </remarks>
 		/// <value>The name of the address.</value>
 		public string? Name {
 			get { return name; }
 			set {
+				// Note: Leading and trailing whitespace cannot be reliably preserved when the address is encoded (it gets
+				// folded or dropped next to rfc2047 encoded-words), so trim it to keep names consistent across round trips.
+				value = value?.Trim ();
+
 				if (value == name)
 					return;
 

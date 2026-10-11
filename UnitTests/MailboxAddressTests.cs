@@ -116,6 +116,33 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestNameIsTrimmed ()
+		{
+			var mailbox = new MailboxAddress (" \tJohn Smith\u00A0 ", "j.smith@example.com");
+
+			Assert.That (mailbox.Name, Is.EqualTo ("John Smith"), "Constructor");
+
+			mailbox.Name = "  Jane Smith  ";
+			Assert.That (mailbox.Name, Is.EqualTo ("Jane Smith"), "Setter");
+
+			mailbox.Name = "   ";
+			Assert.That (mailbox.Name, Is.EqualTo (string.Empty), "Whitespace-only");
+			Assert.That (mailbox.ToString (true), Is.EqualTo ("j.smith@example.com"), "Encoded");
+
+			mailbox.Name = null;
+			Assert.That (mailbox.Name, Is.Null, "Null");
+		}
+
+		[TestCase ("\"  John Smith  \" <j.smith@example.com>")]
+		[TestCase ("\" =?utf-8?q?John_Smith?= \" <j.smith@example.com>")]
+		[TestCase ("j.smith@example.com (  John Smith  )")]
+		public void TestParsedNameIsTrimmed (string text)
+		{
+			Assert.That (MailboxAddress.TryParse (text, out var mailbox), Is.True);
+			Assert.That (mailbox.Name, Is.EqualTo ("John Smith"));
+		}
+
+		[Test]
 		public void TestGarbageAfterAddress ()
 		{
 			try {

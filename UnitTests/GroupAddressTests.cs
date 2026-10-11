@@ -190,6 +190,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeWhiteSpaceGroupName ()
+		{
+			var inner = new GroupAddress ("  ", new [] { new MailboxAddress (string.Empty, "jeff@example.com") });
+			var outer = new GroupAddress (string.Empty, new InternetAddress[] { inner });
+			var encoded = outer.ToString (true);
+
+			Assert.That (encoded, Is.EqualTo ("\"\": \"\": jeff@example.com;;"));
+			Assert.That (inner.Name, Is.EqualTo (string.Empty));
+			Assert.That (GroupAddress.TryParse (encoded, out var parsed), Is.True, encoded);
+			Assert.That (parsed.Members, Has.Count.EqualTo (1));
+			Assert.That (parsed.Members[0], Is.InstanceOf<GroupAddress> ());
+			Assert.That (((GroupAddress) parsed.Members[0]).Members, Has.Count.EqualTo (1));
+			Assert.That (parsed.ToString (true), Is.EqualTo (encoded));
+		}
+
+		[Test]
 		public void TestEncodeNestedEmptyGroupName ()
 		{
 			var inner = new GroupAddress (string.Empty, new [] { new MailboxAddress (string.Empty, "jeff@example.com") });
