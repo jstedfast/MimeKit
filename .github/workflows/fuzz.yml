@@ -79,12 +79,12 @@ jobs:
           key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
 
       - name: Upload the crashing inputs
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v7
         with:
           name: fuzz-${{ matrix.target }}-crashes
           path: |
             artifacts/fuzz/${{ matrix.target }}/crashes/
-            artifacts/fuzz/${{ matrix.target }}/fuzz.log
+            artifacts/fuzz/${{ matrix.target }}/fuzz.log*
           if-no-files-found: ignore
           retention-days: 30

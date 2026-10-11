@@ -195,7 +195,14 @@ if ($Reproduce -ne "") {
     $arguments = (Get-LibFuzzerArguments $Targets[0]) + (Resolve-Path $Reproduce).Path
 
     & $LibFuzzerPath @arguments
-    exit $LASTEXITCODE
+    $exitCode = $LASTEXITCODE
+
+    # A hanging input leaves the harness running after libFuzzer reports the timeout (see below).
+    foreach ($process in @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $Harness })) {
+        $process.Kill($true)
+    }
+
+    exit $exitCode
 }
 
 # 4. Fuzz. A single target runs in the foreground; with -Target all, one libFuzzer process is started per
@@ -221,7 +228,20 @@ function Start-Fuzzer ([string] $Name) {
     # Cache the process handle; otherwise ExitCode may be unavailable once the process has exited.
     $null = $process.Handle
 
-    return [pscustomobject]@{ Name = $Name; Process = $process }
+    return [pscustomobject]@{ Name = $Name; Process = $process; Harnesses = @{} }
+}
+
+function Test-Descendant ([System.Diagnostics.Process] $Process, [int] $AncestorId) {
+    # With -jobs, libFuzzer runs workers that each start their own harness, so walk up a few levels.
+    for ($i = 0; $i -lt 4 -and $null -ne $Process; $i++) {
+        $Process = $Process.Parent
+
+        if ($null -ne $Process -and $Process.Id -eq $AncestorId) {
+            return $true
+        }
+    }
+
+    return $false
 }
 
 function Get-Summary ([string] $Name) {
@@ -256,53 +276,67 @@ function Get-Summary ([string] $Name) {
 
 $StartTime = Get-Date
 
-if ($Targets.Count -eq 1) {
-    $name = $Targets[0]
-    $directory = Join-Path $Artifacts $name
-    $arguments = (Get-LibFuzzerArguments $name) + "-max_total_time=$Duration"
+$pending = [System.Collections.Generic.Queue[string]]::new([string[]]$Targets)
+$running = [System.Collections.Generic.List[object]]::new()
 
-    if ($Jobs -gt 1) {
-        $arguments += "-jobs=$Jobs", "-workers=$Jobs"
+$exitCode = 0
+
+Write-Output "Fuzzing $($Targets.Count) target(s) for $Duration second(s) each, $Parallel at a time..."
+
+while ($pending.Count -gt 0 -or $running.Count -gt 0) {
+    while ($pending.Count -gt 0 -and $running.Count -lt $Parallel) {
+        $fuzzer = Start-Fuzzer $pending.Dequeue()
+        $running.Add($fuzzer)
+        Write-Output "  started $($fuzzer.Name) (pid $($fuzzer.Process.Id))"
     }
 
-    $arguments += Join-Path $directory "corpus"
-    $env:MIMEKIT_FUZZ_TARGET = $name
+    Start-Sleep -Seconds 5
 
-    Write-Output "Fuzzing $name for $Duration second(s)..."
-    Push-Location $directory
-    try {
-        & $LibFuzzerPath @arguments 2>&1 | Tee-Object -FilePath (Join-Path $directory "fuzz.log")
-        $exitCode = $LASTEXITCODE
-    } finally {
-        Pop-Location
-    }
-} else {
-    $pending = [System.Collections.Generic.Queue[string]]::new([string[]]$Targets)
-    $running = [System.Collections.Generic.List[object]]::new()
+    # libfuzzer-dotnet starts the harness once and feeds it every input. When an input hangs, libFuzzer
+    # reports the timeout and exits but never kills the harness, which then spins forever (and, if its
+    # output were piped, would keep the pipe open). Remember each fuzzer's harness so it can be killed.
+    $harnesses = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $Harness })
 
-    $exitCode = 0
-
-    Write-Output "Fuzzing $($Targets.Count) targets for $Duration second(s) each, $Parallel at a time..."
-
-    while ($pending.Count -gt 0 -or $running.Count -gt 0) {
-        while ($pending.Count -gt 0 -and $running.Count -lt $Parallel) {
-            $fuzzer = Start-Fuzzer $pending.Dequeue()
-            $running.Add($fuzzer)
-            Write-Output "  started $($fuzzer.Name) (pid $($fuzzer.Process.Id))"
-        }
-
-        Start-Sleep -Seconds 5
-
-        foreach ($fuzzer in @($running)) {
-            if ($fuzzer.Process.HasExited) {
-                $running.Remove($fuzzer) | Out-Null
-                Write-Output "  finished $($fuzzer.Name) (exit code $($fuzzer.Process.ExitCode))"
-
-                if ($fuzzer.Process.ExitCode -ne 0) {
-                    $exitCode = $fuzzer.Process.ExitCode
-                }
+    foreach ($fuzzer in $running) {
+        foreach ($process in $harnesses) {
+            if (Test-Descendant $process $fuzzer.Process.Id) {
+                $fuzzer.Harnesses[$process.Id] = $process
             }
         }
+    }
+
+    foreach ($fuzzer in @($running)) {
+        if ($fuzzer.Process.HasExited) {
+            $running.Remove($fuzzer) | Out-Null
+            Write-Output "  finished $($fuzzer.Name) (exit code $($fuzzer.Process.ExitCode))"
+
+            foreach ($process in $fuzzer.Harnesses.Values) {
+                if (-not $process.HasExited) {
+                    Write-Output "  killing the orphaned $($fuzzer.Name) harness (pid $($process.Id)); the last input probably hung"
+                    $process.Kill($true)
+                }
+            }
+
+            if ($fuzzer.Process.ExitCode -ne 0) {
+                $exitCode = $fuzzer.Process.ExitCode
+            }
+        }
+    }
+}
+
+# Every libFuzzer process has exited, so any harness that is still running is an orphan that was missed above.
+foreach ($process in @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $Harness })) {
+    Write-Output "  killing an orphaned harness (pid $($process.Id))"
+    $process.Kill($true)
+}
+
+foreach ($name in $Targets) {
+    $log = Join-Path $Artifacts $name "fuzz.log"
+
+    if (Test-Path $log) {
+        Write-Output ""
+        Write-Output "Last lines of the $name libFuzzer log:"
+        Get-Content $log -Tail 25 | Write-Output
     }
 }
 
