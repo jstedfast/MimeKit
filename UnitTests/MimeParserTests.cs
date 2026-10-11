@@ -1180,6 +1180,47 @@ namespace UnitTests {
 			}
 		}
 
+		[TestCase ("From \r")]
+		[TestCase ("From <incomplete mbox marker>\r")]
+		[TestCase ("From \0: \x01\0\x10\0\r\xff\r\r")]
+		public void TestTruncatedMboxMarkerEndingWithCarriageReturn (string text)
+		{
+			var bytes = Encoding.Latin1.GetBytes (text);
+
+			// Note: This used to loop forever because the trailing '\r' was never consumed.
+			var task = Task.Run (() => {
+				using (var memory = new MemoryStream (bytes, false)) {
+					var parser = new MimeParser (memory, MimeFormat.Mbox);
+
+					Assert.Throws<FormatException> (() => parser.ParseMessage ());
+				}
+			});
+
+			Assert.That (task.Wait (TimeSpan.FromSeconds (30)), Is.True, "Parsing the truncated mbox marker did not finish.");
+		}
+
+		[TestCase ("From \r")]
+		[TestCase ("From <incomplete mbox marker>\r")]
+		[TestCase ("From \0: \x01\0\x10\0\r\xff\r\r")]
+		public async Task TestTruncatedMboxMarkerEndingWithCarriageReturnAsync (string text)
+		{
+			var bytes = Encoding.Latin1.GetBytes (text);
+
+			// Note: This used to loop forever because the trailing '\r' was never consumed.
+			var task = Task.Run (() => {
+				using (var memory = new MemoryStream (bytes, false)) {
+					var parser = new MimeParser (memory, MimeFormat.Mbox);
+
+					Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+				}
+			});
+
+			var completed = await Task.WhenAny (task, Task.Delay (TimeSpan.FromSeconds (30)));
+
+			Assert.That (completed, Is.SameAs (task), "Parsing the truncated mbox marker did not finish.");
+			await task;
+		}
+
 		[Test]
 		public void TestEmptyMboxStream ()
 		{

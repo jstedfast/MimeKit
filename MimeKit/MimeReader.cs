@@ -1650,7 +1650,9 @@ namespace MimeKit {
 
 			if (inptr == inend) {
 				// we've only consumed a partial mbox marker
-				inputIndex += count;
+				// Note: The '\r' is left in the input buffer in case the next read begins with the '\n', but if we've
+				// already reached the end of the stream, nothing can follow, so consume it in order to make progress.
+				inputIndex += eos ? (int) (inptr - start) : count;
 				return false;
 			}
 

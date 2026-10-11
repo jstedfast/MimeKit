@@ -602,6 +602,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   (non-ASCII) whitespace, which were already omitted when the route was serialized.
 * Fixed rfc2231 encoding of long `Parameter` values to never split a surrogate pair between two
   continuation values, which caused the character to be replaced with `?` when parsed again.
+* Fixed `MimeParser` and `MimeReader` to no longer loop forever when an mbox stream ends in the middle of
+  an mbox marker (`From ` line) with a trailing carriage return.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
