@@ -120,7 +120,7 @@ namespace MimeKit.Tnef {
 
 		sealed class CalendarEvent
 		{
-			public List<CalendarAddress> Attendees = new List<CalendarAddress> ();
+			public readonly List<CalendarAddress> Attendees = new List<CalendarAddress> ();
 			public CalendarAddress? Organizer;
 			public string[]? Categories;
 			public string? Class;
@@ -1037,8 +1037,8 @@ namespace MimeKit.Tnef {
 
 		sealed class ExceptionAttachment
 		{
-			public TnefAttachment Attachment;
-			public TnefMessage Message;
+			public readonly TnefAttachment Attachment;
+			public readonly TnefMessage Message;
 			public bool Used;
 
 			public ExceptionAttachment (TnefAttachment attachment, TnefMessage message)

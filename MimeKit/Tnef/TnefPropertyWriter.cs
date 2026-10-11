@@ -798,7 +798,7 @@ namespace MimeKit.Tnef {
 		// Completes a variable-length value that was written by a stream or embedded message writer.
 		void OnValueClosed (object closedChild, string? error)
 		{
-			if (child != closedChild)
+			if (!ReferenceEquals (child, closedChild))
 				return;
 
 			child = null;

@@ -719,29 +719,17 @@ namespace MimeKit {
 		/// </remarks>
 		bool ContainsAngleAddr (int start, int end)
 		{
-			for (int i = start; i < end; i++) {
-				if (text[i] == (byte) '"') {
-					for (i++; i < end; i++) {
-						if (text[i] == (byte) '\\')
-							i++;
-						else if (text[i] == (byte) '"')
-							break;
-					}
-				} else if (text[i] == (byte) '(') {
-					int depth = 1;
+			int index = start;
 
-					for (i++; i < end && depth > 0; i++) {
-						if (text[i] == (byte) '\\')
-							i++;
-						else if (text[i] == (byte) '(')
-							depth++;
-						else if (text[i] == (byte) ')')
-							depth--;
-					}
-
-					i--;
-				} else if (text[i] == (byte) '<') {
+			while (index < end) {
+				if (text[index] == (byte) '"') {
+					ParseUtils.SkipQuoted (text, ref index, end, false);
+				} else if (text[index] == (byte) '(') {
+					ParseUtils.SkipComment (text, ref index, end);
+				} else if (text[index] == (byte) '<') {
 					return true;
+				} else {
+					index++;
 				}
 			}
 

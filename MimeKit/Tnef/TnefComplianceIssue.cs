@@ -218,7 +218,7 @@ namespace MimeKit.Tnef {
 		{
 			var builder = new StringBuilder ();
 
-			builder.Append (Violation.ToString ());
+			builder.Append (Violation);
 			builder.AppendFormat (CultureInfo.InvariantCulture, " at offset {0}", StreamOffset);
 
 			if (AttributeTag != TnefAttributeTag.Null)

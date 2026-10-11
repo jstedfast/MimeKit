@@ -287,7 +287,7 @@ namespace MimeKit {
 			// Note: The wrapper is only interposed when a limit is actually configured, so the common
 			// case costs nothing and the logger the validators are handed is the caller's own.
 			if (logger != null && complianceOptions.MaxIssuesPerViolation > 0) {
-				if (complianceLogger is CappedComplianceLogger capped && capped.InnerLogger == logger && capped.Limit == complianceOptions.MaxIssuesPerViolation)
+				if (complianceLogger is CappedComplianceLogger capped && ReferenceEquals (capped.InnerLogger, logger) && capped.Limit == complianceOptions.MaxIssuesPerViolation)
 					capped.Reset ();
 				else
 					complianceLogger = new CappedComplianceLogger (logger, complianceOptions.MaxIssuesPerViolation);

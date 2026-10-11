@@ -100,7 +100,7 @@ namespace MimeKit.Tnef {
 		readonly byte[] header = new byte[AttributeHeaderSize];
 		readonly Encoding encoding;
 		readonly bool leaveOpen;
-		Stream stream;
+		readonly Stream stream;
 
 		// The attribute that is currently being written by a stream or property writer.
 		TnefAttributeLevel childLevel;
@@ -799,7 +799,7 @@ namespace MimeKit.Tnef {
 
 		internal void OnChildClosed (object closedChild, string? error)
 		{
-			if (child != closedChild || childValue is null)
+			if (!ReferenceEquals (child, closedChild) || childValue is null)
 				return;
 
 			if (error != null) {

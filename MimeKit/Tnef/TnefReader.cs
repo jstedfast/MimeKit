@@ -1008,6 +1008,7 @@ namespace MimeKit.Tnef {
 				encoding = CharsetUtils.GetEncoding (value);
 				codepage = encoding.CodePage;
 			} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
+				// The charset is unknown or unsupported, so keep using the default encoding.
 			}
 		}
 
@@ -1235,7 +1236,7 @@ namespace MimeKit.Tnef {
 
 		int GetScalarReadLength (int width)
 		{
-			return (int) Math.Min (Length, width);
+			return Math.Min (Length, width);
 		}
 
 		// Called once the scalar value bytes have been buffered (or the stream has ended).
