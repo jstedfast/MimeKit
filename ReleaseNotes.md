@@ -577,9 +577,11 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `MimeParser.ParseMessage` now throws `FormatException` (`End of stream.`) for a stream that consists of
   nothing but mbox From-lines instead of returning an empty message with no headers (which could not be
   re-parsed once serialized).
-* Fixed `Parameter` encoding to fall back to UTF-8 for characters that the parameter's `Encoding`
-  cannot represent, rather than silently replacing them with `?` (e.g. after parsing an rfc2047-encoded
-  value that mixes charsets) or, for rfc2231 with an exception fallback, throwing.
+* Fixed `Parameter` encoding to use UTF-8 when the parameter's `Encoding` cannot represent the entire
+  value, rather than silently replacing characters with `?` (e.g. after parsing an rfc2047-encoded
+  value that mixes charsets) or, for rfc2231 with an exception fallback, throwing. Rfc2047-encoded values
+  use UTF-8 for every encoded-word rather than mixing charsets, which would change the remembered
+  `Encoding` (and therefore the output) each time the value was parsed and serialized again.
 * Fixed `Parameter` encoding of an empty value when the parameter name is too long to fit on a line;
   the value was written as `name=` (which cannot be parsed) rather than `name=""`.
 * `GroupAddress` now encodes an empty group name as `""` (rfc5322 requires a display-name), which also

@@ -213,6 +213,27 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestEncodeRfc2047ValueNotRepresentableInCharset ()
+		{
+			// Note: The value is long enough to require multiple encoded-words and only part of it can be represented in iso-8859-1.
+			var value = "LA\u07ACingFQCont60 +1\u00FFe  Fri 6 \u00F6Fe 14:33:60 +0100 caf\u00E9 au lait avec des croissants";
+			var param = new Parameter (Encoding.GetEncoding (28591), "name", value) { EncodingMethod = ParameterEncodingMethod.Rfc2047 };
+			var contentType = new ContentType ("text", "plain");
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+			contentType.Parameters.Add (param);
+
+			var encoded = contentType.ToString (options, Encoding.UTF8, true);
+
+			Assert.That (encoded, Does.Not.Contain ("iso-8859-1"), "Encoded");
+
+			Assert.That (ContentType.TryParse (encoded.Substring ("Content-Type:".Length), out var reparsed), Is.True, encoded);
+			Assert.That (reparsed.Parameters["name"], Is.EqualTo (value), "Value");
+			Assert.That (reparsed.ToString (options, Encoding.UTF8, true), Is.EqualTo (encoded), "Round trip");
+		}
+
+		[Test]
 		public void TestEncodeAlwaysQuote ()
 		{
 			var builder = new ValueStringBuilder (256);
@@ -341,7 +362,8 @@ namespace UnitTests {
 			param.Encode (options, ref builder, ref lineLength, Encoding.UTF8);
 			var encoded = builder.ToString ();
 
-			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?c25vd21hbi3imIMu?=\r\n\t=?us-ascii?q?txt?=\""));
+			// Note: The charset cannot represent the value, so the entire value is encoded using UTF-8.
+			Assert.That (encoded, Is.EqualTo ("Content-Disposition: attachment; filename=\"=?utf-8?b?c25vd21hbi3imIMudHh0?=\""));
 			Assert.That (ContentDisposition.Parse (encoded.Substring ("Content-Disposition:".Length)).FileName, Is.EqualTo ("snowman-☃.txt"));
 		}
 

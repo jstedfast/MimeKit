@@ -717,12 +717,11 @@ namespace MimeKit {
 			// Note: Arguably, this should be: bestEncoding = encoding ?? GetBestEncoding (Value, headerEncoding);
 			var bestEncoding = GetBestEncoding (Value, encoding ?? headerEncoding);
 
-			// If the charset cannot represent every character, make it throw so that each encoded-word
-			// that needs it falls back to UTF-8 rather than silently replacing characters with '?'.
-			if (!CanEncode (bestEncoding, Value)) {
-				bestEncoding = (Encoding) bestEncoding.Clone ();
-				bestEncoding.EncoderFallback = EncoderFallback.ExceptionFallback;
-			}
+			// If the charset cannot represent every character, fall back to UTF-8 for the entire value rather than
+			// mixing charsets between the encoded-words. When re-parsed, the parameter only remembers the charset of
+			// the first encoded-word, so mixing charsets would cause the output to change with each round trip.
+			if (!CanEncode (bestEncoding, Value))
+				bestEncoding = CharsetUtils.UTF8;
 
 			var charset = CharsetUtils.GetMimeCharset (bestEncoding);
 			var encoder = bestEncoding.GetEncoder ();
