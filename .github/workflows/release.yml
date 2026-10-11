@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'The full 40-character commit hash to release (the version is read from the nuspec files at that commit)'
+        required: true
+        type: string
 
 jobs:
   build:
@@ -11,22 +14,18 @@ jobs:
     env:
       BUILD_PLATFORM: Any CPU
     outputs:
-      version: ${{ steps.release_tag.outputs.version }}
+      version: ${{ steps.release_version.outputs.version }}
 
     steps:
 
-    # Validate that the tag is a release tag (e.g., 1.0.0 or 1.0.0.0)
-    - name: Validate Release Tag
-      id: release_tag
+    # Validate that the input looks like a commit hash (before using it for anything)
+    - name: Validate Commit Hash
       shell: pwsh
+      env:
+        RELEASE_COMMIT: ${{ inputs.commit }}
       run: |
-        $TAG = $env:GITHUB_REF -replace '^refs/tags/', ''
-
-        if ($TAG -match '^[0-9]+\.[0-9]+\.[0-9]+$' -or $TAG -match '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') {
-          Write-Host "Valid version tag: $TAG"
-          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=${TAG}$([Environment]::NewLine)")
-        } else {
-          Write-Host "Invalid version tag: $TAG"
+        if ($env:RELEASE_COMMIT -cnotmatch '^[0-9a-fA-F]{40}$') {
+          Write-Host "::error::Invalid commit hash (must be the full 40-character SHA): '$env:RELEASE_COMMIT'"
           exit 1
         }
 
@@ -42,13 +41,67 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v3
 
-    # Checkout repository
+    # Checkout the requested commit
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ inputs.commit }}
         submodules: recursive
         fetch-depth: 0
+
+    # Determine the release version from the nuspec files and make sure that all of the version numbers agree
+    - name: Determine Release Version
+      id: release_version
+      shell: pwsh
+      run: |
+        $commit = git rev-parse HEAD
+        $errors = @()
+        $versions = @{}
+
+        foreach ($id in 'MimeKit.Core', 'MimeKit.Cryptography', 'MimeKit') {
+          [xml] $nuspec = Get-Content "nuget/$id.nuspec"
+          $versions["nuget/$id.nuspec <version>"] = $nuspec.package.metadata.version
+
+          foreach ($dependency in $nuspec.package.metadata.dependencies.group.dependency) {
+            if ($dependency.id -like 'MimeKit*') {
+              $versions["nuget/$id.nuspec $($dependency.id) dependency ($($dependency.ParentNode.targetFramework))"] = $dependency.version
+            }
+          }
+        }
+
+        foreach ($project in 'MimeKit/MimeKit.csproj', 'MimeKit.Cryptography/MimeKit.Cryptography.csproj') {
+          [xml] $csproj = Get-Content $project
+          $versions["$project <VersionPrefix>"] = ($csproj.Project.PropertyGroup.VersionPrefix | Where-Object { $_ } | Select-Object -First 1)
+        }
+
+        $version = $versions['nuget/MimeKit.nuspec <version>']
+
+        if ($version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$') {
+          $errors += "Invalid release version: '$version'"
+        }
+
+        foreach ($entry in $versions.GetEnumerator() | Sort-Object Key) {
+          Write-Host "$($entry.Key): $($entry.Value)"
+
+          if ($entry.Value -ne $version) {
+            $errors += "$($entry.Key) is '$($entry.Value)' (expected '$version')"
+          }
+        }
+
+        # Fail early if this version has already been tagged on a different commit
+        $tagged = git rev-parse -q --verify "refs/tags/${version}^{commit}"
+        if ($tagged -and $tagged -ne $commit) {
+          $errors += "Tag '$version' already exists and points to $tagged (not $commit)"
+        }
+
+        if ($errors.Count -gt 0) {
+          $errors | ForEach-Object { Write-Host "::error::$_" }
+          exit 1
+        }
+
+        Write-Host "Releasing MimeKit $version from $commit"
+        [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=${version}$([Environment]::NewLine)")
 
     # Restore .NET tools
     - name: Run .NET tool restore
@@ -91,10 +144,11 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: BuildArtifacts
+        if-no-files-found: error
         path: |
-          MimeKit.Core.${{ steps.release_tag.outputs.version }}.nupkg
-          MimeKit.Cryptography.${{ steps.release_tag.outputs.version }}.nupkg
-          MimeKit.${{ steps.release_tag.outputs.version }}.nupkg
+          MimeKit.Core.${{ steps.release_version.outputs.version }}.nupkg
+          MimeKit.Cryptography.${{ steps.release_version.outputs.version }}.nupkg
+          MimeKit.${{ steps.release_version.outputs.version }}.nupkg
 
   sign:
     needs: build
@@ -184,6 +238,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: SignedArtifacts
+        if-no-files-found: error
         path: |
           MimeKit.Core.${{ needs.build.outputs.version }}.nupkg
           MimeKit.Cryptography.${{ needs.build.outputs.version }}.nupkg
@@ -228,3 +283,46 @@ jobs:
       env:
         NUGET_PKG_PATH: MimeKit.${{ needs.build.outputs.version }}.nupkg
         NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+
+  tag:
+    needs: [build, sign]
+    if: false # Disabled until the signing step is working
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required for pushing the release tag
+
+    steps:
+
+    # Checkout the released commit
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ inputs.commit }}
+        fetch-depth: 0
+
+    # Create and push an annotated release tag (e.g. 5.0.0) for the released commit
+    - name: Create Release Tag
+      shell: pwsh
+      env:
+        RELEASE_VERSION: ${{ needs.build.outputs.version }}
+        RELEASE_COMMIT: ${{ inputs.commit }}
+        TAGGER_NAME: ${{ github.actor }}
+        TAGGER_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+      run: |
+        $tagged = git rev-parse -q --verify "refs/tags/$($env:RELEASE_VERSION)^{commit}"
+
+        if ($tagged) {
+          if ($tagged -ne $env:RELEASE_COMMIT) {
+            Write-Host "::error::Tag '$env:RELEASE_VERSION' already exists and points to $tagged (not $env:RELEASE_COMMIT)"
+            exit 1
+          }
+
+          Write-Host "Tag '$env:RELEASE_VERSION' already exists for $env:RELEASE_COMMIT"
+          exit 0
+        }
+
+        git -c "user.name=$env:TAGGER_NAME" -c "user.email=$env:TAGGER_EMAIL" tag -a $env:RELEASE_VERSION -m "Tagged for $env:RELEASE_VERSION" $env:RELEASE_COMMIT
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git push origin "refs/tags/$($env:RELEASE_VERSION)"
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
