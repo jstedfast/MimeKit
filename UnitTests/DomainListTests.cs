@@ -218,6 +218,32 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestParseWhiteSpaceDomains ()
+		{
+			var expected = new DomainList (new [] { "domain1", "domain2" });
+
+			// Note: U+2008 (PUNCTUATION SPACE) and U+3000 (IDEOGRAPHIC SPACE) are parsed as atom characters but are whitespace.
+			AssertParse ("@domain1,@\u2008,@\u3000\u2008@domain2", expected);
+		}
+
+		[Test]
+		public void TestParseMailboxWithWhiteSpaceRouteDomain ()
+		{
+			var options = FormatOptions.Default.Clone ();
+
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			Assert.That (MailboxAddress.TryParse ("<@route1,@\u2008,@route2:user@example.com>", out var mailbox), Is.True, "TryParse");
+			Assert.That (mailbox.Route.ToArray (), Is.EqualTo (new [] { "route1", "route2" }), "Route");
+
+			var encoded = mailbox.ToString (options, true);
+
+			Assert.That (MailboxAddress.TryParse (encoded, out var reparsed), Is.True, "Reparse");
+			Assert.That (reparsed.Route.ToArray (), Is.EqualTo (mailbox.Route.ToArray ()), "Reparsed route");
+			Assert.That (reparsed.ToString (options, true), Is.EqualTo (encoded), "Round trip");
+		}
+
+		[Test]
 		public void TestToString ()
 		{
 			var route = new DomainList {

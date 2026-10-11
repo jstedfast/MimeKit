@@ -421,7 +421,10 @@ namespace MimeKit {
 				if (!ParseUtils.TryParseDomain (buffer, ref index, endIndex, DomainSentinels, throwOnError, out var domain))
 					return false;
 
-				domains.Add (domain);
+				// Note: Encode() and ToString() both skip whitespace-only domains (which can be parsed when they consist
+				// of non-ASCII whitespace characters such as U+2008), so skip them here as well to keep things consistent.
+				if (!string.IsNullOrWhiteSpace (domain))
+					domains.Add (domain);
 
 				// Note: obs-domain-list allows for null domains between commas
 				do {
