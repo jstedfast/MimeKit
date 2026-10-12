@@ -130,7 +130,9 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (AuthenticationServiceIdentifier != null) {
-				if (lineLength + space + AuthenticationServiceIdentifier.Length > options.MaxLineLength) {
+				var srvid = FormatValue (AuthenticationServiceIdentifier);
+
+				if (lineLength + space + srvid.Length > options.MaxLineLength) {
 					builder.Append (options.NewLine);
 					builder.Append ('\t');
 					lineLength = 1;
@@ -142,8 +144,8 @@ namespace MimeKit.Cryptography {
 					lineLength++;
 				}
 
-				builder.Append (AuthenticationServiceIdentifier);
-				lineLength += AuthenticationServiceIdentifier.Length;
+				builder.Append (srvid);
+				lineLength += srvid.Length;
 
 				if (Version.HasValue) {
 					var version = Version.Value.ToString (CultureInfo.InvariantCulture);
@@ -206,7 +208,7 @@ namespace MimeKit.Cryptography {
 			}
 
 			if (AuthenticationServiceIdentifier != null) {
-				builder.Append (AuthenticationServiceIdentifier);
+				builder.Append (FormatValue (AuthenticationServiceIdentifier));
 
 				if (Version.HasValue) {
 					builder.Append (' ');
@@ -226,6 +228,20 @@ namespace MimeKit.Cryptography {
 			} else {
 				builder.Append ("none");
 			}
+		}
+
+		static string FormatValue (string value)
+		{
+			// value := token / quoted-string (rfc2045)
+			if (value.Length == 0)
+				return "\"\"";
+
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] > 127 || !((byte) value[i]).IsToken ())
+					return MimeUtils.Quote (value);
+			}
+
+			return value;
 		}
 
 		static bool IsKeyword (byte c)
@@ -282,7 +298,7 @@ namespace MimeKit.Cryptography {
 			// value  := token / quoted-string
 			// token  := 1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
 			// tspecials :=  "(" / ")" / "<" / ">" / "@" / "," / ";" / ":" / "\" / <"> / "/" / "[" / "]" / "?" / "="
-			if (text[index] == (byte) '"') {
+			if (index < endIndex && text[index] == (byte) '"') {
 				// quoted-string
 				quoted = true;
 
@@ -642,7 +658,8 @@ namespace MimeKit.Cryptography {
 
 					int valueIndex = index;
 
-					if (index >= text.Length || !SkipPropertyValue (text, ref index, endIndex, out quoted)) {
+					// Note: Office 365 has been known to generate empty property values (e.g. "header.from=").
+					if (!SkipPropertyValue (text, ref index, endIndex, out quoted)) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete propspec token at offset {0}", tokenIndex), tokenIndex, index);
 
@@ -684,6 +701,7 @@ namespace MimeKit.Cryptography {
 
 		static bool TryParse (byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out AuthenticationResults? authres)
 		{
+			int startIndex = index;
 			int? instance = null;
 			string? srvid = null;
 			string value;
@@ -730,7 +748,7 @@ namespace MimeKit.Cryptography {
 							// See https://github.com/jstedfast/MimeKit/issues/490 for details.
 
 							authres = new AuthenticationResults ();
-							index = 0;
+							index = startIndex;
 
 							return TryParseMethods (text, ref index, endIndex, throwOnError, authres);
 						}

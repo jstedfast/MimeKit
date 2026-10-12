@@ -28,6 +28,7 @@ $RepoRoot = Split-Path -Parent $PSScriptRoot
 $TestData = Join-Path $RepoRoot "UnitTests" "TestData"
 $HandWritten = Join-Path $RepoRoot "Fuzzing" "Corpora"
 $Latin1 = [System.Text.Encoding]::Latin1
+$Utf8 = [System.Text.UTF8Encoding]::new($false)
 
 if ($OutputDirectory -eq "") {
     $OutputDirectory = Join-Path $RepoRoot "artifacts" "fuzz"
@@ -134,6 +135,22 @@ function Get-Messages {
 
 $AddressHeaders = @("from", "to", "cc", "bcc", "reply-to", "sender", "resent-from", "resent-to", "resent-cc", "resent-bcc", "resent-sender", "return-path", "disposition-notification-to")
 $StructuredHeaders = @("content-type", "content-disposition", "date", "resent-date", "message-id", "resent-message-id", "content-id", "references", "in-reply-to", "received")
+$AuthenticationResultsHeaders = @("authentication-results", "arc-authentication-results")
+
+# Get the (non-verbatim) string literals in a C# source file, with their escape sequences decoded.
+function Get-CSharpStrings ([string] $Path) {
+    $text = [System.IO.File]::ReadAllText($Path)
+
+    foreach ($match in [regex]::Matches($text, '(?<![@$\\])"((?:[^"\\\r\n]|\\.)*)"')) {
+        # Regex.Unescape does not understand C#'s 8-digit \UXXXXXXXX escapes, so expand those first.
+        $value = [regex]::Replace($match.Groups[1].Value, '(?<!\\)((?:\\\\)*)\\U([0-9A-Fa-f]{8})', {
+            param ($m)
+            $m.Groups[1].Value + [char]::ConvertFromUtf32([Convert]::ToInt32($m.Groups[2].Value, 16))
+        })
+
+        [regex]::Unescape($value)
+    }
+}
 
 $RtfExtractCache = $null
 
@@ -254,6 +271,36 @@ foreach ($name in $Targets) {
             foreach ($message in (Get-Messages)) {
                 foreach ($field in (Get-HeaderFields $message)) {
                     if ($field.Name -eq "subject" -or $field.Value.Contains("=?")) {
+                        $seeds.Add($Latin1.GetBytes($field.Value))
+                    }
+                }
+            }
+        }
+        "smtputf8-validator" {
+            foreach ($value in (Get-CSharpStrings (Join-Path $RepoRoot "UnitTests" "Utils" "SmtpUtf8AddressValidatorTests.cs"))) {
+                if ($value.Contains("@")) {
+                    $seeds.Add($Utf8.GetBytes($value))
+                }
+            }
+
+            foreach ($message in (Get-Messages)) {
+                foreach ($field in (Get-HeaderFields $message)) {
+                    if ($field.Name -in $AddressHeaders) {
+                        foreach ($address in [regex]::Matches($field.Value, '[^\s<>(),:;]+@[^\s<>(),:;]+')) {
+                            $seeds.Add($Latin1.GetBytes($address.Value))
+                        }
+                    }
+                }
+            }
+        }
+        "authentication-results" {
+            foreach ($value in (Get-CSharpStrings (Join-Path $RepoRoot "UnitTests" "Cryptography" "AuthenticationResultsTests.cs"))) {
+                $seeds.Add($Utf8.GetBytes($value))
+            }
+
+            foreach ($message in (Get-Messages)) {
+                foreach ($field in (Get-HeaderFields $message)) {
+                    if ($field.Name -in $AuthenticationResultsHeaders) {
                         $seeds.Add($Latin1.GetBytes($field.Value))
                     }
                 }

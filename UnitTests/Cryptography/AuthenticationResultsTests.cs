@@ -1576,9 +1576,90 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
-		public void TestParseFailureIncompleteProperty4 ()
+		public void TestParseEmptyPropertyValueAtEndOfInput ()
 		{
-			AssertParseFailure ("authserv-id; method=pass ptype.prop=", 25, 36);
+			// Note: Empty property values are accepted because of https://github.com/jstedfast/MimeKit/issues/527
+			// where we have "header.from=;", so they must also be accepted at the end of the input or else
+			// AuthenticationResults.ToString() output would not be parsable.
+			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=");
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+			Assert.That (authres.Results.Count, Is.EqualTo (1), "Results");
+			Assert.That (authres.Results[0].Properties.Count, Is.EqualTo (1), "Properties");
+			Assert.That (authres.Results[0].Properties[0].PropertyType, Is.EqualTo ("ptype"), "PropertyType");
+			Assert.That (authres.Results[0].Properties[0].Property, Is.EqualTo ("prop"), "Property");
+			Assert.That (authres.Results[0].Properties[0].Value, Is.EqualTo (string.Empty), "Value");
+			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop="));
+
+			// Make sure that the result is the same whether or not the property value is at the end of the buffer
+			var padded = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=;;;;");
+
+			Assert.That (AuthenticationResults.TryParse (padded, 0, buffer.Length, out authres), Is.True, "TryParse subrange");
+			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop="), "subrange");
+
+			authres = AuthenticationResults.Parse (buffer);
+			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop="), "Parse");
+		}
+
+		[Test]
+		public void TestParseOffice365EmptyPropertyValueRoundTrip ()
+		{
+			const string input = "spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none;mydomain.com; dmarc=none action=none header.from=;";
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+
+			var serialized = authres.ToString ();
+			buffer = Encoding.ASCII.GetBytes (serialized);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var reparsed), Is.True, "TryParse serialized");
+			Assert.That (reparsed.ToString (), Is.EqualTo (serialized));
+		}
+
+		[Test]
+		public void TestParseOffice365SubrangeRewind ()
+		{
+			// The Office 365 fallback must rewind to the start of the subrange, not the start of the buffer.
+			const string prefix = "garbage; i=1; authserv-id; ";
+			const string input = "dkim=pass header.d=example.com; dmarc=pass header.from=example.com";
+			var buffer = Encoding.ASCII.GetBytes (prefix + input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, prefix.Length, input.Length, out var authres), Is.True, "TryParse");
+			Assert.That (authres.AuthenticationServiceIdentifier, Is.Null, "authserv-id");
+			Assert.That (authres.Instance, Is.Null, "Instance");
+			Assert.That (authres.Results.Count, Is.EqualTo (2), "Results");
+			Assert.That (authres.ToString (), Is.EqualTo (input));
+
+			authres = AuthenticationResults.Parse (buffer, prefix.Length, input.Length);
+			Assert.That (authres.ToString (), Is.EqualTo (input), "Parse");
+		}
+
+		[Test]
+		public void TestQuotedAuthServIdRoundTrip ()
+		{
+			const string input = "\"this is a really long authserv-id\"";
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+			Assert.That (authres.AuthenticationServiceIdentifier, Is.EqualTo ("this is a really long authserv-id"), "authserv-id");
+			Assert.That (authres.ToString (), Is.EqualTo (input + "; none"), "ToString");
+
+			buffer = Encoding.ASCII.GetBytes (authres.ToString ());
+			Assert.That (AuthenticationResults.TryParse (buffer, out var reparsed), Is.True, "TryParse serialized");
+			Assert.That (reparsed.AuthenticationServiceIdentifier, Is.EqualTo (authres.AuthenticationServiceIdentifier), "reparsed authserv-id");
+
+			var encoded = new StringBuilder ();
+			authres.Encode (FormatOptions.Default, encoded, "Authentication-Results:".Length);
+			Assert.That (encoded.ToString (), Is.EqualTo (" " + input + "; none" + FormatOptions.Default.NewLine), "Encode");
+
+			authres = new AuthenticationResults ("example.com");
+			Assert.That (authres.ToString (), Is.EqualTo ("example.com; none"), "token authserv-id");
+
+			authres = new AuthenticationResults ("ex\"ample.com");
+			Assert.That (authres.ToString (), Is.EqualTo ("\"ex\\\"ample.com\"; none"), "authserv-id with quote");
+
+			authres = new AuthenticationResults (string.Empty);
+			Assert.That (authres.ToString (), Is.EqualTo ("\"\"; none"), "empty authserv-id");
 		}
 
 		[Test]

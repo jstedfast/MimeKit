@@ -624,6 +624,14 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `TnefPropertyReader` now treats a multi-valued `Null` property as having no values (and reports an
   `InvalidValueCount` compliance issue if it claims any). Previously, a huge value count could cause the
   reader to spin for a very long time and allocate an enormous array, since `Null` values occupy no bytes.
+* Fixed `AuthenticationResults.Parse` and `TryParse` with a start index to no longer rewind to the start of
+  the buffer (instead of the start index) when parsing Office 365-style headers that lack an authserv-id.
+* `AuthenticationResults.Parse` and `TryParse` now accept an empty property value (e.g. `header.from=`) at
+  the end of the input, the same as they already did when it was followed by a `;`. Previously, the
+  `ToString()` output of such headers could not be parsed again, and the result could depend on whether
+  the input was followed by more bytes in the buffer.
+* `AuthenticationResults.ToString()` now quotes the authserv-id when it is not a valid token (e.g. when it
+  was parsed from a quoted-string), so that the result can be parsed again.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
