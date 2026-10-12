@@ -620,5 +620,18 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => new MimeEntityEndEventArgs (null, new Multipart ()));
 			Assert.Throws<ArgumentNullException> (() => new MimeEntityEndEventArgs (new MimePart (), null));
 		}
+
+		[Test]
+		public void TestSmtpUtf8AddressValidatorArguments ()
+		{
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.IsValid ((string) null));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.IsValid ((MailboxAddress) null));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.TryValidate ((string) null, out _));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.TryValidate ((MailboxAddress) null, out _));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.IsValid ((string) null, SmtpUtf8AddressValidationOptions.DecodeIdn));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.IsValid ((MailboxAddress) null, SmtpUtf8AddressValidationOptions.DecodeIdn));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.TryValidate ((string) null, SmtpUtf8AddressValidationOptions.DecodeIdn, out _));
+			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.TryValidate ((MailboxAddress) null, SmtpUtf8AddressValidationOptions.DecodeIdn, out _));
+		}
 	}
 }

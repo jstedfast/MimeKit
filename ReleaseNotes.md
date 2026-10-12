@@ -277,6 +277,19 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Added `MimeReader.OnMboxMarkerBeginAsync ()` and `OnMboxMarkerEndAsync ()` so that every `MimeReader`
   callback now has an asynchronous counterpart. The default implementations call the synchronous methods.
 
+* Added `SmtpUtf8AddressValidator`, which checks whether an address is a well-formed SMTPUTF8 mailbox
+  (RFC 5321 as extended by RFC 6531) that also follows the additional rules in
+  [draft-ietf-mailmaint-smtputf8-syntax](https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/):
+  no A-labels, only PRECIS IdentifierClass code points (with the RFC 5892 contextual rules), and at
+  most one script per address. `TryValidate ()` reports the reason through `SmtpUtf8AddressError`. The
+  validation tables are generated from Unicode 18.0.0 by `tools/SmtpUtf8TableGenerator`.
+  `SmtpUtf8AddressValidationOptions` has two flags for detecting addresses that may be spoofing another
+  address, such as when displaying them to users. `DecodeIdn` decodes IDN-encoded (`xn--`) domain labels
+  and then validates the Unicode form. `AsciiIsLatin` counts ASCII letters as Latin, checking the
+  local-part and each domain label separately, so that homographs such as `paypal@рaypal.com` (with a
+  Cyrillic `р`) are detected. `EnforceLengthLimits` enforces the RFC 5321 length limits (64-octet local-part,
+  63-octet labels and 253-octet domain in A-label form, 254-octet address), reporting each through its own error.
+
 * Added the `RtfToText` and `RtfToHtml` text converters for `text/rtf` content (such as the
   `PR_RTF_COMPRESSED` body of TNEF attachments). `RtfToHtml` extracts the original HTML from RTF that
   encapsulates HTML ([MS-OXRTFEX]) unless `ExtractEncapsulatedHtml` is `false`, and otherwise renders the

@@ -70,6 +70,9 @@
     <Compile Update="Text\HtmlEntityDecoder.g.cs">
       <DependentUpon>HtmlEntityDecoder.cs</DependentUpon>
     </Compile>
+    <Compile Update="Utils\SmtpUtf8AddressValidator.g.cs">
+      <DependentUpon>SmtpUtf8AddressValidator.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
