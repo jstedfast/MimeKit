@@ -1899,6 +1899,12 @@ namespace MimeKit {
 			var rawValue = header.RawValue;
 			int index = 0;
 
+			// Note: An invalid header has no ':' and therefore no value. One that is terminated by a newline never
+			// matches a known field name (the newline is part of its raw field), so for consistency, an invalid
+			// header at the end of the stream must not be interpreted as a known header either.
+			if (header.IsInvalid)
+				return;
+
 			// Note: The header field counts in RFC 5322, Section 3.6 constrain a message rather than
 			// a MIME entity, so they apply to the top-level message and to message/rfc822 parts but
 			// not to the headers of an ordinary entity. This cannot be written as a test of the

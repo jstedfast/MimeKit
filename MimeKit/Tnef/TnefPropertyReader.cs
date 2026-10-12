@@ -507,11 +507,18 @@ namespace MimeKit.Tnef {
 		{
 			int width = GetFixedWidth (tag.ValueTnefType);
 
-			// Note: Variable-length values begin with a 32-bit length, and there is no way to bound a count
-			// of zero-width values, so treat them as being 4 bytes wide.
+			// Note: Variable-length values begin with a 32-bit length.
 			int max = GetMaxCount (Remaining, width > 0 ? width : 4);
 
-			if (tag.IsMultiValued) {
+			if (width == 0) {
+				// Note: Multi-valued Null is not a valid MAPI property type, and its values occupy no bytes, so
+				// nothing in the input bounds its count. Treat it as having no values; since there are no value
+				// bytes to skip, the properties that follow remain correctly aligned.
+				if (count != 0)
+					Log (TnefComplianceViolation.InvalidValueCount, offset);
+
+				count = 0;
+			} else if (tag.IsMultiValued) {
 				if (count < 0 || count > max) {
 					Log (TnefComplianceViolation.InvalidValueCount, offset);
 					count = count < 0 ? 0 : max;

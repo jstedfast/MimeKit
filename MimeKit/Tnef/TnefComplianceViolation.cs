@@ -212,7 +212,8 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// The value count of a multi-valued or variable-length property was negative, larger than the
 		/// number of values that could fit within the attribute that contains it, or, for a property
-		/// that is not multi-valued, other than exactly one.
+		/// that is not multi-valued, other than exactly one. A multi-valued <see cref="TnefPropertyType.Null"/>
+		/// property is not valid and is treated as having no values, so any non-zero value count is reported.
 		/// </remarks>
 		InvalidValueCount                           = 16,
 

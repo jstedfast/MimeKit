@@ -617,6 +617,13 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   continuation values, which caused the character to be replaced with `?` when parsed again.
 * Fixed `MimeParser` and `MimeReader` to no longer loop forever when an mbox stream ends in the middle of
   an mbox marker (`From ` line) with a trailing carriage return.
+* Fixed `MimeParser` and `MimeReader` to no longer treat a header field without a colon at the very end of
+  the stream as a `Content-Type` or `Content-Transfer-Encoding` header. Previously, such a header could
+  override the entity's content type and cause compliance issues to be reported at a stream offset beyond
+  the end of the stream.
+* `TnefPropertyReader` now treats a multi-valued `Null` property as having no values (and reports an
+  `InvalidValueCount` compliance issue if it claims any). Previously, a huge value count could cause the
+  reader to spin for a very long time and allocate an enormous array, since `Null` values occupy no bytes.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

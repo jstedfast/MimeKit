@@ -553,7 +553,7 @@ namespace MimeKit.Tnef {
 			case TnefComplianceViolation.InvalidRowCount:
 				return "The row count of the attRecipTable attribute was negative, or larger than the number of rows that could fit within the attribute. Only the rows that fit are read.";
 			case TnefComplianceViolation.InvalidValueCount:
-				return "The value count of a multi-valued or variable-length property was negative, larger than the number of values that could fit within the attribute that contains it, or, for a property that is not multi-valued, other than exactly one.";
+				return "The value count of a multi-valued or variable-length property was negative, larger than the number of values that could fit within the attribute that contains it, or, for a property that is not multi-valued, other than exactly one. A multi-valued Null property is not valid and is treated as having no values, so any non-zero value count is reported.";
 			case TnefComplianceViolation.InvalidPropertyLength:
 				return "The length of a variable-length property value was negative, or extended beyond the end of the attribute that contains it, so the value cannot be read in full.";
 			case TnefComplianceViolation.UnsupportedPropertyType:

@@ -157,6 +157,60 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestMultiValuedNullPropertyHasNoValues ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var multiTag = new TnefPropertyTag ((TnefPropertyId) 0x454E, TnefPropertyType.Null | TnefPropertyType.MultiValued);
+			var logger = new TestTnefComplianceLogger ();
+
+			properties.WritePropertyHeader (multiTag);
+			properties.WriteValueCount (int.MaxValue);
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 7);
+
+			// Note: Zero-width values are not bounded by the input, so claim a huge attribute to ensure that the
+			// value count is not merely clamped to the space that the attribute claims to have.
+			var builder = new TnefBuilder ();
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: int.MaxValue - 1024);
+
+			using var stream = builder.ToStream ();
+			var prop = ReadFirstProperty (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (0), "ValueCount");
+			Assert.That (prop.ReadProperty ().Count, Is.EqualTo (0), "ReadProperty");
+			Assert.That (prop.ReadNextProperty (), Is.True, "ReadNextProperty");
+			Assert.That (prop.Tag, Is.EqualTo (TnefPropertyTag.Importance), "Tag");
+			Assert.That (prop.ReadValueAsInt32 (), Is.EqualTo (7), "Value");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidValueCount));
+		}
+
+		[Test]
+		public async Task TestMultiValuedNullPropertyHasNoValuesAsync ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var multiTag = new TnefPropertyTag ((TnefPropertyId) 0x454E, TnefPropertyType.Null | TnefPropertyType.MultiValued);
+			var logger = new TestTnefComplianceLogger ();
+
+			properties.WritePropertyHeader (multiTag);
+			properties.WriteValueCount (int.MaxValue);
+			properties.WriteInt32Property (TnefPropertyTag.Importance, 7);
+
+			var builder = new TnefBuilder ();
+			builder.WriteTnefVersion ();
+			builder.WriteMapiProperties (TnefAttributeLevel.Message, properties, length: int.MaxValue - 1024);
+
+			using var stream = builder.ToStream ();
+			var prop = await ReadFirstPropertyAsync (stream, logger);
+
+			Assert.That (prop.ValueCount, Is.EqualTo (0), "ValueCount");
+			Assert.That ((await prop.ReadPropertyAsync ()).Count, Is.EqualTo (0), "ReadPropertyAsync");
+			Assert.That (await prop.ReadNextPropertyAsync (), Is.True, "ReadNextPropertyAsync");
+			Assert.That (prop.Tag, Is.EqualTo (TnefPropertyTag.Importance), "Tag");
+			Assert.That (prop.ReadValueAsInt32 (), Is.EqualTo (7), "Value");
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.Member (TnefComplianceViolation.InvalidValueCount));
+		}
+
+		[Test]
 		public void TestSingleValuedPropertyWithOneValueIsUnaffected ()
 		{
 			var properties = new TnefMapiPropertyBuilder ();

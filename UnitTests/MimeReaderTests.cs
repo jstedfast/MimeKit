@@ -1803,6 +1803,68 @@ ABC
 			}
 		}
 
+		// Note: A header without a ':' at the end of the stream must not be interpreted as a Content-Transfer-Encoding
+		// header (its value would be located beyond the end of the stream).
+		const string InvalidContentTransferEncodingAtEndOfStreamText = "From: a@b.c\nContent-Type: text/plain\nContent-Transfer-Encoding";
+
+		static void AssertInvalidContentTransferEncodingAtEndOfStream (TestMimeComplianceLogger logger)
+		{
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Has.No.Member (MimeComplianceViolation.InvalidContentTransferEncoding), "Violations");
+
+			foreach (var issue in logger.Issues)
+				Assert.That (issue.StreamOffset, Is.InRange (0, InvalidContentTransferEncodingAtEndOfStreamText.Length), $"{issue.Violation} StreamOffset");
+		}
+
+		[Test]
+		public void TestInvalidContentTransferEncodingHeaderAtEndOfStream ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (InvalidContentTransferEncodingAtEndOfStreamText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertInvalidContentTransferEncodingAtEndOfStream (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestInvalidContentTransferEncodingHeaderAtEndOfStreamAsync ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (InvalidContentTransferEncodingAtEndOfStreamText), false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertInvalidContentTransferEncodingAtEndOfStream (logger);
+			}
+		}
+
+		// Note: A header without a ':' that is followed by a newline is never interpreted as a known header, so one
+		// at the end of the stream must not be either.
+		const string InvalidContentTypeAtEndOfStreamText = "From: a@b.c\nContent-Transfer-Encoding: 7bit\nContent-Type";
+
+		[Test]
+		public void TestInvalidContentTypeHeaderAtEndOfStream ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (InvalidContentTypeAtEndOfStreamText), false)) {
+				var message = MimeMessage.Load (stream);
+
+				Assert.That (message.Body.ContentType.MimeType, Is.EqualTo ("text/plain"));
+			}
+		}
+
+		[Test]
+		public async Task TestInvalidContentTypeHeaderAtEndOfStreamAsync ()
+		{
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (InvalidContentTypeAtEndOfStreamText), false)) {
+				var message = await MimeMessage.LoadAsync (stream);
+
+				Assert.That (message.Body.ContentType.MimeType, Is.EqualTo ("text/plain"));
+			}
+		}
+
 		[Test]
 		public void TestMimeComplianceInvalidContentType ()
 		{
