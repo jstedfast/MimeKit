@@ -68,10 +68,11 @@ namespace MimeKit.Utils {
 		/// which means that an address such as <c>paypal@рaypal.com</c> (where the first letter of the domain is
 		/// U+0440 CYRILLIC SMALL LETTER ER) is considered valid. When this option is set, such an address is
 		/// rejected with <see cref="SmtpUtf8AddressError.MixedScripts"/>.</para>
-		/// <para>When this option is set, scripts are counted separately for the local-part and for each label of
-		/// the domain, so addresses such as <c>иван@example.com</c> and <c>user@пример.com</c> are still valid.
-		/// However, this option rejects labels that legitimately mix ASCII letters with a non-Latin script, such
-		/// as <c>info@москва-shop.ru</c>.</para>
+		/// <para>When this option is set, ASCII letters are counted separately for the local-part and for each label
+		/// of the domain, so addresses such as <c>иван@example.com</c> and <c>user@пример.com</c> are still valid.
+		/// The non-ASCII characters of the address must still all belong to a single script, so this option never
+		/// accepts an address that would otherwise be rejected. However, this option rejects labels that
+		/// legitimately mix ASCII letters with a non-Latin script, such as <c>info@москва-shop.ru</c>.</para>
 		/// </summary>
 		AsciiIsLatin = 1 << 1,
 

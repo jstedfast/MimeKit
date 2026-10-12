@@ -1144,6 +1144,7 @@ namespace MimeKit.Utils {
 		static SmtpUtf8AddressError ValidateCodePoints (ReadOnlySpan<char> address, int domainIndex, SmtpUtf8AddressValidationOptions options)
 		{
 			bool asciiIsLatin = (options & SmtpUtf8AddressValidationOptions.AsciiIsLatin) != 0;
+			var segmentScript = UnicodeScript.Unknown;
 			var firstScript = UnicodeScript.Unknown;
 			bool hasHiraganaKatakanaOrHan = false;
 			bool hasExtendedArabicIndicDigits = false;
@@ -1156,11 +1157,13 @@ namespace MimeKit.Utils {
 				int codePoint = GetCodePoint (address, index, out int length);
 				UnicodeScript script;
 
-				// When ASCII letters are treated as Latin, scripts are counted separately for the local-part and
+				// When ASCII letters are treated as Latin, they are counted separately for the local-part and
 				// for each label of the domain so that (for example) a Cyrillic local-part or a Cyrillic label
-				// under an ASCII top-level domain is not considered to be mixing scripts.
+				// under an ASCII top-level domain is not considered to be mixing scripts. The non-ASCII code
+				// points must still all belong to a single script across the whole address so that this option
+				// only ever rejects more addresses.
 				if (asciiIsLatin && index >= domainIndex && (index == domainIndex || address[index] == '.'))
-					firstScript = UnicodeScript.Unknown;
+					segmentScript = UnicodeScript.Unknown;
 
 				index += length;
 
@@ -1195,10 +1198,19 @@ namespace MimeKit.Utils {
 					if (script == UnicodeScript.Hiragana || script == UnicodeScript.Katakana || script == UnicodeScript.Han)
 						hasHiraganaKatakanaOrHan = true;
 
-					if (firstScript == UnicodeScript.Unknown)
-						firstScript = script;
-					else if (script != firstScript)
-						mixedScripts = true;
+					if (codePoint >= 0x80) {
+						if (firstScript == UnicodeScript.Unknown)
+							firstScript = script;
+						else if (script != firstScript)
+							mixedScripts = true;
+					}
+
+					if (asciiIsLatin) {
+						if (segmentScript == UnicodeScript.Unknown)
+							segmentScript = script;
+						else if (script != segmentScript)
+							mixedScripts = true;
+					}
 					break;
 				}
 			}
@@ -1256,7 +1268,9 @@ namespace MimeKit.Utils {
 				return before != -1 && IsVirama (before);
 			case 0x00B7:
 				// Appendix A.3: If Before(cp) .eq. U+006C And After(cp) .eq. U+006C Then True;
-				return before == 0x006C && after == 0x006C;
+				// Note: Unlike DNS, email addresses are not case-folded, so U+004C is accepted on either side as
+				// well (e.g. "CEL·LA" or "Cel·La"), as recommended by the author of draft-ietf-mailmaint-smtputf8-syntax.
+				return (before == 0x006C || before == 0x004C) && (after == 0x006C || after == 0x004C);
 			case 0x0375:
 				// Appendix A.4: If Script(After(cp)) .eq. Greek Then True;
 				return after != -1 && GetScript (after) == UnicodeScript.Greek;

@@ -254,7 +254,10 @@ namespace UnitTests.Utils {
 		// RFC 5892, Appendix A.3 (MIDDLE DOT)
 		[TestCase ("l\u00B7l@example.com", SmtpUtf8AddressError.None, TestName = "TestMiddleDotBetweenL")]
 		[TestCase ("user@col\u00B7legi.cat", SmtpUtf8AddressError.None, TestName = "TestMiddleDotInDomain")]
-		[TestCase ("ceL\u00B7La@example.com", SmtpUtf8AddressError.ContextRule, TestName = "TestMiddleDotBetweenUpperCaseL")]
+		[TestCase ("ceL\u00B7La@example.com", SmtpUtf8AddressError.None, TestName = "TestMiddleDotBetweenUpperCaseL")]
+		[TestCase ("cel\u00B7La@example.com", SmtpUtf8AddressError.None, TestName = "TestMiddleDotBetweenLowerAndUpperCaseL")]
+		[TestCase ("CEL\u00B7LA@example.com", SmtpUtf8AddressError.None, TestName = "TestMiddleDotAllUpperCase")]
+		[TestCase ("ceI\u00B7Ia@example.com", SmtpUtf8AddressError.ContextRule, TestName = "TestMiddleDotBetweenUpperCaseI")]
 		[TestCase ("\u00B7l@example.com", SmtpUtf8AddressError.ContextRule, TestName = "TestMiddleDotAtStart")]
 		[TestCase ("l\u00B7@example.com", SmtpUtf8AddressError.ContextRule, TestName = "TestMiddleDotBeforeAt")]
 		// RFC 5892, Appendix A.4 (GREEK LOWER NUMERAL SIGN)
@@ -466,6 +469,8 @@ namespace UnitTests.Utils {
 		[TestCase ("\"иван@ivan\"@example.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinQuotedLocalPart")]
 		[TestCase ("user@[IPv6:::1]", SmtpUtf8AddressError.None, TestName = "TestAsciiIsLatinAddressLiteral")]
 		[TestCase ("user@жλ.example.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinNonAsciiMixedScripts")]
+		[TestCase ("иван@ελ.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinNonAsciiMixedScriptsAcrossLocalPartAndDomain")]
+		[TestCase ("user@ж.λ.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinNonAsciiMixedScriptsAcrossLabels")]
 		public void TestAsciiIsLatin (string address, SmtpUtf8AddressError expected)
 		{
 			AssertValidate (address, SmtpUtf8AddressValidationOptions.AsciiIsLatin, expected);
