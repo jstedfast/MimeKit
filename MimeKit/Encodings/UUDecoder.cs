@@ -144,6 +144,7 @@ namespace MimeKit.Encodings {
 		/// <para>Gets or sets whether the <see cref="UUDecoder"/> should use hardware acceleration when available.</para>
 		/// <para>Hardware acceleration defaults to <see langword="true"/> on systems that support SSSE3 (x86/x64) or
 		/// AdvSimd (Arm64). The hardware accelerated code path produces identical results to the scalar implementation.</para>
+		/// <note type="note">This property is only available on .NET 8.0 and later.</note>
 		/// </remarks>
 		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
 		public static bool EnableHardwareAcceleration {

@@ -130,6 +130,7 @@ namespace MimeKit.Encodings {
 		/// <remarks>
 		/// <para>Gets or sets whether the <see cref="Base64Encoder"/> should use hardware acceleration when available.</para>
 		/// <note type="note">Hardware acceleration defaults to <see langword="true"/> if the system supports it.</note>
+		/// <note type="note">This property is only available on .NET 8.0 and later.</note>
 		/// </remarks>
 		/// <value><see langword="true"/> if hardware acceleration should be enabled; otherwise, <see langword="false"/>.</value>
 		public static bool EnableHardwareAcceleration {
