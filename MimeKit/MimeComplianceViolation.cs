@@ -60,6 +60,24 @@ namespace MimeKit {
 		#region Line Format
 
 		/// <summary>
+		/// A bare carriage return character was found in a MIME part or message header.
+		/// </summary>
+		/// <remarks>
+		/// <para>A bare carriage return is a &lt;CR&gt; that is not immediately followed by a &lt;LF&gt;.
+		/// The Internet Message Format specification only permits &lt;CR&gt; as part of a &lt;CR&gt;&lt;LF&gt;
+		/// line terminator.</para>
+		/// <para>MIME parsers disagree about whether a bare &lt;CR&gt; ends a line. Some treat it as an ordinary
+		/// character, some treat it as a line terminator, and some strip it. A malicious actor can exploit that
+		/// disagreement to make different components see different header fields, or a different boundary
+		/// between the headers and the body, for the same message. A line that consists of nothing but
+		/// carriage returns, for example, is an invalid header to MimeKit, a folded continuation of the
+		/// previous header to a parser that treats &lt;CR&gt; as whitespace, and the blank line that ends
+		/// the header block to a parser that discards bare carriage returns.</para>
+		/// <note type="note">Only the first bare carriage return in each header is reported.</note>
+		/// </remarks>
+		BareCarriageReturnInHeader                  = 1,
+
+		/// <summary>
 		/// A bare linefeed character was found in a MIME part or message header.
 		/// </summary>
 		/// <remarks>
@@ -70,7 +88,7 @@ namespace MimeKit {
 		/// UNIX systems but should not occur when transmitting messages over the network via protocols
 		/// such as SMTP, POP3 or IMAP.</note>
 		/// </remarks>
-		BareLinefeedInHeader                        = 1,
+		BareLinefeedInHeader                        = 2,
 
 		/// <summary>
 		/// A bare linefeed character was found in the body of the message.
@@ -83,7 +101,7 @@ namespace MimeKit {
 		/// UNIX systems but should not occur when transmitting messages over the network via protocols
 		/// such as SMTP, POP3 or IMAP.</note>
 		/// </remarks>
-		BareLinefeedInBody                          = 2,
+		BareLinefeedInBody                          = 3,
 
 		/// <summary>
 		/// A line was found that exceeded the maximum line length permitted by the Internet Message Format.
@@ -93,7 +111,7 @@ namespace MimeKit {
 		/// &lt;CR&gt;&lt;LF&gt; terminator. Some handling agents will not examine content beyond the first
 		/// 998 bytes of a line, which provides an opportunity to hide malicious content.
 		/// </remarks>
-		OversizedLine                               = 3,
+		OversizedLine                               = 4,
 
 		/// <summary>
 		/// A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected.
@@ -107,7 +125,7 @@ namespace MimeKit {
 		/// <note type="note">This violation will only be raised if the 8-bit text in the header value is
 		/// not valid UTF-8.</note>
 		/// </remarks>
-		Unexpected8BitBytesInHeader                 = 4,
+		Unexpected8BitBytesInHeader                 = 5,
 
 		/// <summary>
 		/// A MIME part's body contained 8-bit content where only 7-bit content was expected.
@@ -117,7 +135,7 @@ namespace MimeKit {
 		/// encoding (such as <c>7bit</c>, <c>quoted-printable</c>, or <c>base64</c>) but contained
 		/// non-ASCII text (or potentially even binary data).
 		/// </remarks>
-		Unexpected8BitBytesInBody                   = 5,
+		Unexpected8BitBytesInBody                   = 6,
 
 		/// <summary>
 		/// A MIME part or message header contained illegal null (<c>0x00</c>) bytes.
@@ -128,7 +146,7 @@ namespace MimeKit {
 		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
 		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>
-		UnexpectedNullBytesInHeader                 = 6,
+		UnexpectedNullBytesInHeader                 = 7,
 
 		/// <summary>
 		/// A MIME part's body contained null (<c>0x00</c>) bytes without specifying a binary transfer encoding.
@@ -139,7 +157,7 @@ namespace MimeKit {
 		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
 		/// be used to smuggle viruses or other malicious content past content scanners.
 		/// </remarks>
-		UnexpectedNullBytesInBody                   = 7,
+		UnexpectedNullBytesInBody                   = 8,
 
 		#endregion
 
@@ -158,7 +176,7 @@ namespace MimeKit {
 		/// name and value. In that particular case, the <see cref="InvalidHeader"/> violation will NOT be
 		/// raised.</note>
 		/// </remarks>
-		InvalidHeader                               = 8,
+		InvalidHeader                               = 9,
 
 		/// <summary>
 		/// A MIME part or message header ended prematurely at the end of the stream.
@@ -168,7 +186,7 @@ namespace MimeKit {
 		/// a MIME parser implementation earlier in transit failed to properly handle certain edge cases such
 		/// as a null (<c>0x00</c>) byte in the message header.
 		/// </remarks>
-		IncompleteHeader                            = 9,
+		IncompleteHeader                            = 10,
 
 		#endregion
 
@@ -183,7 +201,7 @@ namespace MimeKit {
 		/// MIME parser implementations which may choose to use different Content-Type headers as their
 		/// "source of truth".
 		/// </remarks>
-		RepeatedContentType                         = 10,
+		RepeatedContentType                         = 11,
 
 		/// <summary>
 		/// A MIME part contained multiple Content-Transfer-Encoding headers.
@@ -194,7 +212,7 @@ namespace MimeKit {
 		/// MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their
 		/// "source of truth".
 		/// </remarks>
-		RepeatedContentTransferEncoding             = 11,
+		RepeatedContentTransferEncoding             = 12,
 
 		/// <summary>
 		/// The message contained more than one Date header field.
@@ -205,7 +223,7 @@ namespace MimeKit {
 		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
 		/// one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedDate                                = 12,
+		RepeatedDate                                = 13,
 
 		/// <summary>
 		/// The message contained more than one From header field.
@@ -216,7 +234,7 @@ namespace MimeKit {
 		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
 		/// one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedFrom                                = 13,
+		RepeatedFrom                                = 14,
 
 		/// <summary>
 		/// The message contained more than one Sender header field.
@@ -227,7 +245,7 @@ namespace MimeKit {
 		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
 		/// one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedSender                              = 14,
+		RepeatedSender                              = 15,
 
 		/// <summary>
 		/// The message contained more than one Reply-To header field.
@@ -238,7 +256,7 @@ namespace MimeKit {
 		/// exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM validates
 		/// one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedReplyTo                             = 15,
+		RepeatedReplyTo                             = 16,
 
 		/// <summary>
 		/// The message contained more than one To header field.
@@ -248,7 +266,7 @@ namespace MimeKit {
 		/// disagree about which instance is authoritative: some take the first, some take the last. A message filter may
 		/// therefore evaluate one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedTo                                  = 16,
+		RepeatedTo                                  = 17,
 
 		/// <summary>
 		/// The message contained more than one Cc header field.
@@ -258,7 +276,7 @@ namespace MimeKit {
 		/// disagree about which instance is authoritative: some take the first, some take the last. A message filter may
 		/// therefore evaluate one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedCc                                  = 17,
+		RepeatedCc                                  = 18,
 
 		/// <summary>
 		/// The message contained more than one Bcc header field.
@@ -268,7 +286,7 @@ namespace MimeKit {
 		/// agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may
 		/// therefore evaluate one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedBcc                                 = 18,
+		RepeatedBcc                                 = 19,
 
 		/// <summary>
 		/// The message contained more than one Message-Id header field.
@@ -279,7 +297,7 @@ namespace MimeKit {
 		/// can exploit that disagreement by crafting a message where a filter or an authentication mechanism such as DKIM
 		/// validates one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedMessageId                           = 19,
+		RepeatedMessageId                           = 20,
 
 		/// <summary>
 		/// The message contained more than one In-Reply-To header field.
@@ -289,7 +307,7 @@ namespace MimeKit {
 		/// present, agents disagree about which instance is authoritative, which may cause the message to be threaded
 		/// inconsistently between mail clients.
 		/// </remarks>
-		RepeatedInReplyTo                           = 20,
+		RepeatedInReplyTo                           = 21,
 
 		/// <summary>
 		/// The message contained more than one References header field.
@@ -299,7 +317,7 @@ namespace MimeKit {
 		/// present, agents disagree about which instance is authoritative, which may cause the message to be threaded
 		/// inconsistently between mail clients.
 		/// </remarks>
-		RepeatedReferences                          = 21,
+		RepeatedReferences                          = 22,
 
 		/// <summary>
 		/// The message contained more than one Subject header field.
@@ -309,7 +327,7 @@ namespace MimeKit {
 		/// agents disagree about which instance is authoritative: some take the first, some take the last. A message filter may
 		/// therefore evaluate one instance while the mail client displays another.
 		/// </remarks>
-		RepeatedSubject                             = 22,
+		RepeatedSubject                             = 23,
 
 		/// <summary>
 		/// The message contained more than one Return-Path header field.
@@ -319,7 +337,7 @@ namespace MimeKit {
 		/// topmost instance should be disregarded, because the topmost was added nearest to the mailbox that received the
 		/// message.
 		/// </remarks>
-		RepeatedReturnPath                          = 23,
+		RepeatedReturnPath                          = 24,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-Date header field.
@@ -333,7 +351,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentDate                          = 24,
+		RepeatedResentDate                          = 25,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-From header field.
@@ -347,7 +365,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentFrom                          = 25,
+		RepeatedResentFrom                          = 26,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-Sender header field.
@@ -361,7 +379,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentSender                        = 26,
+		RepeatedResentSender                        = 27,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-To header field.
@@ -375,7 +393,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentTo                            = 27,
+		RepeatedResentTo                            = 28,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-Cc header field.
@@ -389,7 +407,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentCc                            = 28,
+		RepeatedResentCc                            = 29,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-Bcc header field.
@@ -403,7 +421,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentBcc                           = 29,
+		RepeatedResentBcc                           = 30,
 
 		/// <summary>
 		/// A block of resent header fields contained more than one Resent-Message-Id header field.
@@ -417,7 +435,7 @@ namespace MimeKit {
 		/// informational and must not be used when processing replies, so the practical consequences are limited to how the
 		/// resending history is displayed.</para>
 		/// </remarks>
-		RepeatedResentMessageId                     = 30,
+		RepeatedResentMessageId                     = 31,
 
 		#endregion
 
@@ -432,7 +450,7 @@ namespace MimeKit {
 		/// part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different
 		/// MIME parser implementations.</para>
 		/// </remarks>
-		InvalidContentType                          = 31,
+		InvalidContentType                          = 32,
 
 		/// <summary>
 		/// A Content-Transfer-Encoding header value was not valid.
@@ -440,7 +458,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// This indicates that the Content-Transfer-Encoding header did not contain a valid value and could not be parsed.
 		/// </remarks>
-		InvalidContentTransferEncoding              = 32,
+		InvalidContentTransferEncoding              = 33,
 
 		/// <summary>
 		/// A Content-Transfer-Encoding header for a message/rfc822 part contained an illegal value.
@@ -451,7 +469,7 @@ namespace MimeKit {
 		/// <note type="note">The only permissible Content-Transfer-Encoding values for a message/rfc822 part are
 		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
 		/// </remarks>
-		IllegalMessageRfc822ContentTransferEncoding = 33,
+		IllegalMessageRfc822ContentTransferEncoding = 34,
 
 		/// <summary>
 		/// A Content-Transfer-Encoding header for a multipart contained an illegal value.
@@ -462,7 +480,7 @@ namespace MimeKit {
 		/// <note type="note">The only permissible Content-Transfer-Encoding values for a multipart are
 		/// <c>7bit</c>, <c>8bit</c>, and <c>binary</c>.</note>
 		/// </remarks>
-		IllegalMultipartContentTransferEncoding     = 34,
+		IllegalMultipartContentTransferEncoding     = 35,
 
 		/// <summary>
 		/// A boundary parameter was missing from a multipart Content-Type header.
@@ -472,7 +490,7 @@ namespace MimeKit {
 		/// A multipart that does not define a boundary can lead to ambiguity and inconsistent behavior among
 		/// different MIME parser implementations.
 		/// </remarks>
-		MissingMultipartBoundaryParameter           = 35,
+		MissingMultipartBoundaryParameter           = 36,
 
 		/// <summary>
 		/// A boundary parameter in a multipart Content-Type header was not valid.
@@ -482,7 +500,7 @@ namespace MimeKit {
 		/// the MIME specifications. Invalid boundary parameters can lead to ambiguity and inconsistent behavior
 		/// among different MIME parser implementations.
 		/// </remarks>
-		InvalidMultipartBoundaryParameter           = 36,
+		InvalidMultipartBoundaryParameter           = 37,
 
 		#endregion
 
@@ -498,7 +516,7 @@ namespace MimeKit {
 		/// extras all arrive at the same mailbox. It is still a departure from the <c>angle-addr</c> production, and usually
 		/// indicates a mailer that has wrapped an address which was already wrapped.
 		/// </remarks>
-		ExcessiveAngleBracketsInAddress             = 37,
+		ExcessiveAngleBracketsInAddress             = 38,
 
 		/// <summary>
 		/// An address had an opening angle bracket without a closing one, or a closing bracket without an opening one.
@@ -508,7 +526,7 @@ namespace MimeKit {
 		/// <c>user@example.org&gt;</c>. Recovering from an unbalanced bracket requires guessing where the address was meant to
 		/// end, and parsers that guess differently will extract different addresses.
 		/// </remarks>
-		UnbalancedAngleBracketsInAddress            = 38,
+		UnbalancedAngleBracketsInAddress            = 39,
 
 		/// <summary>
 		/// An address contained a quoted-string that was never closed.
@@ -520,7 +538,7 @@ namespace MimeKit {
 		/// all. No error is raised either way, so a header that contributes fewer recipients than its author wrote is
 		/// indistinguishable from one that parsed cleanly.
 		/// </remarks>
-		UnbalancedQuotesInAddress                   = 39,
+		UnbalancedQuotesInAddress                   = 40,
 
 		/// <summary>
 		/// An address contained an unbalanced parenthesis in a comment.
@@ -532,7 +550,7 @@ namespace MimeKit {
 		/// a parser to recover. No error is raised, so the message appears intact while carrying fewer recipients than its
 		/// author wrote.
 		/// </remarks>
-		UnbalancedParenthesesInAddress              = 40,
+		UnbalancedParenthesesInAddress              = 41,
 
 		/// <summary>
 		/// The display-name of an address contained a special character that should have been quoted.
@@ -542,7 +560,7 @@ namespace MimeKit {
 		/// <c>user@example.com &lt;user@example.com&gt;</c> are not valid. The comma case is the most damaging, because a parser
 		/// that does not special-case it will split the one address into two.
 		/// </remarks>
-		UnquotedDisplayName                         = 41,
+		UnquotedDisplayName                         = 42,
 
 		/// <summary>
 		/// The display-name of a mailbox was itself shaped like an address.
@@ -552,7 +570,7 @@ namespace MimeKit {
 		/// shows the display-name in place of the address will present a mailbox that will not receive the reply. The address
 		/// that rfc5322 defines as authoritative is the one inside the angle brackets.
 		/// </remarks>
-		AddressInDisplayName                        = 42,
+		AddressInDisplayName                        = 43,
 
 		/// <summary>
 		/// The unquoted display-name of a mailbox was itself shaped like an address.
@@ -563,7 +581,7 @@ namespace MimeKit {
 		/// misleading: a parser that ends the phrase at the unquoted <c>@</c> sees a naked local-part followed by a second
 		/// mailbox, so two implementations can extract different recipient lists from the same header.
 		/// </remarks>
-		UnquotedAddressInDisplayName                = 43,
+		UnquotedAddressInDisplayName                = 44,
 
 		/// <summary>
 		/// The display-name of an address group was itself shaped like an address.
@@ -573,7 +591,7 @@ namespace MimeKit {
 		/// the group name in place of its members will present a mailbox that is not in the group. A group name is a label, not
 		/// a recipient.
 		/// </remarks>
-		AddressInGroupDisplayName                   = 44,
+		AddressInGroupDisplayName                   = 45,
 
 		/// <summary>
 		/// The unquoted display-name of an address group was itself shaped like an address.
@@ -584,7 +602,7 @@ namespace MimeKit {
 		/// at the unquoted <c>@</c> sees a naked local-part rather than a group name, so two implementations can extract
 		/// different recipient lists from the same header.
 		/// </remarks>
-		UnquotedAddressInGroupDisplayName           = 45,
+		UnquotedAddressInGroupDisplayName           = 46,
 
 		/// <summary>
 		/// The local-part of an address was not a valid dot-atom or quoted-string.
@@ -599,7 +617,7 @@ namespace MimeKit {
 		/// <para>Receiving systems differ over whether to reject such an address, strip the offending
 		/// characters, or pass the local-part through verbatim.</para>
 		/// </remarks>
-		InvalidLocalPart                            = 46,
+		InvalidLocalPart                            = 47,
 
 		/// <summary>
 		/// Two addresses in an address list were not separated by a comma.
@@ -609,7 +627,7 @@ namespace MimeKit {
 		/// whether this is two addresses or one address with a malformed display-name, and the two readings produce different
 		/// sets of recipients.
 		/// </remarks>
-		MissingAddressSeparator                     = 47,
+		MissingAddressSeparator                     = 48,
 
 		/// <summary>
 		/// An address list contained two addresses whose boundary was ambiguous.
@@ -621,7 +639,7 @@ namespace MimeKit {
 		/// readings do not merely differ in how many addresses they produce, they disagree about which mailbox the address
 		/// belongs to.
 		/// </remarks>
-		AmbiguousMailboxBoundary                    = 48,
+		AmbiguousMailboxBoundary                    = 49,
 
 		/// <summary>
 		/// An address list contained a comma that did not separate two addresses.
@@ -631,7 +649,7 @@ namespace MimeKit {
 		/// leading or trailing commas. The empty entries are not addresses and are typically ignored, but their presence usually
 		/// indicates that the generating software dropped an address it intended to include.
 		/// </remarks>
-		ExtraneousCommaInAddressList                = 49,
+		ExtraneousCommaInAddressList                = 50,
 
 		/// <summary>
 		/// An address used the obsolete source route syntax.
@@ -642,7 +660,7 @@ namespace MimeKit {
 		/// is meant to be ignored, but software that does not recognize the syntax may mistake the first domain in the route for
 		/// the address domain.
 		/// </remarks>
-		ObsoleteRouteAddress                        = 50,
+		ObsoleteRouteAddress                        = 51,
 
 		/// <summary>
 		/// An address consisted of a local-part with no domain.
@@ -651,7 +669,7 @@ namespace MimeKit {
 		/// Section 7.1.7 of rfc7103 describes "naked" local-parts such as <c>username</c>. Such an address is only meaningful
 		/// relative to some implied domain, so different systems will complete it differently, or not at all.
 		/// </remarks>
-		AddressWithoutDomain                        = 51,
+		AddressWithoutDomain                        = 52,
 
 		/// <summary>
 		/// The domain of an address used the obsolete syntax that allows comments and whitespace between its parts.
@@ -661,7 +679,7 @@ namespace MimeKit {
 		/// dots of a domain, as in <c>user@example (comment) .com</c>. A conforming domain is a single dot-atom, so software
 		/// that does not implement the obsolete grammar will read a different domain than software that does.
 		/// </remarks>
-		ObsoleteDomainSyntax                        = 52,
+		ObsoleteDomainSyntax                        = 53,
 
 		/// <summary>
 		/// The domain of an address was not a valid dot-atom.
@@ -675,7 +693,7 @@ namespace MimeKit {
 		/// <para>Receiving systems differ over whether to reject such an address, collapse the empty
 		/// labels, or pass the domain through verbatim.</para>
 		/// </remarks>
-		InvalidDomain                               = 53,
+		InvalidDomain                               = 54,
 
 		/// <summary>
 		/// The domain of an address ended with a dot.
@@ -685,7 +703,7 @@ namespace MimeKit {
 		/// domain grammar in rfc5322. Parsers that strip it and parsers that retain it will disagree about whether two
 		/// otherwise identical addresses are equal.
 		/// </remarks>
-		TrailingDotInDomain                         = 54,
+		TrailingDotInDomain                         = 55,
 
 		/// <summary>
 		/// A domain-literal contained whitespace.
@@ -695,7 +713,7 @@ namespace MimeKit {
 		/// as in <c>user@[ 127.0.0.1 ]</c>. Parsers that strip the whitespace and parsers that preserve or reject it will not
 		/// agree on the address.
 		/// </remarks>
-		WhitespaceInDomainLiteral                   = 55,
+		WhitespaceInDomainLiteral                   = 56,
 
 		/// <summary>
 		/// A domain-literal contained a character that the domain-literal syntax does not permit.
@@ -708,7 +726,7 @@ namespace MimeKit {
 		/// <see cref="ControlCharacterInAddress"/> and <see cref="Invalid8BitAddress"/> instead, and rfc6532 adds the remaining
 		/// 8-bit bytes to <c>dtext</c>.
 		/// </remarks>
-		InvalidCharacterInDomainLiteral             = 56,
+		InvalidCharacterInDomainLiteral             = 57,
 
 		/// <summary>
 		/// An address contained 8-bit bytes that were not valid UTF-8.
@@ -719,7 +737,7 @@ namespace MimeKit {
 		/// will produce a different address than one that rejects the header, which may result in mail being delivered to the
 		/// wrong mailbox.
 		/// </remarks>
-		Invalid8BitAddress                          = 57,
+		Invalid8BitAddress                          = 58,
 
 		/// <summary>
 		/// An address group was not terminated with a semi-colon.
@@ -728,7 +746,7 @@ namespace MimeKit {
 		/// The group syntax in section 3.4 of rfc5322 requires a terminating <c>;</c>, as in <c>Friends: a@example.com;</c>.
 		/// Without it, a parser must guess where the group ends, and addresses that follow the group may be absorbed into it.
 		/// </remarks>
-		MissingGroupTerminator                      = 58,
+		MissingGroupTerminator                      = 59,
 
 		/// <summary>
 		/// An address did not conform to the address syntax defined by rfc5322.
@@ -739,7 +757,7 @@ namespace MimeKit {
 		/// repair what they accept, so an address that only some implementations can read may resolve to different mailboxes,
 		/// or to none at all, depending on which software handles the message.
 		/// </remarks>
-		NonConformantAddress                        = 59,
+		NonConformantAddress                        = 60,
 
 		/// <summary>
 		/// An address contained a null byte.
@@ -753,7 +771,7 @@ namespace MimeKit {
 		/// each be made to see a different mailbox from the same header. Note that this is reported in addition to
 		/// <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null byte appeared on.</para>
 		/// </remarks>
-		NullByteInAddress                           = 60,
+		NullByteInAddress                           = 61,
 
 		/// <summary>
 		/// The display-name of an address or group contained a null byte.
@@ -768,7 +786,7 @@ namespace MimeKit {
 		/// reported in addition to <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null
 		/// byte appeared on.</para>
 		/// </remarks>
-		NullByteInDisplayName                       = 61,
+		NullByteInDisplayName                       = 62,
 
 		/// <summary>
 		/// A line break appeared inside a local-part or domain.
@@ -787,7 +805,7 @@ namespace MimeKit {
 		/// implementations mishandle it in practice, so the divergence in the recipient finally used is real regardless of
 		/// what the grammar allows.</note>
 		/// </remarks>
-		LineBreakInAddress                          = 62,
+		LineBreakInAddress                          = 63,
 
 		/// <summary>
 		/// An address contained a control character.
@@ -801,7 +819,7 @@ namespace MimeKit {
 		/// terminal-based mail client may be interpreted there rather than displayed. Null bytes and line breaks are
 		/// reported separately as <see cref="NullByteInAddress"/> and <see cref="LineBreakInAddress"/>.</para>
 		/// </remarks>
-		ControlCharacterInAddress                   = 63,
+		ControlCharacterInAddress                   = 64,
 
 		/// <summary>
 		/// The local-part of an address contained an ISO-2022 shift or escape sequence.
@@ -829,7 +847,7 @@ namespace MimeKit {
 		/// that use this convention quote the <c>local-part</c> in any case, since that is what allows a <c>\</c> or a
 		/// <c>"</c> occurring as the second byte of a JIS X 0208 pair to be written as a <c>quoted-pair</c>.</para>
 		/// </remarks>
-		Iso2022SequenceInLocalPart                  = 64,
+		Iso2022SequenceInLocalPart                  = 65,
 
 		/// <summary>
 		/// An address group had an empty name.
@@ -840,7 +858,7 @@ namespace MimeKit {
 		/// as in <c>To: :;</c>, therefore has no name for a client to display, and parsers disagree over whether to treat
 		/// the colon as a group at all or as a stray character in an ordinary address.
 		/// </remarks>
-		EmptyGroupName                              = 65,
+		EmptyGroupName                              = 66,
 
 		#endregion
 
@@ -855,7 +873,7 @@ namespace MimeKit {
 		/// body, allowing MIME parsers to correctly identify where the headers end and the body begins.
 		/// A missing body separator can lead to ambiguity when parsing the message.
 		/// </remarks>
-		MissingBodySeparator                        = 66,
+		MissingBodySeparator                        = 67,
 
 		/// <summary>
 		/// A multipart boundary was missing.
@@ -865,7 +883,7 @@ namespace MimeKit {
 		/// and inconsistent behavior among different MIME parser implementations which may opt to treat the content
 		/// as a single part rather than a multipart message.
 		/// </remarks>
-		MissingMultipartBoundary                    = 67,
+		MissingMultipartBoundary                    = 68,
 
 		#endregion
 
@@ -879,7 +897,7 @@ namespace MimeKit {
 		/// incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or
 		/// otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteBase64Quantum                     = 68,
+		IncompleteBase64Quantum                     = 69,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid characters.
@@ -889,7 +907,7 @@ namespace MimeKit {
 		/// parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these
 		/// characters and continue decoding.
 		/// </remarks>
-		InvalidBase64Character                      = 69,
+		InvalidBase64Character                      = 70,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid padding.
@@ -900,7 +918,7 @@ namespace MimeKit {
 		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
 		/// soon as they are encountered.
 		/// </remarks>
-		InvalidBase64Padding                        = 70,
+		InvalidBase64Padding                        = 71,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained characters after the padding.
@@ -909,7 +927,7 @@ namespace MimeKit {
 		/// Base64 characters found after padding (<c>'='</c>) in a base64 encoded block are not allowed by the MIME specifications
 		/// and can lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		Base64CharactersAfterPadding                = 71,
+		Base64CharactersAfterPadding                = 72,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained an obsolete comment.
@@ -921,7 +939,7 @@ namespace MimeKit {
 		/// majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead
 		/// to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		ObsoleteBase64Comment                       = 72,
+		ObsoleteBase64Comment                       = 73,
 
 		#endregion
 
@@ -934,7 +952,7 @@ namespace MimeKit {
 		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
 		/// different MIME parser implementations.
 		/// </remarks>
-		InvalidQuotedPrintableEncoding              = 73,
+		InvalidQuotedPrintableEncoding              = 74,
 
 		/// <summary>
 		/// The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.
@@ -945,7 +963,7 @@ namespace MimeKit {
 		/// &lt;CR&gt;&lt;LF&gt; sequence which can lead to decoding issues and inconsistent behavior among different MIME parser
 		/// implementations.
 		/// </remarks>
-		InvalidQuotedPrintableSoftBreak             = 74,
+		InvalidQuotedPrintableSoftBreak             = 75,
 
 		#endregion
 
@@ -958,7 +976,7 @@ namespace MimeKit {
 		/// UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content
 		/// before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodePretext                      = 75,
+		InvalidUUEncodePretext                      = 76,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had an invalid file mode in the begin marker.
@@ -967,7 +985,7 @@ namespace MimeKit {
 		/// The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to
 		/// decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodeFileMode                     = 76,
+		InvalidUUEncodeFileMode                     = 77,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
@@ -977,7 +995,7 @@ namespace MimeKit {
 		/// behavior
 		/// among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedContent                     = 77,
+		InvalidUUEncodedContent                     = 78,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had an invalid encoded line length.
@@ -987,7 +1005,7 @@ namespace MimeKit {
 		/// 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can
 		/// lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineLength                  = 78,
+		InvalidUUEncodedLineLength                  = 79,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained an incomplete encoded line.
@@ -996,7 +1014,7 @@ namespace MimeKit {
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to
 		/// decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteUUEncodedLine                     = 79,
+		IncompleteUUEncodedLine                     = 80,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
@@ -1005,7 +1023,7 @@ namespace MimeKit {
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
 		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineExtraData               = 80,
+		InvalidUUEncodedLineExtraData               = 81,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.
@@ -1014,7 +1032,7 @@ namespace MimeKit {
 		/// UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodeEndMarker                    = 81,
+		InvalidUUEncodeEndMarker                    = 82,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part did not properly end.
@@ -1023,7 +1041,7 @@ namespace MimeKit {
 		/// UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteUUEncodedContent                  = 82,
+		IncompleteUUEncodedContent                  = 83,
 
 		#endregion
 

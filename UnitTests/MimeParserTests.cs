@@ -7949,6 +7949,105 @@ Content-Type: text/plain; charset=utf-8
 			}
 		}
 
+		static void DescribeStructure (StringBuilder builder, MimeEntity entity, int depth)
+		{
+			builder.Append (' ', depth * 2).Append (entity.ContentType.MimeType).Append (" headers=").Append (entity.Headers.Count).Append ('\n');
+
+			if (entity is Multipart multipart) {
+				foreach (var child in multipart)
+					DescribeStructure (builder, child, depth + 1);
+			} else if (entity is MessagePart rfc822 && rfc822.Message != null) {
+				builder.Append (' ', (depth + 1) * 2).Append ("message headers=").Append (rfc822.Message.Headers.Count).Append ('\n');
+
+				if (rfc822.Message.Body != null)
+					DescribeStructure (builder, rfc822.Message.Body, depth + 1);
+			}
+		}
+
+		static string DescribeStructure (MimeMessage message)
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("message headers=").Append (message.Headers.Count).Append ('\n');
+			DescribeStructure (builder, message.Body, 0);
+
+			return builder.ToString ();
+		}
+
+		// Note: A line made up of nothing but carriage returns is an invalid header, not the blank line that
+		// ends the header block. These are fuzzer-found inputs whose structure used to change on each round
+		// trip because the newline filter stripped one of those CRs at a time.
+		static readonly string[] CarriageReturnOnlyHeaderLineMessages = {
+			"Content-Type: message/rfc822\n\r\r\nContent-Type: multipart/mixed; boundary=x\n\n\n--x\n\r",
+			"Content-Type: multipart/mixed; boundary=x\n\n--x\nContent-Type: text/plain\n\r\r\r\nX-Header: value\n\nbody\n--x--\n",
+		};
+
+		[Test]
+		public void TestCarriageReturnOnlyHeaderLineRoundTrip ([ValueSource (nameof (CarriageReturnOnlyHeaderLineMessages))] string text, [Values (false, true)] bool chunked, [Values (NewLineFormat.Unix, NewLineFormat.Dos)] NewLineFormat format)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = format;
+
+			MimeMessage message;
+
+			using (var stream = CreateStream (Encoding.ASCII.GetBytes (text), chunked))
+				message = MimeMessage.Load (stream);
+
+			var expected = DescribeStructure (message);
+			byte[] previous = null;
+
+			for (int round = 0; round < 3; round++) {
+				byte[] serialized;
+
+				using (var output = new MemoryStream ()) {
+					message.WriteTo (options, output);
+					serialized = output.ToArray ();
+				}
+
+				if (previous != null)
+					Assert.That (serialized, Is.EqualTo (previous), $"Output changed on round {round + 1}");
+
+				using (var stream = CreateStream (serialized, chunked))
+					message = MimeMessage.Load (stream);
+
+				Assert.That (DescribeStructure (message), Is.EqualTo (expected), $"Structure changed on round {round + 1}");
+				previous = serialized;
+			}
+		}
+
+		[Test]
+		public async Task TestCarriageReturnOnlyHeaderLineRoundTripAsync ([ValueSource (nameof (CarriageReturnOnlyHeaderLineMessages))] string text, [Values (false, true)] bool chunked, [Values (NewLineFormat.Unix, NewLineFormat.Dos)] NewLineFormat format)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = format;
+
+			MimeMessage message;
+
+			using (var stream = CreateStream (Encoding.ASCII.GetBytes (text), chunked))
+				message = await MimeMessage.LoadAsync (stream);
+
+			var expected = DescribeStructure (message);
+			byte[] previous = null;
+
+			for (int round = 0; round < 3; round++) {
+				byte[] serialized;
+
+				using (var output = new MemoryStream ()) {
+					await message.WriteToAsync (options, output);
+					serialized = output.ToArray ();
+				}
+
+				if (previous != null)
+					Assert.That (serialized, Is.EqualTo (previous), $"Output changed on round {round + 1}");
+
+				using (var stream = CreateStream (serialized, chunked))
+					message = await MimeMessage.LoadAsync (stream);
+
+				Assert.That (DescribeStructure (message), Is.EqualTo (expected), $"Structure changed on round {round + 1}");
+				previous = serialized;
+			}
+		}
+
 		static Stream CreateStream (byte[] data, bool chunked)
 		{
 			return chunked ? new ChunkedReadStream (data, 7) : new MemoryStream (data, false);

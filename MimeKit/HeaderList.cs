@@ -710,6 +710,60 @@ namespace MimeKit {
 			}
 		}
 
+		// Note: A line made up of nothing but carriage returns followed by a line feed (e.g. "\r\r\n") is
+		// parsed as an invalid header rather than as the blank line that ends the header block. A
+		// newline filter would rewrite it (Dos2UnixFilter turns "\r\r\n" into "\r\n" and then "\n" on
+		// successive round trips), which eventually turns it into the end of the header block and changes
+		// the structure of the message. Gets the length of such a line so it can be written verbatim.
+		static int GetCarriageReturnOnlyLineLength (Header header)
+		{
+			if (!header.IsInvalid)
+				return 0;
+
+			var field = header.RawField;
+			int index = 0;
+
+			while (index < field.Length && field[index] == (byte) '\r')
+				index++;
+
+			if (index == 0 || index == field.Length || field[index] != (byte) '\n')
+				return 0;
+
+			return index + 1;
+		}
+
+		internal static void WriteRawField (FilteredStream filtered, Stream stream, Header header, CancellationToken cancellationToken)
+		{
+			int length = GetCarriageReturnOnlyLineLength (header);
+			var field = header.RawField;
+
+			if (length > 0) {
+				filtered.Flush (cancellationToken);
+
+				if (stream is ICancellableStream cancellable) {
+					cancellable.Write (field, 0, length, cancellationToken);
+				} else {
+					cancellationToken.ThrowIfCancellationRequested ();
+					stream.Write (field, 0, length);
+				}
+			}
+
+			filtered.Write (field, length, field.Length - length, cancellationToken);
+		}
+
+		internal static async Task WriteRawFieldAsync (FilteredStream filtered, Stream stream, Header header, CancellationToken cancellationToken)
+		{
+			int length = GetCarriageReturnOnlyLineLength (header);
+			var field = header.RawField;
+
+			if (length > 0) {
+				await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+				await stream.WriteAsync (field, 0, length, cancellationToken).ConfigureAwait (false);
+			}
+
+			await filtered.WriteAsync (field, length, field.Length - length, cancellationToken).ConfigureAwait (false);
+		}
+
 		/// <summary>
 		/// Write the <see cref="HeaderList"/> to the specified output stream.
 		/// </summary>
@@ -742,7 +796,7 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
+					WriteRawField (filtered, stream, header, cancellationToken);
 
 					if (!header.IsInvalid) {
 						var rawValue = header.GetRawValue (options);
@@ -799,7 +853,7 @@ namespace MimeKit {
 				filtered.Add (options.CreateNewLineFilter ());
 
 				foreach (var header in headers) {
-					await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
+					await WriteRawFieldAsync (filtered, stream, header, cancellationToken).ConfigureAwait (false);
 
 					if (!header.IsInvalid) {
 						var rawValue = header.GetRawValue (options);

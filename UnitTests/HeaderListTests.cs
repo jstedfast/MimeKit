@@ -396,5 +396,58 @@ namespace UnitTests {
 				File.Delete (tmp);
 			}
 		}
+
+		// Note: A line made up of nothing but carriage returns is parsed as an invalid header. If it were
+		// written through the newline filter, Dos2Unix would strip one CR per round trip until it became
+		// the blank line that ends the header block, changing which headers belong to the entity.
+		[TestCase ("A: b\n\r\r\nC: d\n\n", NewLineFormat.Unix, "A: b\n\r\r\nC: d\n\n")]
+		[TestCase ("A: b\n\r\r\nC: d\n\n", NewLineFormat.Dos, "A: b\r\n\r\r\nC: d\r\n\r\n")]
+		[TestCase ("A: b\r\n\r\r\r\nC: d\r\n\r\n", NewLineFormat.Unix, "A: b\n\r\r\r\nC: d\n\n")]
+		[TestCase ("A: b\r\n\r\r\r\nC: d\r\n\r\n", NewLineFormat.Dos, "A: b\r\n\r\r\r\nC: d\r\n\r\n")]
+		[TestCase ("A: b\n\r\r\n x\r\nC: d\n\n", NewLineFormat.Unix, "A: b\n\r\r\n x\nC: d\n\n")]
+		[TestCase ("A: b\n\r\r\n x\nC: d\n\n", NewLineFormat.Dos, "A: b\r\n\r\r\n x\r\nC: d\r\n\r\n")]
+		public void TestWriteCarriageReturnOnlyLine (string text, NewLineFormat format, string expected)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = format;
+
+			using (var input = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var headers = HeaderList.Load (input);
+
+				Assert.That (headers.Count, Is.EqualTo (3), "Count");
+				Assert.That (headers[1].IsInvalid, Is.True, "IsInvalid");
+
+				using (var output = new MemoryStream ()) {
+					headers.WriteTo (options, output);
+
+					Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo (expected));
+				}
+			}
+		}
+
+		[TestCase ("A: b\n\r\r\nC: d\n\n", NewLineFormat.Unix, "A: b\n\r\r\nC: d\n\n")]
+		[TestCase ("A: b\n\r\r\nC: d\n\n", NewLineFormat.Dos, "A: b\r\n\r\r\nC: d\r\n\r\n")]
+		[TestCase ("A: b\r\n\r\r\r\nC: d\r\n\r\n", NewLineFormat.Unix, "A: b\n\r\r\r\nC: d\n\n")]
+		[TestCase ("A: b\r\n\r\r\r\nC: d\r\n\r\n", NewLineFormat.Dos, "A: b\r\n\r\r\r\nC: d\r\n\r\n")]
+		[TestCase ("A: b\n\r\r\n x\r\nC: d\n\n", NewLineFormat.Unix, "A: b\n\r\r\n x\nC: d\n\n")]
+		[TestCase ("A: b\n\r\r\n x\nC: d\n\n", NewLineFormat.Dos, "A: b\r\n\r\r\n x\r\nC: d\r\n\r\n")]
+		public async Task TestWriteCarriageReturnOnlyLineAsync (string text, NewLineFormat format, string expected)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = format;
+
+			using (var input = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
+				var headers = await HeaderList.LoadAsync (input);
+
+				Assert.That (headers.Count, Is.EqualTo (3), "Count");
+				Assert.That (headers[1].IsInvalid, Is.True, "IsInvalid");
+
+				using (var output = new MemoryStream ()) {
+					await headers.WriteToAsync (options, output);
+
+					Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo (expected));
+				}
+			}
+		}
 	}
 }

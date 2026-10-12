@@ -402,6 +402,10 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
+			// Note: Parsers disagree about whether a bare CR ends a line, so a bare CR can make a
+			// scanner and a mail client disagree about which header fields exist and where the
+			// header block ends. This is the same primitive that SMTP smuggling relies on.
+			case MimeComplianceViolation.BareCarriageReturnInHeader:
 			// Note: A repeated originator field is the same class of attack applied to the message
 			// rather than to a MIME part. An authentication mechanism such as DKIM may cover one
 			// instance while the mail client renders another, so the message a filter judges to be
@@ -636,6 +640,11 @@ namespace MimeKit {
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 				return Interop | Security;
 
+			// Note: Parsers disagree about whether a bare CR ends a line, so the same bytes can be
+			// read as different header fields, or as the end of the header block, by different parsers.
+			case MimeComplianceViolation.BareCarriageReturnInHeader:
+				return Interop | Security;
+
 			// Note: The bits in an incomplete quantum cannot be recovered.
 			case MimeComplianceViolation.IncompleteBase64Quantum:
 			case MimeComplianceViolation.InvalidBase64Padding:
@@ -817,6 +826,8 @@ namespace MimeKit {
 				return "A MIME part or message header contained illegal null (0x00) bytes.";
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 				return "A MIME part's body contained null (0x00) bytes without specifying a binary transfer encoding.";
+			case MimeComplianceViolation.BareCarriageReturnInHeader:
+				return "A bare carriage return character was found in a MIME part or message header.";
 			case MimeComplianceViolation.InvalidHeader:
 				return "A MIME part or message header contained control (or whitespace) characters in the field name.";
 			case MimeComplianceViolation.IncompleteHeader:
@@ -1003,6 +1014,8 @@ namespace MimeKit {
 				return "Null (0x00) bytes in a message header can be used by malicious actors to prevent some MIME parsers, such as those written in languages like C or C++ which tend to use the null byte to mark the end of a buffer, from discovering content after the null byte. This technique can be used to smuggle viruses or other malicious content past content scanners.";
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 				return "Null (0x00) bytes in a message body can be used by malicious actors to prevent some MIME parsers, such as those written in languages like C or C++ which tend to use the null byte to mark the end of a buffer, from discovering content after the null byte. This technique can be used to smuggle viruses or other malicious content past content scanners.";
+			case MimeComplianceViolation.BareCarriageReturnInHeader:
+				return "The Internet Message Format specification only permits a carriage return as part of a <CR><LF> line terminator. MIME parsers disagree about whether a bare carriage return ends a line: some treat it as an ordinary character, some treat it as a line terminator, and some strip it. That disagreement can be exploited to make different components see different header fields, or a different boundary between the headers and the body, for the same message. A line that consists of nothing but carriage returns, for example, is an invalid header to one parser but the blank line that ends the header block to another. Only the first bare carriage return in each header is reported.";
 			case MimeComplianceViolation.InvalidHeader:
 				return "The Internet Message Format specification requires that all header field names be composed of printable US-ASCII characters and must not contain control characters or whitespace characters. Inclusion of these characters can lead to divergent behavior among various MIME parsers, resulting in differences in handling.";
 			case MimeComplianceViolation.IncompleteHeader:

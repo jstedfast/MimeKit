@@ -107,7 +107,13 @@ namespace MimeKit.Fuzzing.Targets {
 
 			Fuzz.Equal (originalText, Describe (reparsed), $"{what} parse(format(x)) (ignoring display-name whitespace)");
 
-			for (int round = 0; round < MaxConvergenceRounds; round++) {
+			// Note: Each round can only collapse more whitespace, so a long display name full of whitespace runs can take
+			// many rounds to settle (every round introduces new fold points at which more runs collapse). Rounds in which
+			// the output strictly shrinks are guaranteed to terminate, so only rounds that fail to shrink count against
+			// the limit.
+			int stalled = 0;
+
+			while (stalled < MaxConvergenceRounds) {
 				Fuzz.Check (InternetAddressList.TryParse (options, Fuzz.Utf8.GetBytes (second), out var again), $"{what} output failed to parse: \"{Fuzz.Escape (second)}\"");
 				Fuzz.Equal (originalText, Describe (again!), $"{what} parse(format(...)) (ignoring display-name whitespace)");
 
@@ -116,10 +122,13 @@ namespace MimeKit.Fuzzing.Targets {
 				if (next == second)
 					return;
 
+				if (next.Length >= second.Length)
+					stalled++;
+
 				second = next;
 			}
 
-			Fuzz.Check (false, $"{what} output did not converge after {MaxConvergenceRounds} round trips: \"{Fuzz.Escape (second)}\"");
+			Fuzz.Check (false, $"{what} output did not converge after {MaxConvergenceRounds} non-shrinking round trips: \"{Fuzz.Escape (second)}\"");
 		}
 
 		static string Describe (InternetAddressList list)

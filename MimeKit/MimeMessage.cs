@@ -1383,7 +1383,7 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						filtered.Write (header.RawField, 0, header.RawField.Length, cancellationToken);
+						HeaderList.WriteRawField (filtered, stream, header, cancellationToken);
 
 						if (!header.IsInvalid) {
 							var rawValue = header.GetRawValue (options);
@@ -1459,7 +1459,7 @@ namespace MimeKit {
 						if (options.HiddenHeaders.Contains (header.Id))
 							continue;
 
-						await filtered.WriteAsync (header.RawField, 0, header.RawField.Length, cancellationToken).ConfigureAwait (false);
+						await HeaderList.WriteRawFieldAsync (filtered, stream, header, cancellationToken).ConfigureAwait (false);
 
 						if (!header.IsInvalid) {
 							var rawValue = header.GetRawValue (options);

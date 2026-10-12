@@ -43,6 +43,20 @@ namespace MimeKit.Utils {
 		/// <summary>
 		/// Detect null bytes (0x00).
 		/// </summary>
-		DetectNulls = 0x02
+		DetectNulls = 0x02,
+
+		/// <summary>
+		/// Detect bare carriage returns (a CR that is not followed by a LF).
+		/// </summary>
+		/// <remarks>
+		/// Only used by the MimeReader header scanner; this must be masked off (using
+		/// <see cref="IndexOfMask"/>) before passing the options to Memory.IndexOf().
+		/// </remarks>
+		DetectBareCarriageReturns = 0x04,
+
+		/// <summary>
+		/// The options that are supported by Memory.IndexOf().
+		/// </summary>
+		IndexOfMask = Detect8Bit | DetectNulls
 	}
 }

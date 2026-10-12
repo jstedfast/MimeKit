@@ -289,6 +289,8 @@ namespace UnitTests.Tnef {
 		[TestCase ("<@@@@@>")]
 		[TestCase ("<   @   >")]
 		[TestCase ("<a@b c@d>")]
+		[TestCase ("<(\u0003\u0002@example.com>")]
+		[TestCase ("<(comment@example.com>")]
 		public void TestInvalidTnefCorrelationKeyDoesNotThrow (string correlationKey)
 		{
 			var properties = new TnefMapiPropertyBuilder ();

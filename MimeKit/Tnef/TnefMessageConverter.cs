@@ -892,6 +892,15 @@ namespace MimeKit.Tnef {
 			if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out var id) || string.IsNullOrEmpty (id))
 				return false;
 
+			// The MimeMessage and MimeEntity setters parse the msg-id without its angle brackets, which is stricter
+			// (e.g. a local-part that begins with '(' is then parsed as an unterminated comment), so make sure that
+			// they will accept it.
+			buffer = Encoding.UTF8.GetBytes (id);
+			index = 0;
+
+			if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out _))
+				return false;
+
 			msgid = id;
 
 			return true;

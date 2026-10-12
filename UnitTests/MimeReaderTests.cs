@@ -2308,6 +2308,91 @@ This is the second inner message body.
 			AssertMimeComplianceViolations ("unexpected-null-bytes-in-headers.eml", issues);
 		}
 
+		static readonly object[] BareCarriageReturnInHeaderCases = {
+			// mid-value
+			new object[] { "Subject: a\rb\r\n\r\nbody\r\n", new int[] { 10 } },
+			// only the first bare CR in a header is reported
+			new object[] { "Subject: a\rb\rc\r\n\r\nbody\r\n", new int[] { 10 } },
+			// ... but each header gets its own report
+			new object[] { "A: x\ry\nB: z\rw\n\nbody\n", new int[] { 4, 11 } },
+			// a line made up of nothing but CRs
+			new object[] { "Subject: a\n\r\r\nTo: b\n\nbody\n", new int[] { 11 } },
+			new object[] { "Subject: a\n\r\r\r\nTo: b\n\nbody\n", new int[] { 11 } },
+			// on a folded continuation line
+			new object[] { "Subject: a\n b\rc\n\nbody\n", new int[] { 13 } },
+			// CRs right before the line terminator
+			new object[] { "Subject: a\r\r\n\nbody\n", new int[] { 10 } },
+			// at the end of the stream
+			new object[] { "Subject: a\r", new int[] { 10 } },
+			new object[] { "Subject: a\rb", new int[] { 10 } },
+			// in the headers of a MIME part
+			new object[] { "Content-Type: multipart/mixed; boundary=x\n\n--x\nA: b\rc\n\nbody\n--x--\n", new int[] { 51 } },
+			// not reported: CRLF line terminators, or bare CRs in the body
+			new object[] { "Subject: a\r\n\r\nbody\r\n", Array.Empty<int> () },
+			new object[] { "Subject: a\n\nb\rc\n", Array.Empty<int> () },
+		};
+
+		static IEnumerable<(Stream Stream, string Label)> CreateBareCarriageReturnStreams (byte[] data)
+		{
+			yield return (new MemoryStream (data, false), "unchunked");
+
+			// Note: Exercise every possible position of each CR relative to the end of the input buffer.
+			for (int chunkSize = 1; chunkSize <= data.Length; chunkSize++)
+				yield return (new ChunkedReadStream (data, chunkSize), $"chunkSize={chunkSize}");
+		}
+
+		static void AssertBareCarriageReturnsInHeader (byte[] data, int[] offsets, TestMimeComplianceLogger logger, string label)
+		{
+			var issues = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.BareCarriageReturnInHeader).ToList ();
+
+			Assert.That (issues.Select (x => x.StreamOffset), Is.EqualTo (offsets.Select (x => (long) x)), $"{label}: {FormatIssues (logger)}");
+
+			foreach (var issue in issues) {
+				int offset = (int) issue.StreamOffset;
+				int lineStart = Array.LastIndexOf (data, (byte) '\n', offset - 1) + 1;
+				int lineNumber = data.Take (offset).Count (c => c == (byte) '\n') + 1;
+
+				Assert.That (data[offset], Is.EqualTo ((byte) '\r'), $"{label}: byte at StreamOffset");
+				Assert.That (issue.LineNumber, Is.EqualTo (lineNumber), $"{label}: LineNumber");
+				Assert.That (issue.ColumnNumber, Is.EqualTo (offset - lineStart + 1), $"{label}: ColumnNumber");
+				Assert.That (issue.PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), $"{label}: PositionKind");
+			}
+		}
+
+		[TestCaseSource (nameof (BareCarriageReturnInHeaderCases))]
+		public void TestMimeComplianceBareCarriageReturnInHeader (string text, int[] offsets)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+
+			foreach (var (stream, label) in CreateBareCarriageReturnStreams (data)) {
+				using (stream) {
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+					reader.ReadMessage ();
+
+					AssertBareCarriageReturnsInHeader (data, offsets, logger, label);
+				}
+			}
+		}
+
+		[TestCaseSource (nameof (BareCarriageReturnInHeaderCases))]
+		public async Task TestMimeComplianceBareCarriageReturnInHeaderAsync (string text, int[] offsets)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+
+			foreach (var (stream, label) in CreateBareCarriageReturnStreams (data)) {
+				using (stream) {
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+					await reader.ReadMessageAsync ();
+
+					AssertBareCarriageReturnsInHeader (data, offsets, logger, label);
+				}
+			}
+		}
+
 		[Test]
 		public Task TestMimeComplianceUnexpectedNullBytesInHeaderAsync ()
 		{

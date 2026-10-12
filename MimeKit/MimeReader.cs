@@ -2052,6 +2052,44 @@ namespace MimeKit {
 			inputIndex += headerIndex;
 		}
 
+		/// <summary>
+		/// Check a line (or partial line) of header data for a bare carriage return.
+		/// </summary>
+		/// <remarks>
+		/// <para>A CR is considered bare when the byte that follows it is not a LF. A CR at the very end of
+		/// the line is never considered bare here: either it is followed by the LF that ends the line, or it
+		/// is the last byte in the input buffer and will be checked once more input has been read.</para>
+		/// <para>Only the first bare CR in each header is reported.</para>
+		/// </remarks>
+		unsafe void DetectBareCarriageReturn (byte* inbuf, byte* lineStart, byte* lineEnd, ref ByteDetectionOptions byteOptions)
+		{
+			int length = (int) (lineEnd - lineStart) - 1;
+
+			if (length <= 0)
+				return;
+
+#if NET6_0_OR_GREATER
+			int index = new ReadOnlySpan<byte> (lineStart, length).IndexOf ((byte) '\r');
+#else
+			int index = -1;
+
+			for (int i = 0; i < length; i++) {
+				if (lineStart[i] == (byte) '\r') {
+					index = i;
+					break;
+				}
+			}
+#endif
+
+			if (index == -1)
+				return;
+
+			int idx = (int) (lineStart - inbuf) + index;
+
+			complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareCarriageReturnInHeader, GetOffset (idx), lineNumber, GetColumnNumber (idx)));
+			byteOptions &= ~ByteDetectionOptions.DetectBareCarriageReturns;
+		}
+
 		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool ascii)
 		{
 			byte* start = inbuf + inputIndex;
@@ -2060,9 +2098,17 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
+			if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0 && midline && headerIndex > 0 && inptr < inend && *inptr != (byte) '\n' && headerBuffer[headerIndex - 1] == (byte) '\r') {
+				// The previous input buffer ended with a CR that turned out not to be followed by a LF.
+				complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareCarriageReturnInHeader, GetOffset (inputIndex) - 1, lineNumber, GetColumnNumber (inputIndex) - 1));
+				byteOptions &= ~ByteDetectionOptions.DetectBareCarriageReturns;
+			}
+
 			while (inptr < inend && (midline || IsBlank (*inptr))) {
-				if (byteOptions != ByteDetectionOptions.None) {
-					inptr = ParseUtils.EndOfLine (inptr, inend + 1, byteOptions, out var detected);
+				byte* lineStart = inptr;
+
+				if ((byteOptions & ByteDetectionOptions.IndexOfMask) != 0) {
+					inptr = ParseUtils.EndOfLine (inptr, inend + 1, byteOptions & ByteDetectionOptions.IndexOfMask, out var detected);
 
 					if ((detected & ByteDetectionResults.Detected8Bit) != 0) {
 						// Note: we don't emit Unexpected8BitBytesInHeader here because 8-bit might only indicate UTF-8 which is valid in headers
@@ -2079,6 +2125,9 @@ namespace MimeKit {
 				} else {
 					inptr = ParseUtils.EndOfLine (inptr, inend + 1);
 				}
+
+				if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0)
+					DetectBareCarriageReturn (inbuf, lineStart, inptr, ref byteOptions);
 
 				if (inptr == inend) {
 					// We've reached the end of the input buffer, and we are currently in the middle of a line.
@@ -2324,7 +2373,7 @@ namespace MimeKit {
 			ReadAhead (ReadAheadSize, 0, cancellationToken);
 
 			do {
-				var byteOptions = complianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
+				var byteOptions = complianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls | ByteDetectionOptions.DetectBareCarriageReturns : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
 				int left = inputEnd - inputIndex;
@@ -2447,10 +2496,14 @@ namespace MimeKit {
 
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
 						if (complianceLogger != null) {
-							if (midline)
+							if (midline) {
+								if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0 && headerIndex > 0 && headerBuffer[headerIndex - 1] == (byte) '\r')
+									complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareCarriageReturnInHeader, GetOffset (inputIndex) - 1, lineNumber, GetColumnNumber (inputIndex) - 1));
+
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
-							else
+							} else {
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingBodySeparator, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+							}
 						}
 						state = MimeParserState.Content;
 						eof = true;

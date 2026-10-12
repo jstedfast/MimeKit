@@ -191,6 +191,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   names. The validator is vectorized and avoids re-scanning phrases.
 * Added violations for repeated header fields, and corrected the reported positions of the
   `InvalidHeader`, `Content-Transfer-Encoding` and `BareLinefeedInBody` violations.
+* Added a `BareCarriageReturnInHeader` violation, reported for the first carriage return in each header
+  that is not followed by a linefeed. Parsers disagree about whether a bare carriage return ends a line,
+  which can be used to make different components see different headers for the same message.
 * The base64, quoted-printable and uuencode validators now report column numbers and report each
   violation at most once per line.
 * Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are
@@ -632,6 +635,14 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   the input was followed by more bytes in the buffer.
 * `AuthenticationResults.ToString()` now quotes the authserv-id when it is not a valid token (e.g. when it
   was parsed from a quoted-string), so that the result can be parsed again.
+* `TnefMessage.ConvertToMime ()` no longer throws when a TNEF message's Message-Id or correlation key is
+  only parseable with its angle brackets (e.g. `<(comment@example.com>`). Such ids are now ignored like
+  other invalid ids, rather than passed to the `MimeMessage.MessageId` setter, which rejected them.
+* `HeaderList.WriteTo ()` and `MimeMessage.WriteTo ()` now write a header line that consists of nothing but
+  carriage returns (e.g. `\r\r\n`) verbatim instead of passing it through the newline filter. `MimeParser`
+  treats such a line as an invalid header, but with `NewLineFormat.Unix` the filter stripped one carriage
+  return per round trip until the line became the blank line that ends the header block, which changed the
+  structure of the message.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

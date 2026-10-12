@@ -158,7 +158,7 @@ namespace MimeKit {
 			await ReadAheadAsync (ReadAheadSize, 0, cancellationToken).ConfigureAwait (false);
 
 			do {
-				var byteOptions = complianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls : ByteDetectionOptions.None;
+				var byteOptions = complianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls | ByteDetectionOptions.DetectBareCarriageReturns : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
 				int left = inputEnd - inputIndex;
@@ -309,10 +309,14 @@ namespace MimeKit {
 
 					if (await ReadAheadAsync (1, 0, cancellationToken).ConfigureAwait (false) == 0) {
 						if (complianceLogger != null) {
-							if (midline)
+							if (midline) {
+								if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0 && headerIndex > 0 && headerBuffer[headerIndex - 1] == (byte) '\r')
+									complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareCarriageReturnInHeader, GetOffset (inputIndex) - 1, lineNumber, GetColumnNumber (inputIndex) - 1));
+
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
-							else
+							} else {
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingBodySeparator, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+							}
 						}
 						state = MimeParserState.Content;
 						eof = true;
