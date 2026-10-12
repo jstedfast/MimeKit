@@ -422,7 +422,19 @@ namespace UnitTests.Utils {
 		[TestCase ("user@xn--g6h.example.com", SmtpUtf8AddressError.DisallowedCodePoint, TestName = "TestDecodeIdnSymbol")]
 		[TestCase ("user@xn--i-7iq.example.com", SmtpUtf8AddressError.DisallowedCodePoint, TestName = "TestDecodeIdnAsciiAndSymbol")]
 		[TestCase ("user@xn--aypal-uye.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnHomographIgnoringAscii")]
-		[TestCase ("user@xn--a.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnInvalidALabel")]
+		[TestCase ("user@xn--a.example.com", SmtpUtf8AddressError.DisallowedCodePoint, TestName = "TestDecodeIdnControlCharacter")]
+		[TestCase ("user@xn--ihqwcrb4cv8a8dqg056pqjye.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnRfc3492SimplifiedChinese")]
+		[TestCase ("user@xn--ihqwctvzc91f659drss3x8bo0yb.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnRfc3492TraditionalChinese")]
+		[TestCase ("user@xn--b1abfaaepdrnnbgefbaDotcwatmq2g4l.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnRfc3492Russian")]
+		[TestCase ("user@xn--Proprostnemluvesky-uyb24dma41a.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnRfc3492Czech")]
+		[TestCase ("user@xn--j50ic.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnSupplementaryPlane")]
+		[TestCase ("user@XN--TDA.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnUppercase")]
+		[TestCase ("user@xn---tda.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnNonCanonical")]
+		[TestCase ("user@xn----eha.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnLeadingHyphen")]
+		[TestCase ("user@xn----dha.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnTrailingHyphenInULabel")]
+		[TestCase ("user@xn--ab---3ra.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnHyphensInThirdAndFourthPositions")]
+		[TestCase ("user@xn--bb0c.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnSurrogate")]
+		[TestCase ("user@xn--tdaü.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnNonAscii")]
 		[TestCase ("user@xn--99999999999.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnOverflowALabel")]
 		[TestCase ("user@xn--abc-.example.com", SmtpUtf8AddressError.Syntax, TestName = "TestDecodeIdnTrailingHyphen")]
 		[TestCase ("xn--gr-zia@example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnLocalPartNotDecoded")]
@@ -433,6 +445,13 @@ namespace UnitTests.Utils {
 		public void TestDecodeIdn (string address, SmtpUtf8AddressError expected)
 		{
 			AssertValidate (address, SmtpUtf8AddressValidationOptions.DecodeIdn, expected);
+		}
+
+		[Test]
+		public void TestDecodeIdnLongALabel ()
+		{
+			// an A-label is limited to 63 octets (rfc5890), even when length limits are not being enforced
+			AssertValidate ("user@xn--" + Repeat ("a", 60) + ".example.com", SmtpUtf8AddressValidationOptions.DecodeIdn, SmtpUtf8AddressError.ALabel);
 		}
 
 		[TestCase ("paypal@рaypal.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinHomographDomain")]
@@ -483,7 +502,7 @@ namespace UnitTests.Utils {
 			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, options, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpUtf8AddressError.MixedScripts));
 
-			mailbox = MailboxAddress.Parse ("<user@xn--a.example.com>");
+			mailbox = MailboxAddress.Parse ("<user@xn--99999999999.example.com>");
 			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, options, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpUtf8AddressError.ALabel));
 

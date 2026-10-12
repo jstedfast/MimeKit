@@ -46,9 +46,19 @@ namespace MimeKit.Utils {
 		/// <para>Decode each A-label in the domain into its Unicode form (U-label) before validating the address.</para>
 		/// <para>The decoded domain is subject to all of the code point, contextual and script rules, which makes
 		/// this option useful for checking whether an address that will be displayed to a user (in its decoded
-		/// form) might be an attempt to spoof another address. A domain label that cannot be decoded is rejected
-		/// with <see cref="SmtpUtf8AddressError.ALabel"/>. Atoms in the local-part that begin with <c>xn--</c> are
-		/// not IDN-encoded and are still rejected with <see cref="SmtpUtf8AddressError.ALabel"/>.</para>
+		/// form) might be an attempt to spoof another address.</para>
+		/// <para>A-labels are decoded using MimeKit's own implementation of the Punycode algorithm described in
+		/// <a href="https://www.rfc-editor.org/rfc/rfc3492">rfc3492</a> rather than
+		/// <see cref="System.Globalization.IdnMapping"/>, so the results are the same on every platform and
+		/// target framework. A domain label is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> if it is
+		/// longer than 63 characters, is not valid Punycode, is not in canonical form (i.e. re-encoding the
+		/// decoded label does not reproduce the original A-label), decodes to a surrogate or to only ASCII
+		/// characters, or decodes to a U-label that begins or ends with a hyphen or that has hyphens in both
+		/// the third and fourth positions. Any other problem with the decoded U-label is reported in the same way
+		/// as it would be for a U-label that was not encoded (e.g. <c>xn--a</c> decodes to U+0080, which is
+		/// reported as <see cref="SmtpUtf8AddressError.DisallowedCodePoint"/>).</para>
+		/// <para>Atoms in the local-part that begin with <c>xn--</c> are not IDN-encoded and are still rejected
+		/// with <see cref="SmtpUtf8AddressError.ALabel"/>.</para>
 		/// </summary>
 		DecodeIdn = 1 << 0,
 

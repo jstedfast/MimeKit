@@ -25,8 +25,7 @@
 //
 
 using System;
-using System.Text;
-using System.Globalization;
+using System.Buffers;
 using System.Buffers.Binary;
 
 namespace MimeKit.Utils {
@@ -302,23 +301,40 @@ namespace MimeKit.Utils {
 				if ((options & SmtpUtf8AddressValidationOptions.DecodeIdn) == 0)
 					return SmtpUtf8AddressError.ALabel;
 
-				if (!TryDecodeDomain (address, domainIndex, out address))
-					return SmtpUtf8AddressError.ALabel;
+				return ValidateDecodedAddress (address, domainIndex, options);
 			}
 
-			return ValidateCodePoints (address, domainIndex, options);
+			return ValidateCodePoints (address.AsSpan (), domainIndex, options);
 		}
 
-		// Decodes each A-label in the domain into a U-label. IdnMapping.GetUnicode() verifies that the A-label
-		// round-trips (RFC 5891, Section 5.4) and throws if it does not, so an invalid A-label cannot sneak
-		// past the validator by decoding to something other than what was encoded.
-		static bool TryDecodeDomain (string address, int domainIndex, out string decoded)
+		static SmtpUtf8AddressError ValidateDecodedAddress (string address, int domainIndex, SmtpUtf8AddressValidationOptions options)
 		{
-			var builder = new StringBuilder (address, 0, domainIndex, address.Length);
-			var idn = new IdnMapping ();
+			// Each decoded code point consumes at least one character of its A-label and needs at most two UTF-16
+			// code units, so the decoded address can be at most twice as long as the original.
+			const int MaxStackBufferSize = 512;
+			int bufferSize = domainIndex + (address.Length - domainIndex) * 2;
+			char[]? rented = null;
+
+			Span<char> buffer = bufferSize <= MaxStackBufferSize ? stackalloc char[MaxStackBufferSize] : (rented = ArrayPool<char>.Shared.Rent (bufferSize));
+
+			try {
+				if (!TryDecodeDomain (address, domainIndex, buffer, out int length))
+					return SmtpUtf8AddressError.ALabel;
+
+				return ValidateCodePoints (buffer.Slice (0, length), domainIndex, options);
+			} finally {
+				if (rented != null)
+					ArrayPool<char>.Shared.Return (rented);
+			}
+		}
+
+		// Decodes each A-label in the domain into a U-label, copying the rest of the address as-is.
+		static bool TryDecodeDomain (string address, int domainIndex, Span<char> output, out int length)
+		{
 			int index = domainIndex;
 
-			decoded = address;
+			address.AsSpan (0, domainIndex).CopyTo (output);
+			length = domainIndex;
 
 			do {
 				int startIndex = index;
@@ -327,28 +343,168 @@ namespace MimeKit.Utils {
 					index++;
 
 				if (HasAcePrefix (address, startIndex, index)) {
-					string label;
-
-					try {
-						label = idn.GetUnicode (address, startIndex, index - startIndex);
-					} catch (ArgumentException) {
-						return false;
-					}
-
-					// Note: A valid A-label always decodes to a label that contains at least one non-ASCII code point.
-					if (HasAcePrefix (label, 0, label.Length) || label.IndexOf ('.') != -1)
+					if (!TryDecodeALabel (address, startIndex, index, output.Slice (length), out int written))
 						return false;
 
-					builder.Append (label);
+					length += written;
 				} else {
-					builder.Append (address, startIndex, index - startIndex);
+					address.AsSpan (startIndex, index - startIndex).CopyTo (output.Slice (length));
+					length += index - startIndex;
 				}
 
 				if (index < address.Length)
-					builder.Append (address[index++]);
+					output[length++] = address[index++];
 			} while (index < address.Length);
 
-			decoded = builder.ToString ();
+			return true;
+		}
+
+		// Decodes an A-label into a U-label.
+		//
+		// Note: System.Globalization.IdnMapping is deliberately not used for this because its behavior depends on
+		// the platform, which would make the result of validating an address platform-dependent as well:
+		//
+		// * On the .NET Framework, IdnMapping uses the Windows NLS APIs, which implement IDNA2003 rather than
+		//   IDNA2008 (for example, it maps U+00DF LATIN SMALL LETTER SHARP S to "ss"). This is why MimeKit
+		//   introduced the IPunycode interface (see https://github.com/jstedfast/MimeKit/issues/801).
+		// * On .NET Core and .NET 5+, IdnMapping uses ICU, so its behavior depends on the version of ICU that is
+		//   installed. Older versions of ICU reject labels that newer versions accept
+		//   (see https://github.com/dotnet/runtime/issues/107900).
+		// * In globalization-invariant mode, IdnMapping uses a separate managed implementation that does not
+		//   behave the same as the ICU implementation (see https://github.com/dotnet/runtime/issues/37349).
+		// * IdnMapping applies the UTS #46 mapping and validity rules rather than the rules defined by
+		//   draft-ietf-mailmaint-smtputf8-syntax, and it does not expose the UTS #46 processing options needed
+		//   to control them (see https://github.com/dotnet/runtime/issues/101887).
+		//
+		// Instead, the A-label is decoded using the Punycode algorithm (RFC 3492, Section 6.2), which is the same on
+		// every platform, and the resulting U-label is then subject to the same code point, contextual and script
+		// rules as any other label. This also avoids allocating strings.
+		//
+		// To prevent an A-label from sneaking past the validator by decoding to something other than what it
+		// appears to encode, the A-label must:
+		//
+		// * Not exceed 63 octets (RFC 5890, Section 2.3.2.1).
+		// * Contain only ASCII characters and must decode without overflow to valid Unicode scalar values.
+		// * Decode to a label that contains at least one non-ASCII code point (RFC 5890, Section 2.3.2.1).
+		// * Decode to a label that neither begins nor ends with a hyphen and that does not contain hyphens in both
+		//   the third and fourth positions (RFC 5891, Section 4.2.3.1).
+		// * Be exactly what encoding the decoded label produces, ignoring case (RFC 5891, Section 5.4).
+		static bool TryDecodeALabel (string text, int startIndex, int endIndex, Span<char> output, out int written)
+		{
+			const int AcePrefixLength = 4;
+			Span<int> label = stackalloc int[MaxLabelLength];
+			int index = startIndex + AcePrefixLength;
+			int count = 0;
+
+			written = 0;
+
+			if (endIndex - startIndex > MaxLabelLength)
+				return false;
+
+			for (int j = index; j < endIndex; j++) {
+				if (text[j] >= 0x80)
+					return false;
+			}
+
+			// RFC 3492, Section 6.2: Let b = the number of input code points before the last delimiter, or 0 if
+			// there is none, then copy the first b code points to the output.
+			int delimiter = text.LastIndexOf ('-', endIndex - 1, endIndex - index);
+
+			if (delimiter != -1) {
+				while (index < delimiter)
+					label[count++] = text[index++];
+
+				index++;
+			}
+
+			int basic = count;
+			int bias = InitialBias;
+			int n = InitialN;
+			int i = 0;
+
+			while (index < endIndex) {
+				int oldi = i;
+				int w = 1;
+
+				for (int k = Base; ; k += Base) {
+					if (index >= endIndex)
+						return false;
+
+					int digit = DecodeDigit (text[index++]);
+
+					if (digit == -1 || digit > (int.MaxValue - i) / w)
+						return false;
+
+					i += digit * w;
+
+					int t = k <= bias ? TMin : (k >= bias + TMax ? TMax : k - bias);
+
+					if (digit < t)
+						break;
+
+					if (w > int.MaxValue / (Base - t))
+						return false;
+
+					w *= Base - t;
+				}
+
+				bias = Adapt (i - oldi, count + 1, oldi == 0);
+
+				if (i / (count + 1) > MaxCodePoint - n)
+					return false;
+
+				n += i / (count + 1);
+				i %= count + 1;
+
+				if (n >= 0xD800 && n <= 0xDFFF)
+					return false;
+
+				// Note: Since every code point consumes at least one character of the A-label, the label buffer
+				// cannot actually overflow, but be defensive.
+				if (count == label.Length)
+					return false;
+
+				label.Slice (i, count - i).CopyTo (label.Slice (i + 1));
+				label[i++] = n;
+				count++;
+			}
+
+			if (count == basic)
+				return false;
+
+			if (label[0] == '-' || label[count - 1] == '-' || (count >= 4 && label[2] == '-' && label[3] == '-'))
+				return false;
+
+			Span<char> encoded = stackalloc char[MaxLabelLength];
+			int encodedLength = EncodePunycode (label.Slice (0, count), encoded);
+
+			if (encodedLength != endIndex - startIndex - AcePrefixLength)
+				return false;
+
+			for (int j = 0; j < encodedLength; j++) {
+				char c = text[startIndex + AcePrefixLength + j];
+
+				if (encoded[j] != c && encoded[j] != (char) (c | 0x20))
+					return false;
+			}
+
+			for (int j = 0; j < count; j++) {
+				int codePoint = label[j];
+
+				if (codePoint >= 0x10000) {
+					if (written + 2 > output.Length)
+						return false;
+
+					codePoint -= 0x10000;
+					output[written++] = (char) (0xD800 + (codePoint >> 10));
+					output[written++] = (char) (0xDC00 + (codePoint & 0x3FF));
+				} else {
+					if (written == output.Length)
+						return false;
+
+					output[written++] = (char) codePoint;
+				}
+			}
 
 			return true;
 		}
@@ -468,18 +624,73 @@ namespace MimeKit.Utils {
 			int count = 0;
 
 			for (int i = startIndex; i < endIndex; i++) {
-				label[count++] = GetCodePoint (text, i, out int length);
+				label[count++] = GetCodePoint (text.AsSpan (), i, out int length);
 				i += length - 1;
 			}
 
-			return AcePrefixLength + GetPunycodeLength (label.Slice (0, count), basic);
+			return AcePrefixLength + EncodePunycode (label.Slice (0, count), Span<char>.Empty);
 		}
 
-		// RFC 3492, Section 6.3: Encoding procedure (counting the output instead of producing it).
-		static int GetPunycodeLength (ReadOnlySpan<int> input, int basic)
+		#endregion
+
+		#region Punycode
+
+		// RFC 3492, Section 5: Parameter values for Punycode.
+		const int Base = 36, TMin = 1, TMax = 26, Skew = 38, Damp = 700, InitialBias = 72, InitialN = 0x80;
+		const int MaxCodePoint = 0x10FFFF;
+
+		static int DecodeDigit (char c)
 		{
-			const int Base = 36, TMin = 1, TMax = 26, InitialBias = 72, InitialN = 0x80;
-			int output = basic > 0 ? basic + 1 : 0;
+			if (c >= 'a' && c <= 'z')
+				return c - 'a';
+
+			if (c >= 'A' && c <= 'Z')
+				return c - 'A';
+
+			if (c >= '0' && c <= '9')
+				return c - '0' + 26;
+
+			return -1;
+		}
+
+		static char EncodeDigit (int digit)
+		{
+			return (char) (digit < 26 ? 'a' + digit : '0' + digit - 26);
+		}
+
+		static bool Append (Span<char> output, ref int length, char c)
+		{
+			if (!output.IsEmpty) {
+				if (length == output.Length)
+					return false;
+
+				output[length] = c;
+			}
+
+			length++;
+
+			return true;
+		}
+
+		// RFC 3492, Section 6.3: Encoding procedure. If the output buffer is empty, the output is only counted;
+		// otherwise, -1 is returned if the output does not fit.
+		static int EncodePunycode (ReadOnlySpan<int> input, Span<char> output)
+		{
+			int length = 0;
+			int basic = 0;
+
+			for (int i = 0; i < input.Length; i++) {
+				if (input[i] < 0x80) {
+					if (!Append (output, ref length, (char) input[i]))
+						return -1;
+
+					basic++;
+				}
+			}
+
+			if (basic > 0 && !Append (output, ref length, '-'))
+				return -1;
+
 			int bias = InitialBias;
 			int n = InitialN;
 			long delta = 0;
@@ -508,11 +719,15 @@ namespace MimeKit.Utils {
 							if (q < t)
 								break;
 
-							output++;
+							if (!Append (output, ref length, EncodeDigit ((int) (t + (q - t) % (Base - t)))))
+								return -1;
+
 							q = (q - t) / (Base - t);
 						}
 
-						output++;
+						if (!Append (output, ref length, EncodeDigit ((int) q)))
+							return -1;
+
 						bias = Adapt (delta, h + 1, h == basic);
 						delta = 0;
 						h++;
@@ -523,13 +738,12 @@ namespace MimeKit.Utils {
 				n++;
 			}
 
-			return output;
+			return length;
 		}
 
 		// RFC 3492, Section 6.1: Bias adaptation function.
 		static int Adapt (long delta, int numPoints, bool firstTime)
 		{
-			const int Base = 36, TMin = 1, TMax = 26, Skew = 38, Damp = 700;
 			int k = 0;
 
 			delta = firstTime ? delta / Damp : delta / 2;
@@ -850,7 +1064,7 @@ namespace MimeKit.Utils {
 
 		#region Code Points
 
-		static int GetCodePoint (string text, int index, out int length)
+		static int GetCodePoint (ReadOnlySpan<char> text, int index, out int length)
 		{
 			char c = text[index];
 
@@ -865,7 +1079,7 @@ namespace MimeKit.Utils {
 			return c;
 		}
 
-		static int GetPreviousCodePoint (string text, int index, out int length)
+		static int GetPreviousCodePoint (ReadOnlySpan<char> text, int index, out int length)
 		{
 			char c = text[index - 1];
 
@@ -927,7 +1141,7 @@ namespace MimeKit.Utils {
 			return (entry & 0x8) != 0;
 		}
 
-		static SmtpUtf8AddressError ValidateCodePoints (string address, int domainIndex, SmtpUtf8AddressValidationOptions options)
+		static SmtpUtf8AddressError ValidateCodePoints (ReadOnlySpan<char> address, int domainIndex, SmtpUtf8AddressValidationOptions options)
 		{
 			bool asciiIsLatin = (options & SmtpUtf8AddressValidationOptions.AsciiIsLatin) != 0;
 			var firstScript = UnicodeScript.Unknown;
@@ -1023,7 +1237,7 @@ namespace MimeKit.Utils {
 		}
 
 		// RFC 5892, Appendix A: the contextual rules for CONTEXTJ and CONTEXTO code points.
-		static bool IsContextSatisfied (string text, int index, int length, int codePoint, bool hasHiraganaKatakanaOrHan)
+		static bool IsContextSatisfied (ReadOnlySpan<char> text, int index, int length, int codePoint, bool hasHiraganaKatakanaOrHan)
 		{
 			int before = index > 0 ? GetPreviousCodePoint (text, index, out _) : -1;
 			int afterIndex = index + length;
@@ -1056,7 +1270,7 @@ namespace MimeKit.Utils {
 			}
 		}
 
-		static bool IsJoiningContextSatisfied (string text, int index, int afterIndex)
+		static bool IsJoiningContextSatisfied (ReadOnlySpan<char> text, int index, int afterIndex)
 		{
 			JoiningType type;
 			bool matched = false;
