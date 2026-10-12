@@ -1,4 +1,19 @@
 $rootDirectory = Split-Path $PSScriptRoot -Parent
+
+# The Native AOT toolchain uses vswhere.exe to locate the MSVC linker, but the Visual Studio Installer
+# directory is not always on the PATH (e.g. in non-Developer shells).
+if ($IsWindows -or $env:OS -eq "Windows_NT")
+{
+    if (-not (Get-Command vswhere.exe -ErrorAction SilentlyContinue))
+    {
+        $vsInstallerDirectory = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer"
+
+        if (Test-Path (Join-Path $vsInstallerDirectory "vswhere.exe"))
+        {
+            $env:PATH = "$env:PATH;$vsInstallerDirectory"
+        }
+    }
+}
 $publishOutput = dotnet publish $rootDirectory/AotCompatibility/AotCompatibility.csproj -nodeReuse:false /p:UseSharedCompilation=false /p:ExposeExperimentalFeatures=true
 $publishExitCode = $LastExitCode
 
