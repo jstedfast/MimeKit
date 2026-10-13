@@ -691,6 +691,10 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   back as a quoted line. It also no longer inserts a soft line break into the middle of a word that does
   not fit on a line of its own (including at very deep quote depths). Such a word is now sent as is, as
   rfc3676 recommends, unless the line would exceed 998 characters.
+* `TextToFlowed` no longer puts each word on its own line when the quote markers of a very deeply quoted
+  line (39 levels or more) take up most of a line. Previously, the size of the output grew with the quote
+  depth multiplied by the number of words (e.g. 10 KB of text quoted 900 levels deep became 4.5 MB). Lines
+  now always leave at least as much room for text as the quote markers take up.
 * `TextToHtml` and `FlowedToHtml` no longer write the `</blockquote>` end tags that are still open at the
   end of the text when the `HtmlTagCallback` set `DeleteEndTag`. They also no longer invoke the callback
   for (and write) blockquotes nested inside a blockquote whose inner content is suppressed.

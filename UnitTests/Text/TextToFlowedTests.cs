@@ -214,9 +214,43 @@ namespace UnitTests.Text {
 
 			foreach (var line in flowed.Split (new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)) {
 				Assert.That (line, Does.StartWith (new string ('>', quoteDepth) + " "));
-				// a line can only be wrapped if there is room for the prefix, at least 1 character and the soft line break
-				if (quoteDepth < 996)
-					Assert.That (line, Has.Length.LessThanOrEqualTo (998));
+				// lines may only exceed 998 characters when the quote markers take up at least half of that
+				Assert.That (line, Has.Length.LessThanOrEqualTo (Math.Max (998, (quoteDepth + 1) * 2)));
+			}
+
+			converter = new FlowedToText () { DeleteSpace = true };
+			string result = converter.Convert (flowed);
+
+			Assert.That (result, Is.EqualTo (text));
+		}
+
+		[TestCase (2)]
+		[TestCase (38)]
+		[TestCase (39)]
+		[TestCase (77)]
+		[TestCase (200)]
+		[TestCase (900)]
+		[TestCase (5000)]
+		public void TestDeeplyQuotedLinesDoNotAmplifyOutput (int quoteDepth)
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ('>', quoteDepth);
+			for (int i = 0; i < 5000; i++)
+				builder.Append (" a");
+			builder.Append (Environment.NewLine);
+
+			var text = builder.ToString ();
+			var prefix = new string ('>', quoteDepth) + " ";
+			int maxLineLength = Math.Max (78, prefix.Length * 2);
+			TextConverter converter = new TextToFlowed ();
+			string flowed = converter.Convert (text);
+
+			Assert.That (flowed, Has.Length.LessThanOrEqualTo (text.Length * 3));
+
+			foreach (var line in flowed.Split (new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)) {
+				Assert.That (line, Does.StartWith (prefix));
+				Assert.That (line, Has.Length.LessThanOrEqualTo (maxLineLength));
 			}
 
 			converter = new FlowedToText () { DeleteSpace = true };
