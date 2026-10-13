@@ -312,6 +312,11 @@ namespace MimeKit.Cryptography {
 			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 		}
 
+		static bool IsTagNameChar (char c)
+		{
+			return IsAlpha (c) || (c >= '0' && c <= '9') || c == '_';
+		}
+
 		internal static Dictionary<string, string> ParseParameterTags (HeaderId header, string signature)
 		{
 			var parameters = new Dictionary<string, string> ();
@@ -330,13 +335,17 @@ namespace MimeKit.Cryptography {
 
 				int startIndex = index++;
 
-				while (index < signature.Length && signature[index] != '=')
+				// tag-name = ALPHA *ALNUMPUNC (rfc6376, section 3.2)
+				while (index < signature.Length && IsTagNameChar (signature[index]))
 					index++;
 
-				if (index >= signature.Length)
-					continue;
+				var name = signature.Substring (startIndex, index - startIndex);
 
-				var name = signature.AsSpan (startIndex, index - startIndex).TrimEnd ().ToString ();
+				while (index < signature.Length && IsWhiteSpace (signature[index]))
+					index++;
+
+				if (index >= signature.Length || signature[index] != '=')
+					throw new FormatException (string.Format ("Malformed {0} value.", header.ToHeaderName ()));
 
 				// skip over '=' and clear value buffer
 				value.Length = 0;

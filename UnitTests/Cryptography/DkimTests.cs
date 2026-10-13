@@ -682,6 +682,31 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestDkimParameterParsingTagNames ()
+		{
+			var parameters = DkimVerifierBase.ParseParameterTags (HeaderId.DkimSignature, "v=1;\tx_2 \t= 1 2 ;Ab9=c");
+
+			Assert.That (parameters, Has.Count.EqualTo (3));
+			Assert.That (parameters["v"], Is.EqualTo ("1"));
+			Assert.That (parameters["x_2"], Is.EqualTo ("12"));
+			Assert.That (parameters["Ab9"], Is.EqualTo ("c"));
+		}
+
+		// tag-name = ALPHA *ALNUMPUNC (rfc6376, section 3.2)
+		[TestCase ("v=1; a b=c", TestName = "TestDkimParameterParsingTagNameWithWhiteSpace")]
+		[TestCase ("v=1; t\tWjEJt; filename=\"doc\"", TestName = "TestDkimParameterParsingTagNameWithSemicolon")]
+		[TestCase ("v=1; a-b=c", TestName = "TestDkimParameterParsingTagNameWithHyphen")]
+		[TestCase ("v=1; a:rsa-sha256; d=example.com", TestName = "TestDkimParameterParsingTagWithoutEquals")]
+		[TestCase ("v=1; d=example.com; s", TestName = "TestDkimParameterParsingTrailingTagWithoutEquals")]
+		[TestCase ("v=1; d=example.com; s ", TestName = "TestDkimParameterParsingTrailingTagWithoutEqualsAndWhiteSpace")]
+		public void TestDkimParameterParsingInvalidTagName (string value)
+		{
+			var ex = Assert.Throws<FormatException> (() => DkimVerifierBase.ParseParameterTags (HeaderId.DkimSignature, value));
+
+			Assert.That (ex.Message, Is.EqualTo ("Malformed DKIM-Signature value."));
+		}
+
+		[Test]
 		public void TestDkimVerifierDefaults ()
 		{
 			var verifier = new DkimVerifier (new DummyDnsResolver (DkimKeys.Public));

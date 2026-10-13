@@ -693,6 +693,13 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `HtmlTokenizer` now terminates an empty CDATA section (`<![CDATA[]]>`) in foreign content. Previously,
   everything after it was treated as part of the CDATA section. This allowed markup such as
   `<svg><![CDATA[]]><img src=x onerror=alert(1)>` to bypass the `HtmlTagCallback` of `HtmlToHtml`.
+* Parsing an address with a domain literal (such as `user@[IPv6:...]`) no longer IDN-decodes the literal.
+  Previously, a literal containing `.xn--` came back lowercased and with Unicode labels.
+* The `DKIM-Signature` and `ARC-*` tag parser used by `DkimVerifier` and `ArcVerifier` now enforces the
+  rfc6376 tag-name grammar (`ALPHA *(ALPHA / DIGIT / "_")`). It now reports a malformed header when a
+  tag name contains whitespace or other invalid characters, or when a tag has no `=`. Previously, such
+  tags were misparsed (or the last one silently ignored), which could produce confusing
+  "duplicate parameter" errors.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

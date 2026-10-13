@@ -474,6 +474,18 @@ namespace UnitTests {
 			AssertParseFailure (text, false, tokenIndex, errorIndex);
 		}
 
+		[TestCase ("user@[IPv6:2001:db8::1]")]
+		[TestCase ("user@[xn--e1afmk1afmk0c]")]
+		[TestCase ("user@[IPv:example.xn--e1afmk1afmk0c.X--abc]")]
+		[TestCase ("user@[Tag:xn--Abc.xn--e1afmk1afmk0c]")]
+		public void TestParseMailboxPreservesDomainLiteral (string address)
+		{
+			Assert.That (MailboxAddress.TryParse (address, out var mailbox), Is.True, "TryParse");
+			Assert.That (mailbox.Address, Is.EqualTo (address), "Address");
+			Assert.That (mailbox.Domain, Is.EqualTo (address.Substring (address.IndexOf ('@') + 1)), "Domain");
+			Assert.That (mailbox.ToString (), Is.EqualTo (address), "ToString");
+		}
+
 		[Test]
 		public void TestParseMailboxWithIncompleteCommentAfterAddress ()
 		{
