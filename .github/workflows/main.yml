@@ -104,8 +104,8 @@ jobs:
         id: check_unit_tests
         shell: pwsh
         run: |
-           Write-Output "::error::One or more unit tests failed. See the 'Run unit tests' step for details."
-           exit 1
+          Write-Output "::error::One or more unit tests failed. See the 'Run unit tests' step for details."
+          exit 1
 
       - if: ${{ env.PUBLISH == 'true' }}
         name: Create NuGet packages
