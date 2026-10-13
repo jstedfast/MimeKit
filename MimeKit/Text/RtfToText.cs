@@ -57,6 +57,7 @@ namespace MimeKit.Text {
 
 		int maxFontTableEntries = DefaultLimit;
 		int maxColorTableEntries = DefaultLimit;
+		int maxComplianceIssuesPerViolation;
 		int maxGroupDepth = DefaultLimit;
 
 		/// <summary>
@@ -160,12 +161,65 @@ namespace MimeKit.Text {
 			get; set;
 		}
 
+		/// <summary>
+		/// Get or set the logger to use for reporting RTF compliance violations.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the logger to use for reporting RTF compliance violations.</para>
+		/// <para>Violations are reported as they are encountered during <see cref="Convert(TextReader, TextWriter)"/>.
+		/// When the value is <see langword="null" /> (the default), no compliance checks are performed.</para>
+		/// </remarks>
+		/// <value>The RTF compliance logger.</value>
+		public IRtfComplianceLogger? ComplianceLogger {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of times that each compliance violation may be
+		/// reported while converting a single document. The default is <c>0</c>, which means that no limit
+		/// is applied.</para>
+		/// <para>The number of issues an RTF document can produce is bounded only by its size, and the
+		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when converting
+		/// untrusted documents.</para>
+		/// <para>When some violation reaches the limit, a single
+		/// <see cref="RtfComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
+		/// report is never silently incomplete.</para>
+		/// </remarks>
+		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxComplianceIssuesPerViolation {
+			get { return maxComplianceIssuesPerViolation; }
+			set { maxComplianceIssuesPerViolation = ValidateComplianceLimit (value); }
+		}
+
 		internal static int ValidateLimit (int value)
 		{
 			if (value < 1)
 				throw new ArgumentOutOfRangeException (nameof (value));
 
 			return value;
+		}
+
+		internal static int ValidateComplianceLimit (int value)
+		{
+			if (value < 0)
+				throw new ArgumentOutOfRangeException (nameof (value));
+
+			return value;
+		}
+
+		// A new capped logger is created for each conversion so that the budget applies per document.
+		internal static IRtfComplianceLogger? CreateComplianceLogger (IRtfComplianceLogger? logger, int maxComplianceIssuesPerViolation)
+		{
+			if (logger != null && maxComplianceIssuesPerViolation > 0)
+				return new RtfCappedComplianceLogger (logger, maxComplianceIssuesPerViolation);
+
+			return logger;
 		}
 
 		sealed class TextHandler : RtfContentHandler
@@ -291,6 +345,7 @@ namespace MimeKit.Text {
 			// (including the \htmlrtf blocks) is a faithful rendering of the HTML, and is much better suited to
 			// producing plain text than the HTML markup would be.
 			var interpreter = new RtfInterpreter (reader, new TextHandler (writer, AttachmentPlaceholderCallback), MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
+				ComplianceLogger = CreateComplianceLogger (ComplianceLogger, MaxComplianceIssuesPerViolation),
 				ExtractHtml = false
 			};
 

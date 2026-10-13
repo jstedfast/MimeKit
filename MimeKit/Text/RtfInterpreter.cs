@@ -323,6 +323,44 @@ namespace MimeKit.Text {
 		int bytesCodePage;
 		Decoder? defaultDecoder;
 
+		// compliance reporting state (see ComplianceLogger)
+		HeaderState headerState;
+		ReportedViolations reported;
+
+		enum HeaderState : byte
+		{
+			ExpectGroupStart,
+			ExpectRtf,
+			Done
+		}
+
+		// Violations that are only reported once: per document, per field instruction (FieldInstructionTooLong) or per
+		// run of text (UnescapedEightBitCharacter).
+		[Flags]
+		enum ReportedViolations : byte
+		{
+			None                    = 0,
+			ContentAfterDocument    = 1 << 0,
+			FieldInstructionTooLong = 1 << 1,
+			FontTableLimitExceeded  = 1 << 2,
+			ColorTableLimitExceeded = 1 << 3,
+			GroupDepthLimitExceeded = 1 << 4,
+
+			// Reset by every non-text token: reported once per run of text.
+			UnescapedEightBitCharacter = 1 << 5
+		}
+
+		// Returns true if the violation had not yet been reported (and marks it as reported).
+		bool TryMarkReported (ReportedViolations violation)
+		{
+			if ((reported & violation) != 0)
+				return false;
+
+			reported |= violation;
+
+			return true;
+		}
+
 		static RtfInterpreter ()
 		{
 			// Windows-1252 is not available on .NET Core unless the application has registered
@@ -363,6 +401,17 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public bool ExtractHtml {
 			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the compliance logger.
+		/// </summary>
+		/// <remarks>
+		/// When set, violations of the RTF specification are reported to the logger as they are encountered.
+		/// </remarks>
+		public IRtfComplianceLogger? ComplianceLogger {
+			get { return tokenizer.ComplianceLogger; }
+			set { tokenizer.ComplianceLogger = value; }
 		}
 
 		/// <summary>
@@ -476,7 +525,54 @@ namespace MimeKit.Text {
 			finished = true;
 			FlushBytes ();
 			FlushHighSurrogate ();
+
+			// An empty document has no {\rtf header either.
+			if (headerState != HeaderState.Done) {
+				headerState = HeaderState.Done;
+				tokenizer.Report (RtfComplianceViolation.MissingRtfHeader);
+			}
+
 			Begin ();
+		}
+
+		// RTF 1.9.1, "RTF Syntax": <File> ::= '{' <header> <document> '}', where <header> begins with \rtfN.
+		void CheckHeader (RtfTokenKind kind)
+		{
+			if (headerState == HeaderState.ExpectGroupStart && kind == RtfTokenKind.GroupStart) {
+				headerState = HeaderState.ExpectRtf;
+				return;
+			}
+
+			if (headerState != HeaderState.ExpectRtf || kind != RtfTokenKind.ControlWord || tokenizer.KeywordId != RtfKeyword.Rtf)
+				tokenizer.Report (RtfComplianceViolation.MissingRtfHeader);
+
+			headerState = HeaderState.Done;
+		}
+
+		// Whitespace (and NUL padding) after the end of the document is common and harmless, so it is not reported.
+		bool IsIgnorableTrailingText ()
+		{
+			var buffer = tokenizer.TextBuffer;
+			int endIndex = tokenizer.TextIndex + tokenizer.TextLength;
+
+			for (int i = tokenizer.TextIndex; i < endIndex; i++) {
+				char c = buffer[i];
+
+				if (c != ' ' && c != '\t' && c != '\0')
+					return false;
+			}
+
+			return true;
+		}
+
+		void CheckContentAfterDocument (RtfTokenKind kind)
+		{
+			// A stray '}' is reported as an unbalanced group end (see PopGroup) instead.
+			if (kind == RtfTokenKind.GroupEnd || (kind == RtfTokenKind.Text && IsIgnorableTrailingText ()))
+				return;
+
+			reported |= ReportedViolations.ContentAfterDocument;
+			tokenizer.Report (RtfComplianceViolation.ContentAfterDocument);
 		}
 
 		void Begin ()
@@ -492,6 +588,16 @@ namespace MimeKit.Text {
 		void ProcessToken ()
 		{
 			var kind = tokenizer.Kind;
+
+			if (tokenizer.ComplianceLogger != null) {
+				if (kind != RtfTokenKind.Text)
+					reported &= ~ReportedViolations.UnescapedEightBitCharacter;
+
+				if (headerState != HeaderState.Done)
+					CheckHeader (kind);
+				else if (rootGroupClosed && depth == 0 && skipDepth == 0 && (reported & ReportedViolations.ContentAfterDocument) == 0)
+					CheckContentAfterDocument (kind);
+			}
 
 			if (recognitionWindowOpen) {
 				if ((kind != RtfTokenKind.GroupStart && kind != RtfTokenKind.ControlWord) || ++recognitionTokens > EncapsulationRecognitionTokens) {
@@ -586,6 +692,9 @@ namespace MimeKit.Text {
 				// the content is preferable to rendering it with the wrong formatting or throwing.
 				skipPopsGroup = false;
 				skipDepth = 1;
+
+				if (TryMarkReported (ReportedViolations.GroupDepthLimitExceeded))
+					tokenizer.Report (RtfComplianceViolation.GroupDepthLimitExceeded);
 				return;
 			}
 
@@ -604,6 +713,7 @@ namespace MimeKit.Text {
 			if (stackCount == 0) {
 				// Unbalanced '}'. RTF 1.9.1 does not define this, but real-world writers emit it, so be lenient
 				// and ignore it rather than failing the whole conversion.
+				tokenizer.Report (RtfComplianceViolation.UnbalancedGroupEnd);
 				return;
 			}
 
@@ -710,6 +820,9 @@ namespace MimeKit.Text {
 				} catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) {
 					encoding = null;
 				}
+
+				if (encoding is null)
+					tokenizer.Report (RtfComplianceViolation.UnsupportedCodePage);
 			}
 
 			decoder = (encoding ?? FallbackEncoding).GetDecoder ();
@@ -785,7 +898,14 @@ namespace MimeKit.Text {
 				handler.OnHtmlTag (this, buffer, index, count);
 				break;
 			case RtfDestination.FieldInstruction:
-				count = Math.Min (count, MaxFieldInstructionLength - fieldInstruction.Length);
+				int available = MaxFieldInstructionLength - fieldInstruction.Length;
+
+				if (count > available) {
+					if (TryMarkReported (ReportedViolations.FieldInstructionTooLong))
+						tokenizer.Report (RtfComplianceViolation.FieldInstructionTooLong);
+					count = available;
+				}
+
 				if (count > 0)
 					fieldInstruction.Append (buffer, index, count);
 				break;
@@ -822,6 +942,7 @@ namespace MimeKit.Text {
 				return;
 
 			highSurrogate = '\0';
+			tokenizer.Report (RtfComplianceViolation.UnpairedSurrogate);
 			EmitChars (ReplacementChar, 0, 1);
 		}
 
@@ -839,8 +960,11 @@ namespace MimeKit.Text {
 			} else if (char.IsHighSurrogate (c)) {
 				FlushHighSurrogate ();
 				highSurrogate = c;
+			} else if (char.IsLowSurrogate (c)) {
+				tokenizer.Report (RtfComplianceViolation.UnpairedSurrogate);
+				EmitChar ('\uFFFD');
 			} else {
-				EmitChar (char.IsLowSurrogate (c) ? '\uFFFD' : c);
+				EmitChar (c);
 			}
 		}
 
@@ -887,6 +1011,9 @@ namespace MimeKit.Text {
 
 		void ProcessText (bool replacePlaceholder)
 		{
+			if (tokenizer.ComplianceLogger != null)
+				CheckEightBitText ();
+
 			if (current.Destination == RtfDestination.Upr)
 				return;
 
@@ -907,6 +1034,24 @@ namespace MimeKit.Text {
 			if (index == endIndex)
 				return;
 
+			// RTF 1.9.1, "Font Table" and "Color Table": only the ';' entry terminators matter here (font names are
+			// not stored, which is what keeps a huge font table from consuming memory), so there is no need to
+			// decode the text. Any bytes from preceding \'hh escapes are flushed first to preserve ordering.
+			if (current.Destination == RtfDestination.FontTable || current.Destination == RtfDestination.ColorTable) {
+				FlushBytes ();
+
+				for (int i = index; i < endIndex; i++) {
+					if (buffer[i] != ';')
+						continue;
+
+					if (current.Destination == RtfDestination.FontTable)
+						CommitFont (i - tokenizer.TextIndex);
+					else
+						CommitColor (i - tokenizer.TextIndex);
+				}
+				return;
+			}
+
 			int codepage = GetCurrentCodePage ();
 
 			for (int i = index; i < endIndex; i++) {
@@ -921,6 +1066,27 @@ namespace MimeKit.Text {
 					// are decoded with the current font's code page exactly like \'hh. Other C0 control characters
 					// have no meaning in RTF text and could be harmful in the output, so they are dropped.
 					AppendByte ((byte) c, codepage);
+				}
+			}
+		}
+
+		// RTF 1.9.1, "RTF Syntax": RTF is a 7-bit format; 8-bit characters should be written as \'hh or \uN.
+		// This is reported once per run of text (which the tokenizer may split into several text tokens), at the
+		// first such character.
+		void CheckEightBitText ()
+		{
+			if ((reported & ReportedViolations.UnescapedEightBitCharacter) != 0)
+				return;
+
+			var buffer = tokenizer.TextBuffer;
+			int index = tokenizer.TextIndex;
+			int endIndex = index + tokenizer.TextLength;
+
+			for (int i = index; i < endIndex; i++) {
+				if (buffer[i] >= 0x80) {
+					reported |= ReportedViolations.UnescapedEightBitCharacter;
+					tokenizer.Report (RtfComplianceViolation.UnescapedEightBitCharacter, i - index);
+					return;
 				}
 			}
 		}
@@ -1002,7 +1168,7 @@ namespace MimeKit.Text {
 			pendingFontCodePage = 0;
 		}
 
-		void CommitFont ()
+		void CommitFont (int delta = 0)
 		{
 			if (!pendingFont)
 				return;
@@ -1011,8 +1177,11 @@ namespace MimeKit.Text {
 
 			// Once the font table is full, new font numbers are ignored (and text in those fonts falls back to the
 			// document code page), but existing entries may still be updated since that does not grow the table.
-			if (fonts.Count >= maxFontTableEntries && !fonts.ContainsKey (pendingFontNumber))
+			if (fonts.Count >= maxFontTableEntries && !fonts.ContainsKey (pendingFontNumber)) {
+				if (TryMarkReported (ReportedViolations.FontTableLimitExceeded))
+					tokenizer.Report (RtfComplianceViolation.FontTableLimitExceeded, delta);
 				return;
+			}
 
 			// RTF 1.9.1, "Font Table": \cpgN, when present, takes precedence over the code page implied by \fcharsetN.
 			int codepage = pendingFontCodePage > 0 ? pendingFontCodePage : GetCodePageFromCharset (pendingFontCharset);
@@ -1020,7 +1189,7 @@ namespace MimeKit.Text {
 			fonts[pendingFontNumber] = codepage;
 		}
 
-		void CommitColor ()
+		void CommitColor (int delta = 0)
 		{
 			// RTF 1.9.1, "Color Table": an entry without any color components (typically the first one, written as
 			// a bare ';') denotes the "auto" color, represented here as -1.
@@ -1030,8 +1199,11 @@ namespace MimeKit.Text {
 			pendingRed = pendingGreen = pendingBlue = 0;
 
 			// Entries beyond the limit are dropped; \cfN/\cbN references to them resolve to "auto".
-			if (colors.Count < maxColorTableEntries)
+			if (colors.Count < maxColorTableEntries) {
 				colors.Add (rgb);
+			} else if (TryMarkReported (ReportedViolations.ColorTableLimitExceeded)) {
+				tokenizer.Report (RtfComplianceViolation.ColorTableLimitExceeded, delta);
+			}
 		}
 
 		// RTF 1.9.1, "Color Table": \redN, \greenN and \blueN range from 0 to 255.
@@ -1209,6 +1381,14 @@ namespace MimeKit.Text {
 			current.Font = defaultFont;
 		}
 
+		// RTF 1.9.1, "Color Table": \cf0/\cb0 is the automatic color; any other index must name a color table entry.
+		// Entries that were dropped because the color table limit was exceeded have already been reported.
+		void CheckColorIndex (int index)
+		{
+			if (index != 0 && (index < 0 || index >= colors.Count) && (reported & ReportedViolations.ColorTableLimitExceeded) == 0)
+				tokenizer.Report (RtfComplianceViolation.UndefinedColor);
+		}
+
 		void ProcessControlWord ()
 		{
 			bool ignorable = ignorableDestination;
@@ -1292,6 +1472,7 @@ namespace MimeKit.Text {
 			case RtfKeyword.Fldinst:
 				current.Destination = RtfDestination.FieldInstruction;
 				fieldInstruction.Length = 0;
+				reported &= ~ReportedViolations.FieldInstructionTooLong;
 				break;
 			case RtfKeyword.Fldrslt:
 				current.Destination = RtfDestination.Normal;
@@ -1313,6 +1494,10 @@ namespace MimeKit.Text {
 				SkipCurrentGroup ();
 				break;
 			case RtfKeyword.F:
+				// Fonts that were dropped because the font table limit was exceeded have already been reported.
+				if (tokenizer.ComplianceLogger != null && (reported & ReportedViolations.FontTableLimitExceeded) == 0 && !fonts.ContainsKey (parameter))
+					tokenizer.Report (RtfComplianceViolation.UndefinedFont);
+
 				current.Font = parameter;
 				break;
 			case RtfKeyword.Plain:
@@ -1331,12 +1516,17 @@ namespace MimeKit.Text {
 			case RtfKeyword.Fs:
 				// RTF 1.9.1: \fsN is in half-points and "\fs" with no parameter means the default of 24 (12pt). The
 				// value is clamped to Word's maximum of 1638pt so a hostile value cannot produce absurd CSS.
+				if (hasParameter && (parameter <= 0 || parameter > 3276))
+					tokenizer.Report (RtfComplianceViolation.InvalidFontSize);
+
 				current.FontSize = hasParameter ? Math.Max (0, Math.Min (parameter, 3276)) : DefaultFontSize;
 				break;
 			case RtfKeyword.Cf:
+				CheckColorIndex (parameter);
 				current.ForegroundColor = Math.Max (0, parameter);
 				break;
 			case RtfKeyword.Cb:
+				CheckColorIndex (parameter);
 				current.BackgroundColor = Math.Max (0, parameter);
 				break;
 			case RtfKeyword.U:
@@ -1348,7 +1538,12 @@ namespace MimeKit.Text {
 					if (parameter < 0)
 						parameter += 65536;
 
-					EmitUnicodeChar (parameter >= 0 && parameter <= 0xFFFF ? (char) parameter : '\uFFFD');
+					bool valid = parameter >= 0 && parameter <= 0xFFFF;
+
+					if (!valid && !tokenizer.IsParameterInvalid)
+						tokenizer.Report (RtfComplianceViolation.InvalidParameter);
+
+					EmitUnicodeChar (valid ? (char) parameter : '\uFFFD');
 				}
 				unicodeSkipRemaining = current.UnicodeSkip;
 				break;

@@ -323,6 +323,13 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   elements are handled (see `HtmlToHtml.NoScriptHandling` below). `RtfToHtml.AttachmentPlaceholderCallback` and
   `RtfToText.AttachmentPlaceholderCallback` let the caller write content at each `\objattph` attachment
   placeholder.
+* Added RTF compliance violation reporting. Set `RtfToText.ComplianceLogger` or `RtfToHtml.ComplianceLogger`
+  to an `IRtfComplianceLogger` implementation to receive an `RtfComplianceIssue` for each `RtfComplianceViolation`
+  found while converting (for example, a missing `\rtf1` header, invalid hex escapes, unbalanced groups, undefined
+  fonts or exceeded table and depth limits). Each issue carries a byte offset, line and column numbers and the group
+  depth. `MaxComplianceIssuesPerViolation` caps how many times each violation is reported per document (`0`, the
+  default, means no limit), and a single `TooManyComplianceIssues` is logged when a cap is reached. The
+  `RtfCappedComplianceLogger` class implements this cap and can wrap any `IRtfComplianceLogger`.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).

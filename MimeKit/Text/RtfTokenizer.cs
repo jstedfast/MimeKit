@@ -101,8 +101,11 @@ namespace MimeKit.Text {
 		readonly char[] keyword = new char[MaxKeywordLength];
 		readonly TextReader reader;
 		readonly char[] input;
+		IRtfComplianceLogger? logger;
 		long binaryRemaining;
 		bool keywordTruncated;
+		bool parameterInvalid;
+		bool reportedTruncation;
 		int parameterDigits;
 		int keywordLength;
 		bool negative;
@@ -114,6 +117,19 @@ namespace MimeKit.Text {
 		int inputEnd;
 		int hexValue;
 		bool eof;
+
+		// Position tracking for compliance reporting. The offset of input[0] within the document is
+		// bufferOffset, so the offset of input[i] is bufferOffset + i.
+		long bufferOffset;
+		long lineStart;
+		int lineNumber = 1;
+		int depth;
+
+		// The position of the start of the current token.
+		long tokenOffset;
+		long tokenLineStart;
+		int tokenLineNumber = 1;
+		int tokenDepth;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="RtfTokenizer"/> class.
@@ -136,6 +152,17 @@ namespace MimeKit.Text {
 
 			input = new char[bufferSize];
 			this.reader = reader;
+		}
+
+		/// <summary>
+		/// Get or set the compliance logger.
+		/// </summary>
+		/// <remarks>
+		/// When this is <see langword="null"/>, <see cref="Report"/> does nothing and no lexical checks are made.
+		/// </remarks>
+		public IRtfComplianceLogger? ComplianceLogger {
+			get { return logger; }
+			set { logger = value; }
 		}
 
 		/// <summary>
@@ -178,6 +205,14 @@ namespace MimeKit.Text {
 		/// </summary>
 		public int Parameter {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Get whether the numeric parameter of the current <see cref="RtfTokenKind.ControlWord"/> token was malformed
+		/// or out of range (in which case it has already been reported as <see cref="RtfComplianceViolation.InvalidParameter"/>).
+		/// </summary>
+		public bool IsParameterInvalid {
+			get { return parameterInvalid; }
 		}
 
 		/// <summary>
@@ -263,9 +298,76 @@ namespace MimeKit.Text {
 			keyword[0] = c;
 			keywordLength = 1;
 			keywordTruncated = false;
+			parameterInvalid = false;
 			parameterDigits = 0;
 			negative = false;
 			parameter = 0;
+		}
+
+		/// <summary>
+		/// Report a compliance violation at the position of the current token.
+		/// </summary>
+		/// <remarks>
+		/// <para>The interpreter reports violations at the token that it was processing when it detected them, so the
+		/// position of a token remains valid until the next call to <see cref="ReadNextToken"/>.</para>
+		/// <para>A <see cref="RtfTokenKind.Text"/> token never contains a line feed, so <paramref name="delta"/> may be
+		/// used to point at a specific character within one.</para>
+		/// </remarks>
+		/// <param name="violation">The violation.</param>
+		/// <param name="delta">The offset of the violation relative to the start of the current token.</param>
+		public void Report (RtfComplianceViolation violation, int delta = 0)
+		{
+			if (logger is null)
+				return;
+
+			long offset = tokenOffset + delta;
+			long linePosition = offset - tokenLineStart + 1;
+
+			logger.Log (new RtfComplianceIssue (violation, offset, tokenLineNumber, linePosition > int.MaxValue ? int.MaxValue : (int) linePosition, tokenDepth));
+		}
+
+		void ReportTruncated ()
+		{
+			if (!reportedTruncation) {
+				reportedTruncation = true;
+				Report (RtfComplianceViolation.TruncatedStream);
+			}
+		}
+
+		void MarkTokenStart ()
+		{
+			tokenOffset = bufferOffset + inputIndex;
+			tokenLineNumber = lineNumber;
+			tokenLineStart = lineStart;
+			tokenDepth = depth;
+		}
+
+		// Called after consuming a line feed.
+		void BeginLine ()
+		{
+			if (lineNumber < int.MaxValue)
+				lineNumber++;
+
+			lineStart = bufferOffset + inputIndex;
+		}
+
+		// Count the line feeds within the \binN data that is being skipped. This is only done when there is a logger,
+		// since the line numbers are otherwise never observed.
+		void CountLines (int index, int count)
+		{
+			int end = index + count;
+			int lastLineFeed = -1;
+
+			for (int i = index; i < end; i++) {
+				if (input[i] == '\n') {
+					if (lineNumber < int.MaxValue)
+						lineNumber++;
+					lastLineFeed = i;
+				}
+			}
+
+			if (lastLineFeed != -1)
+				lineStart = bufferOffset + lastLineFeed + 1;
 		}
 
 		bool CompleteKeyword ()
@@ -275,12 +377,29 @@ namespace MimeKit.Text {
 			Kind = RtfTokenKind.ControlWord;
 			HasParameter = parameterDigits > 0;
 
-			if (negative)
-				Parameter = parameter > -(long) int.MinValue ? int.MinValue : (int) -parameter;
-			else
-				Parameter = parameter > int.MaxValue ? int.MaxValue : (int) parameter;
+			if (negative) {
+				if (parameter > -(long) int.MinValue) {
+					Parameter = int.MinValue;
+					parameterInvalid = true;
+				} else {
+					Parameter = (int) -parameter;
+				}
+			} else if (parameter > int.MaxValue) {
+				Parameter = int.MaxValue;
+				parameterInvalid = true;
+			} else {
+				Parameter = (int) parameter;
+			}
 
 			KeywordId = keywordTruncated ? RtfKeyword.Unknown : RtfKeywords.Lookup (Keyword);
+
+			if (logger != null) {
+				if (keywordTruncated)
+					Report (RtfComplianceViolation.KeywordTooLong);
+
+				if (parameterInvalid)
+					Report (RtfComplianceViolation.InvalidParameter);
+			}
 
 			// RTF 1.9.1, "Pictures" (\binN): "the N bytes of data following the space [after \binN] are binary data".
 			// The data is not RTF and may contain '{', '}' or '\', so it must be skipped here, at the lexical level,
@@ -309,12 +428,22 @@ namespace MimeKit.Text {
 			case ScanState.ParameterSign:
 			case ScanState.ParameterDigits:
 				return CompleteKeyword ();
+			case ScanState.Hex1:
+				// A \' escape at the very end of the input has no hex digits at all, so it is dropped.
+				Report (RtfComplianceViolation.InvalidHexEscape);
+				break;
 			case ScanState.Hex2:
+				Report (RtfComplianceViolation.InvalidHexEscape);
 				return CompleteHex ();
 			}
 
 			state = ScanState.Default;
 			Kind = RtfTokenKind.EndOfFile;
+
+			MarkTokenStart ();
+
+			if (depth > 0)
+				ReportTruncated ();
 
 			return true;
 		}
@@ -329,12 +458,17 @@ namespace MimeKit.Text {
 				if (binaryRemaining > 0) {
 					int n = (int) Math.Min (binaryRemaining, inputEnd - inputIndex);
 
+					if (logger != null)
+						CountLines (inputIndex, n);
+
 					binaryRemaining -= n;
 					inputIndex += n;
 
 					if (binaryRemaining > 0) {
 						if (eof) {
 							binaryRemaining = 0;
+							MarkTokenStart ();
+							ReportTruncated ();
 							continue;
 						}
 
@@ -354,13 +488,21 @@ namespace MimeKit.Text {
 
 				switch (state) {
 				case ScanState.Default:
+					MarkTokenStart ();
+
 					switch (c) {
 					case '{':
 						inputIndex++;
+						if (depth < int.MaxValue)
+							depth++;
 						Kind = RtfTokenKind.GroupStart;
 						return true;
 					case '}':
 						inputIndex++;
+						if (depth > 0)
+							depth--;
+						// Note: A group end is at the depth of the group that encloses it, just like a group start.
+						tokenDepth = depth;
 						Kind = RtfTokenKind.GroupEnd;
 						return true;
 					case '\\':
@@ -371,6 +513,8 @@ namespace MimeKit.Text {
 						// RTF 1.9.1, "Conventions of an RTF Reader": "The RTF reader should ignore ... carriage returns
 						// and line feeds" unless they are escaped (see the Backslash state below).
 						inputIndex++;
+						if (c == '\n')
+							BeginLine ();
 						break;
 					default:
 						textIndex = inputIndex++;
@@ -400,6 +544,8 @@ namespace MimeKit.Text {
 						state = ScanState.Default;
 						Kind = RtfTokenKind.ControlSymbol;
 						Symbol = c == '\r' ? '\n' : c;
+						if (c == '\n')
+							BeginLine ();
 						return true;
 					}
 					break;
@@ -432,6 +578,7 @@ namespace MimeKit.Text {
 						state = ScanState.ParameterDigits;
 					} else {
 						// A '-' with no digits is malformed; treat it as a control word without a parameter.
+						parameterInvalid = true;
 						negative = false;
 						return CompleteKeyword ();
 					}
@@ -442,6 +589,8 @@ namespace MimeKit.Text {
 						if (parameterDigits < MaxParameterDigits) {
 							parameter = (parameter * 10) + (c - '0');
 							parameterDigits++;
+						} else {
+							parameterInvalid = true;
 						}
 						inputIndex++;
 					} else {
@@ -460,6 +609,7 @@ namespace MimeKit.Text {
 					} else {
 						// Malformed \' escape with no hex digits: drop it, and leave the current character to be
 						// scanned normally.
+						Report (RtfComplianceViolation.InvalidHexEscape);
 						state = ScanState.Default;
 					}
 					break;
@@ -469,6 +619,8 @@ namespace MimeKit.Text {
 					if ((value = HexDigitValue (c)) != -1) {
 						hexValue = (hexValue << 4) | value;
 						inputIndex++;
+					} else {
+						Report (RtfComplianceViolation.InvalidHexEscape);
 					}
 
 					return CompleteHex ();
@@ -480,6 +632,7 @@ namespace MimeKit.Text {
 		{
 			int nread = reader.Read (input, 0, input.Length);
 
+			bufferOffset += inputEnd;
 			inputIndex = 0;
 			inputEnd = nread;
 			eof = nread <= 0;
@@ -496,6 +649,7 @@ namespace MimeKit.Text {
 			int nread = await reader.ReadAsync (input, 0, input.Length).ConfigureAwait (false);
 #endif
 
+			bufferOffset += inputEnd;
 			inputIndex = 0;
 			inputEnd = nread;
 			eof = nread <= 0;

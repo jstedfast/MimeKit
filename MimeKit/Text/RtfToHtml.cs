@@ -69,6 +69,7 @@ namespace MimeKit.Text {
 		int maxFontTableEntries = RtfToText.DefaultLimit;
 		int maxColorTableEntries = RtfToText.DefaultLimit;
 		int maxGroupDepth = RtfToText.DefaultLimit;
+		int maxComplianceIssuesPerViolation;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 
@@ -326,6 +327,44 @@ namespace MimeKit.Text {
 		public int MaxElementDepth {
 			get { return maxElementDepth; }
 			set { maxElementDepth = RtfToText.ValidateLimit (value); }
+		}
+
+		/// <summary>
+		/// Get or set the logger to use for reporting RTF compliance violations.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the logger to use for reporting RTF compliance violations.</para>
+		/// <para>Violations are reported as they are encountered during <see cref="Convert(TextReader, TextWriter)"/>.
+		/// When the value is <see langword="null" /> (the default), no compliance checks are performed.</para>
+		/// <para>Only the RTF itself is checked; HTML that is extracted from the document (see
+		/// <see cref="ExtractEncapsulatedHtml"/>) is not.</para>
+		/// </remarks>
+		/// <value>The RTF compliance logger.</value>
+		public IRtfComplianceLogger? ComplianceLogger {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of times that each compliance violation may be
+		/// reported while converting a single document. The default is <c>0</c>, which means that no limit
+		/// is applied.</para>
+		/// <para>The number of issues an RTF document can produce is bounded only by its size, and the
+		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when converting
+		/// untrusted documents.</para>
+		/// <para>When some violation reaches the limit, a single
+		/// <see cref="RtfComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
+		/// report is never silently incomplete.</para>
+		/// </remarks>
+		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxComplianceIssuesPerViolation {
+			get { return maxComplianceIssuesPerViolation; }
+			set { maxComplianceIssuesPerViolation = RtfToText.ValidateComplianceLimit (value); }
 		}
 
 		class RtfToHtmlTagContext : HtmlTagContext
@@ -1025,6 +1064,7 @@ namespace MimeKit.Text {
 
 			var handler = new HtmlHandler (this, writer);
 			var interpreter = new RtfInterpreter (reader, handler, MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
+				ComplianceLogger = RtfToText.CreateComplianceLogger (ComplianceLogger, MaxComplianceIssuesPerViolation),
 				ExtractHtml = ExtractEncapsulatedHtml
 			};
 
