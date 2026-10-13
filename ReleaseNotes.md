@@ -407,6 +407,13 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 
 ### Bug Fixes
 
+* Fixed `QuotedPrintableEncoder` so that it never produces lines longer than the maximum line length (76 by
+  default, as required by RFC 2045). Previously, an encoded octet (such as `=E9`) near the end of a line, or the last
+  octet before a line break, could produce lines of up to 78 characters.
+
+* Fixed `YEncoder` so that it wraps lines when the line length is 254 or more. Previously, an internal counter
+  overflowed and the encoder never inserted a line break.
+
 * `MessageIdList` (`MimeMessage.References`) now validates the message-ids that are added to it. Previously, a
   value containing line breaks (such as `"id@example.com\r\nBcc: someone@example.com"`) would be written to the
   References header verbatim, producing a malformed message.

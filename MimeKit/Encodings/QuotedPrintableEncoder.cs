@@ -44,6 +44,7 @@ namespace MimeKit.Encodings {
 		readonly short tripletsPerLine;
 		readonly short maxLineLength;
 		short currentLineLength;
+		bool savedCarriageReturn;
 		short saved;
 
 		QuotedPrintableEncoder (short tripletsPerLine, short maxLineLength)
@@ -71,8 +72,8 @@ namespace MimeKit.Encodings {
 			// The quoted-printable specification in rfc2045 require a maximum line length of 76.
 			maxLineLength = Math.Min (maxLineLength, 76);
 
-			// normalize the maximum line length
-			tripletsPerLine = (short) (maxLineLength / 3);
+			// normalize the maximum line length (leaving room for the '=' of a soft line break)
+			tripletsPerLine = (short) ((maxLineLength - 1) / 3);
 			this.maxLineLength = (short) maxLineLength;
 
 			Reset ();
@@ -89,6 +90,7 @@ namespace MimeKit.Encodings {
 		{
 			return new QuotedPrintableEncoder (tripletsPerLine, maxLineLength) {
 				currentLineLength = currentLineLength,
+				savedCarriageReturn = savedCarriageReturn,
 				saved = saved
 			};
 		}
@@ -115,6 +117,9 @@ namespace MimeKit.Encodings {
 		public int EstimateOutputLength (int inputLength)
 		{
 			if (saved != -1)
+				inputLength++;
+
+			if (savedCarriageReturn)
 				inputLength++;
 
 			// Note: In the worst case, every input byte is encoded as a triplet and every tripletsPerLine triplets are
@@ -146,6 +151,34 @@ namespace MimeKit.Encodings {
 				throw new ArgumentException ("The output buffer is not large enough to contain the encoded input.", nameof (output));
 		}
 
+		unsafe byte* WriteSaved (byte* outptr, bool endOfLine, bool encodeBlank)
+		{
+			byte b = (byte) saved;
+			bool encode = !b.IsQpSafe () || (encodeBlank && b.IsBlank ());
+			int length = encode ? 3 : 1;
+
+			// Note: An octet at the end of a line must fit within maxLineLength while any other octet must leave room
+			// for the '=' of a soft line break that might need to follow it.
+			if (currentLineLength + length + (endOfLine ? 0 : 1) > maxLineLength) {
+				*outptr++ = (byte) '=';
+				*outptr++ = (byte) '\n';
+				currentLineLength = 0;
+			}
+
+			if (encode) {
+				*outptr++ = (byte) '=';
+				*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
+				*outptr++ = hex_alphabet[b & 0x0f];
+			} else {
+				*outptr++ = b;
+			}
+
+			currentLineLength += (short) length;
+			saved = -1;
+
+			return outptr;
+		}
+
 		unsafe int Encode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
@@ -155,53 +188,38 @@ namespace MimeKit.Encodings {
 			while (inptr < inend) {
 				byte c = *inptr++;
 
+				if (savedCarriageReturn) {
+					savedCarriageReturn = false;
+
+					if (c == (byte) '\n') {
+						// spaces and tabs must be encoded if they are the last character on the line
+						if (saved != -1)
+							outptr = WriteSaved (outptr, true, true);
+
+						*outptr++ = (byte) '\n';
+						currentLineLength = 0;
+						continue;
+					}
+
+					// a lone '\r' is not a line break, so it gets encoded like any other octet
+					if (saved != -1)
+						outptr = WriteSaved (outptr, false, false);
+
+					saved = (byte) '\r';
+				}
+
 				if (c == (byte) '\r') {
-					if (saved != -1) {
-						byte b = (byte) saved;
-
-						// spaces and tabs must be encoded if they are the last character on the line
-						if (b.IsBlank () || !b.IsQpSafe ()) {
-							*outptr++ = (byte) '=';
-							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
-							*outptr++ = hex_alphabet[b & 0x0f];
-							currentLineLength += 3;
-						} else {
-							*outptr++ = b;
-							currentLineLength++;
-						}
-					}
-
-					saved = c;
+					savedCarriageReturn = true;
 				} else if (c == (byte) '\n') {
-					if (saved != -1 && saved != (byte) '\r') {
-						byte b = (byte) saved;
-
-						// spaces and tabs must be encoded if they are the last character on the line
-						if (b.IsBlank () || !b.IsQpSafe ()) {
-							*outptr++ = (byte) '=';
-							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
-							*outptr++ = hex_alphabet[b & 0x0f];
-						} else {
-							*outptr++ = b;
-						}
-					}
+					// spaces and tabs must be encoded if they are the last character on the line
+					if (saved != -1)
+						outptr = WriteSaved (outptr, true, true);
 
 					*outptr++ = (byte) '\n';
 					currentLineLength = 0;
-					saved = -1;
 				} else {
 					if (saved != -1) {
-						byte b = (byte) saved;
-
-						if (b.IsQpSafe ()) {
-							*outptr++ = b;
-							currentLineLength++;
-						} else {
-							*outptr++ = (byte) '=';
-							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
-							*outptr++ = hex_alphabet[b & 0x0f];
-							currentLineLength += 3;
-						}
+						outptr = WriteSaved (outptr, false, false);
 
 						if (currentLineLength + 1 >= maxLineLength) {
 							*outptr++ = (byte) '=';
@@ -259,30 +277,27 @@ namespace MimeKit.Encodings {
 		unsafe int Flush (byte* input, int length, byte* output)
 		{
 			byte* outptr = output;
-			
+
 			if (length > 0)
 				outptr += Encode (input, length, output);
 
+			if (savedCarriageReturn) {
+				if (saved != -1)
+					outptr = WriteSaved (outptr, false, false);
+
+				saved = (byte) '\r';
+			}
+
 			if (saved != -1) {
-				byte c = (byte) saved;
-
-				// spaces and tabs must be encoded if they are the last character on the line
-				if (c.IsBlank () || !c.IsQpSafe ()) {
-					*outptr++ = (byte) '=';
-					*outptr++ = hex_alphabet[(c >> 4) & 0x0f];
-					*outptr++ = hex_alphabet[c & 0x0f];
-				} else {
-					*outptr++ = c;
-				}
-
-				// we end with =\n so that the \n isn't interpreted as
-				// a real \n when it gets decoded later
+				// spaces and tabs must be encoded if they are the last character in the content and
+				// we end with =\n so that the \n isn't interpreted as a real \n when it gets decoded later
+				outptr = WriteSaved (outptr, false, true);
 				*outptr++ = (byte) '=';
 				*outptr++ = (byte) '\n';
 			}
 
 			Reset ();
-			
+
 			return (int) (outptr - output);
 		}
 
@@ -333,6 +348,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public void Reset ()
 		{
+			savedCarriageReturn = false;
 			currentLineLength = 0;
 			saved = -1;
 		}

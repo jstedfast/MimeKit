@@ -207,6 +207,109 @@ namespace UnitTests.Encodings {
 			Assert.That (actual, Is.EqualTo (input));
 		}
 
+		static string Encode (QuotedPrintableEncoder encoder, byte[] input, bool oneByteAtATime)
+		{
+			var builder = new StringBuilder ();
+			byte[] output;
+			int n;
+
+			if (oneByteAtATime) {
+				for (int i = 0; i < input.Length; i++) {
+					output = new byte[encoder.EstimateOutputLength (1)];
+					n = encoder.Encode (input, i, 1, output);
+					builder.Append (Encoding.ASCII.GetString (output, 0, n));
+				}
+
+				output = new byte[encoder.EstimateOutputLength (0)];
+				n = encoder.Flush (input, input.Length, 0, output);
+			} else {
+				output = new byte[encoder.EstimateOutputLength (input.Length)];
+				n = encoder.Flush (input, 0, input.Length, output);
+			}
+
+			builder.Append (Encoding.ASCII.GetString (output, 0, n));
+
+			return builder.ToString ();
+		}
+
+		static void AssertLineLengths (string encoded, int maxLineLength)
+		{
+			foreach (var line in encoded.Split ('\n'))
+				Assert.That (line.Length, Is.LessThanOrEqualTo (maxLineLength), $"Line too long: {line}");
+		}
+
+		[TestCase ("\n", false)]
+		[TestCase ("\n", true)]
+		[TestCase ("\r\n", false)]
+		[TestCase ("\r\n", true)]
+		public void TestEncodeTripletDoesNotExceedMaxLineLength (string newLine, bool oneByteAtATime)
+		{
+			var prefix = new string ('a', 74);
+			var input = Encoding.Latin1.GetBytes (prefix + "\u00e9b" + newLine + prefix + "\u00e9" + newLine + prefix + " " + newLine + prefix + "\r\u00e9" + newLine);
+			var expected = prefix + "=\n=E9b\n" + prefix + "=\n=E9\n" + prefix + "=\n=20\n" + prefix + "=\n=0D=E9\n";
+			var encoded = Encode (new QuotedPrintableEncoder (), input, oneByteAtATime);
+
+			Assert.That (encoded, Is.EqualTo (expected));
+			AssertLineLengths (encoded, 76);
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestEncodeTripletDoesNotExceedMaxLineLengthOnFlush (bool oneByteAtATime)
+		{
+			var input = Encoding.Latin1.GetBytes (new string ('a', 73) + "\u00e9");
+			var expected = new string ('a', 73) + "=\n=E9=\n";
+			var encoded = Encode (new QuotedPrintableEncoder (), input, oneByteAtATime);
+
+			Assert.That (encoded, Is.EqualTo (expected));
+			AssertLineLengths (encoded, 76);
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestEncodeFullLineFollowedByCrLf (bool oneByteAtATime)
+		{
+			var line = new string ('a', 73) + "\u00e9";
+			var input = Encoding.Latin1.GetBytes (line + "\r\n" + line + "\r");
+			var expected = new string ('a', 73) + "=E9\n" + new string ('a', 73) + "=\n=E9=0D=\n";
+			var encoded = Encode (new QuotedPrintableEncoder (), input, oneByteAtATime);
+
+			Assert.That (encoded, Is.EqualTo (expected));
+			AssertLineLengths (encoded, 76);
+		}
+
+		[Test]
+		public void TestEncodeAllOctetsDoesNotExceedMaxLineLength ([Range (60, 76)] int maxLineLength)
+		{
+			var random = new Random (maxLineLength);
+			var input = new byte[16 * 1024];
+
+			random.NextBytes (input);
+
+			var encoder = new QuotedPrintableEncoder (maxLineLength);
+			var encoded = Encode (encoder, input, false);
+			var buffer = Encoding.ASCII.GetBytes (encoded);
+			var decoded = new byte[buffer.Length];
+			int n = new QuotedPrintableDecoder ().Decode (buffer, 0, buffer.Length, decoded);
+
+			AssertLineLengths (encoded, maxLineLength);
+			Assert.That (Encode (encoder, input, true), Is.EqualTo (encoded), "one byte at a time");
+			Assert.That (decoded.AsSpan (0, n).ToArray (), Is.EqualTo (CanonicalizeLineBreaks (input)), "round trip");
+		}
+
+		static byte[] CanonicalizeLineBreaks (byte[] input)
+		{
+			var output = new List<byte> (input.Length);
+
+			for (int i = 0; i < input.Length; i++) {
+				if (input[i] == (byte) '\r' && i + 1 < input.Length && input[i + 1] == (byte) '\n')
+					continue;
+
+				output.Add (input[i]);
+			}
+
+			return output.ToArray ();
+		}
 		[Test]
 		public void TestEncodeHebrew ()
 		{

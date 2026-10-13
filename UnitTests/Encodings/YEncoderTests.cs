@@ -88,6 +88,29 @@ namespace UnitTests.Encodings {
 			Assert.That (actual, Is.EqualTo (new string ('A', 60) + "\nA\n"));
 		}
 
+		[TestCase (253)]
+		[TestCase (254)]
+		[TestCase (255)]
+		[TestCase (256)]
+		[TestCase (998)]
+		public void TestEncodeWrapsLongLines (int lineLength)
+		{
+			var encoder = new YEncoder (lineLength);
+			var input = new byte[(lineLength * 4) + 1];
+
+			// alternate between octets that are escaped (214 + 42 wraps to 0x00) and octets that are not
+			for (int i = 0; i < input.Length; i++)
+				input[i] = (byte) ((i % 3) == 0 ? 214 : 23);
+
+			var output = new byte[encoder.EstimateOutputLength (input.Length)];
+			int n = encoder.Flush (input, 0, input.Length, output);
+			var lines = Encoding.ASCII.GetString (output, 0, n).Split ('\n');
+
+			Assert.That (lines.Length, Is.GreaterThan (4), "line count");
+
+			foreach (var line in lines)
+				Assert.That (line.Length, Is.LessThanOrEqualTo (lineLength + 1));
+		}
 		static void AssertEstimateIsSufficient (YEncoder encoder, byte[] input, string message)
 		{
 			int estimate = encoder.EstimateOutputLength (input.Length);

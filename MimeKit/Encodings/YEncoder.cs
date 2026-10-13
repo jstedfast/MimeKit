@@ -40,7 +40,7 @@ namespace MimeKit.Encodings {
 	public class YEncoder : IMimeEncoder
 	{
 		readonly int lineLength;
-		byte octets;
+		int octets;
 		Crc32 crc;
 
 		/// <summary>

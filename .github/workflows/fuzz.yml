@@ -30,7 +30,7 @@ jobs:
         run: |
           $all = @(
             'address-parser', 'authentication-results', 'compliance-validators', 'decoders',
-            'dkim-arc-verifier', 'dmarc-verifier', 'dns-records', 'header-values',
+            'dkim-arc-verifier', 'dmarc-verifier', 'dns-records', 'encoders', 'header-values',
             'html-tokenizer', 'mime-parser', 'mime-reader', 'rfc2047', 'rtf-compressed',
             'rtf-converters', 'rtf-tokenizer', 'smtputf8-validator', 'text-converters',
             'tnef-message', 'tnef-reader'

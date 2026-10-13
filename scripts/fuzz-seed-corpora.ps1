@@ -312,6 +312,27 @@ foreach ($name in $Targets) {
                 }
             }
         }
+        "encoders" {
+            # The first byte of the input selects the encoder (modulo 9) and the second byte selects the line length
+            # (and, together with the first byte, seeds the chunking pattern).
+            foreach ($file in (Get-Files (Join-Path $TestData "encoders"))) {
+                if ($file.Extension -notin ".jpg", ".txt") {
+                    continue
+                }
+
+                $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
+
+                foreach ($kind in 0..8) {
+                    $seeds.Add([byte[]](@([byte]$kind, [byte]16) + $bytes))
+                }
+            }
+
+            # Line-ending and whitespace edge cases for the quoted-printable encoder.
+            $text = "line with trailing space `r`nline with trailing tab`t`n= sign`r`r`n" + ("x" * 74) + "`t`r`n" + ("y" * 75) + "=`n."
+            foreach ($kind in 0..8) {
+                $seeds.Add([byte[]](@([byte]$kind, [byte]4) + $Latin1.GetBytes($text)))
+            }
+        }
         "address-parser" {
             foreach ($message in (Get-Messages)) {
                 foreach ($field in (Get-HeaderFields $message)) {

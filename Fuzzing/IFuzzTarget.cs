@@ -54,6 +54,7 @@ namespace MimeKit.Fuzzing {
 			new Rfc2047Target (),
 			new HeaderValuesTarget (),
 			new DecodersTarget (),
+			new EncodersTarget (),
 			new RtfConvertersTarget (),
 			new RtfTokenizerTarget (),
 			new SmtpUtf8ValidatorTarget (),
