@@ -700,6 +700,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   tag name contains whitespace or other invalid characters, or when a tag has no `=`. Previously, such
   tags were misparsed (or the last one silently ignored), which could produce confusing
   "duplicate parameter" errors.
+* `AuthenticationResults` now quotes empty property values (`header.s=""`) and values containing
+  whitespace or control characters when serializing. Previously, an empty value was written as
+  `header.s=`, which caused the following property to be parsed as its value.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

@@ -1267,8 +1267,24 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class AuthenticationMethodProperty
 	{
-		static readonly char[] TokenSpecials = ByteExtensions.TokenSpecials.ToCharArray ();
+		static readonly char[] QuoteSpecials = CreateQuoteSpecials ();
 		readonly bool? quoted;
+
+		static char[] CreateQuoteSpecials ()
+		{
+			var specials = new char[ByteExtensions.TokenSpecials.Length + 34];
+			int index = 0;
+
+			for (int i = 0; i < ByteExtensions.TokenSpecials.Length; i++)
+				specials[index++] = ByteExtensions.TokenSpecials[i];
+
+			for (int i = 0; i <= 32; i++)
+				specials[index++] = (char) i;
+
+			specials[index] = (char) 0x7F;
+
+			return specials;
+		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AuthenticationMethodProperty"/> class.
@@ -1357,9 +1373,21 @@ namespace MimeKit.Cryptography {
 			get; private set;
 		}
 
+		bool NeedsQuoting ()
+		{
+			// Note: an empty value must always be quoted. Otherwise, the next property would be parsed as its value.
+			if (Value.Length == 0)
+				return true;
+
+			if (quoted.HasValue)
+				return quoted.Value;
+
+			return Value.IndexOfAny (QuoteSpecials) != -1;
+		}
+
 		internal void AppendTokens (FormatOptions options, List<string> tokens)
 		{
-			var quote = quoted ?? Value.IndexOfAny (TokenSpecials) != -1;
+			var quote = NeedsQuoting ();
 			var value = quote ? MimeUtils.Quote (Value) : Value;
 
 			tokens.Add (" ");
@@ -1396,7 +1424,7 @@ namespace MimeKit.Cryptography {
 
 		internal void WriteTo (ref ValueStringBuilder builder)
 		{
-			bool quote = quoted ?? Value.IndexOfAny (TokenSpecials) != -1;
+			bool quote = NeedsQuoting ();
 
 			builder.Append (PropertyType);
 			builder.Append ('.');

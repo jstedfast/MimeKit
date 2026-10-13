@@ -1083,9 +1083,9 @@ namespace UnitTests.Cryptography {
 			Assert.That (authres.Results[2].Properties[0].Property, Is.EqualTo ("from"));
 			Assert.That (authres.Results[2].Properties[0].Value, Is.EqualTo (""));
 
-			Assert.That (authres.ToString (), Is.EqualTo ("spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none; mydomain.com; dmarc=none action=\"none\" header.from="));
+			Assert.That (authres.ToString (), Is.EqualTo ("spf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru; mydomain.com; dkim=none (message not signed) header.d=none; mydomain.com; dmarc=none action=\"none\" header.from=\"\""));
 
-			const string expected = "\n\tspf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru;\n\tmydomain.com; dkim=none (message not signed) header.d=none;\n\tmydomain.com; dmarc=none action=\"none\" header.from=\n";
+			const string expected = "\n\tspf=temperror (sender IP is 1.1.1.1) smtp.helo=tes.test.ru;\n\tmydomain.com; dkim=none (message not signed) header.d=none;\n\tmydomain.com; dmarc=none action=\"none\" header.from=\"\"\n";
 			var encoded = new StringBuilder ();
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = NewLineFormat.Unix;
@@ -1579,8 +1579,8 @@ namespace UnitTests.Cryptography {
 		public void TestParseEmptyPropertyValueAtEndOfInput ()
 		{
 			// Note: Empty property values are accepted because of https://github.com/jstedfast/MimeKit/issues/527
-			// where we have "header.from=;", so they must also be accepted at the end of the input or else
-			// AuthenticationResults.ToString() output would not be parsable.
+			// where we have "header.from=;", so they must also be accepted at the end of the input. When
+			// serialized, empty values are always quoted so that a following property is never mistaken for one.
 			var buffer = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=");
 
 			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
@@ -1589,16 +1589,16 @@ namespace UnitTests.Cryptography {
 			Assert.That (authres.Results[0].Properties[0].PropertyType, Is.EqualTo ("ptype"), "PropertyType");
 			Assert.That (authres.Results[0].Properties[0].Property, Is.EqualTo ("prop"), "Property");
 			Assert.That (authres.Results[0].Properties[0].Value, Is.EqualTo (string.Empty), "Value");
-			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop="));
+			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop=\"\""));
 
 			// Make sure that the result is the same whether or not the property value is at the end of the buffer
 			var padded = Encoding.ASCII.GetBytes ("authserv-id; method=pass ptype.prop=;;;;");
 
 			Assert.That (AuthenticationResults.TryParse (padded, 0, buffer.Length, out authres), Is.True, "TryParse subrange");
-			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop="), "subrange");
+			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop=\"\""), "subrange");
 
 			authres = AuthenticationResults.Parse (buffer);
-			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop="), "Parse");
+			Assert.That (authres.ToString (), Is.EqualTo ("authserv-id; method=pass ptype.prop=\"\""), "Parse");
 		}
 
 		[Test]
@@ -1614,6 +1614,35 @@ namespace UnitTests.Cryptography {
 
 			Assert.That (AuthenticationResults.TryParse (buffer, out var reparsed), Is.True, "TryParse serialized");
 			Assert.That (reparsed.ToString (), Is.EqualTo (serialized));
+		}
+
+		[TestCase ("", "\"\"", TestName = "TestSerializeEmptyPropertyValue")]
+		[TestCase ("a b", "\"a b\"", TestName = "TestSerializePropertyValueWithSpace")]
+		[TestCase ("a\tb", "\"a\tb\"", TestName = "TestSerializePropertyValueWithTab")]
+		[TestCase ("a;b", "\"a;b\"", TestName = "TestSerializePropertyValueWithSemicolon")]
+		[TestCase ("selector", "selector", TestName = "TestSerializePropertyValueToken")]
+		public void TestSerializePropertyValueRoundTrip (string value, string serialized)
+		{
+			var authres = new AuthenticationResults ("example.com");
+			var result = new AuthenticationMethodResult ("dkim", "pass");
+
+			result.Properties.Add (new AuthenticationMethodProperty ("header", "s", value));
+			result.Properties.Add (new AuthenticationMethodProperty ("header", "b", "abcdefgh"));
+			authres.Results.Add (result);
+
+			var expected = $"example.com; dkim=pass header.s={serialized} header.b=abcdefgh";
+			Assert.That (authres.ToString (), Is.EqualTo (expected), "ToString");
+
+			var encoded = new StringBuilder ();
+			authres.Encode (FormatOptions.Default, encoded, "Authentication-Results:".Length);
+			Assert.That (encoded.ToString (), Does.Contain ($"header.s={serialized} "), "Encode");
+
+			var reparsed = AuthenticationResults.Parse (Encoding.UTF8.GetBytes (encoded.ToString ()));
+			Assert.That (reparsed.Results.Count, Is.EqualTo (1), "Results");
+			Assert.That (reparsed.Results[0].Properties.Count, Is.EqualTo (2), "Properties");
+			Assert.That (reparsed.Results[0].Properties[0].Value, Is.EqualTo (value.Replace ('\t', ' ')), "header.s");
+			Assert.That (reparsed.Results[0].Properties[1].Value, Is.EqualTo ("abcdefgh"), "header.b");
+			Assert.That (reparsed.ToString (), Is.EqualTo (authres.ToString ().Replace ('\t', ' ')), "reparsed");
 		}
 
 		[Test]
