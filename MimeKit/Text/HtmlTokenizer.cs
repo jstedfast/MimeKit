@@ -233,6 +233,13 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Get the stack of open elements that the tokenizer uses to track the document structure.
+		/// </summary>
+		internal HtmlOpenElementStack OpenElements {
+			get { return openElements; }
+		}
+
+		/// <summary>
 		/// Get or set whether the tokenizer should behave as if scripting is enabled.
 		/// </summary>
 		/// <remarks>
@@ -835,6 +842,8 @@ namespace MimeKit.Text {
 
 		HtmlToken EmitTagToken ()
 		{
+			openElements.ClearClosedElements ();
+
 			if (tag!.IsEndTag) {
 				openElements.ProcessEndTag (tag);
 				TokenizerState = HtmlTokenizerState.Data;
@@ -2693,6 +2702,7 @@ namespace MimeKit.Text {
 			case '"': case '\'': // parse error
 				TokenizerState = HtmlTokenizerState.DocTypePublicIdentifierQuoted;
 				doctype!.PublicIdentifier = string.Empty;
+				doctype.PublicIdentifierQuote = c;
 				quote = c;
 				break;
 			case '>': // parse error
@@ -2727,6 +2737,7 @@ namespace MimeKit.Text {
 				case '"': case '\'':
 					TokenizerState = HtmlTokenizerState.DocTypePublicIdentifierQuoted;
 					doctype!.PublicIdentifier = string.Empty;
+					doctype.PublicIdentifierQuote = c;
 					quote = c;
 					return null;
 				case '>': // parse error
@@ -2808,6 +2819,7 @@ namespace MimeKit.Text {
 			case '"': case '\'': // parse error
 				TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
 				doctype!.SystemIdentifier = string.Empty;
+				doctype.SystemIdentifierQuote = c;
 				quote = c;
 				break;
 			default: // parse error
@@ -2841,6 +2853,7 @@ namespace MimeKit.Text {
 				case '"': case '\'':
 					TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
 					doctype!.SystemIdentifier = string.Empty;
+					doctype.SystemIdentifierQuote = c;
 					quote = c;
 					return null;
 				default: // parse error
@@ -2870,6 +2883,7 @@ namespace MimeKit.Text {
 			case '"': case '\'': // parse error
 				TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
 				doctype!.SystemIdentifier = string.Empty;
+				doctype.SystemIdentifierQuote = c;
 				quote = c;
 				break;
 			case '>': // parse error
@@ -2904,6 +2918,7 @@ namespace MimeKit.Text {
 				case '"': case '\'':
 					TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
 					doctype!.SystemIdentifier = string.Empty;
+					doctype.SystemIdentifierQuote = c;
 					quote = c;
 					return null;
 				case '>': // parse error
@@ -3027,15 +3042,20 @@ namespace MimeKit.Text {
 						cdata[0] = cdata[1];
 						cdata[1] = cdata[2];
 						cdata[2] = c;
-
-						if (cdata[0] == ']' && cdata[1] == ']' && cdata[2] == '>') {
-							TokenizerState = HtmlTokenizerState.Data;
-							cdataIndex = 0;
-
-							return EmitCDataToken ();
-						}
 					} else {
 						cdata[cdataIndex++] = c;
+
+						if (cdataIndex < 3)
+							continue;
+					}
+
+					// Note: This also needs to be checked as soon as the first 3 characters have been read, otherwise an
+					// empty CDATA section (<![CDATA[]]>) would not get terminated.
+					if (cdata[0] == ']' && cdata[1] == ']' && cdata[2] == '>') {
+						TokenizerState = HtmlTokenizerState.Data;
+						cdataIndex = 0;
+
+						return EmitCDataToken ();
 					}
 				}
 

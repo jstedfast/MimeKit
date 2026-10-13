@@ -61,6 +61,8 @@ namespace MimeKit.Fuzzing {
 			new DnsRecordsTarget (),
 			new DkimArcVerifierTarget (),
 			new DmarcVerifierTarget (),
+			new HtmlTokenizerTarget (),
+			new TextConvertersTarget (),
 		};
 
 		public static bool TryGet (string name, [NotNullWhen (true)] out IFuzzTarget? target)

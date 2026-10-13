@@ -212,14 +212,25 @@ namespace MimeKit.Text {
 			return index > 0 ? line.Slice (index) : line;
 		}
 
-		static bool SuppressContent (IList<FlowedToHtmlTagContext> stack)
+		// Note: suppressed is the index of the element on the stack that suppresses its inner content (or -1 if none do).
+		static void PopEndTag (HtmlWriter htmlWriter, HtmlTagCallback callback, List<FlowedToHtmlTagContext> stack, ref int suppressed)
 		{
-			for (int i = stack.Count; i > 0; i--) {
-				if (stack[i - 1].SuppressInnerContent)
-					return true;
-			}
+			var ctx = stack[stack.Count - 1];
 
-			return false;
+			stack.RemoveAt (stack.Count - 1);
+
+			if (suppressed == stack.Count)
+				suppressed = -1;
+
+			if (suppressed != -1 || ctx.DeleteEndTag)
+				return;
+
+			ctx.SetIsEndTag (true);
+
+			if (ctx.InvokeCallbackForEndTag)
+				callback (ctx, htmlWriter);
+			else
+				ctx.WriteTag (htmlWriter);
 		}
 
 		void WriteText (HtmlWriter htmlWriter, string text)
@@ -265,36 +276,31 @@ namespace MimeKit.Text {
 			} while (startIndex < endIndex);
 		}
 
-		void WriteParagraph (HtmlWriter htmlWriter, IList<FlowedToHtmlTagContext> stack, ref int currentQuoteDepth, StringBuilder para, int quoteDepth)
+		void WriteParagraph (HtmlWriter htmlWriter, List<FlowedToHtmlTagContext> stack, ref int currentQuoteDepth, ref int suppressed, StringBuilder para, int quoteDepth)
 		{
 			var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 			FlowedToHtmlTagContext ctx;
 
 			while (currentQuoteDepth < quoteDepth) {
 				ctx = new FlowedToHtmlTagContext (HtmlTagId.BlockQuote);
-				callback (ctx, htmlWriter);
+
+				if (suppressed == -1) {
+					callback (ctx, htmlWriter);
+
+					if (ctx.SuppressInnerContent)
+						suppressed = stack.Count;
+				}
+
 				currentQuoteDepth++;
 				stack.Add (ctx);
 			}
 
 			while (quoteDepth < currentQuoteDepth) {
-				ctx = stack[stack.Count - 1];
-				stack.RemoveAt (stack.Count - 1);
-
-				if (!SuppressContent (stack) && !ctx.DeleteEndTag) {
-					ctx.SetIsEndTag (true);
-
-					if (ctx.InvokeCallbackForEndTag)
-						callback (ctx, htmlWriter);
-					else
-						ctx.WriteTag (htmlWriter);
-				}
-
-				if (ctx.TagId == HtmlTagId.BlockQuote)
-					currentQuoteDepth--;
+				PopEndTag (htmlWriter, callback, stack, ref suppressed);
+				currentQuoteDepth--;
 			}
 
-			if (SuppressContent (stack))
+			if (suppressed != -1)
 				return;
 
 			ctx = new FlowedToHtmlTagContext (para.Length == 0 ? HtmlTagId.Br : HtmlTagId.P);
@@ -361,6 +367,7 @@ namespace MimeKit.Text {
 				var para = new StringBuilder ();
 				int currentQuoteDepth = 0;
 				int paraQuoteDepth = -1;
+				int suppressed = -1;
 				string? line;
 
 				while ((line = reader.ReadLine ()) != null) {
@@ -377,7 +384,7 @@ namespace MimeKit.Text {
 						// Note: according to rfc3676, when a folded line has a different quote
 						// depth than the previous line, then quote-depth rules win and we need
 						// to treat this as a new paragraph.
-						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
+						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, ref suppressed, para, paraQuoteDepth);
 						paraQuoteDepth = quoteDepth;
 						para.Length = 0;
 					}
@@ -386,7 +393,7 @@ namespace MimeKit.Text {
 
 					if (unquoted.Length == 0 || unquoted[unquoted.Length - 1] != ' ') {
 						// line did not end with a space, so the next line will start a new paragraph
-						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
+						WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, ref suppressed, para, paraQuoteDepth);
 						paraQuoteDepth = 0;
 						para.Length = 0;
 					} else if (DeleteSpace) {
@@ -397,18 +404,10 @@ namespace MimeKit.Text {
 
 				// Flush any remaining paragraph text.
 				if (para.Length > 0)
-					WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, para, paraQuoteDepth);
+					WriteParagraph (htmlWriter, stack, ref currentQuoteDepth, ref suppressed, para, paraQuoteDepth);
 
-				for (int i = stack.Count; i > 0; i--) {
-					var ctx = stack[i - 1];
-
-					ctx.SetIsEndTag (true);
-
-					if (ctx.InvokeCallbackForEndTag)
-						callback (ctx, htmlWriter);
-					else
-						ctx.WriteTag (htmlWriter);
-				}
+				while (stack.Count > 0)
+					PopEndTag (htmlWriter, callback, stack, ref suppressed);
 
 				htmlWriter.Flush ();
 			}

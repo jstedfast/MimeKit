@@ -315,7 +315,32 @@ namespace MimeKit.Text {
 					MaxElementDepth = maxElementDepth,
 					ReuseDataTokens = true
 				};
+				var openElements = tokenizer.OpenElements;
 				HtmlToHtmlTagContext? ctx;
+
+				openElements.TrackClosedElements = true;
+
+				void ProcessEndTag (HtmlTagToken tag, bool implicitlyClosed)
+				{
+					if ((ctx = stack.Pop (tag.Name)) != null) {
+						if (!stack.SuppressContent) {
+							if (ctx.InvokeCallbackForEndTag) {
+								ctx = new HtmlToHtmlTagContext (tag) {
+									InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
+									SuppressInnerContent = ctx.SuppressInnerContent,
+									DeleteEndTag = ctx.DeleteEndTag,
+									DeleteTag = ctx.DeleteTag
+								};
+								callback (ctx, htmlWriter);
+							} else if (!ctx.DeleteEndTag) {
+								htmlWriter.WriteEndTag (tag.Name);
+							}
+						}
+					} else if (!implicitlyClosed && !stack.SuppressContent && !(fragment && IsDocumentStructureTag (tag.Id))) {
+						ctx = new HtmlToHtmlTagContext (tag);
+						callback (ctx, htmlWriter);
+					}
+				}
 
 				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {
@@ -333,6 +358,30 @@ namespace MimeKit.Text {
 						break;
 					case HtmlTokenKind.Tag:
 						var tag = (HtmlTagToken) token;
+
+						// Note: Some tags (e.g. <body>, <img> or </div>) implicitly close the open SVG and MathML elements. Since
+						// the tag itself might not get written (e.g. if it gets removed by the callback), write explicit end tags
+						// for those elements. Otherwise, the output would remain in foreign content and browsers would interpret
+						// the remainder of the output differently than the tokenizer interpreted the input.
+						//
+						// The HTML elements that were closed above the outermost foreign element also need explicit end tags
+						// because an end tag for a foreign element is only honored when that element is the current node. This
+						// also makes the conversion idempotent since converting the output again will not implicitly close any
+						// foreign elements.
+						var closed = openElements.ClosedElements;
+						int lastForeign = closed.Count - 1;
+
+						while (lastForeign >= 0 && !closed[lastForeign].IsForeign)
+							lastForeign--;
+
+						for (int i = 0; i <= lastForeign; i++) {
+							var endTag = new HtmlTagToken (closed[i].Name, true);
+
+							for (int n = 0; n < closed[i].Count; n++)
+								ProcessEndTag (endTag, true);
+						}
+
+						openElements.ClearClosedElements ();
 
 						// Note: The content of <noscript> elements has been tokenized as markup (as if scripting is disabled), so
 						// remove the <noscript> tags themselves so that renderers with scripting enabled interpret it the same way.
@@ -366,24 +415,7 @@ namespace MimeKit.Text {
 								callback (ctx, htmlWriter);
 							}
 						} else {
-							if ((ctx = stack.Pop (tag.Name)) != null) {
-								if (!stack.SuppressContent) {
-									if (ctx.InvokeCallbackForEndTag) {
-										ctx = new HtmlToHtmlTagContext (tag) {
-											InvokeCallbackForEndTag = ctx.InvokeCallbackForEndTag,
-											SuppressInnerContent = ctx.SuppressInnerContent,
-											DeleteEndTag = ctx.DeleteEndTag,
-											DeleteTag = ctx.DeleteTag
-										};
-										callback (ctx, htmlWriter);
-									} else if (!ctx.DeleteEndTag) {
-										htmlWriter.WriteEndTag (tag.Name);
-									}
-								}
-							} else if (!stack.SuppressContent && !(fragment && IsDocumentStructureTag (tag.Id))) {
-								ctx = new HtmlToHtmlTagContext (tag);
-								callback (ctx, htmlWriter);
-							}
+							ProcessEndTag (tag, false);
 						}
 						break;
 					}

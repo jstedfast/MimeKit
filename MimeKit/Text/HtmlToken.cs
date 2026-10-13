@@ -620,6 +620,7 @@ namespace MimeKit.Text {
 	{
 		string? publicIdentifier;
 		string? systemIdentifier;
+		string? name;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlDocTypeToken"/> class.
@@ -654,8 +655,47 @@ namespace MimeKit.Text {
 		/// Gets or sets the DOCTYPE name.
 		/// </remarks>
 		/// <value>The name.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty or contains whitespace, a <c>'&gt;'</c> or a <c>NUL</c> character.
+		/// </exception>
 		public string? Name {
-			get; set;
+			get { return name; }
+			set {
+				if (value != null && !IsValidName (value))
+					throw new ArgumentException ("The DOCTYPE name cannot be empty or contain whitespace, '>' or NUL characters.", nameof (value));
+
+				name = value;
+			}
+		}
+
+		static bool IsValidName (string value)
+		{
+			if (value.Length == 0)
+				return false;
+
+			foreach (var c in value) {
+				switch (c) {
+				case '\t': case '\n': case '\f': case '\r': case ' ': case '>': case '\0':
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		static bool IsValidIdentifier (string value)
+		{
+			bool singleQuote = false, doubleQuote = false;
+
+			foreach (var c in value) {
+				switch (c) {
+				case '>': case '\0': return false;
+				case '\'': singleQuote = true; break;
+				case '"': doubleQuote = true; break;
+				}
+			}
+
+			return !(singleQuote && doubleQuote);
 		}
 
 		/// <summary>
@@ -665,9 +705,16 @@ namespace MimeKit.Text {
 		/// Gets or sets the public identifier.
 		/// </remarks>
 		/// <value>The public identifier.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> contains a <c>'&gt;'</c> or a <c>NUL</c> character, or contains both
+		/// single and double quotes.
+		/// </exception>
 		public string? PublicIdentifier {
 			get { return publicIdentifier; }
 			set {
+				if (value != null && !IsValidIdentifier (value))
+					throw new ArgumentException ("The DOCTYPE public identifier cannot contain '>' or NUL characters, or both single and double quotes.", nameof (value));
+
 				publicIdentifier = value;
 				if (value != null) {
 					if (PublicKeyword is null)
@@ -697,9 +744,16 @@ namespace MimeKit.Text {
 		/// Gets or sets the system identifier.
 		/// </remarks>
 		/// <value>The system identifier.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> contains a <c>'&gt;'</c> or a <c>NUL</c> character, or contains both
+		/// single and double quotes.
+		/// </exception>
 		public string? SystemIdentifier {
 			get { return systemIdentifier; }
 			set {
+				if (value != null && !IsValidIdentifier (value))
+					throw new ArgumentException ("The DOCTYPE system identifier cannot contain '>' or NUL characters, or both single and double quotes.", nameof (value));
+
 				systemIdentifier = value;
 				if (value != null) {
 					if (publicIdentifier is null && SystemKeyword is null)
@@ -721,6 +775,24 @@ namespace MimeKit.Text {
 			get; internal set;
 		}
 
+		// The quote characters that were used to quote the identifiers in the original markup.
+		internal char PublicIdentifierQuote { get; set; } = '"';
+
+		internal char SystemIdentifierQuote { get; set; } = '"';
+
+		static void WriteIdentifier (TextWriter output, string identifier, char quote)
+		{
+			// Note: An identifier cannot contain the quote character that delimits it, so prefer the original
+			// quote character but fall back to whichever quote character the identifier does not contain.
+			if (quote != '\'' || identifier.IndexOf ('\'') != -1)
+				quote = identifier.IndexOf ('"') != -1 ? '\'' : '"';
+
+			output.Write (' ');
+			output.Write (quote);
+			output.Write (identifier);
+			output.Write (quote);
+		}
+
 		/// <summary>
 		/// Write the DOCTYPE tag to a <see cref="System.IO.TextWriter"/>.
 		/// </summary>
@@ -738,27 +810,25 @@ namespace MimeKit.Text {
 
 			output.Write ("<!");
 			output.Write (RawTagName);
-			if (Name != null) {
-				output.Write (' ');
-				output.Write (Name);
+
+			// Note: Without a name, a keyword would be parsed as the name, so the identifiers cannot be written.
+			if (name is null) {
+				output.Write ('>');
+				return;
 			}
+
+			output.Write (' ');
+			output.Write (name);
 			if (PublicIdentifier != null) {
 				output.Write (' ');
 				output.Write (PublicKeyword);
-				output.Write (" \"");
-				output.Write (PublicIdentifier);
-				output.Write ('"');
-				if (SystemIdentifier != null) {
-					output.Write (" \"");
-					output.Write (SystemIdentifier);
-					output.Write ('"');
-				}
+				WriteIdentifier (output, PublicIdentifier, PublicIdentifierQuote);
+				if (SystemIdentifier != null)
+					WriteIdentifier (output, SystemIdentifier, SystemIdentifierQuote);
 			} else if (SystemIdentifier != null) {
 				output.Write (' ');
 				output.Write (SystemKeyword);
-				output.Write (" \"");
-				output.Write (SystemIdentifier);
-				output.Write ('"');
+				WriteIdentifier (output, SystemIdentifier, SystemIdentifierQuote);
 			}
 			output.Write ('>');
 		}

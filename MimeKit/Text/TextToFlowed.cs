@@ -44,6 +44,7 @@ namespace MimeKit.Text {
 	/// </example>
 	public class TextToFlowed : TextConverter
 	{
+		const int MaxHardLineLength = 998;
 		const int MaxLineLength = 78;
 
 		/// <summary>
@@ -105,9 +106,12 @@ namespace MimeKit.Text {
 			if (quoteDepth > 0)
 				flowed.Append ('>', quoteDepth);
 
-			// Space-stuffed lines which start with a space, "From ", or ">".
-			if (quoteDepth > 0 || (line.Length > index && line[index] == ' ') || line.Slice (index).StartsWith ("From ".AsSpan (), StringComparison.Ordinal))
+			// Space-stuff lines which start with a space, "From ", or ">" (rfc3676, section 4.4). Note: Since the
+			// quote markers are removed from the line, a '>' can only appear at the start of a soft-broken line.
+			if (quoteDepth > 0 || (line.Length > index && (line[index] == ' ' || line[index] == '>')) || line.Slice (index).StartsWith ("From ".AsSpan (), StringComparison.Ordinal))
 				flowed.Append (' ');
+
+			int prefixLength = flowed.Length;
 
 			if (flowed.Length + (line.Length - index) <= MaxLineLength) {
 				flowed.Append (line.Slice (index));
@@ -126,20 +130,40 @@ namespace MimeKit.Text {
 					// The entire word will fit on the remainder of the line.
 					flowed.Append (line.Slice (index, wordLength));
 					index = wordEnd;
-				} else if (wordLength > MaxLineLength - (quoteDepth + 1)) {
-					// Even if we insert a soft-break here, the word is longer than what will fit on its own line.
-					// No matter what we do, we will need to break the word apart.
-					wordLength = MaxLineLength - (flowed.Length + 1);
-					flowed.Append (line.Slice (index, wordLength));
-					index += wordLength;
-					break;
-				} else {
+				} else if (flowed.Length > prefixLength && prefixLength + wordLength + softBreak <= MaxLineLength) {
 					// Only part of the word will fit on the remainder of this line, but it will easily fit
 					// on its own line. Insert a soft-break so that we don't break apart this word.
 					break;
+				} else if (flowed.Length + wordLength + softBreak <= MaxHardLineLength) {
+					// The word will not fit within MaxLineLength characters even on a line of its own (which can
+					// also happen if the quote depth is very deep), so send the word as is and exceed MaxLineLength
+					// rather than inserting a soft-break into the middle of the word (rfc3676, section 4.2).
+					flowed.Append (line.Slice (index, wordLength));
+					index = wordEnd;
+				} else if (flowed.Length > prefixLength && prefixLength + wordLength + softBreak <= MaxHardLineLength) {
+					// The word will fit within MaxHardLineLength characters on its own line.
+					break;
+				} else {
+					// The word is too long to fit within MaxHardLineLength characters even on a line of its own,
+					// so there is no choice but to break the word apart.
+					wordLength = MaxHardLineLength - (flowed.Length + 1);
+
+					if (wordLength <= 0) {
+						// The quote markers alone exceed MaxHardLineLength, so there is no way to conform.
+						flowed.Append (line.Slice (index));
+						index = line.Length;
+
+						return flowed.ToString ();
+					}
+
+					flowed.Append (line.Slice (index, wordLength));
+					index += wordLength;
+					break;
 				}
 
-				while (flowed.Length + 1 < MaxLineLength && index < line.Length && line[index] == ' ')
+				int maxLineLength = flowed.Length < MaxLineLength ? MaxLineLength : MaxHardLineLength;
+
+				while (flowed.Length + 1 < maxLineLength && index < line.Length && line[index] == ' ')
 					flowed.Append (line[index++]);
 			} while (index < line.Length && flowed.Length + 1 < MaxLineLength);
 

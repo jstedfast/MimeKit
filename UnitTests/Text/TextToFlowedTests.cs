@@ -138,6 +138,94 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestSpaceStuffingSoftBrokenLineStartingWithGreaterThan ()
+		{
+			string text = new string ('a', 75) + " >this is not a quote" + Environment.NewLine;
+			string expected = new string ('a', 75) + "  " + Environment.NewLine +
+				" >this is not a quote" + Environment.NewLine;
+			TextConverter converter = new TextToFlowed ();
+			string result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+
+			converter = new FlowedToText () { DeleteSpace = true };
+			result = converter.Convert (expected);
+
+			Assert.That (result, Is.EqualTo (text));
+		}
+
+		[Test]
+		public void TestLongWordIsNotBroken ()
+		{
+			string word = new string ('x', 100);
+			string text = "Hello " + word + " world" + Environment.NewLine;
+			string expected = "Hello " + word + "  " + Environment.NewLine +
+				"world" + Environment.NewLine;
+			TextConverter converter = new TextToFlowed ();
+			string result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+
+			converter = new FlowedToText () { DeleteSpace = true };
+			result = converter.Convert (expected);
+
+			Assert.That (result, Is.EqualTo (text));
+		}
+
+		[Test]
+		public void TestWordLongerThan998CharactersIsBroken ()
+		{
+			string text = new string ('x', 2000) + Environment.NewLine;
+			string expected = new string ('x', 997) + " " + Environment.NewLine +
+				new string ('x', 997) + " " + Environment.NewLine +
+				new string ('x', 6) + Environment.NewLine;
+			TextConverter converter = new TextToFlowed ();
+			string result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+
+			converter = new FlowedToText () { DeleteSpace = true };
+			result = converter.Convert (expected);
+
+			Assert.That (result, Is.EqualTo (text));
+		}
+
+		[TestCase (70)]
+		[TestCase (75)]
+		[TestCase (76)]
+		[TestCase (77)]
+		[TestCase (90)]
+		[TestCase (996)]
+		[TestCase (997)]
+		[TestCase (2000)]
+		public void TestFlowingDeeplyQuotedLines (int quoteDepth)
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ('>', quoteDepth).Append (' ');
+			for (int i = 0; i < 300; i++)
+				builder.Append ("word ").Append (new string ('x', i % 10)).Append (' ');
+			builder.Append (new string ('y', 1500));
+			builder.Append (Environment.NewLine);
+
+			var text = builder.ToString ();
+			TextConverter converter = new TextToFlowed ();
+			string flowed = converter.Convert (text);
+
+			foreach (var line in flowed.Split (new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)) {
+				Assert.That (line, Does.StartWith (new string ('>', quoteDepth) + " "));
+				// a line can only be wrapped if there is room for the prefix, at least 1 character and the soft line break
+				if (quoteDepth < 996)
+					Assert.That (line, Has.Length.LessThanOrEqualTo (998));
+			}
+
+			converter = new FlowedToText () { DeleteSpace = true };
+			string result = converter.Convert (flowed);
+
+			Assert.That (result, Is.EqualTo (text));
+		}
+
+		[Test]
 		public void TestFlowingLongLines ()
 		{
 			const string text = "But, soft! what light through yonder window breaks? " +

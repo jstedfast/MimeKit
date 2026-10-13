@@ -242,5 +242,60 @@ namespace UnitTests.Text {
 
 			Assert.That (result, Is.EqualTo (expected));
 		}
+
+		// The end tags of the blockquotes that were still open at the end of the text used to be written even if
+		// the HtmlTagCallback deleted them.
+		[Test]
+		public void TestDeleteBlockQuoteEndTagsAtEndOfText ()
+		{
+			const string expected = "a<br/>b<br/>";
+			string text = "> a" + Environment.NewLine + ">> b";
+			var converter = new TextToHtml {
+				OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, htmlWriter) => {
+					if (ctx.TagId == HtmlTagId.BlockQuote) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						return;
+					}
+
+					ctx.WriteTag (htmlWriter, true);
+				}
+			};
+			var result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		// The HtmlTagCallback used to be invoked for (and write) the blockquotes nested inside of a blockquote
+		// whose inner content was suppressed.
+		[TestCase (true)]
+		[TestCase (false)]
+		public void TestSuppressBlockQuoteInnerContent (bool closeQuotes)
+		{
+			const string expected = "<blockquote></blockquote>c<br/><blockquote></blockquote>";
+			string text = "> a" + Environment.NewLine +
+				">> b" + Environment.NewLine +
+				">>> b" + Environment.NewLine +
+				"c" + Environment.NewLine +
+				">> d" + Environment.NewLine +
+				">>> e" + (closeQuotes ? Environment.NewLine + "f" : string.Empty);
+			int invoked = 0;
+			var converter = new TextToHtml {
+				OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, htmlWriter) => {
+					if (ctx.TagId == HtmlTagId.BlockQuote && !ctx.IsEndTag) {
+						ctx.SuppressInnerContent = true;
+						invoked++;
+					}
+
+					ctx.WriteTag (htmlWriter, true);
+				}
+			};
+			var result = converter.Convert (text);
+
+			Assert.That (result, Is.EqualTo (closeQuotes ? expected + "f<br/>" : expected));
+			Assert.That (invoked, Is.EqualTo (2));
+		}
 	}
 }

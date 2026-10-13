@@ -191,14 +191,25 @@ namespace MimeKit.Text {
 			return line.Substring (index);
 		}
 
-		static bool SuppressContent (IList<TextToHtmlTagContext> stack)
+		// Note: suppressed is the index of the element on the stack that suppresses its inner content (or -1 if none do).
+		static void PopEndTag (HtmlWriter htmlWriter, HtmlTagCallback callback, List<TextToHtmlTagContext> stack, ref int suppressed)
 		{
-			for (int i = stack.Count; i > 0; i--) {
-				if (stack[i - 1].SuppressInnerContent)
-					return true;
-			}
+			var ctx = stack[stack.Count - 1];
 
-			return false;
+			stack.RemoveAt (stack.Count - 1);
+
+			if (suppressed == stack.Count)
+				suppressed = -1;
+
+			if (suppressed != -1 || ctx.DeleteEndTag)
+				return;
+
+			ctx.SetIsEndTag (true);
+
+			if (ctx.InvokeCallbackForEndTag)
+				callback (ctx, htmlWriter);
+			else
+				ctx.WriteTag (htmlWriter);
 		}
 
 		void WriteText (HtmlWriter htmlWriter, string text)
@@ -285,6 +296,7 @@ namespace MimeKit.Text {
 				var callback = HtmlTagCallback ?? DefaultHtmlTagCallback;
 				var stack = new List<TextToHtmlTagContext> ();
 				int currentQuoteDepth = 0;
+				int suppressed = -1;
 				TextToHtmlTagContext ctx;
 				string? line;
 
@@ -293,29 +305,24 @@ namespace MimeKit.Text {
 
 					while (currentQuoteDepth < quoteDepth) {
 						ctx = new TextToHtmlTagContext (HtmlTagId.BlockQuote);
-						callback (ctx, htmlWriter);
+
+						if (suppressed == -1) {
+							callback (ctx, htmlWriter);
+
+							if (ctx.SuppressInnerContent)
+								suppressed = stack.Count;
+						}
+
 						currentQuoteDepth++;
 						stack.Add (ctx);
 					}
 
 					while (quoteDepth < currentQuoteDepth) {
-						ctx = stack[stack.Count - 1];
-						stack.RemoveAt (stack.Count - 1);
-
-						if (!SuppressContent (stack) && !ctx.DeleteEndTag) {
-							ctx.SetIsEndTag (true);
-
-							if (ctx.InvokeCallbackForEndTag)
-								callback (ctx, htmlWriter);
-							else
-								ctx.WriteTag (htmlWriter);
-						}
-
-						if (ctx.TagId == HtmlTagId.BlockQuote)
-							currentQuoteDepth--;
+						PopEndTag (htmlWriter, callback, stack, ref suppressed);
+						currentQuoteDepth--;
 					}
 
-					if (!SuppressContent (stack)) {
+					if (suppressed == -1) {
 						WriteText (htmlWriter, line);
 
 						ctx = new TextToHtmlTagContext (HtmlTagId.Br);
@@ -323,16 +330,8 @@ namespace MimeKit.Text {
 					}
 				}
 
-				for (int i = stack.Count; i > 0; i--) {
-					ctx = stack[i - 1];
-
-					ctx.SetIsEndTag (true);
-
-					if (ctx.InvokeCallbackForEndTag)
-						callback (ctx, htmlWriter);
-					else
-						ctx.WriteTag (htmlWriter);
-				}
+				while (stack.Count > 0)
+					PopEndTag (htmlWriter, callback, stack, ref suppressed);
 
 				htmlWriter.Flush ();
 			}

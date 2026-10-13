@@ -160,6 +160,10 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   `InReplyTo` and `ContentId`) and `MimeUtils.ParseMessageId ()` return `null` instead of an empty string,
   and `MimeMessage.References` and `MimeUtils.EnumerateReferences ()` skip it. Folding whitespace within a
   quoted local-part is now unfolded.
+* The `HtmlDocTypeToken.Name`, `PublicIdentifier` and `SystemIdentifier` setters now throw an
+  `ArgumentException` for values that cannot be written as a well-formed DOCTYPE: an empty name, or a
+  name containing whitespace, `>` or NUL; or an identifier containing `>` or NUL, or containing both
+  `'` and `"`. `HtmlDocTypeToken.WriteTo ()` no longer writes the identifiers when `Name` is `null`.
 
 ### DMARC
 
@@ -441,7 +445,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   in browsers), and self-closing raw-text elements such as `<style/>` and `<script/>` in HTML content now
   switch the tokenizer into the appropriate raw-text state, as browsers ignore the self-closing flag on
   non-void HTML elements. `HtmlToHtml` and `HtmlTextPreviewer` now suppress the content that follows a
-  self-closing raw-text element when its content is suppressed.
+  self-closing raw-text element when its content is suppressed. `HtmlToHtml` also writes explicit end tags
+  for the SVG and MathML elements (and the elements nested inside them) that a start tag implicitly closes,
+  e.g. `<svg><p>`, so that a browser parsing the output leaves foreign content where `HtmlToHtml` did.
 
 * Fixed `HtmlToHtml` so that a literal `<` at the end of character data (e.g. the first `<` in `<</>c>`)
   is written as `&lt;`. Previously, if the markup following it was dropped (e.g. `</>`, a comment removed by
@@ -674,6 +680,19 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `DkimPublicKeyRecord.TryParse` now returns `false` for an Ed25519 key that is not a valid curve point
   instead of throwing an `ArgumentException`. As a result, `DkimVerifier` and `ArcVerifier` now skip such a
   DNS record instead of failing the whole verification.
+* `TextToFlowed` now space-stuffs a soft-broken line that starts with `>`, so that it is no longer read
+  back as a quoted line. It also no longer inserts a soft line break into the middle of a word that does
+  not fit on a line of its own (including at very deep quote depths). Such a word is now sent as is, as
+  rfc3676 recommends, unless the line would exceed 998 characters.
+* `TextToHtml` and `FlowedToHtml` no longer write the `</blockquote>` end tags that are still open at the
+  end of the text when the `HtmlTagCallback` set `DeleteEndTag`. They also no longer invoke the callback
+  for (and write) blockquotes nested inside a blockquote whose inner content is suppressed.
+* `HtmlDocTypeToken.WriteTo ()` now quotes the public and system identifiers with the quote character
+  used in the original markup (or whichever one the identifier does not contain), so that an identifier
+  containing a `"` no longer ends early when the output is parsed again.
+* `HtmlTokenizer` now terminates an empty CDATA section (`<![CDATA[]]>`) in foreign content. Previously,
+  everything after it was treated as part of the CDATA section. This allowed markup such as
+  `<svg><![CDATA[]]><img src=x onerror=alert(1)>` to bypass the `HtmlTagCallback` of `HtmlToHtml`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

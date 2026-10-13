@@ -71,6 +71,8 @@ $TargetDictionaries = @{
     "dns-records" = "dkim.dict"
     "dkim-arc-verifier" = "dkim.dict"
     "dmarc-verifier" = "dkim.dict"
+    "html-tokenizer" = "html.dict"
+    "text-converters" = "text.dict"
 }
 
 if ($IsWindows) {

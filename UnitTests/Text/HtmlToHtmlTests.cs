@@ -451,6 +451,126 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
+		// HtmlDocTypeToken.WriteTo used to always quote identifiers with double quotes, so a single-quoted identifier
+		// that contained a double quote did not survive a round-trip.
+		[TestCase ("<!DOCTYPE x SYSTEM 'a\"b'><p>y</p>", null, "a\"b")]
+		[TestCase ("<!DOCTYPE x PUBLIC 'a\"b' 'c\"d'><p>y</p>", "a\"b", "c\"d")]
+		[TestCase ("<!DOCTYPE x PUBLIC \"a'b\" 'c'><p>y</p>", "a'b", "c")]
+		[TestCase ("<!DOCTYPE x SYSTEM 'a'><p>y</p>", null, "a")]
+		public void TestDocTypeIdentifierQuotes (string input, string publicIdentifier, string systemIdentifier)
+		{
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (input));
+
+			var tokenizer = new HtmlTokenizer (new StringReader (result));
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+
+			var doctype = (HtmlDocTypeToken) token;
+
+			Assert.That (doctype.PublicIdentifier, Is.EqualTo (publicIdentifier));
+			Assert.That (doctype.SystemIdentifier, Is.EqualTo (systemIdentifier));
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+		}
+
+		[Test]
+		public void TestDocTypeIdentifierQuoteAfterSettingIdentifier ()
+		{
+			var tokenizer = new HtmlTokenizer (new StringReader ("<!DOCTYPE x SYSTEM 'a'>"));
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+
+			var doctype = (HtmlDocTypeToken) token;
+
+			doctype.SystemIdentifier = "it's";
+
+			Assert.That (doctype.ToString (), Is.EqualTo ("<!DOCTYPE x SYSTEM \"it's\">"));
+		}
+
+		// Tags such as <body>, <img> and </div> implicitly close the open SVG and MathML elements. If such a tag was removed
+		// (by OutputHtmlFragment or by the callback), the output used to remain in foreign content, where browsers parse the
+		// content of <style> as markup, which allowed markup that the callback never saw to become live.
+		[TestCase ("<svg><body><style><img src=x onerror=alert(1)></style>", true, "<svg></svg><style><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<svg><body><style><img src=x onerror=alert(1)></style>", false, "<svg></svg><body><style><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<svg><img src=y><style><img src=x onerror=alert(1)></style>", false, "<svg></svg><style><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<div><svg><g></div><style><img src=x onerror=alert(1)></style>", false, "<svg><g></g></svg><style><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<math><mtext><svg><p></math><b>x</b>", false, "<math><mtext><svg></svg><p></math><b>x</b>")]
+		[TestCase ("<svg><g><g><g></p>x", false, "<svg><g><g><g></g></g></g></svg></p>x")]
+		[TestCase ("<svg><g></svg>x", false, "<svg><g></g></svg>x")]
+		[TestCase ("<mi/r><table><math><mi><e><tr>", false, "<mi r><table><math><mi><e></e></mi></math><tr>")]
+		public void TestImplicitlyClosedForeignElements (string input, bool fragment, string expected)
+		{
+			var converter = new HtmlToHtml {
+				OutputHtmlFragment = fragment,
+				HtmlTagCallback = (ctx, htmlWriter) => {
+					if (ctx.TagId == HtmlTagId.Image || ctx.TagId == HtmlTagId.Div) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						return;
+					}
+
+					ctx.WriteTag (htmlWriter, true);
+				}
+			};
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (converter.Convert (result), Is.EqualTo (expected), "Convert again");
+		}
+
+		[Test]
+		public void TestImplicitlyClosedForeignElementsWithDeletedEndTags ()
+		{
+			const string input = "<svg><g><a><body><style><img src=x onerror=alert(1)></style>";
+			const string expected = "<svg><g><a></a></svg><style><img src=x onerror=alert(1)></style>";
+			var converter = new HtmlToHtml {
+				OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, htmlWriter) => {
+					if (ctx.TagName == "g") {
+						ctx.DeleteEndTag = true;
+						ctx.WriteTag (htmlWriter, false);
+						return;
+					}
+
+					ctx.WriteTag (htmlWriter, true);
+				}
+			};
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestImplicitlyClosedForeignElementWithSuppressedContent ()
+		{
+			// The content that follows the tag that implicitly closed the suppressed <svg> element is no longer inside of it.
+			const string input = "<svg><circle><body><b>x</b></svg>y";
+			const string expected = "<b>x</b>y";
+			var converter = new HtmlToHtml {
+				OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, htmlWriter) => {
+					if (ctx.TagId == HtmlTagId.Unknown && ctx.TagName == "svg") {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+						return;
+					}
+
+					ctx.WriteTag (htmlWriter, true);
+				}
+			};
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
 		static string Repeat (string value, int count)
 		{
 			var builder = new StringBuilder (value.Length * count);
@@ -519,6 +639,7 @@ namespace UnitTests.Text {
 		[TestCase ("<div><svg></div><style><!--</style><img src=x onerror=alert(1)>-->")]
 		[TestCase ("<foo><svg></foo><style><!--</style><img src=x onerror=alert(1)>-->")]
 		[TestCase ("<svg><p><style><!--</style><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<svg><![CDATA[]]><img src=x onerror=alert(1)>")]
 		public void TestTagCallbackSeesAllTags (string input)
 		{
 			var converter = new HtmlToHtml {

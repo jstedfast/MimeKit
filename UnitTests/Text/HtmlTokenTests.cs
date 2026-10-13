@@ -117,5 +117,73 @@ namespace UnitTests.Text {
 			Assert.That (doctype.SystemIdentifier, Is.Null, "SystemIdentifier");
 			Assert.That (doctype.SystemKeyword, Is.Null, "SystemKeyword");
 		}
+
+		// Values that cannot be written as a well-formed DOCTYPE used to be accepted, which allowed markup to be
+		// injected into (or after) the DOCTYPE, e.g. Name = "html><script>".
+		[TestCase ("")]
+		[TestCase ("html><script>alert(1)</script")]
+		[TestCase ("html PUBLIC")]
+		[TestCase ("a\tb")]
+		[TestCase ("a\nb")]
+		[TestCase ("a\fb")]
+		[TestCase ("a\rb")]
+		[TestCase ("a\0b")]
+		public void TestHtmlDocTypeInvalidName (string name)
+		{
+			var doctype = new HtmlDocTypeToken { Name = "html" };
+
+			Assert.Throws<ArgumentException> (() => doctype.Name = name);
+			Assert.That (doctype.Name, Is.EqualTo ("html"));
+		}
+
+		[TestCase ("x\"><script>alert(1)</script>")]
+		[TestCase ("a>b")]
+		[TestCase ("a\0b")]
+		[TestCase ("a'b\"c")]
+		public void TestHtmlDocTypeInvalidIdentifier (string identifier)
+		{
+			var doctype = new HtmlDocTypeToken { Name = "html", PublicIdentifier = "p", SystemIdentifier = "s" };
+
+			Assert.Throws<ArgumentException> (() => doctype.PublicIdentifier = identifier);
+			Assert.Throws<ArgumentException> (() => doctype.SystemIdentifier = identifier);
+			Assert.That (doctype.PublicIdentifier, Is.EqualTo ("p"));
+			Assert.That (doctype.SystemIdentifier, Is.EqualTo ("s"));
+		}
+
+		[TestCase ("html", "-//W3C//DTD HTML 4.01//EN", "http://www.w3.org/TR/html4/strict.dtd")]
+		[TestCase ("<x/\"'", "it's", "say \"hi\"")]
+		[TestCase ("html", "", "")]
+		[TestCase ("html", null, "s")]
+		[TestCase ("html", "p", null)]
+		public void TestHtmlDocTypeSettersRoundTrip (string name, string publicIdentifier, string systemIdentifier)
+		{
+			var doctype = new HtmlDocTypeToken { Name = name, PublicIdentifier = publicIdentifier, SystemIdentifier = systemIdentifier };
+			var tokenizer = new HtmlTokenizer (new StringReader (doctype.ToString () + "<p>"));
+
+			Assert.That (tokenizer.ReadNextToken (out var token), Is.True);
+			Assert.That (token, Is.InstanceOf<HtmlDocTypeToken> ());
+
+			var parsed = (HtmlDocTypeToken) token;
+
+			Assert.That (parsed.Name, Is.EqualTo (name), "Name");
+			Assert.That (parsed.PublicIdentifier, Is.EqualTo (publicIdentifier), "PublicIdentifier");
+			Assert.That (parsed.SystemIdentifier, Is.EqualTo (systemIdentifier), "SystemIdentifier");
+			Assert.That (parsed.ForceQuirksMode, Is.False, "ForceQuirksMode");
+			Assert.That (tokenizer.ReadNextToken (out token), Is.True);
+			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
+		}
+
+		// Without a name, the PUBLIC or SYSTEM keyword would be parsed as the name, so the identifiers are omitted.
+		[Test]
+		public void TestHtmlDocTypeWithoutName ()
+		{
+			var doctype = new HtmlDocTypeToken { PublicIdentifier = "p", SystemIdentifier = "s" };
+
+			Assert.That (doctype.ToString (), Is.EqualTo ("<!DOCTYPE>"));
+
+			doctype = new HtmlDocTypeToken { SystemIdentifier = "s" };
+
+			Assert.That (doctype.ToString (), Is.EqualTo ("<!DOCTYPE>"));
+		}
 	}
 }

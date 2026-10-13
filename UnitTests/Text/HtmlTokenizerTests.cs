@@ -3804,6 +3804,10 @@ namespace UnitTests.Text {
 		[TestCase ("<math><![CDATA[ x ><img>]]>", "Tag(math) Data( x ><img>)")]
 		[TestCase ("<svg><foreignObject><![CDATA[ x ><img>]]>", "Tag(svg) Tag(foreignObject) Data( x ><img>)")]
 		[TestCase ("<svg></svg><![CDATA[ x ><img>]]>", "Tag(svg) EndTag(svg) Bogus([CDATA[ x ) Tag(img) Data(]]>)")]
+		[TestCase ("<svg><![CDATA[]]><img>", "Tag(svg) Tag(img)")]
+		[TestCase ("<svg><![CDATA[]]>x<![CDATA[]]]>y", "Tag(svg) Data(x]y)")]
+		[TestCase ("<svg><![CDATA[]]]]>", "Tag(svg) Data(]])")]
+		[TestCase ("<svg><![CDATA[]]", "Tag(svg) Data(]])")]
 		public void TestCDataSectionContext (string content, string expected)
 		{
 			Assert.That (DescribeTokens (content), Is.EqualTo (expected));

@@ -163,6 +163,59 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// An element (or a run of consecutive identical elements) that was implicitly closed.
+		/// </summary>
+		public readonly struct ClosedElement
+		{
+			public readonly string Name;
+			public readonly int Count;
+			public readonly bool IsForeign;
+
+			public ClosedElement (string name, int count, bool isForeign)
+			{
+				Name = name;
+				Count = count;
+				IsForeign = isForeign;
+			}
+		}
+
+		List<ClosedElement>? closedElements;
+
+		/// <summary>
+		/// Get or set whether to track the elements that get implicitly closed.
+		/// </summary>
+		/// <remarks>
+		/// <para>Tags such as <c>&lt;body&gt;</c>, <c>&lt;img&gt;</c> or <c>&lt;/div&gt;</c> implicitly close the open SVG
+		/// and MathML elements. If a consumer such as <see cref="HtmlToHtml"/> does not write the tag that caused this
+		/// (e.g. because it was removed by an <see cref="HtmlToHtml.HtmlTagCallback"/>), then the output would remain in
+		/// foreign content and a browser would interpret the rest of it differently than the tokenizer did.</para>
+		/// <para>When enabled, <see cref="ClosedElements"/> gets populated with the elements that were implicitly
+		/// closed (innermost first) so that the consumer can write explicit end tags for them.</para>
+		/// </remarks>
+		public bool TrackClosedElements {
+			get { return closedElements != null; }
+			set { closedElements = value ? closedElements ?? new List<ClosedElement> () : null; }
+		}
+
+		/// <summary>
+		/// Get the elements that were implicitly closed by the most recently processed tag (innermost first).
+		/// </summary>
+		/// <remarks>
+		/// The element that is explicitly closed by an end tag is not included.
+		/// </remarks>
+		public IReadOnlyList<ClosedElement> ClosedElements {
+			get { return (IReadOnlyList<ClosedElement>?) closedElements ?? Array.Empty<ClosedElement> (); }
+		}
+
+		/// <summary>
+		/// Clear the list of implicitly closed elements.
+		/// </summary>
+		public void ClearClosedElements ()
+		{
+			closedElements?.Clear ();
+		}
+
+		/// <summary>
 		/// Get whether the adjusted current node is an element in the SVG or MathML namespace.
 		/// </summary>
 		/// <remarks>
@@ -378,8 +431,15 @@ namespace MimeKit.Text {
 		// Pop elements until the element at the specified index is the current node (or the stack is empty if index is -1).
 		void PopAbove (int index)
 		{
-			while (count - 1 > index)
+			while (count - 1 > index) {
+				if (closedElements != null) {
+					ref var entry = ref EntryAt (count - 1);
+
+					closedElements.Add (new ClosedElement (entry.Name, entry.Count, entry.Namespace != HtmlNamespace.Html));
+				}
+
 				RemoveTopEntry ();
+			}
 		}
 
 		// Pop elements until (one instance of) the element at the specified index has been popped.

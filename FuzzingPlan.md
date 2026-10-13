@@ -224,8 +224,8 @@ if time allows.
 | 17 | `rtf-converters` | `RtfToText` and `RtfToHtml` (`ExtractEncapsulatedHtml` on and off), through both `Convert (TextReader, TextWriter)` and `Convert (Stream, Stream)` | 5 (whole reader vs. a 1-char-per-`Read` reader), 7, 8 | 1 MiB | 1 |
 | 18 | `rtf-tokenizer` | The internal `RtfTokenizer` (`ReadNextToken` vs. `ReadNextTokenAsync`) and `RtfInterpreter` (sync vs. async), via `InternalsVisibleTo` | 1 (token / content-handler trace) | 1 MiB | 1 |
 | 11 | `encoders` | The matching encoders, plus `EncoderFilter` / `DecoderFilter` | 5, 6 | 256 KiB | 2 |
-| 12 | `html-tokenizer` | `HtmlTokenizer` until EOF; `HtmlToHtml` and `HtmlTextPreviewer` | must finish; token count ≤ input length + 1 | 256 KiB | 2 |
-| 13 | `text-converters` | `TextToFlowed`, `FlowedToText`, `FlowedToHtml`, `TextToHtml` (the last one covers `UrlScanner`) | 5 | 256 KiB | 2 |
+| 12 | `html-tokenizer` | `HtmlTokenizer` until EOF; `HtmlToHtml` (with and without a filtering `HtmlTagCallback`) and `HtmlTextPreviewer` | 5; token count ≤ input length + 1; re-tokenizing the `HtmlToHtml` output yields exactly the tags the callback wrote; `HtmlToHtml` is idempotent; differential against AngleSharp (every element a browser creates from the input or the `HtmlToHtml` output must be a start tag that `HtmlTokenizer` reported at the same offset) | 256 KiB | 2 |
+| 13 | `text-converters` | `TextToText`, `TextToFlowed`, `FlowedToText`, `FlowedToHtml`, `TextToHtml` (the last one covers `UrlScanner`) | 5, 7; the HTML output uses only generated elements with balanced end tags and honours the callback; links only use known schemes; `FlowedToText` of the `TextToFlowed` output reproduces the input | 256 KiB | 2 |
 | 14 | `charset-filter` | `CharsetFilter` across a fixed set of source charsets selected by the first byte | 5 | 256 KiB | 2 |
 | 15 | `dkim-arc-headers` | Superseded by targets 19–23 | — | — | — |
 | 16 | `legacy-mime-parser` | `LegacyMimeParser` vs `MimeParser` differential | Informational only; divergence is logged, not failed | 1 MiB | 2 |
@@ -348,7 +348,12 @@ build structured input:
   `!nxdomain`, `@spf pass `, ...), `_domainkey.` / `_dmarc.`, DKIM key record, DMARC record and
   signature tags (`v=DKIM1`, `k=ed25519`, `p=reject`, `adkim=s`, `c=relaxed/relaxed`, `cv=pass`, ...)
   and common base64 public key prefixes
-- **html:** `"<!--"`, `"-->"`, `"<![CDATA["`, `"<script"`, `"&#x"`, `"&amp;"`, `"<meta charset="`
+- **html:** `"<!--"`, `"-->"`, `"<![CDATA["`, `"<script"`, `"&#x"`, `"&amp;"`, `"<meta charset="`,
+  plus the doctype, raw-text (`<script>`, `<textarea>`, `<plaintext>`, ...), foreign-content (`<svg>`,
+  `<math>`) and frame/template tags that change the tokenizer state, and event-handler attributes
+- **text** (`text-converters`): `format=flowed` quote prefixes (`"> "`, `">>"`), soft line breaks
+  (`" \n"`), the signature separator (`"-- "`), `From ` stuffing and the URL schemes and prefixes that
+  `UrlScanner` detects
 
 ## Running locally
 

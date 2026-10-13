@@ -236,6 +236,50 @@ foreach ($name in $Targets) {
                 $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
             }
         }
+        "html-tokenizer" {
+            foreach ($file in (Get-Files (Join-Path $TestData "html") @("*.html", "*.xhtml"))) {
+                $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
+            }
+
+            foreach ($file in (Get-Files (Join-Path $TestData "text") @("*.html"))) {
+                $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
+            }
+
+            foreach ($test in "HtmlTokenizerTests.cs", "HtmlToHtmlTests.cs", "HtmlTextPreviewerTests.cs") {
+                $path = Join-Path $RepoRoot "UnitTests" "Text" $test
+
+                if (Test-Path $path) {
+                    foreach ($value in (Get-CSharpStrings $path)) {
+                        if ($value.Contains("<")) {
+                            $seeds.Add($Utf8.GetBytes($value))
+                        }
+                    }
+                }
+            }
+        }
+        "text-converters" {
+            foreach ($file in (Get-Files (Join-Path $TestData "text") @("*.txt"))) {
+                $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
+            }
+
+            foreach ($test in "TextToHtmlTests.cs", "TextToFlowedTests.cs", "FlowedToTextTests.cs", "FlowedToHtmlTests.cs", "TextToTextTests.cs", "UrlScannerTests.cs") {
+                $path = Join-Path $RepoRoot "UnitTests" "Text" $test
+
+                if (Test-Path $path) {
+                    foreach ($value in (Get-CSharpStrings $path)) {
+                        $seeds.Add($Utf8.GetBytes($value))
+                    }
+                }
+            }
+
+            foreach ($message in (Get-Messages)) {
+                $match = [regex]::Match($message, "\r?\n\r?\n")
+
+                if ($match.Success -and $message.Substring(0, $match.Index) -match '(?im)^content-type:\s*text/plain') {
+                    $seeds.Add($Latin1.GetBytes($message.Substring($match.Index + $match.Length)))
+                }
+            }
+        }
         "rtf-compressed" {
             foreach ($file in (Get-Files (Join-Path (Get-RtfExtract) "compressed"))) {
                 $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
