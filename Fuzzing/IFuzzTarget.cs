@@ -58,6 +58,9 @@ namespace MimeKit.Fuzzing {
 			new RtfTokenizerTarget (),
 			new SmtpUtf8ValidatorTarget (),
 			new AuthenticationResultsTarget (),
+			new DnsRecordsTarget (),
+			new DkimArcVerifierTarget (),
+			new DmarcVerifierTarget (),
 		};
 
 		public static bool TryGet (string name, [NotNullWhen (true)] out IFuzzTarget? target)

@@ -1222,6 +1222,47 @@ namespace UnitTests.Cryptography {
 			Assert.That ((await verifier.VerifyAsync (message, message.Headers[index])).Status, Is.EqualTo (DkimSignatureStatus.Pass), "Failed to verify ed25519-sha256");
 		}
 
+		// An Ed25519 key record that does not decode to a point on the curve is skipped rather than aborting the key lookup.
+		const string InvalidEd25519PointRecord = "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHO7PvpcghaiMlrwIaaPcHURo=";
+
+		[Test]
+		public void TestVerifySkipsInvalidEd25519PointRecord ()
+		{
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
+			var dkim = message.Headers[message.Headers.IndexOf (HeaderId.DkimSignature)];
+			var resolver = new MockDnsResolver ();
+			var verifier = new DkimVerifier (resolver);
+
+			resolver.Add ("brisbane._domainkey.football.example.com", InvalidEd25519PointRecord);
+
+			var result = verifier.Verify (message, dkim);
+			Assert.That (result.Status, Is.EqualTo (DkimSignatureStatus.PermError));
+			Assert.That (result.Exception, Is.Null);
+
+			resolver.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+
+			Assert.That (verifier.Verify (message, dkim).Status, Is.EqualTo (DkimSignatureStatus.Pass));
+		}
+
+		[Test]
+		public async Task TestVerifySkipsInvalidEd25519PointRecordAsync ()
+		{
+			using var message = MimeMessage.Load (Path.Combine (TestHelper.ProjectDir, "TestData", "dkim", "rfc8463-example.msg"));
+			var dkim = message.Headers[message.Headers.IndexOf (HeaderId.DkimSignature)];
+			var resolver = new MockDnsResolver ();
+			var verifier = new DkimVerifier (resolver);
+
+			resolver.Add ("brisbane._domainkey.football.example.com", InvalidEd25519PointRecord);
+
+			var result = await verifier.VerifyAsync (message, dkim);
+			Assert.That (result.Status, Is.EqualTo (DkimSignatureStatus.PermError));
+			Assert.That (result.Exception, Is.Null);
+
+			resolver.Add ("brisbane._domainkey.football.example.com", "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=");
+
+			Assert.That ((await verifier.VerifyAsync (message, dkim)).Status, Is.EqualTo (DkimSignatureStatus.Pass));
+		}
+
 		static void TestDkimSignVerify (MimeMessage message, DkimSignatureAlgorithm signatureAlgorithm, DkimCanonicalizationAlgorithm headerAlgorithm, DkimCanonicalizationAlgorithm bodyAlgorithm)
 		{
 			var headers = new HeaderId[] { HeaderId.From, HeaderId.Subject, HeaderId.Date };

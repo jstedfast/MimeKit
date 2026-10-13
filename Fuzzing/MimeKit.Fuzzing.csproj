@@ -4,7 +4,8 @@
     Coverage-guided fuzzing harness for MimeKit (see FuzzingPlan.md and scripts/fuzz.ps1).
 
     This project is intentionally not part of MimeKit.sln: build and publish it directly. The published
-    MimeKit.Core.dll is instrumented in place by sharpfuzz, so never reuse that output for anything else.
+    MimeKit.Core.dll and MimeKit.Cryptography.dll are instrumented in place by sharpfuzz, so never reuse that
+    output for anything else.
   -->
 
   <PropertyGroup>
@@ -28,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MimeKit\MimeKit.csproj" />
+    <ProjectReference Include="..\MimeKit.Cryptography\MimeKit.Cryptography.csproj" />
   </ItemGroup>
 
 </Project>

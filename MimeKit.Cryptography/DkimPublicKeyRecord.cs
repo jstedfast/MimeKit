@@ -257,7 +257,12 @@ namespace MimeKit.Cryptography {
 				if (data.Length != Ed25519PublicKeyParameters.KeySize)
 					return false;
 
-				key = new Ed25519PublicKeyParameters (data, 0);
+				// BouncyCastle rejects encodings that do not decode to a point on the curve.
+				try {
+					key = new Ed25519PublicKeyParameters (data, 0);
+				} catch (ArgumentException) {
+					return false;
+				}
 			} else {
 				key = ParseRsaPublicKey (data);
 			}

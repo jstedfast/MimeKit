@@ -664,6 +664,16 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   treats such a line as an invalid header, but with `NewLineFormat.Unix` the filter stripped one carriage
   return per round trip until the line became the blank line that ends the header block, which changed the
   structure of the message.
+* `AuthenticationResults.Parse` and `TryParse` no longer include trailing whitespace or comments in the
+  method name of a dotted method (e.g. `gateway.spf (comment) =pass`) or in an Office 365-style authserv-id
+  that is followed by CFWS. Previously, the folded whitespace or comment became part of the name.
+* `AuthenticationResults.Parse` and `TryParse` no longer leave a dangling backslash at the end of a
+  `ResultComment` that ends with an escaped whitespace character (e.g. `(comment\ )`). Previously,
+  `ToString()` would emit a backslash that escaped the closing parenthesis, so the result could not be
+  parsed again.
+* `DkimPublicKeyRecord.TryParse` now returns `false` for an Ed25519 key that is not a valid curve point
+  instead of throwing an `ArgumentException`. As a result, `DkimVerifier` and `ArcVerifier` now skip such a
+  DNS record instead of failing the whole verification.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

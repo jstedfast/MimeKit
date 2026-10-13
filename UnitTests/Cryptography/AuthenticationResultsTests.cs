@@ -1634,6 +1634,80 @@ namespace UnitTests.Cryptography {
 			Assert.That (authres.ToString (), Is.EqualTo (input), "Parse");
 		}
 
+		[TestCase ("example.com; spf=pass (comment\\ ) smtp.mailfrom=example.com", "comment", TestName = "TestParseResultCommentEndingWithEscapedSpace")]
+		[TestCase ("example.com; spf=pass (comment\\\t) smtp.mailfrom=example.com", "comment", TestName = "TestParseResultCommentEndingWithEscapedTab")]
+		[TestCase ("example.com; spf=pass (comment\\ \\ ) smtp.mailfrom=example.com", "comment", TestName = "TestParseResultCommentEndingWithEscapedSpaces")]
+		[TestCase ("example.com; spf=pass (comment\\\\ ) smtp.mailfrom=example.com", "comment\\\\", TestName = "TestParseResultCommentEndingWithEscapedBackslash")]
+		[TestCase ("example.com; spf=pass (\\ ) smtp.mailfrom=example.com", "", TestName = "TestParseResultCommentOnlyEscapedSpace")]
+		public void TestParseResultCommentEndingWithQuotedPair (string input, string comment)
+		{
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+			Assert.That (authres.Results[0].ResultComment, Is.EqualTo (comment), "TryParse");
+
+			authres = AuthenticationResults.Parse (buffer);
+			Assert.That (authres.Results[0].ResultComment, Is.EqualTo (comment), "Parse");
+
+			var serialized = authres.ToString ();
+
+			Assert.That (AuthenticationResults.TryParse (Encoding.ASCII.GetBytes (serialized), out var reparsed), Is.True, "TryParse serialized");
+			Assert.That (reparsed.ToString (), Is.EqualTo (serialized));
+		}
+
+		[TestCase ("example.com; gateway.spf =pass", TestName = "TestParseDottedMethodFollowedByWhiteSpace")]
+		[TestCase ("example.com; gateway.spf\r\n\t=pass", TestName = "TestParseDottedMethodFollowedByFoldingWhiteSpace")]
+		[TestCase ("example.com; gateway.spf (comment) =pass", TestName = "TestParseDottedMethodFollowedByComment")]
+		public void TestParseDottedMethodFollowedByCFWS (string input)
+		{
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+			Assert.That (authres.Results[0].Method, Is.EqualTo ("gateway.spf"), "TryParse");
+
+			authres = AuthenticationResults.Parse (buffer);
+			Assert.That (authres.Results[0].Method, Is.EqualTo ("gateway.spf"), "Parse");
+			Assert.That (authres.ToString (), Is.EqualTo ("example.com; gateway.spf=pass"));
+		}
+
+		[TestCase ("example.com; receivingdomain.com ; spf=pass", TestName = "TestParseOffice365AuthServIdFollowedByWhiteSpace")]
+		[TestCase ("example.com; receivingdomain.com\r\n\t; spf=pass", TestName = "TestParseOffice365AuthServIdFollowedByFoldingWhiteSpace")]
+		[TestCase ("example.com; receivingdomain.com (comment); spf=pass", TestName = "TestParseOffice365AuthServIdFollowedByComment")]
+		public void TestParseOffice365AuthServIdFollowedByCFWS (string input)
+		{
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+			Assert.That (authres.Results[0].Office365AuthenticationServiceIdentifier, Is.EqualTo ("receivingdomain.com"), "TryParse");
+
+			authres = AuthenticationResults.Parse (buffer);
+			Assert.That (authres.Results[0].Office365AuthenticationServiceIdentifier, Is.EqualTo ("receivingdomain.com"), "Parse");
+			Assert.That (authres.ToString (), Is.EqualTo ("example.com; receivingdomain.com; spf=pass"));
+		}
+
+		[Test]
+		public void TestEncodeLongDottedMethodRoundTrip ()
+		{
+			var method = new string ('l', 67) + ".llllll";
+			var authres = AuthenticationResults.Parse (Encoding.ASCII.GetBytes ($"example.com; {method}=pass reason=^ooe;"));
+			var options = FormatOptions.Default.Clone ();
+			var builder = new StringBuilder ();
+
+			options.NewLineFormat = NewLineFormat.Unix;
+			options.MaxLineLength = 60;
+
+			authres.Encode (options, builder, "ARC-Authentication-Results:".Length);
+
+			var encoded = builder.ToString ();
+
+			Assert.That (encoded, Does.Contain ("\n\t="), "The method name should be folded before the '='");
+
+			var reparsed = AuthenticationResults.Parse (Encoding.ASCII.GetBytes (encoded));
+
+			Assert.That (reparsed.Results[0].Method, Is.EqualTo (method));
+			Assert.That (reparsed.ToString (), Is.EqualTo (authres.ToString ()));
+		}
+
 		[Test]
 		public void TestQuotedAuthServIdRoundTrip ()
 		{

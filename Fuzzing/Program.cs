@@ -40,6 +40,9 @@ namespace MimeKit.Fuzzing {
 	//   --extract-rtf <bin-dir> <rtf-dir> <path>...
 	//                                    Extract PidTagRtfCompressed values (and their decompressed RTF) from
 	//                                    TNEF files. Used by scripts/fuzz-seed-corpora.ps1.
+	//   --generate-dkim-seeds <output-dir> <rsa-key.pem> <path>...
+	//                                    Sign messages with DKIM and ARC and prepend a DNS zone with the keys, to
+	//                                    seed the dkim-arc-verifier and dmarc-verifier corpora.
 	static class Program
 	{
 		const string TargetVariable = "MIMEKIT_FUZZ_TARGET";
@@ -58,6 +61,9 @@ namespace MimeKit.Fuzzing {
 
 			if (args.Length > 0 && args[0] == "--extract-rtf")
 				return Helpers.RtfSeedExtractor.Run (args);
+
+			if (args.Length > 0 && args[0] == "--generate-dkim-seeds")
+				return Helpers.DkimSeedGenerator.Run (args);
 
 			var name = Environment.GetEnvironmentVariable (TargetVariable);
 

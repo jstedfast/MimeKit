@@ -66,6 +66,11 @@ $TargetDictionaries = @{
     "rfc2047" = "mime.dict"
     "address-parser" = "address.dict"
     "decoders" = "decoders.dict"
+    "smtputf8-validator" = "address.dict"
+    "authentication-results" = "authres.dict"
+    "dns-records" = "dkim.dict"
+    "dkim-arc-verifier" = "dkim.dict"
+    "dmarc-verifier" = "dkim.dict"
 }
 
 if ($IsWindows) {
@@ -111,7 +116,7 @@ function Invoke-Native ([string] $Description, [scriptblock] $Command) {
 }
 
 # 1. Publish the harness. The instrumented binaries are always recreated from scratch because sharpfuzz
-#    modifies MimeKit.Core.dll in place (and refuses to instrument an assembly twice).
+#    modifies MimeKit.Core.dll and MimeKit.Cryptography.dll in place (and refuses to instrument an assembly twice).
 if (-not $SkipBuild) {
     if (Test-Path $BinDirectory) {
         Remove-Item -Recurse -Force $BinDirectory
@@ -151,13 +156,14 @@ if (-not $SkipBuild -and $Reproduce -eq "") {
     }
 }
 
-# 3. Instrument MimeKit.Core.dll.
+# 3. Instrument MimeKit.Core.dll and MimeKit.Cryptography.dll.
 if (-not $SkipBuild) {
-    Write-Output "Instrumenting MimeKit.Core.dll..."
+    Write-Output "Instrumenting MimeKit.Core.dll and MimeKit.Cryptography.dll..."
     Push-Location $RepoRoot
     try {
         Invoke-Native "dotnet tool restore" { dotnet tool restore | Out-Null }
         Invoke-Native "sharpfuzz" { dotnet sharpfuzz (Join-Path $BinDirectory "MimeKit.Core.dll") }
+        Invoke-Native "sharpfuzz" { dotnet sharpfuzz (Join-Path $BinDirectory "MimeKit.Cryptography.dll") }
     } finally {
         Pop-Location
     }

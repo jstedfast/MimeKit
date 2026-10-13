@@ -319,6 +319,25 @@ namespace MimeKit.Cryptography {
 			return true;
 		}
 
+		static string UnfoldComment (string comment)
+		{
+			var unfolded = Header.Unfold (comment);
+
+			// If the comment ended with a quoted-pair that escaped whitespace (e.g. "(comment\ )"), Unfold() will have
+			// trimmed the whitespace, leaving a dangling backslash that would escape the closing ')' when serialized.
+			while (true) {
+				int backslashes = 0;
+
+				while (backslashes < unfolded.Length && unfolded[unfolded.Length - 1 - backslashes] == '\\')
+					backslashes++;
+
+				if ((backslashes & 1) == 0)
+					return unfolded;
+
+				unfolded = unfolded.Substring (0, unfolded.Length - 1).TrimEnd ();
+			}
+		}
+
 		static bool TryParseMethods (byte[] text, ref int index, int endIndex, bool throwOnError, AuthenticationResults authres)
 		{
 			string value;
@@ -356,6 +375,8 @@ namespace MimeKit.Cryptography {
 				// We distinguish between Office365 authserv-ids ("domain.com; method=pass") and Gmail method
 				// names ("gateway.spf=pass") by parsing the dotted token and checking if it's followed by
 				// ';' (Office365) or '=' (Gmail).
+				int methodEndIndex;
+
 				if (srvid is null && index < endIndex && text[index] == (byte) '.') {
 					// skip over '.'
 					index++;
@@ -366,6 +387,8 @@ namespace MimeKit.Cryptography {
 
 						return false;
 					}
+
+					methodEndIndex = index;
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
@@ -379,7 +402,7 @@ namespace MimeKit.Cryptography {
 
 					if (text[index] == (byte) ';') {
 						// Office365 style: authserv-id followed by semicolon.
-						srvid = Encoding.UTF8.GetString (text, methodIndex, index - methodIndex);
+						srvid = Encoding.UTF8.GetString (text, methodIndex, methodEndIndex - methodIndex);
 
 						index++;
 
@@ -392,9 +415,11 @@ namespace MimeKit.Cryptography {
 
 						return false;
 					}
+				} else {
+					methodEndIndex = index;
 				}
 
-				var method = Encoding.ASCII.GetString (text, methodIndex, index - methodIndex);
+				var method = Encoding.ASCII.GetString (text, methodIndex, methodEndIndex - methodIndex);
 
 				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 					return false;
@@ -498,7 +523,7 @@ namespace MimeKit.Cryptography {
 
 					commentIndex++;
 
-					resinfo.ResultComment = Header.Unfold (Encoding.UTF8.GetString (text, commentIndex, (index - 1) - commentIndex));
+					resinfo.ResultComment = UnfoldComment (Encoding.UTF8.GetString (text, commentIndex, (index - 1) - commentIndex));
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;

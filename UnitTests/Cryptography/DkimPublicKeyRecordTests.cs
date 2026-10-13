@@ -50,6 +50,7 @@ namespace UnitTests.Cryptography {
 		[TestCase ("v=DKIM1; p=not*base64", TestName = "TestTryParseInvalidBase64")]
 		[TestCase ("v=DKIM1; p=AAAA", TestName = "TestTryParseInvalidRsaKey")]
 		[TestCase ("v=DKIM1; k=ed25519; p=" + RsaKey, TestName = "TestTryParseInvalidEd25519KeyLength")]
+		[TestCase ("v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7TyWQHO7PvpcghaiMlrwIaaPcHURo=", TestName = "TestTryParseInvalidEd25519Point")]
 		[TestCase ("v=DKIM1; 1=abc; p=" + RsaKey, TestName = "TestTryParseInvalidTagName")]
 		[TestCase ("v=DKIM1; k; p=" + RsaKey, TestName = "TestTryParseMissingEquals")]
 		public void TestTryParseInvalid (string text)

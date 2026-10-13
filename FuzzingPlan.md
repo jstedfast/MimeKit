@@ -78,7 +78,7 @@ Notes:
 
 ```
 Fuzzing/
-  MimeKit.Fuzzing.csproj        console app, net8.0, references MimeKit + MimeKit.Cryptography + SharpFuzz
+  MimeKit.Fuzzing.csproj        console app, net10.0, references MimeKit + MimeKit.Cryptography + SharpFuzz
   Program.cs                    selects a target from MIMEKIT_FUZZ_TARGET and calls Fuzzer.LibFuzzer.Run
   Targets/
     IFuzzTarget.cs
@@ -227,8 +227,13 @@ if time allows.
 | 12 | `html-tokenizer` | `HtmlTokenizer` until EOF; `HtmlToHtml` and `HtmlTextPreviewer` | must finish; token count ≤ input length + 1 | 256 KiB | 2 |
 | 13 | `text-converters` | `TextToFlowed`, `FlowedToText`, `FlowedToHtml`, `TextToHtml` (the last one covers `UrlScanner`) | 5 | 256 KiB | 2 |
 | 14 | `charset-filter` | `CharsetFilter` across a fixed set of source charsets selected by the first byte | 5 | 256 KiB | 2 |
-| 15 | `dkim-arc-headers` | Parsing `DKIM-Signature`, `ARC-*` and `Authentication-Results` header values (tag lists, canonicalization), without performing crypto | 4 where a formatter exists | 64 KiB | 2 |
+| 15 | `dkim-arc-headers` | Superseded by targets 19–23 | — | — | — |
 | 16 | `legacy-mime-parser` | `LegacyMimeParser` vs `MimeParser` differential | Informational only; divergence is logged, not failed | 1 MiB | 2 |
+| 19 | `smtputf8-validator` | `SmtpUtf8AddressValidator.TryValidate` with every combination of options, on the input decoded as UTF-8 and as UTF-16 (to reach lone surrogates) | Options only ever add errors (length limits add only length errors; `AsciiIsLatin` adds only `MixedScripts`) | 4 KiB | 1 |
+| 20 | `authentication-results` | `AuthenticationResults.TryParse` / `Parse` | 4 (`ToString` → reparse → `ToString`) | 16 KiB | 1 |
+| 21 | `dns-records` | `DkimPublicKeyRecord`, `DmarcRecord.Parse` / `TryParse`, `TagValueList`, DKIM signature tag parsing and `DnsDomainName.TryNormalize` / `TryCombine`, on the input decoded as UTF-8 | Parsing is deterministic; `Parse` and `TryParse` agree; parsed values are well-formed (trimmed, no separators, defined enum values, valid label and name lengths); normalizing is idempotent | 16 KiB | 1 |
+| 22 | `dkim-arc-verifier` | `DkimVerifier.Verify` (all signatures) and `ArcVerifier.Verify`, against a fake DNS zone taken from the input | 1 (sync vs. async, including the DNS query trace), Dos vs. Unix `FormatOptions` give the same results, results are self-consistent, `ToAuthenticationMethodResult` round-trips | 64 KiB | 1 |
+| 23 | `dmarc-verifier` | `DmarcVerifier.Verify`, against a fake DNS zone and SPF result taken from the input | 1 (sync vs. async, including the DNS query trace), the precomputed-DKIM overload makes the same decision, results are self-consistent, `ToAuthenticationMethodResult` round-trips | 64 KiB | 1 |
 
 Notes per area:
 
@@ -265,7 +270,16 @@ Notes per area:
   separately from targets 4 and 5. Fuzz with the logger cap set to `1`, to `int.MaxValue` and to the
   default.
 - **Cryptography.** S/MIME and OpenPGP parsing is mostly BouncyCastle's code and is out of scope.
-  DKIM/ARC header tag parsing is MimeKit's own code and is in scope (target 15).
+  DKIM, ARC and DMARC are MimeKit's own code and are in scope (targets 21–23), so `fuzz.ps1`
+  instruments `MimeKit.Cryptography.dll` as well as `MimeKit.Core.dll`. An exception whose first
+  non-`System` stack frame is in `Org.BouncyCastle` is tolerated.
+- **DKIM / ARC / DMARC input format.** Targets 22 and 23 split the input at the first `%%` line.
+  Everything before it is a fake DNS zone (`Fuzzing/Helpers/FuzzDnsZone.cs`), and everything after
+  it is the message. Without a `%%` line, the whole input is the message and every lookup is
+  NXDOMAIN. Each zone line is `<name> <txt>`, where `<txt>` may instead be `!nxdomain`, `!tempfail`,
+  `!empty`, `!throw` (the resolver throws) or `!null` (the resolver returns null). `@spf <status>
+  <domain>` sets the SPF result that is passed to `DmarcVerifier`. Lines starting with `#` are
+  ignored.
 
 ## Seed corpora
 
@@ -280,7 +294,10 @@ example under `artifacts/fuzz/<target>/corpus`), from:
 | Decoders / encoders | `UnitTests/TestData/encoders/*`, `UnitTests/TestData/yenc/*` |
 | HTML / text converters | `UnitTests/TestData/html/*`, `UnitTests/TestData/text/*` |
 | RTF converters / tokenizer | `UnitTests/TestData/rtf/**/*.rtf` (third-party, permissively licensed; see its `README.md`), plus the RTF decompressed from the `PidTagRtfCompressed` values in `UnitTests/TestData/tnef/*.tnef` |
-| DKIM / ARC | Header values from `UnitTests/TestData/dkim/*` |
+| DNS records | The zone files and keys in `UnitTests/TestData/dkim/`, the string literals of the DKIM, ARC and DMARC unit tests, and the `DKIM-Signature` / `ARC-*` header values and `From` domains of the message corpus |
+| DKIM / ARC / DMARC verifiers | The messages in `UnitTests/TestData/messages/` and `UnitTests/TestData/dkim/`, signed by `MimeKit.Fuzzing --generate-dkim-seeds` with RSA DKIM, Ed25519 DKIM and RSA DKIM + ARC, each prefixed with a zone that publishes the keys, a DMARC record and an SPF pass, so that the seeds verify; plus the raw `UnitTests/TestData/dkim/*.msg` files |
+| SMTPUTF8 validator | The string literals of `SmtpUtf8AddressValidatorTests.cs` that contain `@`, plus the addresses in the message corpus |
+| Authentication-Results | The string literals of `AuthenticationResultsTests.cs`, plus the `Authentication-Results` / `ARC-Authentication-Results` values in the message corpus |
 | Address / header values / RFC 2047 | Header values from the message corpus, plus the small hand-written files in `Fuzzing/Corpora/<target>/` |
 
 Rules:
@@ -324,6 +341,13 @@ build structured input:
     `"''"` (RFC 2231)
   - `"message/rfc822"`, `"message/partial"`, `"application/ms-tnef"`
 - **address:** `"<"`, `">"`, `":"`, `";"`, `","`, `"@"`, `"\""`, `"("`, `")"`, `"[IPv6:"`, `"xn--"`, `"=?"`
+  (also used by `smtputf8-validator`)
+- **authres:** the method, result and property names (`dkim`, `spf`, `dmarc`, `arc`, `pass`,
+  `temperror`, `smtp.mailfrom=`, `header.d=`, `reason=`, ...)
+- **dkim** (`dns-records`, `dkim-arc-verifier`, `dmarc-verifier`): the fake zone syntax (`%%`,
+  `!nxdomain`, `@spf pass `, ...), `_domainkey.` / `_dmarc.`, DKIM key record, DMARC record and
+  signature tags (`v=DKIM1`, `k=ed25519`, `p=reject`, `adkim=s`, `c=relaxed/relaxed`, `cv=pass`, ...)
+  and common base64 public key prefixes
 - **html:** `"<!--"`, `"-->"`, `"<![CDATA["`, `"<script"`, `"&#x"`, `"&amp;"`, `"<meta charset="`
 
 ## Running locally

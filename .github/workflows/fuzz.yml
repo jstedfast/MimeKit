@@ -29,9 +29,10 @@ jobs:
         shell: pwsh
         run: |
           $all = @(
-            'address-parser', 'compliance-validators', 'decoders', 'header-values',
+            'address-parser', 'authentication-results', 'compliance-validators', 'decoders',
+            'dkim-arc-verifier', 'dmarc-verifier', 'dns-records', 'header-values',
             'mime-parser', 'mime-reader', 'rfc2047', 'rtf-compressed',
-            'rtf-converters', 'rtf-tokenizer', 'tnef-message', 'tnef-reader'
+            'rtf-converters', 'rtf-tokenizer', 'smtputf8-validator', 'tnef-message', 'tnef-reader'
           )
           $target = '${{ inputs.target }}'
           $targets = if ($target -eq '' -or $target -eq 'all') { $all } else { @($target) }

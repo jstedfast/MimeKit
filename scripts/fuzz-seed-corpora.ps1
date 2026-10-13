@@ -171,6 +171,26 @@ function Get-RtfExtract {
     return $script:RtfExtractCache
 }
 
+$DkimHeaders = @("dkim-signature", "arc-seal", "arc-message-signature")
+$DkimSeedCache = $null
+
+# Sign the message corpora with DKIM/ARC and prepend a FuzzDnsZone publishing the keys (see DkimSeedGenerator.cs).
+function Get-DkimSeeds {
+    if ($null -eq $script:DkimSeedCache) {
+        $dir = Join-Path ([System.IO.Path]::GetTempPath()) ("mimekit-fuzz-dkim-" + [guid]::NewGuid().ToString("N"))
+
+        & $Harness --generate-dkim-seeds $dir (Join-Path $TestData "dkim" "example.pem") (Join-Path $TestData "messages") (Join-Path $TestData "dkim") 2>$null | Out-Null
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to generate the DKIM/ARC seeds"
+        }
+
+        $script:DkimSeedCache = $dir
+    }
+
+    return $script:DkimSeedCache
+}
+
 # Write the seeds of a single target. Each seed is a byte[]; seeds are named by their SHA-1 like libFuzzer does.
 function Write-Seeds ([string] $Name, [System.Collections.Generic.List[byte[]]] $Seeds) {
     $corpus = Join-Path $OutputDirectory $Name "corpus"
@@ -306,6 +326,48 @@ foreach ($name in $Targets) {
                 }
             }
         }
+        "dns-records" {
+            # Zone files (bind9/tinydns) and the TXT strings embedded in them.
+            foreach ($file in (Get-Files (Join-Path $TestData "dkim") @("*.bind9", "*.tinydns", "*.pub"))) {
+                $text = $Utf8.GetString([System.IO.File]::ReadAllBytes($file.FullName))
+                $seeds.Add($Utf8.GetBytes($text))
+
+                $quoted = [regex]::Matches($text, '"([^"]*)"') | ForEach-Object { $_.Groups[1].Value }
+                if ($quoted) {
+                    $seeds.Add($Utf8.GetBytes(($quoted -join "")))
+                }
+            }
+
+            foreach ($test in "DkimPublicKeyRecordTests.cs", "DmarcRecordTests.cs", "DmarcVerifierTests.cs", "DkimTests.cs", "ArcVerifierTests.cs") {
+                foreach ($value in (Get-CSharpStrings (Join-Path $RepoRoot "UnitTests" "Cryptography" $test))) {
+                    if ($value.Contains("=") -or $value.Contains(".")) {
+                        $seeds.Add($Utf8.GetBytes($value))
+                    }
+                }
+            }
+
+            foreach ($message in (Get-Messages)) {
+                foreach ($field in (Get-HeaderFields $message)) {
+                    if ($field.Name -in $DkimHeaders) {
+                        $seeds.Add($Latin1.GetBytes($field.Value))
+                    } elseif ($field.Name -eq "from") {
+                        foreach ($address in [regex]::Matches($field.Value, '@([^\s<>(),:;]+)')) {
+                            $seeds.Add($Latin1.GetBytes($address.Groups[1].Value))
+                        }
+                    }
+                }
+            }
+        }
+        { $_ -in "dkim-arc-verifier", "dmarc-verifier" } {
+            foreach ($file in (Get-Files (Get-DkimSeeds))) {
+                $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
+            }
+
+            # The unit test messages as-is: no zone, so every key lookup is NXDOMAIN.
+            foreach ($file in (Get-Files (Join-Path $TestData "dkim") @("*.msg"))) {
+                $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
+            }
+        }
         default {
             Write-Warning "No seed sources are defined for $name; only the hand-written seeds were used."
         }
@@ -316,4 +378,8 @@ foreach ($name in $Targets) {
 
 if ($null -ne $RtfExtractCache) {
     Remove-Item -Recurse -Force $RtfExtractCache
+}
+
+if ($null -ne $DkimSeedCache) {
+    Remove-Item -Recurse -Force $DkimSeedCache
 }

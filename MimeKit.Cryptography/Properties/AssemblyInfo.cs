@@ -59,6 +59,12 @@ using System.Runtime.InteropServices;
 	"508b9edbb4164bfa82aa2a0f4cd983d9e5ba2acfe08a10a2093e2b2bf8408eef43114db89b3999" +
 	"c59af1d3dc2c9f0cdbf51074e9a482cf09c9116ae1c5543ce8ff9b")]
 
+[assembly: InternalsVisibleTo ("MimeKit.Fuzzing, PublicKey=002400000480000094000000060200" +
+	"00002400005253413100040000110000003fefa5187022727c3471938d10df4c47d5d5ecbe2f36" +
+	"4656c5bfe4c47803453a91ae525f723f4316fd90a3f87366f4d948593277e950f6d2df6ee26068" +
+	"1877a6d9e71c3ea77e87e61f3878af1d69bf10dce8debe92c54ca8a10afc44dc08674f3db6594e" +
+	"f545d67d31cc3e18b8f90d8f220c4b67d7e87f5b7e8df410ac8faeb3")]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
