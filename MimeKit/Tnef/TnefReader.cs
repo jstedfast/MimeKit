@@ -432,14 +432,6 @@ namespace MimeKit.Tnef {
 			get; private set;
 		}
 
-		internal bool IsTruncated {
-			get { return truncated; }
-		}
-
-		internal int BufferedCount {
-			get { return inputEnd - inputIndex; }
-		}
-
 		void UpdateComplianceLogger ()
 		{
 			if (userComplianceLogger != null && maxComplianceIssuesPerViolation > 0)

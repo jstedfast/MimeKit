@@ -161,6 +161,55 @@ namespace UnitTests.Tnef {
 			await RunMaxNestingDepthExceededAsync (true);
 		}
 
+		async Task RunEmbeddedMessageTruncatedIidAsync (bool binary, bool async)
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+			var logger = new TestTnefComplianceLogger ();
+			var builder = new TnefBuilder ();
+			var tag = binary ? TnefPropertyTag.AttachDataBin : TnefPropertyTag.AttachDataObj;
+
+			// The value is too short to contain the 16-byte IID of the IMessage interface.
+			properties.WriteInt32Property (TnefPropertyTag.AttachMethod, (int) TnefAttachMethod.EmbeddedMessage);
+			properties.WriteBinaryProperty (tag, new byte[] { 0x78, 0x9F, 0x3E, 0x22, 0x00, 0x00, 0x00, 0x00 });
+
+			builder.WriteTnefVersion ();
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachRenderData, new byte[] { 0, 0 });
+			builder.WriteMapiProperties (TnefAttributeLevel.Attachment, properties);
+			builder.WriteAttribute (TnefAttributeLevel.Attachment, TnefAttributeTag.AttachTitle, System.Text.Encoding.ASCII.GetBytes ("title.txt\0"));
+
+			using var stream = new MemoryStream (builder.ToArray (), false);
+			using var reader = new TnefReader (stream) { ComplianceLogger = logger };
+
+			using (var embedded = await GetEmbeddedMessageReaderAsync (reader, async)) {
+				Assert.That (await ReadAsync (embedded, async), Is.False, "Read");
+				Assert.That (embedded.LegacyKey, Is.EqualTo (0), "LegacyKey");
+				Assert.That (logger.Issues.Select (issue => issue.Violation), Is.EqualTo (new[] { TnefComplianceViolation.TruncatedStream }), "Violations");
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (67), "StreamOffset");
+				Assert.That (await ReadAsync (embedded, async), Is.False, "Read again");
+				Assert.That (logger.Issues, Has.Count.EqualTo (1), "Issues after reading again");
+			}
+
+			// The outer reader is unaffected by the truncated embedded message.
+			Assert.That (await ReadAsync (reader, async), Is.True, "Read AttachTitle");
+			Assert.That (reader.Tag, Is.EqualTo (TnefAttributeTag.AttachTitle), "Tag");
+			Assert.That (await ReadAsync (reader, async), Is.False, "Read EOF");
+			Assert.That (logger.Issues, Has.Count.EqualTo (1), "Issues");
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestEmbeddedMessageTruncatedIid (bool binary)
+		{
+			RunEmbeddedMessageTruncatedIidAsync (binary, false).GetAwaiter ().GetResult ();
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public async Task TestEmbeddedMessageTruncatedIidAsync (bool binary)
+		{
+			await RunEmbeddedMessageTruncatedIidAsync (binary, true);
+		}
+
 		async Task RunNestedEmbeddedMessageBeyondMaxNestingDepthReturnsEmptyReaderAsync (bool async)
 		{
 			var leaf = new TnefBuilder ();
