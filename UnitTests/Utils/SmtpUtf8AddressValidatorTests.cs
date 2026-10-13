@@ -75,7 +75,8 @@ namespace UnitTests.Utils {
 		[TestCase ("\u0627@2\u0627.\u0627", SmtpUtf8AddressError.None, TestName = "TestArnt29ArabicWithDigits")]
 		[TestCase ("\u0627@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt30ArabicWithAscii")]
 		[TestCase ("café@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt31Nfc")]
-		[TestCase ("cafe\u0301@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt32Nfd")]
+		// Note: tests.json considers this valid, but the next draft will require addresses to be in NFC.
+		[TestCase ("cafe\u0301@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestArnt32Nfd")]
 		// Note: tests.json considers this valid, but the empty atoms are not permitted by the rfc5321 Dot-string syntax.
 		[TestCase ("..@example.com", SmtpUtf8AddressError.Syntax, TestName = "TestArnt33EmptyAtoms")]
 		[TestCase ("\"john.doe\"@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt34QuotedString")]
@@ -294,7 +295,7 @@ namespace UnitTests.Utils {
 			AssertValidate (address, SmtpUtf8AddressError.MixedScripts);
 		}
 
-		[TestCase ("cafe\u0301\u00E9@example.com", TestName = "TestInheritedIsNeutral")]
+		[TestCase ("cafq\u0301\u00E9@example.com", TestName = "TestInheritedIsNeutral")]
 		[TestCase ("\u30FC\u30A2@example.com", TestName = "TestCommonIsNeutral")]
 		[TestCase ("ø@ø.example", TestName = "TestSameScriptInLocalPartAndDomain")]
 		public void TestNeutralScripts (string address)
@@ -313,6 +314,13 @@ namespace UnitTests.Utils {
 
 			// A disallowed code point is reported before a context rule violation or mixed scripts
 			AssertValidate ("IВM\u200D\u3164@dømi.fo", SmtpUtf8AddressError.DisallowedCodePoint);
+
+			// A disallowed code point is reported before an address that is not normalized
+			AssertValidate ("cafe\u0301\u3164@example.com", SmtpUtf8AddressError.DisallowedCodePoint);
+
+			// An address that is not normalized is reported before a context rule violation or mixed scripts
+			AssertValidate ("cafe\u0301\u200D@example.com", SmtpUtf8AddressError.NotNormalized);
+			AssertValidate ("IВMe\u0301@dømi.fo", SmtpUtf8AddressError.NotNormalized);
 
 			// A context rule violation is reported before mixed scripts
 			AssertValidate ("IВM\u200D@dømi.fo", SmtpUtf8AddressError.ContextRule);
@@ -361,6 +369,35 @@ namespace UnitTests.Utils {
 			builder.Append ("example");
 
 			AssertValidate (builder.ToString (), SmtpUtf8AddressError.None);
+
+			// The NFC check must also be linear in the number of combining marks.
+			builder.Clear ();
+			builder.Append ('a');
+			builder.Append ('\u0301', 50000);
+			builder.Append ("@example.com");
+
+			AssertValidate (builder.ToString (), SmtpUtf8AddressError.NotNormalized);
+
+			builder.Clear ();
+			builder.Append ('\u00E1');
+			builder.Append ('\u0301', 50000);
+			builder.Append ("@example.com");
+
+			AssertValidate (builder.ToString (), SmtpUtf8AddressError.None);
+		}
+
+		[TestCase ("\u00E0\u0323@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestNormalizationMarksOutOfOrderAfterComposite")]
+		[TestCase ("a\u0301\u0323@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestNormalizationMarksOutOfOrder")]
+		[TestCase ("a\u0323\u0301@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestNormalizationComposableMarks")]
+		[TestCase ("a\u0301\u0301@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestNormalizationComposableFirstMark")]
+		[TestCase ("\u1EA1\u0300@example.com", SmtpUtf8AddressError.None, TestName = "TestNormalizationComposedWithTrailingMark")]
+		[TestCase ("\u00E1\u0301@example.com", SmtpUtf8AddressError.None, TestName = "TestNormalizationBlockedMark")]
+		[TestCase ("user@caf\u00E9.example.com", SmtpUtf8AddressError.None, TestName = "TestNormalizationComposedDomain")]
+		[TestCase ("user@cafe\u0301.example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestNormalizationDecomposedDomain")]
+		[TestCase ("\"cafe\u0301\"@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestNormalizationDecomposedQuotedString")]
+		public void TestNormalization (string address, SmtpUtf8AddressError expected)
+		{
+			AssertValidate (address, expected);
 		}
 
 		[Test]
@@ -431,6 +468,8 @@ namespace UnitTests.Utils {
 		[TestCase ("user@xn--b1abfaaepdrnnbgefbaDotcwatmq2g4l.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnRfc3492Russian")]
 		[TestCase ("user@xn--Proprostnemluvesky-uyb24dma41a.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnRfc3492Czech")]
 		[TestCase ("user@xn--j50ic.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnSupplementaryPlane")]
+		[TestCase ("user@xn--caf-dma.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnNormalized")]
+		[TestCase ("user@xn--cafe-yvc.example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestDecodeIdnNotNormalized")]
 		[TestCase ("user@XN--TDA.example.com", SmtpUtf8AddressError.None, TestName = "TestDecodeIdnUppercase")]
 		[TestCase ("user@xn---tda.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnNonCanonical")]
 		[TestCase ("user@xn----eha.example.com", SmtpUtf8AddressError.ALabel, TestName = "TestDecodeIdnLeadingHyphen")]

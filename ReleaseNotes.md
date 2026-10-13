@@ -300,8 +300,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * Added `SmtpUtf8AddressValidator`, which checks whether an address is a well-formed SMTPUTF8 mailbox
   (RFC 5321 as extended by RFC 6531) that also follows the additional rules in
   [draft-ietf-mailmaint-smtputf8-syntax](https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/):
-  no A-labels, only PRECIS IdentifierClass code points (with the RFC 5892 contextual rules), and at
-  most one script per address. `TryValidate ()` reports the reason through `SmtpUtf8AddressError`. The
+  no A-labels, only PRECIS IdentifierClass code points (with the RFC 5892 contextual rules), Unicode
+  Normalization Form C, and at most one script per address. `TryValidate ()` reports the reason through `SmtpUtf8AddressError`. The
   validation tables are generated from Unicode 18.0.0 by `tools/SmtpUtf8TableGenerator`.
   `SmtpUtf8AddressValidationOptions` has two flags for detecting addresses that may be spoofing another
   address, such as when displaying them to users. `DecodeIdn` decodes IDN-encoded (`xn--`) domain labels

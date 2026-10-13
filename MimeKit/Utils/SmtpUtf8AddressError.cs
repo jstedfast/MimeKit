@@ -91,6 +91,16 @@ namespace MimeKit.Utils {
 		DisallowedCodePoint,
 
 		/// <summary>
+		/// The address is not in Unicode Normalization Form C (NFC), as defined by
+		/// <a href="https://www.unicode.org/reports/tr15/">Unicode Standard Annex #15</a>.
+		/// </summary>
+		/// <remarks>
+		/// For example, <c>cafe&#x0301;@example.com</c> (where <c>e</c> is followed by U+0301 COMBINING ACUTE ACCENT)
+		/// is not normalized because its NFC form is <c>caf&#x00E9;@example.com</c>.
+		/// </remarks>
+		NotNormalized,
+
+		/// <summary>
 		/// The address contains a code point that is only permitted in certain contexts (such as
 		/// U+200D ZERO WIDTH JOINER or U+00B7 MIDDLE DOT) and the context rule defined in
 		/// <a href="https://www.rfc-editor.org/rfc/rfc5892#appendix-A">rfc5892</a> is not satisfied.

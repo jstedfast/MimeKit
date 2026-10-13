@@ -47,10 +47,12 @@ namespace MimeKit.Utils {
 	/// <a href="https://www.rfc-editor.org/rfc/rfc8264">rfc8264</a>, including the contextual rules for
 	/// CONTEXTJ and CONTEXTO code points defined in
 	/// <a href="https://www.rfc-editor.org/rfc/rfc5892#appendix-A">rfc5892</a>.</item>
+	/// <item>The address is in Unicode Normalization Form C (NFC) as defined by
+	/// <a href="https://www.unicode.org/reports/tr15/">Unicode Standard Annex #15</a>.</item>
 	/// <item>The code points belong to no more than one non-ASCII script, where code points in the
 	/// <c>Common</c> and <c>Inherited</c> scripts do not count toward that limit.</item>
 	/// </list>
-	/// <para>The validator does not check whether the address is in Unicode Normalization Form C. The length limits
+	/// <para>The length limits
 	/// defined in rfc5321 are only enforced when <see cref="SmtpUtf8AddressValidationOptions.EnforceLengthLimits"/>
 	/// is specified.</para>
 	/// <para>This validator has two primary uses:</para>
@@ -967,6 +969,7 @@ namespace MimeKit.Utils {
 			bool hasExtendedArabicIndicDigits = false;
 			bool hasArabicIndicDigits = false;
 			bool hasContextRules = false;
+			bool checkNormalization = false;
 			bool mixedScripts = false;
 			int index = 0;
 
@@ -1001,6 +1004,9 @@ namespace MimeKit.Utils {
 					if (precis != PrecisClass.PValid)
 						hasContextRules = true;
 
+					if (codePoint >= UnicodeNormalization.FirstNormalizationCodePoint)
+						checkNormalization = true;
+
 					if (codePoint >= 0x0660 && codePoint <= 0x0669)
 						hasArabicIndicDigits = true;
 					else if (codePoint >= 0x06F0 && codePoint <= 0x06F9)
@@ -1031,6 +1037,11 @@ namespace MimeKit.Utils {
 					break;
 				}
 			}
+
+			// Note: Every code point that is NFC_Quick_Check=No also has a compatibility decomposition and so has already
+			// been rejected by the PRECIS IdentifierClass, but sequences of code points may still not be normalized.
+			if (checkNormalization && !UnicodeNormalization.IsNormalizationFormC (address))
+				return SmtpUtf8AddressError.NotNormalized;
 
 			if (hasContextRules) {
 				// RFC 5892, Appendix A.8 and A.9: Arabic-Indic digits and Extended Arabic-Indic digits must not be mixed.
