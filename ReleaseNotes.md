@@ -147,6 +147,19 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   This whitespace could not be reliably preserved when encoding the address (folding collapses it and it is
   dropped when adjacent to an rfc2047 encoded-word), so a name such as `" John Smith "` is now
   `"John Smith"`, and a whitespace-only name becomes an empty string.
+* The `MimeMessage.MessageId`, `ResentMessageId` and `InReplyTo` setters, the `MimeEntity.ContentId`
+  setter and the `MessageIdList` (`MimeMessage.References`) `Add`, `AddRange`, `Insert` and indexer
+  now share the same msg-id validation. The value may be specified with or without angle brackets, but an
+  `ArgumentException` is now thrown for values that previously would have been silently truncated or
+  altered: empty msg-ids (`<>`), anything other than whitespace or comments after the msg-id (such as a
+  second msg-id), unquoted whitespace in a msg-id without angle brackets, and line breaks (other than
+  folding whitespace) or NUL characters. Conversely, unusual msg-ids returned by the getters of a parsed message,
+  such as `(paren@example.com`, can now be assigned back to these setters.
+  `MessageIdList.AddRange ()` now validates every item before adding any of them.
+* An empty msg-id (`<>`) is now ignored when parsing: the msg-id getters (`MessageId`, `ResentMessageId`,
+  `InReplyTo` and `ContentId`) and `MimeUtils.ParseMessageId ()` return `null` instead of an empty string,
+  and `MimeMessage.References` and `MimeUtils.EnumerateReferences ()` skip it. Folding whitespace within a
+  quoted local-part is now unfolded.
 
 ### DMARC
 
@@ -389,6 +402,14 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   depending on the document.
 
 ### Bug Fixes
+
+* `MessageIdList` (`MimeMessage.References`) now validates the message-ids that are added to it. Previously, a
+  value containing line breaks (such as `"id@example.com\r\nBcc: someone@example.com"`) would be written to the
+  References header verbatim, producing a malformed message.
+
+* `Received.Id` no longer accepts values that contain line breaks, control characters or trailing garbage, and
+  `Received.ToString ()` now unfolds `ReceivedClause.Comments`, so that the result is always a well-formed
+  header value.
 
 * Fixed `HtmlTokenizer` so that a short, unrecognized keyword following the DOCTYPE name (for example
   `<!DOCTYPE html foo>`) no longer leaks into the name of the next tag. Previously, input such as

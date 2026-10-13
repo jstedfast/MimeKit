@@ -91,12 +91,17 @@ namespace MimeKit {
 			return references.IndexOf (messageId);
 		}
 
-		static string ValidateMessageId (string messageId)
+		static string ValidateMessageId (string messageId, string paramName)
 		{
-			if (messageId.Length < 2 || messageId[0] != '<' || messageId[messageId.Length - 1] != '>')
-				return messageId;
+			if (!ParseUtils.TryParseMsgIdValue (messageId, out var msgid))
+				throw new ArgumentException ("Invalid Message-Id format.", paramName);
 
-			return messageId.Substring (1, messageId.Length - 2);
+			return msgid;
+		}
+
+		internal void AddParsed (string messageId)
+		{
+			references.Add (messageId);
 		}
 
 		/// <summary>
@@ -110,6 +115,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="messageId"/> is not a valid Message-Id.
+		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
@@ -118,7 +126,7 @@ namespace MimeKit {
 			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
-			references.Insert (index, ValidateMessageId (messageId));
+			references.Insert (index, ValidateMessageId (messageId, nameof (messageId)));
 			OnChanged ();
 		}
 
@@ -149,6 +157,9 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is not a valid Message-Id.
+		/// </exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
@@ -161,7 +172,12 @@ namespace MimeKit {
 				if (references[index] == value)
 					return;
 
-				references[index] = ValidateMessageId (value);
+				var msgid = ValidateMessageId (value, nameof (value));
+
+				if (references[index] == msgid)
+					return;
+
+				references[index] = msgid;
 				OnChanged ();
 			}
 		}
@@ -180,12 +196,15 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="messageId"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="messageId"/> is not a valid Message-Id.
+		/// </exception>
 		public void Add (string messageId)
 		{
 			if (messageId is null)
 				throw new ArgumentNullException (nameof (messageId));
 
-			references.Add (ValidateMessageId (messageId));
+			references.Add (ValidateMessageId (messageId, nameof (messageId)));
 			OnChanged ();
 		}
 
@@ -199,13 +218,24 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="items"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="items"/> contains a <see langword="null"/> or invalid Message-Id.
+		/// </exception>
 		public void AddRange (IEnumerable<string> items)
 		{
 			if (items is null)
 				throw new ArgumentNullException (nameof (items));
 
-			foreach (var msgid in items)
-				references.Add (ValidateMessageId (msgid));
+			var msgids = new List<string> ();
+
+			foreach (var msgid in items) {
+				if (msgid is null)
+					throw new ArgumentException ("The collection contains a null Message-Id.", nameof (items));
+
+				msgids.Add (ValidateMessageId (msgid, nameof (items)));
+			}
+
+			references.AddRange (msgids);
 
 			OnChanged ();
 		}

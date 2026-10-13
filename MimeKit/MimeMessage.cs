@@ -886,7 +886,7 @@ namespace MimeKit {
 
 						references.Changed -= ReferencesChanged;
 						foreach (var msgid in MimeUtils.EnumerateReferences (rawValue, 0, rawValue.Length))
-							references.Add (msgid);
+							references.AddParsed (msgid);
 						references.Changed += ReferencesChanged;
 					}
 
@@ -937,10 +937,7 @@ namespace MimeKit {
 					return;
 				}
 
-				var buffer = Encoding.UTF8.GetBytes (value);
-				int index = 0;
-
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
+				if (!ParseUtils.TryParseMsgIdValue (value, out var msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.InReplyTo;
@@ -991,10 +988,7 @@ namespace MimeKit {
 				if ((lazyLoaded & LazyLoadedFields.MessageId) != 0 && messageId == value)
 					return;
 
-				var buffer = Encoding.UTF8.GetBytes (value);
-				int index = 0;
-
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
+				if (!ParseUtils.TryParseMsgIdValue (value, out var msgid))
 					throw new ArgumentException ("Invalid Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.MessageId;
@@ -1042,10 +1036,7 @@ namespace MimeKit {
 				if ((lazyLoaded & LazyLoadedFields.ResentMessageId) != 0 && resentMessageId == value)
 					return;
 
-				var buffer = Encoding.UTF8.GetBytes (value);
-				int index = 0;
-
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? msgid))
+				if (!ParseUtils.TryParseMsgIdValue (value, out var msgid))
 					throw new ArgumentException ("Invalid Resent-Message-Id format.", nameof (value));
 
 				lazyLoaded |= LazyLoadedFields.ResentMessageId;

@@ -281,6 +281,19 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
+		public void TestInvalidReferencesAreReportedAsLosses ()
+		{
+			var properties = new TnefMapiPropertyBuilder ();
+
+			properties.WriteStringProperty (TnefPropertyTag.InternetReferencesW, "<root@example.com> <bad\0id@example.com> <> <parent@example.com>");
+
+			using (var result = Convert (CreateMessage (properties))) {
+				Assert.That (result.Message.References, Is.EqualTo (new[] { "root@example.com", "parent@example.com" }));
+				Assert.That (result.Losses.Select (loss => loss.Kind), Is.EqualTo (new[] { TnefConversionLossKind.InvalidMessageId }));
+			}
+		}
+
+		[Test]
 		public void TestDateFromClientSubmitTime ()
 		{
 			var date = new DateTime (2024, 1, 2, 3, 4, 5, DateTimeKind.Utc);

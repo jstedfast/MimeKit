@@ -402,6 +402,9 @@ namespace MimeKit {
 		/// <c>Content-Id</c> value.</note>
 		/// </remarks>
 		/// <value>The content identifier.</value>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is improperly formatted.
+		/// </exception>
 		/// <exception cref="System.ObjectDisposedException">
 		/// The <see cref="MimeEntity"/> has been disposed.
 		/// </exception>
@@ -435,10 +438,7 @@ namespace MimeKit {
 					return;
 				}
 
-				var buffer = Encoding.UTF8.GetBytes (value);
-				int index = 0;
-
-				if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out string? id))
+				if (!ParseUtils.TryParseMsgIdValue (value, out var id))
 					throw new ArgumentException ("Invalid Content-Id format.", nameof (value));
 
 				LazyLoaded |= LazyLoadedFields.ContentId;

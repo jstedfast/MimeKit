@@ -277,6 +277,208 @@ namespace UnitTests {
 			Assert.That (message.InReplyTo, Is.EqualTo (msgid), "InReplyTo");
 		}
 
+		[TestCase ("a@b garbage", TestName = "TrailingGarbage")]
+		[TestCase ("a b@c", TestName = "UnquotedWhitespace")]
+		[TestCase ("a@b (comment)", TestName = "UnbracketedTrailingComment")]
+		[TestCase ("<a@b> <c@d>", TestName = "MultipleMsgIds")]
+		[TestCase ("<a@b>>", TestName = "ExtraCloseAngle")]
+		[TestCase ("a@b>", TestName = "UnbalancedCloseAngle")]
+		[TestCase ("<a@b", TestName = "UnbalancedOpenAngle")]
+		[TestCase ("<>", TestName = "EmptyAngleAddr")]
+		[TestCase ("", TestName = "EmptyString")]
+		[TestCase ("   ", TestName = "Whitespace")]
+		[TestCase ("a@b\r\nBcc: evil@example.com", TestName = "HeaderInjection")]
+		[TestCase ("a@b\r\n\r\nbody", TestName = "BodyInjection")]
+		[TestCase ("a@b\nc", TestName = "BareLineFeed")]
+		[TestCase ("a@b\rc", TestName = "BareCarriageReturn")]
+		[TestCase ("a\0b@c", TestName = "Nul")]
+		public void TestMsgIdSettersRejectInvalidValues (string value)
+		{
+			using var message = new MimeMessage ();
+			var part = new TextPart ();
+
+			message.MessageId = "original@example.com";
+
+			Assert.Throws<ArgumentException> (() => message.MessageId = value, "MessageId");
+			Assert.Throws<ArgumentException> (() => message.ResentMessageId = value, "ResentMessageId");
+			Assert.Throws<ArgumentException> (() => message.InReplyTo = value, "InReplyTo");
+			Assert.Throws<ArgumentException> (() => part.ContentId = value, "ContentId");
+			Assert.Throws<ArgumentException> (() => message.References.Add (value), "References");
+
+			Assert.That (message.MessageId, Is.EqualTo ("original@example.com"), "MessageId should be unchanged");
+			Assert.That (message.Headers.Contains (HeaderId.ResentMessageId), Is.False, "Resent-Message-Id");
+			Assert.That (message.Headers.Contains (HeaderId.InReplyTo), Is.False, "In-Reply-To");
+			Assert.That (message.Headers.Contains (HeaderId.References), Is.False, "References");
+			Assert.That (part.Headers.Contains (HeaderId.ContentId), Is.False, "Content-Id");
+		}
+
+		[TestCase ("a@b", "a@b")]
+		[TestCase ("<a@b>", "a@b")]
+		[TestCase ("  <a@b>  ", "a@b")]
+		[TestCase ("<a@b> (comment)", "a@b")]
+		[TestCase ("<a@b>\r\n (comment)", "a@b")]
+		[TestCase ("\"x\r\n y\"@b", "\"x y\"@b")]
+		[TestCase ("\"x y\"@b", "\"x y\"@b")]
+		[TestCase ("(paren@example.com", "(paren@example.com")]
+		[TestCase ("[a@b]", "[a@b]")]
+		[TestCase ("a@b@c", "a@b@c")]
+		[TestCase ("local@", "local@")]
+		public void TestMsgIdSettersNormalizeValues (string value, string expected)
+		{
+			using var message = new MimeMessage ();
+			var part = new TextPart ();
+
+			message.MessageId = value;
+			message.ResentMessageId = value;
+			message.InReplyTo = value;
+			message.References.Add (value);
+			part.ContentId = value;
+
+			Assert.That (message.MessageId, Is.EqualTo (expected), "MessageId");
+			Assert.That (message.ResentMessageId, Is.EqualTo (expected), "ResentMessageId");
+			Assert.That (message.InReplyTo, Is.EqualTo (expected), "InReplyTo");
+			Assert.That (message.References, Is.EqualTo (new[] { expected }), "References");
+			Assert.That (part.ContentId, Is.EqualTo (expected), "ContentId");
+
+			// make sure that the serialized headers parse back to the same values
+			using var stream = new MemoryStream ();
+			message.Body = part;
+			message.WriteTo (stream);
+			stream.Position = 0;
+
+			using var parsed = MimeMessage.Load (stream);
+
+			Assert.That (parsed.MessageId, Is.EqualTo (expected), "Parsed MessageId");
+			Assert.That (parsed.ResentMessageId, Is.EqualTo (expected), "Parsed ResentMessageId");
+			Assert.That (parsed.InReplyTo, Is.EqualTo (expected), "Parsed InReplyTo");
+			Assert.That (parsed.References, Is.EqualTo (new[] { expected }), "Parsed References");
+			Assert.That (parsed.Body.ContentId, Is.EqualTo (expected), "Parsed ContentId");
+		}
+
+		// msg-id values that have been seen in the wild (see MimeKit issues #102, #472, #542, #849, #912 and #1227 and
+		// MailKit issues #134, #138, #976 and #1407); the parsed values must always be assignable to the msg-id setters.
+		static readonly string[] MsgIdRoundTripValues = {
+			"<a@example.com>",
+			"<(paren@example.com>",
+			"<\"x\r\n y\"@example.com>",
+			"garbage <a@example.com>",
+			"<a@b@example.com>",
+			"<local@>",
+			"<[a@example.com]>",
+			"<a.@example.com.>",
+			"<a@@example.com>",
+			"<a b@example.com>",
+			"<d7e8bc604f797c18ba8120250cbd8c04-JFBVALKQOJXWILKCJQZFA7CDNRQXE2LUPF6EIYLUMFGG643TPRCXQ32TNV2HA===@microsoft.com>",
+			"<1234@local.machine.example> (comment)",
+			"a@example.com",
+		};
+
+		static void AssertMsgIdGettersRoundTrip (MimeMessage parsed, string raw)
+		{
+			using var message = new MimeMessage ();
+			var part = new TextPart ();
+
+			if (parsed.MessageId != null) {
+				message.MessageId = parsed.MessageId;
+				Assert.That (message.MessageId, Is.EqualTo (parsed.MessageId), $"MessageId: {raw}");
+			}
+
+			if (parsed.ResentMessageId != null) {
+				message.ResentMessageId = parsed.ResentMessageId;
+				Assert.That (message.ResentMessageId, Is.EqualTo (parsed.ResentMessageId), $"ResentMessageId: {raw}");
+			}
+
+			if (parsed.InReplyTo != null) {
+				message.InReplyTo = parsed.InReplyTo;
+				Assert.That (message.InReplyTo, Is.EqualTo (parsed.InReplyTo), $"InReplyTo: {raw}");
+			}
+
+			if (parsed.Body.ContentId != null) {
+				part.ContentId = parsed.Body.ContentId;
+				Assert.That (part.ContentId, Is.EqualTo (parsed.Body.ContentId), $"ContentId: {raw}");
+			}
+
+			message.References.AddRange (parsed.References);
+			Assert.That (message.References, Is.EqualTo (parsed.References), $"References: {raw}");
+		}
+
+		static Stream CreateMsgIdMessage (string raw)
+		{
+			var text = $"Message-Id: {raw}\r\nResent-Message-Id: {raw}\r\nIn-Reply-To: {raw}\r\nReferences: {raw} <z@example.com>\r\nContent-Id: {raw}\r\n\r\nbody\r\n";
+
+			return new MemoryStream (Encoding.UTF8.GetBytes (text), false);
+		}
+
+		[Test]
+		public void TestMsgIdGettersRoundTripThroughSetters ()
+		{
+			foreach (var raw in MsgIdRoundTripValues) {
+				using var stream = CreateMsgIdMessage (raw);
+				using var parsed = MimeMessage.Load (stream);
+
+				AssertMsgIdGettersRoundTrip (parsed, raw);
+			}
+		}
+
+		[Test]
+		public async Task TestMsgIdGettersRoundTripThroughSettersAsync ()
+		{
+			foreach (var raw in MsgIdRoundTripValues) {
+				using var stream = CreateMsgIdMessage (raw);
+				using var parsed = await MimeMessage.LoadAsync (stream);
+
+				AssertMsgIdGettersRoundTrip (parsed, raw);
+			}
+		}
+
+		[Test]
+		public void TestEmptyMsgIdIsNull ()
+		{
+			using var stream = CreateMsgIdMessage ("<>");
+			using var message = MimeMessage.Load (stream);
+
+			Assert.That (message.MessageId, Is.Null, "MessageId");
+			Assert.That (message.ResentMessageId, Is.Null, "ResentMessageId");
+			Assert.That (message.InReplyTo, Is.Null, "InReplyTo");
+			Assert.That (message.Body.ContentId, Is.Null, "ContentId");
+			Assert.That (message.References, Is.EqualTo (new[] { "z@example.com" }), "References");
+		}
+
+		[Test]
+		public async Task TestEmptyMsgIdIsNullAsync ()
+		{
+			using var stream = CreateMsgIdMessage ("<>");
+			using var message = await MimeMessage.LoadAsync (stream);
+
+			Assert.That (message.MessageId, Is.Null, "MessageId");
+			Assert.That (message.ResentMessageId, Is.Null, "ResentMessageId");
+			Assert.That (message.InReplyTo, Is.Null, "InReplyTo");
+			Assert.That (message.Body.ContentId, Is.Null, "ContentId");
+			Assert.That (message.References, Is.EqualTo (new[] { "z@example.com" }), "References");
+		}
+
+		[Test]
+		public void TestReferencesCannotInjectHeaders ()
+		{
+			using var message = new MimeMessage ();
+
+			message.References.Add ("root@example.com");
+
+			Assert.Throws<ArgumentException> (() => message.References.Add ("a@b\r\nBcc: evil@example.com"), "Add");
+			Assert.Throws<ArgumentException> (() => message.References.Insert (0, "a@b\r\n\r\nInjected body"), "Insert");
+			Assert.Throws<ArgumentException> (() => message.References[0] = "a@b\nBcc: evil@example.com", "Indexer");
+			Assert.Throws<ArgumentException> (() => message.References.AddRange (new[] { "ok@example.com", "a@b\rBcc: evil@example.com" }), "AddRange");
+
+			using var stream = new MemoryStream ();
+			message.Headers.WriteTo (stream);
+
+			var headers = Encoding.UTF8.GetString (stream.ToArray ());
+
+			Assert.That (message.References, Is.EqualTo (new[] { "root@example.com" }));
+			Assert.That (headers, Does.Not.Contain ("Bcc"));
+			Assert.That (headers, Does.Not.Contain ("Injected"));
+		}
+
 		[Test]
 		public void TestSettingSameLazyPropertiesDoesNotRewriteHeaders ()
 		{

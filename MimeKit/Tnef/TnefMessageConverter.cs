@@ -887,18 +887,12 @@ namespace MimeKit.Tnef {
 			var buffer = Encoding.UTF8.GetBytes (value);
 			int index = 0;
 
-			// ParseUtils accepts "<>", but an empty msg-id is not valid (RFC 5322 3.6.4) and the MimeMessage and
-			// MimeEntity setters reject it.
-			if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out var id) || string.IsNullOrEmpty (id))
+			if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out var id))
 				return false;
 
-			// The MimeMessage and MimeEntity setters parse the msg-id without its angle brackets, which is stricter
-			// (e.g. a local-part that begins with '(' is then parsed as an unterminated comment), so make sure that
-			// they will accept it.
-			buffer = Encoding.UTF8.GetBytes (id);
-			index = 0;
-
-			if (!ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, false, out _))
+			// The MimeMessage and MimeEntity setters (and MessageIdList) reject some values that the lenient parser
+			// accepts (e.g. ones that contain NUL characters), so make sure that they will accept it.
+			if (!ParseUtils.TryParseMsgIdValue (id, out _))
 				return false;
 
 			msgid = id;
@@ -1685,8 +1679,12 @@ namespace MimeKit.Tnef {
 			text = properties.GetString (TnefPropertyTag.InternetReferencesW);
 
 			if (text != null) {
-				foreach (var reference in MimeUtils.EnumerateReferences (text))
-					message.References.Add (reference);
+				foreach (var reference in MimeUtils.EnumerateReferences (text)) {
+					if (ParseUtils.TryParseMsgIdValue (reference, out var msgid))
+						message.References.Add (msgid);
+					else
+						AddLoss (TnefConversionLossKind.InvalidMessageId, $"The References identifier is not a valid msg-id: {reference}");
+				}
 			}
 		}
 

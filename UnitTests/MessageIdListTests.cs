@@ -133,6 +133,60 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestInvalidMessageIdsThrow ()
+		{
+			var list = new MessageIdList ();
+			int changed = 0;
+
+			list.Add ("id@localhost");
+			list.Changed += (sender, args) => changed++;
+
+			foreach (var value in new[] { "", "<>", "a@b c@d", "<a@b> <c@d>", "a@b\r\nBcc: x@y", "a@b\0" }) {
+				Assert.Throws<ArgumentException> (() => list.Add (value), $"Add: {value}");
+				Assert.Throws<ArgumentException> (() => list.Insert (0, value), $"Insert: {value}");
+				Assert.Throws<ArgumentException> (() => list[0] = value, $"Indexer: {value}");
+				Assert.Throws<ArgumentException> (() => list.AddRange (new[] { value }), $"AddRange: {value}");
+			}
+
+			Assert.That (changed, Is.EqualTo (0), "Changed");
+			Assert.That (list, Is.EqualTo (new[] { "id@localhost" }));
+		}
+
+		[Test]
+		public void TestAddRangeIsAtomic ()
+		{
+			var list = new MessageIdList ();
+			int changed = 0;
+
+			list.Changed += (sender, args) => changed++;
+
+			Assert.Throws<ArgumentException> (() => list.AddRange (new[] { "a@localhost", "b@localhost c@localhost" }), "Invalid");
+			Assert.Throws<ArgumentException> (() => list.AddRange (new[] { "a@localhost", null }), "Null");
+
+			Assert.That (list.Count, Is.EqualTo (0), "Count");
+			Assert.That (changed, Is.EqualTo (0), "Changed");
+		}
+
+		[Test]
+		public void TestMessageIdsAreNormalized ()
+		{
+			var list = new MessageIdList ();
+
+			list.Add ("<a@localhost>");
+			list.Insert (0, " <b@localhost> (comment) ");
+			list.AddRange (new[] { "c@localhost", "<d@localhost>" });
+
+			Assert.That (list, Is.EqualTo (new[] { "b@localhost", "a@localhost", "c@localhost", "d@localhost" }));
+
+			int changed = 0;
+			list.Changed += (sender, args) => changed++;
+			list[0] = "<b@localhost>";
+
+			Assert.That (changed, Is.EqualTo (0), "Setting the same msg-id with angle brackets should not notify Changed");
+			Assert.That (list[0], Is.EqualTo ("b@localhost"));
+		}
+
+		[Test]
 		public void TestGetEnumerator ()
 		{
 			var list = new MessageIdList ();

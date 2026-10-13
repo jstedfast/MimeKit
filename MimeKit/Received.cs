@@ -580,7 +580,7 @@ namespace MimeKit {
 		static void AppendClause (FormatOptions options, StringBuilder builder, ref int lineLength, ReceivedClause clause)
 		{
 			if (clause.Id != ReceivedClauseId.None) {
-				int commentLength = clause.Comments.Count > 0 ? GetCommentLength (clause.Comments[0]) : 0;
+				int commentLength = clause.Comments.Count > 0 ? GetCommentLength (Unfold (clause.Comments[0])) : 0;
 				var keyword = clause.Keyword;
 				var value = clause.Value;
 
@@ -641,7 +641,8 @@ namespace MimeKit {
 			}
 
 			for (int i = 0; i < clause.Comments.Count; i++) {
-				var comment = FormatComment (clause.Comments[i]);
+				// Note: ReceivedClause.Comments is a public list, so make sure that the comments cannot inject line breaks.
+				var comment = FormatComment (Unfold (clause.Comments[i]));
 
 				if (lineLength + 1 + comment.Length > options.MaxLineLength) {
 					builder.Append (options.NewLine);
@@ -1352,14 +1353,14 @@ namespace MimeKit {
 				ValidateDomain (value);
 				break;
 			case ReceivedClauseId.Id:
-				var buffer = Encoding.UTF8.GetBytes (value);
-				int index = 0;
-
-				try {
-					ParseUtils.TryParseMsgId (buffer, ref index, buffer.Length, false, true, out _);
-				} catch (ParseException ex) {
-					throw new ArgumentException ("Invalid message identifier.", nameof (value), ex);
+				// Note: the value is serialized verbatim, so it must not contain line breaks or other control characters.
+				for (int i = 0; i < value.Length; i++) {
+					if (value[i] < 32 || value[i] == 127)
+						throw new ArgumentException ("Invalid message identifier.", nameof (value));
 				}
+
+				if (!ParseUtils.TryParseCompleteMsgId (Encoding.UTF8.GetBytes (value), false, out _))
+					throw new ArgumentException ("Invalid message identifier.", nameof (value));
 				break;
 			case ReceivedClauseId.For:
 				try {

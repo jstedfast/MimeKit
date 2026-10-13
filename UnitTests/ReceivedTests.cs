@@ -79,6 +79,12 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentException> (() => received.Id = string.Empty);
 			Assert.Throws<ArgumentException> (() => received.Id = "this is invalid...");
+			Assert.Throws<ArgumentException> (() => received.Id = "<>");
+			Assert.Throws<ArgumentException> (() => received.Id = "<id@example.com");
+			Assert.Throws<ArgumentException> (() => received.Id = "<id@example.com> garbage");
+			Assert.Throws<ArgumentException> (() => received.Id = "id@example.com\r\nBcc: evil@example.com");
+			Assert.Throws<ArgumentException> (() => received.Id = "id@example.com\r\n (comment)");
+			Assert.Throws<ArgumentException> (() => received.Id = "id@example.com\0");
 
 			Assert.Throws<ArgumentException> (() => received.For = string.Empty);
 			Assert.Throws<ArgumentException> (() => received.For = "this is invalid...");
@@ -105,6 +111,27 @@ namespace UnitTests {
 			Assert.Throws<ArgumentException> (() => new ReceivedClause ("key!word", "value"));
 
 			Assert.Throws<ArgumentException> (() => new ReceivedClause ("keyword", string.Empty));
+		}
+
+		[Test]
+		public void TestValidIdValues ()
+		{
+			var received = new Received ();
+
+			foreach (var id in new[] { "<id@example.com>", "id@example.com", "ABC123", "<id@example.com> (comment)" }) {
+				received.Id = id;
+				Assert.That (received.Id, Is.EqualTo (id));
+			}
+		}
+
+		[Test]
+		public void TestCommentsCannotInjectHeaders ()
+		{
+			var received = new Received { From = "smtp.source.com" };
+
+			received.Clauses[0].Comments.Add ("comment\r\nBcc: evil@example.com");
+
+			Assert.That (received.ToString (), Is.EqualTo (" from smtp.source.com (commentBcc: evil@example.com)\r\n".ReplaceLineEndings ()));
 		}
 
 		[Test]

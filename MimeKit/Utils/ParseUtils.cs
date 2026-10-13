@@ -484,7 +484,13 @@ namespace MimeKit.Utils {
 				}
 
 				try {
-					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+					var segment = CharsetUtils.UTF8.GetString (text, start, index - start);
+
+					// unfold quoted-strings (RFC 5322 2.2.3)
+					if (text[start] == (byte) '"' && segment.IndexOfAny (LineBreaks) != -1)
+						segment = segment.Replace ("\r", string.Empty).Replace ("\n", string.Empty);
+
+					token.Append (segment);
 				} catch (DecoderFallbackException ex) {
 					if (throwOnError)
 						throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
@@ -582,9 +588,106 @@ namespace MimeKit.Utils {
 			if (index < endIndex && text[index] == (byte) '>')
 				index++;
 
+			if (token.Length == 0) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Empty msg-id token at offset {0}", tokenIndex), tokenIndex, index);
+
+				return false;
+			}
+
 			msgid = token.ToString ();
 
 			return true;
+		}
+
+		static readonly char[] LineBreaks = { '\r', '\n' };
+
+		public static bool TryParseCompleteMsgId (byte[] buffer, bool requireAngleAddr, [NotNullWhen (true)] out string? msgid)
+		{
+			int index = 0;
+
+			if (!TryParseMsgId (buffer, ref index, buffer.Length, requireAngleAddr, false, out msgid))
+				return false;
+
+			if (!SkipCommentsAndWhiteSpace (buffer, ref index, buffer.Length, false) || index < buffer.Length) {
+				msgid = null;
+				return false;
+			}
+
+			return true;
+		}
+
+		// Parses a msg-id that is being assigned to a property such as MimeMessage.MessageId. The value may be specified
+		// with or without its angle brackets and is parsed using the same lenient grammar that is used for parsing
+		// messages, so that any value returned by a msg-id property of a parsed message can be assigned to another message.
+		//
+		// Unlike the parser, this rejects values that would otherwise have to be silently modified: empty msg-ids, values
+		// with anything other than whitespace or comments after the msg-id (such as a second msg-id), and values that
+		// contain NUL characters or line breaks that are not folding whitespace (which could be used to inject headers).
+		public static bool TryParseMsgIdValue (string value, [NotNullWhen (true)] out string? msgid)
+		{
+			using var unfolded = new ValueStringBuilder (value.Length);
+			var text = value.Trim ();
+
+			msgid = null;
+
+			for (int i = 0; i < text.Length; i++) {
+				char c = text[i];
+
+				if (c == '\0')
+					return false;
+
+				if (c == '\r' || c == '\n') {
+					// Allow folding whitespace (which can be returned by the msg-id getters when a quoted local-part
+					// was folded), but nothing else.
+					if (c == '\r' && i + 1 < text.Length && text[i + 1] == '\n')
+						i++;
+
+					if (i + 1 >= text.Length || (text[i + 1] != ' ' && text[i + 1] != '\t'))
+						return false;
+
+					continue;
+				}
+
+				unfolded.Append (c);
+			}
+
+			if (unfolded.Length == 0)
+				return false;
+
+			text = unfolded.ToString ();
+
+			if (text[0] == '<')
+				return TryParseCompleteMsgId (Encoding.UTF8.GetBytes (text), true, out msgid);
+
+			// The parser collapses unquoted whitespace within an angle-bracketed msg-id, but the msg-id getters never
+			// return unquoted whitespace, so don't let the wrapping below turn text such as "a b@c" into "ab@c".
+			if (ContainsUnquotedWhiteSpace (text))
+				return false;
+
+			return TryParseCompleteMsgId (Encoding.UTF8.GetBytes ("<" + text + ">"), true, out msgid);
+		}
+
+		static bool ContainsUnquotedWhiteSpace (string text)
+		{
+			bool quoted = false;
+
+			for (int i = 0; i < text.Length; i++) {
+				char c = text[i];
+
+				if (quoted) {
+					if (c == '\\')
+						i++;
+					else if (c == '"')
+						quoted = false;
+				} else if (c == '"') {
+					quoted = true;
+				} else if (c == ' ' || c == '\t') {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		public static bool IsInternational (string value, int startIndex, int count)
