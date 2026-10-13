@@ -40,6 +40,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [3156](https://tools.ietf.org/html/rfc3156): MIME Security with OpenPGP (Updates rfc2015)
 * [3462](https://tools.ietf.org/html/rfc3462): The Multipart/Report Media Type for the Reporting of Mail System Administrative Messages (Obsoletes rfc1892)
 * [3464](https://tools.ietf.org/html/rfc3464): An Extensible Message Format for Delivery Status Notifications
+* [3492](https://tools.ietf.org/html/rfc3492): Punycode: A Bootstring encoding of Unicode for Internationalized Domain Names in Applications (IDNA)
 * [3676](https://tools.ietf.org/html/rfc3676): The Text/Plain Format and DelSp Parameters
 * [3798](https://tools.ietf.org/html/rfc3798): Message Disposition Notification (Obsoletes rfc2298)
 * [3850](https://tools.ietf.org/html/rfc3850): S/MIME Version 3.1 Certificate Handling (Obsoletes rfc2632)

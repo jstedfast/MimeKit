@@ -393,96 +393,39 @@ namespace MimeKit.Utils {
 		{
 			const int AcePrefixLength = 4;
 			Span<int> label = stackalloc int[MaxLabelLength];
-			int index = startIndex + AcePrefixLength;
-			int count = 0;
+			bool nonAscii = false;
 
 			written = 0;
 
 			if (endIndex - startIndex > MaxLabelLength)
 				return false;
 
-			for (int j = index; j < endIndex; j++) {
-				if (text[j] >= 0x80)
-					return false;
-			}
+			var punycode = text.AsSpan (startIndex + AcePrefixLength, endIndex - startIndex - AcePrefixLength);
 
-			// RFC 3492, Section 6.2: Let b = the number of input code points before the last delimiter, or 0 if
-			// there is none, then copy the first b code points to the output.
-			int delimiter = text.LastIndexOf ('-', endIndex - 1, endIndex - index);
+			if (!Rfc3492.TryDecode (punycode, label, out int count))
+				return false;
 
-			if (delimiter != -1) {
-				while (index < delimiter)
-					label[count++] = text[index++];
-
-				index++;
-			}
-
-			int basic = count;
-			int bias = InitialBias;
-			int n = InitialN;
-			int i = 0;
-
-			while (index < endIndex) {
-				int oldi = i;
-				int w = 1;
-
-				for (int k = Base; ; k += Base) {
-					if (index >= endIndex)
-						return false;
-
-					int digit = DecodeDigit (text[index++]);
-
-					if (digit == -1 || digit > (int.MaxValue - i) / w)
-						return false;
-
-					i += digit * w;
-
-					int t = k <= bias ? TMin : (k >= bias + TMax ? TMax : k - bias);
-
-					if (digit < t)
-						break;
-
-					if (w > int.MaxValue / (Base - t))
-						return false;
-
-					w *= Base - t;
+			for (int j = 0; j < count; j++) {
+				if (label[j] >= 0x80) {
+					nonAscii = true;
+					break;
 				}
-
-				bias = Adapt (i - oldi, count + 1, oldi == 0);
-
-				if (i / (count + 1) > MaxCodePoint - n)
-					return false;
-
-				n += i / (count + 1);
-				i %= count + 1;
-
-				if (n >= 0xD800 && n <= 0xDFFF)
-					return false;
-
-				// Note: Since every code point consumes at least one character of the A-label, the label buffer
-				// cannot actually overflow, but be defensive.
-				if (count == label.Length)
-					return false;
-
-				label.Slice (i, count - i).CopyTo (label.Slice (i + 1));
-				label[i++] = n;
-				count++;
 			}
 
-			if (count == basic)
+			if (!nonAscii)
 				return false;
 
 			if (label[0] == '-' || label[count - 1] == '-' || (count >= 4 && label[2] == '-' && label[3] == '-'))
 				return false;
 
 			Span<char> encoded = stackalloc char[MaxLabelLength];
-			int encodedLength = EncodePunycode (label.Slice (0, count), encoded);
+			int encodedLength = Rfc3492.Encode (label.Slice (0, count), encoded);
 
-			if (encodedLength != endIndex - startIndex - AcePrefixLength)
+			if (encodedLength != punycode.Length)
 				return false;
 
 			for (int j = 0; j < encodedLength; j++) {
-				char c = text[startIndex + AcePrefixLength + j];
+				char c = punycode[j];
 
 				if (encoded[j] != c && encoded[j] != (char) (c | 0x20))
 					return false;
@@ -628,133 +571,7 @@ namespace MimeKit.Utils {
 				i += length - 1;
 			}
 
-			return AcePrefixLength + EncodePunycode (label.Slice (0, count), Span<char>.Empty);
-		}
-
-		#endregion
-
-		#region Punycode
-
-		// RFC 3492, Section 5: Parameter values for Punycode.
-		const int Base = 36, TMin = 1, TMax = 26, Skew = 38, Damp = 700, InitialBias = 72, InitialN = 0x80;
-		const int MaxCodePoint = 0x10FFFF;
-
-		static int DecodeDigit (char c)
-		{
-			if (c >= 'a' && c <= 'z')
-				return c - 'a';
-
-			if (c >= 'A' && c <= 'Z')
-				return c - 'A';
-
-			if (c >= '0' && c <= '9')
-				return c - '0' + 26;
-
-			return -1;
-		}
-
-		static char EncodeDigit (int digit)
-		{
-			return (char) (digit < 26 ? 'a' + digit : '0' + digit - 26);
-		}
-
-		static bool Append (Span<char> output, ref int length, char c)
-		{
-			if (!output.IsEmpty) {
-				if (length == output.Length)
-					return false;
-
-				output[length] = c;
-			}
-
-			length++;
-
-			return true;
-		}
-
-		// RFC 3492, Section 6.3: Encoding procedure. If the output buffer is empty, the output is only counted;
-		// otherwise, -1 is returned if the output does not fit.
-		static int EncodePunycode (ReadOnlySpan<int> input, Span<char> output)
-		{
-			int length = 0;
-			int basic = 0;
-
-			for (int i = 0; i < input.Length; i++) {
-				if (input[i] < 0x80) {
-					if (!Append (output, ref length, (char) input[i]))
-						return -1;
-
-					basic++;
-				}
-			}
-
-			if (basic > 0 && !Append (output, ref length, '-'))
-				return -1;
-
-			int bias = InitialBias;
-			int n = InitialN;
-			long delta = 0;
-			int h = basic;
-
-			while (h < input.Length) {
-				int m = int.MaxValue;
-
-				for (int i = 0; i < input.Length; i++) {
-					if (input[i] >= n && input[i] < m)
-						m = input[i];
-				}
-
-				delta += (long) (m - n) * (h + 1);
-				n = m;
-
-				for (int i = 0; i < input.Length; i++) {
-					if (input[i] < n) {
-						delta++;
-					} else if (input[i] == n) {
-						long q = delta;
-
-						for (int k = Base; ; k += Base) {
-							int t = k <= bias ? TMin : (k >= bias + TMax ? TMax : k - bias);
-
-							if (q < t)
-								break;
-
-							if (!Append (output, ref length, EncodeDigit ((int) (t + (q - t) % (Base - t)))))
-								return -1;
-
-							q = (q - t) / (Base - t);
-						}
-
-						if (!Append (output, ref length, EncodeDigit ((int) q)))
-							return -1;
-
-						bias = Adapt (delta, h + 1, h == basic);
-						delta = 0;
-						h++;
-					}
-				}
-
-				delta++;
-				n++;
-			}
-
-			return length;
-		}
-
-		// RFC 3492, Section 6.1: Bias adaptation function.
-		static int Adapt (long delta, int numPoints, bool firstTime)
-		{
-			int k = 0;
-
-			delta = firstTime ? delta / Damp : delta / 2;
-			delta += delta / numPoints;
-
-			while (delta > ((Base - TMin) * TMax) / 2) {
-				delta /= Base - TMin;
-				k += Base;
-			}
-
-			return (int) (k + (Base - TMin + 1) * delta / (delta + Skew));
+			return AcePrefixLength + Rfc3492.GetEncodedLength (label.Slice (0, count));
 		}
 
 		#endregion
