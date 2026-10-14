@@ -2393,6 +2393,96 @@ This is the second inner message body.
 			}
 		}
 
+		static readonly object[] BlankHeaderContinuationLineCases = {
+			// a single space, a single tab, and a mix of both
+			new object[] { "Subject: x\r\n \r\nTo: y\r\n\r\nbody\r\n", new int[] { 12 } },
+			new object[] { "Subject: x\n\t\nTo: y\n\nbody\n", new int[] { 11 } },
+			new object[] { "Subject: x\n \t \t\nTo: y\n\nbody\n", new int[] { 11 } },
+			// each blank line is reported
+			new object[] { "Subject: x\n \n \nTo: y\n\nbody\n", new int[] { 11, 13 } },
+			new object[] { "A: x\n \nB: y\n\t\n\nbody\n", new int[] { 5, 12 } },
+			// between two legitimate folds
+			new object[] { "Subject: x\n \n y\n\nbody\n", new int[] { 11 } },
+			// right before the blank line that ends the header block
+			new object[] { "Subject: x\n \n\nbody\n", new int[] { 11 } },
+			// the line that RFC 7103 section 7.3 warns may be mistaken for the end of the header block
+			new object[] { "Subject: x\n \nbody\n", new int[] { 11 } },
+			// with a bare LF or a bare CR
+			new object[] { "Subject: x\r\n \nTo: y\r\n\r\nbody\r\n", new int[] { 12 } },
+			new object[] { "Subject: x\n \r \nTo: y\n\nbody\n", new int[] { 11 } },
+			new object[] { "Subject: x\n \r\r\nTo: y\n\nbody\n", new int[] { 11 } },
+			// at the end of the stream
+			new object[] { "Subject: x\n  ", new int[] { 11 } },
+			// in the headers of a MIME part
+			new object[] { "Content-Type: multipart/mixed; boundary=x\n\n--x\nA: b\n \n\nbody\n--x--\n", new int[] { 52 } },
+			// not reported: legitimate folds, a blank first line of a header value, or blank lines in the body
+			new object[] { "Subject: x\n y\n\nbody\n", Array.Empty<int> () },
+			new object[] { "Subject: x\n  y \n\t z\n\nbody\n", Array.Empty<int> () },
+			new object[] { "Subject: \n x\n\nbody\n", Array.Empty<int> () },
+			new object[] { "Subject:\n x\n\nbody\n", Array.Empty<int> () },
+			new object[] { "Subject: x\n\n \nbody\n \n", Array.Empty<int> () },
+		};
+
+		static void AssertBlankHeaderContinuationLines (byte[] data, int[] offsets, TestMimeComplianceLogger logger, string label)
+		{
+			var issues = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.BlankHeaderContinuationLine).ToList ();
+
+			Assert.That (issues.Select (x => x.StreamOffset), Is.EqualTo (offsets.Select (x => (long) x)), $"{label}: {FormatIssues (logger)}");
+
+			foreach (var issue in issues) {
+				int offset = (int) issue.StreamOffset;
+				int lineNumber = data.Take (offset).Count (c => c == (byte) '\n') + 1;
+				int lineEnd = Array.IndexOf (data, (byte) '\n', offset);
+
+				if (lineEnd == -1)
+					lineEnd = data.Length;
+
+				Assert.That (offset == 0 || data[offset - 1] == (byte) '\n', Is.True, $"{label}: StreamOffset is at the start of a line");
+				Assert.That (lineEnd, Is.GreaterThan (offset), $"{label}: line is not empty");
+				for (int i = offset; i < lineEnd; i++)
+					Assert.That (data[i] == (byte) ' ' || data[i] == (byte) '\t' || data[i] == (byte) '\r', Is.True, $"{label}: line is blank");
+
+				Assert.That (issue.Severity, Is.EqualTo (MimeComplianceSeverity.Major), $"{label}: Severity");
+				Assert.That (issue.LineNumber, Is.EqualTo (lineNumber), $"{label}: LineNumber");
+				Assert.That (issue.ColumnNumber, Is.EqualTo (1), $"{label}: ColumnNumber");
+				Assert.That (issue.PositionKind, Is.EqualTo (MimeCompliancePositionKind.LineStart), $"{label}: PositionKind");
+			}
+		}
+
+		[TestCaseSource (nameof (BlankHeaderContinuationLineCases))]
+		public void TestMimeComplianceBlankHeaderContinuationLine (string text, int[] offsets)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+
+			foreach (var (stream, label) in CreateBareCarriageReturnStreams (data)) {
+				using (stream) {
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+					reader.ReadMessage ();
+
+					AssertBlankHeaderContinuationLines (data, offsets, logger, label);
+				}
+			}
+		}
+
+		[TestCaseSource (nameof (BlankHeaderContinuationLineCases))]
+		public async Task TestMimeComplianceBlankHeaderContinuationLineAsync (string text, int[] offsets)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+
+			foreach (var (stream, label) in CreateBareCarriageReturnStreams (data)) {
+				using (stream) {
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+					await reader.ReadMessageAsync ();
+
+					AssertBlankHeaderContinuationLines (data, offsets, logger, label);
+				}
+			}
+		}
+
 		[Test]
 		public Task TestMimeComplianceUnexpectedNullBytesInHeaderAsync ()
 		{

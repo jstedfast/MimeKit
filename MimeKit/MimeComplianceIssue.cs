@@ -421,6 +421,7 @@ namespace MimeKit {
 			// Ambiguity or corruption that different MIME parsers may resolve differently.
 			case MimeComplianceViolation.InvalidHeader:
 			case MimeComplianceViolation.IncompleteHeader:
+			case MimeComplianceViolation.BlankHeaderContinuationLine:
 			case MimeComplianceViolation.InvalidContentType:
 			case MimeComplianceViolation.InvalidContentTransferEncoding:
 			case MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding:
@@ -582,6 +583,12 @@ namespace MimeKit {
 			// Note: A malformed header may be treated as a header by one parser and as the start of
 			// the body (or as a continuation of the previous header) by another.
 			case MimeComplianceViolation.InvalidHeader:
+				return Interop | Security;
+
+			// Note: A parser that strips trailing whitespace sees a whitespace-only continuation line
+			// as the empty line that ends the header block, so the header fields that follow it may be
+			// read as headers by one parser and as the start of the body by another.
+			case MimeComplianceViolation.BlankHeaderContinuationLine:
 				return Interop | Security;
 
 			// Note: A truncated header is unlikely to be interpreted differently by different
@@ -832,6 +839,8 @@ namespace MimeKit {
 				return "A MIME part or message header contained control (or whitespace) characters in the field name.";
 			case MimeComplianceViolation.IncompleteHeader:
 				return "A MIME part or message header ended prematurely at the end of the stream.";
+			case MimeComplianceViolation.BlankHeaderContinuationLine:
+				return "A folded MIME part or message header contained a continuation line made up entirely of whitespace.";
 			case MimeComplianceViolation.RepeatedContentType:
 				return "A MIME part contained multiple Content-Type headers.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
@@ -1020,6 +1029,8 @@ namespace MimeKit {
 				return "The Internet Message Format specification requires that all header field names be composed of printable US-ASCII characters and must not contain control characters or whitespace characters. Inclusion of these characters can lead to divergent behavior among various MIME parsers, resulting in differences in handling.";
 			case MimeComplianceViolation.IncompleteHeader:
 				return "This usually indicates that the message was truncated somewhere in transit and may be a sign that a MIME parser implementation earlier in transit failed to properly handle certain edge cases such as a null (0x00) byte in the message header.";
+			case MimeComplianceViolation.BlankHeaderContinuationLine:
+				return "Section 3.2.2 of rfc5322 forbids folding a header field in such a way that any of its lines is made up entirely of whitespace characters; such lines are only tolerated by the obsolete folding whitespace syntax in section 4.2. As described in section 7.3 of rfc7103, agents disagree about what such a line means: a parser that follows the obsolete syntax treats it as a continuation of the previous header, but an agent that strips trailing whitespace from each line sees an empty line instead, which ends the header block. That disagreement can be exploited so that the header fields that follow the line are processed as headers by one component and as part of the body by another.";
 			case MimeComplianceViolation.RepeatedContentType:
 				return "The MIME specifications require that each MIME part contain only one Content-Type header. Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Type headers as their \"source of truth\".";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:

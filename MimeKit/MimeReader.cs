@@ -2090,7 +2090,17 @@ namespace MimeKit {
 			byteOptions &= ~ByteDetectionOptions.DetectBareCarriageReturns;
 		}
 
-		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool ascii)
+		static unsafe bool IsBlankLine (byte* inptr, byte* inend)
+		{
+			// Note: A CR is treated as blank so that the CR of a CRLF split across two input buffers does not
+			// disqualify the line. A bare CR within the line is reported separately by DetectBareCarriageReturn.
+			while (inptr < inend && (*inptr == (byte) ' ' || *inptr == (byte) '\t' || *inptr == (byte) '\r'))
+				inptr++;
+
+			return inptr == inend;
+		}
+
+		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool ascii, ref bool blankLine)
 		{
 			byte* start = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -2129,6 +2139,17 @@ namespace MimeKit {
 				if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0)
 					DetectBareCarriageReturn (inbuf, lineStart, inptr, ref byteOptions);
 
+				if (complianceLogger != null) {
+					// Note: A continuation line always begins with a blank (otherwise the loop would have ended), so a
+					// line that starts here is a candidate until a non-blank byte is found. The state carries over when
+					// the line spans more than one input buffer.
+					if (!midline)
+						blankLine = true;
+
+					if (blankLine)
+						blankLine = IsBlankLine (lineStart, inptr);
+				}
+
 				if (inptr == inend) {
 					// We've reached the end of the input buffer, and we are currently in the middle of a line.
 					midline = true;
@@ -2141,6 +2162,11 @@ namespace MimeKit {
 							complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInHeader, GetOffset (inputIndex + (int) (inptr - start)), lineNumber, GetColumnNumber (inputIndex + (int) (inptr - start))));
 					} else if (midline && headerBuffer[headerIndex - 1] != (byte) '\r') {
 						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInHeader, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+					}
+
+					if (blankLine) {
+						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BlankHeaderContinuationLine, lineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
+						blankLine = false;
 					}
 				}
 
@@ -2487,11 +2513,12 @@ namespace MimeKit {
 					StepHeaderField (headerFieldLength);
 				}
 
+				bool blankLine = false;
 				bool midline = true;
 				bool ascii = true;
 
 				// Consume the header value.
-				while (!StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii)) {
+				while (!StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii, ref blankLine)) {
 					CheckHeaderLength (beginOffset);
 
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
@@ -2499,6 +2526,9 @@ namespace MimeKit {
 							if (midline) {
 								if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0 && headerIndex > 0 && headerBuffer[headerIndex - 1] == (byte) '\r')
 									complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareCarriageReturnInHeader, GetOffset (inputIndex) - 1, lineNumber, GetColumnNumber (inputIndex) - 1));
+
+								if (blankLine)
+									complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BlankHeaderContinuationLine, lineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
 
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
 							} else {

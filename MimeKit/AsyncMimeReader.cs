@@ -293,6 +293,7 @@ namespace MimeKit {
 					StepHeaderField (headerFieldLength);
 				}
 
+				bool blankLine = false;
 				bool midline = true;
 				bool ascii = true;
 
@@ -300,7 +301,7 @@ namespace MimeKit {
 				do {
 					unsafe {
 						fixed (byte* inbuf = input) {
-							if (StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii))
+							if (StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii, ref blankLine))
 								break;
 						}
 					}
@@ -312,6 +313,9 @@ namespace MimeKit {
 							if (midline) {
 								if ((byteOptions & ByteDetectionOptions.DetectBareCarriageReturns) != 0 && headerIndex > 0 && headerBuffer[headerIndex - 1] == (byte) '\r')
 									complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareCarriageReturnInHeader, GetOffset (inputIndex) - 1, lineNumber, GetColumnNumber (inputIndex) - 1));
+
+								if (blankLine)
+									complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BlankHeaderContinuationLine, lineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
 
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
 							} else {

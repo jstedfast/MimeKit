@@ -539,6 +539,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.BareLinefeedInBody, Interop | Security },
 				{ MimeComplianceViolation.InvalidHeader, Interop | Security },
 				{ MimeComplianceViolation.IncompleteHeader, Interop },
+				{ MimeComplianceViolation.BlankHeaderContinuationLine, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentType, Interop | Security },
 				{ MimeComplianceViolation.RepeatedContentType, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },

@@ -197,6 +197,26 @@ namespace MimeAnalyzerExample
 			if (issue.PositionKind == MimeCompliancePositionKind.Exact)
 				return false;
 
+			if (issue.Violation == MimeComplianceViolation.BlankHeaderContinuationLine) {
+				// Note: Every byte on the line is blank, so point at the end of the line instead: the CR of a CRLF,
+				// the LF, or the end of the stream if the line is unterminated.
+				if (issue.LineNumber < 1 || issue.LineNumber > lineOffsets.Count)
+					return false;
+
+				int lineStart = lineOffsets[issue.LineNumber - 1];
+				int lineEnd = issue.LineNumber < lineOffsets.Count ? lineOffsets[issue.LineNumber] : content.Length;
+
+				if (lineEnd > lineStart && content[lineEnd - 1] == (byte) '\n')
+					lineEnd--;
+
+				if (lineEnd > lineStart && content[lineEnd - 1] == (byte) '\r')
+					lineEnd--;
+
+				columnNumber = (lineEnd - lineStart) + 1;
+
+				return true;
+			}
+
 			Predicate<byte> match;
 
 			switch (issue.Violation) {

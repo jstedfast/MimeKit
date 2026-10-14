@@ -212,6 +212,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Added a `BareCarriageReturnInHeader` violation, reported for the first carriage return in each header
   that is not followed by a linefeed. Parsers disagree about whether a bare carriage return ends a line,
   which can be used to make different components see different headers for the same message.
+* Added a `BlankHeaderContinuationLine` violation, reported for each folded header line that contains
+  only whitespace (rfc5322 section 3.2.2, rfc7103 section 7.3). Agents that strip trailing whitespace
+  see such a line as the end of the header block, so the fields that follow it can be processed as
+  headers by one component and as body by another.
 * The base64, quoted-printable and uuencode validators now report column numbers and report each
   violation at most once per line.
 * Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are
