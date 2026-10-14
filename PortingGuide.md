@@ -1,28 +1,275 @@
-# Porting TNEF code from MimeKit 4.x to MimeKit 5.0
+# Porting from MimeKit 4.x to MimeKit 5.0
 
-MimeKit 5.0 replaces the `MimeKit.Tnef` API. The reader was rewritten against the published
-[MS-OXTNEF], [MS-OXCDATA] and [MS-OXCMAIL] specifications, a `TnefMessage` object model was added, and
-`TnefPart.ConvertToMessage ()` was replaced by a spec-driven MIME converter. This guide explains how to
-port code written against MimeKit 4.x (4.18.1 and earlier).
+MimeKit 5.0 is a major release with a number of breaking changes. This guide explains how to port code
+written against MimeKit 4.x (4.18.1 and earlier). The [release notes](ReleaseNotes.md) list every change;
+this guide covers only the ones that require changes to your code or that change behavior you may rely on.
 
-The guide is written for people and for automated (AI) refactoring tools. Each section starts with a
+The guide is written for people and for automated (AI) refactoring tools. Most sections start with a
 mapping table that can be applied mechanically, followed by the semantic changes that need a person
 (or an agent) to review them. The [checklist](#porting-checklist) at the end summarizes everything.
 
 ## Contents
 
-1. [Choosing an API](#choosing-an-api)
-2. [Removed and renamed types](#removed-and-renamed-types)
-3. [TnefPart](#tnefpart)
-4. [TnefReader](#tnefreader)
-5. [TnefPropertyReader](#tnefpropertyreader)
-6. [Compliance: TnefComplianceStatus and TnefComplianceMode](#compliance-tnefcompliancestatus-and-tnefcompliancemode)
-7. [TnefException](#tnefexception)
-8. [Other public types](#other-public-types)
-9. [Recipes](#recipes)
-10. [Porting checklist](#porting-checklist)
+1. [Packages and assemblies](#packages-and-assemblies)
+2. [S/MIME and OpenPGP](#smime-and-openpgp)
+3. [DKIM and ARC](#dkim-and-arc)
+4. [MimeParser and MimeReader](#mimeparser-and-mimereader)
+5. [Message-ids, addresses and other MIME APIs](#message-ids-addresses-and-other-mime-apis)
+6. [HTML](#html)
+7. [Removed APIs](#removed-apis)
+8. [TNEF](#tnef)
+9. [Porting checklist](#porting-checklist)
 
-## Choosing an API
+## Packages and assemblies
+
+The cryptography support (S/MIME, PGP/MIME, DKIM, ARC and the new DMARC support) has been split out of the
+core library into a separate assembly.
+
+| 4.x | 5.0 |
+|---|---|
+| `MimeKit` package (assembly `MimeKit.dll`) | `MimeKit` meta-package, which references `MimeKit.Core` (assembly `MimeKit.Core.dll`) and `MimeKit.Cryptography` |
+| `MimeKitLite` package | `MimeKit.Core` package |
+
+- Projects that reference the `MimeKit` package continue to get everything and usually need no changes.
+- Projects that don't need cryptography can reference `MimeKit.Core` on its own.
+- Namespaces are unchanged: the core types are still in `MimeKit`, `MimeKit.IO`, `MimeKit.Text` and so
+  on, and the cryptography types are still in `MimeKit.Cryptography`.
+- Anything that refers to the assembly by name must be updated, because the core types now live in
+  `MimeKit.Core`. This includes assembly-qualified type names in configuration files, `[InternalsVisibleTo]`
+  workarounds, linker/trimmer descriptors and binding redirects.
+
+## S/MIME and OpenPGP
+
+| 4.x | 5.0 |
+|---|---|
+| `message.Sign (...)`, `Encrypt (...)`, `SignAndEncrypt (...)` (instance methods) | The same calls, now extension methods. Add `using MimeKit.Cryptography;`. |
+| `MimeVisitor.VisitMultipartSigned ()`, `VisitMultipartEncrypted ()`, `VisitApplicationPkcs7Mime ()`, `VisitApplicationPkcs7Signature ()`, `VisitApplicationPgpEncrypted ()`, `VisitApplicationPgpSignature ()` | Derive from `MimeKit.Cryptography.CryptographicMimeVisitor` and override the same methods there |
+| `CryptographyContext.DigestAlgorithmRank`, `EnabledDigestAlgorithms`, `Enable (DigestAlgorithm)`, `Disable (DigestAlgorithm)`, `IsEnabled (DigestAlgorithm)` (also on `ICryptographyContext`) | The same members on `OpenPgpContext` |
+| `X509CertificateDatabase.GetSelectCommand (DbConnection connection, ...)` and the other protected `Get*Command`, `GetTableColumns`, `CreateTable`, `AddTableColumn`, `CreateIndex` and `RemoveIndex` methods | The same methods without the `DbConnection` parameter. Use the protected `CreateCommand ()` method to create commands. |
+| `IX509CertificateDatabase.Update (X509CrlRecord)`, `X509CertificateDatabase.GetUpdateCommand (DbConnection, X509CrlRecord)` | Removed (obsolete and unused) |
+| `AsymmetricAlgorithmExtensions.AsAsymmetricAlgorithm ()` | Removed. `AsAsymmetricKeyParameter ()` and `AsAsymmetricCipherKeyPair ()` are unchanged. |
+
+### Register an S/MIME context
+
+MimeKit 4.x automatically used `DefaultSecureMimeContext` for S/MIME when a SQLite library was available.
+To make MimeKit AOT-compatible, MimeKit 5.0 no longer registers any S/MIME context. If you use S/MIME
+without registering a context, `CryptographyContext.Create ()` (and therefore the `MultipartSigned`,
+`MultipartEncrypted` and `ApplicationPkcs7Mime` methods that don't take a context) throws a
+`NotSupportedException`.
+
+Register the context you want during startup:
+
+```csharp
+CryptographyContext.Register (typeof (MySecureMimeContext));
+
+// or, to keep the 4.x behavior:
+CryptographyContext.Register (() => new DefaultSecureMimeContext ());
+```
+
+Alternatively, pass a context explicitly to the methods that accept one.
+
+### Initialize the cryptography module before parsing
+
+The parser in `MimeKit.Core` knows nothing about cryptography. It only creates `MultipartSigned`,
+`MultipartEncrypted`, `ApplicationPkcs7Mime`, `ApplicationPkcs7Signature`, `ApplicationPgpEncrypted` and
+`ApplicationPgpSignature` entities once `MimeKit.Cryptography` has registered its entity factory. This
+happens automatically the first time `CryptographyContext` is used (for example, by
+`CryptographyContext.Register ()`). Messages that are parsed before then contain a plain `Multipart` or
+`MimePart` instead, so `body is MultipartSigned` checks silently fail.
+
+If your application might parse messages before it touches `CryptographyContext`, call this during
+startup:
+
+```csharp
+MimeKit.Cryptography.CryptographyModule.Initialize ();
+```
+
+### Semantic changes
+
+- **SHA-256 is the default signing digest.** The `Sign ()`, `SignAsync ()`, `SignAndEncrypt ()` and
+  `SignAndEncryptAsync ()` overloads that don't take a `DigestAlgorithm` now use SHA-256 instead of SHA-1.
+  Pass `DigestAlgorithm.Sha1` explicitly if a recipient really can't handle SHA-256.
+- **OpenPGP digest preferences.** The default `OpenPgpContext.DigestAlgorithmRank` now matches GnuPG:
+  SHA-512, SHA-384, SHA-256, SHA-224 and SHA-1 (SHA-1 used to be first, and RIPEMD-160 is no longer
+  included). This only affects the preferences advertised by keys created with
+  `GnuPGContext.GenerateKeyPair ()`.
+- **No more binary serialization.** `ParseException`, `TnefException`, `CertificateNotFoundException`,
+  `DigitalSignatureVerifyException`, `PrivateKeyNotFoundException` and `PublicKeyNotFoundException` are no
+  longer `[Serializable]` and no longer have `(SerializationInfo, StreamingContext)` constructors or
+  `GetObjectData ()` overrides. Remove any subclass constructors or overrides that chain to them.
+
+## DKIM and ARC
+
+| 4.x | 5.0 |
+|---|---|
+| `IDkimPublicKeyLocator`, `DkimPublicKeyLocatorBase` | `IDnsResolver` (see [below](#replace-your-public-key-locator)) |
+| `new DkimVerifier (IDkimPublicKeyLocator)`, `new ArcVerifier (IDkimPublicKeyLocator)` | `new DkimVerifier (IDnsResolver)`, `new ArcVerifier (IDnsResolver)` |
+| `DkimVerifierBase.PublicKeyLocator` (protected) | `DkimVerifierBase.DnsResolver` |
+| `bool DkimVerifier.Verify (...)`, `Task<bool> VerifyAsync (...)` | `DkimSignatureValidationResult Verify (...)`, `Task<DkimSignatureValidationResult> VerifyAsync (...)`. Test `result.Status == DkimSignatureStatus.Pass`. |
+| — | `DkimSignatureValidationResult[] Verify (MimeMessage)` and `VerifyAsync`: verify every `DKIM-Signature` header, up to `DkimVerifier.MaxSignatures` (default 10) |
+| `new DkimSigner (string domain, string selector, ...)`, `ArcSigner (string domain, string selector, ...)` and `DkimSignerBase (string domain, string selector, ...)` (obsolete) | Removed. Use the constructors that take the private key. |
+| `DkimSignerBase.PrivateKey` setter (protected, obsolete) | Removed. Pass the private key to the base class constructor. |
+
+### Replace your public key locator
+
+In 4.x, you implemented `LocatePublicKey (methods, domain, selector)`: you built the
+`<selector>._domainkey.<domain>` query name yourself, fetched the TXT record and (usually via
+`DkimPublicKeyLocatorBase.GetPublicKey ()`) parsed the key. In 5.0, you only perform the DNS TXT query.
+MimeKit builds the query name and parses (and validates) the key record itself.
+
+```csharp
+class DnsResolver : IDnsResolver
+{
+	public DnsTxtResponse QueryTxt (string domain, CancellationToken cancellationToken = default)
+	{
+		// Perform a TXT query for `domain` (it is already the full query name).
+		// Concatenate the character-strings within each TXT record, but return
+		// each record as a separate string.
+		if (nxdomain)
+			return new DnsTxtResponse (DnsQueryStatus.NonExistentDomain);
+
+		if (serverFailureOrTimeout)
+			return new DnsTxtResponse (DnsQueryStatus.TemporaryFailure);
+
+		return new DnsTxtResponse (records);
+	}
+
+	public Task<DnsTxtResponse> QueryTxtAsync (string domain, CancellationToken cancellationToken = default)
+	{
+		// ...
+	}
+}
+```
+
+Distinguishing `NonExistentDomain` from `TemporaryFailure` matters: a temporary failure is reported as
+`TempError` (DKIM) or `ArcValidationErrors.DnsTemporaryFailure` (ARC) so that receivers can defer the
+message rather than fail it. The same `IDnsResolver` is used by the new `DmarcVerifier`. See the
+[DkimVerifier sample](samples/DkimVerifier/DkimVerifier/Program.cs) for a complete implementation using
+DnsClient.NET.
+
+### Semantic changes
+
+- **Verification no longer throws for bad input.** A malformed `DKIM-Signature` header, a failed key
+  lookup, an unparsable key record or an exception thrown by your `IDnsResolver` is reported through the
+  result (`PermError` or `TempError`, with `Reason` and `Exception`), not as an exception. Only argument
+  errors and cancellation throw. Remove `try`/`catch` blocks that existed to treat `FormatException` or
+  `ParseException` as a failed signature.
+- **A `bool` is not enough anymore.** `Pass`, `Fail`, `Policy`, `TempError` and `PermError` match the
+  RFC 8601 `dkim` results. Use `result.ToAuthenticationMethodResult ()` to build an Authentication-Results
+  entry.
+- **Stricter key records and signatures.** Key records are parsed according to RFC 6376: records with
+  duplicate tags, a misplaced or wrong `v=`, an unknown `k=`, or an `s=` that excludes `email` are ignored;
+  `h=` and key-type mismatches are rejected; an empty `p=` is treated as revoked; and `t=s` is enforced.
+  Signatures whose `x=` expiration time has passed are now `PermError`. Messages that "verified" with 4.x
+  may not verify with 5.0.
+- **ARC.** As required by RFC 8617, any error still makes the chain `Fail`, but
+  `ArcHeaderValidationResult.Reason`/`Exception` and the new `ArcValidationErrors.DnsTemporaryFailure`
+  flag now tell you why.
+
+## MimeParser and MimeReader
+
+| 4.x | 5.0 |
+|---|---|
+| `ExperimentalMimeParser` | `MimeParser` |
+| `MimeParser` | `LegacyMimeParser` (retained for compatibility; only use it if you rely on its exact behavior) |
+| `mimeParser.ReadHeaders ()`, `ReadEntity ()`, `ReadMessage ()` (and `Async` variants), inherited from `MimeReader` | Removed. `MimeParser` no longer derives from `MimeReader`. Use `ParseHeaders ()`, `ParseEntity ()` or `ParseMessage ()`, or subclass `MimeReader` directly. |
+| `OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken)` (and `Async`) | `OnMboxMarkerRead (byte[] buffer, int startIndex, int count, CancellationToken)`. The offset and line number are passed to `OnMboxMarkerBegin ()`. |
+| `OnMultipartBoundary ()`, `OnMultipartEndBoundary ()` (and `Async`; obsolete) | `OnMultipartBoundaryEnd ()`, `OnMultipartEndBoundaryEnd ()` |
+
+For most code, the parser change is a source-compatible rename: `new MimeParser (stream)` and
+`MimeMessage.Load ()` keep working, but are now backed by the new parser.
+
+### Semantic changes
+
+- **`MimeParser` subclasses.** `MimeParser` mirrors all of `MimeReader`'s `On*` callbacks as
+  `protected virtual` methods. If you override any of them, you must call the base implementation, because
+  that is where `MimeParser` builds the message. `MimeParser` still exposes `Options`, `IsEndOfStream`,
+  `Position`, `ComplianceLogger` and `ComplianceOptions`.
+- **`MimeReader` content callbacks.** The newline that precedes a multipart boundary marker belongs to the
+  boundary (RFC 2046) and is no longer passed to `OnMimePartContentRead[Async] ()` or
+  `OnMultipartEpilogueRead[Async] ()`. The bytes passed to these callbacks now exactly match the range
+  between the `Begin` and `End` offsets. Remove any code that trimmed the trailing newline itself.
+- **Header length limit.** The new `ParserOptions.MaxHeaderLength` (16 MB by default) bounds how much a
+  single header can buffer. Longer headers make the parser throw a `FormatException`.
+- **Byte-for-byte round trips.** `MimeParser` now re-serializes messages exactly as they were parsed, even
+  when they're truncated or don't end with a newline. If you append messages to an mbox file, set
+  `FormatOptions.EnsureNewLine` to `true`.
+- **Mbox edge cases.** `ParseMessage ()` now throws a `FormatException` for a stream that contains nothing
+  but mbox `From ` lines. A `From ` line that is followed by lines that aren't headers is now a parse error,
+  where previously that content was swallowed by the mbox marker.
+
+## Message-ids, addresses and other MIME APIs
+
+| 4.x | 5.0 |
+|---|---|
+| `MessagePartial.Join (ParserOptions, MimeMessage, IEnumerable<MessagePartial>)` (and overloads) | Takes an `IReadOnlyList<MessagePartial>`. Arrays and `List<MessagePartial>` work unchanged; call `.ToList ()` on other sequences. |
+
+### Semantic changes
+
+- **Message-id validation.** The `MimeMessage.MessageId`, `ResentMessageId` and `InReplyTo` setters, the
+  `MimeEntity.ContentId` setter and `MimeMessage.References` (`Add`, `AddRange`, `Insert` and the indexer)
+  share the same validation. Values that 4.x silently truncated or altered now throw an
+  `ArgumentException`: `<>`, a second msg-id or other trailing garbage, unquoted whitespace in a msg-id
+  without angle brackets, and line breaks or NUL characters. Angle brackets remain optional.
+- **Empty msg-ids.** When parsing, an empty msg-id (`<>`) is ignored: `MessageId`, `ResentMessageId`,
+  `InReplyTo`, `ContentId` and `MimeUtils.ParseMessageId ()` return `null` instead of `""`, and
+  `References`/`MimeUtils.EnumerateReferences ()` skip it. Check for `null` rather than an empty string.
+- **Trimmed display names.** `InternetAddress.Name` (and so `MailboxAddress.Name` and `GroupAddress.Name`) is
+  trimmed when set, including by constructors and the parser. A whitespace-only name becomes `""`.
+- **`MessagePartial.Join ()`** validates the `id` and `number` of every partial up front, so a mismatched
+  `id` or a missing `number` throws `InvalidOperationException` even for a single partial.
+
+## HTML
+
+| 4.x | 5.0 |
+|---|---|
+| `HtmlTokenizerState.AttributeValueQuoted` | `AttributeValueDoubleQuoted` or `AttributeValueSingleQuoted`. The numeric values of the members that follow have changed, so don't persist them. |
+| `HtmlToHtml.FilterHtml` (obsolete) | Removed. Use `HtmlTagCallback` with an allow-list, or a dedicated sanitizer such as HtmlSanitizer. |
+| — | `HtmlToHtml.NoScriptHandling`, `HtmlTokenizer.ScriptingEnabled` |
+| — | `HtmlTokenizer.MaxElementDepth`, `HtmlToHtml.MaxElementDepth` (4096 by default) |
+
+### Semantic changes
+
+- **`<noscript>` is now filtered.** By default (`HtmlNoScriptHandling.Unwrap`), `HtmlToHtml` tokenizes the
+  content of `<noscript>` elements as markup, passes it to your `HtmlTagCallback` and removes the
+  `<noscript>` tags themselves. In 4.x the content was copied verbatim without being passed to the callback,
+  which let tags inside `<noscript>` bypass filtering when the output was rendered with scripting disabled
+  (as is typical for email). `HtmlNoScriptHandling.ScriptingEnabled` restores the 4.x behavior; only use
+  it if the output is always rendered with scripting enabled.
+- **Tokenization matches browsers.** `HtmlTokenizer` now conforms to the html5lib tokenizer tests. Your
+  `HtmlTagCallback` may now see tags that 4.x treated as text (and vice versa), CDATA sections are only
+  recognized inside SVG and MathML, and `<img/onerror=...>` has an `onerror` attribute. If you filter HTML
+  with `HtmlToHtml`, this makes the filtering more reliable; review any code that matched the old quirks.
+- **Character references.** Numeric character references follow the HTML specification (any number of
+  digits, an optional `;`, out-of-range values become U+FFFD), and legacy named references without a `;` in
+  attribute values are left alone when followed by `=` or an alphanumeric (as in `href="?a=1&not=2"`). This
+  also affects `HtmlEntityDecoder` and `HtmlUtils.HtmlDecode ()`.
+- **Element depth limit.** Once more than `MaxElementDepth` distinct elements are open, the rest of the
+  input is returned as character data, which `HtmlToHtml` writes as encoded text.
+- **`HtmlDocTypeToken` setters** now throw an `ArgumentException` for values that can't be written as a
+  well-formed DOCTYPE (for example, a name that contains whitespace or `>`).
+
+## Removed APIs
+
+These APIs were removed without a direct replacement (most were already obsolete in 4.x):
+
+| 4.x | 5.0 |
+|---|---|
+| `QEncoder` | Removed. Use `Rfc2047.EncodePhrase ()` or `Rfc2047.EncodeText ()` to encode header text. |
+| `HexEncoder`, `HexDecoder` | Removed (`HexDecoder` is now internal) |
+| `TnefPropertyTag.Puid` | `TnefPropertyTag.PuidA` or `TnefPropertyTag.PuidW` |
+
+The obsolete members of `MimeReader`, `DkimSigner`, `ArcSigner`, `DkimSignerBase`, `HtmlToHtml` and
+`IX509CertificateDatabase` are covered in the sections above.
+
+## TNEF
+
+MimeKit 5.0 replaces the `MimeKit.Tnef` API. The reader was rewritten against the published
+[MS-OXTNEF], [MS-OXCDATA] and [MS-OXCMAIL] specifications, a `TnefMessage` object model was added, and
+`TnefPart.ConvertToMessage ()` was replaced by a spec-driven MIME converter. The
+[TNEF porting checklist](#tnef-porting-checklist) summarizes this section.
+
+### Choosing a TNEF API
 
 MimeKit 5.0 offers three levels of TNEF API. Most 4.x code reached for `TnefReader` only because there
 was nothing between it and `ConvertToMessage ()`, and can now use a higher level.
@@ -37,7 +284,7 @@ was nothing between it and `ConvertToMessage ()`, and can now use a higher level
 `TnefMessage` buffers bodies and attachment content in memory, subject to the limits in `TnefOptions`.
 `TnefReader` streams and does not buffer.
 
-## Removed and renamed types
+### Removed and renamed TNEF types
 
 | 4.x | 5.0 |
 |---|---|
@@ -54,7 +301,7 @@ New types: `TnefOptions`, `ITnefComplianceLogger`, `TnefComplianceIssue`, `TnefC
 `TnefAttributeType` (internal in 4.x) is now public.
 `TnefNameId` gained static fields for well-known named properties (for example `TnefNameId.Location`).
 
-## TnefPart
+### TnefPart
 
 | 4.x | 5.0 |
 |---|---|
@@ -64,7 +311,7 @@ New types: `TnefOptions`, `ITnefComplianceLogger`, `TnefComplianceIssue`, `TnefC
 
 The same members were removed from and added to `ITnefPart`.
 
-### Ownership and disposal
+#### Ownership and disposal
 
 - `LoadTnefMessage ()` returns a `TnefMessage` that is independent of the `TnefPart` and must be disposed.
 - `ConvertToMime ()` returns a `TnefConversionResult`. Disposing it disposes `result.Message`. To keep
@@ -72,7 +319,7 @@ The same members were removed from and added to `ITnefPart`.
 - The converted `MimeMessage` does not depend on the `TnefMessage`, so the `TnefMessage` may be disposed
   as soon as `ConvertToMime ()` returns.
 
-### Conversion behavior changes
+#### Conversion behavior changes
 
 `ConvertToMime ()` follows [MS-OXCMAIL]. Differences from 4.x `ConvertToMessage ()` that may affect
 callers:
@@ -128,7 +375,7 @@ callers:
   `application/applefile` or `application/mac-binhex40`, or that has an invalid MIME type, is emitted as
   `application/octet-stream`.
 
-### Replacing ExtractAttachments
+#### Replacing ExtractAttachments
 
 4.x `ExtractAttachments ()` returned the body alternatives *and* the attachments as a flat list. To get
 the same set of entities:
@@ -154,7 +401,7 @@ dispose `result` until you are done with them.
 If you only need the raw attachment bytes, skip MIME conversion entirely and use
 `TnefMessage.Attachments` (see [Extract attachments](#extract-attachments)).
 
-## TnefReader
+### TnefReader
 
 `TnefReader` is now `sealed`.
 
@@ -184,7 +431,7 @@ If you only need the raw attachment bytes, skip MIME conversion entirely and use
 | `Close ()` | `Dispose ()` | |
 | `Dispose ()` | `Dispose ()` | Disposes the stream unless `leaveOpen` is `true`. |
 
-### Reading non-MAPI attribute values
+#### Reading non-MAPI attribute values
 
 In 4.x, the values of legacy attributes such as `attSubject` or `attDateSent` were read through
 `reader.TnefPropertyReader.ReadValueAs* ()`. In 5.0 they are read directly from the reader:
@@ -200,7 +447,7 @@ In 4.x, the values of legacy attributes such as `attSubject` or `attDateSent` we
 
 Each has an `*Async` twin. Strings and byte arrays may only be read once.
 
-### Semantic changes
+#### Semantic changes
 
 - **Nothing in the stream causes an exception.** 4.x threw `TnefException` in strict mode and
   `EndOfStreamException`/`TnefException` from several paths in loose mode. 5.0 reports a
@@ -212,7 +459,7 @@ Each has an `*Async` twin. Strings and byte arrays may only be read once.
 - **The reader is only valid on its own attribute.** `TnefPropertyReader`s and value streams
   obtained for one attribute throw `InvalidOperationException` once `Read ()` has advanced past it.
 
-## TnefPropertyReader
+### TnefPropertyReader
 
 `TnefPropertyReader` is now `sealed`, and is obtained by calling `TnefReader.GetPropertyReader ()`.
 
@@ -241,7 +488,7 @@ Each has an `*Async` twin. Strings and byte arrays may only be read once.
 | `ReadValueAsBoolean/Int16/Int32/Int64/Float/Double/DateTime/Guid ()` | unchanged | May be called any number of times. |
 | — | `ReadProperty ()`, `ReadPropertySet ()`, `ReadRowsAsPropertySets ()` (+ `*Async`) | Materialize the current property, the remaining properties, or every row. |
 
-### Semantic changes
+#### Semantic changes
 
 - **Cursor position.** After `ReadNextProperty ()` returns `true`, the reader is already positioned on
   the property's first value (if `ValueCount > 0`). Read all values with:
@@ -269,7 +516,7 @@ Each has an `*Async` twin. Strings and byte arrays may only be read once.
 - **No exceptions for malformed data.** Problems are reported to the reader's `ComplianceLogger` and the
   property reader stops returning properties when the rest of the attribute cannot be interpreted.
 
-## Compliance: TnefComplianceStatus and TnefComplianceMode
+### Compliance: TnefComplianceStatus and TnefComplianceMode
 
 4.x accumulated a `TnefComplianceStatus` bit field in loose mode and threw `TnefException` in strict mode.
 5.0 reports each problem as a `TnefComplianceIssue` to an `ITnefComplianceLogger`. Each issue carries the
@@ -309,7 +556,7 @@ When reading untrusted streams, bound the number of issues with `reader.Complian
 or have your logger stop recording after a limit of its own. To get a logger into `TnefMessage`, create the
 reader yourself and call `TnefMessage.Load (TnefReader)` (see [Collect compliance issues](#collect-compliance-issues)).
 
-## TnefException
+### TnefException
 
 | 4.x | 5.0 |
 |---|---|
@@ -320,7 +567,7 @@ reader yourself and call `TnefMessage.Load (TnefReader)` (see [Collect complianc
 MimeKit itself only throws `TnefException` from `TnefMessage.Load[Async] ()` and
 `TnefPart.LoadTnefMessage[Async] ()`, when the stream does not begin with the TNEF signature.
 
-## Other public types
+### Other public TNEF types
 
 The following types are unchanged apart from additions: `TnefAttachFlags`, `TnefAttachMethod`,
 `TnefAttributeLevel`, `TnefAttributeTag`, `TnefNameId`, `TnefNameIdKind`, `TnefPropertyId` (except
@@ -334,11 +581,11 @@ to detect it. `ConvertToMime` drops an RTF body like this and reports a
 `TnefConversionLossKind.InvalidRtfBody` loss. When a compressed RTF body has a CRC mismatch, it is
 still converted, and an `RtfChecksumMismatch` loss is reported.
 
-## Recipes
+### TNEF recipes
 
 All recipes assume `using MimeKit; using MimeKit.Tnef;`.
 
-### Convert a TNEF part to a MimeMessage
+#### Convert a TNEF part to a MimeMessage
 
 Before (4.x):
 
@@ -373,7 +620,7 @@ using (var tnef = await tnefPart.LoadTnefMessageAsync (null, cancellationToken))
 
 `ConvertToMime ()` has no async twin because all of the content is already in memory.
 
-### Extract attachments
+#### Extract attachments
 
 Before (4.x):
 
@@ -406,7 +653,7 @@ using (var tnef = tnefPart.LoadTnefMessage ()) {
 
 Embedded messages are read with `attachment.LoadEmbeddedMessage ()`, which returns another `TnefMessage`.
 
-### Read message properties
+#### Read message properties
 
 Before (4.x), walking attributes:
 
@@ -460,7 +707,7 @@ using (var reader = new TnefReader (stream)) {
 }
 ```
 
-### Read multi-valued properties
+#### Read multi-valued properties
 
 Before (4.x):
 
@@ -487,7 +734,7 @@ while (prop.ReadNextProperty ()) {
 
 Or materialize it: `var property = prop.ReadProperty ();` and then `property.TryGetValues<string> (out var strings)`.
 
-### Read the recipient table
+#### Read the recipient table
 
 Before (4.x):
 
@@ -528,7 +775,7 @@ while (prop.ReadNextRow ()) {
 
 Or `IReadOnlyList<TnefPropertySet> rows = prop.ReadRowsAsPropertySets ();`.
 
-### Read the bodies
+#### Read the bodies
 
 Before (4.x), the bodies were found by walking `MapiProperties` and decompressing `RtfCompressed` with
 `RtfCompressedToRtf`. After (5.0):
@@ -545,7 +792,7 @@ if (tnef.HtmlBody != null) {
 }
 ```
 
-### Read embedded messages
+#### Read embedded messages
 
 Before (4.x):
 
@@ -580,7 +827,7 @@ foreach (var attachment in tnef.Attachments) {
 }
 ```
 
-### Collect compliance issues
+#### Collect compliance issues
 
 Before (4.x):
 
@@ -622,7 +869,7 @@ foreach (var issue in collector.Issues)
 	Console.WriteLine (issue); // violation, offset, attribute/property and description
 ```
 
-### Strict mode
+#### Strict mode
 
 Before (4.x):
 
@@ -647,7 +894,7 @@ var reader = new TnefReader (stream) { ComplianceLogger = new StrictTnefLogger (
 You can also throw only for some violations, for example only when
 `issue.Severity >= MimeComplianceSeverity.Major`.
 
-### Limits for untrusted input
+#### Limits for untrusted input
 
 4.x had only `MaxNestingDepth`. 5.0 adds:
 
@@ -665,7 +912,7 @@ using (var tnef = tnefPart.LoadTnefMessage (options)) {
 }
 ```
 
-### Write a TNEF stream
+#### Write a TNEF stream
 
 4.x could only read TNEF. 5.0 adds `TnefWriter` (attributes) and `TnefPropertyWriter` (MAPI properties).
 The writer emits the signature, `attTnefVersion` and `attOemCodepage` itself, computes every length,
@@ -712,7 +959,7 @@ embedded message, and `TnefPropertyWriter.WriteProperty (TnefProperty)` to copy 
 `TnefMessage` or `TnefPropertySet` unchanged. `TnefWriter` has `WriteAttributeAsync` and `FlushAsync`;
 property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
 
-## Porting checklist
+### TNEF porting checklist
 
 1. Replace `TnefPart.ConvertToMessage ()` with `LoadTnefMessage ()` + `ConvertToMime ()`; dispose the
    `TnefMessage`; decide who owns `result.Message`; consider logging `result.Losses`.
@@ -742,3 +989,36 @@ property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
 17. For untrusted input, set `TnefOptions` limits and `TnefComplianceOptions.MaxIssuesPerViolation`.
 18. Re-run any tests that compared converted MIME output: header order, dates, inline dispositions
     and the absence of generated headers have changed as described in [TnefPart](#tnefpart).
+
+## Porting checklist
+
+1. Update references to the `MimeKitLite` package to `MimeKit.Core`, and any assembly-qualified type names,
+   binding redirects or trimmer descriptors from `MimeKit` to `MimeKit.Core`.
+2. Add `using MimeKit.Cryptography;` wherever `MimeMessage.Sign ()`, `Encrypt ()` or `SignAndEncrypt ()` is
+   called.
+3. Register an S/MIME context with `CryptographyContext.Register ()` during startup, and call
+   `CryptographyModule.Initialize ()` if messages might be parsed before `CryptographyContext` is used.
+4. Change visitors that override the `Visit*` methods for signed or encrypted entities to derive from
+   `CryptographicMimeVisitor`.
+5. Pass `DigestAlgorithm.Sha1` explicitly if you depend on SHA-1 signatures; otherwise expect SHA-256.
+6. Move digest-preference code from `CryptographyContext`/`ICryptographyContext` to `OpenPgpContext`.
+7. Remove the `DbConnection` parameter from `X509CertificateDatabase` overrides and use `CreateCommand ()`.
+8. Remove serialization constructors and `GetObjectData ()` overrides from subclasses of MimeKit exceptions.
+9. Replace your `IDkimPublicKeyLocator` with an `IDnsResolver` that returns `DnsTxtResponse` results,
+   distinguishing NXDOMAIN from temporary failures.
+10. Change `DkimVerifier.Verify ()` callers to check `result.Status`, and remove `try`/`catch` blocks that
+    treated exceptions as failed signatures.
+11. Pass the private key to the `DkimSigner`, `ArcSigner` and `DkimSignerBase` constructors.
+12. Rename `ExperimentalMimeParser` to `MimeParser`; make sure `MimeParser` subclasses call the base
+    implementation of any `On*` method they override and don't call `ReadHeaders ()`, `ReadEntity ()` or
+    `ReadMessage ()`.
+13. Update `MimeReader` subclasses: the new `OnMboxMarkerRead ()` signature, `OnMultipartBoundaryEnd ()` and
+    `OnMultipartEndBoundaryEnd ()`, and no more trimming of the newline before a boundary.
+14. Set `FormatOptions.EnsureNewLine` when appending messages to an mbox file.
+15. Handle `ArgumentException` from the msg-id setters and `null` instead of `""` for empty msg-ids.
+16. Don't rely on leading or trailing whitespace in address names.
+17. Replace `HtmlTokenizerState.AttributeValueQuoted`, and stop persisting `HtmlTokenizerState` values.
+18. Review `HtmlTagCallback` implementations for `<noscript>` content, which is now passed to the callback,
+    and for the tokenizer changes.
+19. Replace `HtmlToHtml.FilterHtml`, `QEncoder`, `HexEncoder` and `TnefPropertyTag.Puid`.
+20. Port TNEF code using the [TNEF porting checklist](#tnef-porting-checklist).

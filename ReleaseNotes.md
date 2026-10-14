@@ -5,6 +5,7 @@
 MimeKit 5.0 is a major release containing a number of breaking changes. The headline changes are
 the split of the cryptography support into its own assembly, the promotion of the new MIME parser,
 a redesigned TNEF implementation, DMARC validation, and a new MIME compliance violation reporting API.
+See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Breaking Changes
 
@@ -272,7 +273,7 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
     (with `Convert` and `ConvertAsync`), which can render OLE object attachments as images
     ([MS-OXCMAIL] 2.1.3.4.4). OLE attachments that are not rendered are reported as a
     `TnefConversionLossKind.OleObjectNotRendered` loss.
-  * See the [TNEF Porting Guide](TnefPortingGuide.md) for help migrating from MimeKit 4.x.
+  * See the [TNEF section of the Porting Guide](PortingGuide.md#tnef) for help migrating from MimeKit 4.x.
 * Added `TnefWriter` and `TnefPropertyWriter` for producing [MS-OXTNEF] streams, including named
   properties, multi-valued properties, recipient tables, embedded messages and [MS-OXRTFCP]
   compressed RTF.

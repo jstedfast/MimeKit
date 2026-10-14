@@ -7,6 +7,7 @@
 * [Are MimeKit and MailKit completely free? Can I use them in my proprietary product(s)?](#completely-free)
 * [Why do I get `NotSupportedException: No data is available for encoding ######. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.`?](#register-provider)
 * [Why do I get a `TypeLoadException` when I try to create a new MimeMessage?](#type-load-exception)
+* [How do I port my code from MimeKit 4.x to MimeKit 5.0?](#port-to-v5)
 
 ### Messages
 
@@ -77,6 +78,26 @@ for `System.Runtime.CompilerServices.Unsafe`:
   </runtime>
 </configuration>
 ```
+
+### <a name="port-to-v5">Q: How do I port my code from MimeKit 4.x to MimeKit 5.0?</a>
+
+Most applications that reference the `MimeKit` NuGet package only need to make a few changes:
+
+* Add `using MimeKit.Cryptography;` wherever you call `MimeMessage.Sign ()`, `Encrypt ()` or
+  `SignAndEncrypt ()`, which are now extension methods.
+* If you use S/MIME, register a context during startup, because MimeKit no longer registers one by default:
+
+```csharp
+CryptographyContext.Register (() => new DefaultSecureMimeContext ());
+```
+
+* If you use `DkimVerifier` or `ArcVerifier`, replace your `IDkimPublicKeyLocator` with an `IDnsResolver`,
+  and check the `Status` of the `DkimSignatureValidationResult` that `DkimVerifier.Verify ()` now returns.
+* If you use `ExperimentalMimeParser`, rename it to `MimeParser`.
+
+The [Porting Guide](PortingGuide.md) covers every breaking change, including the `MimeKitLite` and
+`MimeKit.Core` packages, the new `MimeParser`, the HTML and message-id behavior changes and the new TNEF API,
+and ends with a porting checklist.
 
 ## Messages
 
@@ -1323,9 +1344,9 @@ using (var tnef = tnefPart.LoadTnefMessage ()) {
 If you don't need MIME conversion, `TnefMessage` gives you the recipients, bodies, attachments and MAPI
 properties directly.
 
-The [TNEF Porting Guide](TnefPortingGuide.md) covers everything else. It has old-to-new mapping tables for
-every member, a compliance-flag-to-violation table, the semantic changes, before/after recipes and a
-porting checklist.
+The [TNEF section of the Porting Guide](PortingGuide.md#tnef) covers everything else. It has old-to-new
+mapping tables for every member, a compliance-flag-to-violation table, the semantic changes, before/after
+recipes and a porting checklist.
 
 ### <a name="convert-rtf">Q: How do I convert RTF to plain text or HTML?</a>
 
