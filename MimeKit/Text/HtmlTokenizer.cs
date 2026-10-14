@@ -295,9 +295,9 @@ namespace MimeKit.Text {
 		// Note: The options are read here, rather than when they are set, so that changes made to them after
 		// the logger was set take effect. This is only reached when an issue is reported, so it is not on the
 		// hot path.
-		void LogIssue (HtmlComplianceViolation violation, long offset, int lineNumber, int linePosition)
+		void LogIssue (HtmlComplianceViolation violation, long offset, int issueLineNumber, int issueLinePosition)
 		{
-			var issue = new HtmlComplianceIssue (violation, offset, lineNumber, linePosition);
+			var issue = new HtmlComplianceIssue (violation, offset, issueLineNumber, issueLinePosition);
 			int limit = complianceOptions.MaxIssuesPerViolation;
 
 			if (limit > 0) {
@@ -1187,9 +1187,9 @@ namespace MimeKit.Text {
 
 		// Logs the parse errors for the character reference that was pushed into the entity decoder and returns the
 		// number of characters in an unknown named character reference (or -1 if it is numeric or a known name).
-		int ValidateCharacterReference (bool attribute, char next)
+		int ValidateCharacterReference (bool inAttribute, char next)
 		{
-			entity.GetComplianceViolations (attribute, next, out var first, out var second);
+			entity.GetComplianceViolations (inAttribute, next, out var first, out var second);
 
 			if (first != HtmlComplianceViolation.None)
 				LogIssueAtMark (first);
@@ -1204,14 +1204,14 @@ namespace MimeKit.Text {
 		//
 		// Note: This state only needs to be emulated in order to report unknown named character references because
 		// the ASCII alphanumeric characters that it consumes would otherwise be consumed as character data anyway.
-		void ReadAmbiguousAmpersand (bool attribute, int length)
+		void ReadAmbiguousAmpersand (bool inAttribute, int length)
 		{
 			char c;
 
 			while (TryPeek (out c) && IsAlphaNumeric (c)) {
 				ConsumeCharacter (c);
 
-				if (attribute)
+				if (inAttribute)
 					name.Append (c);
 
 				data.Append (c);

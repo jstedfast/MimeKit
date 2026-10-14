@@ -1575,9 +1575,9 @@ namespace MimeKit.Tnef {
 				throw new InvalidOperationException ("The reader has been advanced to another attribute.");
 		}
 
-		internal TnefReader CreateEmbeddedReader (Stream stream, long localOffset, TnefPropertyTag propertyTag)
+		internal TnefReader CreateEmbeddedReader (Stream content, long localOffset, TnefPropertyTag propertyTag)
 		{
-			var child = new TnefReader (this, stream, baseOffset + localOffset);
+			var child = new TnefReader (this, content, baseOffset + localOffset);
 
 			if (child.depth > options.MaxNestingDepth) {
 				Log (TnefComplianceViolation.NestingTooDeep, localOffset, propertyTag);

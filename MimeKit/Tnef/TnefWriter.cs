@@ -1,4 +1,4 @@
-//
+﻿//
 // TnefWriter.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -748,11 +748,11 @@ namespace MimeKit.Tnef {
 		public Stream OpenAttributeStream (TnefAttributeTag tag)
 		{
 			var value = BeginChild (tag, nameof (tag));
-			var stream = new TnefValueWriteStream (value, s => OnChildClosed (s, null));
+			var valueStream = new TnefValueWriteStream (value, s => OnChildClosed (s, null));
 
-			SetChild (stream);
+			SetChild (valueStream);
 
-			return stream;
+			return valueStream;
 		}
 
 		/// <summary>

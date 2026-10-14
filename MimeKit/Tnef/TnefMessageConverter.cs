@@ -1547,9 +1547,9 @@ namespace MimeKit.Tnef {
 			HeaderList headers;
 
 			try {
-				var buffer = Encoding.UTF8.GetBytes (text + "\r\n\r\n");
+				var bytes = Encoding.UTF8.GetBytes (text + "\r\n\r\n");
 
-				using (var stream = new MemoryStream (buffer, false))
+				using (var stream = new MemoryStream (bytes, false))
 					headers = HeaderList.Load (ParserOptions.Default, stream, cancellationToken);
 			} catch (FormatException ex) {
 				AddLoss (TnefConversionLossKind.InvalidHeader, $"The transport message headers could not be parsed: {ex.Message}");

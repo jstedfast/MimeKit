@@ -178,10 +178,10 @@ namespace MimeKit.Encodings {
 		// Validates 32-byte blocks consisting of base64 alphabet characters, line feeds and whitespace. Stops at
 		// the first byte that requires special handling ('=', '*' or an invalid character) or when there are
 		// fewer than 32 bytes remaining. Returns a pointer to the first byte that was not consumed.
-		unsafe byte* ValidateVector256 (byte* input, byte* inptr, byte* inend, ref uint total)
+		unsafe byte* ValidateVector256 (byte* input, byte* inptr, byte* inend, ref uint alphabetCount)
 		{
 			// Note: Accumulate into a local rather than updating the ref parameter in every iteration of the loop.
-			uint n = total;
+			uint n = alphabetCount;
 
 			do {
 				var block = Vector256.Load (inptr);
@@ -226,16 +226,16 @@ namespace MimeKit.Encodings {
 					break;
 			} while (inend - inptr >= 32);
 
-			total = n;
+			alphabetCount = n;
 
 			return inptr;
 		}
 
 		// See ValidateVector256() for an explanation of how this works.
-		unsafe byte* ValidateVector128 (byte* input, byte* inptr, byte* inend, ref uint total)
+		unsafe byte* ValidateVector128 (byte* input, byte* inptr, byte* inend, ref uint alphabetCount)
 		{
 			// Note: Accumulate into a local rather than updating the ref parameter in every iteration of the loop.
-			uint n = total;
+			uint n = alphabetCount;
 
 			do {
 				var block = Vector128.Load (inptr);
@@ -278,7 +278,7 @@ namespace MimeKit.Encodings {
 					break;
 			} while (inend - inptr >= 16);
 
-			total = n;
+			alphabetCount = n;
 
 			return inptr;
 		}
