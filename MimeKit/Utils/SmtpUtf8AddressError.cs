@@ -108,7 +108,8 @@ namespace MimeKit.Utils {
 		ContextRule,
 
 		/// <summary>
-		/// The address contains code points from more than one non-ASCII script.
+		/// The address contains code points from more than one non-ASCII script. <c>Han</c>, <c>Hiragana</c> and
+		/// <c>Katakana</c> count as a single script, as do <c>Han</c> and <c>Hangul</c>, and <c>Han</c> and <c>Bopomofo</c>.
 		/// </summary>
 		MixedScripts
 	}

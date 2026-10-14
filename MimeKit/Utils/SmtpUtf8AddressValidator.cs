@@ -50,7 +50,9 @@ namespace MimeKit.Utils {
 	/// <item>The address is in Unicode Normalization Form C (NFC) as defined by
 	/// <a href="https://www.unicode.org/reports/tr15/">Unicode Standard Annex #15</a>.</item>
 	/// <item>The code points belong to no more than one non-ASCII script, where code points in the
-	/// <c>Common</c> and <c>Inherited</c> scripts do not count toward that limit.</item>
+	/// <c>Common</c> and <c>Inherited</c> scripts do not count toward that limit. <c>Han</c>, <c>Hiragana</c>
+	/// and <c>Katakana</c> count as a single script (as used in Japanese), as do <c>Han</c> and <c>Hangul</c>,
+	/// and <c>Han</c> and <c>Bopomofo</c>.</item>
 	/// </list>
 	/// <para>The length limits
 	/// defined in rfc5321 are only enforced when <see cref="SmtpUtf8AddressValidationOptions.EnforceLengthLimits"/>
@@ -960,11 +962,40 @@ namespace MimeKit.Utils {
 			return (entry & 0x8) != 0;
 		}
 
+		[Flags]
+		enum CjkScripts
+		{
+			None = 0,
+			Han = 1 << 0,
+			Hiragana = 1 << 1,
+			Katakana = 1 << 2,
+			Hangul = 1 << 3,
+			Bopomofo = 1 << 4,
+
+			Japanese = Han | Hiragana | Katakana,
+			Korean = Han | Hangul,
+			Chinese = Han | Bopomofo
+		}
+
+		static CjkScripts GetCjkScript (UnicodeScript script)
+		{
+			switch (script) {
+			case UnicodeScript.Han: return CjkScripts.Han;
+			case UnicodeScript.Hiragana: return CjkScripts.Hiragana;
+			case UnicodeScript.Katakana: return CjkScripts.Katakana;
+			case UnicodeScript.Hangul: return CjkScripts.Hangul;
+			case UnicodeScript.Bopomofo: return CjkScripts.Bopomofo;
+			default: return CjkScripts.None;
+			}
+		}
+
 		static SmtpUtf8AddressError ValidateCodePoints (ReadOnlySpan<char> address, int domainIndex, SmtpUtf8AddressValidationOptions options)
 		{
 			bool asciiIsLatin = (options & SmtpUtf8AddressValidationOptions.AsciiIsLatin) != 0;
-			var segmentScript = UnicodeScript.Unknown;
+			bool segmentHasNonLatin = false;
+			bool segmentHasLatin = false;
 			var firstScript = UnicodeScript.Unknown;
+			var cjkScripts = CjkScripts.None;
 			bool hasHiraganaKatakanaOrHan = false;
 			bool hasExtendedArabicIndicDigits = false;
 			bool hasArabicIndicDigits = false;
@@ -981,9 +1012,12 @@ namespace MimeKit.Utils {
 				// for each label of the domain so that (for example) a Cyrillic local-part or a Cyrillic label
 				// under an ASCII top-level domain is not considered to be mixing scripts. The non-ASCII code
 				// points must still all belong to a single script across the whole address so that this option
-				// only ever rejects more addresses.
-				if (asciiIsLatin && index >= domainIndex && (index == domainIndex || address[index] == '.'))
-					segmentScript = UnicodeScript.Unknown;
+				// only ever rejects more addresses. Since that is checked separately, each segment only needs
+				// to check whether it mixes Latin with any other script.
+				if (asciiIsLatin && index >= domainIndex && (index == domainIndex || address[index] == '.')) {
+					segmentHasNonLatin = false;
+					segmentHasLatin = false;
+				}
 
 				index += length;
 
@@ -1022,20 +1056,36 @@ namespace MimeKit.Utils {
 						hasHiraganaKatakanaOrHan = true;
 
 					if (codePoint >= 0x80) {
-						if (firstScript == UnicodeScript.Unknown)
+						var cjk = GetCjkScript (script);
+
+						if (cjk != CjkScripts.None)
+							cjkScripts |= cjk;
+						else if (firstScript == UnicodeScript.Unknown)
 							firstScript = script;
 						else if (script != firstScript)
 							mixedScripts = true;
 					}
 
 					if (asciiIsLatin) {
-						if (segmentScript == UnicodeScript.Unknown)
-							segmentScript = script;
-						else if (script != segmentScript)
+						if (script == UnicodeScript.Latin)
+							segmentHasLatin = true;
+						else
+							segmentHasNonLatin = true;
+
+						if (segmentHasLatin && segmentHasNonLatin)
 							mixedScripts = true;
 					}
 					break;
 				}
+			}
+
+			// draft-ietf-mailmaint-smtputf8-syntax, rule 3: Han, Hiragana and Katakana count as one script since
+			// Japanese uses all three together; so do Han and Hangul, and Han and Bopomofo.
+			if (cjkScripts != CjkScripts.None) {
+				if (firstScript != UnicodeScript.Unknown)
+					mixedScripts = true;
+				else if ((cjkScripts & ~CjkScripts.Japanese) != 0 && (cjkScripts & ~CjkScripts.Korean) != 0 && (cjkScripts & ~CjkScripts.Chinese) != 0)
+					mixedScripts = true;
 			}
 
 			// Note: Every code point that is NFC_Quick_Check=No also has a compatibility decomposition and so has already

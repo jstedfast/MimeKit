@@ -75,9 +75,9 @@ namespace UnitTests.Utils {
 		[TestCase ("\u0627@2\u0627.\u0627", SmtpUtf8AddressError.None, TestName = "TestArnt29ArabicWithDigits")]
 		[TestCase ("\u0627@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt30ArabicWithAscii")]
 		[TestCase ("café@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt31Nfc")]
-		// Note: tests.json considers this valid, but the next draft will require addresses to be in NFC.
+		// Note: draft-ietf-mailmaint-smtputf8-syntax-06 requires addresses to be in NFC.
 		[TestCase ("cafe\u0301@example.com", SmtpUtf8AddressError.NotNormalized, TestName = "TestArnt32Nfd")]
-		// Note: tests.json considers this valid, but the empty atoms are not permitted by the rfc5321 Dot-string syntax.
+		// Note: this was removed from tests.json, but the empty atoms are not permitted by the rfc5321 Dot-string syntax.
 		[TestCase ("..@example.com", SmtpUtf8AddressError.Syntax, TestName = "TestArnt33EmptyAtoms")]
 		[TestCase ("\"john.doe\"@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt34QuotedString")]
 		[TestCase ("\"john doe\"@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt35QuotedStringWithSpace")]
@@ -86,6 +86,8 @@ namespace UnitTests.Utils {
 		[TestCase ("cel·la@example.com", SmtpUtf8AddressError.None, TestName = "TestArnt37MiddleDotBetweenL")]
 		[TestCase ("cex·xa@example.com", SmtpUtf8AddressError.ContextRule, TestName = "TestArnt38MiddleDotNotBetweenL")]
 		[TestCase ("\u0660\u06F0@example.com", SmtpUtf8AddressError.ContextRule, TestName = "TestArnt39MixedArabicIndicDigits")]
+		[TestCase ("まり子@まり子.日本", SmtpUtf8AddressError.None, TestName = "TestArnt40Japanese")]
+		[TestCase ("지훈@まり子.日本", SmtpUtf8AddressError.MixedScripts, TestName = "TestArnt41KoreanAndJapanese")]
 		public void TestArntTestVectors (string address, SmtpUtf8AddressError expected)
 		{
 			AssertValidate (address, expected);
@@ -283,10 +285,15 @@ namespace UnitTests.Utils {
 			AssertValidate (address, expected);
 		}
 
-		// Note: draft-ietf-mailmaint-smtputf8-syntax counts each script separately, so even Japanese text that
-		// mixes Han with Hiragana or Katakana is considered to use more than one script.
-		[TestCase ("名前ひらがな@example.com", TestName = "TestHanAndHiragana")]
-		[TestCase ("ひらがなカタカナ@example.com", TestName = "TestHiraganaAndKatakana")]
+		// draft-ietf-mailmaint-smtputf8-syntax-06 counts {Han, Hiragana, Katakana}, {Han, Hangul} and {Han, Bopomofo}
+		// as a single script, but scripts from different families still may not be mixed.
+		[TestCase ("지훈ひらがな@example.com", TestName = "TestHangulAndHiragana")]
+		[TestCase ("지훈カタカナ@example.com", TestName = "TestHangulAndKatakana")]
+		[TestCase ("지훈\u3105@example.com", TestName = "TestHangulAndBopomofo")]
+		[TestCase ("ひらがな\u3105@example.com", TestName = "TestHiraganaAndBopomofo")]
+		[TestCase ("名前\u3105ひらがな@example.com", TestName = "TestHanBopomofoAndHiragana")]
+		[TestCase ("名前ж@example.com", TestName = "TestHanAndCyrillic")]
+		[TestCase ("ひらがなø@example.com", TestName = "TestHiraganaAndLatin")]
 		[TestCase ("Ωmega@ø.example", TestName = "TestGreekAndLatin")]
 		[TestCase ("user@\u0627.\u05D0", TestName = "TestArabicAndHebrewInDomain")]
 		[TestCase ("\"ø Ω\"@example.com", TestName = "TestMixedScriptsInQuotedString")]
@@ -299,6 +306,20 @@ namespace UnitTests.Utils {
 		[TestCase ("\u30FC\u30A2@example.com", TestName = "TestCommonIsNeutral")]
 		[TestCase ("ø@ø.example", TestName = "TestSameScriptInLocalPartAndDomain")]
 		public void TestNeutralScripts (string address)
+		{
+			AssertValidate (address, SmtpUtf8AddressError.None);
+		}
+
+		// draft-ietf-mailmaint-smtputf8-syntax-06 counts {Han, Hiragana, Katakana}, {Han, Hangul} and {Han, Bopomofo}
+		// as a single script.
+		[TestCase ("名前ひらがな@example.com", TestName = "TestHanAndHiragana")]
+		[TestCase ("ひらがなカタカナ@example.com", TestName = "TestHiraganaAndKatakana")]
+		[TestCase ("名前ひらがなカタカナ@例え.日本", TestName = "TestHanHiraganaAndKatakana")]
+		[TestCase ("김민준@例子.한국", TestName = "TestHanAndHangul")]
+		[TestCase ("\u3105\u3106名@example.com", TestName = "TestHanAndBopomofo")]
+		[TestCase ("지훈@example.com", TestName = "TestHangulOnly")]
+		[TestCase ("\u3105\u3106@example.com", TestName = "TestBopomofoOnly")]
+		public void TestCjkScriptFamilies (string address)
 		{
 			AssertValidate (address, SmtpUtf8AddressError.None);
 		}
@@ -510,6 +531,10 @@ namespace UnitTests.Utils {
 		[TestCase ("user@жλ.example.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinNonAsciiMixedScripts")]
 		[TestCase ("иван@ελ.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinNonAsciiMixedScriptsAcrossLocalPartAndDomain")]
 		[TestCase ("user@ж.λ.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinNonAsciiMixedScriptsAcrossLabels")]
+		[TestCase ("まり子@まり子.日本", SmtpUtf8AddressError.None, TestName = "TestAsciiIsLatinJapanese")]
+		[TestCase ("名前ひらがな@example.com", SmtpUtf8AddressError.None, TestName = "TestAsciiIsLatinJapaneseLocalPart")]
+		[TestCase ("まり子a@example.com", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinJapaneseAndAscii")]
+		[TestCase ("지훈@まり子.日本", SmtpUtf8AddressError.MixedScripts, TestName = "TestAsciiIsLatinKoreanAndJapanese")]
 		public void TestAsciiIsLatin (string address, SmtpUtf8AddressError expected)
 		{
 			AssertValidate (address, SmtpUtf8AddressValidationOptions.AsciiIsLatin, expected);
