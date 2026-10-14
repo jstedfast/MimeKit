@@ -235,6 +235,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
     bounded allocations, async equivalents and resilient recovery from corrupt or truncated streams.
   * `TnefComplianceMode` and `TnefComplianceStatus` were replaced by `TnefOptions`, `ITnefComplianceLogger`
     and `TnefComplianceViolation`. There is no longer a strict mode that throws on the first violation.
+    `TnefReader.ComplianceOptions` (a `TnefComplianceOptions`) controls how violations are reported;
+    `MaxIssuesPerViolation` caps how many times each violation is reported per stream.
   * Added a `TnefMessage` object model (`TnefAttachment`, `TnefRecipient`, `TnefMessageBody`,
     `TnefPropertySet`) loaded via `TnefMessage.Load[Async] ()` or `TnefPart.LoadTnefMessage[Async] ()`.
   * Replaced `TnefPart.ConvertToMessage ()` and `TnefPart.ExtractAttachments ()` with
@@ -327,8 +329,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   to an `IRtfComplianceLogger` implementation to receive an `RtfComplianceIssue` for each `RtfComplianceViolation`
   found while converting (for example, a missing `\rtf1` header, invalid hex escapes, unbalanced groups, undefined
   fonts or exceeded table and depth limits). Each issue carries a byte offset, line and column numbers and the group
-  depth. `MaxComplianceIssuesPerViolation` caps how many times each violation is reported per document (`0`, the
-  default, means no limit), and a single `TooManyComplianceIssues` is logged when a cap is reached.
+  depth. `RtfToText.ComplianceOptions` and `RtfToHtml.ComplianceOptions` (an `RtfComplianceOptions`) control how
+  violations are reported: `MaxIssuesPerViolation` caps how many times each violation is reported per document
+  (`0`, the default, means no limit), and a single `TooManyComplianceIssues` is logged when a cap is reached.
 * Added HTML compliance violation reporting. Set `HtmlTokenizer.ComplianceLogger` or `HtmlToHtml.ComplianceLogger`
   to an `IHtmlComplianceLogger` implementation to receive an `HtmlComplianceIssue` for each `HtmlComplianceViolation`
   found while tokenizing. The violations are the parse errors defined by the HTML specification's tokenizer (for
@@ -336,8 +339,8 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   unterminated character references), plus `NestedComment`, `UnknownNamedCharacterReference` and
   `ElementDepthLimitExceeded`. Each issue carries a character offset and line and column numbers. Character
   references are checked even when `DecodeCharacterReferences` is `false` (as it is for `HtmlToHtml`), without
-  changing the output. `MaxComplianceIssuesPerViolation` works the same way as it does for the RTF
-  converters.
+  changing the output. `HtmlTokenizer.ComplianceOptions` and `HtmlToHtml.ComplianceOptions` (an
+  `HtmlComplianceOptions`) work the same way as they do for the RTF converters.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).

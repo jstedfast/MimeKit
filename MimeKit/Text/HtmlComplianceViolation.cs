@@ -496,7 +496,7 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// <para>This is not a defect in the document. It is reported once, in place of the first issue
 		/// that was suppressed because its violation had already been reported the maximum number of
-		/// times allowed by <see cref="HtmlTokenizer.MaxComplianceIssuesPerViolation"/>.</para>
+		/// times allowed by <see cref="HtmlComplianceOptions.MaxIssuesPerViolation"/>.</para>
 		/// <para>Its value lies outside of the range of the other members so that it is never mistaken
 		/// for a violation that a later version of MimeKit adds.</para>
 		/// </remarks>

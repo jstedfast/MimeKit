@@ -40,7 +40,7 @@ namespace MimeKit.Fuzzing.Helpers {
 		bool reachedCap;
 		bool truncated;
 
-		// cap: the TnefReader.MaxComplianceIssuesPerViolation in effect for a single budget, or -1 when the
+		// cap: the TnefComplianceOptions.MaxIssuesPerViolation in effect for a single budget, or -1 when the
 		// issues may come from more than one budget (e.g. TnefMessage loads embedded messages with detached
 		// readers that each have their own budget), in which case the cap cannot be verified.
 		public TnefComplianceChecker (int cap, int maxDepth, long streamLength)

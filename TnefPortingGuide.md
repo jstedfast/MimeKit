@@ -178,7 +178,7 @@ If you only need the raw attachment bytes, skip MIME conversion entirely and use
 | `ComplianceMode` | — | Removed. |
 | `ComplianceStatus` | `ComplianceLogger` | See [Compliance](#compliance-tnefcompliancestatus-and-tnefcompliancemode). |
 | `ResetComplianceStatus ()` | — | Removed; use a new logger. |
-| — | `MaxComplianceIssuesPerViolation` | Caps repeated reports. Set this when reading untrusted input. |
+| — | `ComplianceOptions` | A `TnefComplianceOptions`; its `MaxIssuesPerViolation` caps repeated reports. Set this when reading untrusted input. |
 | — | `Depth` | Embedded-message nesting depth (0 for the outermost stream). |
 | — | `Options` | The `TnefOptions` the reader was created with. |
 | `Close ()` | `Dispose ()` | |
@@ -305,7 +305,7 @@ found in, a `Severity`, a `Description` and `Remarks`.
 | `reader.ResetComplianceStatus ()` | Clear your logger's state. |
 | `status.HasFlag (TnefComplianceStatus.X)` | `issues.Any (i => i.Violation == TnefComplianceViolation.X)` |
 
-When reading untrusted streams, bound the number of issues with `reader.MaxComplianceIssuesPerViolation`
+When reading untrusted streams, bound the number of issues with `reader.ComplianceOptions.MaxIssuesPerViolation`
 or have your logger stop recording after a limit of its own. To get a logger into `TnefMessage`, create the
 reader yourself and call `TnefMessage.Load (TnefReader)` (see [Collect compliance issues](#collect-compliance-issues)).
 
@@ -610,7 +610,9 @@ class TnefIssueCollector : ITnefComplianceLogger
 
 var collector = new TnefIssueCollector ();
 
-using (var reader = new TnefReader (stream, leaveOpen: true) { ComplianceLogger = collector, MaxComplianceIssuesPerViolation = 16 }) {
+using (var reader = new TnefReader (stream, leaveOpen: true) { ComplianceLogger = collector }) {
+	reader.ComplianceOptions.MaxIssuesPerViolation = 16;
+
 	using (var tnef = TnefMessage.Load (reader)) {
 		// ...
 	}
@@ -737,6 +739,6 @@ property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
 15. Remove `try`/`catch` blocks that existed only to survive malformed TNEF (`EndOfStreamException`,
     `TnefException` from reading); keep the one around `TnefMessage.Load ()` for non-TNEF input.
 16. Rename `InternetCPID` → `InternetCodepage`; replace `TnefPropertyTag.Puid` with `PuidA`/`PuidW`.
-17. For untrusted input, set `TnefOptions` limits and `MaxComplianceIssuesPerViolation`.
+17. For untrusted input, set `TnefOptions` limits and `TnefComplianceOptions.MaxIssuesPerViolation`.
 18. Re-run any tests that compared converted MIME output: header order, dates, inline dispositions
     and the absence of generated headers have changed as described in [TnefPart](#tnefpart).

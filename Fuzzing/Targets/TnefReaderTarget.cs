@@ -71,7 +71,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 			using (var reader = new TnefReader (new MemoryStream (input, false), CreateOptions (), false)) {
 				reader.ComplianceLogger = checker;
-				reader.MaxComplianceIssuesPerViolation = cap;
+				reader.ComplianceOptions = new TnefComplianceOptions { MaxIssuesPerViolation = cap };
 
 				try {
 					if (useAsync)

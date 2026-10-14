@@ -43,7 +43,7 @@ namespace MimeKit.Text {
 	{
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
-		int maxComplianceIssuesPerViolation;
+		HtmlComplianceOptions complianceOptions = HtmlComplianceOptions.Default.Clone ();
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlToHtml"/> class.
@@ -167,30 +167,28 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// Get or set the options that control how HTML compliance violations are reported.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets the maximum number of times that each compliance violation may be
-		/// reported while converting a single document. The default is <c>0</c>, which means that no limit
-		/// is applied.</para>
-		/// <para>The number of issues an HTML document can produce is bounded only by its size, and the
-		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when converting
-		/// untrusted documents.</para>
-		/// <para>When some violation reaches the limit, a single
-		/// <see cref="HtmlComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
-		/// report is never silently incomplete.</para>
+		/// <para>Gets or sets the options that control how HTML compliance violations are reported.
+		/// These options only have an effect when a <see cref="ComplianceLogger"/> has been set.</para>
+		/// <para>Limits apply to each document separately: the count of reported issues restarts with
+		/// every conversion.</para>
 		/// </remarks>
-		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="value"/> is negative.
+		/// <value>The compliance options.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public int MaxComplianceIssuesPerViolation {
-			get { return maxComplianceIssuesPerViolation; }
+		public HtmlComplianceOptions ComplianceOptions {
+			get { return complianceOptions; }
 			set {
-				if (value < 0)
-					throw new ArgumentOutOfRangeException (nameof (value));
+				if (value is null)
+					throw new ArgumentNullException (nameof (value));
 
-				maxComplianceIssuesPerViolation = value;
+				if (value == HtmlComplianceOptions.Default)
+					complianceOptions = value.Clone ();
+				else
+					complianceOptions = value;
 			}
 		}
 
@@ -358,7 +356,7 @@ namespace MimeKit.Text {
 					IgnoreTruncatedTags = true,
 					MaxElementDepth = maxElementDepth,
 					ComplianceLogger = ComplianceLogger,
-					MaxComplianceIssuesPerViolation = maxComplianceIssuesPerViolation,
+					ComplianceOptions = complianceOptions,
 					ReuseDataTokens = true
 				};
 				var openElements = tokenizer.OpenElements;

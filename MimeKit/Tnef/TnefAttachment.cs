@@ -313,7 +313,7 @@ namespace MimeKit.Tnef {
 	sealed class TnefEmbeddedMessageContext
 	{
 		readonly ITnefComplianceLogger? complianceLogger;
-		readonly int maxComplianceIssuesPerViolation;
+		readonly TnefComplianceOptions complianceOptions;
 		readonly TnefOptions options;
 		readonly Encoding encoding;
 		readonly long baseOffset;
@@ -321,7 +321,7 @@ namespace MimeKit.Tnef {
 
 		public TnefEmbeddedMessageContext (TnefReader reader, long baseOffset)
 		{
-			maxComplianceIssuesPerViolation = reader.MaxComplianceIssuesPerViolation;
+			complianceOptions = reader.ComplianceOptions.Clone ();
 			complianceLogger = reader.ComplianceLogger;
 			options = reader.Options;
 			encoding = reader.Encoding;
@@ -331,7 +331,7 @@ namespace MimeKit.Tnef {
 
 		public TnefReader CreateReader (Stream stream)
 		{
-			return TnefReader.CreateDetached (stream, options, depth, baseOffset, encoding, complianceLogger, maxComplianceIssuesPerViolation);
+			return TnefReader.CreateDetached (stream, options, depth, baseOffset, encoding, complianceLogger, complianceOptions);
 		}
 	}
 }

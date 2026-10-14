@@ -154,7 +154,7 @@ it.
   leaks instead of permitted allocations:
   - `ParserOptions.MaxMimeDepth` and `MaxAddressGroupDepth`
   - `TnefOptions.MaxNestingDepth`, `MaxPropertyValueLength`, `MaxTotalDataBytes`, `MaxAttachments`
-  - `MimeReader.MaxComplianceIssuesPerViolation` and `TnefReader.MaxComplianceIssuesPerViolation`
+  - `MimeComplianceOptions.MaxIssuesPerViolation` and `TnefComplianceOptions.MaxIssuesPerViolation`
 - A slow-unit (`-report_slow_units`) or timeout finding is a bug: an input that is linear in size
   must parse in linear time.
 

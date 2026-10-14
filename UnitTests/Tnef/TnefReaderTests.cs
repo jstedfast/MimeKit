@@ -82,7 +82,31 @@ namespace UnitTests.Tnef {
 			using var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"));
 			using var reader = new TnefReader (stream);
 
-			Assert.Throws<ArgumentOutOfRangeException> (() => reader.MaxComplianceIssuesPerViolation = -1);
+			Assert.Throws<ArgumentNullException> (() => reader.ComplianceOptions = null);
+			Assert.Throws<ArgumentOutOfRangeException> (() => new TnefComplianceOptions { MaxIssuesPerViolation = -1 });
+		}
+
+		[Test]
+		public void TestComplianceOptions ()
+		{
+			using var stream = File.OpenRead (Path.Combine (DataDir, "winmail.tnef"));
+			using var reader = new TnefReader (stream);
+
+			Assert.That (reader.ComplianceOptions, Is.Not.SameAs (TnefComplianceOptions.Default), "Default should be a copy");
+			Assert.That (reader.ComplianceOptions.MaxIssuesPerViolation, Is.EqualTo (0));
+			Assert.That (TnefComplianceOptions.Default.MaxIssuesPerViolation, Is.EqualTo (0));
+
+			var options = new TnefComplianceOptions { MaxIssuesPerViolation = 4 };
+			var clone = options.Clone ();
+
+			Assert.That (clone, Is.Not.SameAs (options));
+			Assert.That (clone.MaxIssuesPerViolation, Is.EqualTo (4));
+
+			reader.ComplianceOptions = options;
+			Assert.That (reader.ComplianceOptions, Is.SameAs (options));
+
+			reader.ComplianceOptions = TnefComplianceOptions.Default;
+			Assert.That (reader.ComplianceOptions, Is.Not.SameAs (TnefComplianceOptions.Default), "Setting Default should store a copy");
 		}
 
 		#endregion
@@ -491,7 +515,7 @@ namespace UnitTests.Tnef {
 		#region Compliance issue cap
 
 		[Test]
-		public void TestMaxComplianceIssuesPerViolationCap ()
+		public void TestMaxIssuesPerViolationCap ()
 		{
 			var logger = new TestTnefComplianceLogger ();
 			var builder = new TnefBuilder ();
@@ -501,8 +525,8 @@ namespace UnitTests.Tnef {
 				builder.WriteAttribute (TnefAttributeLevel.Message, unknown, new byte[] { 0 });
 
 			using var reader = new TnefReader (builder.ToStream ()) {
-				ComplianceLogger = logger,
-				MaxComplianceIssuesPerViolation = 3
+				ComplianceOptions = new TnefComplianceOptions { MaxIssuesPerViolation = 3 },
+				ComplianceLogger = logger
 			};
 
 			while (reader.Read ())
@@ -513,7 +537,7 @@ namespace UnitTests.Tnef {
 		}
 
 		[Test]
-		public async Task TestMaxComplianceIssuesPerViolationCapAsync ()
+		public async Task TestMaxIssuesPerViolationCapAsync ()
 		{
 			var logger = new TestTnefComplianceLogger ();
 			var builder = new TnefBuilder ();
@@ -523,9 +547,11 @@ namespace UnitTests.Tnef {
 				builder.WriteAttribute (TnefAttributeLevel.Message, unknown, new byte[] { 0 });
 
 			using var reader = new TnefReader (builder.ToStream ()) {
-				ComplianceLogger = logger,
-				MaxComplianceIssuesPerViolation = 3
+				ComplianceLogger = logger
 			};
+
+			// Note: The options are read when the stream starts, so changes made after setting the logger apply.
+			reader.ComplianceOptions.MaxIssuesPerViolation = 3;
 
 			while (await reader.ReadAsync ())
 				;

@@ -78,6 +78,17 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
+		/// Get the maximum number of times that each violation may be reported.
+		/// </summary>
+		/// <remarks>
+		/// Gets the maximum number of times that each violation may be reported.
+		/// </remarks>
+		/// <value>The limit.</value>
+		public int Limit {
+			get { return limit; }
+		}
+
+		/// <summary>
 		/// Reset the budget.
 		/// </summary>
 		/// <remarks>

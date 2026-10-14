@@ -97,10 +97,10 @@ namespace UnitTests.Text {
 		};
 
 		[Test]
-		public void TestRtfToTextMaxComplianceIssuesPerViolation ()
+		public void TestRtfToTextMaxIssuesPerViolation ()
 		{
 			var logger = new TestRtfComplianceLogger ();
-			var converter = new RtfToText { ComplianceLogger = logger, MaxComplianceIssuesPerViolation = 2 };
+			var converter = new RtfToText { ComplianceLogger = logger, ComplianceOptions = new RtfComplianceOptions { MaxIssuesPerViolation = 2 } };
 
 			converter.Convert (Flood);
 			Assert.That (Violations (logger), Is.EqualTo (CappedFlood), "first document");
@@ -112,17 +112,17 @@ namespace UnitTests.Text {
 
 			// 0 means that no limit is applied.
 			logger.Issues.Clear ();
-			converter.MaxComplianceIssuesPerViolation = 0;
+			converter.ComplianceOptions.MaxIssuesPerViolation = 0;
 			converter.Convert (Flood);
 			Assert.That (logger.Issues.Count (issue => issue.Violation == RtfComplianceViolation.InvalidHexEscape), Is.EqualTo (5), "unlimited");
 			Assert.That (logger.Issues.Any (issue => issue.Violation == RtfComplianceViolation.TooManyComplianceIssues), Is.False, "unlimited");
 		}
 
 		[Test]
-		public void TestRtfToHtmlMaxComplianceIssuesPerViolation ()
+		public void TestRtfToHtmlMaxIssuesPerViolation ()
 		{
 			var logger = new TestRtfComplianceLogger ();
-			var converter = new RtfToHtml { ComplianceLogger = logger, MaxComplianceIssuesPerViolation = 2 };
+			var converter = new RtfToHtml { ComplianceLogger = logger, ComplianceOptions = new RtfComplianceOptions { MaxIssuesPerViolation = 2 } };
 
 			converter.Convert (Flood);
 			Assert.That (Violations (logger), Is.EqualTo (CappedFlood), "first document");
@@ -132,10 +132,39 @@ namespace UnitTests.Text {
 			Assert.That (Violations (logger), Is.EqualTo (CappedFlood), "second document");
 
 			logger.Issues.Clear ();
-			converter.MaxComplianceIssuesPerViolation = 0;
+			converter.ComplianceOptions.MaxIssuesPerViolation = 0;
 			converter.Convert (Flood);
 			Assert.That (logger.Issues.Count (issue => issue.Violation == RtfComplianceViolation.InvalidHexEscape), Is.EqualTo (5), "unlimited");
 			Assert.That (logger.Issues.Any (issue => issue.Violation == RtfComplianceViolation.TooManyComplianceIssues), Is.False, "unlimited");
+		}
+
+		[Test]
+		public void TestComplianceOptions ()
+		{
+			var text = new RtfToText ();
+			var html = new RtfToHtml ();
+
+			Assert.That (text.ComplianceOptions, Is.Not.SameAs (RtfComplianceOptions.Default), "RtfToText default should be a copy");
+			Assert.That (html.ComplianceOptions, Is.Not.SameAs (RtfComplianceOptions.Default), "RtfToHtml default should be a copy");
+			Assert.That (RtfComplianceOptions.Default.MaxIssuesPerViolation, Is.EqualTo (0));
+
+			var options = new RtfComplianceOptions { MaxIssuesPerViolation = 7 };
+			var clone = options.Clone ();
+
+			Assert.That (clone, Is.Not.SameAs (options));
+			Assert.That (clone.MaxIssuesPerViolation, Is.EqualTo (7));
+
+			text.ComplianceOptions = options;
+			html.ComplianceOptions = options;
+			Assert.That (text.ComplianceOptions, Is.SameAs (options));
+			Assert.That (html.ComplianceOptions, Is.SameAs (options));
+
+			text.ComplianceOptions = RtfComplianceOptions.Default;
+			html.ComplianceOptions = RtfComplianceOptions.Default;
+			Assert.That (text.ComplianceOptions, Is.Not.SameAs (RtfComplianceOptions.Default), "RtfToText should copy Default");
+			Assert.That (html.ComplianceOptions, Is.Not.SameAs (RtfComplianceOptions.Default), "RtfToHtml should copy Default");
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxIssuesPerViolation = -1);
 		}
 	}
 }

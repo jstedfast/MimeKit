@@ -57,7 +57,7 @@ namespace MimeKit.Text {
 
 		int maxFontTableEntries = DefaultLimit;
 		int maxColorTableEntries = DefaultLimit;
-		int maxComplianceIssuesPerViolation;
+		RtfComplianceOptions complianceOptions = RtfComplianceOptions.Default.Clone ();
 		int maxGroupDepth = DefaultLimit;
 
 		/// <summary>
@@ -175,26 +175,21 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// Get or set the options that control how RTF compliance violations are reported.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets the maximum number of times that each compliance violation may be
-		/// reported while converting a single document. The default is <c>0</c>, which means that no limit
-		/// is applied.</para>
-		/// <para>The number of issues an RTF document can produce is bounded only by its size, and the
-		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when converting
-		/// untrusted documents.</para>
-		/// <para>When some violation reaches the limit, a single
-		/// <see cref="RtfComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
-		/// report is never silently incomplete.</para>
+		/// <para>Gets or sets the options that control how RTF compliance violations are reported.
+		/// These options only have an effect when a <see cref="ComplianceLogger"/> has been set.</para>
+		/// <para>Limits apply to each document separately: the count of reported issues restarts with
+		/// every conversion.</para>
 		/// </remarks>
-		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="value"/> is negative.
+		/// <value>The compliance options.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public int MaxComplianceIssuesPerViolation {
-			get { return maxComplianceIssuesPerViolation; }
-			set { maxComplianceIssuesPerViolation = ValidateComplianceLimit (value); }
+		public RtfComplianceOptions ComplianceOptions {
+			get { return complianceOptions; }
+			set { complianceOptions = ValidateComplianceOptions (value); }
 		}
 
 		internal static int ValidateLimit (int value)
@@ -205,19 +200,21 @@ namespace MimeKit.Text {
 			return value;
 		}
 
-		internal static int ValidateComplianceLimit (int value)
+		internal static RtfComplianceOptions ValidateComplianceOptions (RtfComplianceOptions value)
 		{
-			if (value < 0)
-				throw new ArgumentOutOfRangeException (nameof (value));
+			if (value is null)
+				throw new ArgumentNullException (nameof (value));
 
-			return value;
+			return value == RtfComplianceOptions.Default ? value.Clone () : value;
 		}
 
 		// A new capped logger is created for each conversion so that the budget applies per document.
-		internal static IRtfComplianceLogger? CreateComplianceLogger (IRtfComplianceLogger? logger, int maxComplianceIssuesPerViolation)
+		internal static IRtfComplianceLogger? CreateComplianceLogger (IRtfComplianceLogger? logger, RtfComplianceOptions options)
 		{
-			if (logger != null && maxComplianceIssuesPerViolation > 0)
-				return new RtfCappedComplianceLogger (logger, maxComplianceIssuesPerViolation);
+			int limit = options.MaxIssuesPerViolation;
+
+			if (logger != null && limit > 0)
+				return new RtfCappedComplianceLogger (logger, limit);
 
 			return logger;
 		}
@@ -345,7 +342,7 @@ namespace MimeKit.Text {
 			// (including the \htmlrtf blocks) is a faithful rendering of the HTML, and is much better suited to
 			// producing plain text than the HTML markup would be.
 			var interpreter = new RtfInterpreter (reader, new TextHandler (writer, AttachmentPlaceholderCallback), MaxGroupDepth, MaxFontTableEntries, MaxColorTableEntries) {
-				ComplianceLogger = CreateComplianceLogger (ComplianceLogger, MaxComplianceIssuesPerViolation),
+				ComplianceLogger = CreateComplianceLogger (ComplianceLogger, complianceOptions),
 				ExtractHtml = false
 			};
 

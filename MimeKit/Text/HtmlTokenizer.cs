@@ -69,9 +69,9 @@ namespace MimeKit.Text {
 		int bufferIndex, bufferEnd;
 		long bufferOffset;
 
-		IHtmlComplianceLogger? complianceLogger;
+		HtmlComplianceOptions complianceOptions = HtmlComplianceOptions.Default.Clone ();
+		HtmlCappedComplianceLogger? cappedLogger;
 		IHtmlComplianceLogger? logger;
-		int maxComplianceIssuesPerViolation;
 		bool reportedElementDepthLimitExceeded;
 		bool nestedComment;
 		HashSet<string>? attributeNames;
@@ -257,53 +257,58 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The HTML compliance logger.</value>
 		public IHtmlComplianceLogger? ComplianceLogger {
-			get { return complianceLogger; }
+			get { return logger; }
 			set {
-				complianceLogger = value;
-				UpdateComplianceLogger ();
+				cappedLogger = null;
+				logger = value;
 			}
 		}
 
 		/// <summary>
-		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// Get or set the options that control how HTML compliance violations are reported.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets the maximum number of times that each compliance violation may be
-		/// reported. The default is <c>0</c>, which means that no limit is applied.</para>
-		/// <para>The number of issues an HTML document can produce is bounded only by its size, and the
-		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when tokenizing
-		/// untrusted documents.</para>
-		/// <para>When some violation reaches the limit, a single
-		/// <see cref="HtmlComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
-		/// report is never silently incomplete.</para>
-		/// <para>Setting either this property or <see cref="ComplianceLogger"/> restarts the count.</para>
+		/// <para>Gets or sets the options that control how HTML compliance violations are reported.
+		/// These options only have an effect when a <see cref="ComplianceLogger"/> has been set.</para>
+		/// <para>Setting either this property or <see cref="ComplianceLogger"/>, or changing
+		/// <see cref="HtmlComplianceOptions.MaxIssuesPerViolation"/>, restarts the count of reported issues.</para>
 		/// </remarks>
-		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="value"/> is negative.
+		/// <value>The compliance options.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public int MaxComplianceIssuesPerViolation {
-			get { return maxComplianceIssuesPerViolation; }
+		public HtmlComplianceOptions ComplianceOptions {
+			get { return complianceOptions; }
 			set {
-				if (value < 0)
-					throw new ArgumentOutOfRangeException (nameof (value));
+				if (value is null)
+					throw new ArgumentNullException (nameof (value));
 
-				maxComplianceIssuesPerViolation = value;
-				UpdateComplianceLogger ();
+				if (value == HtmlComplianceOptions.Default)
+					complianceOptions = value.Clone ();
+				else
+					complianceOptions = value;
+
+				cappedLogger = null;
 			}
 		}
 
-		void UpdateComplianceLogger ()
-		{
-			if (complianceLogger != null && maxComplianceIssuesPerViolation > 0)
-				logger = new HtmlCappedComplianceLogger (complianceLogger, maxComplianceIssuesPerViolation);
-			else
-				logger = complianceLogger;
-		}
-
+		// Note: The options are read here, rather than when they are set, so that changes made to them after
+		// the logger was set take effect. This is only reached when an issue is reported, so it is not on the
+		// hot path.
 		void LogIssue (HtmlComplianceViolation violation, long offset, int lineNumber, int linePosition)
 		{
-			logger!.Log (new HtmlComplianceIssue (violation, offset, lineNumber, linePosition));
+			var issue = new HtmlComplianceIssue (violation, offset, lineNumber, linePosition);
+			int limit = complianceOptions.MaxIssuesPerViolation;
+
+			if (limit > 0) {
+				if (cappedLogger is null || cappedLogger.Limit != limit)
+					cappedLogger = new HtmlCappedComplianceLogger (logger!, limit);
+
+				cappedLogger.Log (issue);
+			} else {
+				cappedLogger = null;
+				logger!.Log (issue);
+			}
 		}
 
 		// Reports a violation at the position of the next (not yet consumed) character, or at the end of the input.

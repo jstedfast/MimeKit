@@ -31,6 +31,7 @@ using System.Buffers;
 using System.Threading;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using MimeKit.IO;
 using MimeKit.Utils;
@@ -98,7 +99,7 @@ namespace MimeKit.Tnef {
 
 		ITnefComplianceLogger? userComplianceLogger;
 		ITnefComplianceLogger? complianceLogger;
-		int maxComplianceIssuesPerViolation;
+		TnefComplianceOptions complianceOptions;
 		bool inheritedComplianceLogger;
 
 		int inputIndex, inputEnd;
@@ -154,6 +155,8 @@ namespace MimeKit.Tnef {
 			this.stream = stream;
 			root = this;
 
+			ComplianceOptions = TnefComplianceOptions.Default;
+
 			if (this.options.DefaultCodepage != 0) {
 				// Note: If the host cannot provide the requested codepage (which is common on Linux, where
 				// most Windows codepages are unavailable unless the application has registered the
@@ -178,7 +181,7 @@ namespace MimeKit.Tnef {
 			codepage = parent.codepage;
 			userComplianceLogger = parent.userComplianceLogger;
 			complianceLogger = parent.complianceLogger;
-			maxComplianceIssuesPerViolation = parent.maxComplianceIssuesPerViolation;
+			complianceOptions = parent.complianceOptions;
 			inheritedComplianceLogger = true;
 			this.baseOffset = baseOffset;
 			this.stream = stream;
@@ -190,7 +193,7 @@ namespace MimeKit.Tnef {
 		// Creates a reader for a TNEF message that was embedded within the value of a MAPI property of some other
 		// TNEF stream that has already been read into memory (without the IID prefix). Unlike an embedded reader
 		// created by CreateEmbeddedReader, a detached reader has its own data budget.
-		TnefReader (Stream stream, TnefOptions options, int depth, long baseOffset, Encoding encoding, ITnefComplianceLogger? complianceLogger, int maxComplianceIssuesPerViolation)
+		TnefReader (Stream stream, TnefOptions options, int depth, long baseOffset, Encoding encoding, ITnefComplianceLogger? complianceLogger, TnefComplianceOptions complianceOptions)
 		{
 			dataBytesRemaining = options.MaxTotalDataBytes;
 			this.options = options;
@@ -200,7 +203,7 @@ namespace MimeKit.Tnef {
 			this.depth = depth;
 			codepage = encoding.CodePage;
 			userComplianceLogger = complianceLogger;
-			this.maxComplianceIssuesPerViolation = maxComplianceIssuesPerViolation;
+			this.complianceOptions = complianceOptions;
 			UpdateComplianceLogger ();
 			leaveOpen = false;
 			root = this;
@@ -212,9 +215,9 @@ namespace MimeKit.Tnef {
 			}
 		}
 
-		internal static TnefReader CreateDetached (Stream stream, TnefOptions options, int depth, long baseOffset, Encoding encoding, ITnefComplianceLogger? complianceLogger, int maxComplianceIssuesPerViolation)
+		internal static TnefReader CreateDetached (Stream stream, TnefOptions options, int depth, long baseOffset, Encoding encoding, ITnefComplianceLogger? complianceLogger, TnefComplianceOptions complianceOptions)
 		{
-			return new TnefReader (stream, options, depth, baseOffset, encoding, complianceLogger, maxComplianceIssuesPerViolation);
+			return new TnefReader (stream, options, depth, baseOffset, encoding, complianceLogger, complianceOptions);
 		}
 
 		/// <summary>
@@ -239,30 +242,32 @@ namespace MimeKit.Tnef {
 		}
 
 		/// <summary>
-		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// Get or set the options that control how TNEF compliance violations are reported.
 		/// </summary>
 		/// <remarks>
-		/// <para>Gets or sets the maximum number of times that each compliance violation may be
-		/// reported while reading a single TNEF stream. The default is <c>0</c>, which means that no limit
-		/// is applied.</para>
-		/// <para>The number of issues a TNEF stream can produce is bounded only by its size, and the
-		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when reading
-		/// untrusted streams.</para>
-		/// <para>When some violation reaches the limit, a single
-		/// <see cref="TnefComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
-		/// report is never silently incomplete.</para>
+		/// <para>Gets or sets the options that control how TNEF compliance violations are reported.
+		/// These options only have an effect when a <see cref="ComplianceLogger"/> has been set.</para>
+		/// <para>The options are read at the start of the TNEF stream, so changes made while the stream
+		/// is being read take effect the next time a stream is read.</para>
+		/// <para>Readers created by <see cref="TnefPropertyReader.OpenEmbeddedMessage"/> share the options
+		/// of the reader that created them.</para>
 		/// </remarks>
-		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
-		/// <exception cref="System.ArgumentOutOfRangeException">
-		/// <paramref name="value"/> is negative.
+		/// <value>The compliance options.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
-		public int MaxComplianceIssuesPerViolation {
-			get { return maxComplianceIssuesPerViolation; }
+		public TnefComplianceOptions ComplianceOptions {
+			get { return complianceOptions; }
+			[MemberNotNull (nameof (complianceOptions))]
 			set {
-				if (value < 0)
-					throw new ArgumentOutOfRangeException (nameof (value));
+				if (value is null)
+					throw new ArgumentNullException (nameof (value));
 
-				maxComplianceIssuesPerViolation = value;
+				if (value == TnefComplianceOptions.Default)
+					complianceOptions = value.Clone ();
+				else
+					complianceOptions = value;
+
 				inheritedComplianceLogger = false;
 				UpdateComplianceLogger ();
 			}
@@ -434,18 +439,25 @@ namespace MimeKit.Tnef {
 
 		void UpdateComplianceLogger ()
 		{
-			if (userComplianceLogger != null && maxComplianceIssuesPerViolation > 0)
-				complianceLogger = new TnefCappedComplianceLogger (userComplianceLogger, maxComplianceIssuesPerViolation);
-			else
+			int limit = complianceOptions.MaxIssuesPerViolation;
+
+			if (userComplianceLogger != null && limit > 0) {
+				if (complianceLogger is TnefCappedComplianceLogger capped && ReferenceEquals (capped.InnerLogger, userComplianceLogger) && capped.Limit == limit)
+					capped.Reset ();
+				else
+					complianceLogger = new TnefCappedComplianceLogger (userComplianceLogger, limit);
+			} else {
 				complianceLogger = userComplianceLogger;
+			}
 		}
 
 		// Note: A reader for an embedded message shares the budget of the reader that created it, so only a
-		// reader that owns its logger resets the budget.
+		// reader that owns its logger resets the budget. The options are re-read here so that changes made to
+		// them after the logger was set take effect.
 		void ResetComplianceBudget ()
 		{
 			if (!inheritedComplianceLogger)
-				(complianceLogger as TnefCappedComplianceLogger)?.Reset ();
+				UpdateComplianceLogger ();
 		}
 
 		void CheckDisposed ()

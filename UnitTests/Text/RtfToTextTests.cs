@@ -55,7 +55,7 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxColorTableEntries = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxGroupDepth = 0);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxGroupDepth = -1);
-			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxComplianceIssuesPerViolation = -1);
+			Assert.Throws<ArgumentNullException> (() => converter.ComplianceOptions = null);
 
 			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
 			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
@@ -85,7 +85,7 @@ namespace UnitTests.Text {
 			Assert.That (converter.MaxFontTableEntries, Is.EqualTo (4096), "MaxFontTableEntries");
 			Assert.That (converter.MaxColorTableEntries, Is.EqualTo (4096), "MaxColorTableEntries");
 			Assert.That (converter.ComplianceLogger, Is.Null, "ComplianceLogger");
-			Assert.That (converter.MaxComplianceIssuesPerViolation, Is.EqualTo (0), "MaxComplianceIssuesPerViolation");
+			Assert.That (converter.ComplianceOptions.MaxIssuesPerViolation, Is.EqualTo (0), "MaxIssuesPerViolation");
 			Assert.That (converter.MaxGroupDepth, Is.EqualTo (4096), "MaxGroupDepth");
 		}
 

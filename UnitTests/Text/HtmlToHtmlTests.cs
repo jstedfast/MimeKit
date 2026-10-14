@@ -45,7 +45,7 @@ namespace UnitTests.Text {
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = -1);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = 0);
-			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxComplianceIssuesPerViolation = -1);
+			Assert.Throws<ArgumentNullException> (() => converter.ComplianceOptions = null);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) (-1));
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.NoScriptHandling = (HtmlNoScriptHandling) 3);
 

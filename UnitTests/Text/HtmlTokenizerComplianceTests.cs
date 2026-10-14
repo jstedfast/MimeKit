@@ -64,7 +64,7 @@ namespace UnitTests.Text {
 			var logger = new TestHtmlComplianceLogger ();
 			var tokenizer = CreateTokenizer (html, trickle, logger);
 
-			tokenizer.MaxComplianceIssuesPerViolation = maxComplianceIssuesPerViolation;
+			tokenizer.ComplianceOptions.MaxIssuesPerViolation = maxComplianceIssuesPerViolation;
 			tokenizer.MaxElementDepth = maxElementDepth;
 
 			while (tokenizer.ReadNextToken (out _))
@@ -263,18 +263,80 @@ namespace UnitTests.Text {
 			var tokenizer = new HtmlTokenizer (new StringReader ("&#0;&#0;&#0;"));
 
 			Assert.That (tokenizer.ComplianceLogger, Is.Null, "Default ComplianceLogger");
-			Assert.That (tokenizer.MaxComplianceIssuesPerViolation, Is.EqualTo (0), "Default MaxComplianceIssuesPerViolation");
+			Assert.That (tokenizer.ComplianceOptions, Is.Not.Null, "Default ComplianceOptions");
+			Assert.That (tokenizer.ComplianceOptions, Is.Not.SameAs (HtmlComplianceOptions.Default), "Default ComplianceOptions should be a copy");
+			Assert.That (tokenizer.ComplianceOptions.MaxIssuesPerViolation, Is.EqualTo (0), "Default MaxIssuesPerViolation");
 
-			tokenizer.MaxComplianceIssuesPerViolation = 1;
+			var options = new HtmlComplianceOptions { MaxIssuesPerViolation = 1 };
+			tokenizer.ComplianceOptions = options;
 			tokenizer.ComplianceLogger = logger;
 
 			Assert.That (tokenizer.ComplianceLogger, Is.SameAs (logger));
-			Assert.That (tokenizer.MaxComplianceIssuesPerViolation, Is.EqualTo (1));
+			Assert.That (tokenizer.ComplianceOptions, Is.SameAs (options));
+
+			tokenizer.ComplianceOptions = HtmlComplianceOptions.Default;
+			Assert.That (tokenizer.ComplianceOptions, Is.Not.SameAs (HtmlComplianceOptions.Default), "Setting Default should store a copy");
+			tokenizer.ComplianceOptions = options;
 
 			while (tokenizer.ReadNextToken (out _))
 				;
 
 			Assert.That (logger.Issues.Select (x => x.Violation), Is.EqualTo (new[] { HtmlComplianceViolation.NullCharacterReference, HtmlComplianceViolation.TooManyComplianceIssues }));
+		}
+
+		[Test]
+		public void TestChangingComplianceOptionsAfterSettingTheLogger ()
+		{
+			var logger = new TestHtmlComplianceLogger ();
+			var tokenizer = new HtmlTokenizer (new StringReader ("&#0;&#0;&#0;<a>&#0;&#0;&#0;")) {
+				ComplianceLogger = logger
+			};
+
+			tokenizer.ComplianceOptions.MaxIssuesPerViolation = 1;
+
+			// Note: The first data token stops at the start tag, so the first three references have been
+			// reported by the time it is returned.
+			Assert.That (tokenizer.ReadNextToken (out _), Is.True);
+			Assert.That (logger.Issues.Select (x => x.Violation), Is.EqualTo (new[] {
+				HtmlComplianceViolation.NullCharacterReference,
+				HtmlComplianceViolation.TooManyComplianceIssues
+			}));
+
+			// Note: Changing the limit restarts the count.
+			tokenizer.ComplianceOptions.MaxIssuesPerViolation = 2;
+
+			while (tokenizer.ReadNextToken (out _))
+				;
+
+			Assert.That (logger.Issues.Select (x => x.Violation), Is.EqualTo (new[] {
+				HtmlComplianceViolation.NullCharacterReference,
+				HtmlComplianceViolation.TooManyComplianceIssues,
+				HtmlComplianceViolation.NullCharacterReference,
+				HtmlComplianceViolation.NullCharacterReference,
+				HtmlComplianceViolation.TooManyComplianceIssues
+			}));
+		}
+
+		[Test]
+		public void TestComplianceOptionsArguments ()
+		{
+			var tokenizer = new HtmlTokenizer (new StringReader (string.Empty));
+			var converter = new HtmlToHtml ();
+
+			Assert.Throws<ArgumentNullException> (() => tokenizer.ComplianceOptions = null);
+			Assert.Throws<ArgumentNullException> (() => converter.ComplianceOptions = null);
+			Assert.Throws<ArgumentOutOfRangeException> (() => new HtmlComplianceOptions { MaxIssuesPerViolation = -1 });
+		}
+
+		[Test]
+		public void TestComplianceOptionsClone ()
+		{
+			var options = new HtmlComplianceOptions { MaxIssuesPerViolation = 5 };
+			var clone = options.Clone ();
+
+			Assert.That (clone, Is.Not.SameAs (options));
+			Assert.That (clone.MaxIssuesPerViolation, Is.EqualTo (5));
+			Assert.That (HtmlComplianceOptions.Default.MaxIssuesPerViolation, Is.EqualTo (0));
 		}
 
 		[Test]
@@ -305,7 +367,8 @@ namespace UnitTests.Text {
 			var expected = converter.Convert (html);
 
 			Assert.That (converter.ComplianceLogger, Is.Null, "Default ComplianceLogger");
-			Assert.That (converter.MaxComplianceIssuesPerViolation, Is.EqualTo (0), "Default MaxComplianceIssuesPerViolation");
+			Assert.That (converter.ComplianceOptions, Is.Not.SameAs (HtmlComplianceOptions.Default), "Default ComplianceOptions should be a copy");
+			Assert.That (converter.ComplianceOptions.MaxIssuesPerViolation, Is.EqualTo (0), "Default MaxIssuesPerViolation");
 
 			converter.ComplianceLogger = logger;
 
@@ -320,15 +383,16 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
-		public void TestHtmlToHtmlMaxComplianceIssuesPerViolation ()
+		public void TestHtmlToHtmlMaxIssuesPerViolation ()
 		{
+			var options = new HtmlComplianceOptions { MaxIssuesPerViolation = 1 };
 			var logger = new TestHtmlComplianceLogger ();
 			var converter = new HtmlToHtml {
-				MaxComplianceIssuesPerViolation = 1,
+				ComplianceOptions = options,
 				ComplianceLogger = logger
 			};
 
-			Assert.That (converter.MaxComplianceIssuesPerViolation, Is.EqualTo (1));
+			Assert.That (converter.ComplianceOptions, Is.SameAs (options));
 
 			converter.Convert ("&#0;&#0;&#0;");
 			converter.Convert ("&#0;");
