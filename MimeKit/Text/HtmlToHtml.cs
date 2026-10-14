@@ -366,6 +366,11 @@ namespace MimeKit.Text {
 
 				void ProcessEndTag (HtmlTagToken tag, bool implicitlyClosed)
 				{
+					// Note: The <noscript> start tags are never written when unwrapping, so don't write the end tags either, even
+					// for a <noscript> element within SVG or MathML content that gets implicitly closed.
+					if (unwrapNoScript && tag.Id == HtmlTagId.NoScript)
+						return;
+
 					// Note: If the tokenizer ignored the end tag, then the element is still open (and so is the case for browsers),
 					// so leave its context on the stack. Otherwise, the wrong context would get popped (or none at all) when the
 					// element eventually gets closed, causing the wrong end tags to be written.

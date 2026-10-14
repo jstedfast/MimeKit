@@ -757,6 +757,9 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `HtmlToHtml` now writes the end tag of a self-closing non-void HTML element (such as `<e/>` inside a
   MathML `<mi>` element) when the element is implicitly closed. Previously, the end tags written for the
   enclosing foreign elements were ignored, so converting the output again produced different output.
+* `HtmlToHtml` no longer writes a `</noscript>` end tag for a `<noscript>` element inside SVG or MathML
+  content that is implicitly closed when `NoScriptHandling` is `Unwrap`. Previously, the start tag was
+  removed but the end tag was still written, so converting the output again produced different output.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
