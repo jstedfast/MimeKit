@@ -341,7 +341,8 @@ namespace MimeKit.Utils {
 					return false;
 			}
 
-			if (tzone < -1200 || tzone > 1400)
+			// Note: Reject minutes >= 60. Otherwise, a zone such as -1192 would become -12:32, which is out of range.
+			if (tzone < -1200 || tzone > 1400 || Math.Abs (tzone % 100) >= 60)
 				return false;
 
 			return true;

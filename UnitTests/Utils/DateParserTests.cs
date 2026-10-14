@@ -272,5 +272,25 @@ namespace UnitTests.Utils {
 			Assert.That (DateUtils.TryParse (value, out var date), Is.True, $"Failed to parse date: {value}");
 			Assert.That (date.Offset, Is.EqualTo (tzone), $"Parsed date offset does not match: '{date.Offset}' vs '{expectedOffset}'");
 		}
+
+		[TestCase ("-1192", 0, 0)]
+		[TestCase ("+0060", 0, 0)]
+		[TestCase ("+1399", 0, 0)]
+		[TestCase ("+0059", 0, 59)]
+		[TestCase ("-1159", -11, -59)]
+		public void TestTimezoneMinutesOutOfRange (string zone, int hours, int minutes)
+		{
+			var value = string.Format ("Wed, 25 Mar 1992 00:00:00 {0}", zone);
+
+			Assert.That (DateUtils.TryParse (value, out var date), Is.True, $"Failed to parse date: {value}");
+			Assert.That (date.Offset, Is.EqualTo (new TimeSpan (hours, minutes, 0)), "Offset");
+
+			// Formatting the date and then parsing it again must give back the same date.
+			var formatted = DateUtils.FormatDate (date);
+
+			Assert.That (DateUtils.TryParse (formatted, out var reparsed), Is.True, $"Failed to parse formatted date: {formatted}");
+			Assert.That (reparsed, Is.EqualTo (date), "Round trip");
+			Assert.That (reparsed.Offset, Is.EqualTo (date.Offset), "Round trip offset");
+		}
 	}
 }

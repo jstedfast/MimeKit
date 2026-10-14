@@ -81,6 +81,16 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Get the innermost open element with the specified tag name without popping it.
+		/// </summary>
+		/// <param name="name">The name of the tag.</param>
+		/// <returns>The tag context of the element, or <see langword="null"/> if no element with that name is open.</returns>
+		public T? Peek (string name)
+		{
+			return open.TryGetValue (name, out var context) ? context : null;
+		}
+
+		/// <summary>
 		/// Pop the innermost open element with the specified tag name.
 		/// </summary>
 		/// <param name="name">The name of the end tag.</param>

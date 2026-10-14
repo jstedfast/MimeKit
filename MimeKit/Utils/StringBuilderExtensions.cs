@@ -47,12 +47,24 @@ namespace MimeKit.Utils {
 			return text;
 		}
 
+		static bool IsLinearWhiteSpace (string token)
+		{
+			for (int i = 0; i < token.Length; i++) {
+				if (token[i] != ' ' && token[i] != '\t')
+					return false;
+			}
+
+			return true;
+		}
+
 		public static void AppendTokens (this StringBuilder text, FormatOptions options, ref int lineLength, List<string> tokens)
 		{
 			var spaces = string.Empty;
 
 			foreach (var token in tokens) {
-				if (string.IsNullOrWhiteSpace (token)) {
+				// Note: Don't use string.IsNullOrWhiteSpace() here. It treats characters such as form feeds as
+				// whitespace, which would cause an unquoted value consisting of them to be dropped.
+				if (IsLinearWhiteSpace (token)) {
 					spaces = token;
 					continue;
 				}

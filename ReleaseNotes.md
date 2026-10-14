@@ -721,6 +721,12 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `AuthenticationResults` now quotes empty property values (`header.s=""`) and values containing
   whitespace or control characters when serializing. Previously, an empty value was written as
   `header.s=`, which caused the following property to be parsed as its value.
+* The date parser now rejects numeric timezone offsets whose minutes are 60 or greater (e.g. `+0099`).
+* `AuthenticationResults` no longer drops a property value made up entirely of non-space whitespace
+  (such as form feeds) when folding a long header.
+* `HtmlToHtml` now writes the correct end tags after an end tag that the HTML parser ignores (such as
+  `</mi>` when the MathML `<mi>` element is in the way). Previously, the wrong elements could be left open
+  in the output, so parsing it again produced a different document.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

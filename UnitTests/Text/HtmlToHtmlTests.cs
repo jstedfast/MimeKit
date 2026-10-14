@@ -502,6 +502,7 @@ namespace UnitTests.Text {
 		[TestCase ("<svg><g><g><g></p>x", false, "<svg><g><g><g></g></g></g></svg></p>x")]
 		[TestCase ("<svg><g></svg>x", false, "<svg><g></g></svg>x")]
 		[TestCase ("<mi/r><table><math><mi><e><tr>", false, "<mi r><table><math><mi><e></e></mi></math><tr>")]
+		[TestCase ("<mi><table><math><mi><ne></mi></math><tr><b>x</b>", false, "<mi><table><math><mi><ne></mi></math></ne></mi></math><tr><b>x</b>")]
 		public void TestImplicitlyClosedForeignElements (string input, bool fragment, string expected)
 		{
 			var converter = new HtmlToHtml {
@@ -556,6 +557,48 @@ namespace UnitTests.Text {
 				OutputHtmlFragment = true,
 				HtmlTagCallback = (ctx, htmlWriter) => {
 					if (ctx.TagId == HtmlTagId.Unknown && ctx.TagName == "svg") {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+						return;
+					}
+
+					ctx.WriteTag (htmlWriter, true);
+				}
+			};
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestIgnoredEndTagForForeignElement ()
+		{
+			// The </mi> and </math> end tags are ignored because the MathML <mi> element is special, so the <tr> closes <ne>, <mi> and
+			// <math>, and the <script> is an HTML element. If the ignored end tags popped the wrong contexts, then the explicit end tags
+			// written for the implicitly closed elements would leave <math> open, so the <script> would become a MathML element whose
+			// content is a comment (which gets filtered out) when the output is converted again.
+			const string input = "<mi><table><math><mi><ne></mi></math><tr><script><!--x--></script>";
+			const string expected = "<mi><table><math><mi><ne></mi></math></ne></mi></math><tr><script><!--x--></script>";
+			var converter = new HtmlToHtml { FilterComments = true };
+
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (converter.Convert (result), Is.EqualTo (expected), "Convert again");
+		}
+
+		[Test]
+		public void TestIgnoredEndTagForSuppressedElement ()
+		{
+			// The </div> end tag is ignored because the <td> is a scope boundary, so the content that follows it is still inside the <div>.
+			const string input = "<div><table><tr><td>x</div>y</td></tr></table></div>z";
+			const string expected = "z";
+			var converter = new HtmlToHtml {
+				OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, htmlWriter) => {
+					if (ctx.TagId == HtmlTagId.Div) {
 						ctx.DeleteTag = true;
 						ctx.DeleteEndTag = true;
 						ctx.SuppressInnerContent = true;

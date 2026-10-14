@@ -322,7 +322,15 @@ namespace MimeKit.Text {
 
 				void ProcessEndTag (HtmlTagToken tag, bool implicitlyClosed)
 				{
-					if ((ctx = stack.Pop (tag.Name)) != null) {
+					// Note: If the tokenizer ignored the end tag, then the element is still open (and so is the case for browsers),
+					// so leave its context on the stack. Otherwise, the wrong context would get popped (or none at all) when the
+					// element eventually gets closed, causing the wrong end tags to be written.
+					if (!implicitlyClosed && openElements.EndTagIgnored)
+						ctx = stack.Peek (tag.Name);
+					else
+						ctx = stack.Pop (tag.Name);
+
+					if (ctx != null) {
 						if (!stack.SuppressContent) {
 							if (ctx.InvokeCallbackForEndTag) {
 								ctx = new HtmlToHtmlTagContext (tag) {

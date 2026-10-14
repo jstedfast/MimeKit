@@ -120,6 +120,7 @@ namespace MimeKit.Text {
 
 		readonly Dictionary<string, int> foreignNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 		readonly Dictionary<string, int> htmlNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
+		bool poppedThrough;
 		readonly int[] htmlIds = new int[(int) HtmlTagId.Xmp + 1];
 
 		// Note: Entries are stored in fixed-size chunks rather than in a single array that gets resized as the stack
@@ -205,6 +206,18 @@ namespace MimeKit.Text {
 		/// </remarks>
 		public IReadOnlyList<ClosedElement> ClosedElements {
 			get { return (IReadOnlyList<ClosedElement>?) closedElements ?? Array.Empty<ClosedElement> (); }
+		}
+
+		/// <summary>
+		/// Get whether the most recently processed end tag was ignored.
+		/// </summary>
+		/// <remarks>
+		/// An end tag is ignored if it did not close an element even though an element with the same name is open
+		/// (e.g. <c>&lt;/mi&gt;</c> when an HTML element is the current node and a special element such as the
+		/// MathML <c>&lt;mi&gt;</c> is in the way).
+		/// </remarks>
+		public bool EndTagIgnored {
+			get; private set;
 		}
 
 		/// <summary>
@@ -445,6 +458,8 @@ namespace MimeKit.Text {
 		// Pop elements until (one instance of) the element at the specified index has been popped.
 		void PopThrough (int index)
 		{
+			poppedThrough = true;
+
 			PopAbove (index);
 
 			if (EntryAt (index).Count > 1)
@@ -929,6 +944,17 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <param name="tag">The end tag.</param>
 		public void ProcessEndTag (HtmlTagToken tag)
+		{
+			poppedThrough = false;
+
+			ProcessEndTagInternal (tag);
+
+			// Note: </html>, </head>, </body> and </br> never close an element, so they are not considered to have been ignored.
+			EndTagIgnored = !poppedThrough && tag.Id != HtmlTagId.Html && tag.Id != HtmlTagId.Head && tag.Id != HtmlTagId.Body && tag.Id != HtmlTagId.Br &&
+				(IndexOf (HtmlNamespace.Html, tag.Id, tag.Name) >= 0 || IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, tag.Name) >= 0);
+		}
+
+		void ProcessEndTagInternal (HtmlTagToken tag)
 		{
 			if (count > 0 && EntryAt (count - 1).Namespace != HtmlNamespace.Html) {
 				if (tag.Id == HtmlTagId.Br || tag.Id == HtmlTagId.P) {

@@ -1766,6 +1766,23 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestEncodeFoldedPropertyValueOfFormFeeds ()
+		{
+			var input = "e=l()p.m=" + new string ('\f', 100);
+			var buffer = Encoding.ASCII.GetBytes (input);
+
+			Assert.That (AuthenticationResults.TryParse (buffer, out var authres), Is.True, "TryParse");
+			Assert.That (authres.Results[0].Properties[0].Value, Is.EqualTo (new string ('\f', 100)), "Value");
+
+			var encoded = new StringBuilder ();
+			authres.Encode (FormatOptions.Default, encoded, "Authentication-Results:".Length);
+
+			buffer = Encoding.ASCII.GetBytes (encoded.ToString ());
+			Assert.That (AuthenticationResults.TryParse (buffer, out var reparsed), Is.True, "TryParse encoded");
+			Assert.That (reparsed.Results[0].Properties[0].Value, Is.EqualTo (authres.Results[0].Properties[0].Value), "reparsed Value");
+		}
+
+		[Test]
 		public void TestParseFailureIncompleteProperty5 ()
 		{
 			AssertParseFailure ("authserv-id; method=pass ptype.prop=\"incomplete qstring", 25, 55);
