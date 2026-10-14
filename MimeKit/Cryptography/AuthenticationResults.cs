@@ -321,6 +321,29 @@ namespace MimeKit.Cryptography {
 
 		static string UnfoldComment (string comment)
 		{
+			StringBuilder? builder = null;
+			int startIndex = 0;
+
+			// Unfold() removes CR and LF characters, so remove any backslash that quotes one of them as well. Otherwise, the
+			// backslash would end up escaping the following character instead (e.g. "(a(\<CR>))" would become "(a(\))").
+			for (int i = 0; i < comment.Length - 1; i++) {
+				if (comment[i] != '\\')
+					continue;
+
+				if (comment[i + 1] == '\r' || comment[i + 1] == '\n') {
+					builder ??= new StringBuilder (comment.Length);
+					builder.Append (comment, startIndex, i - startIndex);
+					startIndex = i + 1;
+				}
+
+				i++;
+			}
+
+			if (builder != null) {
+				builder.Append (comment, startIndex, comment.Length - startIndex);
+				comment = builder.ToString ();
+			}
+
 			var unfolded = Header.Unfold (comment);
 
 			// If the comment ended with a quoted-pair that escaped whitespace (e.g. "(comment\ )"), Unfold() will have

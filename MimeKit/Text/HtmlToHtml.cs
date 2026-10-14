@@ -344,7 +344,10 @@ namespace MimeKit.Text {
 								htmlWriter.WriteEndTag (tag.Name);
 							}
 						}
-					} else if (!implicitlyClosed && !stack.SuppressContent && !(fragment && IsDocumentStructureTag (tag.Id))) {
+					} else if (!stack.SuppressContent && !(fragment && IsDocumentStructureTag (tag.Id))) {
+						// Note: An implicitly closed element might not have a context if its start tag was self-closing (e.g. <e/>),
+						// since browsers ignore the self-closing flag on non-void HTML elements. Write its end tag anyway, since
+						// otherwise the end tags written for the foreign elements beneath it would be ignored.
 						ctx = new HtmlToHtmlTagContext (tag);
 						callback (ctx, htmlWriter);
 					}

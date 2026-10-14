@@ -1668,6 +1668,9 @@ namespace UnitTests.Cryptography {
 		[TestCase ("example.com; spf=pass (comment\\ \\ ) smtp.mailfrom=example.com", "comment", TestName = "TestParseResultCommentEndingWithEscapedSpaces")]
 		[TestCase ("example.com; spf=pass (comment\\\\ ) smtp.mailfrom=example.com", "comment\\\\", TestName = "TestParseResultCommentEndingWithEscapedBackslash")]
 		[TestCase ("example.com; spf=pass (\\ ) smtp.mailfrom=example.com", "", TestName = "TestParseResultCommentOnlyEscapedSpace")]
+		[TestCase ("example.com; spf=pass (a(\\\r)b) smtp.mailfrom=example.com", "a()b", TestName = "TestParseResultCommentWithEscapedCarriageReturn")]
+		[TestCase ("example.com; spf=pass (a(\\\n)b) smtp.mailfrom=example.com", "a()b", TestName = "TestParseResultCommentWithEscapedLineFeed")]
+		[TestCase ("example.com; spf=pass (a\\\\\r\n b) smtp.mailfrom=example.com", "a\\\\ b", TestName = "TestParseResultCommentWithEscapedBackslashBeforeFold")]
 		public void TestParseResultCommentEndingWithQuotedPair (string input, string comment)
 		{
 			var buffer = Encoding.ASCII.GetBytes (input);

@@ -503,6 +503,8 @@ namespace UnitTests.Text {
 		[TestCase ("<svg><g></svg>x", false, "<svg><g></g></svg>x")]
 		[TestCase ("<mi/r><table><math><mi><e><tr>", false, "<mi r><table><math><mi><e></e></mi></math><tr>")]
 		[TestCase ("<mi><table><math><mi><ne></mi></math><tr><b>x</b>", false, "<mi><table><math><mi><ne></mi></math></ne></mi></math><tr><b>x</b>")]
+		[TestCase ("<table><math><mi><e/>x<table>", false, "<table><math><mi><e/>x</e></mi></math><table>")]
+		[TestCase ("<table><math><mi><e/>x</mi></math><table>", false, "<table><math><mi><e/>x</mi></math></e></mi></math><table>")]
 		public void TestImplicitlyClosedForeignElements (string input, bool fragment, string expected)
 		{
 			var converter = new HtmlToHtml {

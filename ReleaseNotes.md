@@ -727,6 +727,12 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 * `HtmlToHtml` now writes the correct end tags after an end tag that the HTML parser ignores (such as
   `</mi>` when the MathML `<mi>` element is in the way). Previously, the wrong elements could be left open
   in the output, so parsing it again produced a different document.
+* `AuthenticationResults` now drops a backslash that quotes a CR or LF in a comment (such as `(a(\<CR>)b)`)
+  when it unfolds the comment. Previously, the backslash escaped the next character instead, so the
+  serialized header could not be parsed again.
+* `HtmlToHtml` now writes the end tag of a self-closing non-void HTML element (such as `<e/>` inside a
+  MathML `<mi>` element) when the element is implicitly closed. Previously, the end tags written for the
+  enclosing foreign elements were ignored, so converting the output again produced different output.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
