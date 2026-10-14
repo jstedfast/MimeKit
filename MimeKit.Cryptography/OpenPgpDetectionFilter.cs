@@ -74,7 +74,7 @@ namespace MimeKit.Cryptography {
 			new OpenPgpMarker ("-----BEGIN PGP PUBLIC KEY BLOCK-----", OpenPgpState.None, OpenPgpState.BeginPgpPublicKeyBlock, false),
 			new OpenPgpMarker ("-----END PGP PUBLIC KEY BLOCK-----", OpenPgpState.BeginPgpPublicKeyBlock, OpenPgpState.EndPgpPublicKeyBlock, true),
 			new OpenPgpMarker ("-----BEGIN PGP PRIVATE KEY BLOCK-----", OpenPgpState.None, OpenPgpState.BeginPgpPrivateKeyBlock, false),
-			new OpenPgpMarker ("-----END PGP PRIVATE KEY BLOCK-----", OpenPgpState.BeginPgpPrivateKeyBlock, OpenPgpState.EndPgpPrivateKeyBlock, false)
+			new OpenPgpMarker ("-----END PGP PRIVATE KEY BLOCK-----", OpenPgpState.BeginPgpPrivateKeyBlock, OpenPgpState.EndPgpPrivateKeyBlock, true)
 		};
 
 		OpenPgpState state;
@@ -252,7 +252,7 @@ namespace MimeKit.Cryptography {
 							SaveRemainingInput (input, lineIndex, index - lineIndex);
 							position += lineIndex - startIndex;
 						} else {
-							position += index - lineIndex;
+							position += index - startIndex;
 							midline = true;
 						}
 

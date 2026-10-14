@@ -60,6 +60,7 @@ namespace MimeKit.IO {
 		byte[]? readbuf;
 		bool disposed;
 		bool flushed;
+		bool eos;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="FilteredStream"/> class.
@@ -293,6 +294,30 @@ namespace MimeKit.IO {
 				throw new ArgumentOutOfRangeException (nameof (count));
 		}
 
+		void FilterReadBuffer (byte[] buffer, int nread)
+		{
+			byte[] output = buffer;
+
+			filteredIndex = 0;
+
+			if (nread > 0) {
+				// filter the data we've just read...
+				filteredLength = nread;
+
+				foreach (var filter in filters)
+					output = filter.Filter (output, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+			} else {
+				// we've reached the end of the source stream; flush any data buffered by the filters
+				filteredLength = 0;
+				eos = true;
+
+				foreach (var filter in filters)
+					output = filter.Flush (output, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+			}
+
+			filtered = output;
+		}
+
 		/// <summary>
 		/// Read a sequence of bytes from the stream and advances the position
 		/// within the stream by the number of bytes read.
@@ -340,23 +365,20 @@ namespace MimeKit.IO {
 
 			int nread;
 
-			if (filteredLength == 0) {
+			// Note: the filters may consume input without producing any output (e.g. a trailing '\r'), so keep
+			// reading until we have output or have flushed the filters at the end of the source stream.
+			while (filteredLength == 0) {
+				if (eos)
+					return 0;
+
 				if (Source is ICancellableStream cancellable) {
-					if ((nread = cancellable.Read (readbuf, 0, ReadBufferSize, cancellationToken)) <= 0)
-						return nread;
+					nread = cancellable.Read (readbuf, 0, ReadBufferSize, cancellationToken);
 				} else {
 					cancellationToken.ThrowIfCancellationRequested ();
-					if ((nread = Source.Read (readbuf, 0, ReadBufferSize)) <= 0)
-						return nread;
+					nread = Source.Read (readbuf, 0, ReadBufferSize);
 				}
 
-				// filter the data we've just read...
-				filteredLength = nread;
-				filteredIndex = 0;
-				filtered = readbuf;
-
-				foreach (var filter in filters)
-					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+				FilterReadBuffer (readbuf, nread);
 			}
 
 			// copy our filtered data into our caller's buffer
@@ -454,17 +476,15 @@ namespace MimeKit.IO {
 
 			int nread;
 
-			if (filteredLength == 0) {
-				if ((nread = await Source.ReadAsync (readbuf, 0, ReadBufferSize, cancellationToken).ConfigureAwait (false)) <= 0)
-					return nread;
+			// Note: the filters may consume input without producing any output (e.g. a trailing '\r'), so keep
+			// reading until we have output or have flushed the filters at the end of the source stream.
+			while (filteredLength == 0) {
+				if (eos)
+					return 0;
 
-				// filter the data we've just read...
-				filteredLength = nread;
-				filteredIndex = 0;
-				filtered = readbuf;
+				nread = await Source.ReadAsync (readbuf, 0, ReadBufferSize, cancellationToken).ConfigureAwait (false);
 
-				foreach (var filter in filters)
-					filtered = filter.Filter (filtered, filteredIndex, filteredLength, out filteredIndex, out filteredLength);
+				FilterReadBuffer (readbuf, nread);
 			}
 
 			// copy our filtered data into our caller's buffer

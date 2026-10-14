@@ -333,6 +333,40 @@ foreach ($name in $Targets) {
                 $seeds.Add([byte[]](@([byte]$kind, [byte]4) + $Latin1.GetBytes($text)))
             }
         }
+        "filters" {
+            # The first byte of the input selects the filter (modulo 13) and the second byte selects its options
+            # (and, together with the first byte, seeds the chunking pattern). See FiltersTarget.cs.
+            $index = 0
+            foreach ($message in (Get-Messages)) {
+                $seeds.Add([byte[]](@([byte]($index % 13), [byte](($index / 13) % 256)) + $Latin1.GetBytes($message)))
+                $index++
+            }
+
+            foreach ($file in (Get-Files (Join-Path $TestData "openpgp") @("*.asc", "*.txt"))) {
+                $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
+
+                foreach ($kind in 10..12) {
+                    foreach ($option in 0..3) {
+                        $seeds.Add([byte[]](@([byte]$kind, [byte]$option) + $bytes))
+                    }
+                }
+            }
+
+            # Line-ending, "From " and trailing-whitespace edge cases plus every OpenPGP armor marker.
+            $texts = @(
+                "a`r`r`nb`rc`n`r`nFrom me`n>From you`r`nFro",
+                "line  `t `r`nnext `t`n  `n`n`nlast `t",
+                ("x" * 78) + "`r`n" + ("y" * 79) + "`nFrom z`n" + [char]0 + [char]0xE9 + "`r",
+                "pre`r`n-----BEGIN PGP MESSAGE-----`r`n`r`nabc`r`n-----END PGP MESSAGE-----`r`npost",
+                "pre`n-----BEGIN PGP SIGNED MESSAGE-----`nHash: SHA256`n`nhi`n-----BEGIN PGP SIGNATURE-----`n`nsig`n-----END PGP SIGNATURE-----`npost`n",
+                "-----BEGIN PGP PUBLIC KEY BLOCK-----`nk`n-----END PGP PUBLIC KEY BLOCK-----`n-----BEGIN PGP PRIVATE KEY BLOCK-----`nk`n-----END PGP PRIVATE KEY BLOCK-----"
+            )
+            foreach ($text in $texts) {
+                foreach ($kind in 0..12) {
+                    $seeds.Add([byte[]](@([byte]$kind, [byte]5) + $Latin1.GetBytes($text)))
+                }
+            }
+        }
         "address-parser" {
             foreach ($message in (Get-Messages)) {
                 foreach ($field in (Get-HeaderFields $message)) {

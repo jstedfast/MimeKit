@@ -67,6 +67,7 @@ $TargetDictionaries = @{
     "address-parser" = "address.dict"
     "decoders" = "decoders.dict"
     "encoders" = "encoders.dict"
+    "filters" = "filters.dict"
     "smtputf8-validator" = "address.dict"
     "authentication-results" = "authres.dict"
     "dns-records" = "dkim.dict"

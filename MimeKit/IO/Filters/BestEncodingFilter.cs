@@ -80,6 +80,9 @@ namespace MimeKit.IO.Filters {
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
+			// the final line may not be terminated by a newline
+			int longest = Math.Max (maxline, linelen);
+
 			switch (constraint) {
 			case EncodingConstraint.SevenBit:
 				if (count0 > 0)
@@ -92,7 +95,7 @@ namespace MimeKit.IO.Filters {
 					return ContentEncoding.QuotedPrintable;
 				}
 
-				if (hasMarker || maxline > maxLineLength)
+				if (hasMarker || longest > maxLineLength)
 					return ContentEncoding.QuotedPrintable;
 
 				break;
@@ -100,7 +103,7 @@ namespace MimeKit.IO.Filters {
 				if (count0 > 0)
 					return ContentEncoding.Base64;
 
-				if (hasMarker || maxline > maxLineLength)
+				if (hasMarker || longest > maxLineLength)
 					return ContentEncoding.QuotedPrintable;
 
 				if (count8 > 0)
@@ -108,7 +111,7 @@ namespace MimeKit.IO.Filters {
 
 				break;
 			case EncodingConstraint.None:
-				if (hasMarker || maxline > maxLineLength) {
+				if (hasMarker || longest > maxLineLength) {
 					if (count0 > 0 || count8 > (int) (total * (17.0 / 100.0)))
 						return ContentEncoding.Base64;
 
@@ -167,6 +170,7 @@ namespace MimeKit.IO.Filters {
 
 					maxline = Math.Max (maxline, linelen);
 					linelen = 0;
+					pc = c;
 
 					// check our from-save buffer for "From "
 					if (!hasMarker && markerLength == 5 && IsMboxMarker (marker))
@@ -219,7 +223,6 @@ namespace MimeKit.IO.Filters {
 				}
 			}
 
-			maxline = Math.Max (maxline, linelen);
 			total += length;
 
 			outputIndex = startIndex;

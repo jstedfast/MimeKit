@@ -425,6 +425,18 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
 
 ### Bug Fixes
 
+* Fixed `FilteredStream.Read ()` and `ReadAsync ()` so that they flush the filters when the source stream reaches
+  the end, and so that they no longer return 0 before the end of the stream when the filters hold back an entire
+  chunk of input. Previously, a trailing lone CR (or any other output that a filter only emits on flush) was
+  lost, and reading could stop early.
+
+* Fixed `BestEncodingFilter` so that a CRLF split across two `Filter ()` calls is no longer counted as part of
+  the line length, which could result in an unnecessary `QuotedPrintable` recommendation.
+
+* Fixed `OpenPgpDetectionFilter` so that it no longer throws `IndexOutOfRangeException` on lines that follow an
+  `-----END PGP PRIVATE KEY BLOCK-----` marker, and so that the reported `BeginOffset` and `EndOffset` are
+  correct when the input is fed in chunks that split a line.
+
 * Fixed `QuotedPrintableEncoder` so that it never produces lines longer than the maximum line length (76 by
   default, as required by RFC 2045). Previously, an encoded octet (such as `=E9`) near the end of a line, or the last
   octet before a line break, could produce lines of up to 78 characters.

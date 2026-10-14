@@ -211,6 +211,27 @@ namespace UnitTests.IO.Filters {
 		}
 
 		[Test]
+		public void TestBestEncodingFilterCrLfSplitAcrossBuffers ()
+		{
+			var line = Encoding.ASCII.GetBytes (new string ('x', 78) + "\r\n");
+			var filter = new BestEncodingFilter ();
+
+			// the CR must not be counted toward the line length when the LF arrives in the next buffer
+			filter.Filter (line, 0, line.Length - 1, out _, out _);
+			filter.Flush (line, line.Length - 1, 1, out _, out _);
+
+			Assert.That (filter.GetBestEncoding (EncodingConstraint.SevenBit, 78), Is.EqualTo (ContentEncoding.SevenBit));
+
+			filter.Reset ();
+
+			// an unterminated final line still counts toward the maximum line length
+			var unterminated = Encoding.ASCII.GetBytes (new string ('x', 79));
+			filter.Flush (unterminated, 0, unterminated.Length, out _, out _);
+
+			Assert.That (filter.GetBestEncoding (EncodingConstraint.SevenBit, 78), Is.EqualTo (ContentEncoding.QuotedPrintable));
+		}
+
+		[Test]
 		public void TestBestEncodingFilter ()
 		{
 			const string fromLines = "This text is meant to test that the filter will armor lines beginning with\nFrom (like mbox).\n";

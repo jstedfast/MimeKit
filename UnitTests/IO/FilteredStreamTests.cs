@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
+
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
@@ -157,6 +159,44 @@ namespace UnitTests.IO {
 
 					for (int i = 0; i < n; i++)
 						Assert.That (buf1[i], Is.EqualTo (buf0[i]), $"The byte at offset {i} does not match.");
+				}
+			}
+		}
+
+		[Test]
+		public void TestReadFlushesFiltersAtEndOfStream ([Values (1, 2, 4096)] int chunkSize)
+		{
+			var input = Encoding.ASCII.GetBytes ("a\r\n\r\nb\r");
+
+			using (var source = new ChunkedReadStream (input, chunkSize)) {
+				using (var filtered = new FilteredStream (source)) {
+					using (var output = new MemoryStream ()) {
+						filtered.Add (new Dos2UnixFilter (true));
+						filtered.CopyTo (output, 4096);
+
+						// Note: Dos2Unix holds back the trailing '\r' until the filter is flushed
+						Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo ("a\n\nb\n"));
+						Assert.That (filtered.Read (new byte[16], 0, 16), Is.EqualTo (0), "Read after EOF");
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestReadFlushesFiltersAtEndOfStreamAsync ([Values (1, 2, 4096)] int chunkSize)
+		{
+			var input = Encoding.ASCII.GetBytes ("a\r\n\r\nb\r");
+
+			using (var source = new ChunkedReadStream (input, chunkSize)) {
+				using (var filtered = new FilteredStream (source)) {
+					using (var output = new MemoryStream ()) {
+						filtered.Add (new Dos2UnixFilter (true));
+						await filtered.CopyToAsync (output, 4096);
+
+						// Note: Dos2Unix holds back the trailing '\r' until the filter is flushed
+						Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo ("a\n\nb\n"));
+						Assert.That (await filtered.ReadAsync (new byte[16], 0, 16), Is.EqualTo (0), "ReadAsync after EOF");
+					}
 				}
 			}
 		}

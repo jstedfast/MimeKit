@@ -208,6 +208,18 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestOpenPgpDetectionFilterTrailingDataAndChunkedOffsets ()
+		{
+			// trailing lines after a private key block used to run past the end of the marker table
+			AssertDetection ("x\nsome prefix text\r\n-----BEGIN PGP PRIVATE KEY BLOCK-----\nabc\n-----END PGP PRIVATE KEY BLOCK-----\nsuffix\nmore suffix\n",
+				"-----BEGIN PGP PRIVATE KEY BLOCK-----", "-----END PGP PRIVATE KEY BLOCK-----", OpenPgpDataType.PrivateKey);
+
+			// a complete line followed by a partial non-marker line in the same chunk used to skew the offsets
+			AssertDetection ("a\nlonger prefix line\r\nb\n-----BEGIN PGP MESSAGE-----\r\n\r\nabc\r\n-----END PGP MESSAGE-----\r\nsuffix",
+				"-----BEGIN PGP MESSAGE-----", "-----END PGP MESSAGE-----", OpenPgpDataType.EncryptedMessage);
+		}
+
+		[Test]
 		public void TestOpenPgpDetectionFilterUnterminatedBlockAndReset ()
 		{
 			var filter = new OpenPgpDetectionFilter ();
