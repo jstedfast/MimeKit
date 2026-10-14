@@ -633,5 +633,18 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.TryValidate ((string) null, SmtpUtf8AddressValidationOptions.DecodeIdn, out _));
 			Assert.Throws<ArgumentNullException> (() => SmtpUtf8AddressValidator.TryValidate ((MailboxAddress) null, SmtpUtf8AddressValidationOptions.DecodeIdn, out _));
 		}
+
+		[Test]
+		public void TestSmtpAddressValidatorArguments ()
+		{
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.IsValid ((string) null));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.IsValid ((MailboxAddress) null));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.TryValidate ((string) null, out _));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.TryValidate ((MailboxAddress) null, out _));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.IsValid ((string) null, SmtpAddressValidationOptions.AllowIso2022JpLocalPart));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.IsValid ((MailboxAddress) null, SmtpAddressValidationOptions.AllowIso2022JpLocalPart));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.TryValidate ((string) null, SmtpAddressValidationOptions.AllowIso2022JpLocalPart, out _));
+			Assert.Throws<ArgumentNullException> (() => SmtpAddressValidator.TryValidate ((MailboxAddress) null, SmtpAddressValidationOptions.AllowIso2022JpLocalPart, out _));
+		}
 	}
 }

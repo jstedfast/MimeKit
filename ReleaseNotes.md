@@ -313,6 +313,13 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   Cyrillic `р`) are detected. `EnforceLengthLimits` enforces the RFC 5321 length limits (64-octet local-part,
   63-octet labels and 253-octet domain in A-label form, 254-octet address), reporting each through its own error.
 
+* Added `SmtpAddressValidator`, which checks whether an address is a well-formed RFC 5321 mailbox that can be
+  used in the `MAIL FROM` and `RCPT TO` commands without the `SMTPUTF8` extension. `TryValidate ()` reports
+  the reason through `SmtpAddressError`; addresses that are only invalid because they contain non-ASCII
+  characters are reported as `NonAscii`. `SmtpAddressValidationOptions.AllowIso2022JpLocalPart` permits
+  ISO-2022-JP escape sequences within a quoted-string local-part (as used by some Japanese mail systems), and
+  `EnforceLengthLimits` enforces the RFC 5321 length limits.
+
 * Added the `RtfToText` and `RtfToHtml` text converters for `text/rtf` content (such as the
   `PR_RTF_COMPRESSED` body of TNEF attachments). `RtfToHtml` extracts the original HTML from RTF that
   encapsulates HTML ([MS-OXRTFEX]) unless `ExtractEncapsulatedHtml` is `false`, and otherwise renders the

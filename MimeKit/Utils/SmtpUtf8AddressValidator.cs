@@ -288,7 +288,7 @@ namespace MimeKit.Utils {
 
 		static SmtpUtf8AddressError Validate (string address, SmtpUtf8AddressValidationOptions options)
 		{
-			if (!ValidateSyntax (address, out bool localPartALabel, out bool domainALabel, out int domainIndex))
+			if (!SmtpAddressSyntax.ValidateSyntax (address, false, out bool localPartALabel, out bool domainALabel, out int domainIndex))
 				return SmtpUtf8AddressError.Syntax;
 
 			if ((options & SmtpUtf8AddressValidationOptions.EnforceLengthLimits) != 0) {
@@ -346,7 +346,7 @@ namespace MimeKit.Utils {
 				while (index < address.Length && address[index] != '.')
 					index++;
 
-				if (HasAcePrefix (address, startIndex, index)) {
+				if (SmtpAddressSyntax.HasAcePrefix (address, startIndex, index)) {
 					if (!TryDecodeALabel (address, startIndex, index, output.Slice (length), out int written))
 						return false;
 
@@ -475,7 +475,7 @@ namespace MimeKit.Utils {
 
 		// RFC 6531, Section 3.3: The length limits are in octets, not characters, so a UTF-8 local-part is limited
 		// to 64 octets of UTF-8. Domain labels are measured in their A-label form (RFC 5890, Section 4.2).
-		static SmtpUtf8AddressError ValidateLengths (string address, int domainIndex)
+		internal static SmtpUtf8AddressError ValidateLengths (string address, int domainIndex)
 		{
 			// Note: domainIndex - 1 is the index of the '@'.
 			if (GetUtf8Length (address, 0, domainIndex - 1, MaxLocalPartLength) > MaxLocalPartLength)
@@ -579,309 +579,6 @@ namespace MimeKit.Utils {
 		}
 
 		#endregion
-
-		#region Syntax
-
-		// RFC 5321, Section 4.1.2:
-		//
-		// Mailbox = Local-part "@" ( Domain / address-literal )
-		//
-		// RFC 6531 extends atext, qtextSMTP and sub-domain to allow UTF8-non-ascii.
-		static bool ValidateSyntax (string address, out bool localPartALabel, out bool domainALabel, out int domainIndex)
-		{
-			int index = 0;
-
-			localPartALabel = false;
-			domainALabel = false;
-			domainIndex = -1;
-
-			if (address.Length > 0 && address[0] == '"') {
-				if (!SkipQuotedString (address, ref index))
-					return false;
-			} else {
-				if (!SkipDotString (address, ref index, ref localPartALabel))
-					return false;
-			}
-
-			if (index >= address.Length || address[index] != '@')
-				return false;
-
-			domainIndex = ++index;
-
-			if (index < address.Length && address[index] == '[') {
-				if (!SkipAddressLiteral (address, ref index))
-					return false;
-			} else {
-				if (!SkipDomain (address, ref index, ref domainALabel))
-					return false;
-			}
-
-			return index == address.Length;
-		}
-
-		static bool IsAsciiLetter (char c)
-		{
-			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-		}
-
-		static bool IsAsciiLetterOrDigit (char c)
-		{
-			return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
-		}
-
-		static bool IsHexDigit (char c)
-		{
-			return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
-		}
-
-		// RFC 5322: atext = ALPHA / DIGIT / "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "/" / "=" / "?" / "^" / "_" / "`" / "{" / "|" / "}" / "~"
-		// RFC 6531: atext =/ UTF8-non-ascii
-		static bool IsAtext (char c)
-		{
-			if (c >= 0x80 || IsAsciiLetterOrDigit (c))
-				return true;
-
-			switch (c) {
-			case '!': case '#': case '$': case '%': case '&': case '\'': case '*': case '+': case '-':
-			case '/': case '=': case '?': case '^': case '_': case '`': case '{': case '|': case '}': case '~':
-				return true;
-			default:
-				return false;
-			}
-		}
-
-		// RFC 5890, Section 2.3.1: an A-label begins with the (case-insensitive) ACE prefix "xn--".
-		static bool HasAcePrefix (string text, int startIndex, int endIndex)
-		{
-			return endIndex - startIndex >= 4 &&
-				(text[startIndex] == 'x' || text[startIndex] == 'X') &&
-				(text[startIndex + 1] == 'n' || text[startIndex + 1] == 'N') &&
-				text[startIndex + 2] == '-' && text[startIndex + 3] == '-';
-		}
-
-		// Dot-string = Atom *("."  Atom)
-		// Atom       = 1*atext
-		static bool SkipDotString (string text, ref int index, ref bool alabel)
-		{
-			do {
-				int startIndex = index;
-
-				while (index < text.Length && IsAtext (text[index]))
-					index++;
-
-				if (index == startIndex)
-					return false;
-
-				if (HasAcePrefix (text, startIndex, index))
-					alabel = true;
-
-				if (index >= text.Length || text[index] != '.')
-					return true;
-
-				index++;
-			} while (true);
-		}
-
-		// Quoted-string   = DQUOTE *QcontentSMTP DQUOTE
-		// QcontentSMTP    = qtextSMTP / quoted-pairSMTP
-		// quoted-pairSMTP = %d92 %d32-126
-		// qtextSMTP       = %d32-33 / %d35-91 / %d93-126 / UTF8-non-ascii
-		static bool SkipQuotedString (string text, ref int index)
-		{
-			// skip over the opening DQUOTE
-			index++;
-
-			while (index < text.Length) {
-				char c = text[index++];
-
-				if (c == '"')
-					return true;
-
-				if (c == '\\') {
-					if (index >= text.Length || text[index] < 32 || text[index] > 126)
-						return false;
-
-					index++;
-				} else if (c < 32 || c == 127) {
-					return false;
-				}
-			}
-
-			return false;
-		}
-
-		// Domain     = sub-domain *("." sub-domain)
-		// sub-domain = Let-dig [Ldh-str]
-		// Let-dig    = ALPHA / DIGIT
-		// Ldh-str    = *( ALPHA / DIGIT / "-" ) Let-dig
-		//
-		// RFC 6531: sub-domain =/ U-label
-		static bool SkipDomain (string text, ref int index, ref bool alabel)
-		{
-			do {
-				int startIndex = index;
-
-				while (index < text.Length && (text[index] >= 0x80 || text[index] == '-' || IsAsciiLetterOrDigit (text[index])))
-					index++;
-
-				if (index == startIndex || text[startIndex] == '-' || text[index - 1] == '-')
-					return false;
-
-				if (HasAcePrefix (text, startIndex, index))
-					alabel = true;
-
-				if (index >= text.Length || text[index] != '.')
-					return true;
-
-				index++;
-			} while (true);
-		}
-
-		// address-literal  = "[" ( IPv4-address-literal / IPv6-address-literal / General-address-literal ) "]"
-		static bool SkipAddressLiteral (string text, ref int index)
-		{
-			int startIndex = index + 1;
-			int endIndex = text.IndexOf (']', startIndex);
-
-			if (endIndex == -1)
-				return false;
-
-			index = endIndex + 1;
-
-			if (endIndex - startIndex >= 5 && string.Compare (text, startIndex, "IPv6:", 0, 5, StringComparison.OrdinalIgnoreCase) == 0)
-				return IsIPv6Address (text, startIndex + 5, endIndex);
-
-			int colon = text.IndexOf (':', startIndex, endIndex - startIndex);
-
-			if (colon != -1)
-				return IsGeneralAddressLiteral (text, startIndex, colon, endIndex);
-
-			return IsIPv4Address (text, startIndex, endIndex);
-		}
-
-		// IPv4-address-literal = Snum 3("."  Snum)
-		// Snum                 = 1*3DIGIT ; representing a decimal integer value in the range 0 through 255
-		static bool IsIPv4Address (string text, int startIndex, int endIndex)
-		{
-			int index = startIndex;
-
-			for (int i = 0; i < 4; i++) {
-				if (i > 0) {
-					if (index >= endIndex || text[index] != '.')
-						return false;
-
-					index++;
-				}
-
-				int numberIndex = index;
-				int value = 0;
-
-				while (index < endIndex && index - numberIndex < 3 && text[index] >= '0' && text[index] <= '9')
-					value = (value * 10) + (text[index++] - '0');
-
-				if (index == numberIndex || value > 255)
-					return false;
-			}
-
-			return index == endIndex;
-		}
-
-		// IPv6-addr   = IPv6-full / IPv6-comp / IPv6v4-full / IPv6v4-comp
-		// IPv6-hex    = 1*4HEXDIG
-		// IPv6-full   = IPv6-hex 7(":" IPv6-hex)
-		// IPv6-comp   = [IPv6-hex *5(":" IPv6-hex)] "::" [IPv6-hex *5(":" IPv6-hex)]
-		//             ; The "::" represents at least 2 16-bit groups of zeros. No more than 6 groups in addition to the "::" may be present.
-		// IPv6v4-full = IPv6-hex 5(":" IPv6-hex) ":" IPv4-address-literal
-		// IPv6v4-comp = [IPv6-hex *3(":" IPv6-hex)] "::" [IPv6-hex *3(":" IPv6-hex) ":"] IPv4-address-literal
-		//             ; The "::" represents at least 2 16-bit groups of zeros. No more than 4 groups in addition to the "::" and IPv4-address-literal may be present.
-		static bool IsIPv6Address (string text, int startIndex, int endIndex)
-		{
-			int compressed = text.IndexOf ("::", startIndex, endIndex - startIndex, StringComparison.Ordinal);
-			bool ipv4 = false;
-			int groups = 0;
-
-			if (compressed == -1) {
-				if (!TryParseIPv6Groups (text, startIndex, endIndex, true, ref groups, ref ipv4))
-					return false;
-
-				return groups == (ipv4 ? 6 : 8);
-			}
-
-			// only a single "::" is allowed
-			if (compressed + 2 < endIndex && text.IndexOf (':', compressed + 2, endIndex - (compressed + 2)) == compressed + 2)
-				return false;
-
-			if (compressed > startIndex && !TryParseIPv6Groups (text, startIndex, compressed, false, ref groups, ref ipv4))
-				return false;
-
-			if (compressed + 2 < endIndex && !TryParseIPv6Groups (text, compressed + 2, endIndex, true, ref groups, ref ipv4))
-				return false;
-
-			return groups <= (ipv4 ? 4 : 6);
-		}
-
-		static bool TryParseIPv6Groups (string text, int startIndex, int endIndex, bool allowIPv4, ref int groups, ref bool ipv4)
-		{
-			int index = startIndex;
-
-			do {
-				int groupIndex = index;
-
-				while (index < endIndex && index - groupIndex < 4 && IsHexDigit (text[index]))
-					index++;
-
-				if (allowIPv4 && index < endIndex && text[index] == '.') {
-					// the IPv4-address-literal must be the last component
-					ipv4 = true;
-
-					return IsIPv4Address (text, groupIndex, endIndex);
-				}
-
-				if (index == groupIndex)
-					return false;
-
-				groups++;
-
-				if (index == endIndex)
-					return true;
-
-				if (text[index] != ':')
-					return false;
-
-				index++;
-			} while (index < endIndex);
-
-			// trailing ':'
-			return false;
-		}
-
-		// General-address-literal = Standardized-tag ":" 1*dcontent
-		// Standardized-tag        = Ldh-str
-		// dcontent                = %d33-90 / %d94-126
-		static bool IsGeneralAddressLiteral (string text, int startIndex, int colon, int endIndex)
-		{
-			if (colon == startIndex || text[colon - 1] == '-')
-				return false;
-
-			for (int i = startIndex; i < colon; i++) {
-				if (text[i] != '-' && !IsAsciiLetterOrDigit (text[i]))
-					return false;
-			}
-
-			if (colon + 1 == endIndex)
-				return false;
-
-			for (int i = colon + 1; i < endIndex; i++) {
-				char c = text[i];
-
-				if (c < 33 || c > 126 || c == '[' || c == '\\')
-					return false;
-			}
-
-			return true;
-		}
-
-		#endregion Syntax
 
 		#region Code Points
 
@@ -1025,7 +722,7 @@ namespace MimeKit.Utils {
 					// Note: The syntax rules only allow printable ASCII, all of which is PVALID except for SPACE,
 					// which is explicitly permitted by draft-ietf-mailmaint-smtputf8-syntax. ASCII is also ignored
 					// when counting scripts unless ASCII letters are to be treated as Latin.
-					if (!asciiIsLatin || !IsAsciiLetter ((char) codePoint))
+					if (!asciiIsLatin || !SmtpAddressSyntax.IsAsciiLetter ((char) codePoint))
 						continue;
 
 					script = UnicodeScript.Latin;
