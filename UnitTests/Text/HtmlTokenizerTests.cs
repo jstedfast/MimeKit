@@ -3876,6 +3876,7 @@ namespace UnitTests.Text {
 			Assert.That (tokenizer.MaxElementDepth, Is.EqualTo (4096), "Default");
 			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.MaxElementDepth = 0);
 			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.MaxElementDepth = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.MaxComplianceIssuesPerViolation = -1);
 
 			tokenizer.MaxElementDepth = 1;
 			Assert.That (tokenizer.MaxElementDepth, Is.EqualTo (1));

@@ -43,6 +43,7 @@ namespace MimeKit.Text {
 	{
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
+		int maxComplianceIssuesPerViolation;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="HtmlToHtml"/> class.
@@ -147,6 +148,49 @@ namespace MimeKit.Text {
 					throw new ArgumentOutOfRangeException (nameof (value));
 
 				maxElementDepth = value;
+			}
+		}
+
+		/// <summary>
+		/// Get or set the logger to use for reporting HTML compliance violations.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the logger to use for reporting HTML compliance violations.</para>
+		/// <para>Violations are reported as they are encountered during <see cref="Convert(TextReader, TextWriter)"/>
+		/// (see <see cref="HtmlTokenizer.ComplianceLogger"/>). When the value is <see langword="null" /> (the default),
+		/// no compliance checks are performed.</para>
+		/// <para>Character references are checked even though the converter does not decode them.</para>
+		/// </remarks>
+		/// <value>The HTML compliance logger.</value>
+		public IHtmlComplianceLogger? ComplianceLogger {
+			get; set;
+		}
+
+		/// <summary>
+		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of times that each compliance violation may be
+		/// reported while converting a single document. The default is <c>0</c>, which means that no limit
+		/// is applied.</para>
+		/// <para>The number of issues an HTML document can produce is bounded only by its size, and the
+		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when converting
+		/// untrusted documents.</para>
+		/// <para>When some violation reaches the limit, a single
+		/// <see cref="HtmlComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
+		/// report is never silently incomplete.</para>
+		/// </remarks>
+		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxComplianceIssuesPerViolation {
+			get { return maxComplianceIssuesPerViolation; }
+			set {
+				if (value < 0)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxComplianceIssuesPerViolation = value;
 			}
 		}
 
@@ -313,6 +357,8 @@ namespace MimeKit.Text {
 					ScriptingEnabled = noScriptHandling == HtmlNoScriptHandling.ScriptingEnabled,
 					IgnoreTruncatedTags = true,
 					MaxElementDepth = maxElementDepth,
+					ComplianceLogger = ComplianceLogger,
+					MaxComplianceIssuesPerViolation = maxComplianceIssuesPerViolation,
 					ReuseDataTokens = true
 				};
 				var openElements = tokenizer.OpenElements;

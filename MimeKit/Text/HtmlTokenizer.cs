@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 
@@ -66,6 +67,17 @@ namespace MimeKit.Text {
 
 		readonly char[] buffer;
 		int bufferIndex, bufferEnd;
+		long bufferOffset;
+
+		IHtmlComplianceLogger? complianceLogger;
+		IHtmlComplianceLogger? logger;
+		int maxComplianceIssuesPerViolation;
+		bool reportedElementDepthLimitExceeded;
+		bool nestedComment;
+		HashSet<string>? attributeNames;
+		long markOffset;
+		int markLineNumber;
+		int markLinePosition;
 
 		readonly char[] cdata = new char[3];
 		int cdataIndex;
@@ -230,6 +242,128 @@ namespace MimeKit.Text {
 
 				openElements.MaxDepth = value;
 			}
+		}
+
+		/// <summary>
+		/// Get or set the logger to use for reporting HTML compliance violations.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the logger to use for reporting HTML compliance violations.</para>
+		/// <para>Violations are the parse errors defined by the tokenization section of the HTML Living
+		/// Standard, and are reported as they are encountered by <see cref="ReadNextToken"/>. When the value
+		/// is <see langword="null" /> (the default), no compliance checks are performed.</para>
+		/// <para>Errors in the input stream itself (such as literal control characters, noncharacters or
+		/// lone surrogates) are not reported.</para>
+		/// </remarks>
+		/// <value>The HTML compliance logger.</value>
+		public IHtmlComplianceLogger? ComplianceLogger {
+			get { return complianceLogger; }
+			set {
+				complianceLogger = value;
+				UpdateComplianceLogger ();
+			}
+		}
+
+		/// <summary>
+		/// Get or set the maximum number of times that each compliance violation may be reported.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets or sets the maximum number of times that each compliance violation may be
+		/// reported. The default is <c>0</c>, which means that no limit is applied.</para>
+		/// <para>The number of issues an HTML document can produce is bounded only by its size, and the
+		/// densest forms cost only a few bytes per issue. Setting a limit is recommended when tokenizing
+		/// untrusted documents.</para>
+		/// <para>When some violation reaches the limit, a single
+		/// <see cref="HtmlComplianceViolation.TooManyComplianceIssues"/> issue is reported so that the
+		/// report is never silently incomplete.</para>
+		/// <para>Setting either this property or <see cref="ComplianceLogger"/> restarts the count.</para>
+		/// </remarks>
+		/// <value>The maximum number of times that each violation may be reported, or <c>0</c> for no limit.</value>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is negative.
+		/// </exception>
+		public int MaxComplianceIssuesPerViolation {
+			get { return maxComplianceIssuesPerViolation; }
+			set {
+				if (value < 0)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxComplianceIssuesPerViolation = value;
+				UpdateComplianceLogger ();
+			}
+		}
+
+		void UpdateComplianceLogger ()
+		{
+			if (complianceLogger != null && maxComplianceIssuesPerViolation > 0)
+				logger = new HtmlCappedComplianceLogger (complianceLogger, maxComplianceIssuesPerViolation);
+			else
+				logger = complianceLogger;
+		}
+
+		void LogIssue (HtmlComplianceViolation violation, long offset, int lineNumber, int linePosition)
+		{
+			logger!.Log (new HtmlComplianceIssue (violation, offset, lineNumber, linePosition));
+		}
+
+		// Reports a violation at the position of the next (not yet consumed) character, or at the end of the input.
+		void LogIssueAtCurrentPosition (HtmlComplianceViolation violation)
+		{
+			LogIssue (violation, bufferOffset + bufferIndex, lineNumber, linePosition);
+		}
+
+		// Reports a violation at the position of the character that was just consumed by TryRead().
+		void LogIssueAtPreviousCharacter (HtmlComplianceViolation violation, char c)
+		{
+			// Note: A consumed '\n' moves to the start of the next line, so its own position on the previous line is unknown.
+			// None of the characters that violations are reported for are '\n', but fall back to the current position.
+			if (c == '\n')
+				LogIssueAtCurrentPosition (violation);
+			else
+				LogIssue (violation, bufferOffset + bufferIndex - 1, lineNumber, linePosition - 1);
+		}
+
+		// Remembers the position of the character that was just consumed by TryRead() so that a violation can be reported
+		// there later (e.g. the start of a DOCTYPE keyword or an attribute name). Never called for a consumed '\n'.
+		void MarkPreviousCharacter ()
+		{
+			markOffset = bufferOffset + bufferIndex - 1;
+			markLineNumber = lineNumber;
+			markLinePosition = linePosition - 1;
+		}
+
+		void LogIssueAtMark (HtmlComplianceViolation violation)
+		{
+			LogIssue (violation, markOffset, markLineNumber, markLinePosition);
+		}
+
+		// Reports a '\0' that was just consumed by TryRead().
+		void LogNullCharacter ()
+		{
+			if (logger != null)
+				LogIssue (HtmlComplianceViolation.UnexpectedNullCharacter, bufferOffset + bufferIndex - 1, lineNumber, linePosition - 1);
+		}
+
+		void LogEndOfFile (HtmlComplianceViolation violation)
+		{
+			if (logger != null)
+				LogIssueAtCurrentPosition (violation);
+		}
+
+		void LogInvalidDocTypeKeyword (bool invalidKeyword)
+		{
+			if (invalidKeyword)
+				LogIssueAtMark (HtmlComplianceViolation.InvalidCharacterSequenceAfterDocTypeName);
+			else
+				LogIssueAtCurrentPosition (HtmlComplianceViolation.EofInDocType);
+		}
+
+		// eof-in-tag parse error
+		HtmlToken? EmitEofInTag ()
+		{
+			LogEndOfFile (HtmlComplianceViolation.EofInTag);
+
+			return EmitDataToken (false, true);
 		}
 
 		/// <summary>
@@ -519,6 +653,7 @@ namespace MimeKit.Text {
 						}
 					}
 
+					bufferOffset += bufferEnd;
 					bufferIndex = 0;
 					bufferEnd = 0;
 
@@ -534,6 +669,7 @@ namespace MimeKit.Text {
 
 					inputEnd = 0;
 				} else if (textReader != null) {
+					bufferOffset += bufferEnd;
 					bufferEnd = textReader.Read (buffer, 0, buffer.Length);
 					bufferIndex = 0;
 				} else {
@@ -728,11 +864,59 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		bool IsDuplicateAttribute (string attributeName)
+		{
+			attributeNames ??= new HashSet<string> (AsciiCaseInsensitiveComparer.Instance);
+
+			if (tag!.Attributes.Count == 0)
+				attributeNames.Clear ();
+
+			return !attributeNames.Add (attributeName);
+		}
+
 		void EmitTagAttribute ()
 		{
-			attribute = CreateAttribute (name.ToCachedString ());
+			var attributeName = name.ToCachedString ();
+
+			// duplicate-attribute parse error
+			if (logger != null && IsDuplicateAttribute (attributeName))
+				LogIssueAtMark (HtmlComplianceViolation.DuplicateAttribute);
+
+			attribute = CreateAttribute (attributeName);
 			tag!.AddAttribute (attribute);
 			name.Length = 0;
+		}
+
+		// Attribute names are compared after ASCII lowercasing (non-ASCII characters are compared as-is).
+		sealed class AsciiCaseInsensitiveComparer : IEqualityComparer<string>
+		{
+			public static readonly AsciiCaseInsensitiveComparer Instance = new AsciiCaseInsensitiveComparer ();
+
+			public bool Equals (string? x, string? y)
+			{
+				if (x is null || y is null)
+					return x is null && y is null;
+
+				if (x.Length != y.Length)
+					return false;
+
+				for (int i = 0; i < x.Length; i++) {
+					if (ToLower (x[i]) != ToLower (y[i]))
+						return false;
+				}
+
+				return true;
+			}
+
+			public int GetHashCode (string obj)
+			{
+				int hash = 5381;
+
+				for (int i = 0; i < obj.Length; i++)
+					hash = ((hash << 5) + hash) ^ ToLower (obj[i]);
+
+				return hash;
+			}
 		}
 
 		HtmlToken EmitCommentToken (string comment, bool bogus = false)
@@ -840,9 +1024,22 @@ namespace MimeKit.Text {
 			return token;
 		}
 
+		void ValidateEndTag ()
+		{
+			// Note: EmitTagToken() is always called after the '>' has been consumed.
+			if (tag!.Attributes.Count > 0)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.EndTagWithAttributes, '>');
+
+			if (tag.IsEmptyElement)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.EndTagWithTrailingSolidus, '>');
+		}
+
 		HtmlToken EmitTagToken ()
 		{
 			openElements.ClearClosedElements ();
+
+			if (logger != null && tag!.IsEndTag)
+				ValidateEndTag ();
 
 			if (tag!.IsEndTag) {
 				openElements.ProcessEndTag (tag);
@@ -900,8 +1097,14 @@ namespace MimeKit.Text {
 			// Note: If the stack of open elements overflowed, the tokenizer can no longer tell how a browser would tokenize the rest
 			// of the input (e.g. an untracked <svg> would change how <style> or <![CDATA[ are handled), so fail closed by treating
 			// the remainder of the input as literal text.
-			if (openElements.DepthExceeded)
+			if (openElements.DepthExceeded) {
+				if (logger != null && !reportedElementDepthLimitExceeded) {
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.ElementDepthLimitExceeded, '>');
+					reportedElementDepthLimitExceeded = true;
+				}
+
 				TokenizerState = HtmlTokenizerState.PlainText;
+			}
 
 			var token = tag;
 			data.Length = 0;
@@ -911,13 +1114,18 @@ namespace MimeKit.Text {
 		}
 
 		// 8.2.4.69 Tokenizing character references
+		//
+		// Note: When DecodeCharacterReferences is disabled, this state is only entered in order to report compliance
+		// issues, in which case the raw text of the character reference is preserved rather than being decoded.
 		HtmlToken? ReadCharacterReference (HtmlTokenizerState next)
 		{
+			bool decode = DecodeCharacterReferences;
+
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				data.Append ('&');
 
-				return EmitDataToken (true, false);
+				return EmitDataToken (decode, false);
 			}
 
 			switch (c) {
@@ -928,29 +1136,85 @@ namespace MimeKit.Text {
 				return null;
 			}
 
+			// Note: The '&' has already been consumed.
+			if (logger != null)
+				MarkPreviousCharacter ();
+
 			entity.Push ('&');
+
+			if (!decode)
+				data.Append ('&');
 
 			while (entity.Push (c)) {
 				ConsumeCharacter (c);
+
+				if (!decode)
+					data.Append (c);
 
 				if (c == ';')
 					break;
 
 				if (!TryPeek (out c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
-					data.Append (entity.GetValue ());
+					if (logger != null)
+						ValidateCharacterReference (false, '\0');
+					if (decode)
+						data.Append (entity.GetValue ());
 					entity.Reset ();
 
-					return EmitDataToken (true, false);
+					return EmitDataToken (decode, false);
 				}
 			}
 
 			TokenizerState = next;
 
-			data.Append (entity.GetValue ());
+			int unknown = logger != null ? ValidateCharacterReference (false, c) : -1;
+
+			if (decode)
+				data.Append (entity.GetValue ());
 			entity.Reset ();
 
+			if (unknown != -1)
+				ReadAmbiguousAmpersand (false, unknown);
+
 			return null;
+		}
+
+		// Logs the parse errors for the character reference that was pushed into the entity decoder and returns the
+		// number of characters in an unknown named character reference (or -1 if it is numeric or a known name).
+		int ValidateCharacterReference (bool attribute, char next)
+		{
+			entity.GetComplianceViolations (attribute, next, out var first, out var second);
+
+			if (first != HtmlComplianceViolation.None)
+				LogIssueAtMark (first);
+
+			if (second != HtmlComplianceViolation.None)
+				LogIssueAtMark (second);
+
+			return entity.GetUnknownNamedLength ();
+		}
+
+		// 13.2.5.74 Ambiguous ampersand state
+		//
+		// Note: This state only needs to be emulated in order to report unknown named character references because
+		// the ASCII alphanumeric characters that it consumes would otherwise be consumed as character data anyway.
+		void ReadAmbiguousAmpersand (bool attribute, int length)
+		{
+			char c;
+
+			while (TryPeek (out c) && IsAlphaNumeric (c)) {
+				ConsumeCharacter (c);
+
+				if (attribute)
+					name.Append (c);
+
+				data.Append (c);
+				length++;
+			}
+
+			if (length > 0 && TryPeek (out c) && c == ';')
+				LogIssueAtMark (HtmlComplianceViolation.UnknownNamedCharacterReference);
 		}
 
 		HtmlToken? ReadGenericRawTextLessThan (HtmlTokenizerState rawText, HtmlTokenizerState rawTextEndTagOpen)
@@ -1052,18 +1316,27 @@ namespace MimeKit.Text {
 		static readonly char[] DataSpecials = new char[] { '&', '<' };
 #endif
 
+		// Note: The data state emits '\0' as-is, so it only needs to stop at '\0' in order to report it.
+#if NET8_0_OR_GREATER
+		static readonly SearchValues<char> LoggedDataSpecials = SearchValues.Create (new char[] { '\0', '&', '<' });
+#else
+		static readonly char[] LoggedDataSpecials = new char[] { '\0', '&', '<' };
+#endif
+
 		// 8.2.4.1 Data state
 		HtmlToken? ReadData ()
 		{
+			var specials = logger != null ? LoggedDataSpecials : DataSpecials;
+
 			do {
-				if (!TryReadDataUntil (DataSpecials, out char c)) {
+				if (!TryReadDataUntil (specials, out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					break;
 				}
 
 				switch (c) {
 				case '&':
-					if (DecodeCharacterReferences) {
+					if (DecodeCharacterReferences || logger != null) {
 						TokenizerState = HtmlTokenizerState.CharacterReferenceInData;
 						return null;
 					}
@@ -1073,12 +1346,19 @@ namespace MimeKit.Text {
 					// Note: If the next character cannot begin a tag, a comment or a markup declaration, then the tag open
 					// state would just emit the '<' as character data and reconsume the next character in the data state,
 					// so avoid emitting a separate data token for each '<' (e.g. "<<<<<<<<").
-					if (TryPeek (out char next) && next != '!' && next != '/' && next != '?' && !IsAsciiLetter (next))
+					if (TryPeek (out char next) && next != '!' && next != '/' && next != '?' && !IsAsciiLetter (next)) {
+						if (logger != null)
+							LogIssueAtCurrentPosition (HtmlComplianceViolation.InvalidFirstCharacterOfTagName);
+
 						goto default;
+					}
 
 					TokenizerState = HtmlTokenizerState.TagOpen;
 					break;
-				//case 0: // parse error, but emit it anyway
+				case '\0':
+					// unexpected-null-character parse error, but emit it anyway (only reached when logging)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedNullCharacter, c);
+					goto default;
 				default:
 					data.Append (c);
 					break;
@@ -1116,7 +1396,7 @@ namespace MimeKit.Text {
 
 				switch (c) {
 				case '&':
-					if (DecodeCharacterReferences) {
+					if (DecodeCharacterReferences || logger != null) {
 						TokenizerState = HtmlTokenizerState.CharacterReferenceInRcData;
 						return null;
 					}
@@ -1125,8 +1405,12 @@ namespace MimeKit.Text {
 				case '<':
 					TokenizerState = HtmlTokenizerState.RcDataLessThan;
 					return EmitDataToken (DecodeCharacterReferences, false);
+				case '\0':
+					LogNullCharacter ();
+					data.Append ('\uFFFD');
+					break;
 				default:
-					data.Append (c == '\0' ? '\uFFFD' : c);
+					data.Append (c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.RcData);
@@ -1159,8 +1443,12 @@ namespace MimeKit.Text {
 				case '<':
 					TokenizerState = HtmlTokenizerState.RawTextLessThan;
 					return EmitDataToken (false, false);
+				case '\0':
+					LogNullCharacter ();
+					data.Append ('\uFFFD');
+					break;
 				default:
-					data.Append (c == '\0' ? '\uFFFD' : c);
+					data.Append (c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.RawText);
@@ -1181,8 +1469,12 @@ namespace MimeKit.Text {
 				case '<':
 					TokenizerState = HtmlTokenizerState.ScriptDataLessThan;
 					break;
+				case '\0':
+					LogNullCharacter ();
+					data.Append ('\uFFFD');
+					break;
 				default:
-					data.Append (c == '\0' ? '\uFFFD' : c);
+					data.Append (c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.ScriptData);
@@ -1199,8 +1491,10 @@ namespace MimeKit.Text {
 		// 8.2.4.7 PLAINTEXT state
 		HtmlToken? ReadPlainText ()
 		{
-			while (TryReadDataUntil (PlainTextSpecials, out char c))
-				data.Append (c == '\0' ? '\uFFFD' : c);
+			while (TryReadDataUntil (PlainTextSpecials, out _)) {
+				LogNullCharacter ();
+				data.Append ('\uFFFD');
+			}
 
 			TokenizerState = HtmlTokenizerState.EndOfFile;
 
@@ -1214,6 +1508,9 @@ namespace MimeKit.Text {
 		{
 			if (!TryPeek (out char c)) {
 				// eof-before-tag-name parse error: emit '<' as character data
+				if (logger != null)
+					LogIssueAtCurrentPosition (HtmlComplianceViolation.EofBeforeTagName);
+
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				data.Append ('<');
 				return EmitDataToken (true, false);
@@ -1229,6 +1526,9 @@ namespace MimeKit.Text {
 				data.Append (c);
 				break;
 			case '?':
+				if (logger != null)
+					LogIssueAtCurrentPosition (HtmlComplianceViolation.UnexpectedQuestionMarkInsteadOfTagName);
+
 				TokenizerState = HtmlTokenizerState.BogusComment;
 				ConsumeCharacter (c);
 				data.Length = 1;
@@ -1250,6 +1550,9 @@ namespace MimeKit.Text {
 					// invalid-first-character-of-tag-name parse error: emit the '<' as character data and
 					// reconsume the current input character in the data state (e.g. the second '<' in "<<img>"
 					// must still be able to start a tag).
+					if (logger != null)
+						LogIssueAtCurrentPosition (HtmlComplianceViolation.InvalidFirstCharacterOfTagName);
+
 					TokenizerState = HtmlTokenizerState.Data;
 				}
 				break;
@@ -1263,6 +1566,9 @@ namespace MimeKit.Text {
 		{
 			if (!TryRead (out char c)) {
 				// eof-before-tag-name parse error: emit "</" as character data
+				if (logger != null)
+					LogIssueAtCurrentPosition (HtmlComplianceViolation.EofBeforeTagName);
+
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitDataToken (true, false);
 			}
@@ -1272,6 +1578,9 @@ namespace MimeKit.Text {
 
 			switch (c) {
 			case '>': // missing-end-tag-name parse error
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingEndTagName, c);
+
 				// Note: per the HTML5 spec, "</>" is simply dropped (nothing is emitted).
 				TokenizerState = HtmlTokenizerState.Data;
 				data.Length = 0;
@@ -1282,6 +1591,10 @@ namespace MimeKit.Text {
 					isEndTag = true;
 					name.Append (c);
 				} else {
+					// invalid-first-character-of-tag-name parse error
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.InvalidFirstCharacterOfTagName, c);
+
 					TokenizerState = HtmlTokenizerState.BogusComment;
 					data.Length = 1;
 					data[0] = c == '\0' ? '\uFFFD' : c;
@@ -1300,7 +1613,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1319,8 +1632,12 @@ namespace MimeKit.Text {
 					name.Length = 0;
 
 					return EmitTagToken ();
+				case '\0':
+					LogNullCharacter ();
+					name.Append ('\uFFFD');
+					break;
 				default:
-					name.Append (c == '\0' ? '\uFFFD' : c);
+					name.Append (c);
 					break;
 				}
 			} while (TokenizerState == HtmlTokenizerState.TagName);
@@ -1498,6 +1815,7 @@ namespace MimeKit.Text {
 
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					return EmitScriptDataToken ();
 				}
@@ -1513,6 +1831,8 @@ namespace MimeKit.Text {
 					data.Append ('<');
 					break;
 				default:
+					if (c == '\0')
+						LogNullCharacter ();
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
@@ -1525,6 +1845,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadScriptDataEscapedDash ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitScriptDataToken ();
 			}
@@ -1543,6 +1864,8 @@ namespace MimeKit.Text {
 				break;
 			default:
 				TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
+				if (c == '\0')
+					LogNullCharacter ();
 				data.Append (c == '\0' ? '\uFFFD' : c);
 				break;
 			}
@@ -1557,6 +1880,7 @@ namespace MimeKit.Text {
 
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					return EmitScriptDataToken ();
 				}
@@ -1576,6 +1900,8 @@ namespace MimeKit.Text {
 					break;
 				default:
 					TokenizerState = HtmlTokenizerState.ScriptDataEscaped;
+					if (c == '\0')
+						LogNullCharacter ();
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
@@ -1614,6 +1940,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadScriptDataEscapedEndTagOpen ()
 		{
 			if (!TryPeek (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitScriptDataToken ();
 			}
@@ -1636,6 +1963,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryPeek (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
@@ -1692,6 +2020,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryPeek (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
@@ -1730,6 +2059,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					return EmitScriptDataToken ();
 				}
@@ -1744,6 +2074,8 @@ namespace MimeKit.Text {
 					data.Append ('<');
 					break;
 				default:
+					if (c == '\0')
+						LogNullCharacter ();
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
@@ -1756,6 +2088,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadScriptDataDoubleEscapedDash ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitScriptDataToken ();
 			}
@@ -1771,6 +2104,8 @@ namespace MimeKit.Text {
 				break;
 			default:
 				TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscaped;
+				if (c == '\0')
+					LogNullCharacter ();
 				data.Append (c == '\0' ? '\uFFFD' : c);
 				break;
 			}
@@ -1783,6 +2118,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInScriptHtmlCommentLikeText);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					return EmitScriptDataToken ();
 				}
@@ -1801,6 +2137,8 @@ namespace MimeKit.Text {
 					break;
 				default:
 					TokenizerState = HtmlTokenizerState.ScriptDataDoubleEscaped;
+					if (c == '\0')
+						LogNullCharacter ();
 					data.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
@@ -1865,7 +2203,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					tag = null;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1879,10 +2217,20 @@ namespace MimeKit.Text {
 					return null;
 				case '>':
 					return EmitTagToken ();
-				case '"': case '\'': case '<': case '=':
-					// parse error
+				case '=':
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedEqualsSignBeforeAttributeName, c);
+					goto default;
+				case '"': case '\'': case '<':
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedCharacterInAttributeName, c);
+					goto default;
+				case '\0':
+					LogNullCharacter ();
 					goto default;
 				default:
+					if (logger != null)
+						MarkPreviousCharacter ();
 					TokenizerState = HtmlTokenizerState.AttributeName;
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
@@ -1899,7 +2247,7 @@ namespace MimeKit.Text {
 					name.Length = 0;
 					tag = null;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1919,6 +2267,13 @@ namespace MimeKit.Text {
 					EmitTagAttribute ();
 
 					return EmitTagToken ();
+				case '"': case '\'': case '<':
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedCharacterInAttributeName, c);
+					goto default;
+				case '\0':
+					LogNullCharacter ();
+					goto default;
 				default:
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					break;
@@ -1938,7 +2293,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					tag = null;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1956,9 +2311,15 @@ namespace MimeKit.Text {
 				case '>':
 					return EmitTagToken ();
 				case '"': case '\'': case '<':
-					// parse error
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedCharacterInAttributeName, c);
+					goto default;
+				case '\0':
+					LogNullCharacter ();
 					goto default;
 				default:
+					if (logger != null)
+						MarkPreviousCharacter ();
 					TokenizerState = HtmlTokenizerState.AttributeName;
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
@@ -1974,7 +2335,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					tag = null;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -1999,9 +2360,15 @@ namespace MimeKit.Text {
 					quote = '\0';
 					return null;
 				case '>':
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingAttributeValue, c);
 					return EmitTagToken ();
 				case '<': case '=': case '`':
-					// parse error
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedCharacterInUnquotedAttributeValue, c);
+					goto default;
+				case '\0':
+					LogNullCharacter ();
 					goto default;
 				default:
 					TokenizerState = HtmlTokenizerState.AttributeValueUnquoted;
@@ -2026,7 +2393,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -2041,6 +2408,7 @@ namespace MimeKit.Text {
 					quote = '\0';
 					break;
 				default: // '\0'
+					LogNullCharacter ();
 					name.Append ('\uFFFD');
 					break;
 				}
@@ -2066,7 +2434,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -2081,6 +2449,7 @@ namespace MimeKit.Text {
 					quote = '\0';
 					break;
 				default: // '\0'
+					LogNullCharacter ();
 					name.Append ('\uFFFD');
 					break;
 				}
@@ -2100,7 +2469,7 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					name.Length = 0;
 
-					return EmitDataToken (false, true);
+					return EmitEofInTag ();
 				}
 
 				// Note: we save the data in case we hit a parse error and have to emit a data token
@@ -2118,8 +2487,12 @@ namespace MimeKit.Text {
 					name.Length = 0;
 
 					return EmitTagToken ();
-				case '\'': case '<': case '=': case '`':
-					// parse error
+				case '"': case '\'': case '<': case '=': case '`':
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedCharacterInUnquotedAttributeValue, c);
+					goto default;
+				case '\0':
+					LogNullCharacter ();
 					goto default;
 				default:
 					name.Append (c == '\0' ? '\uFFFD' : c);
@@ -2142,7 +2515,7 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				name.Length = 0;
 
-				return EmitDataToken (false, true);
+				return EmitEofInTag ();
 			}
 
 			switch (c) {
@@ -2157,6 +2530,10 @@ namespace MimeKit.Text {
 					break;
 				}
 
+				// Note: The '&' has already been consumed.
+				if (logger != null)
+					MarkPreviousCharacter ();
+
 				entity.Push ('&');
 
 				// Note: 'data' already contains the '&' and accumulates the raw text in case the tag is truncated.
@@ -2169,14 +2546,21 @@ namespace MimeKit.Text {
 
 					if (!TryPeek (out c)) {
 						TokenizerState = HtmlTokenizerState.EndOfFile;
+						if (logger != null)
+							ValidateCharacterReference (true, '\0');
 						entity.Reset ();
 
-						return EmitDataToken (false, true);
+						return EmitEofInTag ();
 					}
 				}
 
+				int unknown = logger != null ? ValidateCharacterReference (true, c) : -1;
+
 				name.Append (entity.GetAttributeValue (c));
 				entity.Reset ();
+
+				if (unknown != -1)
+					ReadAmbiguousAmpersand (true, unknown);
 				break;
 			}
 
@@ -2196,7 +2580,7 @@ namespace MimeKit.Text {
 
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (false, true);
+				return EmitEofInTag ();
 			}
 
 			switch (c) {
@@ -2215,6 +2599,8 @@ namespace MimeKit.Text {
 				token = EmitTagToken ();
 				break;
 			default:
+				if (logger != null)
+					LogIssueAtCurrentPosition (HtmlComplianceViolation.MissingWhitespaceBetweenAttributes);
 				TokenizerState = HtmlTokenizerState.BeforeAttributeName;
 				break;
 			}
@@ -2227,7 +2613,7 @@ namespace MimeKit.Text {
 		{
 			if (!TryPeek (out char c)) {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
-				return EmitDataToken (false, true);
+				return EmitEofInTag ();
 			}
 
 			if (c == '>') {
@@ -2239,6 +2625,9 @@ namespace MimeKit.Text {
 
 			// unexpected-solidus-in-tag parse error: reconsume the current input character in the before attribute
 			// name state (e.g. "<img/onerror=...>" has an "onerror" attribute, not a "nerror" attribute).
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedSolidusInTag, '/');
+
 			TokenizerState = HtmlTokenizerState.BeforeAttributeName;
 
 			return null;
@@ -2262,6 +2651,8 @@ namespace MimeKit.Text {
 				if (c == '>')
 					break;
 
+				if (c == '\0')
+					LogNullCharacter ();
 				data.Append (c == '\0' ? '\uFFFD' : c);
 			} while (true);
 
@@ -2273,6 +2664,10 @@ namespace MimeKit.Text {
 		// 8.2.4.45 Markup declaration open state
 		HtmlToken? ReadMarkupDeclarationOpen ()
 		{
+			long startOffset = bufferOffset + bufferIndex;
+			int startLineNumber = lineNumber;
+			int startLinePosition = linePosition;
+			bool cdataInHtml = false;
 			int count = 0;
 			char c = '\0';
 
@@ -2356,10 +2751,14 @@ namespace MimeKit.Text {
 						data.Length = 0;
 						return null;
 					}
+
+					cdataInHtml = count == 7;
 				}
 			}
 
-			// parse error
+			if (logger != null)
+				LogIssue (cdataInHtml ? HtmlComplianceViolation.CDataInHtmlContent : HtmlComplianceViolation.IncorrectlyOpenedComment, startOffset, startLineNumber, startLinePosition);
+
 			TokenizerState = HtmlTokenizerState.BogusComment;
 
 			// trim the leading "<!"
@@ -2375,6 +2774,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadCommentStart ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInComment);
 				TokenizerState = HtmlTokenizerState.Data;
 
 				return EmitCommentToken (string.Empty);
@@ -2386,11 +2786,15 @@ namespace MimeKit.Text {
 			case '-':
 				TokenizerState = HtmlTokenizerState.CommentStartDash;
 				break;
-			case '>': // parse error
+			case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.AbruptClosingOfEmptyComment, c);
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (string.Empty);
 			default:
 				TokenizerState = HtmlTokenizerState.Comment;
+				if (c == '\0')
+					LogNullCharacter ();
 				name.Append (c == '\0' ? '\uFFFD' : c);
 				break;
 			}
@@ -2402,6 +2806,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadCommentStartDash ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInComment);
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (name);
 			}
@@ -2412,12 +2817,16 @@ namespace MimeKit.Text {
 			case '-':
 				TokenizerState = HtmlTokenizerState.CommentEnd;
 				break;
-			case '>': // parse error
+			case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.AbruptClosingOfEmptyComment, c);
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (name);
 			default:
 				TokenizerState = HtmlTokenizerState.Comment;
 				name.Append ('-');
+				if (c == '\0')
+					LogNullCharacter ();
 				name.Append (c == '\0' ? '\uFFFD' : c);
 				break;
 			}
@@ -2437,6 +2846,7 @@ namespace MimeKit.Text {
 			do {
 				if (!TryReadNameUntil (CommentSpecials, out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
+					LogEndOfFile (HtmlComplianceViolation.EofInComment);
 					return EmitCommentToken (name);
 				}
 
@@ -2448,6 +2858,8 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.CommentEndDash;
 					return null;
 				default:
+					if (c == '\0')
+						LogNullCharacter ();
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					break;
 				}
@@ -2458,6 +2870,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadCommentEndDash ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInComment);
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (name);
 			}
@@ -2466,11 +2879,16 @@ namespace MimeKit.Text {
 
 			switch (c) {
 			case '-':
+				// Note: "<!--" within a comment is a nested-comment parse error unless it is immediately followed by '>'.
+				if (logger != null && name.Length >= 2 && name[name.Length - 2] == '<' && name[name.Length - 1] == '!')
+					nestedComment = true;
 				TokenizerState = HtmlTokenizerState.CommentEnd;
 				break;
 			default:
 				TokenizerState = HtmlTokenizerState.Comment;
 				name.Append ('-');
+				if (c == '\0')
+					LogNullCharacter ();
 				name.Append (c == '\0' ? '\uFFFD' : c);
 				break;
 			}
@@ -2481,8 +2899,13 @@ namespace MimeKit.Text {
 		// 8.2.4.50 Comment end state
 		HtmlToken? ReadCommentEnd ()
 		{
+			bool nested = nestedComment;
+
+			nestedComment = false;
+
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInComment);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					return EmitCommentToken (name);
 				}
@@ -2490,11 +2913,17 @@ namespace MimeKit.Text {
 				// Note: we save the data in case we hit a parse error and have to emit a data token
 				data.Append (c);
 
+				if (nested) {
+					if (c != '>')
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.NestedComment, c);
+					nested = false;
+				}
+
 				switch (c) {
 				case '>':
 					TokenizerState = HtmlTokenizerState.Data;
 					return EmitCommentToken (name);
-				case '!': // parse error
+				case '!':
 					TokenizerState = HtmlTokenizerState.CommentEndBang;
 					return null;
 				case '-':
@@ -2503,6 +2932,8 @@ namespace MimeKit.Text {
 				default:
 					TokenizerState = HtmlTokenizerState.Comment;
 					name.Append ("--");
+					if (c == '\0')
+						LogNullCharacter ();
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
 				}
@@ -2513,6 +2944,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadCommentEndBang ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInComment);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				return EmitCommentToken (name);
 			}
@@ -2525,11 +2957,15 @@ namespace MimeKit.Text {
 				name.Append ("--!");
 				break;
 			case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.IncorrectlyClosedComment, c);
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitCommentToken (name);
-			default: // parse error
+			default:
 				TokenizerState = HtmlTokenizerState.Comment;
 				name.Append ("--!");
+				if (c == '\0')
+					LogNullCharacter ();
 				name.Append (c == '\0' ? '\uFFFD' : c);
 				break;
 			}
@@ -2541,6 +2977,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadDocType ()
 		{
 			if (!TryPeek (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype!.ForceQuirksMode = true;
 				name.Length = 0;
@@ -2555,6 +2992,12 @@ namespace MimeKit.Text {
 				ConsumeCharacter (c);
 				data.Append (c);
 				break;
+			case '>':
+				break;
+			default:
+				if (logger != null)
+					LogIssueAtCurrentPosition (HtmlComplianceViolation.MissingWhitespaceBeforeDocTypeName);
+				break;
 			}
 
 			return null;
@@ -2565,6 +3008,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
@@ -2577,11 +3021,15 @@ namespace MimeKit.Text {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
 					break;
 				case '>':
+					if (logger != null)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingDocTypeName, c);
 					TokenizerState = HtmlTokenizerState.Data;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
 				default:
 					TokenizerState = HtmlTokenizerState.DocTypeName;
+					if (c == '\0')
+						LogNullCharacter ();
 					name.Append (c == '\0' ? '\uFFFD' : c);
 					return null;
 				}
@@ -2593,6 +3041,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.Name = name.ToString ();
 					doctype.ForceQuirksMode = true;
@@ -2615,6 +3064,7 @@ namespace MimeKit.Text {
 
 					return EmitDocType ();
 				case '\0':
+					LogNullCharacter ();
 					name.Append ('\uFFFD');
 					break;
 				default:
@@ -2634,6 +3084,8 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					if (logger != null)
+						LogInvalidDocTypeKeyword (name.Length > 0);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
@@ -2646,6 +3098,8 @@ namespace MimeKit.Text {
 				case '\t': case '\r': case '\n': case '\f': case ' ':
 					if (name.Length > 0) {
 						// parse error: not "PUBLIC" or "SYSTEM"
+						if (logger != null)
+							LogInvalidDocTypeKeyword (true);
 						TokenizerState = HtmlTokenizerState.BogusDocType;
 						doctype!.ForceQuirksMode = true;
 						name.Length = 0;
@@ -2655,6 +3109,8 @@ namespace MimeKit.Text {
 				case '>':
 					if (name.Length > 0) {
 						// parse error: not "PUBLIC" or "SYSTEM"
+						if (logger != null)
+							LogInvalidDocTypeKeyword (true);
 						doctype!.ForceQuirksMode = true;
 						name.Length = 0;
 					}
@@ -2662,6 +3118,9 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.Data;
 					return EmitDocType ();
 				default:
+					if (name.Length == 0 && logger != null)
+						MarkPreviousCharacter ();
+
 					name.Append (c);
 					if (name.Length < 6)
 						break;
@@ -2673,6 +3132,8 @@ namespace MimeKit.Text {
 						TokenizerState = HtmlTokenizerState.AfterDocTypeSystemKeyword;
 						doctype!.SystemKeyword = name.ToString ();
 					} else {
+						if (logger != null)
+							LogInvalidDocTypeKeyword (true);
 						TokenizerState = HtmlTokenizerState.BogusDocType;
 						doctype!.ForceQuirksMode = true;
 					}
@@ -2687,6 +3148,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadAfterDocTypePublicKeyword ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
@@ -2699,17 +3161,23 @@ namespace MimeKit.Text {
 			case '\t': case '\r': case '\n': case '\f': case ' ':
 				TokenizerState = HtmlTokenizerState.BeforeDocTypePublicIdentifier;
 				break;
-			case '"': case '\'': // parse error
+			case '"': case '\'':
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingWhitespaceAfterDocTypePublicKeyword, c);
 				TokenizerState = HtmlTokenizerState.DocTypePublicIdentifierQuoted;
 				doctype!.PublicIdentifier = string.Empty;
 				doctype.PublicIdentifierQuote = c;
 				quote = c;
 				break;
-			case '>': // parse error
+			case '>':
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingDocTypePublicIdentifier, c);
 				TokenizerState = HtmlTokenizerState.Data;
 				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
-			default: // parse error
+			default:
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingQuoteBeforeDocTypePublicIdentifier, c);
 				TokenizerState = HtmlTokenizerState.BogusDocType;
 				doctype!.ForceQuirksMode = true;
 				break;
@@ -2723,6 +3191,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
@@ -2740,11 +3209,15 @@ namespace MimeKit.Text {
 					doctype.PublicIdentifierQuote = c;
 					quote = c;
 					return null;
-				case '>': // parse error
+				case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingDocTypePublicIdentifier, c);
 					TokenizerState = HtmlTokenizerState.Data;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
-				default: // parse error
+				default:
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingQuoteBeforeDocTypePublicIdentifier, c);
 					TokenizerState = HtmlTokenizerState.BogusDocType;
 					doctype!.ForceQuirksMode = true;
 					return null;
@@ -2757,6 +3230,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.PublicIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
@@ -2769,10 +3243,13 @@ namespace MimeKit.Text {
 				data.Append (c);
 
 				switch (c) {
-				case '\0': // parse error
+				case '\0':
+					LogNullCharacter ();
 					name.Append ('\uFFFD');
 					break;
-				case '>': // parse error
+				case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.AbruptDocTypePublicIdentifier, c);
 					TokenizerState = HtmlTokenizerState.Data;
 					doctype!.PublicIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
@@ -2801,6 +3278,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadAfterDocTypePublicIdentifier ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
@@ -2816,13 +3294,17 @@ namespace MimeKit.Text {
 			case '>':
 				TokenizerState = HtmlTokenizerState.Data;
 				return EmitDocType ();
-			case '"': case '\'': // parse error
+			case '"': case '\'':
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingWhitespaceBetweenDocTypePublicAndSystemIdentifiers, c);
 				TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
 				doctype!.SystemIdentifier = string.Empty;
 				doctype.SystemIdentifierQuote = c;
 				quote = c;
 				break;
-			default: // parse error
+			default:
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingQuoteBeforeDocTypeSystemIdentifier, c);
 				TokenizerState = HtmlTokenizerState.BogusDocType;
 				doctype!.ForceQuirksMode = true;
 				break;
@@ -2836,6 +3318,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
@@ -2856,7 +3339,9 @@ namespace MimeKit.Text {
 					doctype.SystemIdentifierQuote = c;
 					quote = c;
 					return null;
-				default: // parse error
+				default:
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingQuoteBeforeDocTypeSystemIdentifier, c);
 					TokenizerState = HtmlTokenizerState.BogusDocType;
 					doctype!.ForceQuirksMode = true;
 					return null;
@@ -2868,6 +3353,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadAfterDocTypeSystemKeyword ()
 		{
 			if (!TryRead (out char c)) {
+				LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
@@ -2880,17 +3366,23 @@ namespace MimeKit.Text {
 			case '\t': case '\r': case '\n': case '\f': case ' ':
 				TokenizerState = HtmlTokenizerState.BeforeDocTypeSystemIdentifier;
 				break;
-			case '"': case '\'': // parse error
+			case '"': case '\'':
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingWhitespaceAfterDocTypeSystemKeyword, c);
 				TokenizerState = HtmlTokenizerState.DocTypeSystemIdentifierQuoted;
 				doctype!.SystemIdentifier = string.Empty;
 				doctype.SystemIdentifierQuote = c;
 				quote = c;
 				break;
-			case '>': // parse error
+			case '>':
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingDocTypeSystemIdentifier, c);
 				TokenizerState = HtmlTokenizerState.Data;
 				doctype!.ForceQuirksMode = true;
 				return EmitDocType ();
-			default: // parse error
+			default:
+			if (logger != null)
+				LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingQuoteBeforeDocTypeSystemIdentifier, c);
 				TokenizerState = HtmlTokenizerState.BogusDocType;
 				doctype!.ForceQuirksMode = true;
 				break;
@@ -2904,6 +3396,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
@@ -2921,11 +3414,15 @@ namespace MimeKit.Text {
 					doctype.SystemIdentifierQuote = c;
 					quote = c;
 					return null;
-				case '>': // parse error
+				case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingDocTypeSystemIdentifier, c);
 					TokenizerState = HtmlTokenizerState.Data;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
-				default: // parse error
+				default:
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.MissingQuoteBeforeDocTypeSystemIdentifier, c);
 					TokenizerState = HtmlTokenizerState.BogusDocType;
 					doctype!.ForceQuirksMode = true;
 					return null;
@@ -2938,6 +3435,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.SystemIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
@@ -2950,10 +3448,13 @@ namespace MimeKit.Text {
 				data.Append (c);
 
 				switch (c) {
-				case '\0': // parse error
+				case '\0':
+					LogNullCharacter ();
 					name.Append ('\uFFFD');
 					break;
-				case '>': // parse error
+				case '>':
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.AbruptDocTypeSystemIdentifier, c);
 					TokenizerState = HtmlTokenizerState.Data;
 					doctype!.SystemIdentifier = name.ToString ();
 					doctype.ForceQuirksMode = true;
@@ -2983,6 +3484,7 @@ namespace MimeKit.Text {
 		{
 			do {
 				if (!TryRead (out char c)) {
+					LogEndOfFile (HtmlComplianceViolation.EofInDocType);
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					doctype!.ForceQuirksMode = true;
 					return EmitDocType ();
@@ -2997,7 +3499,9 @@ namespace MimeKit.Text {
 				case '>':
 					TokenizerState = HtmlTokenizerState.Data;
 					return EmitDocType ();
-				default: // parse error
+				default:
+				if (logger != null)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedCharacterAfterDocTypeSystemIdentifier, c);
 					TokenizerState = HtmlTokenizerState.BogusDocType;
 					return null;
 				}
@@ -3021,6 +3525,9 @@ namespace MimeKit.Text {
 					TokenizerState = HtmlTokenizerState.Data;
 					return EmitDocType ();
 				}
+
+				if (c == '\0')
+					LogNullCharacter ();
 			} while (true);
 		}
 
@@ -3062,6 +3569,7 @@ namespace MimeKit.Text {
 				FillBuffer ();
 			} while (!eof);
 
+			LogEndOfFile (HtmlComplianceViolation.EofInCData);
 			TokenizerState = HtmlTokenizerState.EndOfFile;
 
 			data.Append (cdata, 0, cdataIndex);

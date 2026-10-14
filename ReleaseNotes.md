@@ -328,8 +328,16 @@ a redesigned TNEF implementation, DMARC validation, and a new MIME compliance vi
   found while converting (for example, a missing `\rtf1` header, invalid hex escapes, unbalanced groups, undefined
   fonts or exceeded table and depth limits). Each issue carries a byte offset, line and column numbers and the group
   depth. `MaxComplianceIssuesPerViolation` caps how many times each violation is reported per document (`0`, the
-  default, means no limit), and a single `TooManyComplianceIssues` is logged when a cap is reached. The
-  `RtfCappedComplianceLogger` class implements this cap and can wrap any `IRtfComplianceLogger`.
+  default, means no limit), and a single `TooManyComplianceIssues` is logged when a cap is reached.
+* Added HTML compliance violation reporting. Set `HtmlTokenizer.ComplianceLogger` or `HtmlToHtml.ComplianceLogger`
+  to an `IHtmlComplianceLogger` implementation to receive an `HtmlComplianceIssue` for each `HtmlComplianceViolation`
+  found while tokenizing. The violations are the parse errors defined by the HTML specification's tokenizer (for
+  example, duplicate attributes, unexpected NUL characters, malformed comments and DOCTYPEs, and invalid or
+  unterminated character references), plus `NestedComment`, `UnknownNamedCharacterReference` and
+  `ElementDepthLimitExceeded`. Each issue carries a character offset and line and column numbers. Character
+  references are checked even when `DecodeCharacterReferences` is `false` (as it is for `HtmlToHtml`), without
+  changing the output. `MaxComplianceIssuesPerViolation` works the same way as it does for the RTF
+  converters.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).

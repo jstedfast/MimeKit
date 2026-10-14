@@ -215,27 +215,108 @@ namespace MimeKit.Text {
 			return char.ConvertFromUtf32 (state);
 		}
 
-		// 13.2.5.73 Named character reference state: if the character reference was consumed as part of an
-		// attribute, and the last character matched is not ';', and the next input character is either '=' or
-		// an ASCII alphanumeric, then the matched characters are flushed as-is (for historical reasons).
-		internal string GetAttributeValue (char next)
+		// Gets the number of pushed characters (including the '&') that make up the longest matching named
+		// character reference, or 1 if there is no match.
+		int GetNamedMatchLength ()
 		{
-			if (numeric)
-				return GetNumericEntityValue ();
-
 			int matched = index;
 
 			while (matched > 1 && !NamedEntities.ContainsKey (states[matched - 1]))
 				matched--;
 
+			return matched;
+		}
+
+		// 13.2.5.73 Named character reference state: if the character reference was consumed as part of an
+		// attribute, and the last character matched is not ';', and the next input character is either '=' or
+		// an ASCII alphanumeric, then the matched characters are flushed as-is (for historical reasons).
+		bool IsHistoricalAttributeValue (int matched, char next)
+		{
 			if (matched > 1 && pushed[matched - 1] != ';') {
 				char c = matched < index ? pushed[matched] : next;
 
-				if (c == '=' || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-					return new string (pushed, 0, index);
+				return c == '=' || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 			}
 
+			return false;
+		}
+
+		internal string GetAttributeValue (char next)
+		{
+			if (numeric)
+				return GetNumericEntityValue ();
+
+			if (IsHistoricalAttributeValue (GetNamedMatchLength (), next))
+				return new string (pushed, 0, index);
+
 			return GetNamedEntityValue ();
+		}
+
+		// Gets the parse errors for the character reference. The next input character is the character that
+		// the decoder refused (or '\0' at the end of the input).
+		internal void GetComplianceViolations (bool attribute, char next, out HtmlComplianceViolation first, out HtmlComplianceViolation second)
+		{
+			second = HtmlComplianceViolation.None;
+
+			if (numeric) {
+				// 13.2.5.75 Numeric character reference state & 13.2.5.76 Hexadecimal character reference start state
+				if (!digits) {
+					first = HtmlComplianceViolation.AbsenceOfDigitsInNumericCharacterReference;
+					return;
+				}
+
+				// 13.2.5.78 Hexadecimal character reference state & 13.2.5.79 Decimal character reference state
+				if (!semicolon) {
+					first = HtmlComplianceViolation.MissingSemicolonAfterCharacterReference;
+					second = GetNumericValueViolation ();
+				} else {
+					first = GetNumericValueViolation ();
+				}
+
+				return;
+			}
+
+			// 13.2.5.73 Named character reference state
+			int matched = GetNamedMatchLength ();
+
+			if (matched > 1 && pushed[matched - 1] != ';' && !(attribute && IsHistoricalAttributeValue (matched, next)))
+				first = HtmlComplianceViolation.MissingSemicolonAfterCharacterReference;
+			else
+				first = HtmlComplianceViolation.None;
+		}
+
+		// 13.2.5.80 Numeric character reference end state
+		HtmlComplianceViolation GetNumericValueViolation ()
+		{
+			int value = numericValue;
+
+			if (value == 0)
+				return HtmlComplianceViolation.NullCharacterReference;
+
+			if (value > MaxCodePoint)
+				return HtmlComplianceViolation.CharacterReferenceOutsideUnicodeRange;
+
+			if (value >= 0xD800 && value <= 0xDFFF)
+				return HtmlComplianceViolation.SurrogateCharacterReference;
+
+			if ((value >= 0xFDD0 && value <= 0xFDEF) || (value & 0xFFFE) == 0xFFFE)
+				return HtmlComplianceViolation.NoncharacterCharacterReference;
+
+			// Note: U+000D CARRIAGE RETURN is the only ASCII whitespace control character that is a parse error.
+			if (value == 0x0D || ((value < 0x20 || (value >= 0x7F && value <= 0x9F)) && value != 0x09 && value != 0x0A && value != 0x0C))
+				return HtmlComplianceViolation.ControlCharacterReference;
+
+			return HtmlComplianceViolation.None;
+		}
+
+		// Gets the number of characters following the '&' that are part of a named character reference that did not
+		// match any known name, or -1 if the character reference is numeric or matched a known name.
+		internal int GetUnknownNamedLength ()
+		{
+			if (numeric || GetNamedMatchLength () > 1)
+				return -1;
+
+			return index - 1;
 		}
 
 		/// <summary>
