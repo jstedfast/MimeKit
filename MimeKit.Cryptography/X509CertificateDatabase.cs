@@ -729,6 +729,7 @@ namespace MimeKit.Cryptography {
 		/// <remarks>
 		/// All database commands used within the <paramref name="action"/> must be created using <see cref="CreateCommand"/>.
 		/// </remarks>
+		/// <param name="action">The action to execute within the transaction.</param>
 		/// <exception cref="ObjectDisposedException">
 		/// The <see cref="X509CertificateDatabase"/> has been disposed.
 		/// </exception>
