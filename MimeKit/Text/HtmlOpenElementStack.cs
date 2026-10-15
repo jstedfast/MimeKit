@@ -45,8 +45,11 @@ namespace MimeKit.Text {
 	/// rules for HTML content or the rules for foreign content. It models the stack of open elements
 	/// (including implied end tags, the various "has an element in scope" checks, the "special" category,
 	/// implied table structure, and the rules for breaking out of foreign content) but does not model
-	/// the list of active formatting elements, the adoption agency algorithm, foster parenting, the
-	/// select or template insertion modes, or the document's head/body structure.</para>
+	/// the list of active formatting elements, the adoption agency algorithm, foster parenting, or the
+	/// select or template insertion modes. Of the document's head/body structure, it only models whether the
+	/// tree builder is still before the body and whether it is in the "in head noscript" insertion mode (since,
+	/// when scripting is disabled, a <c>&lt;noscript&gt;</c> element within the <c>&lt;head&gt;</c> gets closed by
+	/// any tag or character data that is not allowed there, unlike a <c>&lt;noscript&gt;</c> within the body).</para>
 	/// <para>To guard against resource exhaustion, consecutive identical entries are folded into a single
 	/// entry with a repeat count, and every query is O(1): each entry caches the index of the nearest entry
 	/// at or below it that satisfies each scope/category predicate, and the index of the next lower entry with
@@ -93,6 +96,16 @@ namespace MimeKit.Text {
 			HtmlIntegrationPoint = 1 << 8,
 		}
 
+		// The tree builder's insertion modes, as far as they matter for the document's head. Once the head has been
+		// closed, the "after head" insertion mode processes everything that matters to this class as if in the body.
+		enum InsertionMode : byte
+		{
+			BeforeHead,
+			InHead,
+			InHeadNoScript,
+			AfterHead
+		}
+
 		struct Entry
 		{
 			public string Name;
@@ -121,6 +134,7 @@ namespace MimeKit.Text {
 		readonly Dictionary<string, int> foreignNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 		readonly Dictionary<string, int> htmlNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 		bool poppedThrough;
+		InsertionMode mode;
 		readonly int[] htmlIds = new int[(int) HtmlTagId.Xmp + 1];
 
 		// Note: Entries are stored in fixed-size chunks rather than in a single array that gets resized as the stack
@@ -238,6 +252,47 @@ namespace MimeKit.Text {
 			get { return count > 0 && EntryAt (count - 1).Namespace != HtmlNamespace.Html; }
 		}
 
+		/// <summary>
+		/// Get or set whether the tree builder should behave as if scripting is enabled.
+		/// </summary>
+		/// <remarks>
+		/// When scripting is disabled, a <c>&lt;noscript&gt;</c> element within the <c>&lt;head&gt;</c> gets processed
+		/// using the "in head noscript" insertion mode rather than as a normal element.
+		/// </remarks>
+		public bool ScriptingEnabled {
+			get; set;
+		} = true;
+
+		/// <summary>
+		/// Get whether the tree builder has not yet moved past the document's <c>&lt;head&gt;</c>.
+		/// </summary>
+		/// <remarks>
+		/// While this is <see langword="true" />, any character data in the data state that is not whitespace must be
+		/// reported using <see cref="ProcessCharacterData"/>.
+		/// </remarks>
+		public bool IsBeforeBody {
+			get { return mode != InsertionMode.AfterHead; }
+		}
+
+		/// <summary>
+		/// Update the stack of open elements for character data that is not whitespace.
+		/// </summary>
+		/// <remarks>
+		/// Character data that is not whitespace implicitly closes the <c>&lt;head&gt;</c> (and any <c>&lt;noscript&gt;</c>
+		/// element within it).
+		/// </remarks>
+		public void ProcessCharacterData ()
+		{
+			// Note: In the "in template" insertion mode, character data is processed as if in the body without closing the head.
+			if (mode == InsertionMode.AfterHead || IsTemplateOpen)
+				return;
+
+			if (mode == InsertionMode.InHeadNoScript)
+				PopThrough (IndexOf (HtmlTagId.NoScript));
+
+			mode = InsertionMode.AfterHead;
+		}
+
 		#region Stack primitives
 
 		ref Entry EntryAt (int index)
@@ -293,6 +348,10 @@ namespace MimeKit.Text {
 		int IndexOf (HtmlTagId id)
 		{
 			return htmlIds[(int) id];
+		}
+
+		bool IsTemplateOpen {
+			get { return htmlNames.Count > 0 && IndexOf (HtmlNamespace.Html, HtmlTagId.Unknown, "template") >= 0; }
 		}
 
 		int IndexOf (HtmlNamespace ns, HtmlTagId id, string name)
@@ -681,6 +740,9 @@ namespace MimeKit.Text {
 		/// <param name="tag">The start tag.</param>
 		public bool ProcessStartTag (HtmlTagToken tag)
 		{
+			if (mode != InsertionMode.AfterHead && !ProcessHeadStartTag (tag))
+				return true;
+
 			if (count > 0) {
 				ref var top = ref EntryAt (count - 1);
 
@@ -716,6 +778,75 @@ namespace MimeKit.Text {
 			}
 
 			ProcessHtmlStartTag (tag);
+
+			return true;
+		}
+
+		// Updates the insertion mode for a start tag that is processed before the body. Returns false if the start tag
+		// should be ignored.
+		bool ProcessHeadStartTag (HtmlTagToken tag)
+		{
+			// Note: In the "in template" insertion mode, any start tag that does not belong in the head is processed as
+			// if in the body without closing the head (and a <noscript> start tag does not belong in the head).
+			if (IsTemplateOpen)
+				return true;
+
+			switch (mode) {
+			case InsertionMode.BeforeHead:
+				// Note: Any start tag other than <html> implies a <head> start tag (if it isn't one) and gets reprocessed
+				// using the "in head" insertion mode.
+				if (tag.Id == HtmlTagId.Html)
+					return true;
+
+				mode = InsertionMode.InHead;
+				break;
+			case InsertionMode.InHeadNoScript:
+				switch (tag.Id) {
+				case HtmlTagId.Html:
+				case HtmlTagId.BaseFont:
+				case HtmlTagId.BGSound:
+				case HtmlTagId.Link:
+				case HtmlTagId.Meta:
+				case HtmlTagId.NoFrames:
+				case HtmlTagId.Style:
+					return true;
+				case HtmlTagId.Head:
+				case HtmlTagId.NoScript:
+					return false;
+				}
+
+				// Any other start tag closes the <noscript> element and gets reprocessed using the "in head" insertion mode.
+				PopThrough (IndexOf (HtmlTagId.NoScript));
+				mode = InsertionMode.InHead;
+				break;
+			}
+
+			switch (tag.Id) {
+			case HtmlTagId.Html:
+			case HtmlTagId.Head:
+			case HtmlTagId.Base:
+			case HtmlTagId.BaseFont:
+			case HtmlTagId.BGSound:
+			case HtmlTagId.Link:
+			case HtmlTagId.Meta:
+			case HtmlTagId.Title:
+			case HtmlTagId.NoFrames:
+			case HtmlTagId.Style:
+			case HtmlTagId.Script:
+				return true;
+			case HtmlTagId.NoScript:
+				// Note: When scripting is enabled, the content of the <noscript> element is raw text.
+				if (!ScriptingEnabled)
+					mode = InsertionMode.InHeadNoScript;
+				return true;
+			case HtmlTagId.Unknown:
+				if (tag.Name.Equals ("template", StringComparison.OrdinalIgnoreCase))
+					return true;
+				break;
+			}
+
+			// Any other start tag closes the <head> element.
+			mode = InsertionMode.AfterHead;
 
 			return true;
 		}
@@ -947,11 +1078,45 @@ namespace MimeKit.Text {
 		{
 			poppedThrough = false;
 
+			if (mode != InsertionMode.AfterHead)
+				ProcessHeadEndTag (tag);
+
 			ProcessEndTagInternal (tag);
 
 			// Note: </html>, </head>, </body> and </br> never close an element, so they are not considered to have been ignored.
 			EndTagIgnored = !poppedThrough && tag.Id != HtmlTagId.Html && tag.Id != HtmlTagId.Head && tag.Id != HtmlTagId.Body && tag.Id != HtmlTagId.Br &&
 				(IndexOf (HtmlNamespace.Html, tag.Id, tag.Name) >= 0 || IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, tag.Name) >= 0);
+		}
+
+		// Updates the insertion mode for an end tag that is processed before the body.
+		//
+		// Note: The end tags that get ignored before the body do not need to be special-cased since the only element that
+		// can be open at this point (outside of a <template>) is the <noscript> element.
+		void ProcessHeadEndTag (HtmlTagToken tag)
+		{
+			if (IsTemplateOpen)
+				return;
+
+			switch (tag.Id) {
+			case HtmlTagId.NoScript:
+				// Note: The </noscript> end tag itself pops the <noscript> element.
+				if (mode == InsertionMode.InHeadNoScript)
+					mode = InsertionMode.InHead;
+				break;
+			case HtmlTagId.Br:
+				if (mode == InsertionMode.InHeadNoScript)
+					PopThrough (IndexOf (HtmlTagId.NoScript));
+
+				mode = InsertionMode.AfterHead;
+				break;
+			case HtmlTagId.Head:
+			case HtmlTagId.Body:
+			case HtmlTagId.Html:
+				// Note: These end tags are ignored in the "in head noscript" insertion mode.
+				if (mode != InsertionMode.InHeadNoScript)
+					mode = InsertionMode.AfterHead;
+				break;
+			}
 		}
 
 		void ProcessEndTagInternal (HtmlTagToken tag)

@@ -397,7 +397,10 @@ namespace MimeKit.Text {
 		/// <value><see langword="true" /> if the tokenizer should behave as if scripting is enabled; otherwise, <see langword="false" />.</value>
 		public bool ScriptingEnabled {
 			get { return scriptingEnabled; }
-			set { scriptingEnabled = value; }
+			set {
+				scriptingEnabled = value;
+				openElements.ScriptingEnabled = value;
+			}
 		}
 
 		/// <summary>
@@ -1138,6 +1141,10 @@ namespace MimeKit.Text {
 				// no character is consumed, emit '&'
 				TokenizerState = next;
 				data.Append ('&');
+
+				if (next == HtmlTokenizerState.Data && openElements.IsBeforeBody)
+					openElements.ProcessCharacterData ();
+
 				return null;
 			}
 
@@ -1175,8 +1182,15 @@ namespace MimeKit.Text {
 
 			int unknown = logger != null ? ValidateCharacterReference (false, c) : -1;
 
-			if (decode)
-				data.Append (entity.GetValue ());
+			if (decode || (next == HtmlTokenizerState.Data && openElements.IsBeforeBody)) {
+				var value = entity.GetValue ();
+
+				if (next == HtmlTokenizerState.Data && openElements.IsBeforeBody)
+					ProcessCharacterData (value);
+
+				if (decode)
+					data.Append (value);
+			}
 			entity.Reset ();
 
 			if (unknown != -1)
@@ -1328,20 +1342,54 @@ namespace MimeKit.Text {
 		static readonly char[] LoggedDataSpecials = new char[] { '\0', '&', '<' };
 #endif
 
+		// Lets the stack of open elements know about character data in the data state that is not whitespace, which closes
+		// the <head> element (and any <noscript> element within it).
+		void ProcessCharacterData (int startIndex)
+		{
+			for (int i = startIndex; i < data.Length; i++) {
+				if (!IsHtmlWhiteSpace (data[i])) {
+					openElements.ProcessCharacterData ();
+					break;
+				}
+			}
+		}
+
+		void ProcessCharacterData (string value)
+		{
+			for (int i = 0; i < value.Length; i++) {
+				if (!IsHtmlWhiteSpace (value[i])) {
+					openElements.ProcessCharacterData ();
+					break;
+				}
+			}
+		}
+
+		static bool IsHtmlWhiteSpace (char c)
+		{
+			return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r';
+		}
+
 		// 8.2.4.1 Data state
 		HtmlToken? ReadData ()
 		{
 			var specials = logger != null ? LoggedDataSpecials : DataSpecials;
 
 			do {
+				int startIndex = data.Length;
+
 				if (!TryReadDataUntil (specials, out char c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					break;
 				}
 
+				if (openElements.IsBeforeBody)
+					ProcessCharacterData (startIndex);
+
 				switch (c) {
 				case '&':
-					if (DecodeCharacterReferences || logger != null) {
+					// Note: Before the body, character references need to be decoded (even if the decoded values don't get
+					// emitted) in order to tell whether they are whitespace.
+					if (DecodeCharacterReferences || logger != null || openElements.IsBeforeBody) {
 						TokenizerState = HtmlTokenizerState.CharacterReferenceInData;
 						return null;
 					}
@@ -1365,6 +1413,10 @@ namespace MimeKit.Text {
 					LogIssueAtPreviousCharacter (HtmlComplianceViolation.UnexpectedNullCharacter, c);
 					goto default;
 				default:
+					// Note: The special characters are never whitespace.
+					if (openElements.IsBeforeBody)
+						openElements.ProcessCharacterData ();
+
 					data.Append (c);
 					break;
 				}

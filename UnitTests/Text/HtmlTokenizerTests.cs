@@ -3646,6 +3646,60 @@ namespace UnitTests.Text {
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
 
+		// When scripting is disabled, a <noscript> element within the <head> gets closed by any tag or non-whitespace
+		// character data that does not belong in the <head>, so the <math> element ends up open after the </noscript> end
+		// tag and the <script> element is a foreign element whose content is not raw text.
+		[TestCase ("<head><noscript><math></noscript></head><script><t>", "Tag(head) Tag(noscript) Tag(math) EndTag(noscript) EndTag(head) Tag(script) Tag(t)")]
+		[TestCase ("<noscript><math></noscript><script><t>", "Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<html> <noscript> <link> <math></noscript><script><t>", "Tag(html) Data( ) Tag(noscript) Data( ) Tag(link) Data( ) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<head><noscript><noscript></noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Tag(noscript) EndTag(noscript) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<head><noscript><head></head><math></noscript><script><t>", "Tag(head) Tag(noscript) Tag(head) EndTag(head) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<head><noscript></br><math></noscript><script><t>", "Tag(head) Tag(noscript) EndTag(br) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<head><noscript>&#32;<math></noscript><script><t>", "Tag(head) Tag(noscript) Data( ) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		// Non-whitespace character data closes the <head>, so the second <noscript> is in the body where it does not get
+		// implicitly closed.
+		[TestCase ("<head><noscript>x<noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(x) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript>&amp;<noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(&) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript>& <noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(& ) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript><div><noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Tag(div) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("</head><noscript><math></noscript><script><t>", "EndTag(head) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<body><noscript><math></noscript><script><t>", "Tag(body) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		// Within a <template>, a <noscript> element is processed as if it were in the body.
+		[TestCase ("<head><template><noscript><math></noscript></template><script><t>", "Tag(head) Tag(template) Tag(noscript) Tag(math) EndTag(noscript) EndTag(template) Tag(script) Data(<t>)")]
+		public void TestNoScriptInHeadScriptingDisabled (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+
+			tokenizer.ScriptingEnabled = false;
+
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
+		}
+
+		[TestCase ("<head><noscript>&#32;<math></noscript><script><t>", "Tag(head) Tag(noscript) Data(&#32;) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<head><noscript>&#32<math></noscript><script><t>", "Tag(head) Tag(noscript) Data(&#32) Tag(math) EndTag(noscript) Tag(script) Tag(t)")]
+		[TestCase ("<head><noscript>&amp;<noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(&amp;) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript>&<noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(&) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript>&bogus <noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(&bogus ) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		public void TestNoScriptInHeadScriptingDisabledNoDecoding (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+
+			tokenizer.DecodeCharacterReferences = false;
+			tokenizer.ScriptingEnabled = false;
+
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
+		}
+
+		[TestCase ("<head><noscript><math></noscript></head><script><t>", "Tag(head) Tag(noscript) Data(<math>) EndTag(noscript) EndTag(head) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript>&#32;</noscript><math><script><t>", "Tag(head) Tag(noscript) Data(&#32;) EndTag(noscript) Tag(math) Tag(script) Tag(t)")]
+		public void TestNoScriptInHeadScriptingEnabled (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ScriptingEnabled, Is.True);
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
+		}
+
 		static string DescribeTokens (string content)
 		{
 			return DescribeTokens (CreateTokenizer (content));
