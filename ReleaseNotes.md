@@ -216,6 +216,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   only whitespace (rfc5322 section 3.2.2, rfc7103 section 7.3). Agents that strip trailing whitespace
   see such a line as the end of the header block, so the fields that follow it can be processed as
   headers by one component and as body by another.
+* Added `MissingDate`, `MissingFrom`, `MissingMessageId` and `MissingMimeVersion` violations,
+  reported when a top-level message's header block lacks a required field (rfc5322 section 3.6,
+  rfc2045 section 4, rfc7103 sections 7.5.2 and 8.1). `MissingMimeVersion` is only reported when the
+  header block has a `Content-Type` or `Content-Transfer-Encoding` header. Embedded message/rfc822
+  parts are not checked.
 * The base64, quoted-printable and uuencode validators now report column numbers and report each
   violation at most once per line.
 * Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are

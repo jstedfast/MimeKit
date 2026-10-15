@@ -585,6 +585,7 @@ namespace UnitTests {
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
@@ -610,6 +611,7 @@ This is a single line of text".ReplaceLineEndings ("\r\n");
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
@@ -635,6 +637,7 @@ This is a single line of text".ReplaceLineEndings ("\r\n");
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
@@ -661,6 +664,7 @@ This is a single line of text
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 
@@ -687,6 +691,7 @@ This is a single line of text
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary=""boundary-marker""
 
@@ -722,6 +727,7 @@ ABC
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary=""boundary-marker""
 
@@ -757,6 +763,7 @@ ABC
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary=""boundary-marker""
 
@@ -793,6 +800,7 @@ ABC
 To: mimekit@example.org
 Subject: This is a message with a single line of text
 Message-Id: <123@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary=""boundary-marker""
 
@@ -933,7 +941,7 @@ ABC
 		[Test]
 		public void TestLineCountNonTerminatedSingleHeader ()
 		{
-			const string text = "From: mimekit@example.org";
+			const string text = "Date: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\nFrom: mimekit@example.org";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -947,14 +955,14 @@ ABC
 				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
 				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), "Violation");
 				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1), "LineNumber");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (3), "LineNumber");
 			}
 		}
 
 		[Test]
 		public async Task TestLineCountNonTerminatedSingleHeaderAsync ()
 		{
-			const string text = "From: mimekit@example.org";
+			const string text = "Date: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\nFrom: mimekit@example.org";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -968,14 +976,14 @@ ABC
 				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
 				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), "Violation");
 				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1), "LineNumber");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (3), "LineNumber");
 			}
 		}
 
 		[Test]
 		public void TestLineCountProperlyTerminatedSingleHeader ()
 		{
-			const string text = "From: mimekit@example.org\r\n";
+			const string text = "Date: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\nFrom: mimekit@example.org\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -989,14 +997,14 @@ ABC
 				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
 				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
 				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (2), "LineNumber");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (4), "LineNumber");
 			}
 		}
 
 		[Test]
 		public async Task TestLineCountProperlyTerminatedSingleHeaderAsync ()
 		{
-			const string text = "From: mimekit@example.org\r\n";
+			const string text = "Date: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\nFrom: mimekit@example.org\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -1010,7 +1018,7 @@ ABC
 				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
 				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
 				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
-				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (2), "LineNumber");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (4), "LineNumber");
 			}
 		}
 
@@ -1020,9 +1028,16 @@ ABC
 		// it has finished scanning the buffer, so calculating the position of the linefeed from
 		// inputIndex (rather than from the current scan pointer) reported the start of the body for
 		// every linefeed and, once the line tracking had advanced past that point, a negative column.
+		// Note: These are the headers that a top-level message is expected to have, so tests that are
+		// not about missing headers can prepend them to keep the compliance logger free of noise.
+		const string MessageHeaders = "From: mimekit@example.org\r\nDate: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\nMIME-Version: 1.0\r\n";
+		const int MessageHeaderLines = 4;
+
 		const string BareLinefeedsInBodyText = "From: mimekit@example.org\r\n" +
 			"To: mimekit@example.org\r\n" +
 			"Subject: bare linefeeds in the body\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <123@example.org>\r\n" +
 			"\r\n" +
 			"This line is properly terminated.\r\n" +
 			"This line is not.\n" +
@@ -1041,12 +1056,12 @@ ABC
 
 			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.BareLinefeedInBody), "Violation #1");
 			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (firstOffset), "StreamOffset #1");
-			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (6), "LineNumber #1");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (8), "LineNumber #1");
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (firstLine.Length + 1), "ColumnNumber #1");
 
 			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.BareLinefeedInBody), "Violation #2");
 			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (secondOffset), "StreamOffset #2");
-			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (8), "LineNumber #2");
+			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (10), "LineNumber #2");
 			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (secondLine.Length + 1), "ColumnNumber #2");
 		}
 
@@ -1149,7 +1164,7 @@ ABC
 		[Test]
 		public void TestBinaryContentTransferEncodingAcceptsNullAnd8BitBytes ()
 		{
-			var message = Encoding.ASCII.GetBytes ("Content-Transfer-Encoding: binary\r\n\r\n");
+			var message = Encoding.ASCII.GetBytes (MessageHeaders + "Content-Transfer-Encoding: binary\r\n\r\n");
 			var data = new byte[message.Length + 4];
 
 			Buffer.BlockCopy (message, 0, data, 0, message.Length);
@@ -1171,7 +1186,7 @@ ABC
 		[Test]
 		public async Task TestBinaryContentTransferEncodingAcceptsNullAnd8BitBytesAsync ()
 		{
-			var message = Encoding.ASCII.GetBytes ("Content-Transfer-Encoding: binary\r\n\r\n");
+			var message = Encoding.ASCII.GetBytes (MessageHeaders + "Content-Transfer-Encoding: binary\r\n\r\n");
 			var data = new byte[message.Length + 4];
 
 			Buffer.BlockCopy (message, 0, data, 0, message.Length);
@@ -1192,7 +1207,7 @@ ABC
 
 		static byte[] CreateMultipartMessagePartWithInvalidFirstLine ()
 		{
-			var prefix = Encoding.ASCII.GetBytes ("Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\nContent-Type: message/rfc822\r\n\r\n");
+			var prefix = Encoding.ASCII.GetBytes (MessageHeaders + "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\nContent-Type: message/rfc822\r\n\r\n");
 			var suffix = Encoding.ASCII.GetBytes ("bad\r\n--b--\r\n");
 			var data = new byte[prefix.Length + 2 + suffix.Length];
 
@@ -1209,25 +1224,25 @@ ABC
 			Assert.That (logger.Issues.Count, Is.EqualTo (4), FormatIssues (logger));
 
 			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidHeader), "Violation #1");
-			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (84), "StreamOffset #1");
-			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (6), "LineNumber #1");
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (MessageHeaders.Length + 84), "StreamOffset #1");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (MessageHeaderLines + 6), "LineNumber #1");
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (1), "ColumnNumber #1");
 
 			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.UnexpectedNullBytesInHeader), "Violation #2");
-			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (84), "StreamOffset #2");
-			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (6), "LineNumber #2");
+			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (MessageHeaders.Length + 84), "StreamOffset #2");
+			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (MessageHeaderLines + 6), "LineNumber #2");
 			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (1), "ColumnNumber #2");
 			Assert.That (logger.Issues[1].PositionKind, Is.EqualTo (MimeCompliancePositionKind.LineStart), "PositionKind #2");
 
 			Assert.That (logger.Issues[2].Violation, Is.EqualTo (MimeComplianceViolation.Unexpected8BitBytesInHeader), "Violation #3");
-			Assert.That (logger.Issues[2].StreamOffset, Is.EqualTo (84), "StreamOffset #3");
-			Assert.That (logger.Issues[2].LineNumber, Is.EqualTo (6), "LineNumber #3");
+			Assert.That (logger.Issues[2].StreamOffset, Is.EqualTo (MessageHeaders.Length + 84), "StreamOffset #3");
+			Assert.That (logger.Issues[2].LineNumber, Is.EqualTo (MessageHeaderLines + 6), "LineNumber #3");
 			Assert.That (logger.Issues[2].ColumnNumber, Is.EqualTo (1), "ColumnNumber #3");
 			Assert.That (logger.Issues[2].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "PositionKind #3");
 
 			Assert.That (logger.Issues[3].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation #4");
-			Assert.That (logger.Issues[3].StreamOffset, Is.EqualTo (91), "StreamOffset #4");
-			Assert.That (logger.Issues[3].LineNumber, Is.EqualTo (7), "LineNumber #4");
+			Assert.That (logger.Issues[3].StreamOffset, Is.EqualTo (MessageHeaders.Length + 91), "StreamOffset #4");
+			Assert.That (logger.Issues[3].LineNumber, Is.EqualTo (MessageHeaderLines + 7), "LineNumber #4");
 			Assert.That (logger.Issues[3].ColumnNumber, Is.EqualTo (1), "ColumnNumber #4");
 			Assert.That (logger.Issues[3].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "PositionKind #4");
 		}
@@ -1258,7 +1273,7 @@ ABC
 			}
 		}
 
-		const string EmbeddedUtf8HeaderMessage = "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\nContent-Type: message/rfc822\r\n\r\nSubject: caf\u00e9\r\n\r\nbody\r\n--b--\r\n";
+		const string EmbeddedUtf8HeaderMessage = MessageHeaders + "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\nContent-Type: message/rfc822\r\n\r\nSubject: caf\u00e9\r\n\r\nbody\r\n--b--\r\n";
 
 		[Test]
 		public void TestMessagePartUtf8FirstHeaderIsNotReportedAsBody ()
@@ -1286,14 +1301,14 @@ ABC
 			}
 		}
 
-		const string EmbeddedBareLinefeedHeaderMessage = "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\nContent-Type: message/rfc822\r\n\r\nSubject: test\nFrom: sender@example.org\r\n\r\nbody\r\n--b--\r\n";
+		const string EmbeddedBareLinefeedHeaderMessage = MessageHeaders + "Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n--b\r\nContent-Type: message/rfc822\r\n\r\nSubject: test\nFrom: sender@example.org\r\n\r\nbody\r\n--b--\r\n";
 
 		static void AssertMessagePartBareLinefeedFirstHeader (TestMimeComplianceLogger logger)
 		{
 			Assert.That (logger.Issues.Count, Is.EqualTo (1), FormatIssues (logger));
 			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.BareLinefeedInHeader), "Violation");
-			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (97), "StreamOffset");
-			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (6), "LineNumber");
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (MessageHeaders.Length + 97), "StreamOffset");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (MessageHeaderLines + 6), "LineNumber");
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (14), "ColumnNumber");
 		}
 
@@ -1327,20 +1342,20 @@ ABC
 		{
 			Assert.That (logger.Issues.Count, Is.EqualTo (2), FormatIssues (logger));
 			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidMultipartBoundaryParameter), "Violation #1");
-			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (0), "StreamOffset #1");
-			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (1), "LineNumber #1");
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (MessageHeaders.Length), "StreamOffset #1");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (MessageHeaderLines + 1), "LineNumber #1");
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (1), "ColumnNumber #1");
 			Assert.That (logger.Issues[0].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "PositionKind #1");
 			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.MissingMultipartBoundary), "Violation #2");
 			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (missingBoundaryOffset), "StreamOffset #2");
-			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (4), "LineNumber #2");
+			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (MessageHeaderLines + 4), "LineNumber #2");
 			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (1), "ColumnNumber #2");
 		}
 
 		[Test]
 		public void TestBoundaryLongerThanRfcLimitIsInvalid ()
 		{
-			var text = "Content-Type: multipart/mixed; boundary=\"" + new string ('x', 71) + "\"\r\n\r\nbody\r\n";
+			var text = MessageHeaders + "Content-Type: multipart/mixed; boundary=\"" + new string ('x', 71) + "\"\r\n\r\nbody\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -1348,14 +1363,14 @@ ABC
 
 				reader.ReadMessage ();
 
-				AssertInvalidBoundary (logger, 123);
+				AssertInvalidBoundary (logger, MessageHeaders.Length + 123);
 			}
 		}
 
 		[Test]
 		public async Task TestBoundaryLongerThanRfcLimitIsInvalidAsync ()
 		{
-			var text = "Content-Type: multipart/mixed; boundary=\"" + new string ('x', 71) + "\"\r\n\r\nbody\r\n";
+			var text = MessageHeaders + "Content-Type: multipart/mixed; boundary=\"" + new string ('x', 71) + "\"\r\n\r\nbody\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -1363,14 +1378,14 @@ ABC
 
 				await reader.ReadMessageAsync ();
 
-				AssertInvalidBoundary (logger, 123);
+				AssertInvalidBoundary (logger, MessageHeaders.Length + 123);
 			}
 		}
 
 		[Test]
 		public void TestBoundaryEndingWithSpaceIsInvalid ()
 		{
-			const string text = "Content-Type: multipart/mixed; boundary=\"trailing-space \"\r\n\r\nbody\r\n";
+			const string text = MessageHeaders + "Content-Type: multipart/mixed; boundary=\"trailing-space \"\r\n\r\nbody\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -1378,14 +1393,14 @@ ABC
 
 				reader.ReadMessage ();
 
-				AssertInvalidBoundary (logger, 67);
+				AssertInvalidBoundary (logger, MessageHeaders.Length + 67);
 			}
 		}
 
 		[Test]
 		public async Task TestBoundaryEndingWithSpaceIsInvalidAsync ()
 		{
-			const string text = "Content-Type: multipart/mixed; boundary=\"trailing-space \"\r\n\r\nbody\r\n";
+			const string text = MessageHeaders + "Content-Type: multipart/mixed; boundary=\"trailing-space \"\r\n\r\nbody\r\n";
 
 			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false)) {
 				var logger = new TestMimeComplianceLogger ();
@@ -1393,7 +1408,7 @@ ABC
 
 				await reader.ReadMessageAsync ();
 
-				AssertInvalidBoundary (logger, 67);
+				AssertInvalidBoundary (logger, MessageHeaders.Length + 67);
 			}
 		}
 
@@ -1621,6 +1636,8 @@ ABC
 			"Subject: invalid header field names\r\n" +
 			"X-Invalid Header: the field name contains a space\r\n" +
 			"X-Ctl\u0001Header: the field name contains a control character\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <123@example.org>\r\n" +
 			"\r\n" +
 			"This is the body.\r\n";
 
@@ -1674,7 +1691,7 @@ ABC
 		public void TestMimeComplianceIncompleteHeader ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 6, 25)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 7, 25)
 			};
 
 			AssertMimeComplianceViolations ("incomplete-header.eml", issues);
@@ -1684,7 +1701,7 @@ ABC
 		public Task TestMimeComplianceIncompleteHeaderAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 6, 25)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.IncompleteHeader, 7, 25)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("incomplete-header.eml", issues);
@@ -1761,6 +1778,8 @@ ABC
 			"Content-Type: message/rfc822\r\n" +
 			"Content-Transfer-Encoding:\r\n" +
 			"\tbase64\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <123@example.org>\r\n" +
 			"\r\n" +
 			"VGhpcyBpcyB0aGUgcmZjODIyIG1lc3NhZ2UgYm9keS4K\r\n";
 
@@ -2024,7 +2043,7 @@ This is the second inner message body.
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
 				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 7, 1, MimeCompliancePositionKind.LineStart),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 10, 1, MimeCompliancePositionKind.LineStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 11, 1, MimeCompliancePositionKind.LineStart)
 			};
 
 			AssertMimeComplianceViolations ("invalid-wrapping.eml", issues);
@@ -2035,7 +2054,7 @@ This is the second inner message body.
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
 				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 7, 1, MimeCompliancePositionKind.LineStart),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 10, 1, MimeCompliancePositionKind.LineStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.OversizedLine, 11, 1, MimeCompliancePositionKind.LineStart)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("invalid-wrapping.eml", issues);
@@ -2045,7 +2064,7 @@ This is the second inner message body.
 		public void TestMimeComplianceMissingBodySeparator ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 7, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 8, 1),
 			};
 
 			AssertMimeComplianceViolations ("missing-body-separator.eml", issues);
@@ -2055,7 +2074,7 @@ This is the second inner message body.
 		public Task TestMimeComplianceMissingBodySeparatorAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 7, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 8, 1),
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-body-separator.eml", issues);
@@ -2085,7 +2104,7 @@ This is the second inner message body.
 		public void TestMimeComplianceMissingMultipartBoundary ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
 			};
 
 			AssertMimeComplianceViolations ("missing-multipart-boundary.eml", issues);
@@ -2095,7 +2114,7 @@ This is the second inner message body.
 		public Task TestMimeComplianceMissingMultipartBoundaryAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-multipart-boundary.eml", issues);
@@ -2105,7 +2124,7 @@ This is the second inner message body.
 		public void TestMimeComplianceMissingMultipartEndBoundary ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
 			};
 
 			AssertMimeComplianceViolations ("missing-multipart-end-boundary.eml", issues);
@@ -2115,7 +2134,7 @@ This is the second inner message body.
 		public Task TestMimeComplianceMissingMultipartEndBoundaryAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 18, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-multipart-end-boundary.eml", issues);
@@ -2497,8 +2516,8 @@ This is the second inner message body.
 		public void TestMimeComplianceUnexpectedNullBytesInBody ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 17, 1),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 18, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 18, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 19, 1)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-null-bytes-in-body.eml", issues);
@@ -2508,11 +2527,276 @@ This is the second inner message body.
 		public Task TestMimeComplianceUnexpectedNullBytesInBodyAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 17, 1),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 18, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 18, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 19, 1)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-null-bytes-in-body.eml", issues);
+		}
+
+		static Stream CreateMissingHeadersStream (string text, bool chunked)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+
+			return chunked ? new ChunkedReadStream (data, 7) : new MemoryStream (data, false);
+		}
+
+		static void AssertMissingHeaders (TestMimeComplianceLogger logger, int index, long offset, int lineNumber, int columnNumber, MimeCompliancePositionKind kind, params MimeComplianceViolation[] violations)
+		{
+			Assert.That (logger.Issues.Count, Is.EqualTo (index + violations.Length), FormatIssues (logger));
+
+			for (int i = 0; i < violations.Length; i++) {
+				var issue = logger.Issues[index + i];
+
+				Assert.That (issue.Violation, Is.EqualTo (violations[i]), $"Violation #{i}");
+				Assert.That (issue.StreamOffset, Is.EqualTo (offset), $"StreamOffset #{i}");
+				Assert.That (issue.LineNumber, Is.EqualTo (lineNumber), $"LineNumber #{i}");
+				Assert.That (issue.ColumnNumber, Is.EqualTo (columnNumber), $"ColumnNumber #{i}");
+				Assert.That (issue.PositionKind, Is.EqualTo (kind), $"PositionKind #{i}");
+			}
+		}
+
+		const string MissingAllHeadersText = "Subject: missing headers\r\nContent-Type: text/plain\r\n\r\nbody\r\n";
+
+		static void AssertMissingAllHeaders (TestMimeComplianceLogger logger)
+		{
+			var offset = MissingAllHeadersText.IndexOf ("\r\n\r\n", StringComparison.Ordinal) + 2;
+
+			AssertMissingHeaders (logger, 0, offset, 3, 1, MimeCompliancePositionKind.LineStart,
+				MimeComplianceViolation.MissingDate,
+				MimeComplianceViolation.MissingFrom,
+				MimeComplianceViolation.MissingMessageId,
+				MimeComplianceViolation.MissingMimeVersion);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingHeaders ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (MissingAllHeadersText, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertMissingAllHeaders (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMissingHeadersAsync ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (MissingAllHeadersText, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertMissingAllHeaders (logger);
+			}
+		}
+
+		const string MissingHeadersMboxText = "From sender@example.org Tue Nov 12 09:12:42 2013\r\nSubject: missing headers\r\n\r\nbody\r\n";
+
+		static void AssertMissingHeadersMbox (TestMimeComplianceLogger logger)
+		{
+			var offset = MissingHeadersMboxText.IndexOf ("\r\n\r\n", StringComparison.Ordinal) + 2;
+
+			// Note: The mbox marker is not a From header and does not count as one.
+			AssertMissingHeaders (logger, 0, offset, 3, 1, MimeCompliancePositionKind.LineStart,
+				MimeComplianceViolation.MissingDate,
+				MimeComplianceViolation.MissingFrom,
+				MimeComplianceViolation.MissingMessageId);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingHeadersMbox ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (MissingHeadersMboxText, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Mbox) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertMissingHeadersMbox (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMissingHeadersMboxAsync ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (MissingHeadersMboxText, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Mbox) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertMissingHeadersMbox (logger);
+			}
+		}
+
+		const string MissingHeadersIncompleteText = "Subject: missing headers";
+
+		static void AssertMissingHeadersIncomplete (TestMimeComplianceLogger logger)
+		{
+			Assert.That (logger.Issues.Count, Is.GreaterThan (0), FormatIssues (logger));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.IncompleteHeader), FormatIssues (logger));
+
+			// Note: When the stream ends in the middle of a header, there is no line that ends the header block,
+			// so the issues are reported at the exact position where the stream ended.
+			AssertMissingHeaders (logger, 1, MissingHeadersIncompleteText.Length, 1, MissingHeadersIncompleteText.Length + 1, MimeCompliancePositionKind.Exact,
+				MimeComplianceViolation.MissingDate,
+				MimeComplianceViolation.MissingFrom,
+				MimeComplianceViolation.MissingMessageId);
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingHeadersIncompleteHeader ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (MissingHeadersIncompleteText, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertMissingHeadersIncomplete (logger);
+			}
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMissingHeadersIncompleteHeaderAsync ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (MissingHeadersIncompleteText, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertMissingHeadersIncomplete (logger);
+			}
+		}
+
+		static readonly object[] MissingMimeVersionCases = {
+			new object[] { "Subject: not a MIME message\r\n", false },
+			new object[] { "Content-Disposition: inline\r\n", false },
+			new object[] { "Content-Type: text/plain\r\n", true },
+			new object[] { "Content-Transfer-Encoding: 7bit\r\n", true },
+		};
+
+		const string MessageHeadersWithoutMimeVersion = "From: mimekit@example.org\r\nDate: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\n";
+
+		static void AssertMissingMimeVersion (TestMimeComplianceLogger logger, string text, bool expected)
+		{
+			if (expected) {
+				var offset = text.IndexOf ("\r\n\r\n", StringComparison.Ordinal) + 2;
+
+				AssertMissingHeaders (logger, 0, offset, 5, 1, MimeCompliancePositionKind.LineStart, MimeComplianceViolation.MissingMimeVersion);
+			} else {
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), FormatIssues (logger));
+			}
+		}
+
+		[TestCaseSource (nameof (MissingMimeVersionCases))]
+		public void TestMimeComplianceMissingMimeVersion (string header, bool expected)
+		{
+			var text = MessageHeadersWithoutMimeVersion + header + "\r\nbody\r\n";
+
+			using (var stream = CreateMissingHeadersStream (text, false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertMissingMimeVersion (logger, text, expected);
+			}
+		}
+
+		[TestCaseSource (nameof (MissingMimeVersionCases))]
+		public async Task TestMimeComplianceMissingMimeVersionAsync (string header, bool expected)
+		{
+			var text = MessageHeadersWithoutMimeVersion + header + "\r\nbody\r\n";
+
+			using (var stream = CreateMissingHeadersStream (text, false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertMissingMimeVersion (logger, text, expected);
+			}
+		}
+
+		// Note: Embedded messages are frequently trimmed copies of the original message, so only the
+		// top-level message is checked for missing headers.
+		const string EmbeddedMessageWithoutHeaders = MessageHeaders + "Content-Type: message/rfc822\r\n\r\nSubject: embedded\r\nContent-Type: text/plain\r\n\r\nbody\r\n";
+
+		[Test]
+		public void TestMimeComplianceMissingHeadersIgnoresEmbeddedMessages ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (EmbeddedMessageWithoutHeaders, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), FormatIssues (logger));
+			}
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMissingHeadersIgnoresEmbeddedMessagesAsync ([Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateMissingHeadersStream (EmbeddedMessageWithoutHeaders, chunked)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), FormatIssues (logger));
+			}
+		}
+
+		[Test]
+		public void TestMimeComplianceMissingHeadersIgnoresEntitiesAndHeaders ()
+		{
+			using (var stream = CreateMissingHeadersStream (MissingAllHeadersText, false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				reader.ReadEntity ();
+
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ReadEntity: " + FormatIssues (logger));
+			}
+
+			using (var stream = CreateMissingHeadersStream (MissingAllHeadersText, false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				reader.ReadHeaders ();
+
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ReadHeaders: " + FormatIssues (logger));
+			}
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMissingHeadersIgnoresEntitiesAndHeadersAsync ()
+		{
+			using (var stream = CreateMissingHeadersStream (MissingAllHeadersText, false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				await reader.ReadEntityAsync ();
+
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ReadEntityAsync: " + FormatIssues (logger));
+			}
+
+			using (var stream = CreateMissingHeadersStream (MissingAllHeadersText, false)) {
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+
+				await reader.ReadHeadersAsync ();
+
+				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ReadHeadersAsync: " + FormatIssues (logger));
+			}
 		}
 	}
 }

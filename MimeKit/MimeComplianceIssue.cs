@@ -485,6 +485,19 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedResentMessageId:
 				return MimeComplianceSeverity.Minor;
 
+			// Note: Without an author, there is no domain against which to evaluate a DMARC policy,
+			// so a message that omits it can sidestep the policy of the domain that sent it.
+			case MimeComplianceViolation.MissingFrom:
+				return MimeComplianceSeverity.Major;
+
+			// Note: These are common in real-world mail, and agents have long since learned to cope
+			// with them: Date and Message-Id are routinely filled in by the submission server, and
+			// practically every parser honors the MIME header fields with or without a MIME-Version.
+			case MimeComplianceViolation.MissingDate:
+			case MimeComplianceViolation.MissingMessageId:
+			case MimeComplianceViolation.MissingMimeVersion:
+				return MimeComplianceSeverity.Minor;
+
 			// Note: Ambiguity over where an address begins and ends, or over which mailbox it names.
 			case MimeComplianceViolation.UnbalancedAngleBracketsInAddress:
 			case MimeComplianceViolation.UnquotedDisplayName:
@@ -792,6 +805,16 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedResentMessageId:
 				return Interop;
 
+			// Note: Mail clients disagree about whom to present as the author when there is no From
+			// header field, and a DMARC verifier has no author domain whose policy it could apply.
+			case MimeComplianceViolation.MissingFrom:
+				return Interop | Security;
+
+			case MimeComplianceViolation.MissingDate:
+			case MimeComplianceViolation.MissingMessageId:
+			case MimeComplianceViolation.MissingMimeVersion:
+				return Interop;
+
 			// Note: The message did not cause this, so no category describes harm that the message does.
 			// Security applies all the same: a suppressed report is a blind spot, and hiding a violation
 			// from whatever is inspecting the message is exactly what an attacker would want out of a
@@ -883,6 +906,14 @@ namespace MimeKit {
 				return "A block of resent header fields contained more than one Resent-Bcc header field.";
 			case MimeComplianceViolation.RepeatedResentMessageId:
 				return "A block of resent header fields contained more than one Resent-Message-Id header field.";
+			case MimeComplianceViolation.MissingDate:
+				return "The message did not contain a Date header field.";
+			case MimeComplianceViolation.MissingFrom:
+				return "The message did not contain a From header field.";
+			case MimeComplianceViolation.MissingMessageId:
+				return "The message did not contain a Message-Id header field.";
+			case MimeComplianceViolation.MissingMimeVersion:
+				return "The message contained MIME header fields but no MIME-Version header field.";
 			case MimeComplianceViolation.InvalidContentType:
 				return "A Content-Type header value was not valid.";
 			case MimeComplianceViolation.InvalidContentTransferEncoding:
@@ -1073,6 +1104,14 @@ namespace MimeKit {
 				return "The Internet Message Format specification permits at most one Resent-Bcc header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
 			case MimeComplianceViolation.RepeatedResentMessageId:
 				return "The Internet Message Format specification permits at most one Resent-Message-Id header field per block of resent header fields, where a block is a contiguous run of resent fields corresponding to a single resending of the message. Because the specification provides no way to delimit adjacent blocks, two blocks that are not separated by any other header field cannot be told apart and are reported as a repeated field. Resent header fields are strictly informational and must not be used when processing replies, so the practical consequences are limited to how the resending history is displayed.";
+							case MimeComplianceViolation.MissingDate:
+								return "The Internet Message Format specification requires every message to contain a Date header field, which records when the author considered the message complete and ready for delivery. Agents that need a date fall back on something else, such as the time the message was received, so different agents may sort and display the message differently.";
+							case MimeComplianceViolation.MissingFrom:
+								return "The Internet Message Format specification requires every message to contain a From header field, which identifies its author. Mail clients disagree about whom to display in its place, with some falling back to the Sender or Return-Path header fields, and a DMARC verifier has no author domain whose policy it could apply, so a message without one can sidestep the policy of the domain that sent it.";
+							case MimeComplianceViolation.MissingMessageId:
+								return "The Internet Message Format specification states that every message should contain a Message-Id header field. It is not strictly required, but agents rely on it to detect duplicate messages and to thread replies, and a message submission agent is permitted to add one when it is missing.";
+							case MimeComplianceViolation.MissingMimeVersion:
+								return "The MIME specifications require a message that uses MIME to declare itself as such with a MIME-Version header field. Without one, the message is strictly a plain Internet message and a conforming agent may ignore its Content-Type and Content-Transfer-Encoding header fields, although in practice most agents honor them anyway.";
 			case MimeComplianceViolation.InvalidContentType:
 				return "This indicates that the Content-Type header was not properly formatted and could not be parsed. Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different MIME parser implementations.";
 			case MimeComplianceViolation.InvalidContentTransferEncoding:

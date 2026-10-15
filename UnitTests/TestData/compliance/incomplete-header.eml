@@ -3,4 +3,5 @@ To: unit-tests@mimekit.net
 Subject: This is a test message
 Message-Id: <123@example.org>
 MIME-Version: 1.0
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 Content-Type: text/plain

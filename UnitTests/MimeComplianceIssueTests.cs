@@ -1,4 +1,4 @@
-//
+﻿//
 // MimeComplianceIssueTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -357,7 +357,14 @@ namespace UnitTests {
 				MimeComplianceViolation.RepeatedResentTo,
 				MimeComplianceViolation.RepeatedResentCc,
 				MimeComplianceViolation.RepeatedResentBcc,
-				MimeComplianceViolation.RepeatedResentMessageId
+				MimeComplianceViolation.RepeatedResentMessageId,
+
+				// Note: Agents fall back on something else when one of these is missing, so the
+				// worst outcome is that the message is sorted, threaded or interpreted inconsistently.
+				// A missing From is Major because it leaves DMARC with no author domain to check.
+				MimeComplianceViolation.MissingDate,
+				MimeComplianceViolation.MissingMessageId,
+				MimeComplianceViolation.MissingMimeVersion
 			};
 
 			// Note: These are the classic MIME content-smuggling vectors, plus the two address defects
@@ -619,7 +626,11 @@ namespace UnitTests {
 				{ MimeComplianceViolation.RepeatedResentTo, Interop },
 				{ MimeComplianceViolation.RepeatedResentCc, Interop },
 				{ MimeComplianceViolation.RepeatedResentBcc, Interop },
-				{ MimeComplianceViolation.RepeatedResentMessageId, Interop }
+				{ MimeComplianceViolation.RepeatedResentMessageId, Interop },
+				{ MimeComplianceViolation.MissingDate, Interop },
+				{ MimeComplianceViolation.MissingFrom, Interop | Security },
+				{ MimeComplianceViolation.MissingMessageId, Interop },
+				{ MimeComplianceViolation.MissingMimeVersion, Interop }
 			};
 
 			foreach (var violation in AllViolations) {

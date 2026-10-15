@@ -130,6 +130,8 @@ namespace MimeKit {
 		async Task StepHeadersAsync (CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
+			long lastLineBeginOffset = 0;
+			int lastLineNumber = 0;
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
@@ -141,6 +143,7 @@ namespace MimeKit {
 			messageHeaderBlock = state == MimeParserState.MessageHeaders;
 			seenMessageHeaders = 0;
 			seenResentHeaders = 0;
+			seenMimeVersion = false;
 
 			currentContentLength = null;
 
@@ -168,6 +171,9 @@ namespace MimeKit {
 				bool invalid;
 
 				headerIndex = 0;
+
+				lastLineBeginOffset = beginOffset;
+				lastLineNumber = beginLineNumber;
 
 				if (left < 2)
 					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
@@ -345,6 +351,9 @@ namespace MimeKit {
 
 				await OnHeaderReadAsync (header, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			} while (!eof);
+
+			if (complianceLogger != null)
+				CheckForMissingHeaders (lastLineBeginOffset, lastLineNumber, eof);
 
 			headerBlockEnd = GetOffset (inputIndex);
 

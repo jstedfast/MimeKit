@@ -4,6 +4,7 @@ Subject: This is a test message
 Message-Id: <123@example.org>
 MIME-Version: 1.0
 Content-Type: multipart/mixed
+Date: Tue, 12 Nov 2013 09:12:42 -0500
 
 ------=_NextPart_000_003F_01CE98CE.6E826F90
 Content-Type: text/plain; charset=us-ascii

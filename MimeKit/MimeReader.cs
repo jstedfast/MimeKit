@@ -109,6 +109,7 @@ namespace MimeKit {
 		ulong seenMessageHeaders;
 		ulong seenResentHeaders;
 		bool messageHeaderBlock;
+		bool seenMimeVersion;
 
 		MimeParserState state;
 		MimeFormat format;
@@ -1845,6 +1846,42 @@ namespace MimeKit {
 			}
 		}
 
+		// Note: The header fields that RFC 5322, Section 3.6 and RFC 2045, Section 4 require a message to
+		// contain can only be known to be missing once the end of the header block has been reached. When
+		// the header block was terminated by a body separator (or by a boundary or mbox marker in its
+		// place), the position is the start of that line. When it was terminated by the end of the stream,
+		// the position is the end of the stream.
+		void CheckForMissingHeaders (long offset, int lineNumber, bool eof)
+		{
+			// Note: Embedded message/rfc822 parts are frequently trimmed copies of the original message, so
+			// only the top-level message is checked.
+			if (!messageHeaderBlock || !toplevel)
+				return;
+
+			var kind = MimeCompliancePositionKind.LineStart;
+			int columnNumber = 1;
+
+			if (eof) {
+				offset = GetOffset (inputIndex);
+				lineNumber = this.lineNumber;
+				columnNumber = GetColumnNumber (inputIndex);
+				kind = MimeCompliancePositionKind.Exact;
+			}
+
+			if ((seenMessageHeaders & (1UL << GetRepeatableHeaderIndex (HeaderId.Date))) == 0)
+				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingDate, offset, lineNumber, columnNumber, kind));
+
+			if ((seenMessageHeaders & (1UL << GetRepeatableHeaderIndex (HeaderId.From))) == 0)
+				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingFrom, offset, lineNumber, columnNumber, kind));
+
+			if ((seenMessageHeaders & (1UL << GetRepeatableHeaderIndex (HeaderId.MessageId))) == 0)
+				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMessageId, offset, lineNumber, columnNumber, kind));
+
+			// Note: A message that does not use MIME at all has no need of a MIME-Version header field.
+			if (!seenMimeVersion && (currentContentType != null || currentEncoding.HasValue))
+				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMimeVersion, offset, lineNumber, columnNumber, kind));
+		}
+
 		/// <summary>
 		/// Get the position of the first byte of a header's value.
 		/// </summary>
@@ -1910,8 +1947,12 @@ namespace MimeKit {
 			// not to the headers of an ordinary entity. This cannot be written as a test of the
 			// current state, because a message that ends without a body separator has already
 			// transitioned to MimeParserState.Content by the time its final header is created.
-			if (complianceLogger != null && messageHeaderBlock)
+			if (complianceLogger != null && messageHeaderBlock) {
 				CheckForRepeatedHeader (header.Id, beginOffset, beginLineNumber);
+
+				if (header.Id == HeaderId.MimeVersion)
+					seenMimeVersion = true;
+			}
 
 			switch (header.Id) {
 			case HeaderId.ContentTransferEncoding:
@@ -2371,6 +2412,8 @@ namespace MimeKit {
 		unsafe void StepHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
+			long lastLineBeginOffset = 0;
+			int lastLineNumber = 0;
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
@@ -2382,6 +2425,7 @@ namespace MimeKit {
 			messageHeaderBlock = state == MimeParserState.MessageHeaders;
 			seenMessageHeaders = 0;
 			seenResentHeaders = 0;
+			seenMimeVersion = false;
 
 			currentContentLength = null;
 
@@ -2409,6 +2453,9 @@ namespace MimeKit {
 				bool invalid;
 
 				headerIndex = 0;
+
+				lastLineBeginOffset = beginOffset;
+				lastLineNumber = beginLineNumber;
 
 				if (left < 2)
 					left = ReadAhead (2, 0, cancellationToken);
@@ -2558,6 +2605,9 @@ namespace MimeKit {
 
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
 			} while (!eof);
+
+			if (complianceLogger != null)
+				CheckForMissingHeaders (lastLineBeginOffset, lastLineNumber, eof);
 
 			headerBlockEnd = GetOffset (inputIndex);
 
