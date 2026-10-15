@@ -35,6 +35,8 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	class DkimSimpleBodyFilter : DkimBodyFilter
 	{
+		bool cr;
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="DkimSimpleBodyFilter"/> class.
 		/// </summary>
@@ -48,47 +50,68 @@ namespace MimeKit.Cryptography {
 			EmptyLines = 0;
 		}
 
-		int Filter (ReadOnlySpan<byte> input, Span<byte> output)
+		int WriteContent (byte c, Span<byte> output, int outputIndex)
 		{
-			int count = 0;
+			// unwind our collection of empty lines
+			while (EmptyLines > 0) {
+				output[outputIndex++] = (byte) '\r';
+				output[outputIndex++] = (byte) '\n';
+				EmptyLines--;
+			}
+
+			LastWasNewLine = false;
+			IsEmptyLine = false;
+
+			output[outputIndex++] = c;
+
+			return outputIndex;
+		}
+
+		int Filter (ReadOnlySpan<byte> input, Span<byte> output, bool flush)
+		{
 			int outputIndex = 0;
 
 			foreach (var c in input) {
 				if (c == (byte) '\r') {
-					if (!IsEmptyLine) {
-						output[outputIndex++] = c;
-						count++;
+					if (IsEmptyLine && !cr) {
+						// defer the CR until we know whether or not it is part of an empty line
+						cr = true;
+					} else {
+						if (cr) {
+							outputIndex = WriteContent ((byte) '\r', output, outputIndex);
+							cr = false;
+						}
+
+						outputIndex = WriteContent (c, output, outputIndex);
 					}
 				} else if (c == (byte) '\n') {
-					if (!IsEmptyLine) {
+					if (IsEmptyLine) {
+						EmptyLines++;
+					} else {
 						output[outputIndex++] = c;
 						LastWasNewLine = true;
 						IsEmptyLine = true;
-						EmptyLines = 0;
-						count++;
-					} else {
-						EmptyLines++;
 					}
+
+					cr = false;
 				} else {
-					if (EmptyLines > 0) {
-						// unwind our collection of empty lines
-						while (EmptyLines > 0) {
-							output[outputIndex++] = (byte) '\r';
-							output[outputIndex++] = (byte) '\n';
-							EmptyLines--;
-							count += 2;
-						}
+					// Note: rfc6376 only recognizes CRLF as a line terminator, so a carriage return that is not
+					// followed by a line feed is part of the line's content.
+					if (cr) {
+						outputIndex = WriteContent ((byte) '\r', output, outputIndex);
+						cr = false;
 					}
 
-					LastWasNewLine = false;
-					IsEmptyLine = false;
-
-					output[outputIndex++] = c;
-					count++;
+					outputIndex = WriteContent (c, output, outputIndex);
 				}
 			}
 
-			return count;
+			if (flush && cr) {
+				outputIndex = WriteContent ((byte) '\r', output, outputIndex);
+				cr = false;
+			}
+
+			return outputIndex;
 		}
 
 		/// <summary>
@@ -108,9 +131,9 @@ namespace MimeKit.Cryptography {
 		protected override byte[] Filter (byte[] input, int startIndex, int length, out int outputIndex, out int outputLength, bool flush)
 		{
 			// Note: each '\n' in the input may get deferred as an empty line and later get output as "\r\n".
-			EnsureOutputSize ((length * 2) + (EmptyLines * 2) + 1, false);
+			EnsureOutputSize ((length * 2) + (EmptyLines * 2) + (cr ? 1 : 0) + 1, false);
 
-			outputLength = Filter (input.AsSpan (startIndex, length), OutputBuffer.AsSpan ());
+			outputLength = Filter (input.AsSpan (startIndex, length), OutputBuffer.AsSpan (), flush);
 
 			outputIndex = 0;
 
@@ -128,6 +151,7 @@ namespace MimeKit.Cryptography {
 			LastWasNewLine = false;
 			IsEmptyLine = true;
 			EmptyLines = 0;
+			cr = false;
 
 			base.Reset ();
 		}

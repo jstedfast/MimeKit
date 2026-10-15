@@ -786,6 +786,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Fixed `DkimSimpleBodyFilter` and `DkimRelaxedBodyFilter` to no longer throw `IndexOutOfRangeException`
   when canonicalizing a body containing many consecutive empty lines that end with a bare LF (which
   are written out as CRLF), such as when verifying a DKIM or ARC signature.
+* `DkimSimpleBodyFilter` and `DkimRelaxedBodyFilter` now treat a bare CR (one not followed by LF) as line
+  content, per RFC 6376. Previously, the simple filter dropped a bare CR at the start of a line, and the
+  relaxed filter could drop a bare CR at the end of the body, drop the whitespace before a bare CR, write
+  a bare CR before any deferred empty lines, or omit the final CRLF of a body ending with a bare CR. As a
+  result, the DKIM body hash of a message containing bare CRs may differ from earlier versions.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

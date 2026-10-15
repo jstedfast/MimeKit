@@ -51,9 +51,31 @@ namespace MimeKit.Cryptography {
 			IsEmptyLine = true;
 		}
 
-		int Filter (ReadOnlySpan<byte> input, Span<byte> output)
+		int WriteContent (byte c, Span<byte> output, int outputIndex)
 		{
-			int count = 0;
+			// unwind our collection of empty lines
+			while (EmptyLines > 0) {
+				output[outputIndex++] = (byte) '\r';
+				output[outputIndex++] = (byte) '\n';
+				EmptyLines--;
+			}
+
+			if (lwsp) {
+				// collapse lwsp to a single space
+				output[outputIndex++] = (byte) ' ';
+				lwsp = false;
+			}
+
+			LastWasNewLine = false;
+			IsEmptyLine = false;
+
+			output[outputIndex++] = c;
+
+			return outputIndex;
+		}
+
+		int Filter (ReadOnlySpan<byte> input, Span<byte> output, bool flush)
+		{
 			int outputIndex = 0;
 
 			foreach (byte c in input) {
@@ -61,59 +83,40 @@ namespace MimeKit.Cryptography {
 					if (IsEmptyLine) {
 						EmptyLines++;
 					} else {
-						if (cr) {
+						if (cr)
 							output[outputIndex++] = (byte) '\r';
-							count++;
-						}
 
 						output[outputIndex++] = (byte) '\n';
 						LastWasNewLine = true;
 						IsEmptyLine = true;
-						count++;
 					}
 
 					lwsp = false;
 					cr = false;
 				} else {
+					// Note: rfc6376 only recognizes CRLF as a line terminator, so a carriage return that is not
+					// followed by a line feed is part of the line's content (and is not whitespace).
 					if (cr) {
-						output[outputIndex++] = (byte) '\r';
+						outputIndex = WriteContent ((byte) '\r', output, outputIndex);
 						cr = false;
-						count++;
 					}
 
 					if (c == (byte) '\r') {
-						lwsp = false;
 						cr = true;
 					} else if (c.IsBlank ()) {
 						lwsp = true;
 					} else {
-						if (EmptyLines > 0) {
-							// unwind our collection of empty lines
-							while (EmptyLines > 0) {
-								output[outputIndex++] = (byte) '\r';
-								output[outputIndex++] = (byte) '\n';
-								EmptyLines--;
-								count += 2;
-							}
-						}
-
-						if (lwsp) {
-							// collapse lwsp to a single space
-							output[outputIndex++] = (byte) ' ';
-							lwsp = false;
-							count++;
-						}
-
-						LastWasNewLine = false;
-						IsEmptyLine = false;
-
-						output[outputIndex++] = c;
-						count++;
+						outputIndex = WriteContent (c, output, outputIndex);
 					}
 				}
 			}
 
-			return count;
+			if (flush && cr) {
+				outputIndex = WriteContent ((byte) '\r', output, outputIndex);
+				cr = false;
+			}
+
+			return outputIndex;
 		}
 
 		/// <summary>
@@ -135,7 +138,7 @@ namespace MimeKit.Cryptography {
 			// Note: each '\n' in the input may get deferred as an empty line and later get output as "\r\n".
 			EnsureOutputSize ((length * 2) + (lwsp ? 1 : 0) + (EmptyLines * 2) + (cr ? 1 : 0) + 1, false);
 
-			outputLength = Filter (input.AsSpan (startIndex, length), OutputBuffer.AsSpan ());
+			outputLength = Filter (input.AsSpan (startIndex, length), OutputBuffer.AsSpan (), flush);
 			outputIndex = 0;
 
 			return OutputBuffer;

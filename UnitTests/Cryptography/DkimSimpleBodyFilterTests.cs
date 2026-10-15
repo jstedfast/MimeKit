@@ -46,6 +46,53 @@ namespace UnitTests.Cryptography {
 			Assert.That (actual, Is.EqualTo (expected));
 		}
 
+		static string Filter (string text, out bool lastWasNewLine)
+		{
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimSimpleBodyFilter ();
+
+			var output = filter.Flush (input, 0, input.Length, out int outputIndex, out int outputLength);
+			lastWasNewLine = filter.LastWasNewLine;
+
+			return Encoding.ASCII.GetString (output, outputIndex, outputLength);
+		}
+
+		[TestCase ("\r\r", "\r\r", false)]
+		[TestCase ("\r", "\r", false)]
+		[TestCase ("\rX", "\rX", false)]
+		[TestCase ("abc\r", "abc\r", false)]
+		[TestCase ("a\n\rX", "a\n\rX", false)]
+		[TestCase ("a\r\n\r\n\rb", "a\r\n\r\n\rb", false)]
+		[TestCase ("a\rb\r\n", "a\rb\r\n", true)]
+		[TestCase ("\r\r\n", "\r\r\n", true)]
+		[TestCase ("a\r\n\r\n", "a\r\n", true)]
+		public void TestBareCarriageReturnIsContent (string text, string expected, bool expectedLastWasNewLine)
+		{
+			var actual = Filter (text, out bool lastWasNewLine);
+
+			Assert.That (actual, Is.EqualTo (expected));
+			Assert.That (lastWasNewLine, Is.EqualTo (expectedLastWasNewLine), "LastWasNewLine");
+		}
+
+		[Test]
+		public void TestBareCarriageReturnSplitAcrossBuffers ()
+		{
+			var filter = new DkimSimpleBodyFilter ();
+			var first = Encoding.ASCII.GetBytes ("a\r\n\r\n\r");
+			var second = Encoding.ASCII.GetBytes ("\r");
+			var builder = new StringBuilder ();
+
+			var output = filter.Filter (first, 0, first.Length, out int outputIndex, out int outputLength);
+			builder.Append (Encoding.ASCII.GetString (output, outputIndex, outputLength));
+			Assert.That (builder.ToString (), Is.EqualTo ("a\r\n"));
+
+			output = filter.Flush (second, 0, second.Length, out outputIndex, out outputLength);
+			builder.Append (Encoding.ASCII.GetString (output, outputIndex, outputLength));
+
+			Assert.That (builder.ToString (), Is.EqualTo ("a\r\n\r\n\r\r"));
+			Assert.That (filter.LastWasNewLine, Is.False, "LastWasNewLine");
+		}
+
 		[Test]
 		public void TestManyBareLineFeedEmptyLines ()
 		{
