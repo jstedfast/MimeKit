@@ -772,6 +772,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * `HtmlToHtml` no longer writes a `</noscript>` end tag for a `<noscript>` element inside SVG or MathML
   content that is implicitly closed when `NoScriptHandling` is `Unwrap`. Previously, the start tag was
   removed but the end tag was still written, so converting the output again produced different output.
+* Fixed `DkimSimpleBodyFilter` and `DkimRelaxedBodyFilter` to no longer throw `IndexOutOfRangeException`
+  when canonicalizing a body containing many consecutive empty lines that end with a bare LF (which
+  are written out as CRLF), such as when verifying a DKIM or ARC signature.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

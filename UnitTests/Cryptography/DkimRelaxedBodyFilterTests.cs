@@ -122,5 +122,20 @@ namespace UnitTests.Cryptography {
 
 			filter.Reset ();
 		}
+
+		[Test]
+		public void TestManyBareLineFeedEmptyLines ()
+		{
+			// Each bare '\n' empty line is output as "\r\n", so the output is nearly twice the size of the input.
+			var text = "a\n" + new string ('\n', 8192) + "b";
+			var expected = "a\n" + new StringBuilder ().Insert (0, "\r\n", 8192) + "b";
+			var input = Encoding.ASCII.GetBytes (text);
+			var filter = new DkimRelaxedBodyFilter ();
+
+			var output = filter.Flush (input, 0, input.Length, out int outputIndex, out int outputLength);
+			var actual = Encoding.ASCII.GetString (output, outputIndex, outputLength);
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
 	}
 }
