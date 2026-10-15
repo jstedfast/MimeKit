@@ -3664,6 +3664,10 @@ namespace UnitTests.Text {
 		[TestCase ("<head><noscript><div><noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Tag(div) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
 		[TestCase ("</head><noscript><math></noscript><script><t>", "EndTag(head) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
 		[TestCase ("<body><noscript><math></noscript><script><t>", "Tag(body) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
+		// A NUL character is non-whitespace character data that closes the <head> (the "in body" insertion mode then
+		// ignores it), so the <noscript> elements are in the body. Note: AngleSharp ignores a NUL before the body instead.
+		[TestCase ("\0<noscript><svg></noscript><script><t>", "Data(\0) Tag(noscript) Tag(svg) EndTag(noscript) Tag(script) Data(<t>)")]
+		[TestCase ("<head><noscript>\0<noscript><math></noscript><script><t>", "Tag(head) Tag(noscript) Data(\0) Tag(noscript) Tag(math) EndTag(noscript) Tag(script) Data(<t>)")]
 		// Within a <template>, a <noscript> element is processed as if it were in the body.
 		[TestCase ("<head><template><noscript><math></noscript></template><script><t>", "Tag(head) Tag(template) Tag(noscript) Tag(math) EndTag(noscript) EndTag(template) Tag(script) Data(<t>)")]
 		public void TestNoScriptInHeadScriptingDisabled (string content, string expected)
