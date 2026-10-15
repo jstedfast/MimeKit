@@ -103,6 +103,10 @@ jobs:
         Write-Host "Releasing MimeKit $version from $commit"
         [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=${version}$([Environment]::NewLine)")
 
+        # Note: GitHub's pwsh wrapper exits with $LASTEXITCODE, which is 1 here because `git rev-parse --verify`
+        # fails when the release tag does not exist yet (the normal case).
+        exit 0
+
     # Restore .NET tools
     - name: Run .NET tool restore
       shell: pwsh
