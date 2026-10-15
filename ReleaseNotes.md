@@ -377,7 +377,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   The default limit is 4096. The tracked elements are also now stored in fixed-size chunks rather than in a
   single array that is copied every time it grows, keeping allocations off the large object heap.
 * Added `HtmlToHtml.OutputHtmlFragment`, which removes the `<!DOCTYPE>`, `<html>`, `<head>` (including its
-  content) and `<body>` tags so that the output can be embedded within another HTML document.
+  content) and `<body>` tags so that the output can be embedded within another HTML document. Like browsers,
+  it treats the `<head>` element as implicitly closed at the first start tag or non-whitespace text that does
+  not belong in the `<head>`, so content that browsers would render is not removed.
 * `SqliteCertificateDatabase` (and therefore `DefaultSecureMimeContext`) now falls back to
   `Microsoft.Data.Sqlite` on .NET 8 and later if neither `System.Data.SQLite` nor `Mono.Data.Sqlite`
   is usable. Previously, they were unavailable on platforms for which `System.Data.SQLite` does not ship

@@ -156,6 +156,39 @@ namespace UnitTests.Text {
 			Assert.That (tags, Has.None.AnyOf ("html", "head", "body", "title", "meta", "style"));
 		}
 
+		[TestCase ("<head><math></head><script><t>", "<math><script><t>")]
+		[TestCase ("<head><title>T</title><div>D</div></head><body>B</body>", "<div>D</div>B")]
+		[TestCase ("<head><title>T</title>junk<style>s</style></head>B", "junk<style>s</style>B")]
+		[TestCase ("<head><title>T</title><math><mi>x</mi></head><script><t>", "<math><mi>x</mi><script><t>")]
+		[TestCase ("<head> \r\n<title>T</title> </head>B", "B")]
+		[TestCase ("<head><o:p>x</o:p></head>", "<o:p>x</o:p>")]
+		[TestCase ("<head><body>B</body>", "B")]
+		[TestCase ("<head><meta charset=utf-8></body>B", "B")]
+		[TestCase ("<head/><title>T</title>B", "B")]
+		[TestCase ("<head>A</head><head>B</head>", "AB")]
+		[TestCase ("<head><head><title>T</title></head>B</head>", "B")]
+		[TestCase ("<p>A</p><head><style>s</style></head>", "<p>A</p><style>s</style>")]
+		[TestCase ("A<head><title>T</title></head>", "A<title>T</title>")]
+		[TestCase ("<title>T</title><head><title>U</title></head>B", "<title>T</title>B")]
+		[TestCase ("<head><template><div>D</div></head></template>X</head>B", "XB")]
+		[TestCase ("<head><template><math></template></head>B", "B")]
+		[TestCase ("<head><noscript><b>x</b></noscript></head>B", "<b>x</b>B")]
+		public void TestOutputHtmlFragmentImplicitlyClosesHead (string html, string expected)
+		{
+			var converter = new HtmlToHtml {
+				Header = null, Footer = null, OutputHtmlFragment = true,
+				HtmlTagCallback = (ctx, writer) => ctx.WriteTag (writer, true)
+			};
+			var result = converter.Convert (html);
+
+			// Browsers implicitly close the <head> element at the first start tag or non-whitespace text that does not
+			// belong in the <head>, so only the content that precedes it gets removed.
+			Assert.That (result, Is.EqualTo (expected));
+
+			// Converting the output again must not change it.
+			Assert.That (converter.Convert (result), Is.EqualTo (expected));
+		}
+
 		[Test]
 		public void TestOutputHtmlFragmentFalse ()
 		{

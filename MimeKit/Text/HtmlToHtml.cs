@@ -341,6 +341,44 @@ namespace MimeKit.Text {
 			return id == HtmlTagId.Html || id == HtmlTagId.Head || id == HtmlTagId.Body;
 		}
 
+		static bool IsTemplate (HtmlTagToken tag)
+		{
+			return tag.Id == HtmlTagId.Unknown && tag.Name.Equals ("template", StringComparison.OrdinalIgnoreCase);
+		}
+
+		// Get whether a start tag remains within the <head> element according to the "in head" insertion mode rules.
+		// Any other start tag implicitly closes the <head> element (browsers then insert it into the <body>).
+		static bool IsAllowedInHead (HtmlTagToken tag)
+		{
+			switch (tag.Id) {
+			case HtmlTagId.Html:
+			case HtmlTagId.Head:
+			case HtmlTagId.Base:
+			case HtmlTagId.BaseFont:
+			case HtmlTagId.BGSound:
+			case HtmlTagId.Link:
+			case HtmlTagId.Meta:
+			case HtmlTagId.Title:
+			case HtmlTagId.NoScript:
+			case HtmlTagId.NoFrames:
+			case HtmlTagId.Style:
+			case HtmlTagId.Script:
+				return true;
+			default:
+				return IsTemplate (tag);
+			}
+		}
+
+		static bool IsWhiteSpace (ReadOnlySpan<char> text)
+		{
+			foreach (var c in text) {
+				if (c != ' ' && c != '\t' && c != '\n' && c != '\f' && c != '\r')
+					return false;
+			}
+
+			return true;
+		}
+
 		// Note: This is also used by RtfToHtml to convert the HTML encapsulated within RTF (which is just as untrusted
 		// as any other HTML), so that both converters share the same filtering logic.
 		internal void ConvertHtml (TextReader reader, TextWriter writer)
@@ -360,9 +398,28 @@ namespace MimeKit.Text {
 					ReuseDataTokens = true
 				};
 				var openElements = tokenizer.OpenElements;
+				HtmlToHtmlTagContext? headCtx = null;
+				bool rawText = false;
+				int headTemplateDepth = 0;
+				bool headDone = false;
 				HtmlToHtmlTagContext? ctx;
 
 				openElements.TrackClosedElements = true;
+
+				// Note: When outputting a fragment, the content of the <head> element is removed. Browsers implicitly close the
+				// <head> element when they encounter a start tag or non-whitespace text that does not belong in the <head> (and
+				// insert that content into the <body>), so do the same. Otherwise, content that browsers would render could get
+				// removed and, worse, the output could get interpreted differently than the tokenizer interpreted the input
+				// (e.g. if an SVG or MathML element within the <head> remains open after the </head> end tag).
+				void EndHead ()
+				{
+					if (headCtx != null) {
+						stack.Pop ("head");
+						headCtx = null;
+					}
+
+					headDone = true;
+				}
 
 				void ProcessEndTag (HtmlTagToken tag, bool implicitlyClosed)
 				{
@@ -405,6 +462,9 @@ namespace MimeKit.Text {
 				while (tokenizer.ReadNextToken (out var token)) {
 					switch (token.Kind) {
 					default:
+						if (fragment && !headDone && !rawText && token.Kind == HtmlTokenKind.Data && headTemplateDepth == 0 && !IsWhiteSpace (((HtmlDataToken) token).DataSpan))
+							EndHead ();
+
 						if (!stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
@@ -449,11 +509,34 @@ namespace MimeKit.Text {
 							break;
 
 						if (!tag.IsEndTag) {
+							if (fragment && !headDone) {
+								if (headCtx == null) {
+									// Note: Any start tag that does not belong in the <head> means that the <body> has started, after
+									// which browsers ignore any <head> tags.
+									if (!IsAllowedInHead (tag))
+										headDone = true;
+								} else if (IsTemplate (tag)) {
+									headTemplateDepth++;
+								} else if (headTemplateDepth == 0 && !IsAllowedInHead (tag)) {
+									EndHead ();
+								}
+							}
+
 							if (fragment && IsDocumentStructureTag (tag.Id)) {
 								// Drop the tag (and the content of <head>) without consulting the callback.
-								if (!tag.IsEmptyElement) {
+								if (tag.Id == HtmlTagId.Head) {
+									// Note: Browsers ignore the self-closing flag on <head> as well as any subsequent <head> tags.
+									if (!headDone && headCtx == null) {
+										headCtx = new HtmlToHtmlTagContext (tag) {
+											SuppressInnerContent = true,
+											DeleteEndTag = true,
+											DeleteTag = true
+										};
+
+										stack.Push (headCtx);
+									}
+								} else if (!tag.IsEmptyElement) {
 									ctx = new HtmlToHtmlTagContext (tag) {
-										SuppressInnerContent = tag.Id == HtmlTagId.Head,
 										DeleteEndTag = true,
 										DeleteTag = true
 									};
@@ -474,7 +557,27 @@ namespace MimeKit.Text {
 								ctx = new HtmlToHtmlTagContext (tag);
 								callback (ctx, htmlWriter);
 							}
+
+							rawText = tokenizer.TokenizerState != HtmlTokenizerState.Data;
 						} else {
+							rawText = false;
+
+							if (fragment && headCtx != null) {
+								if (headTemplateDepth > 0) {
+									if (IsTemplate (tag))
+										headTemplateDepth--;
+									else if (tag.Id == HtmlTagId.Head)
+										break;
+								} else if (tag.Id == HtmlTagId.Head) {
+									ProcessEndTag (tag, false);
+									headCtx = null;
+									headDone = true;
+									break;
+								} else if (tag.Id == HtmlTagId.Body || tag.Id == HtmlTagId.Html || tag.Id == HtmlTagId.Br) {
+									EndHead ();
+								}
+							}
+
 							ProcessEndTag (tag, false);
 						}
 						break;
