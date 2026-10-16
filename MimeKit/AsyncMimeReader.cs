@@ -439,6 +439,7 @@ namespace MimeKit {
 			var formats = new bool[2];
 			long contentLength = 0;
 			long scannedLength = 0;
+			bool midlineCr = false;
 			bool incomplete = false;
 			bool midline = false;
 			int pending = 0;
@@ -460,7 +461,7 @@ namespace MimeKit {
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref formats);
+						incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref midlineCr, ref formats);
 					}
 				}
 

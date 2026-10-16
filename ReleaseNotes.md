@@ -463,6 +463,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Bug Fixes
 
+* Fixed `MimeReader` so that a CRLF sequence in a MIME part's content that is split across two reads of the
+  underlying stream is no longer reported as a `BareLinefeedInBody` violation, and no longer causes the
+  content's `NewLineFormat` to be reported as `Mixed`.
+
 * Fixed `FilteredStream.Read ()` and `ReadAsync ()` so that they flush the filters when the source stream reaches
   the end, and so that they no longer return 0 before the end of the stream when the filters hold back an entire
   chunk of input. Previously, a trailing lone CR (or any other output that a filter only emits on flush) was

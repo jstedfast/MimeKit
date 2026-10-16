@@ -3127,7 +3127,7 @@ namespace MimeKit {
 		}
 #endif
 
-		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool[] formats)
+		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool midlineCr, ref bool[] formats)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -3197,7 +3197,9 @@ namespace MimeKit {
 					if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
 						break;
 
-					if (length > 0 && *(inptr - 1) == (byte) '\r') {
+					// Note: If the '\r' of a "\r\n" sequence was the last byte of a partial line consumed in a previous pass,
+					// then the '\n' will be at the very start of this line.
+					if (length > 0 ? *(inptr - 1) == (byte) '\r' : (midline && midlineCr)) {
 						formats[(int) NewLineFormat.Dos] = true;
 					} else {
 						// Note: inputIndex is not updated until the end of this method, so the position of the
@@ -3245,6 +3247,9 @@ namespace MimeKit {
 						// data. We'll finish processing it in our next pass.
 						midline = true;
 					}
+
+					if (midline)
+						midlineCr = *(inptr - 1) == (byte) '\r';
 
 					startIndex += length;
 					break;
@@ -3357,6 +3362,7 @@ namespace MimeKit {
 			long contentLength = 0;
 			long scannedLength = 0;
 			bool incomplete = false;
+			bool midlineCr = false;
 			bool midline = false;
 			int pending = 0;
 
@@ -3375,7 +3381,7 @@ namespace MimeKit {
 				int contentIndex = inputIndex - pending;
 				int scanIndex = inputIndex;
 
-				incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref formats);
+				incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref midlineCr, ref formats);
 
 				if (scanIndex < inputIndex) {
 					validator?.Write (input, scanIndex, inputIndex - scanIndex);

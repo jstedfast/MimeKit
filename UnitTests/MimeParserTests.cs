@@ -8048,6 +8048,35 @@ Content-Type: text/plain; charset=utf-8
 			}
 		}
 
+		static readonly byte[] SplitCrLfMessage = Encoding.ASCII.GetBytes ("From: sender@example.org\r\nDate: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <1@example.org>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain\r\n\r\n" +
+			string.Concat (Enumerable.Range (0, 50).Select (i => $"line number {i} of the body with some text\r\n")));
+
+		static void AssertSplitCrLf (MimeMessage message, TestMimeComplianceLogger logger)
+		{
+			Assert.That (logger.Issues, Is.Empty, string.Join (", ", logger.Issues));
+			Assert.That (((MimePart) message.Body).Content.NewLineFormat, Is.EqualTo (NewLineFormat.Dos));
+		}
+
+		[Test]
+		public void TestCrLfSplitAcrossReadsIsNotBareLinefeed ([Values (1, 2, 3, 5, 7, 11, 13)] int chunkSize)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var parser = new MimeParser (new ChunkedReadStream (SplitCrLfMessage, chunkSize), MimeFormat.Entity) { ComplianceLogger = logger };
+
+			using (var message = parser.ParseMessage ())
+				AssertSplitCrLf (message, logger);
+		}
+
+		[Test]
+		public async Task TestCrLfSplitAcrossReadsIsNotBareLinefeedAsync ([Values (1, 2, 3, 5, 7, 11, 13)] int chunkSize)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var parser = new MimeParser (new ChunkedReadStream (SplitCrLfMessage, chunkSize), MimeFormat.Entity) { ComplianceLogger = logger };
+
+			using (var message = await parser.ParseMessageAsync ())
+				AssertSplitCrLf (message, logger);
+		}
+
 		static Stream CreateStream (byte[] data, bool chunked)
 		{
 			return chunked ? new ChunkedReadStream (data, 7) : new MemoryStream (data, false);
