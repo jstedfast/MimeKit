@@ -431,10 +431,18 @@ namespace MimeKit.Text {
 					// Note: If the tokenizer ignored the end tag, then the element is still open (and so is the case for browsers),
 					// so leave its context on the stack. Otherwise, the wrong context would get popped (or none at all) when the
 					// element eventually gets closed, causing the wrong end tags to be written.
-					if (!implicitlyClosed && openElements.EndTagIgnored)
+					if (!implicitlyClosed && openElements.EndTagIgnored) {
+						// Note: The end tag may have been ignored because the <noscript> element (which is in the "special" category)
+						// was in the way (e.g. </span> in <span><noscript><svg></span>). Since the <noscript> tags are not written
+						// when unwrapping, the end tag would no longer be ignored when the output is parsed (implicitly closing any
+						// SVG or MathML elements), so drop it.
+						if (unwrapNoScript && openElements.IsNoScriptOpen)
+							return;
+
 						ctx = stack.Peek (tag.Name);
-					else
+					} else {
 						ctx = stack.Pop (tag.Name);
+					}
 
 					if (ctx != null) {
 						if (!stack.SuppressContent) {

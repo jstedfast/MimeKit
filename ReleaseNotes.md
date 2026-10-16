@@ -804,6 +804,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * `HtmlToHtml` no longer writes a `</noscript>` end tag for a `<noscript>` element inside SVG or MathML
   content that is implicitly closed when `NoScriptHandling` is `Unwrap`. Previously, the start tag was
   removed but the end tag was still written, so converting the output again produced different output.
+* `HtmlToHtml` no longer writes an end tag that the HTML parser ignores because a `<noscript>` element is in
+  the way (such as the `</span>` in `<span><noscript><svg></span>`) when `NoScriptHandling` is `Unwrap`.
+  Previously, since the `<noscript>` tags are removed from the output, the end tag was no longer ignored when
+  the output was parsed again, so it implicitly closed the SVG or MathML elements.
 * `HtmlTokenizer` now treats a `<noscript>` element in the `<head>` as implicitly closed by any start tag
   or non-whitespace text that does not belong in the `<head>` when `ScriptingEnabled` is `false`, like
   browsers do. Previously, the tokenizer could lose track of SVG or MathML content and tokenize a

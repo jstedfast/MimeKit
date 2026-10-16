@@ -253,6 +253,16 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Get whether an HTML <c>&lt;noscript&gt;</c> element is open.
+		/// </summary>
+		/// <remarks>
+		/// Gets whether an HTML <c>&lt;noscript&gt;</c> element is open.
+		/// </remarks>
+		public bool IsNoScriptOpen {
+			get { return IndexOf (HtmlTagId.NoScript) >= 0; }
+		}
+
+		/// <summary>
 		/// Get or set whether the tree builder should behave as if scripting is enabled.
 		/// </summary>
 		/// <remarks>

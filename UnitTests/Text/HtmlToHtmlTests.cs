@@ -353,6 +353,22 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
+		[TestCase ("<span><noscript><svg></span>x", "<span><svg>x")]
+		[TestCase ("<span><noscript><svg></span>x</noscript></span>y", "<span><svg>x</svg></span>y")]
+		[TestCase ("<span><noscript><math><mi></span>x", "<span><math><mi>x")]
+		public void TestNoScriptUnwrapIgnoredEndTag (string input, string expected)
+		{
+			var converter = new HtmlToHtml ();
+
+			// Note: The </span> end tag is ignored because the <noscript> element is in the "special" category. If it was
+			// written to the output (without the <noscript> tags), it would no longer be ignored and would implicitly
+			// close the SVG or MathML elements when the output is parsed again.
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
+		}
+
 		[Test]
 		public void TestNoScriptScriptingEnabled ()
 		{
