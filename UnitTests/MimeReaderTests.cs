@@ -25,6 +25,7 @@
 //
 
 using System.Text;
+using System.Reflection;
 
 using Newtonsoft.Json;
 
@@ -2796,6 +2797,187 @@ This is the second inner message body.
 				await reader.ReadHeadersAsync ();
 
 				Assert.That (logger.Issues.Count, Is.EqualTo (0), "ReadHeadersAsync: " + FormatIssues (logger));
+			}
+		}
+
+		class DepthTrackingReader : MimeReader
+		{
+			readonly MemoryStream content = new MemoryStream ();
+			public int MimeParts, Depth, MaxDepth;
+
+			public DepthTrackingReader (ParserOptions options, Stream stream) : base (options, stream, MimeFormat.Entity)
+			{
+			}
+
+			public string Content => Encoding.ASCII.GetString (content.ToArray ());
+
+			void Begin ()
+			{
+				Depth++;
+				MaxDepth = Math.Max (MaxDepth, Depth);
+			}
+
+			protected override void OnMultipartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken) => Begin ();
+			protected override void OnMultipartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken) => Depth--;
+			protected override void OnMessagePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken) => Begin ();
+			protected override void OnMessagePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken) => Depth--;
+			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				MimeParts++;
+				Begin ();
+			}
+			protected override void OnMimePartContentRead (byte[] buffer, int startIndex, int count, CancellationToken cancellationToken) => content.Write (buffer, startIndex, count);
+			protected override void OnMimePartEnd (ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken) => Depth--;
+		}
+
+		const string InnermostContent = "This is the innermost part.";
+
+		static byte[] GenerateExtremelyNestedMessage (bool multipart, int depth)
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("From: mimekit@example.org\r\n");
+
+			for (int i = 0; i < depth; i++) {
+				if (multipart)
+					builder.Append ($"Content-Type: multipart/mixed; boundary=\"{i}\"\r\n\r\n--{i}\r\n");
+				else
+					builder.Append ("Content-Type: message/rfc822\r\n\r\n");
+			}
+
+			builder.Append ("Content-Type: text/plain\r\n\r\n");
+			builder.Append (InnermostContent);
+
+			if (multipart) {
+				for (int i = depth - 1; i >= 0; i--)
+					builder.Append ($"\r\n--{i}--");
+
+				builder.Append ("\r\n");
+			}
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
+		}
+
+		// Note: MimeReader must not use recursion to parse nested entities, or else an extremely deep
+		// nesting of multipart or message/rfc822 parts could overflow the stack (which cannot be caught
+		// and terminates the process) when MaxMimeDepth is set to a large value.
+		[TestCase (true, 10000, TestName = "TestExtremelyNestedEntities(multipart)")]
+		[TestCase (false, 100000, TestName = "TestExtremelyNestedEntities(message/rfc822)")]
+		public void TestExtremelyNestedEntities (bool multipart, int depth)
+		{
+			var options = new ParserOptions { MaxMimeDepth = int.MaxValue };
+			var source = GenerateExtremelyNestedMessage (multipart, depth);
+
+			using (var stream = new MemoryStream (source, false)) {
+				var reader = new DepthTrackingReader (options, stream);
+
+				reader.ReadMessage ();
+
+				Assert.That (reader.MaxDepth, Is.EqualTo (depth + 1), "MaxDepth");
+				Assert.That (reader.Depth, Is.EqualTo (0), "Depth");
+				Assert.That (reader.MimeParts, Is.EqualTo (1), "MimeParts");
+				Assert.That (reader.Content, Is.EqualTo (InnermostContent), "Content");
+				Assert.That (reader.IsEndOfStream, Is.True, "IsEndOfStream");
+			}
+		}
+
+		[TestCase (true, 10000, TestName = "TestExtremelyNestedEntitiesAsync(multipart)")]
+		[TestCase (false, 100000, TestName = "TestExtremelyNestedEntitiesAsync(message/rfc822)")]
+		public async Task TestExtremelyNestedEntitiesAsync (bool multipart, int depth)
+		{
+			var options = new ParserOptions { MaxMimeDepth = int.MaxValue };
+			var source = GenerateExtremelyNestedMessage (multipart, depth);
+
+			using (var stream = new MemoryStream (source, false)) {
+				var reader = new DepthTrackingReader (options, stream);
+
+				await reader.ReadMessageAsync ();
+
+				Assert.That (reader.MaxDepth, Is.EqualTo (depth + 1), "MaxDepth");
+				Assert.That (reader.Depth, Is.EqualTo (0), "Depth");
+				Assert.That (reader.MimeParts, Is.EqualTo (1), "MimeParts");
+				Assert.That (reader.Content, Is.EqualTo (InnermostContent), "Content");
+				Assert.That (reader.IsEndOfStream, Is.True, "IsEndOfStream");
+			}
+		}
+
+		class ThrowingMimeReader : MimeReader
+		{
+			public bool ThrowOnMimePartBegin;
+
+			public ThrowingMimeReader (Stream stream) : base (stream, MimeFormat.Entity)
+			{
+			}
+
+			protected override void OnMimePartBegin (ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+			{
+				if (ThrowOnMimePartBegin)
+					throw new InvalidOperationException ("OnMimePartBegin");
+			}
+		}
+
+		// Returns the number of cached entity frames that still reference a ContentType.
+		static int CountRetainedEntityFrames (MimeReader reader)
+		{
+			var frames = (Array) typeof (MimeReader).GetField ("entityFrames", BindingFlags.Instance | BindingFlags.NonPublic).GetValue (reader);
+			int retained = 0;
+
+			Assert.That (frames, Is.Not.Null, "entityFrames");
+
+			foreach (var frame in frames) {
+				if (frame is null)
+					continue;
+
+				var type = frame.GetType ();
+
+				foreach (var name in new[] { "ContentType", "ChildContentType" }) {
+					if (type.GetField (name).GetValue (frame) != null) {
+						retained++;
+						break;
+					}
+				}
+			}
+
+			return retained;
+		}
+
+		const string TextPlainMessage = "From: mimekit@example.org\r\nContent-Type: text/plain\r\n\r\nbody\r\n";
+
+		[Test]
+		public void TestEntityFramesAreReleasedWhenParsingFails ()
+		{
+			var source = GenerateExtremelyNestedMessage (true, 20);
+
+			using (var stream = new MemoryStream (source, false)) {
+				var reader = new ThrowingMimeReader (stream) { ThrowOnMimePartBegin = true };
+
+				Assert.Throws<InvalidOperationException> (() => reader.ReadMessage ());
+				Assert.That (CountRetainedEntityFrames (reader), Is.EqualTo (0), "after failure");
+
+				reader.ThrowOnMimePartBegin = false;
+				reader.SetStream (new MemoryStream (Encoding.ASCII.GetBytes (TextPlainMessage), false));
+				reader.ReadMessage ();
+
+				Assert.That (CountRetainedEntityFrames (reader), Is.EqualTo (0), "after reuse");
+			}
+		}
+
+		[Test]
+		public async Task TestEntityFramesAreReleasedWhenParsingFailsAsync ()
+		{
+			var source = GenerateExtremelyNestedMessage (true, 20);
+
+			using (var stream = new MemoryStream (source, false)) {
+				var reader = new ThrowingMimeReader (stream) { ThrowOnMimePartBegin = true };
+
+				Assert.ThrowsAsync<InvalidOperationException> (() => reader.ReadMessageAsync ());
+				Assert.That (CountRetainedEntityFrames (reader), Is.EqualTo (0), "after failure");
+
+				reader.ThrowOnMimePartBegin = false;
+				reader.SetStream (new MemoryStream (Encoding.ASCII.GetBytes (TextPlainMessage), false));
+				await reader.ReadMessageAsync ();
+
+				Assert.That (CountRetainedEntityFrames (reader), Is.EqualTo (0), "after reuse");
 			}
 		}
 	}

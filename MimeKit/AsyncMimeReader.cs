@@ -361,7 +361,7 @@ namespace MimeKit {
 			await OnHeadersEndAsync (headerBlockBegin, headersBeginLineNumber, headerBlockEnd, lineNumber, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task<bool> SkipBoundaryMarkerAsync (string? boundary, bool endBoundary, CancellationToken cancellationToken)
+		async Task<bool> SkipBoundaryMarkerAsync (bool endBoundary, CancellationToken cancellationToken)
 		{
 			long beginOffset = GetOffset (inputIndex);
 			int beginLineNumber = lineNumber;
@@ -509,17 +509,65 @@ namespace MimeKit {
 			return result.Lines;
 		}
 
-		async Task<int> ConstructMessagePartAsync (int depth, CancellationToken cancellationToken)
+		Task OnEntityBeginAsync (MimeEntityType entityType, ContentType contentType, long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
+		{
+			switch (entityType) {
+			case MimeEntityType.Multipart:
+				return OnMultipartBeginAsync (contentType, beginOffset, beginLineNumber, cancellationToken);
+			case MimeEntityType.MessagePart:
+				return OnMessagePartBeginAsync (contentType, beginOffset, beginLineNumber, cancellationToken);
+			default:
+				return OnMimePartBeginAsync (contentType, beginOffset, beginLineNumber, cancellationToken);
+			}
+		}
+
+		Task OnEntityEndAsync (MimeEntityType entityType, ContentType contentType, long beginOffset, int beginLineNumber, long headersEndOffset, long endOffset, int lines, CancellationToken cancellationToken)
+		{
+			switch (entityType) {
+			case MimeEntityType.Multipart:
+				return OnMultipartEndAsync (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			case MimeEntityType.MessagePart:
+				return OnMessagePartEndAsync (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			default:
+				return OnMimePartEndAsync (contentType, beginOffset, beginLineNumber, headersEndOffset, endOffset, lines, cancellationToken);
+			}
+		}
+
+		async Task<bool> EndChildEntityAsync (EntityFrame frame, int lines, CancellationToken cancellationToken)
+		{
+			var endOffset = GetEndOffset (inputIndex, frame.ChildBeginOffset);
+			var headersEndOffset = Math.Min (frame.ChildHeadersEndOffset, endOffset);
+
+			await OnEntityEndAsync (frame.ChildEntityType, frame.ChildContentType!, frame.ChildBeginOffset, frame.ChildBeginLineNumber, headersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
+
+			if (frame.EntityType == MimeEntityType.Multipart) {
+				frame.State = boundaryType == MimeBoundaryType.ImmediateBoundary ? EntityFrameState.NextSubpart : EntityFrameState.End;
+				frame.ChildContentType = null;
+				return false;
+			}
+
+			await OnMimeMessageEndAsync (frame.ChildBeginOffset, frame.ChildBeginLineNumber, headersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
+
+			frame.Lines = GetLineCount (frame.ContentBeginLineNumber, frame.ContentBeginOffset, endOffset);
+
+			return true;
+		}
+
+		async Task<bool> MessagePartBeginAsync (EntityFrame frame, CancellationToken cancellationToken)
 		{
 			var beginOffset = GetOffset (inputIndex);
 			var beginLineNumber = lineNumber;
+
+			frame.ContentBeginOffset = beginOffset;
+			frame.ContentBeginLineNumber = beginLineNumber;
 
 			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
 				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
 					boundaryType = MimeBoundaryType.Eos;
-					return 0;
+					frame.Lines = 0;
+					return true;
 				}
 
 				// Check to see if this first line is a boundary marker.
@@ -539,7 +587,8 @@ namespace MimeKit {
 							if (complianceLogger != null && (inptr == start || inptr[-1] != (byte) '\r'))
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber, (int) (inptr - start) + 1));
 
-							return GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex, beginOffset));
+							frame.Lines = GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex, beginOffset));
+							return true;
 						}
 					}
 				}
@@ -554,45 +603,9 @@ namespace MimeKit {
 
 			await OnMimeMessageBeginAsync (currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			var type = GetContentType (null);
-			MimeEntityType entityType;
-			int lines;
+			SetChildEntity (frame, GetContentType (null), currentBeginOffset, beginLineNumber, currentHeadersEndOffset);
 
-			entityType = GetEntityType (type, currentEncoding, depth + 1);
-
-			switch (entityType) {
-			case MimeEntityType.Multipart:
-				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
-				break;
-			case MimeEntityType.MessagePart:
-				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
-				break;
-			default:
-				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-				break;
-			}
-
-			var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
-			currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
-
-			switch (entityType) {
-			case MimeEntityType.Multipart:
-				await OnMultipartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			case MimeEntityType.MessagePart:
-				await OnMessagePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			default:
-				await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			}
-
-			await OnMimeMessageEndAsync (currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-
-			return GetLineCount (beginLineNumber, beginOffset, endOffset);
+			return false;
 		}
 
 		async Task MultipartScanPreambleAsync (ByteDetectionOptions byteOptions, CancellationToken cancellationToken)
@@ -615,68 +628,40 @@ namespace MimeKit {
 			await OnMultipartEpilogueEndAsync (beginOffset, beginLineNumber, beginOffset + result.ContentLength, result.Lines, cancellationToken).ConfigureAwait (false);
 		}
 
-		async Task MultipartScanSubpartsAsync (ContentType multipartContentType, int depth, CancellationToken cancellationToken)
+		async Task MultipartNextSubpartAsync (EntityFrame frame, CancellationToken cancellationToken)
 		{
-			do {
-				// skip over the boundary marker
-				if (!await SkipBoundaryMarkerAsync (multipartContentType.Boundary, endBoundary: false, cancellationToken).ConfigureAwait (false)) {
-					boundaryType = MimeBoundaryType.Eos;
-					return;
-				}
+			var multipartContentType = frame.ContentType!;
 
-				var beginLineNumber = lineNumber;
+			// skip over the boundary marker
+			if (!await SkipBoundaryMarkerAsync (endBoundary: false, cancellationToken).ConfigureAwait (false)) {
+				boundaryType = MimeBoundaryType.Eos;
+				frame.State = EntityFrameState.End;
+				return;
+			}
 
-				// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
-				state = MimeParserState.Headers;
-				await StepAsync (cancellationToken).ConfigureAwait (false);
+			var beginLineNumber = lineNumber;
 
-				var type = GetContentType (multipartContentType);
-				var currentHeadersEndOffset = headerBlockEnd;
-				var currentBeginOffset = headerBlockBegin;
-				MimeEntityType entityType;
-				int lines;
+			// Note: When parsing non-toplevel parts, the header parser will never result in the Error state.
+			state = MimeParserState.Headers;
+			await StepAsync (cancellationToken).ConfigureAwait (false);
 
-				entityType = GetEntityType (type, currentEncoding, depth + 1);
+			var type = GetContentType (multipartContentType);
+			var currentHeadersEndOffset = headerBlockEnd;
+			var currentBeginOffset = headerBlockBegin;
 
-				switch (entityType) {
-				case MimeEntityType.Multipart:
-					await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-					lines = await ConstructMultipartAsync (type, depth + 1, cancellationToken).ConfigureAwait (false);
-					break;
-				case MimeEntityType.MessagePart:
-					await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-					lines = await ConstructMessagePartAsync (depth + 1, cancellationToken).ConfigureAwait (false);
-					break;
-				default:
-					await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-					lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-					break;
-				}
-
-				var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
-				currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
-
-				switch (entityType) {
-				case MimeEntityType.Multipart:
-					await OnMultipartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-					break;
-				case MimeEntityType.MessagePart:
-					await OnMessagePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-					break;
-				default:
-					await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-					break;
-				}
-			} while (boundaryType == MimeBoundaryType.ImmediateBoundary);
+			SetChildEntity (frame, type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset);
 		}
 
-		async Task<int> ConstructMultipartAsync (ContentType contentType, int depth, CancellationToken cancellationToken)
+		async Task<bool> MultipartBeginAsync (EntityFrame frame, CancellationToken cancellationToken)
 		{
 			var byteOptions = complianceLogger != null ? GetContentDetectionOptions (currentEncoding) : ByteDetectionOptions.None;
 			var beginOffset = GetOffset (inputIndex);
-			var marker = contentType.Boundary;
+			var marker = frame.ContentType!.Boundary;
 			var beginLineNumber = lineNumber;
-			long endOffset;
+
+			frame.ContentBeginLineNumber = beginLineNumber;
+			frame.ContentBeginOffset = beginOffset;
+			frame.ByteOptions = byteOptions;
 
 			if (marker is null) {
 				complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMultipartBoundaryParameter, currentContentTypeOffset, currentContentTypeLineNumber, 1, MimeCompliancePositionKind.ElementStart));
@@ -684,9 +669,9 @@ namespace MimeKit {
 				// Note: this will scan all content into the preamble...
 				await MultipartScanPreambleAsync (byteOptions, cancellationToken).ConfigureAwait (false);
 
-				endOffset = GetEndOffset (inputIndex, beginOffset);
+				frame.Lines = GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex, beginOffset));
 
-				return GetLineCount (beginLineNumber, beginOffset, endOffset);
+				return true;
 			}
 
 			// Note: MimeReader can handle invalid boundary markers (but those with '\n' will fail to match, resulting in all content being treated as preamble).
@@ -696,30 +681,93 @@ namespace MimeKit {
 			PushBoundary (marker);
 
 			await MultipartScanPreambleAsync (byteOptions, cancellationToken).ConfigureAwait (false);
-			if (boundaryType == MimeBoundaryType.ImmediateBoundary)
-				await MultipartScanSubpartsAsync (contentType, depth, cancellationToken).ConfigureAwait (false);
 
+			frame.State = boundaryType == MimeBoundaryType.ImmediateBoundary ? EntityFrameState.NextSubpart : EntityFrameState.End;
+
+			return false;
+		}
+
+		async Task MultipartEndAsync (EntityFrame frame, CancellationToken cancellationToken)
+		{
 			if (boundaryType == MimeBoundaryType.ImmediateEndBoundary) {
 				// consume the end boundary and read the epilogue (if there is one)
-				await SkipBoundaryMarkerAsync (marker, endBoundary: true, cancellationToken).ConfigureAwait (false);
+				await SkipBoundaryMarkerAsync (endBoundary: true, cancellationToken).ConfigureAwait (false);
 
 				PopBoundary ();
 
-				await MultipartScanEpilogueAsync (byteOptions, cancellationToken).ConfigureAwait (false);
+				await MultipartScanEpilogueAsync (frame.ByteOptions, cancellationToken).ConfigureAwait (false);
+			} else {
+				// We either found the end of the stream or we found a parent's boundary
+				complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMultipartBoundary, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
 
-				endOffset = GetEndOffset (inputIndex, beginOffset);
-
-				return GetLineCount (beginLineNumber, beginOffset, endOffset);
+				PopBoundary ();
 			}
 
-			// We either found the end of the stream or we found a parent's boundary
-			complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMultipartBoundary, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+			frame.Lines = GetLineCount (frame.ContentBeginLineNumber, frame.ContentBeginOffset, GetEndOffset (inputIndex, frame.ContentBeginOffset));
+		}
 
-			PopBoundary ();
+		async Task<int> ConstructEntityAsync (MimeEntityType entityType, ContentType contentType, CancellationToken cancellationToken)
+		{
+			if (entityType == MimeEntityType.MimePart)
+				return await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
 
-			endOffset = GetEndOffset (inputIndex, beginOffset);
+			var frame = PushEntityFrame (entityType, contentType);
 
-			return GetLineCount (beginLineNumber, beginOffset, endOffset);
+			try {
+				while (true) {
+					bool complete;
+
+					switch (frame.State) {
+					case EntityFrameState.Begin:
+						if (frame.EntityType == MimeEntityType.Multipart)
+							complete = await MultipartBeginAsync (frame, cancellationToken).ConfigureAwait (false);
+						else
+							complete = await MessagePartBeginAsync (frame, cancellationToken).ConfigureAwait (false);
+						break;
+					case EntityFrameState.NextSubpart:
+						await MultipartNextSubpartAsync (frame, cancellationToken).ConfigureAwait (false);
+						complete = false;
+						break;
+					case EntityFrameState.ChildEntity:
+						await OnEntityBeginAsync (frame.ChildEntityType, frame.ChildContentType!, frame.ChildBeginOffset, frame.ChildBeginLineNumber, cancellationToken).ConfigureAwait (false);
+
+						if (frame.ChildEntityType == MimeEntityType.MimePart) {
+							var lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
+							complete = await EndChildEntityAsync (frame, lines, cancellationToken).ConfigureAwait (false);
+						} else {
+							frame.State = EntityFrameState.AwaitChild;
+							frame = PushEntityFrame (frame.ChildEntityType, frame.ChildContentType!);
+							complete = false;
+						}
+						break;
+					case EntityFrameState.End:
+						await MultipartEndAsync (frame, cancellationToken).ConfigureAwait (false);
+						complete = true;
+						break;
+					default:
+						// Note: A frame in the AwaitChild state is never at the top of the stack.
+						throw new InvalidOperationException ("Unexpected entity frame state.");
+					}
+
+					// Pop each completed frame and end its parent's child entity (which may, in turn, complete the parent).
+					while (complete) {
+						int lines = frame.Lines;
+
+						PopEntityFrame ();
+
+						if (entityFrameCount == 0)
+							return lines;
+
+						frame = entityFrames![entityFrameCount - 1];
+						complete = await EndChildEntityAsync (frame, lines, cancellationToken).ConfigureAwait (false);
+					}
+				}
+			} finally {
+				// Note: If parsing fails (or a callback throws), release the references held by the frames that are
+				// still active so that they do not outlive the parse operation.
+				while (entityFrameCount > 0)
+					PopEntityFrame ();
+			}
 		}
 
 		/// <summary>
@@ -789,40 +837,16 @@ namespace MimeKit {
 			var type = GetContentType (null);
 			var currentHeadersEndOffset = headerBlockEnd;
 			var currentBeginOffset = headerBlockBegin;
-			MimeEntityType entityType;
-			int lines;
+			var entityType = GetEntityType (type, currentEncoding, 0);
 
-			entityType = GetEntityType (type, currentEncoding, 0);
+			await OnEntityBeginAsync (entityType, type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			switch (entityType) {
-			case MimeEntityType.Multipart:
-				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMultipartAsync (type, 0, cancellationToken).ConfigureAwait (false);
-				break;
-			case MimeEntityType.MessagePart:
-				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMessagePartAsync (0, cancellationToken).ConfigureAwait (false);
-				break;
-			default:
-				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-				break;
-			}
+			var lines = await ConstructEntityAsync (entityType, type, cancellationToken).ConfigureAwait (false);
 
 			var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
 			currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
 
-			switch (entityType) {
-			case MimeEntityType.Multipart:
-				await OnMultipartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			case MimeEntityType.MessagePart:
-				await OnMessagePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			default:
-				await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			}
+			await OnEntityEndAsync (entityType, type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 
 			state = MimeParserState.Eos;
 		}
@@ -880,40 +904,16 @@ namespace MimeKit {
 				contentEnd = 0;
 
 			var type = GetContentType (null);
-			MimeEntityType entityType;
-			int lines;
+			var entityType = GetEntityType (type, currentEncoding, 0);
 
-			entityType = GetEntityType (type, currentEncoding, 0);
+			await OnEntityBeginAsync (entityType, type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
 
-			switch (entityType) {
-			case MimeEntityType.Multipart:
-				await OnMultipartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMultipartAsync (type, 0, cancellationToken).ConfigureAwait (false);
-				break;
-			case MimeEntityType.MessagePart:
-				await OnMessagePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMessagePartAsync (0, cancellationToken).ConfigureAwait (false);
-				break;
-			default:
-				await OnMimePartBeginAsync (type, currentBeginOffset, beginLineNumber, cancellationToken).ConfigureAwait (false);
-				lines = await ConstructMimePartAsync (cancellationToken).ConfigureAwait (false);
-				break;
-			}
+			var lines = await ConstructEntityAsync (entityType, type, cancellationToken).ConfigureAwait (false);
 
 			var endOffset = GetEndOffset (inputIndex, currentBeginOffset);
 			currentHeadersEndOffset = Math.Min (currentHeadersEndOffset, endOffset);
 
-			switch (entityType) {
-			case MimeEntityType.Multipart:
-				await OnMultipartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			case MimeEntityType.MessagePart:
-				await OnMessagePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			default:
-				await OnMimePartEndAsync (type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
-				break;
-			}
+			await OnEntityEndAsync (entityType, type, currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 
 			await OnMimeMessageEndAsync (currentBeginOffset, beginLineNumber, currentHeadersEndOffset, endOffset, lines, cancellationToken).ConfigureAwait (false);
 

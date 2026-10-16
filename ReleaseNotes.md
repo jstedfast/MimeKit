@@ -317,6 +317,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Other Enhancements
 
+* `MimeReader` (and therefore `MimeParser`) no longer uses recursion to parse nested multipart and
+  message/rfc822 parts. Instead, it keeps an explicit stack of the entities being parsed, so a maliciously
+  deep nesting of MIME parts can no longer overflow the call stack (which terminates the process) when
+  `ParserOptions.MaxMimeDepth` is set to a large value. The sequence of callbacks is unchanged.
+
 * Added `MimeReader.OnMboxMarkerBeginAsync ()` and `OnMboxMarkerEndAsync ()` so that every `MimeReader`
   callback now has an asynchronous counterpart. The default implementations call the synchronous methods.
 
