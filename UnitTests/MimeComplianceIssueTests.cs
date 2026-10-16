@@ -609,6 +609,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.ControlCharacterInAddress, Interop | Security },
 				{ MimeComplianceViolation.Iso2022SequenceInLocalPart, Interop },
 				{ MimeComplianceViolation.EmptyGroupName, Interop },
+				{ MimeComplianceViolation.NestedAddressGroup, Interop | DataLoss },
 				{ MimeComplianceViolation.RepeatedDate, Interop | Security },
 				{ MimeComplianceViolation.RepeatedFrom, Interop | Security },
 				{ MimeComplianceViolation.RepeatedSender, Interop | Security },

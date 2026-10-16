@@ -554,6 +554,11 @@ namespace MimeKit {
 			case MimeComplianceViolation.EmptyGroupName:
 				return MimeComplianceSeverity.Minor;
 
+			// Note: Parsers disagree about which addresses belong to which group, or whether the header
+			// can be parsed at all.
+			case MimeComplianceViolation.NestedAddressGroup:
+				return MimeComplianceSeverity.Major;
+
 			// Note: This is not a defect in the message, but some of its content was not parsed, and a
 			// consumer that only looks at Major and above needs to know that.
 			case MimeComplianceViolation.MimeDepthLimitExceeded:
@@ -788,6 +793,11 @@ namespace MimeKit {
 			case MimeComplianceViolation.EmptyGroupName:
 				return Interop;
 
+			// Note: A parser that does not support nested groups may end the outer group early or
+			// reject the header, so the recipient list it extracts can be missing addresses.
+			case MimeComplianceViolation.NestedAddressGroup:
+				return Interop | DataLoss;
+
 			// Note: RFC 5322 section 3.6 limits each of these header fields to one occurrence. A
 			// message that repeats one can be made to present different originators, recipients or
 			// subjects to a filter than it presents to the recipient.
@@ -994,6 +1004,8 @@ namespace MimeKit {
 				return "The local-part of an address contained an ISO-2022 shift or escape sequence.";
 			case MimeComplianceViolation.EmptyGroupName:
 				return "An address group had an empty name.";
+			case MimeComplianceViolation.NestedAddressGroup:
+				return "An address group was nested inside another address group.";
 			case MimeComplianceViolation.MissingBodySeparator:
 				return "An empty line separating the headers from the body was missing.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
@@ -1194,8 +1206,10 @@ namespace MimeKit {
 				return "ISO-2022-JP and its relatives switch between character sets using escape sequences such as \"ESC $ B\", and, in the Korean and Chinese variants, using the shift-out and shift-in control characters. Japanese mailers have historically used these inside the local-part of an addr-spec in order to carry Japanese text in a mailbox name, a practice that predates and is entirely separate from the internationalized address syntax defined by rfc6532. This is reported separately from ControlCharacterInAddress because the two call for different handling: an arbitrary control character in an address is either damage or an injection attempt, whereas a well-formed ISO-2022 sequence in a local-part is a deliberate legacy convention that a receiving system may wish to decode rather than strip. It remains a violation either way, because implementations that strip the escapes and implementations that preserve them will not agree on which mailbox the address names. The construct is particularly awkward inside a quoted local-part, because the second byte of a JIS X 0208 pair may be a backslash or a double-quote, which then has to be written as a quoted-pair in order to survive the quoted-string grammar.";
 			case MimeComplianceViolation.EmptyGroupName:
 				return "The group syntax in section 3.4 of rfc5322 is display-name \":\" [group-list] \";\", and a display-name is a phrase, which requires at least one word. A group introduced by a bare colon therefore has no name for a client to display, and parsers disagree over whether to treat the colon as introducing a group at all or as a stray character in an ordinary address.";
-			case MimeComplianceViolation.MissingBodySeparator:
-				return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";
+							case MimeComplianceViolation.NestedAddressGroup:
+								return "The group syntax in section 3.4 of rfc5322 is display-name \":\" [group-list] \";\", where a group-list is a mailbox-list, so a group may only contain mailboxes. A nested group, as in \"Outer: Inner: a@example.com;;\", is not valid syntax at any conformance level. Parsers disagree over how to handle it: some flatten the nested group into its parent, some reject the header, and others end the outer group at the first ';', so that the addresses which follow it are no longer part of the group.";
+							case MimeComplianceViolation.MissingBodySeparator:
+								return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return "When a multipart does not contain any boundary markers within its content, it can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may opt to treat the content as a single part rather than a multipart message.";
 			case MimeComplianceViolation.MimeDepthLimitExceeded:

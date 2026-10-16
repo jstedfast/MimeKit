@@ -64,7 +64,8 @@ namespace UnitTests {
 			MimeComplianceViolation.LineBreakInAddress,
 			MimeComplianceViolation.ControlCharacterInAddress,
 			MimeComplianceViolation.Iso2022SequenceInLocalPart,
-			MimeComplianceViolation.EmptyGroupName
+			MimeComplianceViolation.EmptyGroupName,
+			MimeComplianceViolation.NestedAddressGroup
 		};
 
 		// Note: Latin1 round-trips every byte value, which lets a test case embed raw 8-bit bytes
@@ -225,12 +226,68 @@ namespace UnitTests {
 			Assert.That (issues.Select (i => i.Violation), Has.None.EqualTo (MimeComplianceViolation.NonConformantAddress));
 		}
 
-		[Test]
-		public void TestNestedGroupIsReported ()
+		// Note: rfc5322 defines group-list as "mailbox-list / CFWS / obs-group-list", so a group may only
+		// contain mailboxes. A nested group is not valid syntax at any conformance level. The ';' that
+		// terminates a nested group must not be mistaken for the end of its parent, so a well-formed
+		// nested group produces no other violations.
+		[TestCase ("Outer: Inner: a@example.com;;", 1)]
+		[TestCase ("Outer: a@example.com, Inner: b@example.com;, c@example.com;", 1)]
+		[TestCase ("Outer: Inner:;;", 1)]
+		[TestCase ("Outer: (comment) Inner : a@example.com ; ;", 1)]
+		[TestCase ("A: B: C: a@example.com;;;", 2)]
+		[TestCase ("A: B: a@example.com;, C: b@example.com;;", 2)]
+		[TestCase ("A: B: a@example.com;;, C: D: b@example.com;;", 2)]
+		public void TestNestedAddressGroup (string value, int count)
 		{
-			// Note: rfc5322 defines group-list as "mailbox-list / CFWS / obs-group-list", so a group
-			// may only contain mailboxes. A nested group is not valid syntax at any conformance level.
-			AssertViolation ("Outer: Inner: a@example.com;;", MimeComplianceViolation.NonConformantAddress);
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (Enumerable.Repeat (MimeComplianceViolation.NestedAddressGroup, count)),
+				$"Unexpected violations for \"{value}\": {string.Join (", ", issues.Select (i => i.Violation))}");
+		}
+
+		[Test]
+		public void TestNestedAddressGroupPosition ()
+		{
+			const string value = "Outer: a@example.com, Inner: b@example.com;;";
+			var issues = Validate ("To", value);
+
+			Assert.That (issues, Has.Count.EqualTo (1));
+			Assert.That (issues[0].Violation, Is.EqualTo (MimeComplianceViolation.NestedAddressGroup));
+
+			// Note: The issue is reported at the start of the nested group's display-name ("To: " is 4 bytes).
+			Assert.That (issues[0].StreamOffset, Is.EqualTo (4 + value.IndexOf ("Inner", StringComparison.Ordinal)));
+			Assert.That (issues[0].LineNumber, Is.EqualTo (1));
+			Assert.That (issues[0].ColumnNumber, Is.EqualTo (5 + value.IndexOf ("Inner", StringComparison.Ordinal)));
+		}
+
+		[TestCase ("Outer: Inner: a@example.com;")]
+		[TestCase ("Outer: Inner: a@example.com")]
+		public void TestUnterminatedNestedAddressGroup (string value)
+		{
+			var issues = Validate ("To", value);
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new[] { MimeComplianceViolation.NestedAddressGroup, MimeComplianceViolation.MissingGroupTerminator }));
+		}
+
+		[Test]
+		public void TestNestedAddressGroupMissingSeparator ()
+		{
+			var issues = Validate ("To", "Outer: Inner: a@example.com; b@example.com;");
+
+			Assert.That (issues.Select (i => i.Violation), Is.EqualTo (new[] { MimeComplianceViolation.NestedAddressGroup, MimeComplianceViolation.MissingAddressSeparator }));
+		}
+
+		[Test]
+		public void TestDeeplyNestedAddressGroupsDoNotRecurse ()
+		{
+			// Note: The validator tracks nested groups with a counter rather than recursion, so that the input cannot
+			// drive the stack depth.
+			const int depth = 100000;
+			var value = string.Concat (Enumerable.Repeat ("g:", depth)) + "a@example.com" + new string (';', depth);
+			var issues = Validate ("To", value);
+
+			Assert.That (issues, Has.Count.EqualTo (depth - 1));
+			Assert.That (issues.Select (i => i.Violation).Distinct (), Is.EqualTo (new[] { MimeComplianceViolation.NestedAddressGroup }));
 		}
 
 		// Note: A null byte is never legal in a header, but it is reported separately when it occurs

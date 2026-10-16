@@ -1,4 +1,4 @@
-﻿//
+//
 // AddressValidator.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -130,6 +130,12 @@ namespace MimeKit {
 		// is comma-separated only, so outside a group there is nothing for a ';' to delimit and it is
 		// an unquoted special in whatever token it interrupted.
 		bool inGroupList;
+
+		// Note: The number of nested groups that are open within the current group. rfc5322 does not permit
+		// a group inside a group, but tracking them (rather than recursing, which would let the input drive
+		// the stack depth) means that the ';' that terminates a nested group is not mistaken for the end of
+		// its parent, which keeps the validator in agreement with MimeKit's parser about where groups end.
+		int nestedGroupDepth;
 
 		// Note: Where the last call to Log finished working out a position, so that the next one can
 		// resume from there instead of counting the lines over again from the start of the value.
@@ -1243,16 +1249,20 @@ namespace MimeKit {
 			bool wasInGroupList = inGroupList;
 
 			inGroupList = true;
+			nestedGroupDepth = 0;
 
 			try {
 				ValidateGroupList ();
 			} finally {
 				inGroupList = wasInGroupList;
+				nestedGroupDepth = 0;
 			}
 		}
 
 		void ValidateGroupList ()
 		{
+			int before;
+
 			do {
 				if (!SkipCFWS ())
 					return;
@@ -1263,7 +1273,15 @@ namespace MimeKit {
 				if (text[index] == (byte) ';') {
 					// skip over the ';'
 					index++;
-					return;
+
+					if (nestedGroupDepth == 0)
+						return;
+
+					// The ';' terminated a nested group, which is then followed by a separator like any other address.
+					nestedGroupDepth--;
+					damagedLocalPart = false;
+					before = index - 1;
+					goto AfterAddress;
 				}
 
 				if (text[index] == (byte) ',') {
@@ -1272,12 +1290,18 @@ namespace MimeKit {
 					continue;
 				}
 
-				int before = index;
+				int depth = nestedGroupDepth;
+
+				before = index;
 
 				damagedLocalPart = false;
 
 				if (!ValidateAddress (true))
 					return;
+
+				// A nested group was opened; its members follow the ':' without a separator.
+				if (nestedGroupDepth > depth)
+					continue;
 
 				if (index == before) {
 					// Defensive: never spin on a character no production consumed.
@@ -1286,6 +1310,7 @@ namespace MimeKit {
 					continue;
 				}
 
+			AfterAddress:
 				if (!SkipCFWS ())
 					return;
 
@@ -1294,7 +1319,14 @@ namespace MimeKit {
 
 				if (text[index] == (byte) ';') {
 					index++;
-					return;
+
+					if (nestedGroupDepth == 0)
+						return;
+
+					nestedGroupDepth--;
+					damagedLocalPart = false;
+					before = index - 1;
+					goto AfterAddress;
 				}
 
 				if (text[index] != (byte) ',') {
@@ -1349,12 +1381,9 @@ namespace MimeKit {
 			byte c = text[index];
 
 			if (c == (byte) ':') {
-				if (inGroup) {
-					// rfc5322 does not permit a group inside a group.
-					Log (MimeComplianceViolation.NonConformantAddress, index);
-					index++;
-					return true;
-				}
+				// Note: rfc5322 does not permit a group inside a group (a group-list is a mailbox-list).
+				if (inGroup)
+					Log (MimeComplianceViolation.NestedAddressGroup, start);
 
 				if (!hasContent) {
 					// A display-name is a phrase, which requires at least one word.
@@ -1367,6 +1396,16 @@ namespace MimeKit {
 				}
 
 				CheckNullBytesInDisplayName (start, index);
+
+				if (inGroup) {
+					if (unquotedSpecial)
+						Log (MimeComplianceViolation.UnquotedDisplayName, specialIndex);
+
+					// skip over the ':' and let ValidateGroupList() scan the members of the nested group
+					nestedGroupDepth++;
+					index++;
+					return true;
+				}
 
 				ValidateGroup (unquotedSpecial, specialIndex);
 				return true;

@@ -228,6 +228,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Added a `MimeDepthLimitExceeded` violation, reported (once per parse) when a `multipart` or
   `message/rfc822` entity is nested deeper than `ParserOptions.MaxMimeDepth`. Its content is then
   parsed as an opaque leaf part, so anything nested inside it is not visible to the application.
+* Added a `NestedAddressGroup` violation, reported when an address group is nested inside another
+  address group (rfc5322 section 3.4 only permits mailboxes within a group). Nested groups were previously
+  reported as `NonConformantAddress`, and the `;` that terminated the nested group was treated as the end
+  of the enclosing group.
 * The base64, quoted-printable and uuencode validators now report column numbers and report each
   violation at most once per line.
 * Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are
