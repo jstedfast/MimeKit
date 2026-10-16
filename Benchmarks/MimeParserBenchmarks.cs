@@ -27,12 +27,14 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using BenchmarkDotNet.Attributes;
 
 using MimeKit;
 
 namespace Benchmarks {
+	[MemoryDiagnoser]
 	public class MimeParserBenchmarks
 	{
 		static readonly string MessagesDataDir = Path.Combine (BenchmarkHelper.ProjectDir, "TestData", "messages");
@@ -293,6 +295,110 @@ header parser.
 			var reader = new MimeReader (stream, MimeFormat.Entity);
 
 			reader.ReadMessage ();
+		}
+
+		[Benchmark]
+		public async Task MimeReader_StarTrekMessageAsync ()
+		{
+			using var stream = new MemoryStream (StarTrekData, false);
+			var reader = new MimeReader (stream, MimeFormat.Entity);
+			await reader.ReadMessageAsync ();
+		}
+
+		[Benchmark]
+		public async Task MimeReader_JwzMboxAsync ()
+		{
+			using var stream = new MemoryStream (JwzMboxData, false);
+			var reader = new MimeReader (stream, MimeFormat.Mbox);
+
+			while (!reader.IsEndOfStream)
+				await reader.ReadMessageAsync ();
+		}
+
+		#endregion
+
+		#region Nesting
+
+		// A message that alternates between multipart/mixed and message/rfc822 parts (each multipart also has
+		// a text/plain sibling before and after the nested part).
+		static byte[] GenerateMixedNestedMessage (int depth)
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("From: a@example.org\r\nSubject: nested\r\nMIME-Version: 1.0\r\n");
+
+			for (int i = 0; i < depth; i++) {
+				if (i % 2 == 0) {
+					builder.Append ($"Content-Type: multipart/mixed; boundary=\"b{i}\"\r\n\r\n");
+					builder.Append ($"--b{i}\r\nContent-Type: text/plain\r\n\r\nbefore {i}\r\n");
+					builder.Append ($"--b{i}\r\n");
+				} else {
+					builder.Append ("Content-Type: message/rfc822\r\n\r\n");
+					builder.Append ($"From: a@example.org\r\nSubject: level {i}\r\n");
+				}
+			}
+
+			builder.Append ("Content-Type: text/plain\r\n\r\ninnermost\r\n");
+
+			for (int i = depth - 1; i >= 0; i--) {
+				if (i % 2 == 0) {
+					builder.Append ($"--b{i}\r\nContent-Type: text/plain\r\n\r\nafter {i}\r\n");
+					builder.Append ($"--b{i}--\r\n");
+				}
+			}
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
+		}
+
+		static byte[] GenerateNestedRfc822Message (int depth)
+		{
+			var builder = new StringBuilder ();
+
+			builder.Append ("From: a@example.org\r\n");
+
+			for (int i = 0; i < depth; i++)
+				builder.Append ("Content-Type: message/rfc822\r\n\r\nFrom: a@example.org\r\n");
+
+			builder.Append ("Content-Type: text/plain\r\n\r\ninnermost\r\n");
+
+			return Encoding.ASCII.GetBytes (builder.ToString ());
+		}
+
+		static readonly byte[] MixedNested64Data = GenerateMixedNestedMessage (64);
+		static readonly byte[] NestedRfc822x1000Data = GenerateNestedRfc822Message (1000);
+
+		[Benchmark]
+		public void MimeReader_MixedNested64 ()
+		{
+			MimeReaderSingleMessage (MixedNested64Data);
+		}
+
+		[Benchmark]
+		public async Task MimeReader_MixedNested64Async ()
+		{
+			using var stream = new MemoryStream (MixedNested64Data, false);
+			var reader = new MimeReader (stream, MimeFormat.Entity);
+			await reader.ReadMessageAsync ();
+		}
+
+		[Benchmark]
+		public void MimeReader_NestedRfc822x1000 ()
+		{
+			MimeReaderSingleMessage (NestedRfc822x1000Data);
+		}
+
+		[Benchmark]
+		public async Task MimeReader_NestedRfc822x1000Async ()
+		{
+			using var stream = new MemoryStream (NestedRfc822x1000Data, false);
+			var reader = new MimeReader (stream, MimeFormat.Entity);
+			await reader.ReadMessageAsync ();
+		}
+
+		[Benchmark]
+		public void MimeParser_MixedNested64 ()
+		{
+			MimeParserSingleMessage (MixedNested64Data);
 		}
 
 		#endregion
