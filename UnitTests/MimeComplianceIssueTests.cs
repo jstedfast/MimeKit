@@ -558,6 +558,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.MissingMultipartBoundaryParameter, Interop | DataLoss },
 				{ MimeComplianceViolation.InvalidMultipartBoundaryParameter, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.MissingMultipartBoundary, Interop | DataLoss },
+				{ MimeComplianceViolation.MimeDepthLimitExceeded, DataLoss | Security },
 				{ MimeComplianceViolation.Unexpected8BitBytesInHeader, Interop | DataLoss },
 				{ MimeComplianceViolation.Unexpected8BitBytesInBody, Interop | DataLoss },
 				{ MimeComplianceViolation.UnexpectedNullBytesInHeader, Interop | Security },

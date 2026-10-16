@@ -225,6 +225,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   rfc2045 section 4, rfc7103 sections 7.5.2 and 8.1). `MissingMimeVersion` is only reported when the
   header block has a `Content-Type` or `Content-Transfer-Encoding` header. Embedded message/rfc822
   parts are not checked.
+* Added a `MimeDepthLimitExceeded` violation, reported (once per parse) when a `multipart` or
+  `message/rfc822` entity is nested deeper than `ParserOptions.MaxMimeDepth`. Its content is then
+  parsed as an opaque leaf part, so anything nested inside it is not visible to the application.
 * The base64, quoted-printable and uuencode validators now report column numbers and report each
   violation at most once per line.
 * Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are

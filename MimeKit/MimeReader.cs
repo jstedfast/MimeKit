@@ -120,8 +120,10 @@ namespace MimeKit {
 		MimeComplianceValidators enabledValidators;
 		MimeComplianceContext complianceContext;
 		IMimeComplianceLogger? complianceLogger;
+		bool reportedMimeDepthLimitExceeded;
 
 		long headerBlockBegin;
+		int headerBlockBeginLineNumber;
 		long headerBlockEnd;
 		long contentEnd;
 
@@ -284,6 +286,7 @@ namespace MimeKit {
 
 			complianceContext = complianceOptions.Context;
 			enabledValidators = complianceOptions.EnabledValidators;
+			reportedMimeDepthLimitExceeded = false;
 
 			// Note: The wrapper is only interposed when a limit is actually configured, so the common
 			// case costs nothing and the logger the validators are handed is the caller's own.
@@ -2417,6 +2420,7 @@ namespace MimeKit {
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
+			headerBlockBeginLineNumber = lineNumber;
 			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
 			validHeaderCount = 0;
@@ -2877,6 +2881,8 @@ namespace MimeKit {
 
 				if (depth < options.MaxMimeDepth)
 					return MimeEntityType.Multipart;
+
+				ReportMimeDepthLimitExceeded ();
 			} else if (IsMessagePart (contentType)) {
 				if (encoding.HasValue && ParserOptions.IsEncoded (encoding.Value)) {
 					// Note: message/rfc822 (and similar) parts are not supposed to be encoded
@@ -2887,9 +2893,30 @@ namespace MimeKit {
 
 				if (depth < options.MaxMimeDepth)
 					return MimeEntityType.MessagePart;
+
+				ReportMimeDepthLimitExceeded ();
 			}
 
 			return MimeEntityType.MimePart;
+		}
+
+		void ReportMimeDepthLimitExceeded ()
+		{
+			// Note: This is only reported once per parse operation. Every entity beyond the limit is
+			// flattened in the same way, so further reports would add nothing but noise (and an attacker
+			// could otherwise generate one issue per sibling part).
+			if (complianceLogger is null || reportedMimeDepthLimitExceeded)
+				return;
+
+			reportedMimeDepthLimitExceeded = true;
+
+			// Note: The Content-Type header may be absent if the type was implied by the parent
+			// (e.g. message/rfc822 within a multipart/digest), in which case report the start of the
+			// entity's header block instead.
+			if (currentContentTypeOffset != -1)
+				complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MimeDepthLimitExceeded, currentContentTypeOffset, currentContentTypeLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+			else
+				complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MimeDepthLimitExceeded, headerBlockBegin, headerBlockBeginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]

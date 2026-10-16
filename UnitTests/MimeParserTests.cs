@@ -8048,6 +8048,128 @@ Content-Type: text/plain; charset=utf-8
 			}
 		}
 
+		const string MimeDepthLimitMessage = "From: sender@example.org\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <1@example.org>\r\n" +
+			"MIME-Version: 1.0\r\n" +
+			"Content-Type: multipart/mixed; boundary=\"a\"\r\n" +
+			"\r\n" +
+			"--a\r\n" +
+			"Content-Type: multipart/mixed; boundary=\"b\"\r\n" +
+			"\r\n" +
+			"--b\r\n" +
+			"Content-Type: multipart/mixed; boundary=\"c\"\r\n" +
+			"\r\n" +
+			"--c\r\n" +
+			"Content-Type: text/plain\r\n" +
+			"\r\n" +
+			"hidden\r\n" +
+			"--c--\r\n" +
+			"--b\r\n" +
+			"Content-Type: message/rfc822\r\n" +
+			"\r\n" +
+			"From: inner@example.org\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <2@example.org>\r\n" +
+			"Subject: also beyond the limit\r\n" +
+			"\r\n" +
+			"hidden\r\n" +
+			"--b--\r\n" +
+			"--a--\r\n";
+
+		const string MimeDepthLimitDigestMessage = "From: sender@example.org\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <1@example.org>\r\n" +
+			"MIME-Version: 1.0\r\n" +
+			"Content-Type: multipart/mixed; boundary=\"a\"\r\n" +
+			"\r\n" +
+			"--a\r\n" +
+			"Content-Type: multipart/digest; boundary=\"b\"\r\n" +
+			"\r\n" +
+			"--b\r\n" +
+			"X-Implied-Type: message/rfc822\r\n" +
+			"\r\n" +
+			"From: inner@example.org\r\n" +
+			"Date: Tue, 12 Nov 2013 09:12:42 -0500\r\n" +
+			"Message-Id: <2@example.org>\r\n" +
+			"Subject: beyond the limit\r\n" +
+			"\r\n" +
+			"hidden\r\n" +
+			"--b--\r\n" +
+			"--a--\r\n";
+
+		static void AssertMimeDepthLimitExceeded (TestMimeComplianceLogger logger, string text, string marker)
+		{
+			int offset = text.IndexOf (marker, StringComparison.Ordinal);
+			int lineNumber = text.Substring (0, offset).Split ('\n').Length;
+
+			Assert.That (logger.Issues, Has.Count.EqualTo (1), string.Join (", ", logger.Issues));
+			Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MimeDepthLimitExceeded));
+			Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (offset), "StreamOffset");
+			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (lineNumber), "LineNumber");
+			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (1), "ColumnNumber");
+			Assert.That (logger.Issues[0].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "PositionKind");
+		}
+
+		static MimeParser CreateMimeDepthLimitParser (string text, int maxMimeDepth, bool chunked, TestMimeComplianceLogger logger)
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.MaxMimeDepth = maxMimeDepth;
+
+			return new MimeParser (options, CreateStream (Encoding.ASCII.GetBytes (text), chunked), MimeFormat.Entity) { ComplianceLogger = logger };
+		}
+
+		[Test]
+		public void TestMimeComplianceMimeDepthLimitExceeded ([Values (false, true)] bool chunked)
+		{
+			var logger = new TestMimeComplianceLogger ();
+
+			// At the limit, nothing is flattened and nothing is reported.
+			using (var message = CreateMimeDepthLimitParser (MimeDepthLimitMessage, 3, chunked, logger).ParseMessage ())
+				Assert.That (logger.Issues, Is.Empty, string.Join (", ", logger.Issues));
+
+			// One below the limit, both the multipart and the message/rfc822 at depth 2 are flattened, but it is only reported once.
+			using (var message = CreateMimeDepthLimitParser (MimeDepthLimitMessage, 2, chunked, logger).ParseMessage ()) {
+				AssertMimeDepthLimitExceeded (logger, MimeDepthLimitMessage, "Content-Type: multipart/mixed; boundary=\"c\"");
+				Assert.That (message.TryGetEntity ("1.1", out var flattened), Is.True);
+				Assert.That (flattened, Is.TypeOf<MimePart> ());
+			}
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMimeDepthLimitExceededAsync ([Values (false, true)] bool chunked)
+		{
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var message = await CreateMimeDepthLimitParser (MimeDepthLimitMessage, 3, chunked, logger).ParseMessageAsync ())
+				Assert.That (logger.Issues, Is.Empty, string.Join (", ", logger.Issues));
+
+			using (var message = await CreateMimeDepthLimitParser (MimeDepthLimitMessage, 2, chunked, logger).ParseMessageAsync ()) {
+				AssertMimeDepthLimitExceeded (logger, MimeDepthLimitMessage, "Content-Type: multipart/mixed; boundary=\"c\"");
+				Assert.That (message.TryGetEntity ("1.1", out var flattened), Is.True);
+				Assert.That (flattened, Is.TypeOf<MimePart> ());
+			}
+		}
+
+		[Test]
+		public void TestMimeComplianceMimeDepthLimitExceededImpliedContentType ([Values (false, true)] bool chunked)
+		{
+			var logger = new TestMimeComplianceLogger ();
+
+			// The message/rfc822 type is implied by the multipart/digest, so the start of its header block is reported.
+			using (var message = CreateMimeDepthLimitParser (MimeDepthLimitDigestMessage, 2, chunked, logger).ParseMessage ())
+				AssertMimeDepthLimitExceeded (logger, MimeDepthLimitDigestMessage, "X-Implied-Type");
+		}
+
+		[Test]
+		public async Task TestMimeComplianceMimeDepthLimitExceededImpliedContentTypeAsync ([Values (false, true)] bool chunked)
+		{
+			var logger = new TestMimeComplianceLogger ();
+
+			using (var message = await CreateMimeDepthLimitParser (MimeDepthLimitDigestMessage, 2, chunked, logger).ParseMessageAsync ())
+				AssertMimeDepthLimitExceeded (logger, MimeDepthLimitDigestMessage, "X-Implied-Type");
+		}
+
 		static readonly byte[] SplitCrLfMessage = Encoding.ASCII.GetBytes ("From: sender@example.org\r\nDate: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <1@example.org>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain\r\n\r\n" +
 			string.Concat (Enumerable.Range (0, 50).Select (i => $"line number {i} of the body with some text\r\n")));
 

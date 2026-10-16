@@ -966,6 +966,20 @@ namespace MimeKit {
 		/// </remarks>
 		MissingMultipartBoundary                    = 73,
 
+		/// <summary>
+		/// The MIME structure was nested more deeply than the parser allows.
+		/// </summary>
+		/// <remarks>
+		/// <para>A multipart or message part was nested more deeply than <see cref="ParserOptions.MaxMimeDepth"/>
+		/// allows, so it was parsed as an opaque <see cref="MimePart"/> and the entities within it were not
+		/// parsed at all.</para>
+		/// <para>Legitimate messages are rarely nested more than a handful of levels deep. Excessive nesting is
+		/// a denial-of-service technique and can also be used to hide content from a scanner that gives up at a
+		/// shallower depth than the mail client that renders the message.</para>
+		/// <para>This is reported at most once per parse operation.</para>
+		/// </remarks>
+		MimeDepthLimitExceeded                      = 74,
+
 		#endregion
 
 		#region Base64 Encoding
@@ -978,7 +992,7 @@ namespace MimeKit {
 		/// incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or
 		/// otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteBase64Quantum                     = 74,
+		IncompleteBase64Quantum                     = 75,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid characters.
@@ -988,7 +1002,7 @@ namespace MimeKit {
 		/// parser implementations which may stop decoding as soon as this scenario is encountered while others may ignore these
 		/// characters and continue decoding.
 		/// </remarks>
-		InvalidBase64Character                      = 75,
+		InvalidBase64Character                      = 76,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained invalid padding.
@@ -999,7 +1013,7 @@ namespace MimeKit {
 		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
 		/// soon as they are encountered.
 		/// </remarks>
-		InvalidBase64Padding                        = 76,
+		InvalidBase64Padding                        = 77,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained characters after the padding.
@@ -1008,7 +1022,7 @@ namespace MimeKit {
 		/// Base64 characters found after padding (<c>'='</c>) in a base64 encoded block are not allowed by the MIME specifications
 		/// and can lead to inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		Base64CharactersAfterPadding                = 77,
+		Base64CharactersAfterPadding                = 78,
 
 		/// <summary>
 		/// The base64 encoded content of a MIME part contained an obsolete comment.
@@ -1020,7 +1034,7 @@ namespace MimeKit {
 		/// majority of MIME base64 decoders do not support comments in base64 content, the presence of such comments can lead
 		/// to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		ObsoleteBase64Comment                       = 78,
+		ObsoleteBase64Comment                       = 79,
 
 		#endregion
 
@@ -1033,7 +1047,7 @@ namespace MimeKit {
 		/// Incorrect hex-encoded sequences in quoted-printable content can lead to decoding issues and inconsistent behavior among
 		/// different MIME parser implementations.
 		/// </remarks>
-		InvalidQuotedPrintableEncoding              = 79,
+		InvalidQuotedPrintableEncoding              = 80,
 
 		/// <summary>
 		/// The quoted-printable encoded content of a MIME part contained an invalid soft-break sequence.
@@ -1044,7 +1058,7 @@ namespace MimeKit {
 		/// &lt;CR&gt;&lt;LF&gt; sequence which can lead to decoding issues and inconsistent behavior among different MIME parser
 		/// implementations.
 		/// </remarks>
-		InvalidQuotedPrintableSoftBreak             = 80,
+		InvalidQuotedPrintableSoftBreak             = 81,
 
 		#endregion
 
@@ -1057,7 +1071,7 @@ namespace MimeKit {
 		/// UUEncoding requires that only lines containing whitespace are allowed before the begin marker. Non-whitespace content
 		/// before the begin marker can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodePretext                      = 81,
+		InvalidUUEncodePretext                      = 82,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had an invalid file mode in the begin marker.
@@ -1066,7 +1080,7 @@ namespace MimeKit {
 		/// The UUEncoding begin marker should contain a file mode that is 3-4 digits long. An invalid file mode can lead to
 		/// decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodeFileMode                     = 82,
+		InvalidUUEncodeFileMode                     = 83,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained invalid characters or was otherwise malformed.
@@ -1076,7 +1090,7 @@ namespace MimeKit {
 		/// behavior
 		/// among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedContent                     = 83,
+		InvalidUUEncodedContent                     = 84,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had an invalid encoded line length.
@@ -1086,7 +1100,7 @@ namespace MimeKit {
 		/// 45 (inclusive) and is used to determine how many bytes of data are represented by the line. An invalid line length can
 		/// lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineLength                  = 84,
+		InvalidUUEncodedLineLength                  = 85,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained an incomplete encoded line.
@@ -1095,7 +1109,7 @@ namespace MimeKit {
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Incomplete lines can lead to
 		/// decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteUUEncodedLine                     = 85,
+		IncompleteUUEncodedLine                     = 86,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part had extra data beyond the end of a uuencoded line.
@@ -1104,7 +1118,7 @@ namespace MimeKit {
 		/// Each line in UUEncoding has a specific length encoded in the first byte of the line. Extra data beyond the end of the
 		/// uuencoded line can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodedLineExtraData               = 86,
+		InvalidUUEncodedLineExtraData               = 87,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part contained non-whitespace content after the end marker.
@@ -1113,7 +1127,7 @@ namespace MimeKit {
 		/// UUEncoding requires that only whitespace is allowed after the end marker. Non-whitespace content after the end marker
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		InvalidUUEncodeEndMarker                    = 87,
+		InvalidUUEncodeEndMarker                    = 88,
 
 		/// <summary>
 		/// The uuencoded content of a MIME part did not properly end.
@@ -1122,7 +1136,7 @@ namespace MimeKit {
 		/// UUEncoding requires that the encoded content is properly terminated with an end marker. Missing or malformed end markers
 		/// can lead to decoding issues and inconsistent behavior among different MIME parser implementations.
 		/// </remarks>
-		IncompleteUUEncodedContent                  = 88,
+		IncompleteUUEncodedContent                  = 89,
 
 		#endregion
 

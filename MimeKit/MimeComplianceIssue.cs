@@ -554,6 +554,11 @@ namespace MimeKit {
 			case MimeComplianceViolation.EmptyGroupName:
 				return MimeComplianceSeverity.Minor;
 
+			// Note: This is not a defect in the message, but some of its content was not parsed, and a
+			// consumer that only looks at Major and above needs to know that.
+			case MimeComplianceViolation.MimeDepthLimitExceeded:
+				return MimeComplianceSeverity.Major;
+
 			// Note: This is not a defect in the message, but a consumer that only looks at Major and
 			// above still needs to be told that the report it is looking at is incomplete. Rating it
 			// any lower would let a flood of minor issues hide the truncation as well as the
@@ -641,6 +646,11 @@ namespace MimeKit {
 			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return Interop | DataLoss;
+
+			// Note: The entities nested beyond the limit were not parsed, so a content scanner that
+			// relies on the result has not examined them.
+			case MimeComplianceViolation.MimeDepthLimitExceeded:
+				return DataLoss | Security;
 
 			// Note: A boundary that needed to be repaired may be repaired differently elsewhere,
 			// which changes which bytes belong to which part.
@@ -988,6 +998,8 @@ namespace MimeKit {
 				return "An empty line separating the headers from the body was missing.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return "A multipart boundary was missing.";
+			case MimeComplianceViolation.MimeDepthLimitExceeded:
+				return "MIME entities were nested more deeply than the configured limit.";
 			case MimeComplianceViolation.IncompleteBase64Quantum:
 				return "The base64 encoded content of a MIME part ended with an incomplete quantum.";
 			case MimeComplianceViolation.InvalidBase64Character:
@@ -1186,6 +1198,8 @@ namespace MimeKit {
 				return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return "When a multipart does not contain any boundary markers within its content, it can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may opt to treat the content as a single part rather than a multipart message.";
+			case MimeComplianceViolation.MimeDepthLimitExceeded:
+				return "This is not necessarily a defect in the message, but a multipart or message part nested beyond the configured limit (ParserOptions.MaxMimeDepth) was parsed as an opaque MIME part, so the entities within it were not parsed. A content scanner that relies on the result has not examined them, while a mail client with a higher limit (or none) may still render them.";
 			case MimeComplianceViolation.IncompleteBase64Quantum:
 				return "The MIME specifications require base64 encoded content be a multiple of 4 bytes (a \"quantum\") in length. An incomplete quantum at the end of the content suggests that the base64 encoded content was either truncated or otherwise corrupted and can therefore lead to inconsistent behavior among different MIME parser implementations.";
 			case MimeComplianceViolation.InvalidBase64Character:

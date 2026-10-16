@@ -135,6 +135,7 @@ namespace MimeKit {
 			var eof = false;
 
 			headerBlockBegin = GetOffset (inputIndex);
+			headerBlockBeginLineNumber = lineNumber;
 			boundaryType = MimeBoundaryType.None;
 			currentBoundary = null;
 			validHeaderCount = 0;
