@@ -11,7 +11,8 @@
 # Everything is written under artifacts/fuzz/:
 #   bin/                    The published, sharpfuzz-instrumented harness (recreated on every run).
 #   tools/                  The downloaded libfuzzer-dotnet driver.
-#   <target>/corpus/        The working corpus. It is seeded once and keeps growing from run to run.
+#   <target>/corpus/        The working corpus. It is seeded once and keeps growing from run to run (the hand-written
+#                           seeds in Fuzzing/Corpora/<target>/ are merged into it on every run).
 #   <target>/crashes/       Crashes, timeouts and out-of-memory inputs found by libFuzzer.
 #   <target>/fuzz.log       The libFuzzer output of the last run.
 #

@@ -293,7 +293,7 @@ example under `artifacts/fuzz/<target>/corpus`), from:
 | MIME reader / parser / validators | `UnitTests/TestData/messages/*`, `UnitTests/TestData/mbox/*` (split large mbox files), `UnitTests/TestData/compliance/*`, `UnitTests/TestData/partial/*` |
 | Decoders / encoders | `UnitTests/TestData/encoders/*`, `UnitTests/TestData/yenc/*` |
 | Filters | The message corpus and `UnitTests/TestData/openpgp/*`, each prefixed with filter/option selector bytes, plus synthetic line-ending, "From ", trailing-whitespace and OpenPGP armor edge cases |
-| HTML / text converters | `UnitTests/TestData/html/*`, `UnitTests/TestData/text/*` |
+| HTML / text converters | `UnitTests/TestData/html/*`, `UnitTests/TestData/text/*`, plus the regression seeds in `Fuzzing/Corpora/html-tokenizer/` |
 | RTF converters / tokenizer | `UnitTests/TestData/rtf/**/*.rtf` (third-party, permissively licensed; see its `README.md`), plus the RTF decompressed from the `PidTagRtfCompressed` values in `UnitTests/TestData/tnef/*.tnef` |
 | DNS records | The zone files and keys in `UnitTests/TestData/dkim/`, the string literals of the DKIM, ARC and DMARC unit tests, and the `DKIM-Signature` / `ARC-*` header values and `From` domains of the message corpus |
 | DKIM / ARC / DMARC verifiers | The messages in `UnitTests/TestData/messages/` and `UnitTests/TestData/dkim/`, signed by `MimeKit.Fuzzing --generate-dkim-seeds` with RSA DKIM, Ed25519 DKIM and RSA DKIM + ARC, each prefixed with a zone that publishes the keys, a DMARC record and an SPF pass, so that the seeds verify; plus the raw `UnitTests/TestData/dkim/*.msg` files |
@@ -307,6 +307,11 @@ Rules:
   anything above the target's `-max_len`.
 - **Hand-written seeds** in `Fuzzing/Corpora/` must be **synthetic**. Never commit real mail, personal
   data, credentials or internal hostnames. Use `example.com` / `example.org` domains.
+- **Regression seeds.** When fixing a crash, commit the minimized input to `Fuzzing/Corpora/<target>/`.
+  Hand-written seeds are merged into the existing (cached) corpus on every run, not only when the corpus is
+  first created. Note that many targets derive their configuration from a hash of the whole input
+  (`Fuzz.Selector`), so check that the minimized seed still reproduces the crash against the unfixed code
+  (`MimeKit.Fuzzing --replay <target> <path>`).
 - **Minimize before committing.** Run `-merge=1` to minimize a grown corpus before committing anything
   back. Commit only small seeds that add coverage. The full grown corpus belongs in CI cache or
   artifacts, not in git.

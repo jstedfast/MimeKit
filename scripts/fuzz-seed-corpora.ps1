@@ -8,7 +8,8 @@
 #   ./scripts/fuzz-seed-corpora.ps1 [-Target <name>|all] [-Harness <path>] [-OutputDirectory <dir>] [-Force]
 #
 # -Harness is the path to an *uninstrumented* MimeKit.Fuzzing executable. If omitted, the harness is built
-# (Debug) first. The corpus of a target is only (re)seeded if it does not exist yet or if -Force is given.
+# (Debug) first. The corpus of a target is only (re)seeded if it does not exist yet or if -Force is given, but the
+# hand-written seeds in Fuzzing/Corpora/<target>/ are always merged into it.
 #
 [CmdletBinding()]
 param (
@@ -220,7 +221,16 @@ foreach ($name in $Targets) {
     $corpus = Join-Path $OutputDirectory $name "corpus"
 
     if (-not $Force -and (Test-Path $corpus) -and (Get-ChildItem $corpus -File | Select-Object -First 1)) {
-        Write-Output ("{0,-24} corpus already exists, skipping (use -Force to reseed)" -f $name)
+        # Note: The hand-written seeds (e.g. regression inputs for fixed crashes) are still merged into an existing
+        # corpus, since otherwise any that were added after the corpus was first seeded would never be fuzzed.
+        $seeds = [System.Collections.Generic.List[byte[]]]::new()
+
+        foreach ($file in (Get-Files (Join-Path $HandWritten $name))) {
+            $seeds.Add([System.IO.File]::ReadAllBytes($file.FullName))
+        }
+
+        Write-Output ("{0,-24} corpus already exists, only merging the hand-written seeds (use -Force to reseed)" -f $name)
+        Write-Seeds $name $seeds
         continue
     }
 
