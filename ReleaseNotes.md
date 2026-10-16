@@ -169,6 +169,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   `ArgumentException` for values that cannot be written as a well-formed DOCTYPE: an empty name, or a
   name containing whitespace, `>` or NUL; or an identifier containing `>` or NUL, or containing both
   `'` and `"`. `HtmlDocTypeToken.WriteTo ()` no longer writes the identifiers when `Name` is `null`.
+* `MimeEntity.WriteTo (FormatOptions, Stream, bool, CancellationToken)` and `WriteToAsync ()` are no longer
+  `virtual`, and `MimePart`, `Multipart` and `MessagePart` no longer override them. The entity (and all of its
+  descendants) is now written by an internal writer that walks the tree without recursion. Subclasses that
+  overrode these methods to customize the output must instead customize the entity's headers or content.
 
 ### DMARC
 
@@ -321,6 +325,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   message/rfc822 parts. Instead, it keeps an explicit stack of the entities being parsed, so a maliciously
   deep nesting of MIME parts can no longer overflow the call stack (which terminates the process) when
   `ParserOptions.MaxMimeDepth` is set to a large value. The sequence of callbacks is unchanged.
+
+* `MimeMessage.WriteTo ()`, `MimeEntity.WriteTo ()` (and their async counterparts) and `MimeAnonymizer.Anonymize ()`
+  no longer use recursion to write nested multipart and message/rfc822 parts, so writing a deeply nested message can
+  no longer overflow the call stack. The output is unchanged.
 
 * Added `MimeReader.OnMboxMarkerBeginAsync ()` and `OnMboxMarkerEndAsync ()` so that every `MimeReader`
   callback now has an asynchronous counterpart. The default implementations call the synchronous methods.

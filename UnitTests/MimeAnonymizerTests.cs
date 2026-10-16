@@ -580,5 +580,65 @@ In-Reply-To: <xx.x@xxxxxxx.xxx>
 
 			Assert.That (anonymized, Is.EqualTo (expected), "Anonymized data does not match expected data.");
 		}
-	}
+
+		static string GenerateExtremelyNestedMessage (string nesting, int depth, string content)
+		{
+			var builder = new StringBuilder ();
+
+			for (int i = 0; i < depth; i++) {
+				if (nesting == "multipart" || (nesting == "mixed" && (i % 2) == 0))
+					builder.Append ($"Content-Type: multipart/mixed; boundary=\"{i}\"\r\n\r\n--{i}\r\n");
+				else
+					builder.Append ("Content-Type: message/rfc822\r\n\r\n");
+			}
+
+			builder.Append ("Content-Type: text/plain\r\n\r\n");
+			builder.Append (content);
+
+			for (int i = depth - 1; i >= 0; i--) {
+				if (nesting == "multipart" || (nesting == "mixed" && (i % 2) == 0))
+					builder.Append ($"\r\n--{i}--");
+			}
+
+			builder.Append ("\r\n");
+
+			return builder.ToString ();
+		}
+
+		// Note: MimeAnonymizer must not use recursion to anonymize nested entities, or else an extremely deep nesting of
+		// multipart or message/rfc822 parts could overflow the stack (which cannot be caught and terminates the process).
+		//
+		// Note: The parsed messages are intentionally not disposed because MimeEntity.Dispose() is still recursive.
+		[TestCase ("multipart", 10000)]
+		[TestCase ("message", 100000)]
+		[TestCase ("mixed", 20000)]
+		public void TestAnonymizeExtremelyNestedMessage (string nesting, int depth)
+		{
+			var source = GenerateExtremelyNestedMessage (nesting, depth, "innermost");
+			var expected = GenerateExtremelyNestedMessage (nesting, depth, "xxxxxxxxx");
+			var parserOptions = new ParserOptions { MaxMimeDepth = int.MaxValue };
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			MimeMessage message;
+
+			using (var stream = new MemoryStream (Encoding.ASCII.GetBytes (source), false)) {
+				var parser = new MimeParser (parserOptions, stream, MimeFormat.Entity);
+
+				message = parser.ParseMessage ();
+			}
+
+			var anonymizer = new MimeAnonymizer ();
+
+			using (var memory = new MemoryStream ()) {
+				anonymizer.Anonymize (options, message, memory);
+
+				Assert.That (Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length), Is.EqualTo (expected), "Message");
+			}
+
+			using (var memory = new MemoryStream ()) {
+				anonymizer.Anonymize (options, message.Body, memory);
+
+				Assert.That (Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length), Is.EqualTo (expected), "Entity");
+			}
+		}	}
 }

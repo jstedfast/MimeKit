@@ -192,7 +192,7 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException (nameof (stream));
 
-			AnonymizeEntity (options, entity, stream, false);
+			AnonymizeEntity (options, entity, stream, false, entity.EnsureNewLine);
 		}
 
 		static bool IsReceivedKeyword (byte[] rawValue, int index, out int length)
@@ -696,7 +696,9 @@ namespace MimeKit {
 			}
 		}
 
-		void AnonymizeMessage (FormatOptions options, MimeMessage message, Stream stream)
+		// Anonymize the message headers (merged with the headers of the body, if any) and return the body (if any) that should be
+		// anonymized next as well as whether it must end with a new-line.
+		MimeEntity? AnonymizeMessageHeaders (FormatOptions options, MimeMessage message, Stream stream, out bool ensureNewLine)
 		{
 			if (message.compliance == RfcComplianceMode.Strict && message.Body != null && message.Body.Headers.Count > 0 && !message.Headers.Contains (HeaderId.MimeVersion))
 				message.MimeVersion = new Version (1, 0);
@@ -707,19 +709,25 @@ namespace MimeKit {
 				if (message.compliance == RfcComplianceMode.Strict || message.Body.Headers.HasBodySeparator)
 					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
-				try {
-					message.Body.EnsureNewLine = message.compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
+				ensureNewLine = message.compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
 
-					AnonymizeEntity (options, message.Body, stream, true);
-				} finally {
-					message.Body.EnsureNewLine = false;
-				}
-			} else {
-				AnonymizeHeaders (options, message.Headers, stream);
-				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				return message.Body;
 			}
+
+			AnonymizeHeaders (options, message.Headers, stream);
+			stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+			ensureNewLine = false;
+
+			return null;
 		}
 
+		void AnonymizeMessage (FormatOptions options, MimeMessage message, Stream stream)
+		{
+			var body = AnonymizeMessageHeaders (options, message, stream, out bool ensureNewLine);
+
+			if (body != null)
+				AnonymizeEntity (options, body, stream, true, ensureNewLine);
+		}
 		static byte[] GenerateBoundaryMarker (string boundary, byte[] newLine)
 		{
 			var marker = new byte[2 + boundary.Length + newLine.Length];
@@ -793,98 +801,145 @@ namespace MimeKit {
 			}
 		}
 
-		void AnonymizeEntity (FormatOptions options, MimeEntity entity, Stream stream, bool contentOnly)
+		struct MultipartFrame
 		{
-			if (!contentOnly) {
-				AnonymizeHeaders (options, entity.Headers, stream);
+			public Multipart Multipart;
+			public FormatOptions Options;
+			public byte[] DefaultBoundary;
+			public bool EnsureNewLine;
+			public int Index;
+		}
 
-				if (entity.Headers.HasBodySeparator)
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+		static void WriteMultipartEnd (in MultipartFrame frame, Stream stream)
+		{
+			var multipart = frame.Multipart;
+			var options = frame.Options;
+
+			if (multipart.IsTruncated) {
+				// The multipart was truncated, so there is no end boundary (or epilogue) to write.
+				if (multipart.RawTrailingBoundary != null) {
+					if (multipart.Count > 0 && !multipart[multipart.Count - 1].EndsWithDelimiterNewLine)
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+
+					stream.Write (multipart.RawTrailingBoundary, 0, multipart.RawTrailingBoundary.Length);
+
+					if (frame.EnsureNewLine && !Multipart.EndsWithNewLine (multipart.RawTrailingBoundary))
+						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+				}
+				return;
 			}
 
-			if (entity is MessagePart messagePart) {
-				if (messagePart.Message != null) {
-					// Note: Only ensure that the embedded message ends with a new-line if this part is supposed to end with one.
-					if (options.EnsureNewLine != messagePart.EnsureNewLine) {
-						options = options.Clone ();
-						options.EnsureNewLine = messagePart.EnsureNewLine;
-					}
+			if (multipart.Count > 0 && !multipart[multipart.Count - 1].EndsWithDelimiterNewLine)
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 
-					AnonymizeMessage (options, messagePart.Message, stream);
-				}
-			} else if (entity is Multipart multipart) {
-				var defaultBoundary = GenerateBoundaryMarker (multipart.Boundary ?? string.Empty, options.NewLineBytes);
-
-				AnonymizeBytes (options, stream, multipart.RawPreamble, multipart.Count > 0 || multipart.EnsureNewLine);
-
-				for (int i = 0; i < multipart.Count; i++) {
-					var boundary = multipart.rawBoundaries?[i] ?? defaultBoundary;
-
-					if (i > 0 && !multipart[i - 1].EndsWithDelimiterNewLine)
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-
-					stream.Write (boundary, 0, boundary.Length);
-
-					if (multipart.EnsureNewLine && multipart.IsLastChildOfTruncatedMultipart (i)) {
-						var child = multipart[i];
-						var ensureNewLine = child.EnsureNewLine;
-
-						try {
-							child.EnsureNewLine = true;
-							AnonymizeEntity (options, child, stream, false);
-						} finally {
-							child.EnsureNewLine = ensureNewLine;
-						}
-					} else {
-						AnonymizeEntity (options, multipart[i], stream, false);
-					}
-				}
-
-				if (multipart.IsTruncated) {
-					// The multipart was truncated, so there is no end boundary (or epilogue) to write.
-					if (multipart.RawTrailingBoundary != null) {
-						if (multipart.Count > 0 && !multipart[multipart.Count - 1].EndsWithDelimiterNewLine)
-							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-
-						stream.Write (multipart.RawTrailingBoundary, 0, multipart.RawTrailingBoundary.Length);
-
-						if (multipart.EnsureNewLine && !Multipart.EndsWithNewLine (multipart.RawTrailingBoundary))
-							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-					}
-					return;
-				}
-
-				if (multipart.Count > 0 && !multipart[multipart.Count - 1].EndsWithDelimiterNewLine)
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-
-				if (multipart.RawEndBoundary != null) {
-					stream.Write (multipart.RawEndBoundary, 0, multipart.RawEndBoundary.Length);
-				} else {
-					var boundary = GenerateEndBoundaryMarker (multipart.Boundary ?? string.Empty, multipart.RawEpilogue is null ? options.NewLineBytes : Array.Empty<byte> ());
-
-					stream.Write (boundary, 0, boundary.Length);
-				}
-
-				if (multipart.RawEpilogue != null && multipart.RawEpilogue.Length > 0)
-					AnonymizeBytes (options, stream, multipart.RawEpilogue, multipart.EnsureNewLine);
-				else if (multipart.EnsureNewLine && (multipart.RawEndBoundary != null || multipart.RawEpilogue != null))
-					stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-			} else if (entity is MessageDeliveryStatus mds && TryGetStatusGroups (mds, out var statusGroups)) {
-				for (int i = 0; i < statusGroups.Count; i++) {
-					var statusGroup = statusGroups[i];
-
-					AnonymizeHeaders (options, statusGroup, stream);
-
-					if (i + 1 < statusGroups.Count)
-						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
-				}
-			} else if (entity is MessageDispositionNotification mdn && TryGetNotificationFields (mdn, out var fields)) {
-				AnonymizeHeaders (options, fields, stream);
+			if (multipart.RawEndBoundary != null) {
+				stream.Write (multipart.RawEndBoundary, 0, multipart.RawEndBoundary.Length);
 			} else {
-				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (new AnonymizeFilter ());
+				var boundary = GenerateEndBoundaryMarker (multipart.Boundary ?? string.Empty, multipart.RawEpilogue is null ? options.NewLineBytes : Array.Empty<byte> ());
 
-					entity.WriteTo (options, filtered, contentOnly: true);
+				stream.Write (boundary, 0, boundary.Length);
+			}
+
+			if (multipart.RawEpilogue != null && multipart.RawEpilogue.Length > 0)
+				AnonymizeBytes (options, stream, multipart.RawEpilogue, frame.EnsureNewLine);
+			else if (frame.EnsureNewLine && (multipart.RawEndBoundary != null || multipart.RawEpilogue != null))
+				stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+		}
+
+		// Anonymize the entity (and all of its descendants).
+		//
+		// Note: Nested multiparts and message parts are handled using an explicit stack rather than by recursion so that
+		// the nesting depth of the entity cannot exhaust the call stack. Only multiparts need a frame on the stack because
+		// they have more to write once a child has been written. The embedded message is the last thing that a message part
+		// writes and the body is the last thing that a message writes, so the anonymizer simply continues with them instead.
+		void AnonymizeEntity (FormatOptions options, MimeEntity? entity, Stream stream, bool contentOnly, bool ensureNewLine)
+		{
+			MultipartFrame[]? frames = null;
+			int depth = 0;
+
+			while (true) {
+				if (entity != null) {
+					if (!contentOnly) {
+						AnonymizeHeaders (options, entity.Headers, stream);
+
+						if (entity.Headers.HasBodySeparator)
+							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+					}
+
+					if (entity is MessagePart messagePart) {
+						if (messagePart.Message != null) {
+							// Note: Only ensure that the embedded message ends with a new-line if this part is supposed to end with one.
+							if (options.EnsureNewLine != ensureNewLine) {
+								options = options.Clone ();
+								options.EnsureNewLine = ensureNewLine;
+							}
+
+							entity = AnonymizeMessageHeaders (options, messagePart.Message, stream, out ensureNewLine);
+							contentOnly = true;
+							continue;
+						}
+					} else if (entity is Multipart multipart) {
+						AnonymizeBytes (options, stream, multipart.RawPreamble, multipart.Count > 0 || ensureNewLine);
+
+						if (frames is null)
+							frames = new MultipartFrame[8];
+						else if (depth == frames.Length)
+							Array.Resize (ref frames, frames.Length * 2);
+
+						ref var pushed = ref frames[depth++];
+						pushed.Multipart = multipart;
+						pushed.Options = options;
+						pushed.DefaultBoundary = GenerateBoundaryMarker (multipart.Boundary ?? string.Empty, options.NewLineBytes);
+						pushed.EnsureNewLine = ensureNewLine;
+						pushed.Index = 0;
+					} else if (entity is MessageDeliveryStatus mds && TryGetStatusGroups (mds, out var statusGroups)) {
+						for (int i = 0; i < statusGroups.Count; i++) {
+							var statusGroup = statusGroups[i];
+
+							AnonymizeHeaders (options, statusGroup, stream);
+
+							if (i + 1 < statusGroups.Count)
+								stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+						}
+					} else if (entity is MessageDispositionNotification mdn && TryGetNotificationFields (mdn, out var fields)) {
+						AnonymizeHeaders (options, fields, stream);
+					} else {
+						entity.CheckDisposed (nameof (MimeEntity));
+
+						if (entity is MimePart part) {
+							using (var filtered = new FilteredStream (stream)) {
+								filtered.Add (new AnonymizeFilter ());
+
+								part.WriteContent (options, filtered, ensureNewLine, default);
+							}
+						}
+					}
+
+					entity = null;
+					continue;
+				}
+
+				if (depth == 0)
+					return;
+
+				ref var frame = ref frames![depth - 1];
+
+				if (frame.Index < frame.Multipart.Count) {
+					int index = frame.Index++;
+					var boundary = frame.Multipart.rawBoundaries?[index] ?? frame.DefaultBoundary;
+
+					if (index > 0 && !frame.Multipart[index - 1].EndsWithDelimiterNewLine)
+						stream.Write (frame.Options.NewLineBytes, 0, frame.Options.NewLineBytes.Length);
+
+					stream.Write (boundary, 0, boundary.Length);
+
+					entity = frame.Multipart[index];
+					ensureNewLine = entity.EnsureNewLine || (frame.EnsureNewLine && frame.Multipart.IsLastChildOfTruncatedMultipart (index));
+					options = frame.Options;
+					contentOnly = false;
+				} else {
+					WriteMultipartEnd (in frame, stream);
+					frames[--depth] = default;
 				}
 			}
 		}

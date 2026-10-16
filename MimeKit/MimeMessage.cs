@@ -1364,35 +1364,9 @@ namespace MimeKit {
 			}
 		}
 
-		/// <summary>
-		/// Write the message to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes the message to the output stream using the provided formatting options.
-		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public void WriteTo (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default)
+		// Write the message headers (merged with the headers of the body, if any) and the blank line that separates them from the body.
+		internal void WriteHeaders (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (stream is null)
-				throw new ArgumentNullException (nameof (stream));
-
 			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
 				MimeVersion = new Version (1, 0);
 
@@ -1425,50 +1399,14 @@ namespace MimeKit {
 						stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
 					}
 				}
-
-				if (!headersOnly) {
-					try {
-						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
-						Body.WriteTo (options, stream, true, cancellationToken);
-					} finally {
-						Body.EnsureNewLine = false;
-					}
-				}
 			} else {
 				Headers.WriteTo (options, stream, cancellationToken);
 			}
 		}
 
-		/// <summary>
-		/// Asynchronously write the message to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Asynchronously writes the message to the output stream using the provided formatting options.
-		/// </remarks>
-		/// <returns>An awaitable task.</returns>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public async Task WriteToAsync (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default)
+		// Asynchronously write the message headers (merged with the headers of the body, if any) and the blank line that separates them from the body.
+		internal async Task WriteHeadersAsync (FormatOptions options, Stream stream, CancellationToken cancellationToken)
 		{
-			if (options is null)
-				throw new ArgumentNullException (nameof (options));
-
-			if (stream is null)
-				throw new ArgumentNullException (nameof (stream));
-
 			if (compliance == RfcComplianceMode.Strict && Body != null && Body.Headers.Count > 0 && !Headers.Contains (HeaderId.MimeVersion))
 				MimeVersion = new Version (1, 0);
 
@@ -1495,18 +1433,74 @@ namespace MimeKit {
 
 				if (compliance == RfcComplianceMode.Strict || Body.Headers.HasBodySeparator)
 					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-
-				if (!headersOnly) {
-					try {
-						Body.EnsureNewLine = compliance == RfcComplianceMode.Strict || options.EnsureNewLine;
-						await Body.WriteToAsync (options, stream, true, cancellationToken).ConfigureAwait (false);
-					} finally {
-						Body.EnsureNewLine = false;
-					}
-				}
 			} else {
 				await Headers.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
 			}
+		}
+
+		/// <summary>
+		/// Write the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Writes the message to the output stream using the provided formatting options.
+		/// </remarks>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public void WriteTo (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default)
+		{
+			if (options is null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (stream is null)
+				throw new ArgumentNullException (nameof (stream));
+
+			MimeWriter.Write (this, options, stream, headersOnly, cancellationToken);
+		}
+
+		/// <summary>
+		/// Asynchronously write the message to the specified output stream.
+		/// </summary>
+		/// <remarks>
+		/// Asynchronously writes the message to the output stream using the provided formatting options.
+		/// </remarks>
+		/// <returns>An awaitable task.</returns>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="headersOnly"><see langword="true" /> if only the headers should be written; otherwise, <see langword="false" />.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
+		/// </exception>
+		/// <exception cref="System.OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
+		/// </exception>
+		public Task WriteToAsync (FormatOptions options, Stream stream, bool headersOnly, CancellationToken cancellationToken = default)
+		{
+			if (options is null)
+				throw new ArgumentNullException (nameof (options));
+
+			if (stream is null)
+				throw new ArgumentNullException (nameof (stream));
+
+			return MimeWriter.WriteAsync (this, options, stream, headersOnly, cancellationToken);
 		}
 
 		/// <summary>

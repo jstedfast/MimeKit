@@ -25,12 +25,9 @@
 //
 
 using System;
-using System.IO;
 using System.Text;
-using System.Threading;
 using System.Collections;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
@@ -40,7 +37,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Buffers.Text;
 #endif
 
-using MimeKit.IO;
 using MimeKit.Text;
 using MimeKit.Utils;
 using MimeKit.Encodings;
@@ -371,16 +367,6 @@ namespace MimeKit {
 			}
 		}
 
-		// Check whether the new-line sequence that precedes a boundary marker needs to be written after the specified child.
-		//
-		// Per rfc2046, the new-line sequence that precedes a boundary marker belongs to the boundary marker and not to the
-		// content of the preceding child, so it must be written before the boundary marker unless the child's serialized
-		// form already ends with it (see MimeEntity.EndsWithDelimiterNewLine).
-		bool NeedsNewLineAfter (int index)
-		{
-			return !children[index].EndsWithDelimiterNewLine;
-		}
-
 		/// <summary>
 		/// Dispatches to the specific visit method for this MIME entity.
 		/// </summary>
@@ -506,29 +492,6 @@ namespace MimeKit {
 			return builder.ToString ();
 		}
 
-		static void WriteBytes (FormatOptions options, Stream stream, byte[] bytes, bool ensureNewLine, CancellationToken cancellationToken)
-		{
-			var filter = options.CreateNewLineFilter (ensureNewLine);
-
-			var output = filter.Flush (bytes, 0, bytes.Length, out int index, out int length);
-
-			if (stream is ICancellableStream cancellable) {
-				cancellable.Write (output, index, length, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (output, index, length);
-			}
-		}
-
-		static Task WriteBytesAsync (FormatOptions options, Stream stream, byte[] bytes, bool ensureNewLine, CancellationToken cancellationToken)
-		{
-			var filter = options.CreateNewLineFilter (ensureNewLine);
-
-			var output = filter.Flush (bytes, 0, bytes.Length, out int index, out int length);
-
-			return stream.WriteAsync (output, index, length, cancellationToken);
-		}
-
 		/// <summary>
 		/// Prepare the MIME entity for transport using the specified encoding constraints.
 		/// </summary>
@@ -556,57 +519,6 @@ namespace MimeKit {
 				children[i].Prepare (constraint, maxLineLength);
 		}
 
-		static FormatOptions GetMultipartSignedFormatOptions (FormatOptions options)
-		{
-			// don't reformat the headers or content of any children of a multipart/signed
-			if (options.International || options.HiddenHeaders.Count > 0) {
-				options = options.Clone ();
-				options.HiddenHeaders.Clear ();
-				options.International = false;
-			}
-
-			return options;
-		}
-
-		static void Write (Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-		{
-			if (stream is ICancellableStream cancellable) {
-				cancellable.Write (buffer, offset, count, cancellationToken);
-			} else {
-				cancellationToken.ThrowIfCancellationRequested ();
-				stream.Write (buffer, offset, count);
-			}
-		}
-
-		// Writes a raw boundary marker (which may consist of multiple lines in the case of a "double boundary").
-		//
-		// Normally, the raw boundary is written out byte-for-byte exactly as it was parsed. However, when verifying
-		// a signature, the content must be canonicalized to CRLF (options.NewLineFormat is always Dos in that case),
-		// so any bare LF gets converted to CRLF. Runs of bytes that are already CRLF-terminated are written as-is.
-		static void WriteRawBoundary (Stream stream, FormatOptions options, byte[] rawBoundary, CancellationToken cancellationToken)
-		{
-			int startIndex = 0;
-
-			if (options.VerifyingSignature) {
-				int index = 0, n;
-
-				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
-					index += n;
-
-					if (index == 0 || rawBoundary[index - 1] != (byte) '\r') {
-						Write (stream, rawBoundary, startIndex, index - startIndex, cancellationToken);
-						Write (stream, options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-						startIndex = index + 1;
-					}
-
-					index++;
-				}
-			}
-
-			if (startIndex < rawBoundary.Length)
-				Write (stream, rawBoundary, startIndex, rawBoundary.Length - startIndex, cancellationToken);
-		}
-
 		internal static bool EndsWithNewLine (byte[] buffer)
 		{
 			return buffer.Length > 0 && buffer[buffer.Length - 1] == (byte) '\n';
@@ -617,238 +529,6 @@ namespace MimeKit {
 		internal bool IsLastChildOfTruncatedMultipart (int index)
 		{
 			return index == children.Count - 1 && IsTruncated && RawTrailingBoundary is null;
-		}
-
-		void WriteChild (FormatOptions options, Stream stream, int index, CancellationToken cancellationToken)
-		{
-			var child = children[index];
-
-			if (EnsureNewLine && IsLastChildOfTruncatedMultipart (index)) {
-				var ensureNewLine = child.EnsureNewLine;
-
-				try {
-					child.EnsureNewLine = true;
-					child.WriteTo (options, stream, false, cancellationToken);
-				} finally {
-					child.EnsureNewLine = ensureNewLine;
-				}
-			} else {
-				child.WriteTo (options, stream, false, cancellationToken);
-			}
-		}
-
-		async Task WriteChildAsync (FormatOptions options, Stream stream, int index, CancellationToken cancellationToken)
-		{
-			var child = children[index];
-
-			if (EnsureNewLine && IsLastChildOfTruncatedMultipart (index)) {
-				var ensureNewLine = child.EnsureNewLine;
-
-				try {
-					child.EnsureNewLine = true;
-					await child.WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
-				} finally {
-					child.EnsureNewLine = ensureNewLine;
-				}
-			} else {
-				await child.WriteToAsync (options, stream, false, cancellationToken).ConfigureAwait (false);
-			}
-		}
-
-		/// <summary>
-		/// Write the <see cref="Multipart"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes the multipart MIME entity and its subparts to the output stream.
-		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="Multipart"/> has been disposed.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
-		{
-			base.WriteTo (options, stream, contentOnly, cancellationToken);
-
-			if (ContentType.IsMimeType ("multipart", "signed"))
-				options = GetMultipartSignedFormatOptions (options);
-
-			if (RawPreamble != null && RawPreamble.Length > 0)
-				WriteBytes (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken);
-
-			var defaultBoundary = Encoding.ASCII.GetBytes ("--" + Boundary + options.NewLine);
-
-			for (int i = 0; i < children.Count; i++) {
-				if (i > 0 && NeedsNewLineAfter (i - 1))
-					Write (stream, options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-
-				if (rawBoundaries?[i] is byte[] rawBoundary)
-					WriteRawBoundary (stream, options, rawBoundary, cancellationToken);
-				else
-					Write (stream, defaultBoundary, 0, defaultBoundary.Length, cancellationToken);
-
-				WriteChild (options, stream, i, cancellationToken);
-			}
-
-			if (IsTruncated) {
-				// The multipart was truncated, so there is no end boundary (or epilogue) to write. There may, however,
-				// have been a boundary marker at the end of the stream that was not followed by a MIME part.
-				if (RawTrailingBoundary != null) {
-					if (children.Count > 0 && NeedsNewLineAfter (children.Count - 1))
-						Write (stream, options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-
-					WriteRawBoundary (stream, options, RawTrailingBoundary, cancellationToken);
-
-					if (EnsureNewLine && !EndsWithNewLine (RawTrailingBoundary))
-						Write (stream, options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-				}
-
-				return;
-			}
-
-			if (children.Count > 0 && NeedsNewLineAfter (children.Count - 1))
-				Write (stream, options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-
-			if (RawEndBoundary != null) {
-				WriteRawBoundary (stream, options, RawEndBoundary, cancellationToken);
-			} else {
-				var endBoundary = Encoding.ASCII.GetBytes (string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty));
-
-				Write (stream, endBoundary, 0, endBoundary.Length, cancellationToken);
-			}
-
-			if (RawEpilogue != null && RawEpilogue.Length > 0) {
-				WriteBytes (options, stream, RawEpilogue, EnsureNewLine, cancellationToken);
-			} else if (EnsureNewLine && (RawEndBoundary != null || RawEpilogue != null)) {
-				// Note: The end boundary marker only includes a new-line sequence if it was generated and there is no epilogue.
-				Write (stream, options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
-			}
-		}
-
-		// Writes a raw boundary marker (which may consist of multiple lines in the case of a "double boundary").
-		//
-		// Normally, the raw boundary is written out byte-for-byte exactly as it was parsed. However, when verifying
-		// a signature, the content must be canonicalized to CRLF (options.NewLineFormat is always Dos in that case),
-		// so any bare LF gets converted to CRLF. Runs of bytes that are already CRLF-terminated are written as-is.
-		static async Task WriteRawBoundaryAsync (Stream stream, FormatOptions options, byte[] rawBoundary, CancellationToken cancellationToken)
-		{
-			int startIndex = 0;
-
-			if (options.VerifyingSignature) {
-				int index = 0, n;
-
-				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
-					index += n;
-
-					if (index == 0 || rawBoundary[index - 1] != (byte) '\r') {
-						await stream.WriteAsync (rawBoundary, startIndex, index - startIndex, cancellationToken).ConfigureAwait (false);
-						await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-						startIndex = index + 1;
-					}
-
-					index++;
-				}
-			}
-
-			if (startIndex < rawBoundary.Length)
-				await stream.WriteAsync (rawBoundary, startIndex, rawBoundary.Length - startIndex, cancellationToken).ConfigureAwait (false);
-		}
-
-		/// <summary>
-		/// Asynchronously write the <see cref="Multipart"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Asynchronously writes the multipart MIME entity and its subparts to the output stream.
-		/// </remarks>
-		/// <returns>An awaitable task.</returns>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="Multipart"/> has been disposed.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public override async Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
-		{
-			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
-
-			if (ContentType.IsMimeType ("multipart", "signed"))
-				options = GetMultipartSignedFormatOptions (options);
-
-			if (RawPreamble != null && RawPreamble.Length > 0)
-				await WriteBytesAsync (options, stream, RawPreamble, children.Count > 0 || EnsureNewLine, cancellationToken).ConfigureAwait (false);
-
-			var defaultBoundary = Encoding.ASCII.GetBytes ("--" + Boundary + options.NewLine);
-
-			for (int i = 0; i < children.Count; i++) {
-				if (i > 0 && NeedsNewLineAfter (i - 1))
-					await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-
-				if (rawBoundaries?[i] is byte[] rawBoundary)
-					await WriteRawBoundaryAsync (stream, options, rawBoundary, cancellationToken).ConfigureAwait (false);
-				else
-					await stream.WriteAsync (defaultBoundary, 0, defaultBoundary.Length, cancellationToken).ConfigureAwait (false);
-
-				await WriteChildAsync (options, stream, i, cancellationToken).ConfigureAwait (false);
-			}
-
-			if (IsTruncated) {
-				// The multipart was truncated, so there is no end boundary (or epilogue) to write. There may, however,
-				// have been a boundary marker at the end of the stream that was not followed by a MIME part.
-				if (RawTrailingBoundary != null) {
-					if (children.Count > 0 && NeedsNewLineAfter (children.Count - 1))
-						await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-
-					await WriteRawBoundaryAsync (stream, options, RawTrailingBoundary, cancellationToken).ConfigureAwait (false);
-
-					if (EnsureNewLine && !EndsWithNewLine (RawTrailingBoundary))
-						await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-				}
-
-				return;
-			}
-
-			if (children.Count > 0 && NeedsNewLineAfter (children.Count - 1))
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-
-			if (RawEndBoundary != null) {
-				await WriteRawBoundaryAsync (stream, options, RawEndBoundary, cancellationToken).ConfigureAwait (false);
-			} else {
-				var endBoundary = Encoding.ASCII.GetBytes (string.Concat ("--", Boundary, "--", RawEpilogue is null ? options.NewLine : string.Empty));
-
-				await stream.WriteAsync (endBoundary, 0, endBoundary.Length, cancellationToken).ConfigureAwait (false);
-			}
-
-			if (RawEpilogue != null && RawEpilogue.Length > 0) {
-				await WriteBytesAsync (options, stream, RawEpilogue, EnsureNewLine, cancellationToken).ConfigureAwait (false);
-			} else if (EnsureNewLine && (RawEndBoundary != null || RawEpilogue != null)) {
-				// Note: The end boundary marker only includes a new-line sequence if it was generated and there is no epilogue.
-				await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
-			}
 		}
 
 		#region ICollection implementation

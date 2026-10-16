@@ -558,8 +558,10 @@ namespace MimeKit {
 		/// Write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
-		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// <para>Writes the headers to the output stream, followed by a blank line, and then the content of the entity
+		/// (including all of its descendants in the case of a <see cref="Multipart"/> or a <see cref="MessagePart"/>).</para>
+		/// <para>Deeply nested entities are written without recursion, so the nesting depth of the entity cannot
+		/// exhaust the call stack.</para>
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -579,7 +581,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
+		public void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -587,18 +589,18 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			CheckDisposed ();
-
-			if (!contentOnly)
-				Headers.WriteTo (options, stream, cancellationToken);
+			MimeWriter.Write (this, options, stream, contentOnly, cancellationToken);
 		}
 
 		/// <summary>
 		/// Asynchronously write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line.</para>
-		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line, and then the content
+		/// of the entity (including all of its descendants in the case of a <see cref="Multipart"/> or a
+		/// <see cref="MessagePart"/>).</para>
+		/// <para>Deeply nested entities are written without recursion, so the nesting depth of the entity cannot
+		/// exhaust the call stack.</para>
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>
@@ -619,7 +621,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public virtual Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
+		public Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
 		{
 			if (options is null)
 				throw new ArgumentNullException (nameof (options));
@@ -627,20 +629,17 @@ namespace MimeKit {
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
 
-			CheckDisposed ();
-
-			if (!contentOnly)
-				return Headers.WriteToAsync (options, stream, cancellationToken);
-
-			return Task.CompletedTask;
+			return MimeWriter.WriteAsync (this, options, stream, contentOnly, cancellationToken);
 		}
 
 		/// <summary>
 		/// Write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// <para>Writes the headers to the output stream, followed by a blank line.</para>
-		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// <para>Writes the headers to the output stream, followed by a blank line, and then the content of the entity
+		/// (including all of its descendants in the case of a <see cref="Multipart"/> or a <see cref="MessagePart"/>).</para>
+		/// <para>Deeply nested entities are written without recursion, so the nesting depth of the entity cannot
+		/// exhaust the call stack.</para>
 		/// </remarks>
 		/// <param name="options">The formatting options.</param>
 		/// <param name="stream">The output stream.</param>
@@ -668,8 +667,11 @@ namespace MimeKit {
 		/// Asynchronously write the <see cref="MimeEntity"/> to the specified output stream.
 		/// </summary>
 		/// <remarks>
-		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line.</para>
-		/// <para>Subclasses should override this method to write the content of the entity.</para>
+		/// <para>Asynchronously writes the headers to the output stream, followed by a blank line, and then the content
+		/// of the entity (including all of its descendants in the case of a <see cref="Multipart"/> or a
+		/// <see cref="MessagePart"/>).</para>
+		/// <para>Deeply nested entities are written without recursion, so the nesting depth of the entity cannot
+		/// exhaust the call stack.</para>
 		/// </remarks>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="options">The formatting options.</param>

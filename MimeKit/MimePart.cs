@@ -660,34 +660,9 @@ namespace MimeKit {
 			ContentTransferEncoding = best;
 		}
 
-		/// <summary>
-		/// Write the <see cref="MimePart"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Writes the MIME part to the output stream.
-		/// </remarks>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="MimePart"/> has been disposed.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public override void WriteTo (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
+		// Write the content of the MIME part (but not its headers).
+		internal void WriteContent (FormatOptions options, Stream stream, bool ensureNewLine, CancellationToken cancellationToken)
 		{
-			base.WriteTo (options, stream, contentOnly, cancellationToken);
-
 			if (Content is null)
 				return;
 
@@ -713,7 +688,7 @@ namespace MimeKit {
 					filtered.Add (EncoderFilter.Create (ContentTransferEncoding, encoderMaxLineLength));
 
 					if (ContentTransferEncoding != ContentEncoding.Binary)
-						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+						filtered.Add (options.CreateNewLineFilter (ensureNewLine));
 
 					Content.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
@@ -744,42 +719,16 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
-					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+					filtered.Add (options.CreateNewLineFilter (ensureNewLine));
 					Content.WriteTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
 				}
 			}
 		}
 
-		/// <summary>
-		/// Asynchronously write the <see cref="MimePart"/> to the specified output stream.
-		/// </summary>
-		/// <remarks>
-		/// Asynchronously writes the MIME part to the output stream.
-		/// </remarks>
-		/// <returns>An awaitable task.</returns>
-		/// <param name="options">The formatting options.</param>
-		/// <param name="stream">The output stream.</param>
-		/// <param name="contentOnly"><see langword="true" /> if only the content should be written; otherwise, <see langword="false" />.</param>
-		/// <param name="cancellationToken">The cancellation token.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
-		/// <para>-or-</para>
-		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
-		/// </exception>
-		/// <exception cref="System.ObjectDisposedException">
-		/// The <see cref="MimePart"/> has been disposed.
-		/// </exception>
-		/// <exception cref="System.OperationCanceledException">
-		/// The operation was canceled via the cancellation token.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public override async Task WriteToAsync (FormatOptions options, Stream stream, bool contentOnly, CancellationToken cancellationToken = default)
+		// Asynchronously write the content of the MIME part (but not its headers).
+		internal async Task WriteContentAsync (FormatOptions options, Stream stream, bool ensureNewLine, CancellationToken cancellationToken)
 		{
-			await base.WriteToAsync (options, stream, contentOnly, cancellationToken).ConfigureAwait (false);
-
 			if (Content is null)
 				return;
 
@@ -797,7 +746,7 @@ namespace MimeKit {
 					filtered.Add (EncoderFilter.Create (ContentTransferEncoding, encoderMaxLineLength));
 
 					if (ContentTransferEncoding != ContentEncoding.Binary)
-						filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+						filtered.Add (options.CreateNewLineFilter (ensureNewLine));
 
 					await Content.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
@@ -822,7 +771,7 @@ namespace MimeKit {
 				using (var filtered = new FilteredStream (stream)) {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
 					// MimeMessage.WriteTo() *always* ends with a new-line.
-					filtered.Add (options.CreateNewLineFilter (EnsureNewLine));
+					filtered.Add (options.CreateNewLineFilter (ensureNewLine));
 					await Content.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
 				}

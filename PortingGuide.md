@@ -218,6 +218,9 @@ For most code, the parser change is a source-compatible rename: `new MimeParser 
   trimmed when set, including by constructors and the parser. A whitespace-only name becomes `""`.
 - **`MessagePartial.Join ()`** validates the `id` and `number` of every partial up front, so a mismatched
   `id` or a missing `number` throws `InvalidOperationException` even for a single partial.
+- **`MimeEntity.WriteTo ()` is no longer virtual.** `WriteTo (FormatOptions, Stream, bool, CancellationToken)`
+  and `WriteToAsync ()` can no longer be overridden; a non-recursive writer now writes the entity and all of its
+  descendants. Customize a subclass's output through its headers or content instead.
 
 ## HTML
 
@@ -1016,7 +1019,8 @@ property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
     `OnMultipartEndBoundaryEnd ()`, and no more trimming of the newline before a boundary.
 14. Set `FormatOptions.EnsureNewLine` when appending messages to an mbox file.
 15. Handle `ArgumentException` from the msg-id setters and `null` instead of `""` for empty msg-ids.
-16. Don't rely on leading or trailing whitespace in address names.
+16. Don't rely on leading or trailing whitespace in address names, and remove `MimeEntity.WriteTo ()`/`WriteToAsync ()`
+    overrides.
 17. Replace `HtmlTokenizerState.AttributeValueQuoted`, and stop persisting `HtmlTokenizerState` values.
 18. Review `HtmlTagCallback` implementations for `<noscript>` content, which is now passed to the callback,
     and for the tokenizer changes.
