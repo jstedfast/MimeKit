@@ -49,7 +49,10 @@ namespace MimeKit.Text {
 	/// select or template insertion modes. Of the document's head/body structure, it only models whether the
 	/// tree builder is still before the body and whether it is in the "in head noscript" insertion mode (since,
 	/// when scripting is disabled, a <c>&lt;noscript&gt;</c> element within the <c>&lt;head&gt;</c> gets closed by
-	/// any tag or character data that is not allowed there, unlike a <c>&lt;noscript&gt;</c> within the body).</para>
+	/// any tag or character data that is not allowed there, unlike a <c>&lt;noscript&gt;</c> within the body), as
+	/// well as the frameset-ok flag and the frameset insertion modes (since a <c>&lt;frameset&gt;</c> makes browsers
+	/// ignore start tags such as <c>&lt;style&gt;</c> or <c>&lt;svg&gt;</c> that would otherwise switch the tokenizer
+	/// state).</para>
 	/// <para>To guard against resource exhaustion, consecutive identical entries are folded into a single
 	/// entry with a repeat count, and every query is O(1): each entry caches the index of the nearest entry
 	/// at or below it that satisfies each scope/category predicate, and the index of the next lower entry with
@@ -135,6 +138,10 @@ namespace MimeKit.Text {
 		readonly Dictionary<string, int> htmlNames = new Dictionary<string, int> (MimeUtils.OrdinalIgnoreCase);
 		bool poppedThrough;
 		InsertionMode mode;
+
+		// The frameset-ok flag and whether a <frameset> element has replaced the <body>.
+		bool framesetOk = true;
+		bool inFrameset;
 		readonly int[] htmlIds = new int[(int) HtmlTagId.Xmp + 1];
 
 		// Note: Entries are stored in fixed-size chunks rather than in a single array that gets resized as the stack
@@ -274,27 +281,52 @@ namespace MimeKit.Text {
 		} = true;
 
 		/// <summary>
-		/// Get whether the tree builder has not yet moved past the document's <c>&lt;head&gt;</c>.
+		/// Get whether the tree builder needs to be told about character data.
 		/// </summary>
 		/// <remarks>
-		/// While this is <see langword="true" />, any character data in the data state that is not whitespace must be
-		/// reported using <see cref="ProcessCharacterData"/>.
+		/// While this is <see langword="true" />, any character in the data state (or in a CDATA section) that is not
+		/// whitespace must be reported using <see cref="ProcessCharacterData"/>. This is the case until the tree builder
+		/// has moved past the document's <c>&lt;head&gt;</c> and the frameset-ok flag has been set to "not ok".
 		/// </remarks>
-		public bool IsBeforeBody {
-			get { return mode != InsertionMode.AfterHead; }
+		public bool TracksCharacterData {
+			get { return !inFrameset && (mode != InsertionMode.AfterHead || framesetOk); }
 		}
 
 		/// <summary>
-		/// Update the stack of open elements for character data that is not whitespace.
+		/// Get whether the tree builder is in the "in frameset", "after frameset" or "after after frameset" insertion mode.
 		/// </summary>
 		/// <remarks>
-		/// Character data that is not whitespace implicitly closes the <c>&lt;head&gt;</c> (and any <c>&lt;noscript&gt;</c>
-		/// element within it).
+		/// <para>In these insertion modes, browsers ignore every start tag other than <c>&lt;html&gt;</c>, <c>&lt;frameset&gt;</c>,
+		/// <c>&lt;frame&gt;</c> and <c>&lt;noframes&gt;</c> (as well as every end tag other than <c>&lt;/frameset&gt;</c>,
+		/// <c>&lt;/noframes&gt;</c> and <c>&lt;/html&gt;</c>) and never leave them.</para>
+		/// <para>Since the ignored tags do not switch the tokenizer state (e.g. <c>&lt;style&gt;</c> or <c>&lt;svg&gt;</c>), a
+		/// consumer such as <see cref="HtmlToHtml"/> must not write them, since they would no longer be ignored if the
+		/// <c>&lt;frameset&gt;</c> start tag itself does not get written (or if the output gets embedded in another document).</para>
 		/// </remarks>
-		public void ProcessCharacterData ()
+		public bool IsInFrameset {
+			get { return inFrameset; }
+		}
+
+		/// <summary>
+		/// Update the stack of open elements for a character in the data state that is not whitespace.
+		/// </summary>
+		/// <remarks>
+		/// <para>Character data that is not whitespace implicitly closes the <c>&lt;head&gt;</c> (and any <c>&lt;noscript&gt;</c>
+		/// element within it) and inserts the <c>&lt;body&gt;</c>.</para>
+		/// <para>Any character other than U+0000 also sets the frameset-ok flag to "not ok" (browsers ignore a U+0000 in the
+		/// body, but it is inserted as U+FFFD in SVG or MathML content without changing the frameset-ok flag either).</para>
+		/// </remarks>
+		/// <param name="c">The character.</param>
+		public void ProcessCharacterData (char c)
 		{
+			if (inFrameset)
+				return;
+
+			if (c != '\0')
+				framesetOk = false;
+
 			// Note: In the "in template" insertion mode, character data is processed as if in the body without closing the head.
-			if (mode == InsertionMode.AfterHead || IsTemplateOpen)
+			if (IsTemplateOpen)
 				return;
 
 			if (mode == InsertionMode.InHeadNoScript)
@@ -720,6 +752,54 @@ namespace MimeKit.Text {
 			}
 		}
 
+		// Start tags that, when processed using the rules for the "in body" insertion mode, set the frameset-ok flag to "not ok".
+		static bool ClearsFramesetOk (HtmlTagToken tag)
+		{
+			switch (tag.Id) {
+			case HtmlTagId.Pre: case HtmlTagId.Listing: case HtmlTagId.LI: case HtmlTagId.DD: case HtmlTagId.DT:
+			case HtmlTagId.Button: case HtmlTagId.Applet: case HtmlTagId.Marquee: case HtmlTagId.Object:
+			case HtmlTagId.Table: case HtmlTagId.Area: case HtmlTagId.Br: case HtmlTagId.Embed: case HtmlTagId.Image:
+			case HtmlTagId.Keygen: case HtmlTagId.Wbr: case HtmlTagId.HR: case HtmlTagId.TextArea: case HtmlTagId.Xmp:
+			case HtmlTagId.IFrame: case HtmlTagId.Select: case HtmlTagId.Body:
+				return true;
+			case HtmlTagId.Input:
+				// Note: Only the first attribute with a given name counts, since browsers drop any duplicates.
+				for (int i = 0; i < tag.Attributes.Count; i++) {
+					var attr = tag.Attributes[i];
+
+					if (attr.Id == HtmlAttributeId.Type)
+						return !IsAsciiCaseInsensitiveMatch (attr.Value, "hidden");
+				}
+
+				return true;
+			case HtmlTagId.Unknown:
+				// Note: The tree builder treats an <image> start tag as an <img> start tag. A <template> start tag also sets
+				// the frameset-ok flag to "not ok" (even in the <head>).
+				return tag.Name.Equals ("image", StringComparison.OrdinalIgnoreCase) || tag.Name.Equals ("template", StringComparison.OrdinalIgnoreCase);
+			default:
+				return false;
+			}
+		}
+
+		// Note: Unlike StringComparison.OrdinalIgnoreCase, this only folds the ASCII letters (e.g. "hıdden" is not "hidden").
+		static bool IsAsciiCaseInsensitiveMatch (string? value, string lowercase)
+		{
+			if (value == null || value.Length != lowercase.Length)
+				return false;
+
+			for (int i = 0; i < value.Length; i++) {
+				char c = value[i];
+
+				if (c >= 'A' && c <= 'Z')
+					c = (char) (c + 0x20);
+
+				if (c != lowercase[i])
+					return false;
+			}
+
+			return true;
+		}
+
 		static bool IsVoidElement (HtmlTagId id, string name)
 		{
 			switch (id) {
@@ -750,6 +830,11 @@ namespace MimeKit.Text {
 		/// <param name="tag">The start tag.</param>
 		public bool ProcessStartTag (HtmlTagToken tag)
 		{
+			// Note: In the frameset insertion modes, every start tag other than <html>, <frameset>, <frame> and <noframes> is
+			// ignored, so <noframes> is the only start tag that switches the tokenizer state.
+			if (inFrameset)
+				return tag.Id == HtmlTagId.NoFrames;
+
 			if (mode != InsertionMode.AfterHead && !ProcessHeadStartTag (tag))
 				return true;
 
@@ -900,11 +985,27 @@ namespace MimeKit.Text {
 			var id = tag.Id;
 			int index, table;
 
+			if (framesetOk && ClearsFramesetOk (tag))
+				framesetOk = false;
+
 			switch (id) {
 			case HtmlTagId.Html:
 			case HtmlTagId.Head:
-			case HtmlTagId.Body:
 				// These elements are never pushed more than once, so their start tags have no effect on the stack.
+				return;
+			case HtmlTagId.Body:
+				// Note: The <body> element is never pushed more than once either, but a <body> start tag sets the frameset-ok
+				// flag to "not ok" (see ClearsFramesetOk).
+				return;
+			case HtmlTagId.FrameSet:
+				// Note: Unless the frameset-ok flag is "not ok", the <frameset> element replaces the <body> (and everything in it).
+				// The <frameset> start tag is also ignored if the second element on the stack of open elements is not the <body>,
+				// but that can only happen in the fragment case or if there is a <template> element on the stack, and a <template>
+				// start tag sets the frameset-ok flag to "not ok".
+				if (framesetOk) {
+					PopAbove (-1);
+					inFrameset = true;
+				}
 				return;
 			case HtmlTagId.Address: case HtmlTagId.Article: case HtmlTagId.Aside: case HtmlTagId.BlockQuote:
 			case HtmlTagId.Center: case HtmlTagId.Details: case HtmlTagId.Dialog: case HtmlTagId.Dir:
@@ -1088,8 +1189,18 @@ namespace MimeKit.Text {
 		{
 			poppedThrough = false;
 
+			// Note: In the frameset insertion modes, end tags never affect anything that matters to the tokenizer.
+			if (inFrameset) {
+				EndTagIgnored = false;
+				return;
+			}
+
 			if (mode != InsertionMode.AfterHead)
 				ProcessHeadEndTag (tag);
+
+			// Note: In the body, </br> is treated as a <br> start tag.
+			if (tag.Id == HtmlTagId.Br)
+				framesetOk = false;
 
 			ProcessEndTagInternal (tag);
 

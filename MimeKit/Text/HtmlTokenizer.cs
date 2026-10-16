@@ -1142,8 +1142,8 @@ namespace MimeKit.Text {
 				TokenizerState = next;
 				data.Append ('&');
 
-				if (next == HtmlTokenizerState.Data && openElements.IsBeforeBody)
-					openElements.ProcessCharacterData ();
+				if (next == HtmlTokenizerState.Data && openElements.TracksCharacterData)
+					openElements.ProcessCharacterData ('&');
 
 				return null;
 			}
@@ -1182,10 +1182,10 @@ namespace MimeKit.Text {
 
 			int unknown = logger != null ? ValidateCharacterReference (false, c) : -1;
 
-			if (decode || (next == HtmlTokenizerState.Data && openElements.IsBeforeBody)) {
+			if (decode || (next == HtmlTokenizerState.Data && openElements.TracksCharacterData)) {
 				var value = entity.GetValue ();
 
-				if (next == HtmlTokenizerState.Data && openElements.IsBeforeBody)
+				if (next == HtmlTokenizerState.Data && openElements.TracksCharacterData)
 					ProcessCharacterData (value);
 
 				if (decode)
@@ -1342,25 +1342,22 @@ namespace MimeKit.Text {
 		static readonly char[] LoggedDataSpecials = new char[] { '\0', '&', '<' };
 #endif
 
-		// Lets the stack of open elements know about character data in the data state that is not whitespace, which closes
-		// the <head> element (and any <noscript> element within it).
+		// Lets the stack of open elements know about character data in the data state (or in a CDATA section) that is not
+		// whitespace, which closes the <head> element (and any <noscript> element within it) and, unless it is U+0000, sets
+		// the frameset-ok flag to "not ok".
 		void ProcessCharacterData (int startIndex)
 		{
-			for (int i = startIndex; i < data.Length; i++) {
-				if (!IsHtmlWhiteSpace (data[i])) {
-					openElements.ProcessCharacterData ();
-					break;
-				}
+			for (int i = startIndex; i < data.Length && openElements.TracksCharacterData; i++) {
+				if (!IsHtmlWhiteSpace (data[i]))
+					openElements.ProcessCharacterData (data[i]);
 			}
 		}
 
 		void ProcessCharacterData (string value)
 		{
-			for (int i = 0; i < value.Length; i++) {
-				if (!IsHtmlWhiteSpace (value[i])) {
-					openElements.ProcessCharacterData ();
-					break;
-				}
+			for (int i = 0; i < value.Length && openElements.TracksCharacterData; i++) {
+				if (!IsHtmlWhiteSpace (value[i]))
+					openElements.ProcessCharacterData (value[i]);
 			}
 		}
 
@@ -1382,14 +1379,14 @@ namespace MimeKit.Text {
 					break;
 				}
 
-				if (openElements.IsBeforeBody)
+				if (openElements.TracksCharacterData)
 					ProcessCharacterData (startIndex);
 
 				switch (c) {
 				case '&':
-					// Note: Before the body, character references need to be decoded (even if the decoded values don't get
-					// emitted) in order to tell whether they are whitespace.
-					if (DecodeCharacterReferences || logger != null || openElements.IsBeforeBody) {
+					// Note: Until the tree builder no longer needs to be told about character data, character references need to
+					// be decoded (even if the decoded values don't get emitted) in order to tell whether they are whitespace.
+					if (DecodeCharacterReferences || logger != null || openElements.TracksCharacterData) {
 						TokenizerState = HtmlTokenizerState.CharacterReferenceInData;
 						return null;
 					}
@@ -1414,8 +1411,8 @@ namespace MimeKit.Text {
 					goto default;
 				default:
 					// Note: The special characters are never whitespace.
-					if (openElements.IsBeforeBody)
-						openElements.ProcessCharacterData ();
+					if (openElements.TracksCharacterData)
+						openElements.ProcessCharacterData (c);
 
 					data.Append (c);
 					break;
@@ -3619,6 +3616,9 @@ namespace MimeKit.Text {
 						TokenizerState = HtmlTokenizerState.Data;
 						cdataIndex = 0;
 
+						if (openElements.TracksCharacterData)
+							ProcessCharacterData (0);
+
 						return EmitCDataToken ();
 					}
 				}
@@ -3631,6 +3631,9 @@ namespace MimeKit.Text {
 
 			data.Append (cdata, 0, cdataIndex);
 			cdataIndex = 0;
+
+			if (openElements.TracksCharacterData)
+				ProcessCharacterData (0);
 
 			return EmitCDataToken ();
 		}

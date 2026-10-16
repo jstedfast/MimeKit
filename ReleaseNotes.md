@@ -824,6 +824,12 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   relaxed filter could drop a bare CR at the end of the body, drop the whitespace before a bare CR, write
   a bare CR before any deferred empty lines, or omit the final CRLF of a body ending with a bare CR. As a
   result, the DKIM body hash of a message containing bare CRs may differ from earlier versions.
+* `HtmlTokenizer` now tracks whether the `<body>` gets replaced by a `<frameset>` (using the HTML
+  frameset-ok flag), since browsers ignore most start tags in a frameset document. Previously, an ignored
+  start tag (such as the `<noscript>` in `<frameset><noscript><frame>` when `ScriptingEnabled` is `true`)
+  could switch the tokenizer into a state in which it treated subsequent markup as text, or vice versa.
+* `HtmlToHtml` now removes the tags that browsers ignore in a frameset document (any tag other than
+  `<frameset>`, `<frame>` and `<noframes>`), so that converting the output again produces the same output.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

@@ -369,6 +369,46 @@ namespace UnitTests.Text {
 			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
 		}
 
+		static void RemoveFramesetTagsCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+		{
+			if (ctx.TagId == HtmlTagId.FrameSet) {
+				ctx.DeleteTag = true;
+				ctx.DeleteEndTag = true;
+			} else {
+				ctx.WriteTag (htmlWriter, true);
+			}
+		}
+
+		[TestCase ("<frameset><textarea><!--</textarea><img src=x onerror=alert(1)>--></frameset>", false, "<frameset><!--</textarea><img src=x onerror=alert(1)>--></frameset>")]
+		[TestCase ("<frameset><textarea><!--</textarea><img src=x onerror=alert(1)>--></frameset>", true, "<!--</textarea><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<frameset><frame src=\"a\"><noframes><b>x</b></noframes><style><frame src=\"b\"></frameset><svg><title>", false, "<frameset><frame src=\"a\"><noframes><b>x</b></noframes><frame src=\"b\"></frameset>")]
+		[TestCase ("<frameset><frame src=\"a\"><noframes><b>x</b></noframes><style><frame src=\"b\"></frameset><svg><title>", true, "<frame src=\"a\"><noframes><b>x</b></noframes><frame src=\"b\">")]
+		[TestCase ("x<frameset><textarea><!--</textarea><img src=x>-->", true, "x<textarea><!--</textarea>-->")]
+		public void TestFramesetIgnoredTags (string input, bool removeFrameset, string expected)
+		{
+			var converter = new HtmlToHtml {
+				HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Image) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+					} else if (removeFrameset) {
+						RemoveFramesetTagsCallback (ctx, writer);
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				}
+			};
+
+			// Note: Once a <frameset> has replaced the <body>, browsers ignore tags such as <textarea>, <style> or <svg>, so they
+			// did not switch the tokenizer state. If they were written to the output, they would no longer be ignored when the
+			// <frameset> tag is removed by the callback (allowing the <img> tag hidden in the comment to escape it), so they get
+			// dropped. The last input has non-whitespace text before the <frameset>, so browsers ignore the <frameset> instead.
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
+		}
+
 		[Test]
 		public void TestNoScriptScriptingEnabled ()
 		{

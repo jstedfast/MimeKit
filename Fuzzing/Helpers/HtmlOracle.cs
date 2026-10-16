@@ -40,6 +40,9 @@ namespace MimeKit.Fuzzing.Helpers {
 	// (and therefore by an HtmlToHtml callback). The opposite (HtmlTokenizer emitting a tag that a browser ignores
 	// or treats as text) is not checked since the tree builder ignores many start tags (e.g. a stray <tr>).
 	//
+	// It also checks that HtmlTokenizer agrees with AngleSharp on whether the document is a frameset document, since
+	// browsers ignore most start tags after a <frameset> (so they don't switch the tokenizer state).
+	//
 	// AngleSharp does not record the source position for implied elements, elements cloned by the adoption agency
 	// algorithm and the <svg> and <math> root elements, so those are not checked. The content of an <iframe srcdoc>
 	// is a separate document, so it is not checked either.
@@ -98,7 +101,28 @@ namespace MimeKit.Fuzzing.Helpers {
 			if (created.Count == 0)
 				return;
 
-			var tags = Tokenize (html, scriptingEnabled);
+			// Note: Normalize() replaces NUL with U+FFFD, which (unlike a NUL in the body, which browsers ignore) sets the
+			// frameset-ok flag to "not ok". So if there is one before a <frameset> tag, AngleSharp might ignore a <frameset>
+			// that a browser (and HtmlTokenizer) would not.
+			//
+			// AngleSharp also does not set the frameset-ok flag to "not ok" for a <template> start tag in the <head> (and
+			// inserts a <template> that follows </head> into the <body> rather than the <head>), so it might honor a
+			// <frameset> that a browser (and HtmlTokenizer) would ignore.
+			int frameset = html.LastIndexOf ("<frameset", StringComparison.OrdinalIgnoreCase);
+			int replacement = html.IndexOf ('\uFFFD');
+			int template = html.IndexOf ("<template", StringComparison.OrdinalIgnoreCase);
+
+			if ((replacement >= 0 && replacement < frameset) || (template >= 0 && template < frameset))
+				return;
+
+			var tags = Tokenize (html, scriptingEnabled, out bool inFrameset);
+
+			// Note: HtmlTokenizer must agree on whether the <body> got replaced by a <frameset>, since browsers ignore most tags after
+			// that (which means that they don't switch the tokenizer state). Otherwise, HtmlTokenizer could emit tags that a
+			// browser treats as text (or vice versa).
+			bool framesetDocument = document.Body?.LocalName == "frameset";
+
+			Fuzz.Check (framesetDocument == inFrameset, $"{what} (scripting {(scriptingEnabled ? "enabled" : "disabled")}): browser {(framesetDocument ? "creates" : "does not create")} a frameset document but HtmlTokenizer {(inFrameset ? "does" : "does not")} think so");
 
 			foreach (var element in created) {
 				// Note: AngleSharp also parses the srcdoc of an <iframe> (with the same options), so skip the elements
@@ -134,7 +158,7 @@ namespace MimeKit.Fuzzing.Helpers {
 		}
 
 		// Returns the start tags that HtmlTokenizer emits, keyed by the offset of their '<'.
-		static Dictionary<int, HtmlTagToken> Tokenize (string html, bool scriptingEnabled)
+		static Dictionary<int, HtmlTagToken> Tokenize (string html, bool scriptingEnabled, out bool inFrameset)
 		{
 			var tokenizer = new HtmlTokenizer (new StringReader (html)) {
 				MaxElementDepth = 1 << 20,
@@ -167,6 +191,8 @@ namespace MimeKit.Fuzzing.Helpers {
 
 				previousEnd = end;
 			}
+
+			inFrameset = tokenizer.OpenElements.IsInFrameset;
 
 			return tags;
 		}

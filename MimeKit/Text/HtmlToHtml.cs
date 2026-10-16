@@ -511,6 +511,13 @@ namespace MimeKit.Text {
 
 						openElements.ClearClosedElements ();
 
+						// Note: Browsers ignore every tag in a frameset document other than the frameset, frame and noframes tags (and
+						// the html tags, which have no effect at that point). Since the ignored tags did not switch the tokenizer state
+						// (e.g. <style>, <textarea> or <svg>), drop them so that they cannot change how the output is interpreted when
+						// it is not a frameset document (e.g. if the callback removed the <frameset> tag or the output is a fragment).
+						if (openElements.IsInFrameset && tag.Id != HtmlTagId.FrameSet && tag.Id != HtmlTagId.Frame && tag.Id != HtmlTagId.NoFrames)
+							break;
+
 						// Note: The content of <noscript> elements has been tokenized as markup (as if scripting is disabled), so
 						// remove the <noscript> tags themselves so that renderers with scripting enabled interpret it the same way.
 						if (unwrapNoScript && tag.Id == HtmlTagId.NoScript)

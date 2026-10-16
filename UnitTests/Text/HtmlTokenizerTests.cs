@@ -3704,6 +3704,52 @@ namespace UnitTests.Text {
 			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
 		}
 
+		// Once a <frameset> has replaced the <body>, browsers ignore every start tag other than <frameset>, <frame>, <noframes>
+		// and <html>, so start tags such as <noscript> (with scripting enabled), <style> or <textarea> must not switch the
+		// tokenizer state. Otherwise, the <frame> tags (or any other markup) would be hidden from the HtmlToHtml callback.
+		[TestCase ("<frameset><noscript><frame>", "Tag(frameset) Tag(noscript) Tag(frame)")]
+		[TestCase ("<frameset><style><frame></style>", "Tag(frameset) Tag(style) Tag(frame) EndTag(style)")]
+		[TestCase ("<frameset><plaintext><frame>", "Tag(frameset) Tag(plaintext) Tag(frame)")]
+		[TestCase ("<frameset></frameset><textarea><frame>", "Tag(frameset) EndTag(frameset) Tag(textarea) Tag(frame)")]
+		[TestCase ("<frameset><noframes><frame></noframes><frame>", "Tag(frameset) Tag(noframes) Data(<frame>) EndTag(noframes) Tag(frame)")]
+		[TestCase ("<head><title>x</title></head><frameset><style><frame>", "Tag(head) Tag(title) Data(x) EndTag(title) EndTag(head) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<div><title>x</title><frameset><noscript><frame>", "Tag(div) Tag(title) Data(x) EndTag(title) Tag(frameset) Tag(noscript) Tag(frame)")]
+		[TestCase ("<input type=hidden><frameset><style><frame>", "Tag(input type=\"hidden\") Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase (" &#32;<frameset><style><frame>", "Data(  ) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("\0<frameset><style><frame>", "Data(\0) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<svg><![CDATA[ ]]></svg><frameset><style><frame>", "Tag(svg) Data( ) EndTag(svg) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<svg><foreignObject><frameset><style><frame>", "Tag(svg) Tag(foreignObject) Tag(frameset) Tag(style) Tag(frame)")]
+		// Unless the frameset-ok flag has been set to "not ok", in which case browsers ignore the <frameset> start tag.
+		[TestCase ("x<frameset><style><frame>", "Data(x) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("&#65;<frameset><style><frame>", "Data(A) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<body><frameset><style><frame>", "Tag(body) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<img><frameset><style><frame>", "Tag(img) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<input><frameset><style><frame>", "Tag(input) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<input type=\"hıdden\"><frameset><style><frame>", "Tag(input type=\"hıdden\") Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("</br><frameset><style><frame>", "EndTag(br) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<template></template><frameset><style><frame>", "Tag(template) EndTag(template) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<svg><![CDATA[x]]></svg><frameset><style><frame>", "Tag(svg) Data(x) EndTag(svg) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<svg><frameset><style><frame>", "Tag(svg) Tag(frameset) Tag(style) Tag(frame)")]
+		public void TestFrameset (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+
+			Assert.That (tokenizer.ScriptingEnabled, Is.True);
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
+		}
+
+		[TestCase ("&#32;<frameset><style><frame>", "Data(&#32;) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("&#65;<frameset><style><frame>", "Data(&#65;) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("&<frameset><style><frame>", "Data(&) Tag(frameset) Tag(style) Data(<frame>)")]
+		public void TestFramesetNoDecoding (string content, string expected)
+		{
+			var tokenizer = CreateTokenizer (content);
+
+			tokenizer.DecodeCharacterReferences = false;
+
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
+		}
+
 		static string DescribeTokens (string content)
 		{
 			return DescribeTokens (CreateTokenizer (content));
