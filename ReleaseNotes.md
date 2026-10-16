@@ -148,6 +148,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   This whitespace could not be reliably preserved when encoding the address (folding collapses it and it is
   dropped when adjacent to an rfc2047 encoded-word), so a name such as `" John Smith "` is now
   `"John Smith"`, and a whitespace-only name becomes an empty string.
+* `MimeIterator.PathSpecifier` now returns `"1"` (instead of `"0"`) for a non-multipart top-level message body,
+  consistent with IMAP part specifiers and with the `"N.1"` already used for the non-multipart body of a
+  `message/rfc822` part. `MimeIterator.MoveTo ()` now expects `"1"` for such a body. A multipart that is the body
+  of a message (which has no IMAP part number) is still `"0"` (or `"N.0"`).
 * The `MimeMessage.MessageId`, `ResentMessageId` and `InReplyTo` setters, the `MimeEntity.ContentId`
   setter and the `MessageIdList` (`MimeMessage.References`) `Add`, `AddRange`, `Insert` and indexer
   now share the same msg-id validation. The value may be specified with or without angle brackets, but an
@@ -391,9 +395,23 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   a native library, such as macOS on Apple Silicon (arm64). Connection pooling is disabled for
   `Microsoft.Data.Sqlite` connections, as with the other SQLite bindings, so that the database file is not
   left open (and locked on Windows) after the database is disposed.
+* Added `MimeIterator.SkipChildren ()`, which makes the next `MoveNext ()` skip the descendants of the current
+  entity (for example, the content of an attached message).
+* Added `MimeIterator.Index` (the index of the current entity within its parent multipart),
+  `MimeIterator.CurrentMessage` (the top-level or attached message that contains the current entity) and
+  `MimeIterator.GetAncestor (int generation)`.
+* `MimeIterator` can now be used in a `foreach` statement. Since the iterator itself is enumerated, its
+  members (such as `SkipChildren ()` and `PathSpecifier`) can be used within the loop.
+* Added `MimeMessage.TryGetEntity (string pathSpecifier, out MimeEntity entity)` (and to `IMimeMessage`), which
+  gets the entity at the specified `MimeIterator` path specifier (e.g. `"3.2"`).
 
 ### Performance
 
+* `MimeIterator.MoveTo ()` now navigates directly to the specified entity in time proportional to its depth,
+  rather than walking the tree from the beginning (or from the current position). `MimeIterator` also no longer
+  allocates for each level it descends into.
+* `MimeMessage.BodyParts` and `Attachments` now walk the MIME tree with `MimeIterator` instead of nested
+  iterators, so each step no longer costs time and stack space proportional to the nesting depth.
 * Optimized `MimeMessage` address header tracking to use a lazily allocated array instead of a
   `Dictionary`, and to avoid subscribing to change events for unused address headers.
 * Optimized `HeaderList` creation by supplying an initial capacity wherever it is known, caching the

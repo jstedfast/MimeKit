@@ -1152,21 +1152,20 @@ namespace MimeKit {
 			return null;
 		}
 
-		static IEnumerable<MimeEntity> EnumerateMimeParts (MimeEntity? entity)
+		IEnumerable<MimeEntity> EnumerateMimeParts ()
 		{
-			if (entity is null)
-				yield break;
+			using var iter = new MimeIterator (this);
 
-			if (entity is Multipart multipart) {
-				foreach (var subpart in multipart) {
-					foreach (var part in EnumerateMimeParts (subpart))
-						yield return part;
-				}
+			while (iter.MoveNext ()) {
+				var entity = iter.Current;
 
-				yield break;
+				// Note: BodyParts does not descend into the content of message/rfc822 parts.
+				if (entity is MessagePart)
+					iter.SkipChildren ();
+
+				if (entity is not Multipart)
+					yield return entity;
 			}
-
-			yield return entity;
 		}
 
 		/// <summary>
@@ -1181,7 +1180,7 @@ namespace MimeKit {
 		/// </example>
 		/// <value>The body parts.</value>
 		public IEnumerable<MimeEntity> BodyParts {
-			get { return EnumerateMimeParts (Body); }
+			get { return EnumerateMimeParts (); }
 		}
 
 		/// <summary>
@@ -1196,7 +1195,38 @@ namespace MimeKit {
 		/// </example>
 		/// <value>The attachments.</value>
 		public IEnumerable<MimeEntity> Attachments {
-			get { return EnumerateMimeParts (Body).Where (x => x.IsAttachment); }
+			get { return EnumerateMimeParts ().Where (x => x.IsAttachment); }
+		}
+
+		/// <summary>
+		/// Try to get the entity at the specified path.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the entity at the specified path specifier, which uses the same format as
+		/// <see cref="MimeIterator.PathSpecifier"/>.</para>
+		/// <para>The cost is proportional to the depth of the entity rather than the size of the message.</para>
+		/// </remarks>
+		/// <returns><see langword="true" /> if the entity was found; otherwise, <see langword="false" />.</returns>
+		/// <param name="pathSpecifier">The path specifier (e.g. <c>"3.2"</c>).</param>
+		/// <param name="entity">The entity at the specified path, if found; otherwise, <see langword="null"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="pathSpecifier"/> is <see langword="null"/>.
+		/// </exception>
+		public bool TryGetEntity (string pathSpecifier, out MimeEntity? entity)
+		{
+			if (pathSpecifier is null)
+				throw new ArgumentNullException (nameof (pathSpecifier));
+
+			using var iter = new MimeIterator (this);
+
+			if (iter.TryMoveTo (pathSpecifier)) {
+				entity = iter.Current;
+				return true;
+			}
+
+			entity = null;
+
+			return false;
 		}
 
 		static void AddMailboxes (List<MailboxAddress> recipients, HashSet<string>? unique, IEnumerable<MailboxAddress> mailboxes)

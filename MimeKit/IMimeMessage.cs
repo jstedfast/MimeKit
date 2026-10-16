@@ -471,6 +471,22 @@ namespace MimeKit {
 		}
 
 		/// <summary>
+		/// Try to get the entity at the specified path.
+		/// </summary>
+		/// <remarks>
+		/// <para>Gets the entity at the specified path specifier, which uses the same format as
+		/// <see cref="MimeIterator.PathSpecifier"/>.</para>
+		/// <para>The cost is proportional to the depth of the entity rather than the size of the message.</para>
+		/// </remarks>
+		/// <returns><see langword="true" /> if the entity was found; otherwise, <see langword="false" />.</returns>
+		/// <param name="pathSpecifier">The path specifier (e.g. <c>"3.2"</c>).</param>
+		/// <param name="entity">The entity at the specified path, if found; otherwise, <see langword="null"/>.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="pathSpecifier"/> is <see langword="null"/>.
+		/// </exception>
+		bool TryGetEntity (string pathSpecifier, out MimeEntity? entity);
+
+		/// <summary>
 		/// Dispatches to the specific visit method for this MIME message.
 		/// </summary>
 		/// <remarks>
