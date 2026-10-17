@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Reflection;
+
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 
@@ -85,6 +87,9 @@ namespace MimeKit.Fuzzing.Helpers {
 				IsKeepingSourceReferences = true,
 				IsScripting = scriptingEnabled,
 				OnCreated = (element, position) => {
+					if (element.LocalName == "style" && element.NamespaceUri == NamespaceNames.SvgUri)
+						ClearSpecialFlag (element);
+
 					if (position.Position <= 0)
 						return;
 
@@ -113,6 +118,11 @@ namespace MimeKit.Fuzzing.Helpers {
 			int template = html.IndexOf ("<template", StringComparison.OrdinalIgnoreCase);
 
 			if ((replacement >= 0 && replacement < frameset) || (template >= 0 && template < frameset))
+				return;
+
+			// Note: AngleSharp ignores a </form> end tag when there is a <template> element on the stack of open elements,
+			// whereas browsers pop the elements up to and including the <form> element (e.g. any open SVG elements).
+			if (template >= 0 && html.IndexOf ("</form", template, StringComparison.OrdinalIgnoreCase) >= 0)
 				return;
 
 			var tags = Tokenize (html, scriptingEnabled, out bool inFrameset);
@@ -155,6 +165,20 @@ namespace MimeKit.Fuzzing.Helpers {
 					Fuzz.Check (found, $"{where} with attribute {Fuzz.Escape (attribute)} but HtmlTokenizer did not see that attribute");
 				}
 			}
+		}
+
+		// AngleSharp puts the SVG <style> element in the "special" category (which, per the WHATWG spec, only includes the
+		// SVG foreignObject, desc and title elements). So for "<span><svg><style></span>", AngleSharp ignores the </span>
+		// end tag instead of closing the <svg> element, and processes the following markup as foreign content. Since the
+		// element is created before it gets inserted, clearing the flag makes AngleSharp follow the spec.
+		static readonly FieldInfo NodeFlagsField = typeof (Node).GetField ("_flags", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		static readonly long SpecialNodeFlag = Convert.ToInt64 (Enum.Parse (NodeFlagsField.FieldType, "Special"));
+
+		static void ClearSpecialFlag (IElement element)
+		{
+			long flags = Convert.ToInt64 (NodeFlagsField.GetValue (element));
+
+			NodeFlagsField.SetValue (element, Enum.ToObject (NodeFlagsField.FieldType, flags & ~SpecialNodeFlag));
 		}
 
 		// Returns the start tags that HtmlTokenizer emits, keyed by the offset of their '<'.

@@ -854,6 +854,12 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   could switch the tokenizer into a state in which it treated subsequent markup as text, or vice versa.
 * `HtmlToHtml` now removes the tags that browsers ignore in a frameset document (any tag other than
   `<frameset>`, `<frame>` and `<noframes>`), so that converting the output again produces the same output.
+* `HtmlTokenizer` now tracks the HTML form element pointer. Outside of a `<template>`, a `</form>` end tag
+  removes the `<form>` element from the stack of open elements without closing the elements above it, and a
+  nested `<form>` start tag is ignored. Previously, `</form>` closed any SVG or MathML elements opened
+  within the `<form>`, so in input such as `<form><svg></form><style><img onerror=...></style>`, the tokenizer
+  treated the `<style>` content as raw text while browsers create an `<img>` element, hiding the tag from
+  `HtmlToHtml.HtmlTagCallback`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

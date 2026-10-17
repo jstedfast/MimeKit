@@ -3860,6 +3860,17 @@ namespace UnitTests.Text {
 		[TestCase ("<foo><svg></foo>", true)]
 		[TestCase ("<foo><div><svg></foo>", false)]
 		[TestCase ("<b><svg></b>", true)]
+		// Outside of a <template>, </form> removes the <form> element that the form element pointer points to without
+		// popping the elements above it.
+		[TestCase ("<form><svg></form>", false)]
+		[TestCase ("<form><svg></form></svg>", true)]
+		[TestCase ("<form><svg></form><p>", true)]
+		[TestCase ("<form><div><svg></form>", false)]
+		[TestCase ("<form><p><svg></form>", false)]
+		[TestCase ("<form><form><svg></form>", false)]
+		[TestCase ("<div><form></div><form><svg></form>", false)]
+		[TestCase ("<table><form><svg></form>", false)]
+		[TestCase ("<template><form><svg></form>", true)]
 		[TestCase ("<table><td><svg></table>", true)]
 		[TestCase ("<table><td><svg></td>", true)]
 		[TestCase ("<table><td><svg></tr>", true)]

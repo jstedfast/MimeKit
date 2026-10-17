@@ -775,6 +775,8 @@ namespace UnitTests.Text {
 		[TestCase ("<div><svg></div><style><!--</style><img src=x onerror=alert(1)>-->")]
 		[TestCase ("<foo><svg></foo><style><!--</style><img src=x onerror=alert(1)>-->")]
 		[TestCase ("<svg><p><style><!--</style><img src=x onerror=alert(1)>-->")]
+		[TestCase ("<form><svg></form><style><img src=x onerror=alert(1)></style>")]
+		[TestCase ("<div><form></div><form><svg></form><style><img src=x onerror=alert(1)></style>")]
 		[TestCase ("<svg><![CDATA[]]><img src=x onerror=alert(1)>")]
 		public void TestTagCallbackSeesAllTags (string input)
 		{

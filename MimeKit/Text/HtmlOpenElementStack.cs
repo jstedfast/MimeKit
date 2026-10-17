@@ -52,7 +52,9 @@ namespace MimeKit.Text {
 	/// any tag or character data that is not allowed there, unlike a <c>&lt;noscript&gt;</c> within the body), as
 	/// well as the frameset-ok flag and the frameset insertion modes (since a <c>&lt;frameset&gt;</c> makes browsers
 	/// ignore start tags such as <c>&lt;style&gt;</c> or <c>&lt;svg&gt;</c> that would otherwise switch the tokenizer
-	/// state).</para>
+	/// state). It also models the form element pointer, since (outside of a <c>&lt;template&gt;</c>) a
+	/// <c>&lt;/form&gt;</c> end tag removes the <c>&lt;form&gt;</c> element from the stack without closing the elements
+	/// above it (such as an open <c>&lt;svg&gt;</c> element).</para>
 	/// <para>To guard against resource exhaustion, consecutive identical entries are folded into a single
 	/// entry with a repeat count, and every query is O(1): each entry caches the index of the nearest entry
 	/// at or below it that satisfies each scope/category predicate, and the index of the next lower entry with
@@ -142,6 +144,11 @@ namespace MimeKit.Text {
 		// The frameset-ok flag and whether a <frameset> element has replaced the <body>.
 		bool framesetOk = true;
 		bool inFrameset;
+
+		// The form element pointer: whether it is set, and the index of the <form> element that it points to (or -1 if that
+		// element is no longer on the stack, e.g. because it was popped by a </div> or because it was inserted in a table).
+		bool formPointerSet;
+		int formPointerIndex = -1;
 		readonly int[] htmlIds = new int[(int) HtmlTagId.Xmp + 1];
 
 		// Note: Entries are stored in fixed-size chunks rather than in a single array that gets resized as the stack
@@ -537,6 +544,9 @@ namespace MimeKit.Text {
 		{
 			ref var entry = ref EntryAt (count - 1);
 
+			if (count - 1 == formPointerIndex)
+				formPointerIndex = -1;
+
 			SetIndexOf (entry.Namespace, entry.Id, entry.Name, entry.PrevSameName);
 			entry = default;
 			count--;
@@ -567,6 +577,62 @@ namespace MimeKit.Text {
 				EntryAt (index).Count--;
 			else
 				RemoveTopEntry ();
+		}
+
+		// Remove (one instance of) the element at the specified index without popping the elements above it.
+		//
+		// Note: The entries above it cache the indexes of the entries below them, so they get removed and pushed again.
+		void RemoveEntry (int index)
+		{
+			poppedThrough = true;
+
+			if (EntryAt (index).Count > 1) {
+				EntryAt (index).Count--;
+				return;
+			}
+
+			var above = new Entry[count - index - 1];
+
+			for (int i = 0; i < above.Length; i++)
+				above[i] = EntryAt (index + 1 + i);
+
+			while (count > index)
+				RemoveTopEntry ();
+
+			for (int i = 0; i < above.Length; i++) {
+				ref var saved = ref above[i];
+
+				// Note: The entry might get folded into the entry below it (e.g. <b><form><b></form>).
+				Push (saved.Name, saved.Id, saved.Namespace, saved.Flags);
+
+				ref var top = ref EntryAt (count - 1);
+
+				top.Count = (int) Math.Min ((long) top.Count + saved.Count - 1, int.MaxValue);
+			}
+		}
+
+		// Pop the elements that have implied end tags (dd, dt, li, optgroup, option, p, rb, rp, rt and rtc).
+		void GenerateImpliedEndTags ()
+		{
+			int index = count - 1;
+
+			while (index >= 0 && EntryAt (index).Namespace == HtmlNamespace.Html && HasImpliedEndTag (EntryAt (index)))
+				index--;
+
+			PopAbove (index);
+		}
+
+		static bool HasImpliedEndTag (in Entry entry)
+		{
+			switch (entry.Id) {
+			case HtmlTagId.DD: case HtmlTagId.DT: case HtmlTagId.LI: case HtmlTagId.OptGroup:
+			case HtmlTagId.Option: case HtmlTagId.P: case HtmlTagId.RP: case HtmlTagId.RT:
+				return true;
+			case HtmlTagId.Unknown:
+				return entry.Name.Equals ("rb", StringComparison.OrdinalIgnoreCase) || entry.Name.Equals ("rtc", StringComparison.OrdinalIgnoreCase);
+			default:
+				return false;
+			}
 		}
 
 		#endregion
@@ -1013,9 +1079,12 @@ namespace MimeKit.Text {
 			case HtmlTagId.Figure: case HtmlTagId.Footer: case HtmlTagId.Header: case HtmlTagId.Main:
 			case HtmlTagId.Menu: case HtmlTagId.Nav: case HtmlTagId.OL: case HtmlTagId.P:
 			case HtmlTagId.Section: case HtmlTagId.Summary: case HtmlTagId.UL: case HtmlTagId.Pre:
-			case HtmlTagId.Listing: case HtmlTagId.Form: case HtmlTagId.PlainText: case HtmlTagId.Xmp:
+			case HtmlTagId.Listing: case HtmlTagId.PlainText: case HtmlTagId.Xmp:
 				ClosePInButtonScope ();
 				PushHtml (tag);
+				return;
+			case HtmlTagId.Form:
+				ProcessFormStartTag (tag);
 				return;
 			case HtmlTagId.H1: case HtmlTagId.H2: case HtmlTagId.H3:
 			case HtmlTagId.H4: case HtmlTagId.H5: case HtmlTagId.H6:
@@ -1112,6 +1181,35 @@ namespace MimeKit.Text {
 			// Note: The self-closing flag is ignored for HTML elements that are not void elements.
 			if (!IsVoidElement (id, tag.Name))
 				PushHtml (tag);
+		}
+
+		void ProcessFormStartTag (HtmlTagToken tag)
+		{
+			bool templateOpen = IsTemplateOpen;
+
+			// Note: Unless there is a <template> element on the stack, a <form> start tag is ignored if the form element
+			// pointer is set (even if the <form> element that it points to has already been closed).
+			if (formPointerSet && !templateOpen)
+				return;
+
+			// Note: In the "in table", "in table body" and "in row" insertion modes, the <form> element is popped as soon as
+			// it gets inserted (or the start tag is ignored if there is a <template> element on the stack).
+			if (count > 0 && EntryAt (count - 1).Namespace == HtmlNamespace.Html) {
+				switch (EntryAt (count - 1).Id) {
+				case HtmlTagId.Table: case HtmlTagId.TBody: case HtmlTagId.Tfoot: case HtmlTagId.THead: case HtmlTagId.TR:
+					if (!templateOpen)
+						formPointerSet = true;
+					return;
+				}
+			}
+
+			ClosePInButtonScope ();
+			PushHtml (tag);
+
+			if (!templateOpen) {
+				formPointerSet = true;
+				formPointerIndex = IsTopHtml (HtmlTagId.Form) ? count - 1 : -1;
+			}
 		}
 
 		void ProcessTableStructureStartTag (HtmlTagToken tag)
@@ -1262,6 +1360,36 @@ namespace MimeKit.Text {
 			ProcessHtmlEndTag (tag);
 		}
 
+		void ProcessFormEndTag ()
+		{
+			int index;
+
+			if (IsTemplateOpen) {
+				index = IndexOf (HtmlTagId.Form);
+
+				if (InScope (index, TopScope))
+					PopThrough (index);
+				return;
+			}
+
+			// Note: Unless there is a <template> element on the stack, the </form> end tag unsets the form element pointer and
+			// removes the <form> element that it pointed to (if it is in scope) from the stack *without* popping the elements
+			// above it. E.g. in "<form><svg><style></form>", the SVG elements remain open.
+			index = formPointerSet ? formPointerIndex : -1;
+			formPointerSet = false;
+			formPointerIndex = -1;
+
+			if (!InScope (index, TopScope))
+				return;
+
+			GenerateImpliedEndTags ();
+
+			if (index == count - 1)
+				PopThrough (index);
+			else
+				RemoveEntry (index);
+		}
+
 		void ProcessHtmlEndTag (HtmlTagToken tag)
 		{
 			int index;
@@ -1298,7 +1426,7 @@ namespace MimeKit.Text {
 			case HtmlTagId.FigCaption: case HtmlTagId.Figure: case HtmlTagId.Footer: case HtmlTagId.Header:
 			case HtmlTagId.Listing: case HtmlTagId.Main: case HtmlTagId.Menu: case HtmlTagId.Nav:
 			case HtmlTagId.OL: case HtmlTagId.Pre: case HtmlTagId.Section: case HtmlTagId.Summary:
-			case HtmlTagId.UL: case HtmlTagId.Form: case HtmlTagId.Applet: case HtmlTagId.Marquee:
+			case HtmlTagId.UL: case HtmlTagId.Applet: case HtmlTagId.Marquee:
 			case HtmlTagId.Object: case HtmlTagId.DD: case HtmlTagId.DT:
 				index = IndexOf (tag.Id);
 
@@ -1312,6 +1440,9 @@ namespace MimeKit.Text {
 
 				if (InScope (index, TopTableScope))
 					PopThrough (index);
+				return;
+			case HtmlTagId.Form:
+				ProcessFormEndTag ();
 				return;
 			case HtmlTagId.A: case HtmlTagId.B: case HtmlTagId.Big: case HtmlTagId.Code:
 			case HtmlTagId.EM: case HtmlTagId.Font: case HtmlTagId.I: case HtmlTagId.NoBR:
