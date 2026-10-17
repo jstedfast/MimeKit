@@ -330,6 +330,14 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   no longer use recursion to write nested multipart and message/rfc822 parts, so writing a deeply nested message can
   no longer overflow the call stack. The output is unchanged.
 
+* `MimeMessage.Dispose ()` and `MimeEntity.Dispose ()` no longer dispose nested entities recursively, so disposing a
+  deeply nested message can no longer overflow the call stack. An iterative, child-before-parent traversal uses
+  storage proportional to nesting depth. `Dispose (bool)` overrides now release only resources owned directly by
+  that object; MimeKit disposes structural children before invoking the override. All cleanup hooks are attempted
+  even if one fails; a single exception is rethrown, or multiple exceptions are reported in an `AggregateException`.
+  Retrying disposal of the root retries incomplete cleanup without repeating successful hooks. See the
+  [porting guide](PortingGuide.md#disposing-messages-and-entities) for the subclassing contract.
+
 * Added `MimeReader.OnMboxMarkerBeginAsync ()` and `OnMboxMarkerEndAsync ()` so that every `MimeReader`
   callback now has an asynchronous counterpart. The default implementations call the synchronous methods.
 

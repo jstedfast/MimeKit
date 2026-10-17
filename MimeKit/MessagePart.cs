@@ -216,23 +216,5 @@ namespace MimeKit {
 
 			Message?.Prepare (constraint, maxLineLength);
 		}
-
-		/// <summary>
-		/// Releases the unmanaged resources used by the <see cref="MessagePart"/> and
-		/// optionally releases the managed resources.
-		/// </summary>
-		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MessagePart"/> and
-		/// optionally releases the managed resources.
-		/// </remarks>
-		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
-		/// <see langword="false" /> to release only the unmanaged resources.</param>
-		protected override void Dispose (bool disposing)
-		{
-			if (disposing && Message != null)
-				Message.Dispose ();
-
-			base.Dispose (disposing);
-		}
 	}
 }

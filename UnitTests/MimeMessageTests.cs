@@ -27,6 +27,7 @@
 using System.Text;
 using System.Net.Mail;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 using MimeKit;
 using MimeKit.Text;
@@ -2075,6 +2076,400 @@ This is the text attachment";
 				Assert.That (message.TextBody, Is.Null, "Message text should be blank, as no body defined");
 				Assert.That (message.Attachments.OfType<TextPart> ().Count (), Is.EqualTo (1), "Message should contain one text attachment");
 			}
+		}
+
+		static List<MimeEntity> GetAllEntities (MimeMessage message)
+		{
+			var entities = new List<MimeEntity> ();
+
+			using (var iter = new MimeIterator (message)) {
+				while (iter.MoveNext ())
+					entities.Add (iter.Current);
+			}
+
+			return entities;
+		}
+
+		// Note: MimeMessage.Dispose() and MimeEntity.Dispose() must not use recursion to dispose nested entities, or else
+		// an extremely deep nesting of multipart or message/rfc822 parts could overflow the stack (which cannot be caught
+		// and terminates the process).
+		[TestCase (MimeWriterTests.Nesting.Multipart, 10000)]
+		[TestCase (MimeWriterTests.Nesting.MessagePart, 100000)]
+		[TestCase (MimeWriterTests.Nesting.Mixed, 20000)]
+		public void TestDisposeExtremelyNestedMessage (MimeWriterTests.Nesting nesting, int depth)
+		{
+			var message = MimeWriterTests.ParseExtremelyNestedMessage (MimeWriterTests.GenerateExtremelyNestedMessage (nesting, depth));
+			var entities = GetAllEntities (message);
+
+			Assert.That (entities, Has.Count.EqualTo (depth + 1), "Count");
+
+			message.Dispose ();
+
+			Assert.That (entities.TrueForAll (entity => entity.IsDisposed), Is.True, "IsDisposed");
+		}
+
+		[TestCase (MimeWriterTests.Nesting.Multipart, 10000)]
+		[TestCase (MimeWriterTests.Nesting.MessagePart, 100000)]
+		[TestCase (MimeWriterTests.Nesting.Mixed, 20000)]
+		public void TestDisposeExtremelyNestedEntity (MimeWriterTests.Nesting nesting, int depth)
+		{
+			var message = MimeWriterTests.ParseExtremelyNestedMessage (MimeWriterTests.GenerateExtremelyNestedMessage (nesting, depth));
+			var entities = GetAllEntities (message);
+
+			message.Body.Dispose ();
+
+			Assert.That (entities.TrueForAll (entity => entity.IsDisposed), Is.True, "IsDisposed");
+		}
+
+		class DisposeTrackingStream : MemoryStream
+		{
+			public int DisposeCount;
+			public int FailCount;
+			public Action Disposing;
+
+			protected override void Dispose (bool disposing)
+			{
+				DisposeCount++;
+				Disposing?.Invoke ();
+
+				if (FailCount > 0) {
+					FailCount--;
+					throw new IOException ("Dispose failed.");
+				}
+
+				base.Dispose (disposing);
+			}
+		}
+
+		class ThrowingDisposeMultipart : Multipart
+		{
+			protected override void Dispose (bool disposing)
+			{
+				base.Dispose (disposing);
+
+				throw new InvalidOperationException ("Dispose failed.");
+			}
+		}
+
+		class DisposeTrackingMultipart : Multipart
+		{
+			public Action Disposing;
+			public int DisposeCount;
+
+			protected override void Dispose (bool disposing)
+			{
+				DisposeCount++;
+				Disposing?.Invoke ();
+				base.Dispose (disposing);
+			}
+		}
+
+		class DisposeTrackingMessagePart : MessagePart
+		{
+			public Action Disposing;
+			public int DisposeCount;
+
+			protected override void Dispose (bool disposing)
+			{
+				DisposeCount++;
+				Disposing?.Invoke ();
+				base.Dispose (disposing);
+			}
+		}
+
+		class DisposeTrackingMessage : MimeMessage
+		{
+			public Action Disposing;
+			public int DisposeCount;
+			public int FailCount;
+
+			protected override void Dispose (bool disposing)
+			{
+				DisposeCount++;
+				Disposing?.Invoke ();
+				base.Dispose (disposing);
+
+				if (FailCount > 0) {
+					FailCount--;
+					throw new InvalidOperationException ("Message disposal failed.");
+				}
+			}
+		}
+
+		[Test]
+		public void TestDisposeCallsOverridesInPostorder ()
+		{
+			var events = new List<string> ();
+			var stream = new DisposeTrackingStream { Disposing = () => events.Add ("content") };
+			var leaf = new MimePart { Content = new MimeContent (stream) };
+			var inner = new DisposeTrackingMessage {
+				Body = leaf,
+				Disposing = () => {
+					Assert.That (leaf.IsDisposed, Is.True, "Leaf.IsDisposed in message hook");
+					events.Add ("inner message");
+				}
+			};
+			var part = new DisposeTrackingMessagePart {
+				Message = inner,
+				Disposing = () => events.Add ("message part")
+			};
+			var sibling = new MimePart {
+				Content = new MimeContent (new DisposeTrackingStream { Disposing = () => events.Add ("sibling") })
+			};
+			var multipart = new DisposeTrackingMultipart {
+				Disposing = () => {
+					Assert.That (part.IsDisposed, Is.True, "MessagePart.IsDisposed in multipart hook");
+					Assert.That (sibling.IsDisposed, Is.True, "Sibling.IsDisposed in multipart hook");
+					events.Add ("multipart");
+				}
+			};
+			multipart.Add (part);
+			multipart.Add (sibling);
+			var root = new DisposeTrackingMessage {
+				Body = multipart,
+				Disposing = () => events.Add ("root message")
+			};
+
+			root.Dispose ();
+			root.Dispose ();
+			multipart.Dispose ();
+			inner.Dispose ();
+			leaf.Dispose ();
+
+			Assert.That (events, Is.EqualTo (new[] {
+				"content", "inner message", "message part", "sibling", "multipart", "root message"
+			}));
+			Assert.That (root.DisposeCount, Is.EqualTo (1), "Root.DisposeCount");
+			Assert.That (inner.DisposeCount, Is.EqualTo (1), "Inner.DisposeCount");
+			Assert.That (part.DisposeCount, Is.EqualTo (1), "MessagePart.DisposeCount");
+			Assert.That (multipart.DisposeCount, Is.EqualTo (1), "Multipart.DisposeCount");
+		}
+
+		[Test]
+		public void TestDisposeRetriesIncompleteDescendantsFromRoot ()
+		{
+			var failing = new DisposeTrackingStream { FailCount = 2 };
+			var ordinary = new DisposeTrackingStream ();
+			var failingPart = new MimePart { Content = new MimeContent (failing) };
+			var ordinaryPart = new MimePart { Content = new MimeContent (ordinary) };
+			var children = new DisposeTrackingMultipart { failingPart, ordinaryPart };
+			var inner = new DisposeTrackingMessage { Body = children, FailCount = 1 };
+			var part = new DisposeTrackingMessagePart { Message = inner };
+			var multipart = new DisposeTrackingMultipart { part };
+			var root = new DisposeTrackingMessage { Body = multipart };
+
+			var ex = Assert.Throws<AggregateException> (() => root.Dispose ());
+			Assert.That (ex.InnerExceptions, Has.Count.EqualTo (2));
+			Assert.That (ex.InnerExceptions[0], Is.InstanceOf<IOException> ());
+			Assert.That (ex.InnerExceptions[1], Is.InstanceOf<InvalidOperationException> ());
+			Assert.That (multipart.IsDisposed, Is.True, "Parent local cleanup completed");
+			Assert.That (failingPart.IsDisposed, Is.False, "Failed local cleanup incomplete");
+			Assert.That (root.DisposeCount, Is.EqualTo (1), "Root cleanup attempted despite failures");
+
+			Assert.Throws<IOException> (() => root.Dispose ());
+			Assert.That (inner.DisposeCount, Is.EqualTo (2), "Failed message hook retried");
+			Assert.That (failing.DisposeCount, Is.EqualTo (2), "Failed content retried");
+			Assert.That (root.DisposeCount, Is.EqualTo (1), "Successful root hook not repeated");
+
+			root.Dispose ();
+			root.Dispose ();
+
+			Assert.That (failing.DisposeCount, Is.EqualTo (3), "Failed content eventually disposed");
+			Assert.That (ordinary.DisposeCount, Is.EqualTo (1), "Successful sibling not repeated");
+			Assert.That (inner.DisposeCount, Is.EqualTo (2), "Successful retry not repeated");
+			Assert.That (root.DisposeCount, Is.EqualTo (1), "Root.DisposeCount");
+			Assert.That (multipart.DisposeCount, Is.EqualTo (1), "Multipart.DisposeCount");
+			Assert.That (part.DisposeCount, Is.EqualTo (1), "MessagePart.DisposeCount");
+			Assert.That (children.DisposeCount, Is.EqualTo (1), "Children.DisposeCount");
+			Assert.That (failingPart.IsDisposed, Is.True);
+		}
+
+		[Test]
+		public void TestDisposeReentrantCleanup ()
+		{
+			var stream = new DisposeTrackingStream ();
+			var part = new MimePart { Content = new MimeContent (stream) };
+			var independent = new DisposeTrackingMessage ();
+			var root = new DisposeTrackingMessage { Body = part };
+
+			stream.Disposing = () => {
+				root.Dispose ();
+				part.Dispose ();
+			};
+			root.Disposing = () => {
+				root.Dispose ();
+				independent.Dispose ();
+				Assert.That (independent.DisposeCount, Is.EqualTo (1), "Independent disposal is synchronous");
+			};
+
+			root.Dispose ();
+			root.Dispose ();
+
+			Assert.That (root.DisposeCount, Is.EqualTo (1));
+			Assert.That (stream.DisposeCount, Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestDisposeRejectsOwnershipCycle ()
+		{
+			var part = new DisposeTrackingMessagePart ();
+			var root = new DisposeTrackingMessage { Body = part };
+			part.Message = root;
+
+			var ex = Assert.Throws<InvalidOperationException> (() => root.Dispose ());
+			Assert.That (ex.Message, Does.Contain ("cycle"));
+			Assert.That (part.DisposeCount, Is.EqualTo (1), "Part cleanup still attempted");
+			Assert.That (root.DisposeCount, Is.EqualTo (1), "Message cleanup still attempted");
+
+			// The active markers must be cleared even for an incomplete, cyclic graph.
+			Assert.Throws<InvalidOperationException> (() => root.Dispose ());
+			Assert.That (part.DisposeCount, Is.EqualTo (1), "Successful hook not repeated");
+			Assert.That (root.DisposeCount, Is.EqualTo (1), "Successful hook not repeated");
+		}
+
+		[Test]
+		public void TestDisposeWideMultipartUsesDepthBoundedStorage ()
+		{
+			new Multipart ("mixed") { new MimePart () }.Dispose ();
+			var multipart = new Multipart ("mixed");
+			var leaves = new MimePart[10000];
+
+			for (int i = 0; i < leaves.Length; i++) {
+				multipart.Add (new MimePart ());
+				leaves[i] = new MimePart ();
+			}
+
+			// Exclude allocations made by the local cleanup hooks, such as event-handler delegates.
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+			for (int i = 0; i < leaves.Length; i++)
+				leaves[i].Dispose ();
+			long localCleanup = GC.GetAllocatedBytesForCurrentThread () - before;
+
+			before = GC.GetAllocatedBytesForCurrentThread ();
+			multipart.Dispose ();
+			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
+
+			Assert.That (allocated - localCleanup, Is.LessThan (4096), "Traversal storage must not grow with sibling count");
+		}
+
+		[Test]
+		public void TestDisposeDisposesRemainingChildrenAfterChildThrows ()
+		{
+			var failing = new DisposeTrackingStream { FailCount = 1 };
+			var ordinary = new DisposeTrackingStream ();
+			var failingPart = new MimePart { Content = new MimeContent (failing) };
+			var ordinaryPart = new MimePart { Content = new MimeContent (ordinary) };
+			var multipart = new Multipart ("mixed") { failingPart, ordinaryPart };
+
+			Assert.Throws<IOException> (() => multipart.Dispose ());
+			Assert.That (multipart.IsDisposed, Is.True, "Multipart.IsDisposed");
+			Assert.That (failing.DisposeCount, Is.EqualTo (1), "Failing.DisposeCount");
+			Assert.That (failingPart.IsDisposed, Is.False, "FailingPart.IsDisposed");
+			Assert.That (ordinary.DisposeCount, Is.EqualTo (1), "Ordinary.DisposeCount");
+			Assert.That (ordinaryPart.IsDisposed, Is.True, "OrdinaryPart.IsDisposed");
+
+			// Retrying the root reaches the failed child, even though the parent's own cleanup succeeded.
+			multipart.Dispose ();
+
+			Assert.That (failing.DisposeCount, Is.EqualTo (2), "Failing.DisposeCount (retry)");
+			Assert.That (failingPart.IsDisposed, Is.True, "FailingPart.IsDisposed (retry)");
+
+			Assert.That (ordinary.DisposeCount, Is.EqualTo (1), "Successful sibling not repeated");
+
+			// Make sure that the failed Dispose() did not affect disposal of another tree.
+			var child = new TextPart ("plain");
+			var other = new Multipart ("mixed") { child };
+
+			other.Dispose ();
+
+			Assert.That (other.IsDisposed, Is.True, "Other.IsDisposed");
+			Assert.That (child.IsDisposed, Is.True, "Child.IsDisposed");
+		}
+
+		[Test]
+		public void TestDisposeDisposesChildrenAfterParentThrows ()
+		{
+			var stream = new DisposeTrackingStream ();
+			var part = new MimePart { Content = new MimeContent (stream) };
+			var multipart = new ThrowingDisposeMultipart { part };
+
+			Assert.Throws<InvalidOperationException> (() => multipart.Dispose ());
+			Assert.That (part.IsDisposed, Is.True, "Part.IsDisposed");
+			Assert.That (stream.DisposeCount, Is.EqualTo (1), "DisposeCount");
+		}
+
+		[Test]
+		public void TestDisposeThrowsAggregateExceptionWhenMultipleChildrenThrow ()
+		{
+			var first = new DisposeTrackingStream { FailCount = 1 };
+			var second = new DisposeTrackingStream { FailCount = 1 };
+			var message = new MimeMessage {
+				Body = new Multipart ("mixed") {
+					new MimePart { Content = new MimeContent (first) },
+					new MimePart { Content = new MimeContent (second) }
+				}
+			};
+
+			var ex = Assert.Throws<AggregateException> (() => message.Dispose ());
+			Assert.That (ex.InnerExceptions, Has.Count.EqualTo (2), "InnerExceptions");
+			Assert.That (ex.InnerExceptions, Is.All.InstanceOf<IOException> (), "InnerExceptions");
+			Assert.That (first.DisposeCount, Is.EqualTo (1), "First.DisposeCount");
+			Assert.That (second.DisposeCount, Is.EqualTo (1), "Second.DisposeCount");
+		}
+
+		class FinalizableMimePart : MimePart
+		{
+			public static int FinalizedCount;
+			public static int DisposedCount;
+
+			~FinalizableMimePart ()
+			{
+				Interlocked.Increment (ref FinalizedCount);
+			}
+
+			protected override void Dispose (bool disposing)
+			{
+				if (disposing)
+					Interlocked.Increment (ref DisposedCount);
+
+				base.Dispose (disposing);
+			}
+		}
+
+		class AlwaysThrowingDisposeMimePart : FinalizableMimePart
+		{
+			protected override void Dispose (bool disposing)
+			{
+				if (disposing)
+					throw new InvalidOperationException ("Dispose failed.");
+
+				base.Dispose (disposing);
+			}
+		}
+
+		[MethodImpl (MethodImplOptions.NoInlining)]
+		static void DisposeMultipartWithFinalizableChildren ()
+		{
+			var multipart = new Multipart ("mixed") { new AlwaysThrowingDisposeMimePart (), new FinalizableMimePart () };
+
+			Assert.Throws<InvalidOperationException> (() => multipart.Dispose ());
+		}
+
+		[Test]
+		public void TestDisposeOnlySuppressesFinalizationOfDisposedEntities ()
+		{
+			FinalizableMimePart.FinalizedCount = 0;
+			FinalizableMimePart.DisposedCount = 0;
+
+			DisposeMultipartWithFinalizableChildren ();
+
+			GC.Collect ();
+			GC.WaitForPendingFinalizers ();
+
+			// The child after the throwing child must still have been disposed (which suppresses its
+			// finalizer) and the child that failed to dispose must not have had its finalizer suppressed.
+			Assert.That (FinalizableMimePart.DisposedCount, Is.EqualTo (1), "DisposedCount");
+			Assert.That (FinalizableMimePart.FinalizedCount, Is.EqualTo (1), "FinalizedCount");
 		}
 	}
 }

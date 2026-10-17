@@ -607,8 +607,6 @@ In-Reply-To: <xx.x@xxxxxxx.xxx>
 
 		// Note: MimeAnonymizer must not use recursion to anonymize nested entities, or else an extremely deep nesting of
 		// multipart or message/rfc822 parts could overflow the stack (which cannot be caught and terminates the process).
-		//
-		// Note: The parsed messages are intentionally not disposed because MimeEntity.Dispose() is still recursive.
 		[TestCase ("multipart", 10000)]
 		[TestCase ("message", 100000)]
 		[TestCase ("mixed", 20000)]
@@ -640,5 +638,8 @@ In-Reply-To: <xx.x@xxxxxxx.xxx>
 
 				Assert.That (Encoding.ASCII.GetString (memory.GetBuffer (), 0, (int) memory.Length), Is.EqualTo (expected), "Entity");
 			}
-		}	}
+
+			message.Dispose ();
+		}
+	}
 }

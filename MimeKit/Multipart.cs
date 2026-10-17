@@ -887,6 +887,11 @@ namespace MimeKit {
 			rawBoundaries = null;
 		}
 
+		internal MimeEntity? GetChildForDisposal (int index)
+		{
+			return index < children.Count ? children[index] : null;
+		}
+
 		/// <summary>
 		/// Release the unmanaged resources used by the <see cref="Multipart"/> and
 		/// optionally releases the managed resources.
@@ -906,9 +911,6 @@ namespace MimeKit {
 					ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
 					rawBoundaries = null;
 				}
-
-				for (int i = 0; i < children.Count; i++)
-					children[i].Dispose ();
 			}
 
 			base.Dispose (disposing);

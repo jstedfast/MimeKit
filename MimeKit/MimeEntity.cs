@@ -45,7 +45,7 @@ namespace MimeKit {
 	/// <see cref="MimePart"/> who's content is another MIME message/document). All other types are
 	/// derivatives of one of those.</para>
 	/// </remarks>
-	public abstract class MimeEntity : IMimeEntity
+	public abstract class MimeEntity : IMimeEntity, IMimeDisposable
 	{
 		[Flags]
 		internal enum LazyLoadedFields : short
@@ -68,7 +68,11 @@ namespace MimeKit {
 
 		internal LazyLoadedFields LazyLoaded;
 		internal bool EnsureNewLine;
-		internal bool IsDisposed;
+		MimeDisposalState disposalState;
+
+		internal bool IsDisposed {
+			get { return (disposalState & MimeDisposalState.LocalComplete) != 0; }
+		}
 
 		// Per rfc2046, the new-line sequence that precedes a multipart boundary marker belongs to the boundary marker and not
 		// to the content of the preceding entity, so the parser does not include it in the entity's content. The exceptions are
@@ -1302,8 +1306,10 @@ namespace MimeKit {
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MimeEntity"/> and
-		/// optionally releases the managed resources.
+		/// Releases resources owned directly by this entity. Structural children are disposed by
+		/// <see cref="Dispose()"/> before this method is called with <paramref name="disposing"/> set to
+		/// <see langword="true"/>, even if a child's cleanup fails. Overrides should release only their own
+		/// resources and call the base implementation, not dispose structural children or mutate the MIME tree.
 		/// </remarks>
 		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
@@ -1318,18 +1324,39 @@ namespace MimeKit {
 		/// <summary>
 		/// Releases all resources used by the <see cref="MimeEntity"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeEntity"/>. The
+		/// <remarks><para>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeEntity"/>. The
 		/// <see cref="Dispose()"/> method leaves the <see cref="MimeEntity"/> in an unusable state. After
 		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeEntity"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeEntity"/> was occupying.</remarks>
+		/// the garbage collector can reclaim the memory that the <see cref="MimeEntity"/> was occupying.</para>
+		/// <para>Structural descendants are disposed iteratively, in child-before-parent order, before this entity's
+		/// <see cref="Dispose(bool)"/> method is called. If cleanup fails, the remaining descendants and this entity's
+		/// cleanup are still attempted, then the exception is rethrown (or multiple exceptions are reported in an
+		/// <see cref="AggregateException"/>). Calling <see cref="Dispose()"/> again retries incomplete cleanup without
+		/// repeating successful cleanup hooks. The tree must not be modified or disposed concurrently during disposal.</para></remarks>
 		public void Dispose ()
 		{
-			if (!IsDisposed) {
-				Dispose (true);
-				IsDisposed = true;
-			}
+			MimeTreeDisposer.Dispose (this);
+		}
 
-			GC.SuppressFinalize (this);
+		MimeDisposalState IMimeDisposable.DisposalState {
+			get { return disposalState; }
+			set { disposalState = value; }
+		}
+
+		IMimeDisposable? IMimeDisposable.GetChild (int index)
+		{
+			if (this is Multipart multipart)
+				return multipart.GetChildForDisposal (index);
+
+			if (index == 0 && this is MessagePart part)
+				return part.Message;
+
+			return null;
+		}
+
+		void IMimeDisposable.DisposeLocal ()
+		{
+			Dispose (true);
 		}
 
 		#endregion

@@ -222,6 +222,32 @@ For most code, the parser change is a source-compatible rename: `new MimeParser 
   and `WriteToAsync ()` can no longer be overridden; a non-recursive writer now writes the entity and all of its
   descendants. Customize a subclass's output through its headers or content instead.
 
+### Disposing messages and entities
+
+`MimeMessage` and `MimeEntity` still implement `IDisposable`; existing `using` statements and calls to
+`Dispose ()` remain valid. MimeKit now walks structural ownership iteratively, with storage proportional
+to nesting depth: a message owns its `Body`, a multipart owns its children in list order, and a
+`MessagePart` owns its `Message`. Each object's `Dispose (bool)` override runs **after** cleanup has been
+attempted for its structural descendants.
+
+Update subclasses so that `Dispose (bool)` releases only resources owned directly by that object and
+calls `base.Dispose (disposing)`. Do not dispose `Body`, multipart children or `MessagePart.Message`
+there; traversal no longer happens inside `base.Dispose (disposing)`. In particular, code before the
+base call can no longer assume that children are still usable. Custom-owned resources are still the
+override's responsibility; stack safety does not extend to arbitrary recursive application code.
+
+If cleanup throws, MimeKit still attempts the remaining siblings and parent cleanup hooks. A single
+exception is rethrown; multiple exceptions are reported in an `AggregateException` in traversal order.
+Calling `Dispose ()` again on the root retries incomplete branches and failed hooks without repeating
+successful hooks. A failed hook may have partially released its resources, so it must tolerate retry.
+Successful local cleanup suppresses finalization even if a descendant failed; failed local cleanup
+does not suppress finalization.
+
+Treat the tree as unusable once disposal has begun, even if disposal throws. Retain ownership links for
+retry: do not clear, replace or otherwise mutate them during or after disposal, and do not dispose the
+same tree concurrently. Reentrant disposal of an object already being disposed is ignored. An ownership
+cycle is reported as an `InvalidOperationException`, while other cleanup is still attempted.
+
 ## HTML
 
 | 4.x | 5.0 |
@@ -1026,3 +1052,6 @@ property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
     and for the tokenizer changes.
 19. Replace `HtmlToHtml.FilterHtml`, `QEncoder`, `HexEncoder` and `TnefPropertyTag.Puid`.
 20. Port TNEF code using the [TNEF porting checklist](#tnef-porting-checklist).
+21. Update message/entity `Dispose (bool)` overrides to perform only local cleanup, tolerate retry after
+    failure, and no longer assume children are usable before the base call. See
+    [disposing messages and entities](#disposing-messages-and-entities).

@@ -54,7 +54,7 @@ namespace MimeKit {
 	/// <example>
 	/// <code language="c#" source="Examples\MimeMessageExamples.cs" region="CreateMessage"/>
 	/// </example>
-	public class MimeMessage : IMimeMessage
+	public class MimeMessage : IMimeMessage, IMimeDisposable
 	{
 		static readonly HeaderId[] StandardAddressHeaders = {
 			HeaderId.ResentFrom, HeaderId.ResentReplyTo, HeaderId.ResentTo, HeaderId.ResentCc, HeaderId.ResentBcc,
@@ -97,6 +97,7 @@ namespace MimeKit {
 		internal readonly RfcComplianceMode compliance;
 		readonly MessageIdList references;
 		LazyLoadedFields lazyLoaded;
+		MimeDisposalState disposalState;
 		MailboxAddress? resentSender;
 		DateTimeOffset resentDate;
 		string? resentMessageId;
@@ -2113,28 +2114,47 @@ namespace MimeKit {
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>
-		/// Releases the unmanaged resources used by the <see cref="MimeMessage"/> and
-		/// optionally releases the managed resources.
+		/// Releases resources owned directly by this message. The body and its structural descendants are
+		/// disposed by <see cref="Dispose()"/> before this method is called with <paramref name="disposing"/>
+		/// set to <see langword="true"/>, even if their cleanup fails. Overrides should release only their own
+		/// resources and call the base implementation, not dispose the body or mutate the MIME tree.
 		/// </remarks>
 		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources;
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected virtual void Dispose (bool disposing)
 		{
-			if (disposing && Body != null)
-				Body.Dispose ();
 		}
 
 		/// <summary>
 		/// Releases all resources used by the <see cref="MimeMessage"/> object.
 		/// </summary>
-		/// <remarks>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeMessage"/>. The
+		/// <remarks><para>Call <see cref="Dispose()"/> when you are finished using the <see cref="MimeMessage"/>. The
 		/// <see cref="Dispose()"/> method leaves the <see cref="MimeMessage"/> in an unusable state. After
 		/// calling <see cref="Dispose()"/>, you must release all references to the <see cref="MimeMessage"/> so
-		/// the garbage collector can reclaim the memory that the <see cref="MimeMessage"/> was occupying.</remarks>
+		/// the garbage collector can reclaim the memory that the <see cref="MimeMessage"/> was occupying.</para>
+		/// <para>The <see cref="Body"/> and its structural descendants are disposed iteratively, in child-before-parent
+		/// order, before this message's <see cref="Dispose(bool)"/> method is called. If cleanup fails, all remaining
+		/// cleanup hooks are still attempted, then the exception is rethrown (or multiple exceptions are reported in an
+		/// <see cref="AggregateException"/>). Calling <see cref="Dispose()"/> again retries incomplete cleanup without
+		/// repeating successful cleanup hooks. The tree must not be modified or disposed concurrently during disposal.</para></remarks>
 		public void Dispose ()
 		{
+			MimeTreeDisposer.Dispose (this);
+		}
+
+		MimeDisposalState IMimeDisposable.DisposalState {
+			get { return disposalState; }
+			set { disposalState = value; }
+		}
+
+		IMimeDisposable? IMimeDisposable.GetChild (int index)
+		{
+			return index == 0 ? Body : null;
+		}
+
+		void IMimeDisposable.DisposeLocal ()
+		{
 			Dispose (true);
-			GC.SuppressFinalize (this);
 		}
 
 		#endregion

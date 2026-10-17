@@ -46,7 +46,7 @@ namespace UnitTests {
 			return nesting == Nesting.Multipart || (nesting == Nesting.Mixed && (level % 2) == 0);
 		}
 
-		static byte[] GenerateExtremelyNestedMessage (Nesting nesting, int depth)
+		internal static byte[] GenerateExtremelyNestedMessage (Nesting nesting, int depth)
 		{
 			var builder = new StringBuilder ();
 
@@ -72,7 +72,7 @@ namespace UnitTests {
 			return Encoding.ASCII.GetBytes (builder.ToString ());
 		}
 
-		static MimeMessage ParseExtremelyNestedMessage (byte[] source)
+		internal static MimeMessage ParseExtremelyNestedMessage (byte[] source)
 		{
 			var options = new ParserOptions { MaxMimeDepth = int.MaxValue };
 
@@ -91,15 +91,13 @@ namespace UnitTests {
 		// Note: MimeMessage.WriteTo() and MimeEntity.WriteTo() must not use recursion to write nested entities, or else
 		// an extremely deep nesting of multipart or message/rfc822 parts could overflow the stack (which cannot be caught
 		// and terminates the process).
-		//
-		// Note: The parsed messages are intentionally not disposed because MimeEntity.Dispose() is still recursive.
 		[TestCase (Nesting.Multipart, 10000)]
 		[TestCase (Nesting.MessagePart, 100000)]
 		[TestCase (Nesting.Mixed, 20000)]
 		public void TestWriteExtremelyNestedMessage (Nesting nesting, int depth)
 		{
 			var source = GenerateExtremelyNestedMessage (nesting, depth);
-			var message = ParseExtremelyNestedMessage (source);
+			using var message = ParseExtremelyNestedMessage (source);
 			var options = CreateFormatOptions ();
 
 			using (var stream = new MemoryStream ()) {
@@ -115,7 +113,7 @@ namespace UnitTests {
 		public async Task TestWriteExtremelyNestedMessageAsync (Nesting nesting, int depth)
 		{
 			var source = GenerateExtremelyNestedMessage (nesting, depth);
-			var message = ParseExtremelyNestedMessage (source);
+			using var message = ParseExtremelyNestedMessage (source);
 			var options = CreateFormatOptions ();
 
 			using (var stream = new MemoryStream ()) {
@@ -131,7 +129,7 @@ namespace UnitTests {
 		public void TestWriteExtremelyNestedEntity (Nesting nesting, int depth)
 		{
 			var source = GenerateExtremelyNestedMessage (nesting, depth);
-			var message = ParseExtremelyNestedMessage (source);
+			using var message = ParseExtremelyNestedMessage (source);
 			var options = CreateFormatOptions ();
 
 			// Note: Skip the "From:" header which belongs to the top-level message rather than to its body.
@@ -150,7 +148,7 @@ namespace UnitTests {
 		public async Task TestWriteExtremelyNestedEntityAsync (Nesting nesting, int depth)
 		{
 			var source = GenerateExtremelyNestedMessage (nesting, depth);
-			var message = ParseExtremelyNestedMessage (source);
+			using var message = ParseExtremelyNestedMessage (source);
 			var options = CreateFormatOptions ();
 
 			// Note: Skip the "From:" header which belongs to the top-level message rather than to its body.
