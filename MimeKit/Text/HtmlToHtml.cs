@@ -518,6 +518,12 @@ namespace MimeKit.Text {
 						if (openElements.IsInFrameset && tag.Id != HtmlTagId.FrameSet && tag.Id != HtmlTagId.Frame && tag.Id != HtmlTagId.NoFrames)
 							break;
 
+						// Note: Browsers ignore a <frameset> start tag once the frameset-ok flag is "not ok" (e.g. after a <body> start tag
+						// or any content). Drop it so that it cannot take effect when the output gets interpreted without the tokens that
+						// cleared the flag (e.g. if the output is a fragment, which omits the <body> tag and the content of the <head>).
+						if (tag.Id == HtmlTagId.FrameSet && !tag.IsEndTag && !openElements.IsInFrameset)
+							break;
+
 						// Note: The content of <noscript> elements has been tokenized as markup (as if scripting is disabled), so
 						// remove the <noscript> tags themselves so that renderers with scripting enabled interpret it the same way.
 						if (unwrapNoScript && tag.Id == HtmlTagId.NoScript)
