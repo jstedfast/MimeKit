@@ -551,6 +551,57 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		static MemoryStream CreateNonSignaturePgpData (bool compress)
+		{
+			var output = new MemoryStream ();
+			var literal = new Org.BouncyCastle.Bcpg.OpenPgp.PgpLiteralDataGenerator ();
+			var content = Encoding.ASCII.GetBytes ("This is not a signature.");
+
+			using (var armored = new Org.BouncyCastle.Bcpg.ArmoredOutputStream (output)) {
+				if (compress) {
+					var compressor = new Org.BouncyCastle.Bcpg.OpenPgp.PgpCompressedDataGenerator (Org.BouncyCastle.Bcpg.CompressionAlgorithmTag.Zip);
+
+					using (var compressed = compressor.Open (armored)) {
+						using (var stream = literal.Open (compressed, Org.BouncyCastle.Bcpg.OpenPgp.PgpLiteralData.Binary, "data", content.Length, DateTime.UtcNow))
+							stream.Write (content, 0, content.Length);
+					}
+				} else {
+					using (var stream = literal.Open (armored, Org.BouncyCastle.Bcpg.OpenPgp.PgpLiteralData.Binary, "data", content.Length, DateTime.UtcNow))
+						stream.Write (content, 0, content.Length);
+				}
+			}
+
+			output.Position = 0;
+
+			return output;
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestVerifyNonSignatureData (bool compress)
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				using var content = new MemoryStream (Encoding.ASCII.GetBytes ("content"), false);
+				using var signatureData = CreateNonSignaturePgpData (compress);
+
+				var ex = Assert.Throws<FormatException> (() => ctx.Verify (content, signatureData));
+				Assert.That (ex.Message, Is.EqualTo ("Invalid PGP format."));
+			}
+		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestVerifyNonSignatureDataAsync (bool compress)
+		{
+			using (var ctx = new DummyOpenPgpContext ()) {
+				using var content = new MemoryStream (Encoding.ASCII.GetBytes ("content"), false);
+				using var signatureData = CreateNonSignaturePgpData (compress);
+
+				var ex = Assert.ThrowsAsync<FormatException> (() => ctx.VerifyAsync (content, signatureData));
+				Assert.That (ex.Message, Is.EqualTo ("Invalid PGP format."));
+			}
+		}
+
 		[Test]
 		public async Task TestMimeMessageSignAsync ()
 		{

@@ -1310,17 +1310,14 @@ namespace MimeKit.Cryptography {
 			using (var armored = new ArmoredInputStream (signatureData)) {
 				var factory = new PgpObjectFactory (armored);
 				var data = factory.NextPgpObject ();
-				PgpSignatureList signatureList;
 
 				if (data is PgpCompressedData compressed) {
 					factory = new PgpObjectFactory (compressed.GetDataStream ());
 					data = factory.NextPgpObject ();
 				}
 
-				if (data == null)
+				if (data is not PgpSignatureList signatureList)
 					throw new FormatException ("Invalid PGP format.");
-
-				signatureList = (PgpSignatureList) data;
 
 				return GetDigitalSignaturesAsync (signatureList, content, doAsync, cancellationToken);
 			}

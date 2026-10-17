@@ -491,6 +491,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Bug Fixes
 
+* Fixed `OpenPgpContext.Verify ()` and `VerifyAsync ()` so that they throw a `FormatException` instead of an
+  `InvalidCastException` when the signature data contains a PGP packet other than a signature.
+
 * Fixed `MimeReader` so that a CRLF sequence in a MIME part's content that is split across two reads of the
   underlying stream is no longer reported as a `BareLinefeedInBody` violation, and no longer causes the
   content's `NewLineFormat` to be reported as `Mixed`.
