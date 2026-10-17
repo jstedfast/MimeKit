@@ -784,7 +784,7 @@ namespace MimeKit {
 			try {
 				statusGroups = mds.StatusGroups;
 				return true;
-			} catch {
+			} catch (Exception ex) when (ex is FormatException || ex is ObjectDisposedException) {
 				statusGroups = null;
 				return false;
 			}
@@ -795,7 +795,7 @@ namespace MimeKit {
 			try {
 				fields = mdn.Fields;
 				return true;
-			} catch {
+			} catch (Exception ex) when (ex is FormatException || ex is ObjectDisposedException) {
 				fields = null;
 				return false;
 			}

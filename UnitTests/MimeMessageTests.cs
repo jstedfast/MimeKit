@@ -2420,20 +2420,30 @@ This is the text attachment";
 			Assert.That (second.DisposeCount, Is.EqualTo (1), "Second.DisposeCount");
 		}
 
+		sealed class DisposalCounters
+		{
+			public int Finalized;
+			public int Disposed;
+		}
+
 		class FinalizableMimePart : MimePart
 		{
-			public static int FinalizedCount;
-			public static int DisposedCount;
+			readonly DisposalCounters counters;
+
+			public FinalizableMimePart (DisposalCounters counters)
+			{
+				this.counters = counters;
+			}
 
 			~FinalizableMimePart ()
 			{
-				Interlocked.Increment (ref FinalizedCount);
+				Interlocked.Increment (ref counters.Finalized);
 			}
 
 			protected override void Dispose (bool disposing)
 			{
 				if (disposing)
-					Interlocked.Increment (ref DisposedCount);
+					Interlocked.Increment (ref counters.Disposed);
 
 				base.Dispose (disposing);
 			}
@@ -2441,6 +2451,10 @@ This is the text attachment";
 
 		class AlwaysThrowingDisposeMimePart : FinalizableMimePart
 		{
+			public AlwaysThrowingDisposeMimePart (DisposalCounters counters) : base (counters)
+			{
+			}
+
 			protected override void Dispose (bool disposing)
 			{
 				if (disposing)
@@ -2451,9 +2465,9 @@ This is the text attachment";
 		}
 
 		[MethodImpl (MethodImplOptions.NoInlining)]
-		static void DisposeMultipartWithFinalizableChildren ()
+		static void DisposeMultipartWithFinalizableChildren (DisposalCounters counters)
 		{
-			var multipart = new Multipart ("mixed") { new AlwaysThrowingDisposeMimePart (), new FinalizableMimePart () };
+			var multipart = new Multipart ("mixed") { new AlwaysThrowingDisposeMimePart (counters), new FinalizableMimePart (counters) };
 
 			Assert.Throws<InvalidOperationException> (() => multipart.Dispose ());
 		}
@@ -2461,18 +2475,17 @@ This is the text attachment";
 		[Test]
 		public void TestDisposeOnlySuppressesFinalizationOfDisposedEntities ()
 		{
-			FinalizableMimePart.FinalizedCount = 0;
-			FinalizableMimePart.DisposedCount = 0;
+			var counters = new DisposalCounters ();
 
-			DisposeMultipartWithFinalizableChildren ();
+			DisposeMultipartWithFinalizableChildren (counters);
 
 			GC.Collect ();
 			GC.WaitForPendingFinalizers ();
 
 			// The child after the throwing child must still have been disposed (which suppresses its
 			// finalizer) and the child that failed to dispose must not have had its finalizer suppressed.
-			Assert.That (FinalizableMimePart.DisposedCount, Is.EqualTo (1), "DisposedCount");
-			Assert.That (FinalizableMimePart.FinalizedCount, Is.EqualTo (1), "FinalizedCount");
+			Assert.That (counters.Disposed, Is.EqualTo (1), "Disposed");
+			Assert.That (counters.Finalized, Is.EqualTo (1), "Finalized");
 		}
 	}
 }

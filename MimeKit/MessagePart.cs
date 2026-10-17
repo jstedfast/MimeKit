@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using MimeKit.IO;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
@@ -161,6 +162,11 @@ namespace MimeKit {
 
 		internal override bool EndsWithDelimiterNewLine {
 			get { return Message?.Body is null || Message.Body.EndsWithDelimiterNewLine; }
+		}
+
+		private protected override IMimeDisposable? GetChildForDisposal (int index)
+		{
+			return index == 0 ? Message : null;
 		}
 
 		/// <summary>

@@ -887,7 +887,7 @@ namespace MimeKit {
 			rawBoundaries = null;
 		}
 
-		internal MimeEntity? GetChildForDisposal (int index)
+		private protected override IMimeDisposable? GetChildForDisposal (int index)
 		{
 			return index < children.Count ? children[index] : null;
 		}
@@ -904,13 +904,11 @@ namespace MimeKit {
 		/// <see langword="false" /> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)
 		{
-			if (disposing) {
-				if (rawBoundaries != null) {
-					// Note: this event is only connected if the Multipart was parsed by a IMimeParser,
-					// in which case, `boundaries` will not be null.
-					ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
-					rawBoundaries = null;
-				}
+			if (disposing && rawBoundaries != null) {
+				// Note: this event is only connected if the Multipart was parsed by a IMimeParser,
+				// in which case, `boundaries` will not be null.
+				ContentType.Parameters.BoundaryChanged -= BoundaryChanged;
+				rawBoundaries = null;
 			}
 
 			base.Dispose (disposing);

@@ -1345,12 +1345,16 @@ namespace MimeKit {
 
 		IMimeDisposable? IMimeDisposable.GetChild (int index)
 		{
-			if (this is Multipart multipart)
-				return multipart.GetChildForDisposal (index);
+			return GetChildForDisposal (index);
+		}
 
-			if (index == 0 && this is MessagePart part)
-				return part.Message;
-
+		/// <summary>
+		/// Get the child entity or message that this entity owns at the specified index, if any.
+		/// </summary>
+		/// <param name="index">The index of the child.</param>
+		/// <returns>The child at the specified index or <see langword="null"/> if there are no more children.</returns>
+		private protected virtual IMimeDisposable? GetChildForDisposal (int index)
+		{
 			return null;
 		}
 
