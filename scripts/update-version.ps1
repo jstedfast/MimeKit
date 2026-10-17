@@ -74,6 +74,13 @@ function Update-NuGetPackageVersion {
     $ns.AddNamespace("ns", $xmlns)
     $packageVersion = $nuspec.SelectSingleNode("ns:package/ns:metadata/ns:version", $ns)
     $packageVersion.InnerText = $Version
+
+    # Keep the inter-package dependencies (e.g. MimeKit -> MimeKit.Core) in sync with the package version
+    $dependencies = $nuspec.SelectNodes("ns:package/ns:metadata/ns:dependencies//ns:dependency[starts-with(@id, 'MimeKit')]", $ns)
+    foreach ($dependency in $dependencies) {
+        $dependency.SetAttribute("version", $Version)
+    }
+
     $nuspec.Save($NuSpecFile)
 }
 
