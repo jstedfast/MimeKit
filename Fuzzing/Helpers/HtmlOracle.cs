@@ -48,6 +48,8 @@ namespace MimeKit.Fuzzing.Helpers {
 	// AngleSharp does not record the source position for implied elements, elements cloned by the adoption agency
 	// algorithm and the <svg> and <math> root elements, so those are not checked. The content of an <iframe srcdoc>
 	// is a separate document, so it is not checked either.
+	//
+	// AngleSharp has bugs of its own, so a failure is only reported if a real browser confirms it (see BrowserOracle).
 	static class HtmlOracle
 	{
 		readonly struct CreatedElement
@@ -102,37 +104,41 @@ namespace MimeKit.Fuzzing.Helpers {
 			};
 
 			var document = new HtmlParser (options).ParseDocument (html);
-
-			if (created.Count == 0)
-				return;
-
-			// Note: Normalize() replaces NUL with U+FFFD, which (unlike a NUL in the body, which browsers ignore) sets the
-			// frameset-ok flag to "not ok". So if there is one before a <frameset> tag, AngleSharp might ignore a <frameset>
-			// that a browser (and HtmlTokenizer) would not.
-			//
-			// AngleSharp also does not set the frameset-ok flag to "not ok" for a <template> start tag in the <head> (and
-			// inserts a <template> that follows </head> into the <body> rather than the <head>), so it might honor a
-			// <frameset> that a browser (and HtmlTokenizer) would ignore.
-			int frameset = html.LastIndexOf ("<frameset", StringComparison.OrdinalIgnoreCase);
-			int replacement = html.IndexOf ('\uFFFD');
-			int template = html.IndexOf ("<template", StringComparison.OrdinalIgnoreCase);
-
-			if ((replacement >= 0 && replacement < frameset) || (template >= 0 && template < frameset))
-				return;
-
-			// Note: AngleSharp ignores a </form> end tag when there is a <template> element on the stack of open elements,
-			// whereas browsers pop the elements up to and including the <form> element (e.g. any open SVG elements).
-			if (template >= 0 && html.IndexOf ("</form", template, StringComparison.OrdinalIgnoreCase) >= 0)
-				return;
-
 			var tags = Tokenize (html, scriptingEnabled, out bool inFrameset);
+			var failure = Compare (document, created, tags, inFrameset);
 
+			if (failure is null)
+				return;
+
+			var mode = $"scripting {(scriptingEnabled ? "enabled" : "disabled")}";
+			string? confirmed;
+
+			// Note: AngleSharp is not a browser and has bugs of its own, so ask a real browser to confirm the failure.
+			try {
+				confirmed = BrowserOracle.Check (html, scriptingEnabled, tags, inFrameset);
+			} catch (Exception ex) {
+				throw new FuzzInvariantException ($"{what} ({mode}): {failure} (could not confirm with a browser: {ex.Message})");
+			}
+
+			if (confirmed != null)
+				throw new FuzzInvariantException ($"{what}: {confirmed} (AngleSharp: {failure})");
+
+			if (ignoredFailures++ < MaxReportedIgnoredFailures)
+				Console.Error.WriteLine ($"HtmlOracle: ignoring an AngleSharp bug that a browser does not share: {what} ({mode}): {failure}");
+		}
+
+		const int MaxReportedIgnoredFailures = 20;
+		static int ignoredFailures;
+
+		static string? Compare (IDocument document, List<CreatedElement> created, Dictionary<int, HtmlTagToken> tags, bool inFrameset)
+		{
 			// Note: HtmlTokenizer must agree on whether the <body> got replaced by a <frameset>, since browsers ignore most tags after
 			// that (which means that they don't switch the tokenizer state). Otherwise, HtmlTokenizer could emit tags that a
 			// browser treats as text (or vice versa).
 			bool framesetDocument = document.Body?.LocalName == "frameset";
 
-			Fuzz.Check (framesetDocument == inFrameset, $"{what} (scripting {(scriptingEnabled ? "enabled" : "disabled")}): browser {(framesetDocument ? "creates" : "does not create")} a frameset document but HtmlTokenizer {(inFrameset ? "does" : "does not")} think so");
+			if (framesetDocument != inFrameset)
+				return $"browser {(framesetDocument ? "creates" : "does not create")} a frameset document but HtmlTokenizer {(inFrameset ? "does" : "does not")} think so";
 
 			foreach (var element in created) {
 				// Note: AngleSharp also parses the srcdoc of an <iframe> (with the same options), so skip the elements
@@ -140,17 +146,19 @@ namespace MimeKit.Fuzzing.Helpers {
 				if (element.Owner != document)
 					continue;
 
-				var where = $"{what} (scripting {(scriptingEnabled ? "enabled" : "disabled")}): browser creates <{element.Name}> at offset {element.Offset}";
+				var where = $"browser creates <{element.Name}> at offset {element.Offset}";
 
-				Fuzz.Check (tags.TryGetValue (element.Offset, out var tag), $"{where} but HtmlTokenizer did not see a start tag there");
+				if (!tags.TryGetValue (element.Offset, out var tag))
+					return $"{where} but HtmlTokenizer did not see a start tag there";
 
-				var name = tag!.Name.ToLowerInvariant ();
+				var name = tag.Name.ToLowerInvariant ();
 
 				// The tree builder renames <image> to <img>.
 				if (name == "image" && element.Name == "img")
 					name = "img";
 
-				Fuzz.Check (name == element.Name, $"{where} but HtmlTokenizer saw <{Fuzz.Escape (name)}>");
+				if (name != element.Name)
+					return $"{where} but HtmlTokenizer saw <{Fuzz.Escape (name)}>";
 
 				foreach (var attribute in element.Attributes) {
 					bool found = false;
@@ -162,9 +170,12 @@ namespace MimeKit.Fuzzing.Helpers {
 						}
 					}
 
-					Fuzz.Check (found, $"{where} with attribute {Fuzz.Escape (attribute)} but HtmlTokenizer did not see that attribute");
+					if (!found)
+						return $"{where} with attribute {Fuzz.Escape (attribute)} but HtmlTokenizer did not see that attribute";
 				}
 			}
+
+			return null;
 		}
 
 		// AngleSharp puts the SVG <style> element in the "special" category (which, per the WHATWG spec, only includes the

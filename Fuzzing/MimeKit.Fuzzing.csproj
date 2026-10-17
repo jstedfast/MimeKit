@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.8.3" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.63.0" />
     <PackageReference Include="SharpFuzz" Version="2.3.0" />
   </ItemGroup>
 

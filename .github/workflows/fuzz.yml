@@ -70,6 +70,12 @@ jobs:
           key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
           restore-keys: fuzz-corpus-${{ matrix.target }}-
 
+      # The HTML oracle asks a real browser to confirm any failure that AngleSharp reports (see Fuzzing/Helpers/BrowserOracle.cs).
+      # It prefers the preinstalled Google Chrome, so Playwright's Chromium only gets installed if Chrome is missing.
+      - name: Ensure a browser is installed
+        if: matrix.target == 'html-tokenizer' || matrix.target == 'rtf-converters'
+        run: google-chrome --version || npx --yes playwright@1.63.0 install --with-deps chromium
+
       - name: Fuzz ${{ matrix.target }}
         shell: pwsh
         run: ./scripts/fuzz.ps1 -Target ${{ matrix.target }} -Duration $env:DURATION
