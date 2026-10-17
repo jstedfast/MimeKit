@@ -7,6 +7,11 @@ on:
         description: 'The full 40-character commit hash to release (the version is read from the nuspec files at that commit)'
         required: true
         type: string
+      sign:
+        description: 'Code-sign the assemblies and NuGet packages (using the .NET Foundation code-signing certificate)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -161,7 +166,8 @@ jobs:
     env:
       BUILD_PLATFORM: Any CPU
     permissions:
-      id-token: write # Required for requesting the JWT
+      id-token: write # Required for requesting the JWT (Azure login and Sigstore signing of attestations)
+      attestations: write # Required for persisting build provenance attestations
       contents: read
 
     steps:
@@ -177,18 +183,23 @@ jobs:
         name: BuildArtifacts
         path: ./
 
+    # Note: All of the code-signing steps below are conditional on the `sign` workflow input.
+
     # Setup .NET (needed for the Sign CLI tool)
     - name: Setup .NET
+      if: inputs.sign
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
 
     # Install Sign CLI tool
     - name: Install Sign CLI tool
+      if: inputs.sign
       run: dotnet tool install --tool-path . --prerelease sign
 
     # Login to Azure using a ServicePrincipal configured to authenticate against a GitHub Action
     - name: 'Az CLI login'
+      if: inputs.sign
       uses: azure/login@v3
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -197,6 +208,7 @@ jobs:
 
     # Sign MimeKit.Core NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
     - name: Sign MimeKit.Core NuGet Package
+      if: inputs.sign
       shell: pwsh
       run: >
         ./sign code azure-key-vault
@@ -211,6 +223,7 @@ jobs:
 
     # Sign MimeKit.Cryptography NuGet Package (sign CLI signs assemblies inside the .nupkg first, then the .nupkg itself)
     - name: Sign MimeKit.Cryptography NuGet Package
+      if: inputs.sign
       shell: pwsh
       run: >
         ./sign code azure-key-vault
@@ -225,6 +238,7 @@ jobs:
 
     # Sign the MimeKit meta-package (contains no assemblies, so only the .nupkg itself is signed)
     - name: Sign MimeKit NuGet Package
+      if: inputs.sign
       shell: pwsh
       run: >
         ./sign code azure-key-vault
@@ -237,11 +251,46 @@ jobs:
         --azure-key-vault-url "https://sc-mimekit.vault.azure.net/"
         --azure-key-vault-certificate "SC-MIMEKIT"
 
-    # Upload signed packages as artifacts
-    - name: Upload signed artifacts
+    # Extract the (final, possibly signed) assemblies from the NuGet packages so that they can be attested too.
+    #
+    # Note: This must happen after any step that modifies the NuGet packages (e.g. code-signing). Also note that
+    # NuGet.org adds its own repository signature to every package, which changes the hash of the .nupkg that
+    # consumers download (but not the hashes of the assemblies inside of it).
+    - name: Extract Assemblies
+      shell: pwsh
+      env:
+        RELEASE_VERSION: ${{ needs.build.outputs.version }}
+      run: |
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+        foreach ($id in 'MimeKit.Core', 'MimeKit.Cryptography') {
+          [IO.Compression.ZipFile]::ExtractToDirectory("$id.$env:RELEASE_VERSION.nupkg", "ExtractedAssemblies/$id")
+        }
+
+        $assemblies = Get-ChildItem -Path ExtractedAssemblies -Filter *.dll -Recurse
+        if ($assemblies.Count -eq 0) {
+          Write-Host "::error::No assemblies were found in the NuGet packages"
+          exit 1
+        }
+
+        $assemblies | ForEach-Object { Write-Host $_.FullName }
+
+    # Generate signed build provenance attestations for the NuGet packages and the assemblies within them
+    # (these can be verified using `gh attestation verify <file> --repo jstedfast/MimeKit`)
+    - name: Attest Build Provenance
+      uses: actions/attest@v4
+      with:
+        subject-path: |
+          MimeKit.Core.${{ needs.build.outputs.version }}.nupkg
+          MimeKit.Cryptography.${{ needs.build.outputs.version }}.nupkg
+          MimeKit.${{ needs.build.outputs.version }}.nupkg
+          ExtractedAssemblies/**/*.dll
+
+    # Upload the final NuGet packages as artifacts
+    - name: Upload Release Artifacts
       uses: actions/upload-artifact@v7
       with:
-        name: SignedArtifacts
+        name: ReleaseArtifacts
         if-no-files-found: error
         path: |
           MimeKit.Core.${{ needs.build.outputs.version }}.nupkg
@@ -260,7 +309,6 @@ jobs:
     # Note: MimeKit.Core and MimeKit.Cryptography must be pushed *before* the MimeKit
     # meta-package, otherwise NuGet.org cannot resolve the meta-package's dependencies.
     - name: Push MimeKit.Core package to NuGet.org
-      if: false
       shell: pwsh
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
@@ -270,7 +318,6 @@ jobs:
 
     # Publish MimeKit.Cryptography.{version}.nupkg to NuGet.org
     - name: Push MimeKit.Cryptography package to NuGet.org
-      if: false
       shell: pwsh
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
@@ -280,7 +327,6 @@ jobs:
 
     # Publish the MimeKit.{version}.nupkg meta-package to NuGet.org (must be pushed last)
     - name: Push MimeKit package to NuGet.org
-      if: false
       shell: pwsh
       run: |
         nuget push $env:NUGET_PKG_PATH -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
@@ -290,7 +336,6 @@ jobs:
 
   tag:
     needs: [build, sign]
-    if: false # Disabled until the signing step is working
     runs-on: ubuntu-latest
     permissions:
       contents: write # Required for pushing the release tag
