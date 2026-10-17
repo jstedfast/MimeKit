@@ -2330,6 +2330,9 @@ This is the text attachment";
 		[Test]
 		public void TestDisposeWideMultipartUsesDepthBoundedStorage ()
 		{
+			if (TestHelper.IsCodeCoverageEnabled)
+				Assert.Ignore ("The code-coverage recorder allocates memory, so allocation budgets cannot be measured.");
+
 			new Multipart ("mixed") { new MimePart () }.Dispose ();
 			var multipart = new Multipart ("mixed");
 			var leaves = new MimePart[10000];
