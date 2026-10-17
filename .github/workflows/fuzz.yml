@@ -36,7 +36,8 @@ jobs:
             'tnef-message', 'tnef-reader'
           )
           $target = '${{ inputs.target }}'
-          $targets = if ($target -eq '' -or $target -eq 'all') { $all } else { @($target) }
+          # Wrap in @() since PowerShell unrolls a single-element array returned from an if expression.
+          $targets = @(if ($target -eq '' -or $target -eq 'all') { $all } else { $target })
           "matrix=$(ConvertTo-Json -Compress -InputObject $targets)" >> $env:GITHUB_OUTPUT
 
   fuzz:
