@@ -81,7 +81,7 @@ namespace UnitTests.Text {
 			// both must be updated to match.
 			var max = Enum.GetValues<HtmlComplianceViolation> ().Where (v => v != HtmlComplianceViolation.TooManyComplianceIssues).Max ();
 
-			Assert.That (max, Is.EqualTo (HtmlComplianceViolation.ElementDepthLimitExceeded));
+			Assert.That (max, Is.EqualTo (HtmlComplianceViolation.AttributesMergedIntoExistingElement));
 		}
 
 		[Test]

@@ -82,6 +82,9 @@ namespace UnitTests.Text {
 			{ HtmlComplianceViolation.EofInScriptHtmlCommentLikeText, 44 },
 			{ HtmlComplianceViolation.UnexpectedNullCharacter, 45 },
 			{ HtmlComplianceViolation.ElementDepthLimitExceeded, 46 },
+			{ HtmlComplianceViolation.IgnoredStartTag, 47 },
+			{ HtmlComplianceViolation.ForeignContentBreakout, 48 },
+			{ HtmlComplianceViolation.AttributesMergedIntoExistingElement, 49 },
 			{ HtmlComplianceViolation.TooManyComplianceIssues, int.MaxValue },
 		};
 

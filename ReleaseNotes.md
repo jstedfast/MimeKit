@@ -387,7 +387,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   found while tokenizing. The violations are the parse errors defined by the HTML specification's tokenizer (for
   example, duplicate attributes, unexpected NUL characters, malformed comments and DOCTYPEs, and invalid or
   unterminated character references), plus `NestedComment`, `UnknownNamedCharacterReference` and
-  `ElementDepthLimitExceeded`. Each issue carries a character offset and line and column numbers. Character
+  `ElementDepthLimitExceeded`. Tree-construction behavior that HTML processors commonly disagree on is also
+  reported: `IgnoredStartTag` (e.g. a second `<head>`, a nested `<form>`, a `<tr>` outside of a table, or a
+  non-frameset tag in a frameset document), `ForeignContentBreakout` (a tag that implicitly closes SVG or MathML
+  content, such as `<svg><p>`) and `AttributesMergedIntoExistingElement` (a later `<html>` or `<body>` start tag
+  whose attributes get added to the existing element). Each issue carries a character offset and line and column numbers. Character
   references are checked even when `DecodeCharacterReferences` is `false` (as it is for `HtmlToHtml`), without
   changing the output. `HtmlTokenizer.ComplianceOptions` and `HtmlToHtml.ComplianceOptions` (an
   `HtmlComplianceOptions`) work the same way as they do for the RTF converters.

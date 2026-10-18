@@ -477,6 +477,50 @@ namespace MimeKit.Text {
 
 		#endregion
 
+		#region Tree Construction
+
+		/// <summary>
+		/// A start tag was ignored.
+		/// </summary>
+		/// <remarks>
+		/// <para>Browsers do not insert an element for some start tags that appear where they are not allowed, e.g. a second
+		/// &lt;head&gt;, a &lt;frameset&gt; after the body content has started, a nested &lt;form&gt;, a table structure
+		/// start tag such as &lt;tr&gt; outside of a table, or any start tag other than &lt;html&gt;, &lt;frameset&gt;,
+		/// &lt;frame&gt; or &lt;noframes&gt; in a frameset document.</para>
+		/// <para>Since the ignored start tag does not change how the content that follows it gets tokenized, other HTML
+		/// processors that do honor it may disagree about the structure of the document. The issue is reported at the
+		/// &gt; that ends the start tag.</para>
+		/// </remarks>
+		IgnoredStartTag                                         = 47,
+
+		/// <summary>
+		/// A tag closed SVG or MathML elements by breaking out of foreign content.
+		/// </summary>
+		/// <remarks>
+		/// <para>Within SVG or MathML content (other than at an integration point), start tags such as &lt;p&gt;,
+		/// &lt;b&gt;, &lt;img&gt; or &lt;font color&gt;, as well as the &lt;/p&gt; and &lt;/br&gt; end tags, implicitly close
+		/// all of the open SVG and MathML elements and get processed as HTML.</para>
+		/// <para>Since this changes whether the content that follows gets tokenized as HTML or as foreign content (e.g. how
+		/// &lt;style&gt; or &lt;![CDATA[ are handled), it is a common technique for smuggling markup past HTML sanitizers.
+		/// The issue is reported at the &gt; that ends the tag.</para>
+		/// </remarks>
+		ForeignContentBreakout                                  = 48,
+
+		/// <summary>
+		/// The attributes of a start tag were added to an existing element.
+		/// </summary>
+		/// <remarks>
+		/// <para>An &lt;html&gt; or &lt;body&gt; start tag that appears after the element has already been inserted (explicitly
+		/// or implicitly) does not insert another element. Instead, browsers add any of its attributes that the existing
+		/// element does not already have to that element.</para>
+		/// <para>This allows attributes such as event handlers to be attached to the document's &lt;body&gt; element from
+		/// anywhere in the document, which HTML processors that discard the duplicate start tag will not expect. The issue
+		/// is reported at the &gt; that ends the start tag.</para>
+		/// </remarks>
+		AttributesMergedIntoExistingElement                     = 49,
+
+		#endregion
+
 		#region Limits
 
 		/// <summary>

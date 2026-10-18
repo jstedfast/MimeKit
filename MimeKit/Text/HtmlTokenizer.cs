@@ -1102,6 +1102,18 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.Data;
 			}
 
+			if (logger != null) {
+				if (openElements.BrokeOutOfForeignContent)
+					LogIssueAtPreviousCharacter (HtmlComplianceViolation.ForeignContentBreakout, '>');
+
+				if (!tag.IsEndTag) {
+					if (openElements.StartTagIgnored)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.IgnoredStartTag, '>');
+					else if (openElements.StartTagAttributesMerged)
+						LogIssueAtPreviousCharacter (HtmlComplianceViolation.AttributesMergedIntoExistingElement, '>');
+				}
+			}
+
 			// Note: If the stack of open elements overflowed, the tokenizer can no longer tell how a browser would tokenize the rest
 			// of the input (e.g. an untracked <svg> would change how <style> or <![CDATA[ are handled), so fail closed by treating
 			// the remainder of the input as literal text.

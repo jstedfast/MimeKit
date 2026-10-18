@@ -145,6 +145,13 @@ namespace MimeKit.Text {
 		bool framesetOk = true;
 		bool inFrameset;
 
+		// The number of open <frameset> elements. Once the outermost one has been closed, the tree builder is in the "after
+		// frameset" insertion mode, which ignores <frameset> and <frame> start tags as well.
+		int framesetDepth;
+
+		// Whether the <html> element has been inserted (it is never pushed onto the stack).
+		bool htmlCreated;
+
 		// Whether the <body> element has been inserted. The "after head" insertion mode (InsertionMode.AfterHead before the body
 		// has been inserted) inserts a <frameset> element no matter what the frameset-ok flag is.
 		bool bodyCreated;
@@ -253,6 +260,44 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
+		/// Get whether the most recently processed start tag was ignored.
+		/// </summary>
+		/// <remarks>
+		/// A start tag is ignored if browsers do not insert an element for it, e.g. a <c>&lt;head&gt;</c> start tag after the
+		/// <c>&lt;head&gt;</c>, a <c>&lt;frameset&gt;</c> start tag after the frameset-ok flag has been set to "not ok", any
+		/// start tag other than <c>&lt;html&gt;</c>, <c>&lt;frameset&gt;</c>, <c>&lt;frame&gt;</c> or <c>&lt;noframes&gt;</c>
+		/// in a frameset document, a nested <c>&lt;form&gt;</c>, or a table structure start tag (such as <c>&lt;tr&gt;</c>)
+		/// outside of a table.
+		/// </remarks>
+		public bool StartTagIgnored {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Get whether the attributes of the most recently processed start tag were added to an existing element.
+		/// </summary>
+		/// <remarks>
+		/// An <c>&lt;html&gt;</c> or <c>&lt;body&gt;</c> start tag that comes after the element has been inserted (explicitly
+		/// or implicitly) does not insert another element. Instead, browsers add any of its attributes that the existing element
+		/// does not already have to that element.
+		/// </remarks>
+		public bool StartTagAttributesMerged {
+			get; private set;
+		}
+
+		/// <summary>
+		/// Get whether the most recently processed tag closed SVG or MathML elements by breaking out of foreign content.
+		/// </summary>
+		/// <remarks>
+		/// Within SVG or MathML content (other than at an integration point), start tags such as <c>&lt;p&gt;</c>,
+		/// <c>&lt;b&gt;</c>, <c>&lt;img&gt;</c> or <c>&lt;font color&gt;</c>, as well as the <c>&lt;/p&gt;</c> and
+		/// <c>&lt;/br&gt;</c> end tags, close the open SVG and MathML elements and get processed as HTML.
+		/// </remarks>
+		public bool BrokeOutOfForeignContent {
+			get; private set;
+		}
+
+		/// <summary>
 		/// Clear the list of implicitly closed elements.
 		/// </summary>
 		public void ClearClosedElements ()
@@ -330,6 +375,8 @@ namespace MimeKit.Text {
 		/// <param name="c">The character.</param>
 		public void ProcessCharacterData (char c)
 		{
+			htmlCreated = true;
+
 			if (inFrameset)
 				return;
 
@@ -925,13 +972,45 @@ namespace MimeKit.Text {
 		/// <param name="tag">The start tag.</param>
 		public bool ProcessStartTag (HtmlTagToken tag)
 		{
+			bool htmlExisted = htmlCreated;
+			var entryMode = mode;
+
+			StartTagAttributesMerged = false;
+			BrokeOutOfForeignContent = false;
+			StartTagIgnored = false;
+			htmlCreated = true;
+
 			// Note: In the frameset insertion modes, every start tag other than <html>, <frameset>, <frame> and <noframes> is
 			// ignored, so <noframes> is the only start tag that switches the tokenizer state.
-			if (inFrameset)
-				return tag.Id == HtmlTagId.NoFrames;
+			if (inFrameset) {
+				switch (tag.Id) {
+				case HtmlTagId.Html:
+					StartTagAttributesMerged = tag.Attributes.Count > 0;
+					break;
+				case HtmlTagId.FrameSet:
+					// Note: The self-closing flag is ignored for the <frameset> element.
+					if (framesetDepth > 0)
+						framesetDepth++;
+					else
+						StartTagIgnored = true;
+					break;
+				case HtmlTagId.Frame:
+					StartTagIgnored = framesetDepth == 0;
+					break;
+				case HtmlTagId.NoFrames:
+					break;
+				default:
+					StartTagIgnored = true;
+					break;
+				}
 
-			if (mode != InsertionMode.AfterHead && !ProcessHeadStartTag (tag))
+				return tag.Id == HtmlTagId.NoFrames;
+			}
+
+			if (mode != InsertionMode.AfterHead && !ProcessHeadStartTag (tag)) {
+				StartTagIgnored = true;
 				return true;
+			}
 
 			if (count > 0) {
 				ref var top = ref EntryAt (count - 1);
@@ -954,6 +1033,7 @@ namespace MimeKit.Text {
 							// Pop until the current node is a MathML text integration point, an HTML integration point,
 							// or an element in the HTML namespace, then reprocess the token using the HTML rules.
 							PopAbove (TopHtmlOrIntegrationPoint);
+							BrokeOutOfForeignContent = true;
 						} else {
 							// Insert a foreign element for the token in the same namespace as the adjusted current node.
 							var ns = top.Namespace;
@@ -967,7 +1047,7 @@ namespace MimeKit.Text {
 				}
 			}
 
-			ProcessHtmlStartTag (tag);
+			ProcessHtmlStartTag (tag, entryMode, htmlExisted);
 
 			return true;
 		}
@@ -1075,8 +1155,9 @@ namespace MimeKit.Text {
 			Push (id.ToHtmlTagName (), id, HtmlNamespace.Html, GetHtmlFlags (id, string.Empty));
 		}
 
-		void ProcessHtmlStartTag (HtmlTagToken tag)
+		void ProcessHtmlStartTag (HtmlTagToken tag, InsertionMode entryMode, bool htmlExisted)
 		{
+			bool hadBody = bodyCreated;
 			var id = tag.Id;
 			int index, table;
 
@@ -1094,12 +1175,31 @@ namespace MimeKit.Text {
 
 			switch (id) {
 			case HtmlTagId.Html:
+				// Note: The <html> element is never pushed more than once, so its start tag has no effect on the stack. A
+				// subsequent <html> start tag is ignored if there is a <template> element on the stack; otherwise, its
+				// attributes get added to the existing <html> element.
+				if (IsTemplateOpen)
+					StartTagIgnored = true;
+				else
+					StartTagAttributesMerged = htmlExisted && tag.Attributes.Count > 0;
+				return;
 			case HtmlTagId.Head:
-				// These elements are never pushed more than once, so their start tags have no effect on the stack.
+				// Note: The <head> element is never pushed more than once either, so any <head> start tag that appears after
+				// the "before head" insertion mode gets ignored.
+				StartTagIgnored = entryMode != InsertionMode.BeforeHead;
 				return;
 			case HtmlTagId.Body:
 				// Note: The <body> element is never pushed more than once either, but a <body> start tag sets the frameset-ok
-				// flag to "not ok" (see ClearsFramesetOk).
+				// flag to "not ok" (see ClearsFramesetOk). A subsequent <body> start tag is ignored if there is a <template>
+				// element on the stack; otherwise, its attributes get added to the existing <body> element.
+				if (IsTemplateOpen)
+					StartTagIgnored = true;
+				else
+					StartTagAttributesMerged = hadBody && tag.Attributes.Count > 0;
+				return;
+			case HtmlTagId.Frame:
+				// Note: Outside of a <frameset>, the <frame> start tag is ignored.
+				StartTagIgnored = true;
 				return;
 			case HtmlTagId.FrameSet:
 				// Note: Before the <body> has been inserted, the <frameset> element gets inserted no matter what the frameset-ok
@@ -1109,6 +1209,9 @@ namespace MimeKit.Text {
 				if ((framesetOk || !bodyCreated) && !IsTemplateOpen) {
 					PopAbove (-1);
 					inFrameset = true;
+					framesetDepth = 1;
+				} else {
+					StartTagIgnored = true;
 				}
 				return;
 			case HtmlTagId.Address: case HtmlTagId.Article: case HtmlTagId.Aside: case HtmlTagId.BlockQuote:
@@ -1227,8 +1330,10 @@ namespace MimeKit.Text {
 
 			// Note: Unless there is a <template> element on the stack, a <form> start tag is ignored if the form element
 			// pointer is set (even if the <form> element that it points to has already been closed).
-			if (formPointerSet && !templateOpen)
+			if (formPointerSet && !templateOpen) {
+				StartTagIgnored = true;
 				return;
+			}
 
 			// Note: In the "in table", "in table body" and "in row" insertion modes, the <form> element is popped as soon as
 			// it gets inserted (or the start tag is ignored if there is a <template> element on the stack).
@@ -1237,6 +1342,8 @@ namespace MimeKit.Text {
 				case HtmlTagId.Table: case HtmlTagId.TBody: case HtmlTagId.Tfoot: case HtmlTagId.THead: case HtmlTagId.TR:
 					if (!templateOpen)
 						formPointerSet = true;
+					else
+						StartTagIgnored = true;
 					return;
 				}
 			}
@@ -1256,8 +1363,10 @@ namespace MimeKit.Text {
 			int index;
 
 			// Table structure start tags outside of a table are ignored.
-			if (table < 0)
+			if (table < 0) {
+				StartTagIgnored = TopTableScope < 0;
 				return;
+			}
 
 			switch (tag.Id) {
 			case HtmlTagId.Caption:
@@ -1323,10 +1432,18 @@ namespace MimeKit.Text {
 		/// <param name="tag">The end tag.</param>
 		public void ProcessEndTag (HtmlTagToken tag)
 		{
+			BrokeOutOfForeignContent = false;
 			poppedThrough = false;
+
+			// Note: In the "before html" insertion mode, only </head>, </body>, </html> and </br> create the <html> element.
+			if (tag.Id == HtmlTagId.Head || tag.Id == HtmlTagId.Body || tag.Id == HtmlTagId.Html || tag.Id == HtmlTagId.Br)
+				htmlCreated = true;
 
 			// Note: In the frameset insertion modes, end tags never affect anything that matters to the tokenizer.
 			if (inFrameset) {
+				if (tag.Id == HtmlTagId.FrameSet && framesetDepth > 0)
+					framesetDepth--;
+
 				EndTagIgnored = false;
 				return;
 			}
@@ -1385,7 +1502,10 @@ namespace MimeKit.Text {
 			if (count > 0 && EntryAt (count - 1).Namespace != HtmlNamespace.Html) {
 				if (tag.Id == HtmlTagId.Br || tag.Id == HtmlTagId.P) {
 					// </br> and </p> break out of foreign content.
+					int n = count;
+
 					PopAbove (TopHtmlOrIntegrationPoint);
+					BrokeOutOfForeignContent = count < n;
 				} else {
 					// Walk down the stack looking for a foreign element with a matching name, stopping at the first
 					// element in the HTML namespace. If a match is found, pop through it; otherwise, process the

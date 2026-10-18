@@ -67,7 +67,7 @@ namespace MimeKit.Text {
 		{
 			// Note: TooManyComplianceIssues is not part of the contiguous range of defects, so it is
 			// checked separately.
-			if ((violation <= HtmlComplianceViolation.None || violation > HtmlComplianceViolation.ElementDepthLimitExceeded) && violation != HtmlComplianceViolation.TooManyComplianceIssues)
+			if ((violation <= HtmlComplianceViolation.None || violation > HtmlComplianceViolation.AttributesMergedIntoExistingElement) && violation != HtmlComplianceViolation.TooManyComplianceIssues)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
 			if (offset < 0)
@@ -336,6 +336,9 @@ namespace MimeKit.Text {
 			case HtmlComplianceViolation.EofInScriptHtmlCommentLikeText:
 			case HtmlComplianceViolation.UnexpectedNullCharacter:
 			case HtmlComplianceViolation.EofInCData:
+			case HtmlComplianceViolation.IgnoredStartTag:
+			case HtmlComplianceViolation.ForeignContentBreakout:
+			case HtmlComplianceViolation.AttributesMergedIntoExistingElement:
 				return MimeComplianceSeverity.Major;
 
 			// Note: Not a defect in the document, but a consumer that only looks at Major and above needs
@@ -417,6 +420,9 @@ namespace MimeKit.Text {
 			case HtmlComplianceViolation.CDataInHtmlContent:
 			case HtmlComplianceViolation.EofInScriptHtmlCommentLikeText:
 			case HtmlComplianceViolation.UnexpectedNullCharacter:
+			case HtmlComplianceViolation.IgnoredStartTag:
+			case HtmlComplianceViolation.ForeignContentBreakout:
+			case HtmlComplianceViolation.AttributesMergedIntoExistingElement:
 				return Interop | Security;
 
 			// Note: A character is decoded as U+FFFD REPLACEMENT CHARACTER.
@@ -546,6 +552,12 @@ namespace MimeKit.Text {
 				return "The input contained a U+0000 NULL character.";
 			case HtmlComplianceViolation.ElementDepthLimitExceeded:
 				return "Elements were nested more deeply than the configured limit.";
+			case HtmlComplianceViolation.IgnoredStartTag:
+				return "A start tag was ignored.";
+			case HtmlComplianceViolation.ForeignContentBreakout:
+				return "A tag closed SVG or MathML elements by breaking out of foreign content.";
+			case HtmlComplianceViolation.AttributesMergedIntoExistingElement:
+				return "The attributes of a start tag were added to an existing element.";
 			case HtmlComplianceViolation.TooManyComplianceIssues:
 				return "Too many compliance issues were detected and the remainder were suppressed.";
 			default:
@@ -660,6 +672,12 @@ namespace MimeKit.Text {
 				return "NULL characters are not allowed in HTML. Depending on where they appear, browsers either ignore them or replace them with U+FFFD REPLACEMENT CHARACTER, while other HTML processors may truncate the content at the NULL.";
 			case HtmlComplianceViolation.ElementDepthLimitExceeded:
 				return "This is not a defect in the document, but the remainder of the input was treated as text rather than markup.";
+			case HtmlComplianceViolation.IgnoredStartTag:
+				return "Browsers do not insert an element for some start tags that appear where they are not allowed, e.g. a second <head>, a <frameset> after the body content has started, a nested <form>, a table structure start tag such as <tr> outside of a table, or any start tag other than <html>, <frameset>, <frame> or <noframes> in a frameset document. Since the ignored start tag does not change how the content that follows it gets tokenized, other HTML processors that do honor it may disagree about the structure of the document.";
+			case HtmlComplianceViolation.ForeignContentBreakout:
+				return "Within SVG or MathML content (other than at an integration point), start tags such as <p>, <b>, <img> or <font color>, as well as the </p> and </br> end tags, implicitly close all of the open SVG and MathML elements and get processed as HTML. Since this changes whether the content that follows gets tokenized as HTML or as foreign content (e.g. how <style> or <![CDATA[ are handled), it is a common technique for smuggling markup past HTML sanitizers.";
+			case HtmlComplianceViolation.AttributesMergedIntoExistingElement:
+				return "An <html> or <body> start tag that appears after the element has already been inserted (explicitly or implicitly) does not insert another element. Instead, browsers add any of its attributes that the existing element does not already have to that element. This allows attributes such as event handlers to be attached to the document's <body> element from anywhere in the document, which HTML processors that discard the duplicate start tag will not expect.";
 			case HtmlComplianceViolation.TooManyComplianceIssues:
 				return "Some violation was detected more often than the configured per-violation limit, so the remainder of that violation, and of any other violation that exceeds the limit, were not reported.";
 			default:
