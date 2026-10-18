@@ -77,6 +77,8 @@ namespace MimeKit.Fuzzing {
 				return 2;
 			}
 
+			fuzzTarget.Initialize ();
+
 			Fuzzer.LibFuzzer.Run (fuzzTarget.Run);
 
 			return 0;

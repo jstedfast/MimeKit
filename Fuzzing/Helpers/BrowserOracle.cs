@@ -39,7 +39,8 @@ namespace MimeKit.Fuzzing.Helpers {
 	// (other than the attribute-less elements implied by the tree builder) must have come from markup that HtmlTokenizer did not
 	// see as a start tag.
 	//
-	// The browser is only launched the first time that it is needed, which keeps the fuzzing loop fast.
+	// When fuzzing, the browser is launched by Warmup before libFuzzer starts, since a cold start can take longer than the
+	// per-input timeout. Otherwise (e.g. when replaying), it is only launched the first time that it is needed.
 	static class BrowserOracle
 	{
 		const string MarkerPrefix = "mkoracle";
@@ -104,6 +105,25 @@ namespace MimeKit.Fuzzing.Helpers {
 				error = unavailable;
 
 				return browser;
+			}
+		}
+
+		/// <summary>
+		/// Launch the browser and load a page, so that the first check doesn't pay the start-up cost.
+		/// </summary>
+		public static void Warmup ()
+		{
+			var browser = GetBrowser (out var error);
+
+			if (browser is null) {
+				Console.Error.WriteLine ($"BrowserOracle: no browser is available ({error})");
+				return;
+			}
+
+			try {
+				Parse (browser, "<p>", false);
+			} catch (Exception ex) {
+				Console.Error.WriteLine ($"BrowserOracle: warm-up failed ({ex.Message.Split ('\n')[0]})");
 			}
 		}
 

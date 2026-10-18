@@ -53,6 +53,11 @@ namespace MimeKit.Fuzzing.Targets {
 
 		public int MaxLength => 256 * 1024;
 
+		public void Initialize ()
+		{
+			BrowserOracle.Warmup ();
+		}
+
 		public void Run (ReadOnlySpan<byte> data)
 		{
 			Run (data, Fuzz.Selector (data));

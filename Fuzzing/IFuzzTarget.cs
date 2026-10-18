@@ -38,6 +38,11 @@ namespace MimeKit.Fuzzing {
 		// The maximum input length passed to libFuzzer via -max_len.
 		int MaxLength { get; }
 
+		// Called once before fuzzing starts, outside of libFuzzer's per-input timeout. Use it for expensive one-time setup.
+		void Initialize ()
+		{
+		}
+
 		void Run (ReadOnlySpan<byte> data);
 	}
 
