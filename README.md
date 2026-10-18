@@ -42,6 +42,7 @@ and the [Release Notes](https://github.com/jstedfast/MimeKit/blob/master/Release
   * [Traversing a MimeMessage](#traversing-a-mimemessage)
   * [Quick and Dirty Enumeration of Message Body Parts](#quick-and-dirty-enumeration-of-message-body-parts)
   * [Getting the Decoded Content of a MIME Part](#getting-the-decoded-content-of-a-mime-part)
+  * [Extracting TNEF (winmail.dat) Attachments](#extracting-tnef-winmaildat-attachments)
   * [Checking Messages for MIME Compliance Problems](#checking-messages-for-mime-compliance-problems)
   * [Creating a Simple Message](#creating-a-simple-message)
   * [Creating a Message with Attachments](#creating-a-message-with-attachments)
@@ -414,6 +415,40 @@ using (var stream = part.Content.Open ()) {
 There are a number of useful filters that can be applied to a `FilteredStream`, so if you find this type of
 interface appealing, I suggest taking a look at the available filters in the `MimeKit.IO.Filters` namespace
 or even write your own! The possibilities are limited only by your imagination.
+
+### Extracting TNEF (winmail.dat) Attachments
+
+Outlook and Exchange sometimes send messages with an `application/ms-tnef` attachment, usually named
+`winmail.dat`. It holds the message's real bodies and attachments, packed in Microsoft's Transport Neutral
+Encapsulation Format, which most mail clients can't read. MimeKit parses these attachments as `TnefPart`s.
+
+The easiest way to handle a `TnefPart` is to convert it to MIME:
+
+```csharp
+foreach (var tnefPart in message.BodyParts.OfType<TnefPart> ()) {
+    using (var tnef = tnefPart.LoadTnefMessage ())
+    using (var result = tnef.ConvertToMime ()) {
+        // result.Message is a regular MimeMessage with the bodies and attachments from the TNEF part.
+        // It doesn't depend on the TnefMessage, but it is disposed along with the result.
+        foreach (var attachment in result.Message.Attachments.OfType<MimePart> ()) {
+            // The file name comes from the sender, so never use it as a path without sanitizing it.
+            var fileName = Path.GetFileName (attachment.FileName ?? "attachment.dat");
+
+            using (var stream = File.Create (fileName))
+                attachment.Content.DecodeTo (stream);
+        }
+
+        // result.Losses lists anything that couldn't be represented in MIME.
+    }
+}
+```
+
+If you don't need MIME, `TnefMessage` exposes the `Subject`, `Recipients`, `TextBody`, `HtmlBody`, `RtfBody`,
+`Attachments` and raw MAPI `Properties` directly. `TnefMessage.Load (stream)` loads a standalone `winmail.dat`
+file. TNEF data is untrusted input, so `TnefOptions` limits nesting depth, attachment count and data sizes.
+
+If you're porting TNEF code from MimeKit 4.x, see the
+[FAQ](FAQ.md#port-tnef-code) and the [TNEF section of the Porting Guide](PortingGuide.md#tnef).
 
 ### Checking Messages for MIME Compliance Problems
 
