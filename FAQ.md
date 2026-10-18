@@ -1284,7 +1284,7 @@ Keep in mind that not all messages will have a `TextBody` available, so you'll h
 
 .NET Core (and ASP.NET Core by extension) and .NET >= 5 only provide the Unicode encodings, ASCII and ISO-8859-1 by default.
 Other text encodings are not available to your application unless your application
-[registers](https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding.registerprovider?view=net-5.0) the encoding
+[registers](https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.registerprovider) the encoding
 provider that provides all of the additional encodings.
 
 First, add a package reference for the [System.Text.Encoding.CodePages](https://www.nuget.org/packages/System.Text.Encoding.CodePages)

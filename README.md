@@ -23,6 +23,48 @@
 MimeKit is a C# library which may be used for the creation and parsing of messages using the Multipurpose
 Internet Mail Extension (MIME), as defined by [numerous IETF specifications](https://github.com/jstedfast/MimeKit/blob/master/RFCs.md).
 
+**Upgrading from MimeKit 4.x?** MimeKit 5.0 contains a number of breaking changes. See the
+[Porting Guide](https://github.com/jstedfast/MimeKit/blob/master/PortingGuide.md) for step-by-step migration instructions
+and the [Release Notes](https://github.com/jstedfast/MimeKit/blob/master/ReleaseNotes.md) for the complete list of changes.
+
+## Contents
+
+* [Donate](#donate)
+* [History](#history)
+* [Performance](#performance)
+* [License Information](#license-information)
+* [Installing via NuGet](#installing-via-nuget)
+* [Getting the Source Code](#getting-the-source-code)
+* [Building](#building)
+* [Using MimeKit](#using-mimekit)
+  * [Parsing Messages](#parsing-messages)
+  * [Getting the Body of a Message](#getting-the-body-of-a-message)
+  * [Traversing a MimeMessage](#traversing-a-mimemessage)
+  * [Quick and Dirty Enumeration of Message Body Parts](#quick-and-dirty-enumeration-of-message-body-parts)
+  * [Getting the Decoded Content of a MIME Part](#getting-the-decoded-content-of-a-mime-part)
+  * [Checking Messages for MIME Compliance Problems](#checking-messages-for-mime-compliance-problems)
+  * [Creating a Simple Message](#creating-a-simple-message)
+  * [Creating a Message with Attachments](#creating-a-message-with-attachments)
+  * [Creating a Message Using a BodyBuilder (not Arnold Schwarzenegger)](#creating-a-message-using-a-bodybuilder-not-arnold-schwarzenegger)
+  * [Initializing MimeKit's Cryptography Support](#initializing-mimekits-cryptography-support)
+  * [Preparing to use MimeKit's S/MIME support](#preparing-to-use-mimekits-smime-support)
+  * [Preparing to use MimeKit's PGP/MIME support](#preparing-to-use-mimekits-pgpmime-support)
+  * [Encrypting Messages with S/MIME](#encrypting-messages-with-smime)
+  * [Decrypting S/MIME Messages](#decrypting-smime-messages)
+  * [Encrypting Messages with PGP/MIME](#encrypting-messages-with-pgpmime)
+  * [Decrypting PGP/MIME Messages](#decrypting-pgpmime-messages)
+  * [Digitally Signing Messages with S/MIME or PGP/MIME](#digitally-signing-messages-with-smime-or-pgpmime)
+  * [Verifying S/MIME and PGP/MIME Digital Signatures](#verifying-smime-and-pgpmime-digital-signatures)
+  * [Signing Messages with DKIM](#signing-messages-with-dkim)
+  * [Verifying DKIM Signatures](#verifying-dkim-signatures)
+  * [Signing Messages with ARC](#signing-messages-with-arc)
+  * [Verifying ARC Signatures](#verifying-arc-signatures)
+  * [Verifying DMARC](#verifying-dmarc)
+* [Contributing](#contributing)
+* [Reporting Bugs](#reporting-bugs)
+* [Documentation](#documentation)
+* [.NET Foundation](#net-foundation)
+
 ## Donate
 
 MimeKit is a personal open source project that I have put thousands of hours into perfecting with the
@@ -104,48 +146,49 @@ THE SOFTWARE.
 
 ## Installing via NuGet
 
-The easiest way to install MimeKit is via [NuGet](https://www.nuget.org/packages/MimeKit/).
+The easiest way to install MimeKit is via [NuGet](https://www.nuget.org/packages/MimeKit/):
 
-In Visual Studio's [Package Manager Console](https://docs.nuget.org/docs/start-here/using-the-package-manager-console),
-enter the following command:
+```bash
+dotnet add package MimeKit
+```
+
+Or, in Visual Studio's [Package Manager Console](https://learn.microsoft.com/nuget/consume-packages/install-use-packages-powershell):
 
 ```powershell
 Install-Package MimeKit
 ```
 
-## Getting the Source Code
+MimeKit is split into the following packages:
 
-First, you'll need to clone MimeKit from my GitHub repository. To do this using the command-line version of Git,
-you'll need to issue the following command in your terminal:
+* [MimeKit.Core](https://www.nuget.org/packages/MimeKit.Core) - MIME parsing and message construction, along with
+  everything else that does not require cryptography (address parsing, encoders and decoders, HTML, RTF and text
+  converters, TNEF, etc.).
+* [MimeKit.Cryptography](https://www.nuget.org/packages/MimeKit.Cryptography) - S/MIME, PGP/MIME, DKIM, ARC and DMARC
+  support. It depends on MimeKit.Core and BouncyCastle.
+* [MimeKit](https://www.nuget.org/packages/MimeKit) - a meta-package that references both MimeKit.Core and
+  MimeKit.Cryptography.
+
+If you don't need any of the cryptography features, you can reference MimeKit.Core instead:
 
 ```bash
-git clone --recursive https://github.com/jstedfast/MimeKit.git
+dotnet add package MimeKit.Core
 ```
 
-If you are using [TortoiseGit](https://tortoisegit.org) on Windows, you'll need to right-click in the directory
-where you'd like to clone MimeKit and select **Git Clone...** in the menu. Once you do that, you'll get the
-following dialog:
+If you do use the cryptography features, see [Initializing MimeKit's Cryptography Support](#initializing-mimekits-cryptography-support).
 
-![Download the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/images/clone.png)
+## Getting the Source Code
 
-Fill in the areas outlined in red and then click **OK**. This will recursively clone MimeKit onto your local machine.
+To clone MimeKit's source code:
 
-## Updating the Source Code
+```bash
+git clone https://github.com/jstedfast/MimeKit.git
+```
 
-Occasionally you might want to update your local copy of the source code if I have made changes to MimeKit since you
-downloaded the source code in the step above. To do this using the command-line version fo Git, you'll need to issue
-the following commands in your terminal within the MimeKit directory:
+To update an existing clone later:
 
 ```bash
 git pull
-git submodule update
 ```
-
-If you are using [TortoiseGit](https://tortoisegit.org) on Windows, you'll need to right-click on the MimeKit
-directory and select **Git Sync...** in the menu. Once you do that, you'll need to click the **Pull** and
-**Submodule Update** buttons in the following dialog:
-
-![Update the source code using TortoiseGit](https://github.com/jstedfast/MimeKit/blob/master/images/update.png)
 
 ## Building
 
@@ -371,6 +414,51 @@ using (var stream = part.Content.Open ()) {
 There are a number of useful filters that can be applied to a `FilteredStream`, so if you find this type of
 interface appealing, I suggest taking a look at the available filters in the `MimeKit.IO.Filters` namespace
 or even write your own! The possibilities are limited only by your imagination.
+
+### Checking Messages for MIME Compliance Problems
+
+MimeKit's parser is very forgiving: it will happily parse messages that violate the MIME specifications in
+all sorts of ways. Sometimes, though, you'll want to know about those violations, whether you are debugging
+a mail client, rejecting malformed messages, or looking for messages that different mail components might
+interpret differently (a common technique used to smuggle content past spam and malware filters).
+
+To find out, set the `ComplianceLogger` property of the `MimeParser` (or `MimeReader`) to an
+[IMimeComplianceLogger](https://www.mimekit.net/docs/html/T_MimeKit_IMimeComplianceLogger.htm) implementation.
+The parser will then report a [MimeComplianceIssue](https://www.mimekit.net/docs/html/T_MimeKit_MimeComplianceIssue.htm)
+for each problem that it finds, including the type of violation, its severity, its categories (interoperability,
+data loss and/or security) and where in the stream it was found:
+
+```csharp
+class ConsoleComplianceLogger : IMimeComplianceLogger
+{
+    public void Log (in MimeComplianceIssue issue)
+    {
+        Console.WriteLine ("{0}:{1}: {2}: {3} [{4}]", issue.LineNumber, issue.ColumnNumber,
+            issue.Severity, issue.Description, issue.Violation);
+    }
+}
+
+// ...
+
+using (var stream = File.OpenRead ("message.eml")) {
+    var parser = new MimeParser (stream) {
+        ComplianceLogger = new ConsoleComplianceLogger (),
+        ComplianceOptions = new MimeComplianceOptions {
+            // Since the issues can be produced by untrusted input, limit how many times each one gets reported.
+            MaxIssuesPerViolation = 10
+        }
+    };
+
+    var message = parser.ParseMessage ();
+}
+```
+
+If you only need the compliance report and not the `MimeMessage`, use a `MimeReader` instead; it scans the message
+without building the object tree. For a complete example, see the
+[MimeAnalyzer](https://github.com/jstedfast/MimeKit/tree/master/samples/MimeAnalyzer) sample, which reports the issues
+in a compiler-style `file:line:column: severity: message` format.
+
+`HtmlTokenizer`/`HtmlToHtml`, `RtfToText`/`RtfToHtml` and `TnefReader` have similar `ComplianceLogger` properties of their own.
 
 ### Creating a Simple Message
 
@@ -1274,7 +1362,7 @@ var result = await verifier.VerifyAsync (message, dkimResults, spf);
 ## Contributing
 
 The first thing you'll need to do is fork MimeKit to your own GitHub repository. For instructions on how to
-do that, see the section titled **Getting the Source Code**.
+clone it, see the section titled **Getting the Source Code**.
 
 If you use [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) or [MonoDevelop](https://monodevelop.com),
 all of the solution files are configured with the coding style used by MimeKit. If you use Visual Studio on Windows or
