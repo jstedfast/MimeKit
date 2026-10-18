@@ -137,7 +137,7 @@ namespace MimeKit.Fuzzing.Helpers {
 				foreach (var attribute in element.GetProperty ("attributes").EnumerateArray ()) {
 					var attr = attribute.GetString ()!;
 
-					if (attr.StartsWith (MarkerPrefix, StringComparison.Ordinal) && int.TryParse (attr.AsSpan (MarkerPrefix.Length), out int index) && index < markers.Count)
+					if (TryGetMarkerIndex (attr, out int index) && index < markers.Count)
 						seen.Add (markers[index]);
 					else
 						attributes.Add (attr);
@@ -186,6 +186,27 @@ namespace MimeKit.Fuzzing.Helpers {
 			return null;
 		}
 
+		// Parses the index of a marker attribute (whose name might be followed by the trailing characters of the tag name).
+		static bool TryGetMarkerIndex (string attribute, out int index)
+		{
+			index = 0;
+
+			if (!attribute.StartsWith (MarkerPrefix, StringComparison.Ordinal))
+				return false;
+
+			int end = MarkerPrefix.Length;
+
+			while (end < attribute.Length && char.IsAsciiDigit (attribute[end]))
+				end++;
+
+			for (int i = end; i < attribute.Length; i++) {
+				if (attribute[i] is not ('-' or ']' or '!'))
+					return false;
+			}
+
+			return int.TryParse (attribute.AsSpan (MarkerPrefix.Length, end - MarkerPrefix.Length), out index);
+		}
+
 		// Inserts a marker attribute after the name of each start tag that HtmlTokenizer emitted.
 		static string Mark (string html, IReadOnlyDictionary<int, HtmlTagToken> tags, out List<HtmlTagToken> markers)
 		{
@@ -203,12 +224,19 @@ namespace MimeKit.Fuzzing.Helpers {
 					end++;
 
 				// Note: Inserting an attribute between "--" and '>' or "]]" and '>' would change where the browser ends a comment
-				// or CDATA section if it treats this markup as text (which is what HtmlTokenizer might have gotten wrong).
-				if (end < html.Length && html[end] == '>' && html[end - 1] is '-' or ']' or '!')
-					throw new InvalidOperationException ("a marker cannot be inserted without changing the meaning of the input");
+				// or CDATA section if it treats this markup as text (which is what HtmlTokenizer might have gotten wrong), so repeat
+				// the trailing '-', ']' and '!' characters of the tag name after the marker (e.g. "<x--" becomes "<x-- mkoracle0--").
+				// The marker ends with a digit, so the browser would still end the comment or CDATA section at the same '>'.
+				int suffix = end;
+
+				if (end < html.Length && html[end] == '>') {
+					while (html[suffix - 1] is '-' or ']' or '!')
+						suffix--;
+				}
 
 				builder.Append (html, index, end - index);
 				builder.Append (' ').Append (MarkerPrefix).Append (markers.Count);
+				builder.Append (html, suffix, end - suffix);
 				markers.Add (tags[offset]);
 				index = end;
 			}
