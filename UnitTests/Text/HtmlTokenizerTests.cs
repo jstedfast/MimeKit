@@ -3719,6 +3719,13 @@ namespace UnitTests.Text {
 		[TestCase ("\0<frameset><style><frame>", "Data(\0) Tag(frameset) Tag(style) Tag(frame)")]
 		[TestCase ("<svg><![CDATA[ ]]></svg><frameset><style><frame>", "Tag(svg) Data( ) EndTag(svg) Tag(frameset) Tag(style) Tag(frame)")]
 		[TestCase ("<svg><foreignObject><frameset><style><frame>", "Tag(svg) Tag(foreignObject) Tag(frameset) Tag(style) Tag(frame)")]
+		// Before the <body> has been inserted, browsers insert the <frameset> no matter what the frameset-ok flag is (a <template>
+		// in the <head> sets it to "not ok"), and inserting an implied <body> sets it back to "ok" (but a <body> start tag does not).
+		[TestCase ("<template></template><frameset><style><frame>", "Tag(template) EndTag(template) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<template><img></template><frameset><style><frame>", "Tag(template) Tag(img) EndTag(template) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<template></template><div></div><frameset><style><frame>", "Tag(template) EndTag(template) Tag(div) EndTag(div) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<template></template></body><frameset><style><frame>", "Tag(template) EndTag(template) EndTag(body) Tag(frameset) Tag(style) Tag(frame)")]
+		[TestCase ("<template></template>\0<frameset><style><frame>", "Tag(template) EndTag(template) Data(\0) Tag(frameset) Tag(style) Tag(frame)")]
 		// Unless the frameset-ok flag has been set to "not ok", in which case browsers ignore the <frameset> start tag.
 		[TestCase ("x<frameset><style><frame>", "Data(x) Tag(frameset) Tag(style) Data(<frame>)")]
 		[TestCase ("&#65;<frameset><style><frame>", "Data(A) Tag(frameset) Tag(style) Data(<frame>)")]
@@ -3727,7 +3734,10 @@ namespace UnitTests.Text {
 		[TestCase ("<input><frameset><style><frame>", "Tag(input) Tag(frameset) Tag(style) Data(<frame>)")]
 		[TestCase ("<input type=\"hıdden\"><frameset><style><frame>", "Tag(input type=\"hıdden\") Tag(frameset) Tag(style) Data(<frame>)")]
 		[TestCase ("</br><frameset><style><frame>", "EndTag(br) Tag(frameset) Tag(style) Data(<frame>)")]
-		[TestCase ("<template></template><frameset><style><frame>", "Tag(template) EndTag(template) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<div></div><template></template><frameset><style><frame>", "Tag(div) EndTag(div) Tag(template) EndTag(template) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<template></template>x<frameset><style><frame>", "Tag(template) EndTag(template) Data(x) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<template></template><body><frameset><style><frame>", "Tag(template) EndTag(template) Tag(body) Tag(frameset) Tag(style) Data(<frame>)")]
+		[TestCase ("<template><frameset><style><frame>", "Tag(template) Tag(frameset) Tag(style) Data(<frame>)")]
 		[TestCase ("<svg><![CDATA[x]]></svg><frameset><style><frame>", "Tag(svg) Data(x) EndTag(svg) Tag(frameset) Tag(style) Data(<frame>)")]
 		[TestCase ("<svg><frameset><style><frame>", "Tag(svg) Tag(frameset) Tag(style) Tag(frame)")]
 		public void TestFrameset (string content, string expected)

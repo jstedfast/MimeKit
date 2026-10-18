@@ -102,7 +102,7 @@ namespace MimeKit.Text {
 		}
 
 		// The tree builder's insertion modes, as far as they matter for the document's head. Once the head has been
-		// closed, the "after head" insertion mode processes everything that matters to this class as if in the body.
+		// closed, AfterHead covers both the "after head" and the "in body" insertion modes (see bodyCreated).
 		enum InsertionMode : byte
 		{
 			BeforeHead,
@@ -144,6 +144,10 @@ namespace MimeKit.Text {
 		// The frameset-ok flag and whether a <frameset> element has replaced the <body>.
 		bool framesetOk = true;
 		bool inFrameset;
+
+		// Whether the <body> element has been inserted. The "after head" insertion mode (InsertionMode.AfterHead before the body
+		// has been inserted) inserts a <frameset> element no matter what the frameset-ok flag is.
+		bool bodyCreated;
 
 		// The form element pointer: whether it is set, and the index of the <form> element that it points to (or -1 if that
 		// element is no longer on the stack, e.g. because it was popped by a </div> or because it was inserted in a table).
@@ -293,10 +297,10 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// While this is <see langword="true" />, any character in the data state (or in a CDATA section) that is not
 		/// whitespace must be reported using <see cref="ProcessCharacterData"/>. This is the case until the tree builder
-		/// has moved past the document's <c>&lt;head&gt;</c> and the frameset-ok flag has been set to "not ok".
+		/// has inserted the document's <c>&lt;body&gt;</c> and the frameset-ok flag has been set to "not ok".
 		/// </remarks>
 		public bool TracksCharacterData {
-			get { return !inFrameset && (mode != InsertionMode.AfterHead || framesetOk); }
+			get { return !inFrameset && (mode != InsertionMode.AfterHead || framesetOk || !bodyCreated); }
 		}
 
 		/// <summary>
@@ -329,17 +333,27 @@ namespace MimeKit.Text {
 			if (inFrameset)
 				return;
 
+			// Note: In the "in template" insertion mode, character data is processed as if in the body without closing the head.
+			if (!IsTemplateOpen) {
+				if (mode == InsertionMode.InHeadNoScript)
+					PopThrough (IndexOf (HtmlTagId.NoScript));
+
+				mode = InsertionMode.AfterHead;
+				InsertImpliedBody ();
+			}
+
 			if (c != '\0')
 				framesetOk = false;
+		}
 
-			// Note: In the "in template" insertion mode, character data is processed as if in the body without closing the head.
-			if (IsTemplateOpen)
-				return;
-
-			if (mode == InsertionMode.InHeadNoScript)
-				PopThrough (IndexOf (HtmlTagId.NoScript));
-
-			mode = InsertionMode.AfterHead;
+		// Inserts the <body> element for a token that is processed using the "anything else" rules of the "after head" insertion
+		// mode, which also set the frameset-ok flag back to "ok" (e.g. after a <template> in the <head> set it to "not ok").
+		void InsertImpliedBody ()
+		{
+			if (!bodyCreated) {
+				bodyCreated = true;
+				framesetOk = true;
+			}
 		}
 
 		#region Stack primitives
@@ -818,6 +832,21 @@ namespace MimeKit.Text {
 			}
 		}
 
+		// Start tags that, when processed using the rules for the "after head" insertion mode, insert the <body> element.
+		static bool InsertsBody (HtmlTagToken tag)
+		{
+			switch (tag.Id) {
+			case HtmlTagId.Html: case HtmlTagId.Head: case HtmlTagId.FrameSet: case HtmlTagId.Base: case HtmlTagId.BaseFont:
+			case HtmlTagId.BGSound: case HtmlTagId.Link: case HtmlTagId.Meta: case HtmlTagId.NoFrames: case HtmlTagId.Script:
+			case HtmlTagId.Style: case HtmlTagId.Title:
+				return false;
+			case HtmlTagId.Unknown:
+				return !tag.Name.Equals ("template", StringComparison.OrdinalIgnoreCase);
+			default:
+				return true;
+			}
+		}
+
 		// Start tags that, when processed using the rules for the "in body" insertion mode, set the frameset-ok flag to "not ok".
 		static bool ClearsFramesetOk (HtmlTagToken tag)
 		{
@@ -1051,6 +1080,15 @@ namespace MimeKit.Text {
 			var id = tag.Id;
 			int index, table;
 
+			// Note: In the "after head" insertion mode, any start tag that does not belong in the head (other than <body> and
+			// <frameset>) inserts the <body> element.
+			if (!bodyCreated && mode == InsertionMode.AfterHead && InsertsBody (tag) && !IsTemplateOpen) {
+				if (id == HtmlTagId.Body)
+					bodyCreated = true;
+				else
+					InsertImpliedBody ();
+			}
+
 			if (framesetOk && ClearsFramesetOk (tag))
 				framesetOk = false;
 
@@ -1064,11 +1102,11 @@ namespace MimeKit.Text {
 				// flag to "not ok" (see ClearsFramesetOk).
 				return;
 			case HtmlTagId.FrameSet:
-				// Note: Unless the frameset-ok flag is "not ok", the <frameset> element replaces the <body> (and everything in it).
-				// The <frameset> start tag is also ignored if the second element on the stack of open elements is not the <body>,
-				// but that can only happen in the fragment case or if there is a <template> element on the stack, and a <template>
-				// start tag sets the frameset-ok flag to "not ok".
-				if (framesetOk) {
+				// Note: Before the <body> has been inserted, the <frameset> element gets inserted no matter what the frameset-ok
+				// flag is (e.g. after a <template> in the <head>, which sets it to "not ok"). Otherwise, unless the frameset-ok flag
+				// is "not ok", the <frameset> element replaces the <body> (and everything in it). The <frameset> start tag is also
+				// ignored if there is a <template> element on the stack.
+				if ((framesetOk || !bodyCreated) && !IsTemplateOpen) {
 					PopAbove (-1);
 					inFrameset = true;
 				}
@@ -1295,6 +1333,10 @@ namespace MimeKit.Text {
 
 			if (mode != InsertionMode.AfterHead)
 				ProcessHeadEndTag (tag);
+
+			// Note: In the "after head" insertion mode, </body>, </html> and </br> insert the <body> element.
+			if (!bodyCreated && mode == InsertionMode.AfterHead && (tag.Id == HtmlTagId.Body || tag.Id == HtmlTagId.Html || tag.Id == HtmlTagId.Br) && !IsTemplateOpen)
+				InsertImpliedBody ();
 
 			// Note: In the body, </br> is treated as a <br> start tag.
 			if (tag.Id == HtmlTagId.Br)

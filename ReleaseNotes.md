@@ -852,6 +852,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   frameset-ok flag), since browsers ignore most start tags in a frameset document. Previously, an ignored
   start tag (such as the `<noscript>` in `<frameset><noscript><frame>` when `ScriptingEnabled` is `true`)
   could switch the tokenizer into a state in which it treated subsequent markup as text, or vice versa.
+  As in browsers, a `<frameset>` start tag that comes before the `<body>` has been inserted takes effect even
+  if the frameset-ok flag is "not ok" (e.g. after a `<template>` in the `<head>`), and inserting an implied
+  `<body>` sets the flag back to "ok".
 * `HtmlToHtml` now removes the tags that browsers ignore in a frameset document (any tag other than
   `<frameset>`, `<frame>` and `<noframes>`), so that converting the output again produces the same output.
   It also removes `<frameset>` start tags that browsers ignore because the frameset-ok flag is "not ok" (e.g.

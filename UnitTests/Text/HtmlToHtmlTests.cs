@@ -411,17 +411,18 @@ namespace UnitTests.Text {
 
 		[TestCase ("<body><frameset><d>x</d>", false, "<body><d>x</d>")]
 		[TestCase ("<body><frameset><d>x</d>", true, "<d>x</d>")]
-		[TestCase ("<head><template></template></head><frameset><d>x</d>", false, "<head><template></template></head><d>x</d>")]
-		[TestCase ("<head><template></template></head><frameset><d>x</d>", true, "<d>x</d>")]
+		[TestCase ("<div><template></template></div><frameset><d>x</d>", false, "<div><template></template></div><d>x</d>")]
+		[TestCase ("<div><template></template></div><frameset><d>x</d>", true, "<div><template></template></div><d>x</d>")]
 		[TestCase ("x<frameset><d>y</d></frameset>", false, "x<d>y</d></frameset>")]
 		[TestCase ("<frameset><frame><frameset><frame></frameset></frameset>", true, "<frameset><frame><frameset><frame></frameset></frameset>")]
 		public void TestIgnoredFramesetStartTag (string input, bool fragment, string expected)
 		{
 			var converter = new HtmlToHtml { OutputHtmlFragment = fragment };
 
-			// Note: Browsers ignore a <frameset> start tag once the frameset-ok flag is "not ok" (e.g. after a <body> start tag,
-			// a <template> or non-whitespace text), so it gets dropped. Otherwise, it would replace the <body> when the output is
-			// interpreted without the tokens that cleared the flag (e.g. a fragment omits the <body> tag and the <head>).
+			// Note: Browsers ignore a <frameset> start tag once the <body> has been inserted and the frameset-ok flag is "not ok"
+			// (e.g. after a <body> start tag, a <template> in the body or non-whitespace text), so it gets dropped. Otherwise, it
+			// would replace the <body> when the output is interpreted without the tokens that cleared the flag (e.g. a fragment
+			// omits the <body> tag and the <head>).
 			var result = converter.Convert (input);
 
 			Assert.That (result, Is.EqualTo (expected));
