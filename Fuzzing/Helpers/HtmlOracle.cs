@@ -216,7 +216,7 @@ namespace MimeKit.Fuzzing.Helpers {
 					// is either the last character of the previous token or the first character after it.
 					int start = html.IndexOf ('<', Math.Max (previousEnd - 1, 0));
 
-					// Skip markup that the tokenizer consumes without emitting a token (e.g. an empty CDATA section).
+					// Skip markup that the tokenizer consumes without emitting a token (e.g. an empty CDATA section or "</>").
 					while (start >= 0 && start < end && SkipNoTokenMarkup (html, start, out int next))
 						start = html.IndexOf ('<', next);
 
@@ -246,6 +246,6 @@ namespace MimeKit.Fuzzing.Helpers {
 			return false;
 		}
 
-		static readonly string[] NoTokenMarkup = { "<![CDATA[]]>" };
+		static readonly string[] NoTokenMarkup = { "<![CDATA[]]>", "</>" };
 	}
 }
