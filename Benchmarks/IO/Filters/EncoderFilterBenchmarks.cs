@@ -87,11 +87,14 @@ namespace Benchmarks.IO.Filters {
 		[Benchmark]
 		public void Base64EncodeStream ()
 		{
+#if NET6_0_OR_GREATER
 			Base64Encoder.EnableHardwareAcceleration = false;
+#endif
 
 			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 
+#if NET6_0_OR_GREATER
 		[Benchmark]
 		public void HwAccelBase64EncodeStream ()
 		{
@@ -99,15 +102,19 @@ namespace Benchmarks.IO.Filters {
 
 			EncodeStream (BinaryData, new Base64Encoder (MaxLineLength));
 		}
+#endif
 
 		[Benchmark]
 		public void Base64Encode ()
 		{
+#if NET6_0_OR_GREATER
 			Base64Encoder.EnableHardwareAcceleration = false;
+#endif
 
 			Encode (BinaryData, new Base64Encoder (MaxLineLength));
 		}
 
+#if NET6_0_OR_GREATER
 		[Benchmark]
 		public void HwAccelBase64Encode ()
 		{
@@ -115,6 +122,7 @@ namespace Benchmarks.IO.Filters {
 
 			Encode (BinaryData, new Base64Encoder (MaxLineLength));
 		}
+#endif
 
 		[Benchmark]
 		public void QuotedPrintableEncodeStream ()

@@ -123,7 +123,11 @@ namespace Benchmarks {
 		// the escapes of an ISO-2022 sequence without them being re-encoded.
 		static byte[] Encode (string value)
 		{
+#if NET5_0_OR_GREATER
 			return Encoding.Latin1.GetBytes (value);
+#else
+			return Encoding.GetEncoding (28591).GetBytes (value);
+#endif
 		}
 
 		// Note: MimeReader constructs a validator for each address header it encounters, so the

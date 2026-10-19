@@ -87,11 +87,14 @@ namespace Benchmarks.IO.Filters {
 		[Benchmark]
 		public void Base64Decode ()
 		{
+#if NET6_0_OR_GREATER
 			Base64Decoder.EnableHardwareAcceleration = false;
+#endif
 
 			Decode (Base64Data, new Base64Decoder ());
 		}
 
+#if NET6_0_OR_GREATER
 		[Benchmark]
 		public void HwAccelBase64Decode ()
 		{
@@ -99,15 +102,19 @@ namespace Benchmarks.IO.Filters {
 
 			Decode (Base64Data, new Base64Decoder ());
 		}
+#endif
 
 		[Benchmark]
 		public void Base64DecodeStream ()
 		{
+#if NET6_0_OR_GREATER
 			Base64Decoder.EnableHardwareAcceleration = false;
+#endif
 
 			DecodeStream (Base64Data, new Base64Decoder ());
 		}
 
+#if NET6_0_OR_GREATER
 		[Benchmark]
 		public void HwAccelBase64DecodeStream ()
 		{
@@ -115,6 +122,7 @@ namespace Benchmarks.IO.Filters {
 
 			DecodeStream (Base64Data, new Base64Decoder ());
 		}
+#endif
 
 		[Benchmark]
 		public void QuotedPrintableDecode ()
