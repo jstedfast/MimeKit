@@ -870,6 +870,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   within the `<form>`, so in input such as `<form><svg></form><style><img onerror=...></style>`, the tokenizer
   treated the `<style>` content as raw text while browsers create an `<img>` element, hiding the tag from
   `HtmlToHtml.HtmlTagCallback`.
+* Fixed `MimeParser` and `MimeReader` to no longer fail with "Failed to find mbox From marker" (or misparse
+  headers) when the underlying stream returns fewer bytes per read than requested (e.g. a network stream or a
+  stream that returns 1 byte at a time).
 
 ## MimeKit 4.18.1 (2026-09-19)
 

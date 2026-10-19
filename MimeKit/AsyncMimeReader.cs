@@ -51,6 +51,18 @@ namespace MimeKit {
 			return inputEnd - inputIndex;
 		}
 
+		async Task<int> ReadAheadAtLeastAsync (int atleast, int save, CancellationToken cancellationToken)
+		{
+			int available, previous;
+
+			do {
+				previous = inputEnd - inputIndex;
+				available = await ReadAheadAsync (atleast, save, cancellationToken).ConfigureAwait (false);
+			} while (available < atleast && available > previous);
+
+			return available;
+		}
+
 		async Task<bool> StepByteOrderMarkAsync (CancellationToken cancellationToken)
 		{
 			int bomIndex = 0;
@@ -82,7 +94,7 @@ namespace MimeKit {
 
 			// consume data until we find a line that begins with "From "
 			do {
-				var available = await ReadAheadAsync (5, 0, cancellationToken).ConfigureAwait (false);
+				var available = await ReadAheadAtLeastAsync (5, 0, cancellationToken).ConfigureAwait (false);
 
 				if (available < 5) {
 					// failed to find the beginning of the mbox marker; EOF reached
@@ -177,7 +189,7 @@ namespace MimeKit {
 				lastLineNumber = beginLineNumber;
 
 				if (left < 2)
-					left = await ReadAheadAsync (2, 0, cancellationToken).ConfigureAwait (false);
+					left = await ReadAheadAtLeastAsync (2, 0, cancellationToken).ConfigureAwait (false);
 
 				if (left == 0) {
 					// Note: We can only get here if we're at EOF and either no headers have been read or the previous line was a complete header.

@@ -1,4 +1,4 @@
-﻿//
+//
 // MimeParserTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -8197,6 +8197,92 @@ Content-Type: text/plain; charset=utf-8
 
 			using (var message = await parser.ParseMessageAsync ())
 				AssertSplitCrLf (message, logger);
+		}
+
+		static readonly byte[] ShortReadMbox = Encoding.ASCII.GetBytes (
+			"From sender@example.com Sat Jan  1 00:00:00 2022\n" +
+			"Subject: First\n\nbody one\n\n" +
+			"From sender@example.com Sat Jan  1 00:00:01 2022\n" +
+			"Subject: Second\n\nbody two\n\n" +
+			"From sender@example.com Sat Jan  1 00:00:02 2022\r\n" +
+			"Subject: Third\r\n\r\nbody three\r\n");
+
+		static readonly byte[] ShortReadCrLfMessage = Encoding.ASCII.GetBytes (
+			"From: sender@example.org\r\nSubject: Short reads\r\nMIME-Version: 1.0\r\n" +
+			"Content-Type: multipart/mixed; boundary=\"b\"\r\n\r\n" +
+			"--b\r\nContent-Type: text/plain\r\n\r\nfirst part\r\n" +
+			"--b\r\n\r\nsecond part\r\n" +
+			"--b--\r\n");
+
+		static string[] GetShortReadSummaries (List<MimeMessage> messages)
+		{
+			var summaries = new string[messages.Count];
+
+			for (int i = 0; i < messages.Count; i++) {
+				var parts = messages[i].BodyParts.OfType<TextPart> ().Select (part => part.Text);
+				summaries[i] = messages[i].Subject + "|" + string.Join ("|", parts) + "|" + messages[i].ToString ();
+			}
+
+			return summaries;
+		}
+
+		static IMimeParser CreateParser (Stream stream, MimeFormat format, bool legacy)
+		{
+			return legacy ? new LegacyMimeParser (stream, format) : new MimeParser (stream, format);
+		}
+
+		static List<MimeMessage> ParseAll (Stream stream, MimeFormat format, bool legacy)
+		{
+			var parser = CreateParser (stream, format, legacy);
+			var messages = new List<MimeMessage> ();
+
+			while (!parser.IsEndOfStream)
+				messages.Add (parser.ParseMessage ());
+
+			return messages;
+		}
+
+		static async Task<List<MimeMessage>> ParseAllAsync (Stream stream, MimeFormat format, bool legacy)
+		{
+			var parser = CreateParser (stream, format, legacy);
+			var messages = new List<MimeMessage> ();
+
+			while (!parser.IsEndOfStream)
+				messages.Add (await parser.ParseMessageAsync ());
+
+			return messages;
+		}
+
+		static void AssertShortReads (List<MimeMessage> expected, List<MimeMessage> actual)
+		{
+			try {
+				Assert.That (GetShortReadSummaries (actual), Is.EqualTo (GetShortReadSummaries (expected)));
+			} finally {
+				foreach (var message in expected.Concat (actual))
+					message.Dispose ();
+			}
+		}
+
+		[Test]
+		public void TestShortReads ([Values (false, true)] bool legacy, [Values (MimeFormat.Mbox, MimeFormat.Entity)] MimeFormat format, [Values (1, 2, 3, 4, 5)] int chunkSize)
+		{
+			var data = format == MimeFormat.Mbox ? ShortReadMbox : ShortReadCrLfMessage;
+			var expected = ParseAll (new MemoryStream (data, false), format, legacy);
+
+			Assert.That (expected.Count, Is.EqualTo (format == MimeFormat.Mbox ? 3 : 1));
+
+			AssertShortReads (expected, ParseAll (new ChunkedReadStream (data, chunkSize), format, legacy));
+		}
+
+		[Test]
+		public async Task TestShortReadsAsync ([Values (false, true)] bool legacy, [Values (MimeFormat.Mbox, MimeFormat.Entity)] MimeFormat format, [Values (1, 2, 3, 4, 5)] int chunkSize)
+		{
+			var data = format == MimeFormat.Mbox ? ShortReadMbox : ShortReadCrLfMessage;
+			var expected = await ParseAllAsync (new MemoryStream (data, false), format, legacy);
+
+			Assert.That (expected.Count, Is.EqualTo (format == MimeFormat.Mbox ? 3 : 1));
+
+			AssertShortReads (expected, await ParseAllAsync (new ChunkedReadStream (data, chunkSize), format, legacy));
 		}
 
 		static Stream CreateStream (byte[] data, bool chunked)

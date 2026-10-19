@@ -1462,6 +1462,21 @@ namespace MimeKit {
 			return inputEnd - inputIndex;
 		}
 
+		// Unlike ReadAhead(), which performs at most a single read, this keeps reading until at least `atleast`
+		// bytes are buffered, the end of the stream is reached, or there is no more room in the input buffer.
+		// Note: Stream.Read() may return fewer bytes than requested even when more data is available.
+		int ReadAheadAtLeast (int atleast, int save, CancellationToken cancellationToken)
+		{
+			int available, previous;
+
+			do {
+				previous = inputEnd - inputIndex;
+				available = ReadAhead (atleast, save, cancellationToken);
+			} while (available < atleast && available > previous);
+
+			return available;
+		}
+
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		long GetOffset (int index)
 		{
@@ -1678,7 +1693,7 @@ namespace MimeKit {
 
 			// consume data until we find a line that begins with "From "
 			do {
-				var available = ReadAhead (5, 0, cancellationToken);
+				var available = ReadAheadAtLeast (5, 0, cancellationToken);
 
 				if (available < 5) {
 					// failed to find the beginning of the mbox marker; EOF reached
@@ -2462,7 +2477,7 @@ namespace MimeKit {
 				lastLineNumber = beginLineNumber;
 
 				if (left < 2)
-					left = ReadAhead (2, 0, cancellationToken);
+					left = ReadAheadAtLeast (2, 0, cancellationToken);
 
 				if (left == 0) {
 					// Note: We can only get here if we're at EOF and either no headers have been read or the previous line was a complete header.
