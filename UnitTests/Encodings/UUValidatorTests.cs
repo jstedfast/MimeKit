@@ -253,6 +253,43 @@ namespace UnitTests.Encodings {
 			AssertInvalidInput (text, issues);
 		}
 
+		[TestCase (5)]
+		[TestCase (255)]
+		[TestCase (256)]
+		[TestCase (259)]
+		[TestCase (260)]
+		[TestCase (1000)]
+		public void TestValidateOverlongFileModeAcrossWrites (int digitCount)
+		{
+			var input = Encoding.ASCII.GetBytes ("begin " + new string ('6', digitCount) + " x\n`\nend\n");
+
+			for (int split = 0; split <= input.Length; split++) {
+				var logger = new TestMimeComplianceLogger ();
+				var validator = new UUValidator (logger, MimeComplianceContext.Transport, 100, 5);
+
+				validator.Write (input, 0, split);
+				validator.Write (input, split, input.Length - split);
+				validator.Flush ();
+
+				Assert.That (logger.Issues, Has.Count.EqualTo (1), $"split={split}");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.InvalidUUEncodeFileMode), $"split={split}");
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (110), $"split={split}");
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (5), $"split={split}");
+				Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (11), $"split={split}");
+			}
+
+			var bytewise = new TestMimeComplianceLogger ();
+			var bytewiseValidator = new UUValidator (bytewise, MimeComplianceContext.Transport, 100, 5);
+
+			for (int i = 0; i < input.Length; i++)
+				bytewiseValidator.Write (input, i, 1);
+			bytewiseValidator.Flush ();
+
+			Assert.That (bytewise.Issues, Has.Count.EqualTo (1));
+			Assert.That (bytewise.Issues[0].StreamOffset, Is.EqualTo (110));
+			Assert.That (bytewise.Issues[0].ColumnNumber, Is.EqualTo (11));
+		}
+
 		[TestCase ("xnd", 0)]
 		[TestCase ("exd", 1)]
 		[TestCase ("enx", 2)]

@@ -283,16 +283,21 @@ namespace MimeKit.Encodings {
 
 				if (state == UUValidatorState.FileMode) {
 					// scan file mode
+					// Note: The digit count saturates rather than wrapping (nsaved is a byte) so that an arbitrarily long
+					// file mode cannot cause the count to roll over. The overlong file mode violation is reported at the
+					// 5th digit as soon as it is scanned so that the result does not depend on how the input is chunked.
 					while (inptr < inend && *inptr >= (byte) '0' && *inptr <= (byte) '9') {
-						streamOffset++;
-						nsaved++;
-						inptr++;
-					}
+						if (nsaved == 4 && !invalidFileMode) {
+							// file mode is too long
+							logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset, lineNumber, GetColumnNumber (streamOffset)));
+							invalidFileMode = true;
+						}
 
-					if (!invalidFileMode && nsaved > 4) {
-						// file mode is too long
-						logger.Log (new MimeComplianceIssue (context, MimeComplianceViolation.InvalidUUEncodeFileMode, streamOffset - nsaved + 4, lineNumber, GetColumnNumber (streamOffset - nsaved + 4)));
-						invalidFileMode = true;
+						if (nsaved < 5)
+							nsaved++;
+
+						streamOffset++;
+						inptr++;
 					}
 
 					if (inptr == inend)

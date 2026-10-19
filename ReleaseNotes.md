@@ -873,6 +873,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Fixed `MimeParser` and `MimeReader` to no longer fail with "Failed to find mbox From marker" (or misparse
   headers) when the underlying stream returns fewer bytes per read than requested (e.g. a network stream or a
   stream that returns 1 byte at a time).
+* Fixed `UUValidator` to always report an overlong file mode in a uuencode `begin` line at the fifth digit.
+  Previously, the digit counter wrapped after 255 digits, so a very long file mode could be reported at the
+  wrong position or not at all, depending on how the input was split across calls to `Write ()`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
