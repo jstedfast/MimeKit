@@ -876,6 +876,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Fixed `UUValidator` to always report an overlong file mode in a uuencode `begin` line at the fifth digit.
   Previously, the digit counter wrapped after 255 digits, so a very long file mode could be reported at the
   wrong position or not at all, depending on how the input was split across calls to `Write ()`.
+* Fixed the `EstimateOutputLength ()` methods of `Base64Encoder`, `HexDecoder`, `HexEncoder`,
+  `QuotedPrintableDecoder`, `QuotedPrintableEncoder`, `Rfc2047Base64Encoder`, `Rfc2047QuotedPrintableEncoder`,
+  `UUDecoder`, `UUEncoder` and `YEncoder` to no longer silently overflow for very large input lengths and return
+  a negative or too-small estimate. They now throw `ArgumentOutOfRangeException` when the estimated output
+  length cannot be represented as an `int`.
 
 ## MimeKit 4.18.1 (2026-09-19)
 

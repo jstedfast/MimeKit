@@ -114,23 +114,28 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
+			long length = inputLength;
+
 			if (saved != -1)
-				inputLength++;
+				length++;
 
 			if (savedCarriageReturn)
-				inputLength++;
+				length++;
 
 			// Note: In the worst case, every input byte is encoded as a triplet and every tripletsPerLine triplets are
 			// followed by a soft line break ("=\n"). A line that was started by a previous call to Encode() may require
 			// an additional soft line break and Flush() may append a trailing soft line break.
-			int estimate = ((inputLength / tripletsPerLine) * ((tripletsPerLine * 3) + 2)) + ((inputLength % tripletsPerLine) * 3) + 2;
+			long estimate = ((length / tripletsPerLine) * ((tripletsPerLine * 3) + 2)) + ((length % tripletsPerLine) * 3) + 2;
 
 			if (currentLineLength > 0)
 				estimate += 2;
 
-			return estimate;
+			return ArgumentValidator.ValidateOutputLength (estimate);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)

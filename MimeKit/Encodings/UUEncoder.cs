@@ -34,6 +34,8 @@ using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 #endif
 
+using MimeKit.Utils;
+
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// Incrementally encodes content using the Unix-to-Unix encoding.
@@ -126,11 +128,14 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
 			// Note: up to 44 bytes of input from previous calls may still be buffered (in uubuf and saved), so the
 			// worst case needs to account for them being completed into full lines along with the new input.
-			return (((inputLength + MaxInputPerLine - 1) / MaxInputPerLine) * MaxOutputPerLine) + MaxOutputPerLine + 2;
+			return ArgumentValidator.ValidateOutputLength (((((long) inputLength + MaxInputPerLine - 1) / MaxInputPerLine) * MaxOutputPerLine) + MaxOutputPerLine + 2);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)

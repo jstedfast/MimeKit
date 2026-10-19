@@ -697,5 +697,17 @@ namespace UnitTests.Encodings {
 				}
 			}
 		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestEstimateOutputLengthDoesNotOverflow (bool payloadOnly)
+		{
+			var decoder = new UUDecoder (payloadOnly);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => decoder.EstimateOutputLength (int.MaxValue));
+			Assert.That (decoder.EstimateOutputLength (int.MaxValue - 3), Is.EqualTo (int.MaxValue));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (decoder.EstimateOutputLength);
+		}
 	}
 }

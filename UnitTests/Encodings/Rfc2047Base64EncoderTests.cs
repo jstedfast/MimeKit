@@ -42,5 +42,15 @@ namespace UnitTests.Encodings {
 			Assert.Throws<ArgumentNullException> (() => encoder.Encode (new byte[1], 0, 1, null));
 			Assert.Throws<ArgumentException> (() => encoder.Encode (new byte[1], 0, 1, output));
 		}
+
+		[Test]
+		public void TestEstimateOutputLengthDoesNotOverflow ()
+		{
+			var encoder = new Rfc2047Base64Encoder ();
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.EstimateOutputLength (int.MaxValue));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (encoder.EstimateOutputLength);
+		}
 	}
 }

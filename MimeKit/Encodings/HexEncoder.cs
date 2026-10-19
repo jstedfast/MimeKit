@@ -48,9 +48,12 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public static int EstimateOutputLength (int inputLength)
 		{
-			return inputLength * 3;
+			return ArgumentValidator.ValidateOutputLength ((long) inputLength * 3);
 		}
 
 		static void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)

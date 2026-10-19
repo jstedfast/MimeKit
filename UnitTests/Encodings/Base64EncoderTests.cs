@@ -540,5 +540,21 @@ namespace UnitTests.Encodings {
 				}
 			}
 		}
+
+		[TestCase (0)]
+		[TestCase (1)]
+		[TestCase (2)]
+		public void TestEstimateOutputLengthDoesNotOverflow (int pending)
+		{
+			var encoder = new Base64Encoder ();
+			var input = new byte[pending];
+			var output = new byte[encoder.EstimateOutputLength (input.Length)];
+
+			encoder.Encode (input, 0, input.Length, output);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.EstimateOutputLength (int.MaxValue));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (encoder.EstimateOutputLength);
+		}
 	}
 }

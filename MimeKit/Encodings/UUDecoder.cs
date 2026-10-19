@@ -35,6 +35,8 @@ using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 #endif
 
+using MimeKit.Utils;
+
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// Incrementally decodes content encoded with the Unix-to-Unix encoding.
@@ -170,10 +172,13 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
 			// add an extra 3 bytes for the saved input bytes from previous decode step
-			return inputLength + 3;
+			return ArgumentValidator.ValidateOutputLength ((long) inputLength + 3);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)

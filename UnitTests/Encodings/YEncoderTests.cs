@@ -159,5 +159,16 @@ namespace UnitTests.Encodings {
 
 			Assert.That (Encoding.ASCII.GetString (output, 0, n), Is.EqualTo (expected));
 		}
+
+		[TestCase (128)]
+		[TestCase (60)]
+		public void TestEstimateOutputLengthDoesNotOverflow (int maxLineLength)
+		{
+			var encoder = new YEncoder (maxLineLength);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.EstimateOutputLength (int.MaxValue));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (encoder.EstimateOutputLength);
+		}
 	}
 }

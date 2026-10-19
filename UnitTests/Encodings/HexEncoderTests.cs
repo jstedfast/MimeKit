@@ -82,5 +82,14 @@ namespace UnitTests.Encodings {
 
 			Assert.That (actual, Is.EqualTo (expected), "Encode");
 		}
+
+		[Test]
+		public void TestEstimateOutputLengthDoesNotOverflow ()
+		{
+			Assert.Throws<ArgumentOutOfRangeException> (() => HexEncoder.EstimateOutputLength (1 << 30));
+			Assert.That (HexEncoder.EstimateOutputLength (int.MaxValue / 3), Is.EqualTo ((int.MaxValue / 3) * 3));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (HexEncoder.EstimateOutputLength);
+		}
 	}
 }

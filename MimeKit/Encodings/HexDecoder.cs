@@ -91,12 +91,15 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
 			switch (state) {
 			case HexDecoderState.PassThrough: return inputLength;
-			case HexDecoderState.Percent: return inputLength + 1; // add an extra byte in case the '%' character is not the start of a valid hex sequence
-			default: return inputLength + 2; // add an extra 2 bytes in case the %X sequence is not the start of a valid hex sequence
+			case HexDecoderState.Percent: return ArgumentValidator.ValidateOutputLength ((long) inputLength + 1); // add an extra byte in case the '%' character is not the start of a valid hex sequence
+			default: return ArgumentValidator.ValidateOutputLength ((long) inputLength + 2); // add an extra 2 bytes in case the %X sequence is not the start of a valid hex sequence
 			}
 		}
 

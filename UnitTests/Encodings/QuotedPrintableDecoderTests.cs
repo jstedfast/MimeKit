@@ -271,5 +271,29 @@ namespace UnitTests.Encodings {
 
 			Assert.That (Encoding.UTF8.GetString (output, 0, n), Is.EqualTo (expected));
 		}
+
+		[TestCase ("", 0)]
+		[TestCase ("=", 1)]
+		[TestCase ("=4", 2)]
+		public void TestEstimateOutputLengthDoesNotOverflow (string pending, int extra)
+		{
+			var decoder = new QuotedPrintableDecoder ();
+			var output = new byte[8];
+			var input = Encoding.ASCII.GetBytes (pending);
+
+			Assert.That (decoder.Decode (input, 0, input.Length, output), Is.EqualTo (0));
+
+			Assert.That (decoder.EstimateOutputLength (int.MaxValue - extra), Is.EqualTo (int.MaxValue));
+
+			if (extra > 0)
+				Assert.Throws<ArgumentOutOfRangeException> (() => decoder.EstimateOutputLength (int.MaxValue - extra + 1));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (decoder.EstimateOutputLength, pending);
+
+			// make sure that rejecting the estimate did not modify the decoder state
+			input = Encoding.ASCII.GetBytes ("=41".Substring (pending.Length));
+			int n = decoder.Decode (input, 0, input.Length, output);
+			Assert.That (Encoding.ASCII.GetString (output, 0, n), Is.EqualTo ("A"));
+		}
 	}
 }

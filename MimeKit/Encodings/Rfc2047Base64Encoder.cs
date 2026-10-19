@@ -31,6 +31,8 @@ using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 #endif
 
+using MimeKit.Utils;
+
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// A base64 encoder that is specifically meant to be used for rfc2047 encoded-word tokens.
@@ -74,9 +76,12 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
-			return ((inputLength + 2) / 3) * 4;
+			return ArgumentValidator.ValidateOutputLength ((((long) inputLength + 2) / 3) * 4);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)

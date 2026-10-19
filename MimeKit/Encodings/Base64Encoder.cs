@@ -41,6 +41,8 @@ using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 #endif
 
+using MimeKit.Utils;
+
 namespace MimeKit.Encodings {
 	/// <summary>
 	/// Incrementally encodes content using the base64 encoding.
@@ -157,6 +159,9 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
 			int maxLineLength = (quartetsPerLine * 4) + 1;
@@ -165,7 +170,7 @@ namespace MimeKit.Encodings {
 			// Note: up to 2 bytes of input from previous calls may still be saved and the current line may already be
 			// nearly full, so the worst case can complete the current line *and* terminate a new line when flushing,
 			// which requires 1 more newline than the line count alone would suggest.
-			return (((inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength + 1;
+			return ArgumentValidator.ValidateOutputLength (((((long) inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength + 1);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)

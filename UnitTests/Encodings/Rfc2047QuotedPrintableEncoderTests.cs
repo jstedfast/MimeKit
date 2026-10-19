@@ -80,5 +80,16 @@ namespace UnitTests.Encodings {
 
 			Assert.That (actual, Is.EqualTo (expected));
 		}
+
+		[TestCase (false)]
+		[TestCase (true)]
+		public void TestEstimateOutputLengthDoesNotOverflow (bool phrase)
+		{
+			var encoder = new Rfc2047QuotedPrintableEncoder (phrase ? QEncodeMode.Phrase : QEncodeMode.Text);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.EstimateOutputLength (int.MaxValue));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (encoder.EstimateOutputLength);
+		}
 	}
 }

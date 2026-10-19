@@ -30,6 +30,18 @@ using System.Diagnostics.CodeAnalysis;
 namespace MimeKit.Utils {
 	static class ArgumentValidator
 	{
+		// Note: Used by the IMimeEncoder, IMimeDecoder and IRfc2047Encoder EstimateOutputLength() implementations, which
+		// compute their estimates using 64-bit arithmetic. An estimate that cannot be represented as an int must not be
+		// clamped (that would underestimate the required output buffer size), so reject it instead. Callers can process
+		// the input in smaller chunks.
+		public static int ValidateOutputLength (long estimate)
+		{
+			if (estimate > int.MaxValue)
+				throw new ArgumentOutOfRangeException ("inputLength", "The input length is too large: the estimated output length exceeds the maximum length of an array.");
+
+			return (int) estimate;
+		}
+
 		public static bool TryValidate ([NotNullWhen (true)] ParserOptions? options, [NotNullWhen (true)] byte[]? buffer, int startIndex, int length)
 		{
 			if (options is null)

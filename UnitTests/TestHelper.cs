@@ -80,6 +80,48 @@ namespace UnitTests {
 			ProjectDir = Path.GetFullPath (dir);
 		}
 
+		static bool TryEstimateOutputLength (Func<int, int> estimate, int inputLength, out int outputLength)
+		{
+			try {
+				outputLength = estimate (inputLength);
+				return true;
+			} catch (ArgumentOutOfRangeException) {
+				outputLength = 0;
+				return false;
+			}
+		}
+
+		// Asserts that an EstimateOutputLength() implementation never wraps around: every input length that is accepted
+		// must produce an estimate that is at least as large as the input length, and every input length above the
+		// largest accepted input length (including int.MaxValue) must be rejected with an ArgumentOutOfRangeException.
+		public static void AssertEstimateOutputLengthDoesNotOverflow (Func<int, int> estimate, string message = null)
+		{
+			int lo = 0, hi = int.MaxValue;
+
+			// Note: Accepted input lengths are contiguous from 0, so binary search for the largest one.
+			while (lo < hi) {
+				int mid = lo + (int) (((long) hi - lo + 1) / 2);
+
+				if (TryEstimateOutputLength (estimate, mid, out _))
+					lo = mid;
+				else
+					hi = mid - 1;
+			}
+
+			Assert.That (lo, Is.GreaterThan (int.MaxValue / 4), $"{message}: largest accepted input length");
+
+			for (int inputLength = lo; inputLength >= lo - 64; inputLength--) {
+				Assert.That (TryEstimateOutputLength (estimate, inputLength, out var outputLength), Is.True, $"{message}: {inputLength}");
+				Assert.That (outputLength, Is.GreaterThanOrEqualTo (inputLength), $"{message}: estimate for {inputLength}");
+			}
+
+			if (lo < int.MaxValue) {
+				var ex = Assert.Throws<ArgumentOutOfRangeException> (() => estimate (lo + 1), $"{message}: {lo + 1}");
+				Assert.That (ex.ParamName, Is.EqualTo ("inputLength"), message);
+				Assert.Throws<ArgumentOutOfRangeException> (() => estimate (int.MaxValue), $"{message}: int.MaxValue");
+			}
+		}
+
 		[OneTimeSetUp]
 		public static void Init ()
 		{

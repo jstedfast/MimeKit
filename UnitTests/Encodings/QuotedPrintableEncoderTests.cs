@@ -325,5 +325,22 @@ namespace UnitTests.Encodings {
 
 			Assert.That (actual, Is.EqualTo (expected));
 		}
+
+		[TestCase ("")]
+		[TestCase ("abc")]
+		[TestCase ("abc ")]
+		[TestCase ("abc\r")]
+		public void TestEstimateOutputLengthDoesNotOverflow (string pending)
+		{
+			var encoder = new QuotedPrintableEncoder ();
+			var output = new byte[64];
+			var input = Encoding.ASCII.GetBytes (pending);
+
+			encoder.Encode (input, 0, input.Length, output);
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => encoder.EstimateOutputLength (int.MaxValue));
+
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (encoder.EstimateOutputLength, pending);
+		}
 	}
 }

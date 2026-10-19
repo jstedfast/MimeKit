@@ -108,13 +108,16 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
+		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
 			// Worst case: every byte is escaped (2 octets each), a line may already be
 			// partially filled from a previous Encode() call, and Flush() appends a final newline.
-			int encodedLength = inputLength * 2;
+			long encodedLength = (long) inputLength * 2;
 
-			return encodedLength + (encodedLength / lineLength) + 2;
+			return ArgumentValidator.ValidateOutputLength (encodedLength + (encodedLength / lineLength) + 2);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
