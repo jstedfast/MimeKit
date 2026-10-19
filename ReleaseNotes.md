@@ -148,6 +148,22 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   This whitespace could not be reliably preserved when encoding the address (folding collapses it and it is
   dropped when adjacent to an rfc2047 encoded-word), so a name such as `" John Smith "` is now
   `"John Smith"`, and a whitespace-only name becomes an empty string.
+* The address parser and the `MailboxAddress.Address` setter no longer decode IDN-encoded (punycode) domains.
+  `MailboxAddress.Address` and `Domain` now return the domain exactly as it was parsed or set, so
+  `user@xn--bcher-kva.example` is no longer turned into `user@bücher.example`. Decoding was lossy (re-encoding
+  does not always reproduce the original A-label), platform-dependent (`IdnMapping` uses ICU or the Windows NLS
+  APIs), hid the A-label of a possible homograph domain, and caused `FormatOptions.International` to write an
+  ASCII domain as Unicode. Related changes:
+  * `MailboxAddress.GetAddress (false)` now decodes the domain into its Unicode form instead of returning the
+    address as-is. Use `Address` to get the address as it was parsed or set.
+  * Added `MailboxAddress.GetDomain (bool idnEncode)` to get the domain in its IDN-encoded or Unicode form.
+  * `MailboxAddress.IsInternational` is now `false` for an IDN-encoded domain, and an address is serialized with
+    its domain as-is when `FormatOptions.International` is `true`.
+  * `MailboxAddress.Equals ()` compares the addresses as-is, so an address with an IDN-encoded domain is no longer
+    equal to the same address with a Unicode domain. Compare `GetAddress (true)` to compare them regardless of form.
+  * `SmtpUtf8AddressValidator` now rejects a parsed mailbox with an IDN-encoded domain with
+    `SmtpUtf8AddressError.ALabel` unless `SmtpUtf8AddressValidationOptions.DecodeIdn` is specified, and
+    `SmtpAddressValidator` now accepts it.
 * `MimeIterator.PathSpecifier` now returns `"1"` (instead of `"0"`) for a non-multipart top-level message body,
   consistent with IMAP part specifiers and with the `"N.1"` already used for the non-multipart body of a
   `message/rfc822` part. `MimeIterator.MoveTo ()` now expects `"1"` for such a body. A multipart that is the body

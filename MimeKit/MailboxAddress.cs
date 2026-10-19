@@ -213,7 +213,10 @@ namespace MimeKit {
 		/// Get or set the mailbox address.
 		/// </summary>
 		/// <remarks>
-		/// Represents the actual email address and is in the form of <c>user@domain.com</c>.
+		/// <para>Represents the actual email address and is in the form of <c>user@domain.com</c>.</para>
+		/// <para>The domain is preserved exactly as it was parsed or set: an IDN-encoded domain (e.g. <c>xn--bcher-kva.example</c>)
+		/// is not decoded and an internationalized domain (e.g. <c>bücher.example</c>) is not encoded. Use
+		/// <see cref="GetAddress(bool)"/> to get the address with the domain in a specific form.</para>
 		/// </remarks>
 		/// <value>The mailbox address.</value>
 		/// <exception cref="System.ArgumentNullException">
@@ -273,13 +276,34 @@ namespace MimeKit {
 		/// Get the domain of the email address.
 		/// </summary>
 		/// <remarks>
-		/// Gets the domain of the email address.
+		/// <para>Gets the domain of the email address.</para>
+		/// <para>The domain is preserved exactly as it was parsed or set. Use <see cref="GetDomain(bool)"/> to get the
+		/// domain in its IDN-encoded (ASCII) or internationalized (Unicode) form.</para>
 		/// </remarks>
 		/// <value>The domain portion of the mailbox address.</value>
 		public string Domain {
 			get {
 				return at != -1 ? address.Substring (at + 1) : string.Empty;
 			}
+		}
+
+		/// <summary>
+		/// Get the domain of the email address, either IDN-encoded or decoded.
+		/// </summary>
+		/// <remarks>
+		/// <para>If <paramref name="idnEncode"/> is <see langword="true" />, then each internationalized label of the domain
+		/// is encoded as an A-label (e.g. <c>xn--bcher-kva.example</c>). Otherwise, each A-label is decoded into its Unicode
+		/// form (e.g. <c>bücher.example</c>).</para>
+		/// <para>Domain literals (e.g. <c>[127.0.0.1]</c>) are always returned as-is.</para>
+		/// </remarks>
+		/// <param name="idnEncode"><see langword="true" /> if the domain should be encoded according to IDN encoding rules; otherwise, <see langword="false" /> to decode it.</param>
+		/// <returns>The domain portion of the mailbox address.</returns>
+		public string GetDomain (bool idnEncode)
+		{
+			if (at == -1)
+				return string.Empty;
+
+			return idnEncode ? EncodeDomain (address, at + 1) : DecodeDomain (address, at + 1);
 		}
 
 		/// <summary>
@@ -312,21 +336,38 @@ namespace MimeKit {
 			}
 		}
 
+		static string EncodeDomain (string addrspec, int domainIndex)
+		{
+			if (domainIndex >= addrspec.Length || addrspec[domainIndex] == '[' || !ParseUtils.IsInternational (addrspec, domainIndex))
+				return addrspec.Substring (domainIndex);
+
+			return IdnMapping.Encode (addrspec, domainIndex);
+		}
+
+		static string DecodeDomain (string addrspec, int domainIndex)
+		{
+			// Note: a domain literal (e.g. "[IPv6:...]" or a general address literal) is not a domain name and must
+			// be preserved exactly, even if it happens to contain something that looks like an A-label.
+			if (domainIndex >= addrspec.Length || addrspec[domainIndex] == '[' || !ParseUtils.IsIdnEncoded (addrspec, domainIndex))
+				return addrspec.Substring (domainIndex);
+
+			return IdnMapping.Decode (addrspec, domainIndex);
+		}
+
 		static string EncodeAddrspec (string addrspec, int at)
 		{
-			if (at != -1) {
-				var domainEncoded = ParseUtils.IsInternational (addrspec, at + 1);
+			if (at == -1 || addrspec[at + 1] == '[' || !ParseUtils.IsInternational (addrspec, at + 1))
+				return addrspec;
 
-				if (!domainEncoded)
-					return addrspec;
+			return addrspec.Substring (0, at + 1) + IdnMapping.Encode (addrspec, at + 1);
+		}
 
-				var local = addrspec.Substring (0, at);
-				var domain = IdnMapping.Encode (addrspec, at + 1);
+		static string DecodeAddrspec (string addrspec, int at)
+		{
+			if (at == -1 || addrspec[at + 1] == '[' || !ParseUtils.IsIdnEncoded (addrspec, at + 1))
+				return addrspec;
 
-				return local + "@" + domain;
-			}
-
-			return addrspec;
+			return addrspec.Substring (0, at + 1) + IdnMapping.Decode (addrspec, at + 1);
 		}
 
 		/// <summary>
@@ -379,31 +420,30 @@ namespace MimeKit {
 			var buffer = CharsetUtils.UTF8.GetBytes (addrspec);
 			int index = 0;
 
-			// Note: The parsed address will be IDN-decoded.
-			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string? address, out _))
+			if (!TryParseAddrspec (buffer, ref index, buffer.Length, EmptySentinels, RfcComplianceMode.Looser, false, out string? address, out int at))
 				return addrspec;
 
-			return address;
+			return DecodeAddrspec (address, at);
 		}
 
 		/// <summary>
-		/// Get the mailbox address, optionally encoded according to IDN encoding rules.
+		/// Get the mailbox address, either IDN-encoded or decoded.
 		/// </summary>
 		/// <remarks>
-		/// If <paramref name="idnEncode"/> is <see langword="true" />, then the returned mailbox address will be encoded according to the IDN encoding rules.
+		/// <para>If <paramref name="idnEncode"/> is <see langword="true" />, then each internationalized label of the domain
+		/// is encoded as an A-label (e.g. <c>user@xn--bcher-kva.example</c>). Otherwise, each A-label of the domain is
+		/// decoded into its Unicode form (e.g. <c>user@bücher.example</c>).</para>
+		/// <para>The local-part and domain literals (e.g. <c>[127.0.0.1]</c>) are always returned as-is. To get the
+		/// address exactly as it was parsed or set, use <see cref="Address"/>.</para>
 		/// </remarks>
 		/// <example>
 		/// <code language="c#" source="Examples\InternetAddressExamples.cs" region="InternationalAddresses"/>
 		/// </example>
-		/// <param name="idnEncode"><see langword="true" /> if the address should be encoded according to IDN encoding rules; otherwise, <see langword="false" />.</param>
+		/// <param name="idnEncode"><see langword="true" /> if the address should be encoded according to IDN encoding rules; otherwise, <see langword="false" /> to decode it.</param>
 		/// <returns>The mailbox address.</returns>
 		public string GetAddress (bool idnEncode)
 		{
-			if (idnEncode)
-				return EncodeAddrspec (address, at);
-
-			// Note: The address is *always* in its decoded form.
-			return address;
+			return idnEncode ? EncodeAddrspec (address, at) : DecodeAddrspec (address, at);
 		}
 
 		internal override void Encode (FormatOptions options, StringBuilder builder, bool firstToken, ref int lineLength)
@@ -412,7 +452,7 @@ namespace MimeKit {
 			if (!string.IsNullOrEmpty (route))
 				route += ":";
 
-			var addrspec = GetAddress (!options.International);
+			var addrspec = options.International ? address : EncodeAddrspec (address, at);
 
 			if (!string.IsNullOrEmpty (Name)) {
 				string name;
@@ -547,7 +587,11 @@ namespace MimeKit {
 		/// Determine whether the specified <see cref="MailboxAddress"/> is equal to the current <see cref="MailboxAddress"/>.
 		/// </summary>
 		/// <remarks>
-		/// Compares two mailbox addresses to determine if they are identical or not.
+		/// <para>Compares two mailbox addresses to determine if they are identical or not.</para>
+		/// <para>The addresses are compared exactly as they were parsed or set, so an address with an IDN-encoded domain
+		/// (e.g. <c>user@xn--bcher-kva.example</c>) is not equal to the same address with an internationalized domain
+		/// (e.g. <c>user@bücher.example</c>). To compare the domains regardless of their form, compare the results of
+		/// <see cref="GetAddress(bool)"/> instead.</para>
 		/// </remarks>
 		/// <param name="other">The <see cref="MailboxAddress"/> to compare with the current <see cref="MailboxAddress"/>.</param>
 		/// <returns><see langword="true" /> if the specified <see cref="MailboxAddress"/> is equal to the current

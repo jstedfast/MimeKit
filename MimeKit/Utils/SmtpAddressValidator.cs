@@ -90,11 +90,11 @@ namespace MimeKit.Utils {
 		/// <para>Checks whether the <see cref="MailboxAddress.Address"/> of the mailbox is a valid SMTP address
 		/// as defined by <a href="https://www.rfc-editor.org/rfc/rfc5321#section-4.1.2">rfc5321</a>.
 		/// The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so such a domain is reported as
-		/// <see cref="SmtpAddressError.NonAscii"/>. To validate the form of the address that would be used in an
-		/// SMTP transaction that does not use the <c>SMTPUTF8</c> extension, validate the string returned by
-		/// <see cref="MailboxAddress.GetAddress(bool)"/> with a value of <see langword="true"/> instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set. An internationalized domain
+		/// (such as <c>grå.example.com</c>) is reported as <see cref="SmtpAddressError.NonAscii"/>. To validate the form
+		/// of the address that would be used in an SMTP transaction that does not use the <c>SMTPUTF8</c> extension,
+		/// validate the string returned by <see cref="MailboxAddress.GetAddress(bool)"/> with a value of
+		/// <see langword="true"/> instead.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
@@ -113,11 +113,11 @@ namespace MimeKit.Utils {
 		/// <para>Checks whether the <see cref="MailboxAddress.Address"/> of the mailbox is a valid SMTP address
 		/// as defined by <a href="https://www.rfc-editor.org/rfc/rfc5321#section-4.1.2">rfc5321</a>,
 		/// using the specified options. The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so such a domain is reported as
-		/// <see cref="SmtpAddressError.NonAscii"/>. To validate the form of the address that would be used in an
-		/// SMTP transaction that does not use the <c>SMTPUTF8</c> extension, validate the string returned by
-		/// <see cref="MailboxAddress.GetAddress(bool)"/> with a value of <see langword="true"/> instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set. An internationalized domain
+		/// (such as <c>grå.example.com</c>) is reported as <see cref="SmtpAddressError.NonAscii"/>. To validate the form
+		/// of the address that would be used in an SMTP transaction that does not use the <c>SMTPUTF8</c> extension,
+		/// validate the string returned by <see cref="MailboxAddress.GetAddress(bool)"/> with a value of
+		/// <see langword="true"/> instead.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
@@ -181,11 +181,11 @@ namespace MimeKit.Utils {
 		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox as an SMTP address as defined by
 		/// <a href="https://www.rfc-editor.org/rfc/rfc5321#section-4.1.2">rfc5321</a>.
 		/// The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so such a domain is reported as
-		/// <see cref="SmtpAddressError.NonAscii"/>. To validate the form of the address that would be used in an
-		/// SMTP transaction that does not use the <c>SMTPUTF8</c> extension, validate the string returned by
-		/// <see cref="MailboxAddress.GetAddress(bool)"/> with a value of <see langword="true"/> instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set. An internationalized domain
+		/// (such as <c>grå.example.com</c>) is reported as <see cref="SmtpAddressError.NonAscii"/>. To validate the form
+		/// of the address that would be used in an SMTP transaction that does not use the <c>SMTPUTF8</c> extension,
+		/// validate the string returned by <see cref="MailboxAddress.GetAddress(bool)"/> with a value of
+		/// <see langword="true"/> instead.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
@@ -205,11 +205,11 @@ namespace MimeKit.Utils {
 		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox as an SMTP address as defined by
 		/// <a href="https://www.rfc-editor.org/rfc/rfc5321#section-4.1.2">rfc5321</a>, using the specified options.
 		/// The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so such a domain is reported as
-		/// <see cref="SmtpAddressError.NonAscii"/>. To validate the form of the address that would be used in an
-		/// SMTP transaction that does not use the <c>SMTPUTF8</c> extension, validate the string returned by
-		/// <see cref="MailboxAddress.GetAddress(bool)"/> with a value of <see langword="true"/> instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set. An internationalized domain
+		/// (such as <c>grå.example.com</c>) is reported as <see cref="SmtpAddressError.NonAscii"/>. To validate the form
+		/// of the address that would be used in an SMTP transaction that does not use the <c>SMTPUTF8</c> extension,
+		/// validate the string returned by <see cref="MailboxAddress.GetAddress(bool)"/> with a value of
+		/// <see langword="true"/> instead.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>

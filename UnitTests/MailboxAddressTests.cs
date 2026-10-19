@@ -572,7 +572,51 @@ namespace UnitTests {
 			MailboxAddress mailbox;
 
 			Assert.That (MailboxAddress.TryParse (encoded, out mailbox), Is.True);
-			Assert.That (mailbox.Address, Is.EqualTo (expected));
+			Assert.That (mailbox.Address, Is.EqualTo (encoded), "Address");
+			Assert.That (mailbox.Domain, Is.EqualTo ("xn--v8jxj3d1dzdz08w.com"), "Domain");
+			Assert.That (mailbox.IsInternational, Is.False, "IsInternational");
+			Assert.That (mailbox.GetAddress (false), Is.EqualTo (expected), "GetAddress (false)");
+			Assert.That (mailbox.GetAddress (true), Is.EqualTo (encoded), "GetAddress (true)");
+			Assert.That (mailbox.GetDomain (false), Is.EqualTo ("名がドメイン.com"), "GetDomain (false)");
+			Assert.That (mailbox.GetDomain (true), Is.EqualTo ("xn--v8jxj3d1dzdz08w.com"), "GetDomain (true)");
+			Assert.That (mailbox.ToString (new FormatOptions { International = true }, true), Is.EqualTo (encoded), "ToString International");
+			Assert.That (mailbox.ToString (new FormatOptions { International = false }, true), Is.EqualTo (encoded), "ToString");
+
+			Assert.That (MailboxAddress.TryParse (expected, out mailbox), Is.True);
+			Assert.That (mailbox.Address, Is.EqualTo (expected), "Unicode Address");
+			Assert.That (mailbox.Domain, Is.EqualTo ("名がドメイン.com"), "Unicode Domain");
+			Assert.That (mailbox.GetDomain (false), Is.EqualTo ("名がドメイン.com"), "Unicode GetDomain (false)");
+			Assert.That (mailbox.GetDomain (true), Is.EqualTo ("xn--v8jxj3d1dzdz08w.com"), "Unicode GetDomain (true)");
+			Assert.That (mailbox.ToString (new FormatOptions { International = true }, true), Is.EqualTo (expected), "Unicode ToString International");
+			Assert.That (mailbox.ToString (new FormatOptions { International = false }, true), Is.EqualTo (encoded), "Unicode ToString");
+		}
+
+		[TestCase ("user@XN--V8JXJ3D1DZDZ08W.com", "user@名がドメイン.com")]
+		[TestCase ("user@mail.xn--v8jxj3d1dzdz08w.com", "user@mail.名がドメイン.com")]
+		[TestCase ("user@[xn--v8jxj3d1dzdz08w]", "user@[xn--v8jxj3d1dzdz08w]")]
+		[TestCase ("user@[IPv6:::1]", "user@[IPv6:::1]")]
+		[TestCase ("user@example.com", "user@example.com")]
+		[TestCase ("user", "user")]
+		public void TestGetAddressAndDomain (string address, string decoded)
+		{
+			var mailbox = new MailboxAddress (string.Empty, address);
+			int at = decoded.IndexOf ('@');
+
+			Assert.That (mailbox.Address, Is.EqualTo (address), "Address");
+			Assert.That (mailbox.GetAddress (false), Is.EqualTo (decoded), "GetAddress (false)");
+			Assert.That (mailbox.GetDomain (false), Is.EqualTo (at != -1 ? decoded.Substring (at + 1) : string.Empty), "GetDomain (false)");
+			Assert.That (MailboxAddress.DecodeAddrspec (address), Is.EqualTo (decoded), "DecodeAddrspec");
+		}
+
+		[Test]
+		public void TestEqualsComparesAddressAsIs ()
+		{
+			var encoded = new MailboxAddress ("User", "user@xn--v8jxj3d1dzdz08w.com");
+			var decoded = new MailboxAddress ("User", "user@名がドメイン.com");
+
+			Assert.That (encoded.Equals (decoded), Is.False, "Equals");
+			Assert.That (encoded.GetAddress (true), Is.EqualTo (decoded.GetAddress (true)), "GetAddress (true)");
+			Assert.That (encoded.GetAddress (false), Is.EqualTo (decoded.GetAddress (false)), "GetAddress (false)");
 		}
 
 		[Test]
@@ -830,11 +874,11 @@ namespace UnitTests {
 			encoded = mailbox.ToString (options, true);
 			Assert.That (encoded, Is.EqualTo ("Unit Test <user@名がドメイン.com>"), "ToString domain");
 
-			// Test IsInternational IDN-encoded domain
+			// Test IsInternational IDN-encoded domain (the domain is preserved as-is)
 			mailbox = new MailboxAddress ("Unit Test", "user@" + idn.GetAscii ("名がドメイン.com"));
-			Assert.That (mailbox.IsInternational, Is.True, "IsInternational IDN-encoded domain");
+			Assert.That (mailbox.IsInternational, Is.False, "IsInternational IDN-encoded domain");
 			encoded = mailbox.ToString (options, true);
-			Assert.That (encoded, Is.EqualTo ("Unit Test <user@名がドメイン.com>"), "ToString IDN-encoded domain");
+			Assert.That (encoded, Is.EqualTo ("Unit Test <user@" + idn.GetAscii ("名がドメイン.com") + ">"), "ToString IDN-encoded domain");
 
 			// Test IsInternational routes
 			mailbox = new MailboxAddress ("Unit Test", "user@domain.com");

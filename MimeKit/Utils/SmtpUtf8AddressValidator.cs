@@ -144,11 +144,10 @@ namespace MimeKit.Utils {
 		/// SMTPUTF8 address as defined by
 		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>.
 		/// The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so this method validates the Unicode form of the domain rather
-		/// than the A-label. All of the code point, contextual and script rules are still applied to the decoded
-		/// domain, and a domain that cannot be decoded is left in its encoded form and is rejected. To determine
-		/// whether the original text contained an A-label, validate the original address string instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
+		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
+		/// <see cref="SmtpUtf8AddressValidationOptions.DecodeIdn"/> is specified, in which case all of the code point,
+		/// contextual and script rules are applied to the decoded domain.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
@@ -168,11 +167,10 @@ namespace MimeKit.Utils {
 		/// SMTPUTF8 address as defined by
 		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
 		/// using the specified options. The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so this method validates the Unicode form of the domain rather
-		/// than the A-label. All of the code point, contextual and script rules are still applied to the decoded
-		/// domain, and a domain that cannot be decoded is left in its encoded form and is rejected. To determine
-		/// whether the original text contained an A-label, validate the original address string instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
+		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
+		/// <see cref="SmtpUtf8AddressValidationOptions.DecodeIdn"/> is specified, in which case all of the code point,
+		/// contextual and script rules are applied to the decoded domain.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
@@ -237,12 +235,10 @@ namespace MimeKit.Utils {
 		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox as an SMTPUTF8 address as defined by
 		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>.
 		/// The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so this method validates the Unicode form of the domain rather
-		/// than the A-label. All of the code point, contextual and script rules are still applied to the decoded
-		/// domain, and a domain that cannot be decoded is left in its encoded form and is rejected with
-		/// <see cref="SmtpUtf8AddressError.ALabel"/>. To determine whether the original text contained an A-label,
-		/// validate the original address string instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
+		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
+		/// <see cref="SmtpUtf8AddressValidationOptions.DecodeIdn"/> is specified, in which case all of the code point,
+		/// contextual and script rules are applied to the decoded domain.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>
@@ -262,12 +258,10 @@ namespace MimeKit.Utils {
 		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox as an SMTPUTF8 address as defined by
 		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
 		/// using the specified options. The display name and the route of the mailbox are not validated.</para>
-		/// <note type="note">MimeKit decodes an IDN-encoded domain (such as <c>xn--gr-zia.example.com</c>) into its
-		/// Unicode form when it parses an address, so this method validates the Unicode form of the domain rather
-		/// than the A-label. All of the code point, contextual and script rules are still applied to the decoded
-		/// domain, and a domain that cannot be decoded is left in its encoded form and is rejected with
-		/// <see cref="SmtpUtf8AddressError.ALabel"/>. To determine whether the original text contained an A-label,
-		/// validate the original address string instead.</note>
+		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
+		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
+		/// <see cref="SmtpUtf8AddressValidationOptions.DecodeIdn"/> is specified, in which case all of the code point,
+		/// contextual and script rules are applied to the decoded domain.</note>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
 		/// <param name="mailbox">The mailbox address.</param>

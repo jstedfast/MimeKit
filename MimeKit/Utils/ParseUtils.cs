@@ -712,12 +712,17 @@ namespace MimeKit.Utils {
 			return IsInternational (value, 0, value.Length);
 		}
 
-		public static bool IsIdnEncoded (string value)
+		public static bool IsIdnEncoded (string value, int startIndex)
 		{
-			if (value.StartsWith ("xn--", StringComparison.Ordinal))
+			if (string.Compare (value, startIndex, "xn--", 0, 4, StringComparison.OrdinalIgnoreCase) == 0)
 				return true;
 
-			return value.IndexOf (".xn--", StringComparison.Ordinal) != -1;
+			return value.IndexOf (".xn--", startIndex, StringComparison.OrdinalIgnoreCase) != -1;
+		}
+
+		public static bool IsIdnEncoded (string value)
+		{
+			return IsIdnEncoded (value, 0);
 		}
     }
 }

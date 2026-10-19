@@ -552,11 +552,8 @@ namespace MimeKit {
 			if (!ParseUtils.TryParseDomain (text, ref index, endIndex, sentinels, throwOnError, out var domain))
 				return false;
 
-			// Note: a domain literal (e.g. "[IPv6:...]" or a general address literal) is not a domain name and must
-			// be preserved exactly, even if it happens to contain something that looks like an A-label.
-			if (domain[0] != '[' && ParseUtils.IsIdnEncoded (domain))
-				domain = MailboxAddress.IdnMapping.Decode (domain);
-
+			// Note: The domain is deliberately not IDN-decoded so that the address is preserved exactly as it was written.
+			// Use MailboxAddress.GetAddress (false) or MailboxAddress.GetDomain (false) to get the Unicode form.
 			addrspec = localpart + "@" + domain;
 			at = localpart.Length;
 

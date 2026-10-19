@@ -448,18 +448,22 @@ namespace UnitTests.Utils {
 			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpUtf8AddressError.ALabel));
 
-			// MimeKit decodes IDN-encoded domains when parsing, so the Unicode form of the domain is validated instead.
+			// MimeKit preserves IDN-encoded domains as-is when parsing, so the A-label is rejected by default...
 			mailbox = MailboxAddress.Parse ("<user@xn--gr-zia.example.com>");
-			Assert.That (mailbox.Domain, Is.EqualTo ("grå.example.com"));
-			Assert.That (SmtpUtf8AddressValidator.IsValid (mailbox), Is.True);
+			Assert.That (mailbox.Domain, Is.EqualTo ("xn--gr-zia.example.com"));
+			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, out error), Is.False);
+			Assert.That (error, Is.EqualTo (SmtpUtf8AddressError.ALabel));
+
+			// ...but the Unicode form of the domain is validated when using DecodeIdn...
+			Assert.That (SmtpUtf8AddressValidator.IsValid (mailbox, SmtpUtf8AddressValidationOptions.DecodeIdn), Is.True);
 
 			// ...which means that the decoded domain is still subject to all of the rules (xn--wxa9v is Cyrillic + Greek)
 			mailbox = MailboxAddress.Parse ("<user@xn--wxa9v.example.com>");
-			Assert.That (mailbox.Domain, Is.EqualTo ("жλ.example.com"));
-			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, out error), Is.False);
+			Assert.That (mailbox.Domain, Is.EqualTo ("xn--wxa9v.example.com"));
+			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, SmtpUtf8AddressValidationOptions.DecodeIdn, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpUtf8AddressError.MixedScripts));
 
-			// A domain that cannot be decoded is left in its encoded form and is rejected as an A-label.
+			// A domain that cannot be decoded is rejected as an A-label.
 			mailbox = MailboxAddress.Parse ("<user@xn--a.example.com>");
 			Assert.That (mailbox.Domain, Is.EqualTo ("xn--a.example.com"));
 			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, out error), Is.False);
@@ -566,7 +570,7 @@ namespace UnitTests.Utils {
 			MailboxAddress mailbox;
 
 			mailbox = MailboxAddress.Parse ("PayPal <service@xn--aypal-uye.com>");
-			Assert.That (SmtpUtf8AddressValidator.IsValid (mailbox), Is.True);
+			Assert.That (SmtpUtf8AddressValidator.IsValid (mailbox), Is.False);
 			Assert.That (SmtpUtf8AddressValidator.IsValid (mailbox, options), Is.False);
 			Assert.That (SmtpUtf8AddressValidator.TryValidate (mailbox, options, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpUtf8AddressError.MixedScripts));

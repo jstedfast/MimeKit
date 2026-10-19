@@ -216,6 +216,14 @@ For most code, the parser change is a source-compatible rename: `new MimeParser 
   `References`/`MimeUtils.EnumerateReferences ()` skip it. Check for `null` rather than an empty string.
 - **Trimmed display names.** `InternetAddress.Name` (and so `MailboxAddress.Name` and `GroupAddress.Name`) is
   trimmed when set, including by constructors and the parser. A whitespace-only name becomes `""`.
+- **IDN-encoded domains are no longer decoded.** The address parser and the `MailboxAddress.Address` setter
+  preserve the domain as-is, so `MailboxAddress.Address` and `Domain` may now contain A-labels (e.g.
+  `user@xn--bcher-kva.example`). Use `GetAddress (false)` or the new `GetDomain (false)` to get the Unicode form
+  for display, and `GetAddress (true)`/`GetDomain (true)` for the ASCII form. `GetAddress (false)` now decodes
+  rather than returning the address as-is. `IsInternational` is `false` for an IDN-encoded domain, `Equals ()`
+  no longer treats the A-label and Unicode forms as equal, and `FormatOptions.International` no longer causes an
+  IDN-encoded domain to be written as Unicode. To validate the Unicode form of a parsed address with
+  `SmtpUtf8AddressValidator`, pass `SmtpUtf8AddressValidationOptions.DecodeIdn`.
 - **`MessagePartial.Join ()`** validates the `id` and `number` of every partial up front, so a mismatched
   `id` or a missing `number` throws `InvalidOperationException` even for a single partial.
 - **`MimeEntity.WriteTo ()` is no longer virtual.** `WriteTo (FormatOptions, Stream, bool, CancellationToken)`
@@ -1047,11 +1055,13 @@ property values are buffered in memory, so `TnefPropertyWriter` is synchronous.
 15. Handle `ArgumentException` from the msg-id setters and `null` instead of `""` for empty msg-ids.
 16. Don't rely on leading or trailing whitespace in address names, and remove `MimeEntity.WriteTo ()`/`WriteToAsync ()`
     overrides.
-17. Replace `HtmlTokenizerState.AttributeValueQuoted`, and stop persisting `HtmlTokenizerState` values.
-18. Review `HtmlTagCallback` implementations for `<noscript>` content, which is now passed to the callback,
+17. Use `MailboxAddress.GetAddress (false)`/`GetDomain (false)` where you relied on parsed IDN-encoded domains
+    being decoded, and compare `GetAddress (true)` where the A-label and Unicode forms should be equal.
+18. Replace `HtmlTokenizerState.AttributeValueQuoted`, and stop persisting `HtmlTokenizerState` values.
+19. Review `HtmlTagCallback` implementations for `<noscript>` content, which is now passed to the callback,
     and for the tokenizer changes.
-19. Replace `HtmlToHtml.FilterHtml`, `QEncoder`, `HexEncoder` and `TnefPropertyTag.Puid`.
-20. Port TNEF code using the [TNEF porting checklist](#tnef-porting-checklist).
-21. Update message/entity `Dispose (bool)` overrides to perform only local cleanup, tolerate retry after
+20. Replace `HtmlToHtml.FilterHtml`, `QEncoder`, `HexEncoder` and `TnefPropertyTag.Puid`.
+21. Port TNEF code using the [TNEF porting checklist](#tnef-porting-checklist).
+22. Update message/entity `Dispose (bool)` overrides to perform only local cleanup, tolerate retry after
     failure, and no longer assume children are usable before the base call. See
     [disposing messages and entities](#disposing-messages-and-entities).

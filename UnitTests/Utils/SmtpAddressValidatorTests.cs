@@ -292,13 +292,17 @@ namespace UnitTests.Utils {
 			Assert.That (SmtpAddressValidator.TryValidate (mailbox, LengthLimits, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpAddressError.LocalPartTooLong));
 
-			// MimeKit decodes IDN-encoded domains when parsing, so the Unicode form of the domain is validated...
+			// MimeKit preserves IDN-encoded domains as-is when parsing...
 			mailbox = MailboxAddress.Parse ("<user@xn--gr-zia.example.com>");
-			Assert.That (mailbox.Domain, Is.EqualTo ("grå.example.com"));
+			Assert.That (mailbox.Domain, Is.EqualTo ("xn--gr-zia.example.com"));
+			Assert.That (SmtpAddressValidator.IsValid (mailbox), Is.True);
+
+			// ...but an internationalized domain is not a valid SMTP address...
+			mailbox = MailboxAddress.Parse ("<user@grå.example.com>");
 			Assert.That (SmtpAddressValidator.TryValidate (mailbox, out error), Is.False);
 			Assert.That (error, Is.EqualTo (SmtpAddressError.NonAscii));
 
-			// ...but the IDN-encoded form of the address can be validated instead
+			// ...unless the IDN-encoded form of the address is validated instead
 			Assert.That (SmtpAddressValidator.IsValid (mailbox.GetAddress (true)), Is.True);
 		}
 	}
