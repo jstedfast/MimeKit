@@ -502,6 +502,10 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   header on every refill of the input buffer (or, for the legacy parser, on every line). The buffers now grow
   geometrically (by 1.5x). Parsing a message with an 80,000-recipient `To` header went from roughly 230 ms
   to 3 ms with `MimeParser` and from 13 s to 3.5 ms with `LegacyMimeParser`.
+* Fixed quadratic behavior in address compliance validation for malformed lists with missing separators,
+  quoted local-parts, comments or domain literals, and for repeated diagnostics reported out of position
+  order. Overlapping lookahead scans and backward line-position lookups are now indexed lazily, preserving
+  the reported violations without repeatedly scanning the same header suffixes or prefixes.
 * Optimized `MimeReader`'s (and therefore `MimeParser`'s) content scanning on .NET 8 and later to use
   SIMD to skip over runs of lines that cannot be a boundary marker (i.e. lines that do not start with
   `--`, or `From ` in Mbox mode) instead of examining every line. This makes parsing roughly 1.3x

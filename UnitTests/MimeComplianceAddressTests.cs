@@ -100,6 +100,181 @@ namespace UnitTests {
 				$"Did not expect {unexpected} for \"{value}\".");
 		}
 
+		sealed class CountingComplianceLogger : IMimeComplianceLogger
+		{
+			public int Count;
+
+			public void Log (in MimeComplianceIssue issue)
+			{
+				Count++;
+			}
+		}
+
+		[TestCase ("a ", 1, 0)]
+		[TestCase ("\"a\"@b ", 1, -1)]
+		[TestCase ("a@[b] ", 1, -1)]
+		[TestCase ("a@b(c) ", 1, -1)]
+		[TestCase ("<a@.,", 3, 1)]
+		[TestCase ("<a@.,\r\n ", 3, 1)]
+		[TestCase ("a[a", 1, 1)]
+		public void TestAdversarialAddressValidationIsBounded (string pattern, int issuesPerRepeat, int extraIssues)
+		{
+			const int count = 131072;
+			var buffer = Encoding.ASCII.GetBytes (string.Concat (Enumerable.Repeat (pattern, count)));
+			var logger = new CountingComplianceLogger ();
+			var validator = new AddressValidator (logger, MimeComplianceContext.Transport, 0, 1, 1);
+			var watch = System.Diagnostics.Stopwatch.StartNew ();
+
+			validator.Validate (buffer, 0, buffer.Length);
+			watch.Stop ();
+
+			Assert.That (logger.Count, Is.EqualTo (count * issuesPerRepeat + extraIssues));
+			Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+		}
+
+		[Test]
+		public void TestRepeatedNameAddrLookaheadIsBounded ()
+		{
+			const int count = 131072;
+			var value = string.Concat (Enumerable.Repeat ("a ", count)) + "," + new string ('b', count);
+			var buffer = Encoding.ASCII.GetBytes (value);
+			var logger = new CountingComplianceLogger ();
+			var validator = new AddressValidator (logger, MimeComplianceContext.Transport, 0, 1, 1);
+			var watch = System.Diagnostics.Stopwatch.StartNew ();
+
+			validator.Validate (buffer, 0, buffer.Length);
+			watch.Stop ();
+
+			Assert.That (logger.Count, Is.EqualTo (count + 1));
+			Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+		}
+
+		[Test]
+		public void TestBackwardDiagnosticPositionsAndValidatorReuse ()
+		{
+			const string value = "<\r\n a@.,\r\n <\r\n b@.,";
+			var buffer = Encoding.ASCII.GetBytes ("xx" + value + "yy");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new AddressValidator (logger, MimeComplianceContext.Transport, 10, 5, 7);
+
+			for (int iteration = 0; iteration < 2; iteration++) {
+				logger.Issues.Clear ();
+				validator.Validate (buffer, 2, buffer.Length - 4);
+
+				Assert.That (logger.Issues.Select (issue => issue.Violation), Is.EqualTo (new[] {
+					MimeComplianceViolation.InvalidDomain, MimeComplianceViolation.TrailingDotInDomain,
+					MimeComplianceViolation.UnbalancedAngleBracketsInAddress,
+					MimeComplianceViolation.InvalidDomain, MimeComplianceViolation.TrailingDotInDomain,
+					MimeComplianceViolation.UnbalancedAngleBracketsInAddress,
+					MimeComplianceViolation.ExtraneousCommaInAddressList
+				}));
+				Assert.That (logger.Issues.Select (issue => issue.StreamOffset), Is.EqualTo (new long[] { 16, 16, 10, 27, 27, 21, 29 }));
+
+				foreach (var issue in logger.Issues) {
+					int offset = (int) issue.StreamOffset - 10;
+					int line = 5, column = 7;
+
+					for (int i = 0; i < offset; i++) {
+						if (value[i] == '\n') {
+							line++;
+							column = 1;
+						} else {
+							column++;
+						}
+					}
+
+					Assert.That (issue.LineNumber, Is.EqualTo (line));
+					Assert.That (issue.ColumnNumber, Is.EqualTo (column));
+				}
+			}
+		}
+
+		[TestCase ("a[a@b a@b]")]
+		[TestCase ("a[\"x,y\"@b a@b]")]
+		public void TestLookaheadRecoveryInsideDomainLiteral (string value)
+		{
+			var buffer = Encoding.ASCII.GetBytes ("xx" + value + "yy");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new AddressValidator (logger, MimeComplianceContext.Transport, 10, 5, 7);
+
+			validator.Validate (buffer, 2, buffer.Length - 4);
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Is.EqualTo (new[] {
+				MimeComplianceViolation.InvalidLocalPart,
+				MimeComplianceViolation.MissingAddressSeparator,
+				MimeComplianceViolation.MissingAddressSeparator
+			}));
+
+			buffer = Encoding.ASCII.GetBytes ("\"x,y\" <a@b>");
+			logger.Issues.Clear ();
+			validator.Validate (buffer, 0, buffer.Length);
+
+			Assert.That (logger.Issues, Is.Empty, "The previous value's lookahead must not be reused");
+		}
+
+		[TestCase ("a[g:a@b;]", false)]
+		[TestCase ("a[\"x,y\" <a@b>]", true)]
+		public void TestLookaheadRecoveryExposesHiddenPhraseTerminators (string value, bool angleAddr)
+		{
+			var buffer = Encoding.ASCII.GetBytes (value);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new AddressValidator (logger, MimeComplianceContext.Transport, 0, 1, 1);
+
+			validator.Validate (buffer, 0, buffer.Length);
+
+			var expected = new List<MimeComplianceViolation> {
+				MimeComplianceViolation.InvalidLocalPart,
+				MimeComplianceViolation.MissingAddressSeparator
+			};
+
+			if (angleAddr)
+				expected.Add (MimeComplianceViolation.AmbiguousMailboxBoundary);
+
+			Assert.That (logger.Issues.Select (issue => issue.Violation), Is.EqualTo (expected));
+		}
+
+		static MimeReader CreateLookaheadReader (TestMimeComplianceLogger logger, int cap)
+		{
+			var value = string.Concat (Enumerable.Repeat ("\"a\"@b ", 512));
+			var message = "Date: Tue, 20 Oct 2026 12:00:00 +0000\r\nFrom: sender@example.com\r\nTo: " + value + "\r\n\r\n";
+			var stream = new MemoryStream (Encoding.ASCII.GetBytes (message), false);
+
+			return new MimeReader (stream) {
+				ComplianceLogger = logger,
+				ComplianceOptions = new MimeComplianceOptions { MaxIssuesPerViolation = cap }
+			};
+		}
+
+		static void AssertLookaheadIssues (TestMimeComplianceLogger logger, int cap)
+		{
+			Assert.That (logger.Issues.Count (issue => issue.Violation == MimeComplianceViolation.MissingAddressSeparator), Is.EqualTo (Math.Min (cap, 511)));
+			Assert.That (logger.Issues.Count (issue => issue.Violation == MimeComplianceViolation.TooManyComplianceIssues), Is.EqualTo (cap < 511 ? 1 : 0));
+		}
+
+		[TestCase (1)]
+		[TestCase (int.MaxValue)]
+		public void TestLookaheadThroughReader (int cap)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var reader = CreateLookaheadReader (logger, cap);
+
+			reader.ReadMessage ();
+
+			AssertLookaheadIssues (logger, cap);
+		}
+
+		[TestCase (1)]
+		[TestCase (int.MaxValue)]
+		public async Task TestLookaheadThroughReaderAsync (int cap)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var reader = CreateLookaheadReader (logger, cap);
+
+			await reader.ReadMessageAsync ();
+
+			AssertLookaheadIssues (logger, cap);
+		}
+
 		[TestCase ("user@example.com")]
 		[TestCase ("User <user@example.com>")]
 		[TestCase ("\"Doe, John\" <john@example.com>")]

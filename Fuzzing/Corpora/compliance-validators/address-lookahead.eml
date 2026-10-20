@@ -1,0 +1,12 @@
+Date: Tue, 20 Oct 2026 12:00:00 +0000
+From: sender@example.com
+To: "a"@b "a"@b "a"@b "a"@b
+Cc: a@[b] a@[b] a@[b] a@[b]
+Bcc: a@b(c) a@b(c) a@b(c) a@b(c)
+Reply-To: a a a a, bbbbbbbb
+Sender: <
+ a@.,
+ <
+ b@.,
+Subject: address lookahead
+

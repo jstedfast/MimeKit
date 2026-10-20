@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 #if NET8_0_OR_GREATER
 using System.Buffers;
 #endif
@@ -137,19 +138,31 @@ namespace MimeKit {
 		// its parent, which keeps the validator in agreement with MimeKit's parser about where groups end.
 		int nestedGroupDepth;
 
-		// Note: Where the last call to Log finished working out a position, so that the next one can
-		// resume from there instead of counting the lines over again from the start of the value.
-		// Violations come out in increasing order of position almost always, and a value that
-		// produces a lot of them would otherwise cost O(length x violations) just to describe.
+		// The furthest position indexed by Log. Backward diagnostics use a lazily populated index
+		// of line starts rather than repeatedly scanning the header prefix.
 		int scanIndex;
 		int scanLine;
 		int scanLineBegin;
 
-		// Note: The extent of a phrase that has already been scanned, and which any later scan
-		// beginning inside it is guaranteed to agree with. See RecordPhraseExtent().
+		sealed class RecoveryState
+		{
+			public List<int>? LineStarts;
+			public int[]? PhraseEnds;
+			public int[]? UnquotedAts;
+			public int NameAddrFrom = -1;
+			public bool NameAddrFollows;
+		}
+
+		RecoveryState? recovery;
+
+		// The last reusable phrase extent, and indexes allocated only when malformed input would
+		// otherwise make lookahead repeatedly scan overlapping regions.
 		bool skippedComment;
 		int phraseFrom;
 		int phraseEnd;
+		bool phraseSimple;
+		// -2 means not searched; -1 means the simple phrase contains no '@'.
+		int phraseAt;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="AddressValidator"/> class.
@@ -174,34 +187,45 @@ namespace MimeKit {
 
 		void Log (MimeComplianceViolation violation, int at)
 		{
-			// Note: Header values are short and violations are rare, so the position is worked out on
-			// demand rather than tracked on every advance, which would be easy to get subtly wrong.
-			// The column falls out of the same scan that counts the lines.
-			if (at < scanIndex) {
-				// Note: A violation behind the last one, such as an unbalanced quote reported at the
-				// opening '"' once the end of the value has been reached. Rare enough that starting
-				// the scan over costs less than remembering where every line began.
-				scanIndex = startIndex;
-				scanLine = lineNumber;
-				scanLineBegin = -1;
-			}
-
 			int end = Math.Min (at, endIndex);
+			var lineStarts = recovery?.LineStarts;
 
 			for (int i = scanIndex; i < end; i++) {
 				if (text[i] == (byte) '\n') {
 					scanLine++;
 					scanLineBegin = i + 1;
+					lineStarts?.Add (scanLineBegin);
 				}
 			}
 
-			scanIndex = end;
+			scanIndex = Math.Max (scanIndex, end);
+			int line = scanLine;
+			int lineBegin = scanLineBegin;
+
+			if (at < lineBegin) {
+				if (lineStarts == null) {
+					recovery ??= new RecoveryState ();
+					lineStarts = new List<int> ();
+					recovery.LineStarts = lineStarts;
+
+					for (int i = startIndex; i < scanIndex; i++) {
+						if (text[i] == (byte) '\n')
+							lineStarts.Add (i + 1);
+					}
+				}
+
+				int n = lineStarts.BinarySearch (at);
+
+				n = n >= 0 ? n + 1 : ~n;
+				line = lineNumber + n;
+				lineBegin = n > 0 ? lineStarts[n - 1] : -1;
+			}
 
 			// Note: Until the value has been folded, the column is still relative to the field name
 			// that preceded it on the same line.
-			int column = scanLineBegin < 0 ? columnNumber + (at - startIndex) : (at - scanLineBegin) + 1;
+			int column = lineBegin < 0 ? columnNumber + (at - startIndex) : (at - lineBegin) + 1;
 
-			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + (at - startIndex), scanLine, column));
+			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + (at - startIndex), line, column));
 		}
 
 		bool SkipWhiteSpace ()
@@ -1062,10 +1086,9 @@ namespace MimeKit {
 		/// <para>A phrase scan runs forward until it finds something that could terminate a
 		/// display-name, so a list of bare addr-specs with nothing separating them re-scans the whole
 		/// remainder of the value once per address, which costs O(length squared).</para>
-		/// <para>When the region just scanned contained no quoted-string, no domain-literal and no
-		/// comment, every byte in it is one the scan walked straight over rather than skipped as a
-		/// unit, so a scan beginning anywhere inside it must walk over the rest of those same bytes
-		/// and stop in the same place. That makes the extent reusable.</para>
+		/// <para>A simple region can be reused directly. If recovery re-enters a region containing
+		/// quoted-strings, comments or domain-literals, a suffix index is built instead: recovery can
+		/// start inside one of those tokens, where the same delimiters may no longer be hidden.</para>
 		/// <para>The extent is only recorded when the terminator is neither '&lt;' nor ':', because
 		/// those are the only two that make <see cref="ValidateAddress"/> look at what the phrase
 		/// contained rather than merely how far it ran, and the recorded extent deliberately says
@@ -1076,10 +1099,98 @@ namespace MimeKit {
 		/// <param name="reusableTerminator">Whether the scan stopped on something other than '&lt;' or ':'.</param>
 		void RecordPhraseExtent (int start, bool simple, bool reusableTerminator)
 		{
-			if (simple && reusableTerminator && index > start) {
+			if (reusableTerminator && index > start) {
 				phraseFrom = start;
 				phraseEnd = index;
+				phraseSimple = simple;
+				phraseAt = -2;
 			}
+		}
+
+		// Only malformed lists that re-scan overlapping lookahead regions need these indexes. Build
+		// them backwards so every quoted-string, nested comment and domain-literal can be skipped in
+		// constant time even when recovery resumes inside a previously scanned token.
+		void IndexLookahead ()
+		{
+			recovery ??= new RecoveryState ();
+
+			if (recovery.PhraseEnds != null)
+				return;
+
+			int length = endIndex - startIndex;
+			var quotes = new int[length];
+			var comments = new int[length];
+
+			var phraseEnds = new int[length];
+			var unquotedAts = new int[length];
+
+			recovery.PhraseEnds = phraseEnds;
+			recovery.UnquotedAts = unquotedAts;
+
+			int quote = -1, comment = -1, bracket = endIndex;
+
+			for (int i = endIndex - 1; i >= startIndex; i--) {
+				int slot = i - startIndex;
+				byte c = text[i];
+				int nextQuote = quote;
+				int nextComment = comment;
+
+				if (c == (byte) '\\') {
+					quote = i + 2 < endIndex ? quotes[slot + 2] : -1;
+					comment = i + 2 < endIndex ? comments[slot + 2] : -1;
+				} else {
+					if (c == (byte) '"')
+						quote = i + 1;
+
+					if (c == (byte) ')')
+						comment = i + 1;
+					else if (c == (byte) '(')
+						comment = nextComment >= 0 && nextComment < endIndex ? comments[nextComment - startIndex] : -1;
+				}
+
+				quotes[slot] = quote;
+				comments[slot] = comment;
+
+				int next = i + 1;
+
+				if (c == (byte) '"')
+					next = nextQuote;
+				else if (c == (byte) '(')
+					next = nextComment;
+				else if (c == (byte) '[')
+					next = bracket;
+
+				if (c == (byte) '<' || c == (byte) ':' || c == (byte) ',' || c == (byte) ';' || c == (byte) '>')
+					phraseEnds[slot] = i;
+				else
+					phraseEnds[slot] = next < 0 ? -1 : next == endIndex ? endIndex : phraseEnds[next - startIndex];
+
+				next = c == (byte) '"' ? nextQuote : i + 1;
+				unquotedAts[slot] = c == (byte) '@' ? i : next < 0 || next == endIndex ? -1 : unquotedAts[next - startIndex];
+
+				if (c == (byte) ']')
+					bracket = i + 1;
+			}
+		}
+
+		bool TryGetPhraseEnd (int start, out int end)
+		{
+			var phraseEnds = recovery?.PhraseEnds;
+
+			if (phraseEnds == null && start >= phraseFrom && start < phraseEnd) {
+				if (phraseSimple) {
+					end = phraseEnd;
+					return true;
+				}
+
+				IndexLookahead ();
+				phraseEnds = recovery!.PhraseEnds;
+			}
+
+			end = phraseEnds != null ? phraseEnds[start - startIndex] : -1;
+
+			// Display-names need the full scan's findings; an unterminated token needs its diagnostic.
+			return end >= 0 && (end == endIndex || (text[end] != (byte) '<' && text[end] != (byte) ':'));
 		}
 
 		/// <summary>
@@ -1361,10 +1472,8 @@ namespace MimeKit {
 			bool hasContent = true;
 			int specialIndex = -1;
 
-			if (start >= phraseFrom && start < phraseEnd) {
-				// Note: The phrase ahead has already been scanned and is known to end here. See
-				// RecordPhraseExtent() for why this is safe and why ':' and '<' cannot reach it.
-				index = phraseEnd;
+			if (start < phraseEnd && TryGetPhraseEnd (start, out int end)) {
+				index = end;
 			} else if (!TryScanPhrase (out unquotedSpecial, out specialIndex, out hasContent) && !ScanPhrase (out unquotedSpecial, out specialIndex, out hasContent)) {
 				return false;
 			}
@@ -1456,6 +1565,27 @@ namespace MimeKit {
 		/// </summary>
 		bool ContainsAt (int start, int end)
 		{
+			if (phraseSimple && start >= phraseFrom && end == phraseEnd) {
+				if (phraseAt == -2 || (phraseAt >= 0 && phraseAt < start)) {
+#if NET8_0_OR_GREATER
+					int at = new ReadOnlySpan<byte> (text, start, end - start).IndexOf ((byte) '@');
+					phraseAt = at < 0 ? -1 : start + at;
+#else
+					phraseAt = Array.IndexOf (text, (byte) '@', start, end - start);
+#endif
+				}
+
+				return phraseAt >= 0;
+			}
+
+			var unquotedAts = recovery?.UnquotedAts;
+
+			if (unquotedAts != null) {
+				int at = unquotedAts[start - startIndex];
+
+				return at >= 0 && at < end;
+			}
+
 			for (int i = start; i < end; i++) {
 				if (text[i] == (byte) '"') {
 					// Skip over the quoted-string; an '@' inside it is part of the local-part.
@@ -1585,6 +1715,14 @@ namespace MimeKit {
 		/// </remarks>
 		bool FollowedByNameAddr (int start)
 		{
+			recovery ??= new RecoveryState ();
+
+			if (start == recovery.NameAddrFrom)
+				return recovery.NameAddrFollows;
+
+			recovery.NameAddrFrom = start;
+			recovery.NameAddrFollows = false;
+
 			for (int i = start; i < endIndex; i++) {
 				byte c = text[i];
 
@@ -1596,14 +1734,15 @@ namespace MimeKit {
 							break;
 					}
 				} else if (c == (byte) '<') {
-					return true;
+					recovery.NameAddrFollows = true;
+					break;
 				} else if (c == (byte) ',' || c == (byte) ';' || c == (byte) ':') {
 					// The end of the next address without an angle-addr in it.
-					return false;
+					break;
 				}
 			}
 
-			return false;
+			return recovery.NameAddrFollows;
 		}
 
 		/// <summary>
@@ -1635,8 +1774,11 @@ namespace MimeKit {
 			scanIndex = startIndex;
 			scanLine = lineNumber;
 			scanLineBegin = -1;
+			recovery = null;
 			phraseFrom = -1;
 			phraseEnd = -1;
+			phraseSimple = false;
+			phraseAt = -2;
 
 			// Note: The raw value still carries the line terminator that ended the header (and any
 			// trailing folding whitespace). That is not part of the address list, and leaving it in
