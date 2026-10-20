@@ -33,6 +33,7 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Crypto.Parameters;
 
 using MimeKit;
+using MimeKit.IO;
 using MimeKit.Cryptography;
 
 namespace UnitTests.Cryptography {
@@ -109,8 +110,24 @@ namespace UnitTests.Cryptography {
 
 		const string ExampleKeyName = "1433868189.example._domainkey.example.com";
 
+		static string WriteHeaders (MimeMessage message, IList<string> fields, DkimCanonicalizationAlgorithm algorithm)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			using var stream = new MemoryStream ();
+			using var filtered = new FilteredStream (stream);
+
+			// Match the signer/verifier, which normalize raw header newlines after canonicalization.
+			filtered.Add (options.CreateNewLineFilter ());
+			DkimVerifierBase.WriteHeaders (options, message, fields, algorithm, filtered);
+			filtered.Flush ();
+
+			return System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+		}
+
 		[Test]
-		public void TestWriteRepeatedHeaders ([Values] DkimCanonicalizationAlgorithm algorithm, [Values (false, true)] bool body)
+		public void TestWriteRepeatedHeaders ([Values] DkimCanonicalizationAlgorithm algorithm, [Values (false, true)] bool body, [Values (NewLineFormat.Unix, NewLineFormat.Dos)] NewLineFormat newLineFormat)
 		{
 			using var message = new MimeMessage ();
 			message.Headers.Clear ();
@@ -126,12 +143,15 @@ namespace UnitTests.Cryptography {
 				message.Body.Headers.Add ("X-Test", "body extension");
 			}
 
+			var inputOptions = FormatOptions.Default.Clone ();
+			inputOptions.NewLineFormat = newLineFormat;
+			var headers = body ? message.Headers.Concat (message.Body.Headers) : message.Headers;
+
+			foreach (var header in headers)
+				header.SetValue (inputOptions, System.Text.Encoding.UTF8, header.Value);
+
 			var fields = new[] { "X-Missing", "X-TEST", "Content-Test", "x-test", "X-Test", "content-test", "CONTENT-TEST", "X-Test", "Content-Test", "X-Missing" };
-			var options = FormatOptions.Default.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
-			using var stream = new MemoryStream ();
-			DkimVerifierBase.WriteHeaders (options, message, fields, algorithm, stream);
-			var actual = System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+			var actual = WriteHeaders (message, fields, algorithm);
 			string expected;
 
 			if (algorithm == DkimCanonicalizationAlgorithm.Relaxed) {
@@ -159,11 +179,7 @@ namespace UnitTests.Cryptography {
 			message.Headers.Remove (middle);
 			message.Body.Headers.Insert (0, middle);
 
-			var options = FormatOptions.Default.Clone ();
-			options.NewLineFormat = NewLineFormat.Dos;
-			using var stream = new MemoryStream ();
-			DkimVerifierBase.WriteHeaders (options, message, new[] { "X-Test", "X-Test", "X-Test", "X-Test" }, algorithm, stream);
-			var actual = System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+			var actual = WriteHeaders (message, new[] { "X-Test", "X-Test", "X-Test", "X-Test" }, algorithm);
 			var expected = algorithm == DkimCanonicalizationAlgorithm.Relaxed ?
 				"x-test:last\r\nx-test:middle\r\nx-test:first\r\n" :
 				"X-Test: last\r\nX-Test: middle\r\nX-Test: first\r\n";
@@ -185,9 +201,7 @@ namespace UnitTests.Cryptography {
 			}
 
 			fields.Add ("X-Test");
-			using var stream = new MemoryStream ();
-			DkimVerifierBase.WriteHeaders (FormatOptions.Default, message, fields, DkimCanonicalizationAlgorithm.Relaxed, stream);
-			var actual = System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+			var actual = WriteHeaders (message, fields, DkimCanonicalizationAlgorithm.Relaxed);
 			var expected = new System.Text.StringBuilder ();
 
 			for (int i = count - 1; i >= 0; i--)
