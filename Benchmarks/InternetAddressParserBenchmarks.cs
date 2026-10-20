@@ -1,0 +1,72 @@
+//
+// InternetAddressParserBenchmarks.cs
+//
+// Author: Jeffrey Stedfast <jestedfa@microsoft.com>
+//
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+
+using System.Linq;
+using System.Text;
+
+using MimeKit;
+
+using BenchmarkDotNet.Attributes;
+
+namespace Benchmarks {
+	[MemoryDiagnoser]
+	public class InternetAddressParserBenchmarks
+	{
+		string text;
+		byte[] buffer;
+
+		[Params ("Single", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms")]
+		public string Input { get; set; }
+
+		[GlobalSetup]
+		public void Setup ()
+		{
+			text = Input switch {
+				"Single" => "Joe Sixpack <joe@example.com>",
+				"Recipients" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"User {i} <u{i}@example.com>")),
+				"Utf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"Ren\u00e9e M\u00fcller {i} <u{i}@example.com>")),
+				"Encoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?= <u{i}@example.com>")),
+				"Groups" => string.Join (", ", Enumerable.Range (0, 20).Select (i => $"Group {i}: a{i}@example.com, b{i}@example.com;")),
+				"Broken" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"<<<u{i}@example.com>>>")),
+				"LongAtoms" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('a', 48)}{i}@{new string ('b', 48)}.example.com")),
+				_ => throw new System.InvalidOperationException ("Unknown address parser benchmark input.")
+			};
+			buffer = Encoding.UTF8.GetBytes (text);
+		}
+
+		[Benchmark]
+		public InternetAddressList ParseBytes ()
+		{
+			return InternetAddressList.Parse (buffer);
+		}
+
+		[Benchmark]
+		public InternetAddressList ParseString ()
+		{
+			return InternetAddressList.Parse (text);
+		}
+	}
+}
