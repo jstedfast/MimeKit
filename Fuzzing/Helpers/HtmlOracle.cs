@@ -70,16 +70,16 @@ namespace MimeKit.Fuzzing.Helpers {
 
 		// Normalizes newlines the same way the HTML input stream preprocessor does so that both parsers agree on offsets.
 		//
-		// NUL characters are also replaced with U+FFFD because AngleSharp ignores a NUL in the "before html", "before head",
+		// NUL characters are also replaced with U+FFFC because AngleSharp ignores a NUL in the "before html", "before head",
 		// "in head" and "after head" insertion modes, whereas the WHATWG spec treats it like any other non-whitespace
 		// character (it closes the <head> and implies the <body>), as HtmlTokenizer does. E.g. given "\0<noscript><svg>
 		// </noscript><script><t>" with scripting disabled, AngleSharp puts the <noscript> in the <head> and creates a <t>
 		// element while a browser puts the <noscript> in the <body> and parses the <script> content as raw text.
-		// Both parsers see the same text, and the tokenizer states either emit a NUL as a character token or convert it to
-		// U+FFFD, so this only changes how the tree builder treats it (consistently for both parsers).
+		// Use U+FFFC rather than U+FFFD because Chromium incorrectly leaves frameset-ok set for U+FFFD, allowing a following
+		// <frameset> to replace the body. All parsers see the same normalized input, including the browser confirmation.
 		public static string Normalize (string html)
 		{
-			return html.Replace ("\r\n", "\n").Replace ('\r', '\n').Replace ('\0', '\uFFFD');
+			return html.Replace ("\r\n", "\n").Replace ('\r', '\n').Replace ('\0', '\uFFFC');
 		}
 
 		public static void Check (string html, bool scriptingEnabled, string what)
@@ -227,7 +227,7 @@ namespace MimeKit.Fuzzing.Helpers {
 				previousEnd = end;
 			}
 
-			inFrameset = tokenizer.OpenElements.IsInFrameset;
+			inFrameset = tokenizer.TreeConstruction.IsInFrameset;
 
 			return tags;
 		}

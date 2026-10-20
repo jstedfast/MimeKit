@@ -46,6 +46,26 @@ namespace UnitTests.Text {
 			var utf8Tokenizer = new HtmlTokenizer (Stream.Null, Encoding.UTF8);
 		}
 
+		[TestCase ("<html>", HtmlNamespace.Html)]
+		[TestCase ("<html xmlns=\"http://www.w3.org/2000/svg\">", HtmlNamespace.Svg)]
+		[TestCase ("<html xmlns=\"http://www.w3.org/1998/Math/MathML\">", HtmlNamespace.MathML)]
+		[TestCase ("<html xmlns=\"http://www.w3.org/2000/svg\"/>", HtmlNamespace.Html)]
+		[TestCase ("<svg>", HtmlNamespace.Html)]
+		[TestCase ("<svg><html xmlns=\"http://www.w3.org/2000/svg\">", HtmlNamespace.Html)]
+		[TestCase ("<frameset><html xmlns=\"http://www.w3.org/2000/svg\">", HtmlNamespace.Html)]
+		[TestCase ("<html xmlns=\"http://www.w3.org/2000/svg\"><html xmlns=\"http://www.w3.org/1998/Math/MathML\">", HtmlNamespace.MathML)]
+		public void TestHtmlNamespace (string html, HtmlNamespace expected)
+		{
+			var tokenizer = CreateTokenizer (html);
+
+			Assert.That (tokenizer.HtmlNamespace, Is.EqualTo (HtmlNamespace.Html));
+
+			while (tokenizer.ReadNextToken (out _)) {
+			}
+
+			Assert.That (tokenizer.HtmlNamespace, Is.EqualTo (expected));
+		}
+
 		static string Quote (string text)
 		{
 			if (text == null)

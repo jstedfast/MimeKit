@@ -55,7 +55,7 @@ namespace MimeKit.Text {
 		readonly HtmlEntityDecoder entity = new HtmlEntityDecoder ();
 		readonly CharBuffer data = new CharBuffer (2048);
 		readonly CharBuffer name = new CharBuffer (32);
-		readonly HtmlOpenElementStack openElements = new HtmlOpenElementStack (DefaultMaxElementDepth);
+		readonly HtmlTreeConstruction treeConstruction = new HtmlTreeConstruction (DefaultMaxElementDepth);
 
 		readonly TextReader? textReader;
 		readonly Stream? stream;
@@ -89,7 +89,6 @@ namespace MimeKit.Text {
 		char quote;
 
 		bool decodeCharacterReferences = true;
-		bool scriptingEnabled = true;
 		int linePosition = 1;
 		int lineNumber = 1;
 
@@ -199,7 +198,7 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value>The html namespace.</value>
 		public HtmlNamespace HtmlNamespace {
-			get; private set;
+			get { return treeConstruction.HtmlNamespace; }
 		}
 
 		/// <summary>
@@ -235,12 +234,12 @@ namespace MimeKit.Text {
 		/// <paramref name="value"/> is less than <c>1</c>.
 		/// </exception>
 		public int MaxElementDepth {
-			get { return openElements.MaxDepth; }
+			get { return treeConstruction.MaxDepth; }
 			set {
 				if (value < 1)
 					throw new ArgumentOutOfRangeException (nameof (value));
 
-				openElements.MaxDepth = value;
+				treeConstruction.MaxDepth = value;
 			}
 		}
 
@@ -372,10 +371,10 @@ namespace MimeKit.Text {
 		}
 
 		/// <summary>
-		/// Get the stack of open elements that the tokenizer uses to track the document structure.
+		/// Get the tree-construction controller that tracks the document structure.
 		/// </summary>
-		internal HtmlOpenElementStack OpenElements {
-			get { return openElements; }
+		internal HtmlTreeConstruction TreeConstruction {
+			get { return treeConstruction; }
 		}
 
 		/// <summary>
@@ -396,11 +395,8 @@ namespace MimeKit.Text {
 		/// </remarks>
 		/// <value><see langword="true" /> if the tokenizer should behave as if scripting is enabled; otherwise, <see langword="false" />.</value>
 		public bool ScriptingEnabled {
-			get { return scriptingEnabled; }
-			set {
-				scriptingEnabled = value;
-				openElements.ScriptingEnabled = value;
-			}
+			get { return treeConstruction.ScriptingEnabled; }
+			set { treeConstruction.ScriptingEnabled = value; }
 		}
 
 		/// <summary>
@@ -1044,72 +1040,26 @@ namespace MimeKit.Text {
 
 		HtmlToken EmitTagToken ()
 		{
-			openElements.ClearClosedElements ();
+			var token = tag!;
 
-			if (logger != null && tag!.IsEndTag)
+			if (logger != null && token.IsEndTag)
 				ValidateEndTag ();
 
-			if (tag!.IsEndTag) {
-				openElements.ProcessEndTag (tag);
-				TokenizerState = HtmlTokenizerState.Data;
-			} else if (openElements.ProcessStartTag (tag)) {
-				// Note: The tokenizer state is switched even if the tag is self-closing because browsers ignore
-				// the self-closing flag on non-void HTML elements.
-				switch (tag.Id) {
-				case HtmlTagId.Style: case HtmlTagId.Xmp: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed: case HtmlTagId.NoFrames:
-					TokenizerState = HtmlTokenizerState.RawText;
-					activeTagName = tag.Id.ToHtmlTagName ();
-					break;
-				case HtmlTagId.Title: case HtmlTagId.TextArea:
-					TokenizerState = HtmlTokenizerState.RcData;
-					activeTagName = tag.Id.ToHtmlTagName ();
-					break;
-				case HtmlTagId.PlainText:
-					TokenizerState = HtmlTokenizerState.PlainText;
-					break;
-				case HtmlTagId.Script:
-					TokenizerState = HtmlTokenizerState.ScriptData;
-					break;
-				case HtmlTagId.NoScript:
-					if (scriptingEnabled) {
-						TokenizerState = HtmlTokenizerState.RawText;
-						activeTagName = tag.Id.ToHtmlTagName ();
-					} else {
-						TokenizerState = HtmlTokenizerState.Data;
-					}
-					break;
-				case HtmlTagId.Html:
-					TokenizerState = HtmlTokenizerState.Data;
+			var result = treeConstruction.ProcessTag (token);
 
-					if (tag.IsEmptyElement)
-						break;
+			TokenizerState = result.TokenizerState;
 
-					for (int i = tag.Attributes.Count; i > 0; i--) {
-						var attr = tag.Attributes[i - 1];
-
-						if (attr.Id == HtmlAttributeId.XmlNS && attr.Value != null) {
-							HtmlNamespace = attr.Value.ToHtmlNamespace ();
-							break;
-						}
-					}
-					break;
-				default:
-					TokenizerState = HtmlTokenizerState.Data;
-					break;
-				}
-			} else {
-				// Note: Start tags in SVG and MathML content never switch the tokenizer out of the data state.
-				TokenizerState = HtmlTokenizerState.Data;
-			}
+			if (TokenizerState == HtmlTokenizerState.RawText || TokenizerState == HtmlTokenizerState.RcData)
+				activeTagName = token.Id.ToHtmlTagName ();
 
 			if (logger != null) {
-				if (openElements.BrokeOutOfForeignContent)
+				if (result.BrokeOutOfForeignContent)
 					LogIssueAtPreviousCharacter (HtmlComplianceViolation.ForeignContentBreakout, '>');
 
-				if (!tag.IsEndTag) {
-					if (openElements.StartTagIgnored)
+				if (!token.IsEndTag) {
+					if (result.Disposition == HtmlTreeConstruction.TagDisposition.Ignored)
 						LogIssueAtPreviousCharacter (HtmlComplianceViolation.IgnoredStartTag, '>');
-					else if (openElements.StartTagAttributesMerged)
+					else if (result.Disposition == HtmlTreeConstruction.TagDisposition.AttributesMerged)
 						LogIssueAtPreviousCharacter (HtmlComplianceViolation.AttributesMergedIntoExistingElement, '>');
 				}
 			}
@@ -1117,16 +1067,13 @@ namespace MimeKit.Text {
 			// Note: If the stack of open elements overflowed, the tokenizer can no longer tell how a browser would tokenize the rest
 			// of the input (e.g. an untracked <svg> would change how <style> or <![CDATA[ are handled), so fail closed by treating
 			// the remainder of the input as literal text.
-			if (openElements.DepthExceeded) {
+			if (treeConstruction.DepthExceeded) {
 				if (logger != null && !reportedElementDepthLimitExceeded) {
 					LogIssueAtPreviousCharacter (HtmlComplianceViolation.ElementDepthLimitExceeded, '>');
 					reportedElementDepthLimitExceeded = true;
 				}
-
-				TokenizerState = HtmlTokenizerState.PlainText;
 			}
 
-			var token = tag;
 			data.Length = 0;
 			tag = null;
 
@@ -1154,8 +1101,8 @@ namespace MimeKit.Text {
 				TokenizerState = next;
 				data.Append ('&');
 
-				if (next == HtmlTokenizerState.Data && openElements.TracksCharacterData)
-					openElements.ProcessCharacterData ('&');
+				if (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)
+					treeConstruction.ProcessCharacterData ('&');
 
 				return null;
 			}
@@ -1194,10 +1141,10 @@ namespace MimeKit.Text {
 
 			int unknown = logger != null ? ValidateCharacterReference (false, c) : -1;
 
-			if (decode || (next == HtmlTokenizerState.Data && openElements.TracksCharacterData)) {
+			if (decode || (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)) {
 				var value = entity.GetValue ();
 
-				if (next == HtmlTokenizerState.Data && openElements.TracksCharacterData)
+				if (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)
 					ProcessCharacterData (value);
 
 				if (decode)
@@ -1359,17 +1306,17 @@ namespace MimeKit.Text {
 		// the frameset-ok flag to "not ok".
 		void ProcessCharacterData (int startIndex)
 		{
-			for (int i = startIndex; i < data.Length && openElements.TracksCharacterData; i++) {
+			for (int i = startIndex; i < data.Length && treeConstruction.TracksCharacterData; i++) {
 				if (!IsHtmlWhiteSpace (data[i]))
-					openElements.ProcessCharacterData (data[i]);
+					treeConstruction.ProcessCharacterData (data[i]);
 			}
 		}
 
 		void ProcessCharacterData (string value)
 		{
-			for (int i = 0; i < value.Length && openElements.TracksCharacterData; i++) {
+			for (int i = 0; i < value.Length && treeConstruction.TracksCharacterData; i++) {
 				if (!IsHtmlWhiteSpace (value[i]))
-					openElements.ProcessCharacterData (value[i]);
+					treeConstruction.ProcessCharacterData (value[i]);
 			}
 		}
 
@@ -1391,14 +1338,14 @@ namespace MimeKit.Text {
 					break;
 				}
 
-				if (openElements.TracksCharacterData)
+				if (treeConstruction.TracksCharacterData)
 					ProcessCharacterData (startIndex);
 
 				switch (c) {
 				case '&':
 					// Note: Until the tree builder no longer needs to be told about character data, character references need to
 					// be decoded (even if the decoded values don't get emitted) in order to tell whether they are whitespace.
-					if (DecodeCharacterReferences || logger != null || openElements.TracksCharacterData) {
+					if (DecodeCharacterReferences || logger != null || treeConstruction.TracksCharacterData) {
 						TokenizerState = HtmlTokenizerState.CharacterReferenceInData;
 						return null;
 					}
@@ -1423,8 +1370,8 @@ namespace MimeKit.Text {
 					goto default;
 				default:
 					// Note: The special characters are never whitespace.
-					if (openElements.TracksCharacterData)
-						openElements.ProcessCharacterData (c);
+					if (treeConstruction.TracksCharacterData)
+						treeConstruction.ProcessCharacterData (c);
 
 					data.Append (c);
 					break;
@@ -1566,7 +1513,7 @@ namespace MimeKit.Text {
 
 			// Note: If the depth limit was exceeded, then the remaining input is not the content of a <plaintext> element and
 			// so needs to be encoded when written as HTML.
-			return EmitDataToken (openElements.DepthExceeded, false);
+			return EmitDataToken (treeConstruction.DepthExceeded, false);
 		}
 
 		// 8.2.4.8 Tag open state
@@ -2812,7 +2759,7 @@ namespace MimeKit.Text {
 					}
 
 					// Note: CDATA sections are only allowed in SVG and MathML content. Elsewhere, "<![CDATA[" starts a bogus comment.
-					if (count == 7 && openElements.IsInForeignContent) {
+					if (count == 7 && treeConstruction.IsInForeignContent) {
 						TokenizerState = HtmlTokenizerState.CDataSection;
 						data.Length = 0;
 						return null;
@@ -3628,7 +3575,7 @@ namespace MimeKit.Text {
 						TokenizerState = HtmlTokenizerState.Data;
 						cdataIndex = 0;
 
-						if (openElements.TracksCharacterData)
+						if (treeConstruction.TracksCharacterData)
 							ProcessCharacterData (0);
 
 						return EmitCDataToken ();
@@ -3644,7 +3591,7 @@ namespace MimeKit.Text {
 			data.Append (cdata, 0, cdataIndex);
 			cdataIndex = 0;
 
-			if (openElements.TracksCharacterData)
+			if (treeConstruction.TracksCharacterData)
 				ProcessCharacterData (0);
 
 			return EmitCDataToken ();

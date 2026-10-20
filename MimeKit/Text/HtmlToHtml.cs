@@ -397,14 +397,14 @@ namespace MimeKit.Text {
 					ComplianceOptions = complianceOptions,
 					ReuseDataTokens = true
 				};
-				var openElements = tokenizer.OpenElements;
+				var treeConstruction = tokenizer.TreeConstruction;
 				HtmlToHtmlTagContext? headCtx = null;
 				bool rawText = false;
 				int headTemplateDepth = 0;
 				bool headDone = false;
 				HtmlToHtmlTagContext? ctx;
 
-				openElements.TrackClosedElements = true;
+				treeConstruction.TrackClosedElements = true;
 
 				// Note: When outputting a fragment, the content of the <head> element is removed. Browsers implicitly close the
 				// <head> element when they encounter a start tag or non-whitespace text that does not belong in the <head> (and
@@ -431,12 +431,12 @@ namespace MimeKit.Text {
 					// Note: If the tokenizer ignored the end tag, then the element is still open (and so is the case for browsers),
 					// so leave its context on the stack. Otherwise, the wrong context would get popped (or none at all) when the
 					// element eventually gets closed, causing the wrong end tags to be written.
-					if (!implicitlyClosed && openElements.EndTagIgnored) {
+					if (!implicitlyClosed && treeConstruction.LastTag.Disposition == HtmlTreeConstruction.TagDisposition.Ignored) {
 						// Note: The end tag may have been ignored because the <noscript> element (which is in the "special" category)
 						// was in the way (e.g. </span> in <span><noscript><svg></span>). Since the <noscript> tags are not written
 						// when unwrapping, the end tag would no longer be ignored when the output is parsed (implicitly closing any
 						// SVG or MathML elements), so drop it.
-						if (unwrapNoScript && openElements.IsNoScriptOpen)
+						if (unwrapNoScript && treeConstruction.IsNoScriptOpen)
 							return;
 
 						ctx = stack.Peek (tag.Name);
@@ -496,7 +496,7 @@ namespace MimeKit.Text {
 						// because an end tag for a foreign element is only honored when that element is the current node. This
 						// also makes the conversion idempotent since converting the output again will not implicitly close any
 						// foreign elements.
-						var closed = openElements.ClosedElements;
+						var closed = treeConstruction.ClosedElements;
 						int lastForeign = closed.Count - 1;
 
 						while (lastForeign >= 0 && !closed[lastForeign].IsForeign)
@@ -509,19 +509,19 @@ namespace MimeKit.Text {
 								ProcessEndTag (endTag, true);
 						}
 
-						openElements.ClearClosedElements ();
+						treeConstruction.ClearClosedElements ();
 
 						// Note: Browsers ignore every tag in a frameset document other than the frameset, frame and noframes tags (and
 						// the html tags, which have no effect at that point). Since the ignored tags did not switch the tokenizer state
 						// (e.g. <style>, <textarea> or <svg>), drop them so that they cannot change how the output is interpreted when
 						// it is not a frameset document (e.g. if the callback removed the <frameset> tag or the output is a fragment).
-						if (openElements.IsInFrameset && tag.Id != HtmlTagId.FrameSet && tag.Id != HtmlTagId.Frame && tag.Id != HtmlTagId.NoFrames)
+						if (treeConstruction.IsInFrameset && tag.Id != HtmlTagId.FrameSet && tag.Id != HtmlTagId.Frame && tag.Id != HtmlTagId.NoFrames)
 							break;
 
 						// Note: Browsers ignore a <frameset> start tag once the frameset-ok flag is "not ok" (e.g. after a <body> start tag
 						// or any content). Drop it so that it cannot take effect when the output gets interpreted without the tokens that
 						// cleared the flag (e.g. if the output is a fragment, which omits the <body> tag and the content of the <head>).
-						if (tag.Id == HtmlTagId.FrameSet && !tag.IsEndTag && !openElements.IsInFrameset)
+						if (tag.Id == HtmlTagId.FrameSet && !tag.IsEndTag && !treeConstruction.IsInFrameset)
 							break;
 
 						// Note: The content of <noscript> elements has been tokenized as markup (as if scripting is disabled), so
