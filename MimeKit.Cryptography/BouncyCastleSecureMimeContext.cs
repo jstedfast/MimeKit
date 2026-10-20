@@ -122,12 +122,12 @@ namespace MimeKit.Cryptography {
 		/// <para>Gets or sets whether certificate revocation lists should be downloaded when verifying
 		/// signatures.</para>
 		/// <para>If enabled, the <see cref="BouncyCastleSecureMimeContext"/> will attempt to automatically download
-		/// Certificate Revocation Lists (CRLs) from the internet based on the CRL Distribution Point extension on
-		/// each certificate.</para>
-		/// <note type="security">Enabling this feature opens the client up to potential privacy risks. An attacker
-		/// can generate a custom X.509 certificate containing a CRL Distribution Point or OCSP URL pointing to an
-		/// attacker-controlled server, thereby getting a notification when the user decrypts the message or verifies
-		/// its digital signature.</note>
+		/// Certificate Revocation Lists (CRLs) from the internet based on the CRL Distribution Point extensions
+		/// of certificates on a validated path to a configured trust anchor. The path is first validated without
+		/// revocation checking, then validated again with revocation checking after CRLs are retrieved.</para>
+		/// <note type="security">Enabling this feature still exposes network activity to certificate issuers.
+		/// Trust anchors and their issuers must be trusted to supply appropriate distribution points.
+		/// Applications should enforce outbound network restrictions as appropriate for their environment.</note>
 		/// </remarks>
 		/// <value><see langword="true" /> if CRLs should be downloaded automatically; otherwise, <see langword="false" />.</value>
 		public bool CheckCertificateRevocation {
@@ -753,7 +753,7 @@ namespace MimeKit.Cryptography {
 			return chain;
 		}
 
-		PkixCertPath BuildCertPath (ISelector<X509Certificate> selector, ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate? certificate, DateTime signingTime)
+		PkixCertPath BuildCertPath (ISelector<X509Certificate> selector, ISet<TrustAnchor> anchors, IStore<X509Certificate> certificates, IStore<X509Crl> crls, X509Certificate? certificate, DateTime signingTime, bool checkRevocation)
 		{
 			var intermediates = new X509CertificateStore ();
 
@@ -765,14 +765,14 @@ namespace MimeKit.Cryptography {
 
 			var parameters = new PkixBuilderParameters (anchors, selector) {
 				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = CheckCertificateRevocation
+				IsRevocationEnabled = checkRevocation
 			};
 			parameters.AddStoreCert (intermediates);
 			parameters.AddStoreCrl (crls);
 
 			parameters.AddStoreCert (GetIntermediateCertificates ());
 
-			if (CheckCertificateRevocation)
+			if (checkRevocation)
 				parameters.AddStoreCrl (GetCertificateRevocationLists ());
 
 			if (signingTime != default (DateTime))
@@ -1144,15 +1144,11 @@ namespace MimeKit.Cryptography {
 			var signatures = new List<IDigitalSignature> ();
 			var crls = parser.GetCrls ();
 			var store = parser.GetSignerInfos ();
+			var anchors = GetTrustedAnchors ();
 
 			foreach (var signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo, certificate);
-
-				if (CheckCertificateRevocation) {
-					foreach (var cert in certificates.EnumerateMatches (null))
-						DownloadCrls (cert, cancellationToken);
-				}
 
 				if (certificate != null) {
 					Import (certificate, cancellationToken);
@@ -1161,19 +1157,19 @@ namespace MimeKit.Cryptography {
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 				}
 
-				var anchors = GetTrustedAnchors ();
-				var intermediates = GetIntermediateCertificates ();
-
-				if (CheckCertificateRevocation) {
-					foreach (var anchor in anchors)
-						DownloadCrls (anchor.TrustedCert, cancellationToken);
-
-					foreach (var intermediate in intermediates.EnumerateMatches (MatchAllCertificates))
-						DownloadCrls (intermediate, cancellationToken);
-				}
-
 				try {
-					signature.Chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate);
+					var chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate, false);
+
+					if (CheckCertificateRevocation) {
+						foreach (var cert in chain.Certificates)
+							DownloadCrls (cert, cancellationToken);
+
+						chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate, true);
+					}
+
+					signature.Chain = chain;
+				} catch (OperationCanceledException) {
+					throw;
 				} catch (Exception ex) {
 					signature.ChainException = ex;
 				}
@@ -1202,15 +1198,11 @@ namespace MimeKit.Cryptography {
 			var signatures = new List<IDigitalSignature> ();
 			var crls = parser.GetCrls ();
 			var store = parser.GetSignerInfos ();
+			var anchors = GetTrustedAnchors ();
 
 			foreach (var signerInfo in store.GetSigners ()) {
 				var certificate = GetCertificate (certificates, signerInfo.SignerID);
 				var signature = new SecureMimeDigitalSignature (signerInfo, certificate);
-
-				if (CheckCertificateRevocation) {
-					foreach (var cert in certificates.EnumerateMatches (null))
-						await DownloadCrlsAsync (cert, cancellationToken).ConfigureAwait (false);
-				}
 
 				if (certificate != null) {
 					await ImportAsync (certificate, cancellationToken).ConfigureAwait (false);
@@ -1219,19 +1211,19 @@ namespace MimeKit.Cryptography {
 						UpdateSecureMimeCapabilities (certificate, signature.EncryptionAlgorithms, signature.CreationDate);
 				}
 
-				var anchors = GetTrustedAnchors ();
-				var intermediates = GetIntermediateCertificates ();
-
-				if (CheckCertificateRevocation) {
-					foreach (var anchor in anchors)
-						await DownloadCrlsAsync (anchor.TrustedCert, cancellationToken).ConfigureAwait (false);
-
-					foreach (var intermediate in intermediates.EnumerateMatches (MatchAllCertificates))
-						await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
-				}
-
 				try {
-					signature.Chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate);
+					var chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate, false);
+
+					if (CheckCertificateRevocation) {
+						foreach (var cert in chain.Certificates)
+							await DownloadCrlsAsync (cert, cancellationToken).ConfigureAwait (false);
+
+						chain = BuildCertPath (signerInfo.SignerID, anchors, certificates, crls, certificate, signature.CreationDate, true);
+					}
+
+					signature.Chain = chain;
+				} catch (OperationCanceledException) {
+					throw;
 				} catch (Exception ex) {
 					signature.ChainException = ex;
 				}
@@ -1540,8 +1532,6 @@ namespace MimeKit.Cryptography {
 
 		void ValidateRecipientCertificate (CmsRecipient recipient, CancellationToken cancellationToken = default)
 		{
-			DownloadCrls (recipient.Certificate, cancellationToken);
-
 			var selector = new X509CertStoreSelector () {
 				Certificate = recipient.Certificate
 			};
@@ -1550,36 +1540,18 @@ namespace MimeKit.Cryptography {
 			userCertificateStore.Add (recipient.Certificate);
 
 			var trustedAnchors = GetTrustedAnchors ();
-			var anchorStore = new X509CertificateStore ();
-
-			foreach (var anchor in trustedAnchors) {
-				DownloadCrls (anchor.TrustedCert, cancellationToken);
-				anchorStore.Add (anchor.TrustedCert);
-			}
-
-			var intermediateStore = GetIntermediateCertificates ();
-
-			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates))
-				DownloadCrls (intermediate, cancellationToken);
-
-			var parameters = new PkixBuilderParameters (trustedAnchors, selector) {
-				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = true,
-				Date = DateTime.UtcNow
-			};
-
-			parameters.AddStoreCert (userCertificateStore);
-			parameters.AddStoreCert (intermediateStore);
-			parameters.AddStoreCert (anchorStore);
-
-			parameters.AddStoreCrl (GetCertificateRevocationLists ());
-
-			var builder = new PkixCertPathBuilder ();
+			var crls = GetCertificateRevocationLists ();
+			var now = DateTime.UtcNow;
 
 			try {
-				// Note: if there are any validation problems with the certificate chain,
-				// this will throw PkixCertPathBuilderException
-				builder.Build (parameters);
+				var chain = BuildCertPath (selector, trustedAnchors, userCertificateStore, crls, recipient.Certificate, now, false);
+
+				foreach (var certificate in chain.Certificates)
+					DownloadCrls (certificate, cancellationToken);
+
+				BuildCertPath (selector, trustedAnchors, userCertificateStore, crls, recipient.Certificate, now, true);
+			} catch (OperationCanceledException) {
+				throw;
 			} catch (Exception ex) {
 				throw new CmsRecipientException ($"Failed to validate recipient certificate for '{recipient.Certificate.SubjectDN}'", recipient, ex);
 			}
@@ -1587,8 +1559,6 @@ namespace MimeKit.Cryptography {
 
 		async Task ValidateRecipientCertificateAsync (CmsRecipient recipient, CancellationToken cancellationToken = default)
 		{
-			await DownloadCrlsAsync (recipient.Certificate, cancellationToken).ConfigureAwait (false);
-
 			var selector = new X509CertStoreSelector () {
 				Certificate = recipient.Certificate
 			};
@@ -1597,36 +1567,18 @@ namespace MimeKit.Cryptography {
 			userCertificateStore.Add (recipient.Certificate);
 
 			var trustedAnchors = GetTrustedAnchors ();
-			var anchorStore = new X509CertificateStore ();
-
-			foreach (var anchor in trustedAnchors) {
-				await DownloadCrlsAsync (anchor.TrustedCert, cancellationToken).ConfigureAwait (false);
-				anchorStore.Add (anchor.TrustedCert);
-			}
-
-			var intermediateStore = GetIntermediateCertificates ();
-
-			foreach (var intermediate in intermediateStore.EnumerateMatches (MatchAllCertificates))
-				await DownloadCrlsAsync (intermediate, cancellationToken).ConfigureAwait (false);
-
-			var parameters = new PkixBuilderParameters (trustedAnchors, selector) {
-				ValidityModel = PkixParameters.PkixValidityModel,
-				IsRevocationEnabled = true,
-				Date = DateTime.UtcNow
-			};
-
-			parameters.AddStoreCert (userCertificateStore);
-			parameters.AddStoreCert (intermediateStore);
-			parameters.AddStoreCert (anchorStore);
-
-			parameters.AddStoreCrl (GetCertificateRevocationLists ());
-
-			var builder = new PkixCertPathBuilder ();
+			var crls = GetCertificateRevocationLists ();
+			var now = DateTime.UtcNow;
 
 			try {
-				// Note: if there are any validation problems with the certificate chain,
-				// this will throw PkixCertPathBuilderException
-				builder.Build (parameters);
+				var chain = BuildCertPath (selector, trustedAnchors, userCertificateStore, crls, recipient.Certificate, now, false);
+
+				foreach (var certificate in chain.Certificates)
+					await DownloadCrlsAsync (certificate, cancellationToken).ConfigureAwait (false);
+
+				BuildCertPath (selector, trustedAnchors, userCertificateStore, crls, recipient.Certificate, now, true);
+			} catch (OperationCanceledException) {
+				throw;
 			} catch (Exception ex) {
 				throw new CmsRecipientException ($"Failed to validate recipient certificate for '{recipient.Certificate.SubjectDN}'", recipient, ex);
 			}

@@ -9,6 +9,16 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Breaking Changes
 
+* OpenPGP decryption now verifies encrypted-data integrity and rejects legacy packets without
+  integrity protection by default. Set `OpenPgpContext.AllowUnauthenticatedDecryption` to `true`
+  only when legacy compatibility is required. Stream output must not be used until decryption
+  completes successfully.
+* `TemporarySecureMimeContext` no longer trusts self-signed certificates merely because they were
+  imported, including certificates supplied by signed messages or PKCS#12 files. Configure trust
+  explicitly with `Import (certificate, trusted: true)` or its async counterpart.
+* CMS decompression now has a 64 MiB expanded-content limit, including MIME headers. Configure
+  `SecureMimeContext.MaxDecompressedSize` (also on `ISecureMimeContext`) to change the limit;
+  oversized content throws `FormatException`.
 * Split the cryptography support out of MimeKit into a separate `MimeKit.Cryptography` assembly and
   NuGet package. (issue [#820](https://github.com/jstedfast/MimeKit/issues/820))
   * The `MimeKit` package is now a meta-package that references both `MimeKit.Core` and
@@ -455,6 +465,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Performance
 
+* DKIM and ARC signed-header selection now indexes headers once and consumes repeated fields in
+  linear time, avoiding quadratic work on large attacker-controlled signed-header lists.
+  Headers are merged in serialization order, including developer-constructed headers stored in
+  either the message or body header list.
+
 * `MimeIterator.MoveTo ()` now navigates directly to the specified entity in time proportional to its depth,
   rather than walking the tree from the beginning (or from the current position). `MimeIterator` also no longer
   allocates for each level it descends into.
@@ -510,6 +525,13 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   depending on the document.
 
 ### Bug Fixes
+
+* Fixed missing OpenPGP modification detection and implicit trust of message-supplied certificates
+  in `TemporarySecureMimeContext`.
+* Bounded CMS decompression and fixed cancellation during synchronous decompression to a stream.
+* Restricted opt-in CRL retrieval to certificates on a path validated against configured trust
+  anchors. Unrelated certificates in signed messages or local stores no longer trigger requests.
+  Revocation checking is still performed after retrieval.
 
 * Fixed `OpenPgpContext.Verify ()` and `VerifyAsync ()` so that they throw a `FormatException` instead of an
   `InvalidCastException` when the signature data contains a PGP packet other than a signature.

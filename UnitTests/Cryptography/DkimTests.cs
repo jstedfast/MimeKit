@@ -109,6 +109,93 @@ namespace UnitTests.Cryptography {
 
 		const string ExampleKeyName = "1433868189.example._domainkey.example.com";
 
+		[Test]
+		public void TestWriteRepeatedHeaders ([Values] DkimCanonicalizationAlgorithm algorithm, [Values (false, true)] bool body)
+		{
+			using var message = new MimeMessage ();
+			message.Headers.Clear ();
+			message.Headers.Add ("X-Test", "first");
+			message.Headers.Add ("X-Other", "ignored");
+			message.Headers.Add ("x-test", "last");
+			message.Headers.Add ("Content-Test", "message content");
+
+			if (body) {
+				message.Body = new TextPart ("plain");
+				message.Body.Headers.Add ("Content-Test", "body first");
+				message.Body.Headers.Add ("Content-Test", "body last");
+				message.Body.Headers.Add ("X-Test", "body extension");
+			}
+
+			var fields = new[] { "X-Missing", "X-TEST", "Content-Test", "x-test", "X-Test", "content-test", "CONTENT-TEST", "X-Test", "Content-Test", "X-Missing" };
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			using var stream = new MemoryStream ();
+			DkimVerifierBase.WriteHeaders (options, message, fields, algorithm, stream);
+			var actual = System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+			string expected;
+
+			if (algorithm == DkimCanonicalizationAlgorithm.Relaxed) {
+				expected = body ?
+					"x-test:body extension\r\ncontent-test:body last\r\nx-test:last\r\nx-test:first\r\ncontent-test:body first\r\ncontent-test:message content\r\n" :
+					"x-test:last\r\ncontent-test:message content\r\nx-test:first\r\n";
+			} else {
+				expected = body ?
+					"X-Test: body extension\r\nContent-Test: body last\r\nx-test: last\r\nX-Test: first\r\nContent-Test: body first\r\nContent-Test: message content\r\n" :
+					"x-test: last\r\nContent-Test: message content\r\nX-Test: first\r\n";
+			}
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestWriteMergedHeaders ([Values] DkimCanonicalizationAlgorithm algorithm)
+		{
+			const string text = "X-Test: first\r\nX-Test: middle\r\nX-Test: last\r\nContent-Type: text/plain\r\n\r\nbody";
+			using var input = new MemoryStream (System.Text.Encoding.ASCII.GetBytes (text));
+			using var message = MimeMessage.Load (input);
+			var middle = message.Headers[1];
+			Assert.That (middle.Value, Is.EqualTo ("middle"));
+			Assert.That (middle.Offset, Is.Not.Null);
+			message.Headers.Remove (middle);
+			message.Body.Headers.Insert (0, middle);
+
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			using var stream = new MemoryStream ();
+			DkimVerifierBase.WriteHeaders (options, message, new[] { "X-Test", "X-Test", "X-Test", "X-Test" }, algorithm, stream);
+			var actual = System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+			var expected = algorithm == DkimCanonicalizationAlgorithm.Relaxed ?
+				"x-test:last\r\nx-test:middle\r\nx-test:first\r\n" :
+				"X-Test: last\r\nX-Test: middle\r\nX-Test: first\r\n";
+
+			Assert.That (actual, Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestWriteManyRepeatedHeaders ([Values (1000, 2000, 4000, 8000, 16000)] int count)
+		{
+			using var message = new MimeMessage ();
+			message.Headers.Clear ();
+			var fields = new List<string> (count * 2);
+
+			for (int i = 0; i < count; i++) {
+				message.Headers.Add ("X-Test", i.ToString (CultureInfo.InvariantCulture));
+				fields.Add ("x-test");
+				fields.Add ("X-Missing");
+			}
+
+			fields.Add ("X-Test");
+			using var stream = new MemoryStream ();
+			DkimVerifierBase.WriteHeaders (FormatOptions.Default, message, fields, DkimCanonicalizationAlgorithm.Relaxed, stream);
+			var actual = System.Text.Encoding.ASCII.GetString (stream.ToArray ());
+			var expected = new System.Text.StringBuilder ();
+
+			for (int i = count - 1; i >= 0; i--)
+				expected.Append ("x-test:").Append (i.ToString (CultureInfo.InvariantCulture)).Append ("\r\n");
+
+			Assert.That (actual, Is.EqualTo (expected.ToString ()));
+		}
+
 		static string ExamplePublicKey {
 			get { return Convert.ToBase64String (SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo (DkimKeys.Public).GetEncoded ()); }
 		}

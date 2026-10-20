@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,6 +62,82 @@ namespace MimeKit.Cryptography {
 #endif
 		internal static readonly DerObjectIdentifier Blowfish = new DerObjectIdentifier ("1.3.6.1.4.1.3029.1.2");
 		internal static readonly DerObjectIdentifier Twofish = new DerObjectIdentifier ("1.3.6.1.4.1.25258.3.3");
+		long maxDecompressedSize = 64 * 1024 * 1024;
+
+		/// <summary>
+		/// Get or set the maximum decompressed CMS content size in bytes.
+		/// </summary>
+		/// <remarks>
+		/// The default is 64 MiB. All decompression methods throw <see cref="FormatException"/>
+		/// if the expanded content exceeds this limit. The limit includes MIME headers.
+		/// </remarks>
+		/// <value>The maximum decompressed size in bytes.</value>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is less than one.
+		/// </exception>
+		public long MaxDecompressedSize {
+			get { return maxDecompressedSize; }
+			set {
+				if (value < 1)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				maxDecompressedSize = value;
+			}
+		}
+
+		sealed class DecompressedStream : Stream
+		{
+			readonly CancellationToken cancellationToken;
+			readonly Stream stream;
+			long remaining;
+
+			public DecompressedStream (Stream stream, long limit, CancellationToken cancellationToken)
+			{
+				this.cancellationToken = cancellationToken;
+				this.stream = stream;
+				remaining = limit;
+			}
+
+			public override bool CanRead => true;
+			public override bool CanWrite => false;
+			public override bool CanSeek => false;
+			public override long Length => throw new NotSupportedException ();
+			public override long Position {
+				get => throw new NotSupportedException ();
+				set => throw new NotSupportedException ();
+			}
+
+			int CheckLimit (int count)
+			{
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (count > remaining)
+					throw new FormatException ("The decompressed content exceeds MaxDecompressedSize.");
+				remaining -= count;
+				return count;
+			}
+
+			public override int Read (byte[] buffer, int offset, int count)
+			{
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (remaining < count)
+					count = (int) remaining + 1;
+				return CheckLimit (stream.Read (buffer, offset, count));
+			}
+
+			public override async Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+			{
+				this.cancellationToken.ThrowIfCancellationRequested ();
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (remaining < count)
+					count = (int) remaining + 1;
+				return CheckLimit (await stream.ReadAsync (buffer, offset, count, cancellationToken).ConfigureAwait (false));
+			}
+
+			public override void Flush () => throw new NotSupportedException ();
+			public override long Seek (long offset, SeekOrigin origin) => throw new NotSupportedException ();
+			public override void SetLength (long value) => throw new NotSupportedException ();
+			public override void Write (byte[] buffer, int offset, int count) => throw new NotSupportedException ();
+		}
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="SecureMimeContext"/> class.
@@ -515,6 +592,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>.
+		/// </exception>
 		public virtual MimeEntity Decompress (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
@@ -526,7 +606,8 @@ namespace MimeKit.Cryptography {
 				var content = parser.GetContent ();
 
 				try {
-					return MimeEntity.Load (content.ContentStream, cancellationToken);
+					using var decompressed = new DecompressedStream (content.ContentStream, MaxDecompressedSize, cancellationToken);
+					return MimeEntity.Load (decompressed, cancellationToken);
 				} finally {
 					content.ContentStream.Dispose ();
 				}
@@ -551,6 +632,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>.
+		/// </exception>
 		public virtual async Task<MimeEntity> DecompressAsync (Stream stream, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
@@ -562,7 +646,8 @@ namespace MimeKit.Cryptography {
 				var content = parser.GetContent ();
 
 				try {
-					return await MimeEntity.LoadAsync (content.ContentStream, cancellationToken).ConfigureAwait (false);
+					using var decompressed = new DecompressedStream (content.ContentStream, MaxDecompressedSize, cancellationToken);
+					return await MimeEntity.LoadAsync (decompressed, cancellationToken).ConfigureAwait (false);
 				} finally {
 					content.ContentStream.Dispose ();
 				}
@@ -589,6 +674,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>. The output may contain partial data.
+		/// </exception>
 		public virtual void DecompressTo (Stream stream, Stream output, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
@@ -603,8 +691,20 @@ namespace MimeKit.Cryptography {
 				var content = parser.GetContent ();
 
 				try {
-					cancellationToken.ThrowIfCancellationRequested ();
-					content.ContentStream.CopyTo (output, 4096);
+					using var decompressed = new DecompressedStream (content.ContentStream, MaxDecompressedSize, cancellationToken);
+					var buffer = ArrayPool<byte>.Shared.Rent (4096);
+
+					try {
+						int nread;
+						while ((nread = decompressed.Read (buffer, 0, 4096)) > 0) {
+							if (output is ICancellableStream cancellable)
+								cancellable.Write (buffer, 0, nread, cancellationToken);
+							else
+								output.Write (buffer, 0, nread);
+						}
+					} finally {
+						ArrayPool<byte>.Shared.Return (buffer);
+					}
 				} finally {
 					content.ContentStream.Dispose ();
 				}
@@ -632,6 +732,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>. The output may contain partial data.
+		/// </exception>
 		public virtual async Task DecompressToAsync (Stream stream, Stream output, CancellationToken cancellationToken = default)
 		{
 			if (stream == null)
@@ -646,8 +749,8 @@ namespace MimeKit.Cryptography {
 				var content = parser.GetContent ();
 
 				try {
-					cancellationToken.ThrowIfCancellationRequested ();
-					await content.ContentStream.CopyToAsync (output, 4096, cancellationToken).ConfigureAwait (false);
+					using var decompressed = new DecompressedStream (content.ContentStream, MaxDecompressedSize, cancellationToken);
+					await decompressed.CopyToAsync (output, 4096, cancellationToken).ConfigureAwait (false);
 				} finally {
 					content.ContentStream.Dispose ();
 				}

@@ -60,6 +60,19 @@ namespace MimeKit.Cryptography {
 		const string EndPublicKeyBlock = "-----END PGP PUBLIC KEY BLOCK-----";
 		const int BufferLength = 4096;
 
+		/// <summary>
+		/// Get or set whether encrypted data without integrity protection may be decrypted.
+		/// </summary>
+		/// <remarks>
+		/// The default is <see langword="false"/>. Enable this only for compatibility with legacy
+		/// OpenPGP messages whose contents cannot be checked for tampering. Integrity-protected
+		/// messages are always checked, even when this option is enabled.
+		/// </remarks>
+		/// <value><see langword="true"/> to allow legacy unprotected data; otherwise, <see langword="false"/>.</value>
+		public bool AllowUnauthenticatedDecryption {
+			get; set;
+		}
+
 		static readonly EncryptionAlgorithm[] DefaultEncryptionAlgorithmRank = {
 			EncryptionAlgorithm.Idea,
 			EncryptionAlgorithm.TripleDes,
@@ -2450,7 +2463,11 @@ namespace MimeKit.Cryptography {
 					throw pkex;
 				}
 
-				factory = new PgpObjectFactory (encrypted!.GetDataStream (GetPrivateKey (secret))); // encrypted is not null when secret is not null
+				// encrypted is not null when secret is not null.
+				if (!encrypted!.IsIntegrityProtected () && !AllowUnauthenticatedDecryption)
+					throw new PgpException ("The encrypted data is not integrity protected.");
+
+				factory = new PgpObjectFactory (encrypted.GetDataStream (GetPrivateKey (secret)));
 				List<IDigitalSignature>? onepassList = null;
 				DigitalSignatureCollection? signatures;
 				PgpSignatureList? signatureList = null;
@@ -2460,6 +2477,8 @@ namespace MimeKit.Cryptography {
 
 				obj = factory.NextPgpObject ();
 				while (obj != null) {
+					cancellationToken.ThrowIfCancellationRequested ();
+
 					if (obj is PgpCompressedData) {
 						if (compressed != null)
 							throw new PgpException ("Recursive compression packets are not supported.");
@@ -2506,6 +2525,8 @@ namespace MimeKit.Cryptography {
 
 							try {
 								while ((nread = stream.Read (buf, 0, BufferLength)) > 0) {
+									cancellationToken.ThrowIfCancellationRequested ();
+
 									if (onepassList != null) {
 										// update our one-pass signatures...
 										for (int index = 0; index < nread; index++) {
@@ -2534,6 +2555,11 @@ namespace MimeKit.Cryptography {
 					obj = factory.NextPgpObject ();
 				}
 
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				if (encrypted.IsIntegrityProtected () && !encrypted.Verify ())
+					throw new PgpException ("The encrypted data failed its integrity check.");
+
 				if (signatureList != null) {
 					if (onepassList != null && signatureList.Count == onepassList.Count) {
 						for (int i = 0; i < onepassList.Count; i++) {
@@ -2561,6 +2587,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Decrypts an encrypted stream and extracts the digital signers if the content was also signed.</para>
+		/// <para>Output must not be used until this method completes successfully. If integrity validation
+		/// fails, an exception is thrown, but unauthenticated data may already have been written to the output.
+		/// Unprotected legacy messages are rejected unless <see cref="AllowUnauthenticatedDecryption"/> is enabled.</para>
 		/// <para>If any of the signatures were made with an unrecognized key and <see cref="AutoKeyRetrieve"/> is enabled,
 		/// an attempt will be made to retrieve said key(s). The <paramref name="cancellationToken"/> can be used to cancel
 		/// key retrieval.</para>
@@ -2598,6 +2627,9 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <remarks>
 		/// <para>Decrypts an encrypted stream and extracts the digital signers if the content was also signed.</para>
+		/// <para>Output must not be used until this method completes successfully. If integrity validation
+		/// fails, an exception is thrown, but unauthenticated data may already have been written to the output.
+		/// Unprotected legacy messages are rejected unless <see cref="AllowUnauthenticatedDecryption"/> is enabled.</para>
 		/// <para>If any of the signatures were made with an unrecognized key and <see cref="AutoKeyRetrieve"/> is enabled,
 		/// an attempt will be made to retrieve said key(s). The <paramref name="cancellationToken"/> can be used to cancel
 		/// key retrieval.</para>

@@ -56,6 +56,7 @@ namespace MimeKit.Cryptography {
 		readonly Dictionary<string, EncryptionAlgorithm[]> capabilities = new Dictionary<string, EncryptionAlgorithm[]> (StringComparer.Ordinal);
 		internal readonly Dictionary<string, AsymmetricKeyParameter> keys = new Dictionary<string, AsymmetricKeyParameter> (StringComparer.Ordinal);
 		internal readonly List<X509Certificate> certificates = new List<X509Certificate> ();
+		readonly HashSet<X509Certificate> trustedCertificates = new HashSet<X509Certificate> ();
 		readonly HashSet<string> fingerprints = new HashSet<string> ();
 		readonly List<X509Crl> crls = new List<X509Crl> ();
 
@@ -189,12 +190,8 @@ namespace MimeKit.Cryptography {
 		{
 			var anchors = new HashSet<TrustAnchor> ();
 
-			foreach (var certificate in certificates) {
-				var keyUsage = certificate.GetKeyUsage ();
-
-				if (keyUsage != null && keyUsage[(int) X509KeyUsageBits.KeyCertSign] && certificate.IsSelfSigned ())
-					anchors.Add (new TrustAnchor (certificate, null));
-			}
+			foreach (var certificate in trustedCertificates)
+				anchors.Add (new TrustAnchor (certificate, null));
 
 			return anchors;
 		}
@@ -557,6 +554,59 @@ namespace MimeKit.Cryptography {
 
 			if (fingerprints.Add (certificate.GetFingerprint ()))
 				certificates.Add (certificate);
+		}
+
+		/// <summary>
+		/// Import a certificate and explicitly set its trust.
+		/// </summary>
+		/// <remarks>
+		/// <para>Only certificates explicitly imported with <paramref name="trusted"/> set to
+		/// <see langword="true"/> are used as trust anchors. Ordinary imports, including certificates
+		/// received in signed messages or imported from PKCS#12, do not grant trust or change existing trust.</para>
+		/// <para>Passing <see langword="false"/> removes any previously granted trust.</para>
+		/// </remarks>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="trusted">Whether the certificate is a trusted anchor.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="certificate"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public void Import (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default)
+		{
+			Import (certificate, cancellationToken);
+
+			if (trusted)
+				trustedCertificates.Add (certificate);
+			else
+				trustedCertificates.Remove (certificate);
+		}
+
+		/// <summary>
+		/// Asynchronously import a certificate and explicitly set its trust.
+		/// </summary>
+		/// <remarks>
+		/// <para>Only certificates explicitly imported with <paramref name="trusted"/> set to
+		/// <see langword="true"/> are used as trust anchors. Ordinary imports do not grant trust
+		/// or change existing trust.</para>
+		/// <para>Passing <see langword="false"/> removes any previously granted trust.</para>
+		/// </remarks>
+		/// <returns>An asynchronous task context.</returns>
+		/// <param name="certificate">The certificate.</param>
+		/// <param name="trusted">Whether the certificate is a trusted anchor.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="certificate"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="OperationCanceledException">
+		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		public Task ImportAsync (X509Certificate certificate, bool trusted, CancellationToken cancellationToken = default)
+		{
+			Import (certificate, trusted, cancellationToken);
+			return Task.CompletedTask;
 		}
 
 		/// <summary>

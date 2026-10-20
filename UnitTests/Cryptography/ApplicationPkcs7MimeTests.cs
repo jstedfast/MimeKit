@@ -378,8 +378,12 @@ namespace UnitTests.Cryptography {
 							sqlite.Import (stream, true);
 						} else {
 							var parser = new X509CertificateParser ();
-							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-								ctx.Import (certificate);
+							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream)) {
+								if (ctx is TemporarySecureMimeContext temporary)
+									temporary.Import (certificate, certificate.IsSelfSigned ());
+								else
+									ctx.Import (certificate);
+							}
 						}
 					}
 				}
@@ -399,6 +403,8 @@ namespace UnitTests.Cryptography {
 					for (int i = chain.Length - 1; i > 0; i--) {
 						if (ctx is DefaultSecureMimeContext sqlite) {
 							sqlite.Import (chain[i], true);
+						} else if (ctx is TemporarySecureMimeContext temporary) {
+							temporary.Import (chain[i], chain[i].IsSelfSigned ());
 						} else {
 							ctx.Import (chain[i]);
 						}
@@ -436,8 +442,12 @@ namespace UnitTests.Cryptography {
 							await sqlite.ImportAsync (stream, true).ConfigureAwait (false);
 						} else {
 							var parser = new X509CertificateParser ();
-							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream))
-								await ctx.ImportAsync (certificate).ConfigureAwait (false);
+							foreach (BCX509Certificate certificate in parser.ReadCertificates (stream)) {
+								if (ctx is TemporarySecureMimeContext temporary)
+									await temporary.ImportAsync (certificate, certificate.IsSelfSigned ()).ConfigureAwait (false);
+								else
+									await ctx.ImportAsync (certificate).ConfigureAwait (false);
+							}
 						}
 					}
 				}
@@ -457,6 +467,8 @@ namespace UnitTests.Cryptography {
 					for (int i = chain.Length - 1; i > 0; i--) {
 						if (ctx is DefaultSecureMimeContext sqlite) {
 							await sqlite.ImportAsync (chain[i], true).ConfigureAwait (false);
+						} else if (ctx is TemporarySecureMimeContext temporary) {
+							await temporary.ImportAsync (chain[i], chain[i].IsSelfSigned ()).ConfigureAwait (false);
 						} else {
 							await ctx.ImportAsync (chain[i]).ConfigureAwait (false);
 						}

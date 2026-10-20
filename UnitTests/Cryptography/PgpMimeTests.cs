@@ -1075,6 +1075,165 @@ namespace UnitTests.Cryptography {
 			}
 		}
 
+		static byte[] CreateEncryptedMessage (DummyOpenPgpContext ctx, bool integrityProtected, bool compressed, int tamperOffset, int truncate = 0)
+				{
+					var plaintext = Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\n" + new string ('A', 1024));
+					byte[] packets;
+
+					using (var buffer = new MemoryStream ()) {
+						var literal = new PgpLiteralDataGenerator ();
+						using (var stream = literal.Open (buffer, PgpLiteralData.Binary, "", plaintext.Length, DateTime.UtcNow))
+							stream.Write (plaintext, 0, plaintext.Length);
+						packets = buffer.ToArray ();
+					}
+
+					if (compressed) {
+						using var buffer = new MemoryStream ();
+						var compressor = new PgpCompressedDataGenerator (CompressionAlgorithmTag.Zip);
+						using (var stream = compressor.Open (buffer))
+							stream.Write (packets, 0, packets.Length);
+						packets = buffer.ToArray ();
+					}
+
+					var generator = new PgpEncryptedDataGenerator (SymmetricKeyAlgorithmTag.Aes128, integrityProtected,
+						new Org.BouncyCastle.Security.SecureRandom ());
+					generator.AddMethod (ctx.GetPublicKeys (new[] { new MailboxAddress ("", "mimekit@example.com") })[0]);
+
+					byte[] encrypted;
+					using (var buffer = new MemoryStream ()) {
+						using (var stream = generator.Open (buffer, packets.Length))
+							stream.Write (packets, 0, packets.Length);
+						encrypted = buffer.ToArray ();
+					}
+
+					if (tamperOffset > 0)
+						encrypted[encrypted.Length - tamperOffset] ^= 1;
+
+					if (truncate > 0)
+						Array.Resize (ref encrypted, encrypted.Length - truncate);
+
+					using (var buffer = new MemoryStream ()) {
+						using (var armor = new ArmoredOutputStream (buffer))
+							armor.Write (encrypted, 0, encrypted.Length);
+						return buffer.ToArray ();
+					}
+				}
+
+				static async Task AssertDecryptionIntegrityAsync (bool doAsync, bool entity, bool compressed, int tamperOffset, bool allowUnauthenticated)
+				{
+					using var ctx = new DummyOpenPgpContext ();
+					Assert.That (ctx.AllowUnauthenticatedDecryption, Is.False);
+					ctx.AllowUnauthenticatedDecryption = allowUnauthenticated;
+					using var input = new MemoryStream (CreateEncryptedMessage (ctx, true, compressed, tamperOffset));
+					using var output = new MemoryStream ();
+
+					async Task DecryptAsync ()
+					{
+						if (entity) {
+							using var decrypted = doAsync ? await ctx.DecryptAsync (input) : ctx.Decrypt (input);
+							Assert.That (((TextPart) decrypted).Text, Is.EqualTo (new string ('A', 1024)));
+						} else {
+							if (doAsync)
+								await ctx.DecryptToAsync (input, output);
+							else
+								ctx.DecryptTo (input, output);
+							Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Does.EndWith (new string ('A', 1024)));
+						}
+					}
+
+					if (tamperOffset != 0)
+						Assert.ThrowsAsync<PgpException> (DecryptAsync);
+					else
+						await DecryptAsync ();
+				}
+
+				[Test]
+				public void TestDecryptionIntegrity ([Values (false, true)] bool entity, [Values (0, 1, 23)] int tamperOffset,
+					[Values (false, true)] bool allowUnauthenticated)
+				{
+					AssertDecryptionIntegrityAsync (false, entity, false, tamperOffset, allowUnauthenticated).GetAwaiter ().GetResult ();
+				}
+
+				[Test]
+				public Task TestDecryptionIntegrityAsync ([Values (false, true)] bool entity, [Values (0, 1, 23)] int tamperOffset,
+					[Values (false, true)] bool allowUnauthenticated)
+				{
+					return AssertDecryptionIntegrityAsync (true, entity, false, tamperOffset, allowUnauthenticated);
+				}
+
+				[Test]
+				public void TestCompressedDecryptionIntegrity ([Values (0, 1)] int tamperOffset)
+				{
+					AssertDecryptionIntegrityAsync (false, true, true, tamperOffset, false).GetAwaiter ().GetResult ();
+				}
+
+				[Test]
+				public Task TestCompressedDecryptionIntegrityAsync ([Values (0, 1)] int tamperOffset)
+				{
+					return AssertDecryptionIntegrityAsync (true, true, true, tamperOffset, false);
+				}
+
+				static Task AssertTruncatedDecryptionAsync (bool doAsync, bool entity, int truncate)
+				{
+					using var ctx = new DummyOpenPgpContext ();
+					using var input = new MemoryStream (CreateEncryptedMessage (ctx, true, false, 0, truncate));
+					using var output = new MemoryStream ();
+					var exception = Assert.CatchAsync<Exception> (async () => {
+						if (entity) {
+							using var decrypted = doAsync ? await ctx.DecryptAsync (input) : ctx.Decrypt (input);
+						} else if (doAsync) {
+							await ctx.DecryptToAsync (input, output);
+						} else {
+							ctx.DecryptTo (input, output);
+						}
+					});
+					Assert.That (exception, Is.InstanceOf<PgpException> ().Or.InstanceOf<IOException> ());
+					return Task.CompletedTask;
+				}
+
+				[Test]
+				public void TestTruncatedDecryption ([Values (false, true)] bool entity, [Values (1, 22, 40)] int truncate)
+				{
+					AssertTruncatedDecryptionAsync (false, entity, truncate).GetAwaiter ().GetResult ();
+				}
+
+				[Test]
+				public Task TestTruncatedDecryptionAsync ([Values (false, true)] bool entity, [Values (1, 22, 40)] int truncate)
+				{
+					return AssertTruncatedDecryptionAsync (true, entity, truncate);
+				}
+
+				static async Task AssertUnauthenticatedDecryptionAsync (bool doAsync)
+				{
+					using var ctx = new DummyOpenPgpContext ();
+					var encrypted = CreateEncryptedMessage (ctx, false, false, 0);
+
+					using (var input = new MemoryStream (encrypted)) {
+						if (doAsync)
+							Assert.ThrowsAsync<PgpException> (async () => await ctx.DecryptAsync (input));
+						else
+							Assert.Throws<PgpException> (() => ctx.Decrypt (input));
+					}
+
+					ctx.AllowUnauthenticatedDecryption = true;
+					using (var input = new MemoryStream (encrypted)) {
+						using var decrypted = doAsync ? await ctx.DecryptAsync (input) : ctx.Decrypt (input);
+						Assert.That (((TextPart) decrypted).Text, Is.EqualTo (new string ('A', 1024)));
+					}
+				}
+
+				[Test]
+				public void TestUnauthenticatedDecryption ()
+				{
+					AssertUnauthenticatedDecryptionAsync (false).GetAwaiter ().GetResult ();
+				}
+
+				[Test]
+				public Task TestUnauthenticatedDecryptionAsync ()
+				{
+					return AssertUnauthenticatedDecryptionAsync (true);
+				}
+
 		[Test]
 		public void TestMultipartEncryptedEncryptUsingKeys ()
 		{

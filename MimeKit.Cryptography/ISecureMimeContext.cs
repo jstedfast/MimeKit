@@ -42,6 +42,19 @@ namespace MimeKit.Cryptography {
 	public interface ISecureMimeContext : ICryptographyContext
 	{
 		/// <summary>
+		/// Get or set the maximum decompressed CMS content size in bytes.
+		/// </summary>
+		/// <remarks>
+		/// The default is 64 MiB. All decompression methods throw <see cref="FormatException"/>
+		/// if the expanded content exceeds this limit. The limit includes MIME headers.
+		/// </remarks>
+		/// <value>The maximum decompressed size in bytes.</value>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is less than one.
+		/// </exception>
+		long MaxDecompressedSize { get; set; }
+
+		/// <summary>
 		/// Compress the specified stream.
 		/// </summary>
 		/// <remarks>
@@ -101,6 +114,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>.
+		/// </exception>
 		MimeEntity Decompress (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
@@ -120,6 +136,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>.
 		/// </exception>
 		Task<MimeEntity> DecompressAsync (Stream stream, CancellationToken cancellationToken = default (CancellationToken));
 
@@ -143,6 +162,9 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
 		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>. The output may contain partial data.
+		/// </exception>
 		void DecompressTo (Stream stream, Stream output, CancellationToken cancellationToken = default (CancellationToken));
 
 		/// <summary>
@@ -165,6 +187,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="Org.BouncyCastle.Cms.CmsException">
 		/// An error occurred in the cryptographic message syntax subsystem.
+		/// </exception>
+		/// <exception cref="FormatException">
+		/// The expanded content exceeds <see cref="MaxDecompressedSize"/>. The output may contain partial data.
 		/// </exception>
 		Task DecompressToAsync (Stream stream, Stream output, CancellationToken cancellationToken = default (CancellationToken));
 

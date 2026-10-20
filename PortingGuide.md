@@ -86,6 +86,25 @@ MimeKit.Cryptography.CryptographyModule.Initialize ();
 
 ### Semantic changes
 
+- **OpenPGP integrity is enforced.** Decryption rejects modified encrypted data and, by default,
+  legacy packets without integrity protection. Set `OpenPgpContext.AllowUnauthenticatedDecryption`
+  to `true` only if legacy compatibility is necessary; this does not bypass integrity checks on
+  protected messages. `DecryptTo ()` and `DecryptToAsync ()` may write unauthenticated output before
+  throwing, so do not consume their output until they complete successfully.
+- **Temporary S/MIME trust is explicit.** Ordinary imports, including PKCS#12 and message-supplied
+  certificates, no longer create trust anchors. Use `temporaryContext.Import (rootCertificate, true)`
+  or `ImportAsync (rootCertificate, true)` with a Bouncy Castle `X509Certificate` obtained from a
+  trusted source. Passing `false` to these overloads removes trust; ordinary imports preserve any
+  trust already configured. Do not mark certificates trusted just because they are self-signed.
+- **CMS expansion is bounded.** `SecureMimeContext.MaxDecompressedSize` defaults to 64 MiB and
+  includes MIME headers. Set a larger positive byte limit if required. All four decompression APIs
+  throw `FormatException` when the limit is exceeded; stream outputs may contain partial data.
+  Implementers of `ISecureMimeContext` must also provide this property.
+- **CRL retrieval requires a trusted path.** With `CheckCertificateRevocation` enabled, the Bouncy
+  Castle contexts first validate a certificate path without revocation checking, fetch CRLs only
+  for that path, and then validate with revocation checking. An untrusted chain now fails without
+  fetching its distribution points. Configure roots and intermediate certificates locally as needed.
+  This is not a network sandbox: use outbound network restrictions appropriate to your deployment.
 - **SHA-256 is the default signing digest.** The `Sign ()`, `SignAsync ()`, `SignAndEncrypt ()` and
   `SignAndEncryptAsync ()` overloads that don't take a `DigestAlgorithm` now use SHA-256 instead of SHA-1.
   Pass `DigestAlgorithm.Sha1` explicitly if a recipient really can't handle SHA-256.

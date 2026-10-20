@@ -27,6 +27,7 @@
 using System.Security.Cryptography.X509Certificates;
 
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.X509.Store;
@@ -42,6 +43,10 @@ namespace UnitTests.Cryptography {
 	{
 		class TestableTemporarySecureMimeContext : TemporarySecureMimeContext
 		{
+			public int TrustedAnchorCount {
+				get { return GetTrustedAnchors ().Count; }
+			}
+
 			public X509Certificate GetMatchingCertificate (ISelector<X509Certificate> selector)
 			{
 				return GetCertificate (selector);
@@ -71,7 +76,92 @@ namespace UnitTests.Cryptography {
 				Assert.That (ctx.CanSign (secure), Is.True, "CanSign(SecureMailboxAddress)");
 				Assert.That (ctx.CanEncrypt (secure), Is.True, "CanEncrypt(SecureMailboxAddress)");
 			}
+
 		}
+
+		static async Task AssertExplicitTrustAsync (bool doAsync)
+			{
+				using var ctx = new TestableTemporarySecureMimeContext ();
+				var root = SecureMimeTestsBase.RootCertificate;
+				using var certificate = new X509Certificate2 (root.GetEncoded ());
+				ctx.Import (certificate);
+				Assert.That (ctx.TrustedAnchorCount, Is.Zero, "X509Certificate2 import must not grant trust.");
+				ctx.Import (SecureMimeTestsBase.RsaCertificate.FileName, "no.secret");
+				Assert.That (ctx.TrustedAnchorCount, Is.Zero, "PKCS#12 import must not grant trust.");
+
+				if (doAsync)
+					await ctx.ImportAsync (root);
+				else
+					ctx.Import (root);
+				Assert.That (ctx.TrustedAnchorCount, Is.Zero);
+
+				if (doAsync)
+					await ctx.ImportAsync (root, true);
+				else
+					ctx.Import (root, true);
+				Assert.That (ctx.TrustedAnchorCount, Is.EqualTo (1));
+				ctx.Import (root);
+				ctx.Import (certificate);
+				Assert.That (ctx.TrustedAnchorCount, Is.EqualTo (1), "Ordinary imports must preserve explicit trust.");
+
+				if (doAsync)
+					await ctx.ImportAsync (root, false);
+				else
+					ctx.Import (root, false);
+				Assert.That (ctx.TrustedAnchorCount, Is.Zero);
+			}
+
+			[Test]
+			public void TestExplicitTrust ()
+			{
+				AssertExplicitTrustAsync (false).GetAwaiter ().GetResult ();
+			}
+
+			[Test]
+			public Task TestExplicitTrustAsync ()
+			{
+				return AssertExplicitTrustAsync (true);
+			}
+
+			static async Task AssertMessageCertificateIsUntrustedAsync (bool doAsync, bool trusted)
+			{
+				var root = SecureMimeTestsBase.RootCertificate;
+				var generator = new CmsSignedDataGenerator ();
+				generator.AddSigner (SecureMimeTestsBase.RootKey, root, CmsSignedGenerator.DigestSha256);
+				generator.AddCertificates (CollectionUtilities.CreateStore (new[] { root }));
+				var payload = System.Text.Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\nsigned data");
+				var signed = generator.Generate (new CmsProcessableByteArray (payload), false).GetEncoded ();
+				using var ctx = new TestableTemporarySecureMimeContext ();
+				if (trusted)
+					ctx.Import (root, true);
+				using var content = new MemoryStream (payload);
+				using var signatureData = new MemoryStream (signed);
+				var signatures = doAsync ? await ctx.VerifyAsync (content, signatureData) : ctx.Verify (content, signatureData);
+				var signature = (SecureMimeDigitalSignature) signatures[0];
+
+				Assert.That (ctx.TrustedAnchorCount, Is.EqualTo (trusted ? 1 : 0));
+				Assert.That (signature.Verify (true), Is.True);
+				if (trusted) {
+					Assert.That (signature.ChainException, Is.Null);
+					Assert.That (signature.Verify (), Is.True);
+				} else {
+					Assert.That (signature.Chain, Is.Null);
+					Assert.That (signature.ChainException, Is.Not.Null);
+					Assert.Throws<DigitalSignatureVerifyException> (() => signature.Verify ());
+				}
+			}
+
+			[Test]
+			public void TestMessageCertificateIsUntrusted ([Values (false, true)] bool trusted)
+			{
+				AssertMessageCertificateIsUntrustedAsync (false, trusted).GetAwaiter ().GetResult ();
+			}
+
+			[Test]
+			public Task TestMessageCertificateIsUntrustedAsync ([Values (false, true)] bool trusted)
+			{
+				return AssertMessageCertificateIsUntrustedAsync (true, trusted);
+			}
 
 		[Test]
 		public async Task TestImportX509Certificate2Async ()

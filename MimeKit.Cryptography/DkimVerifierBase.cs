@@ -560,44 +560,26 @@ namespace MimeKit.Cryptography {
 
 		internal static void WriteHeaders (FormatOptions options, MimeMessage message, IList<string> fields, DkimCanonicalizationAlgorithm headerCanonicalizationAlgorithm, Stream stream)
 		{
-			var counts = new Dictionary<string, int> (StringComparer.Ordinal);
+			var headers = message.Body != null ? MimeMessage.MergeHeaders (message.Headers, message.Body) : message.Headers;
+			var lookup = new Dictionary<string, Stack<Header>> (StringComparer.OrdinalIgnoreCase);
 
 			for (int i = 0; i < fields.Count; i++) {
-				HeaderList headers;
+				if (!lookup.ContainsKey (fields[i]))
+					lookup.Add (fields[i], new Stack<Header> ());
+			}
 
-				if (fields[i].StartsWith ("Content-", StringComparison.OrdinalIgnoreCase)) {
-					if (message.Body == null)
-						continue;
+			foreach (var header in headers) {
+				if (lookup.TryGetValue (header.Field, out var stack))
+					stack.Push (header);
+			}
 
-					headers = message.Body.Headers;
-				} else {
-					headers = message.Headers;
-				}
-
-				var name = fields[i].ToLowerInvariant ();
-				int index, n = 0;
-
-				if (!counts.TryGetValue (name, out var count))
-					count = 0;
-
-				// Note: signers choosing to sign an existing header field that occurs more
-				// than once in the message (such as Received) MUST sign the physically last
-				// instance of that header field in the header block. Signers wishing to sign
-				// multiple instances of such a header field MUST include the header field
-				// name multiple times in the list of header fields and MUST sign such header
-				// fields in order from the bottom of the header field block to the top.
-				index = headers.LastIndexOf (name);
-
-				// find the n'th header with this name
-				while (n < count && --index >= 0) {
-					if (headers[index].Field.Equals (name, StringComparison.OrdinalIgnoreCase))
-						n++;
-				}
-
-				if (index < 0)
+			for (int i = 0; i < fields.Count; i++) {
+				var stack = lookup[fields[i]];
+				if (stack.Count == 0)
 					continue;
 
-				var header = headers[index];
+				// Repeated fields are signed from the bottom of the header block to the top.
+				var header = stack.Pop ();
 
 				switch (headerCanonicalizationAlgorithm) {
 				case DkimCanonicalizationAlgorithm.Relaxed:
@@ -607,8 +589,6 @@ namespace MimeKit.Cryptography {
 					WriteHeaderSimple (options, stream, header, false);
 					break;
 				}
-
-				counts[name] = count + 1;
 			}
 		}
 

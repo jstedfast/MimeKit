@@ -356,8 +356,12 @@ namespace UnitTests.Cryptography {
 							sqlite.Import (stream, true);
 						} else {
 							var parser = new X509CertificateParser ();
-							foreach (X509Certificate certificate in parser.ReadCertificates (stream))
-								ctx.Import (certificate);
+							foreach (X509Certificate certificate in parser.ReadCertificates (stream)) {
+								if (ctx is TemporarySecureMimeContext temporary)
+									temporary.Import (certificate, certificate.IsSelfSigned ());
+								else
+									ctx.Import (certificate);
+							}
 						}
 					}
 				}
@@ -378,6 +382,8 @@ namespace UnitTests.Cryptography {
 					for (int i = chain.Length - 1; i > 0; i--) {
 						if (ctx is DefaultSecureMimeContext sqlite) {
 							sqlite.Import (chain[i], true);
+						} else if (ctx is TemporarySecureMimeContext temporary) {
+							temporary.Import (chain[i], chain[i].IsSelfSigned ());
 						} else {
 							ctx.Import (chain[i]);
 						}

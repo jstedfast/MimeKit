@@ -37,6 +37,27 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		[Test]
+		public void TestTemporarySecureMimeContextTrustArguments ()
+		{
+			using var ctx = new TemporarySecureMimeContext ();
+			Assert.Throws<ArgumentNullException> (() => ctx.Import ((Org.BouncyCastle.X509.X509Certificate) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (() => ctx.ImportAsync ((Org.BouncyCastle.X509.X509Certificate) null, true));
+			using var canceled = new CancellationTokenSource ();
+			canceled.Cancel ();
+			var root = Cryptography.SecureMimeTestsBase.RootCertificate;
+			Assert.Throws<OperationCanceledException> (() => ctx.Import (root, true, canceled.Token));
+			Assert.ThrowsAsync<OperationCanceledException> (() => ctx.ImportAsync (root, true, canceled.Token));
+		}
+
+		[Test]
+		public void TestMaxDecompressedSizeArguments ()
+		{
+			using var ctx = new TemporarySecureMimeContext ();
+			Assert.Throws<ArgumentOutOfRangeException> (() => ctx.MaxDecompressedSize = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => ctx.MaxDecompressedSize = -1);
+		}
+
 		static void AssertFilterArguments (IMimeFilter filter)
 		{
 			int outputIndex, outputLength;
