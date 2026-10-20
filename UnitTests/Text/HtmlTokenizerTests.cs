@@ -3919,6 +3919,63 @@ namespace UnitTests.Text {
 			Assert.That (actual, Does.EndWith (rawText ? RawTextStyleTokens : ForeignStyleTokens));
 		}
 
+		[TestCase ("a")]
+		[TestCase ("b")]
+		[TestCase ("big")]
+		[TestCase ("code")]
+		[TestCase ("em")]
+		[TestCase ("font")]
+		[TestCase ("i")]
+		[TestCase ("nobr")]
+		[TestCase ("s")]
+		[TestCase ("small")]
+		[TestCase ("strike")]
+		[TestCase ("strong")]
+		[TestCase ("tt")]
+		[TestCase ("u")]
+		public void TestFormattingEndTagClosesForeignContent (string name)
+		{
+			var content = $"<{name}><p><svg></{name}><script><!--</script><script>";
+			var expected = $"Tag({name}) Tag(p) Tag(svg) EndTag({name}) Tag(script) Data(<!--) EndTag(script) Tag(script)";
+
+			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
+		}
+
+		[TestCase ("<b><div><svg></b><svg></div>", true)]
+		[TestCase ("<b><div><section><svg></b><svg></section>", true)]
+		[TestCase ("<b><div><math></b>", true)]
+		[TestCase ("<b><div><svg><g></b>", true)]
+		[TestCase ("<b><b><div><svg></b><svg></b>", true)]
+		[TestCase ("<b><div><svg><foreignObject></b><svg>", false)]
+		[TestCase ("<b><table><tr><td><svg></b>", false)]
+		[TestCase ("<b><object><svg></b>", false)]
+		[TestCase ("<b><template><svg></b>", false)]
+		[TestCase ("<b><span><div></b></div><svg></span>", false)]
+		[TestCase ("<b><i><div></b></div><svg></i>", true)]
+		[TestCase ("<b><i><span><span><div></b></div><svg></i>", true)]
+		[TestCase ("<b><i><span><span><span><div></b></div><svg></i>", false)]
+		[TestCase ("<b><form><div><svg></b><svg></form>", false)]
+		[TestCase ("<form><b><div><svg></b><svg></form>", false)]
+		[TestCase ("<form><template><b><form><div><svg></b></template><svg></form>", false)]
+		public void TestAdoptionAgencyStackUpdates (string prefix, bool rawText)
+		{
+			Assert.That (DescribeTokens (prefix + RawTextStyleProbe), Does.EndWith (rawText ? RawTextStyleTokens : ForeignStyleTokens));
+		}
+
+		[TestCase (0, true)]
+		[TestCase (1, true)]
+		[TestCase (7, true)]
+		[TestCase (8, false)]
+		[TestCase (9, false)]
+		public void TestAdoptionAgencyOuterLoopLimit (int blocks, bool rawText)
+		{
+			foreach (bool folded in new[] { false, true }) {
+				var prefix = "<b>" + Repeat (folded ? "<div>" : "<div><span>", blocks) + "<svg></b>";
+
+				Assert.That (DescribeTokens (prefix + RawTextStyleProbe), Does.EndWith (rawText ? RawTextStyleTokens : ForeignStyleTokens), $"Folded: {folded}");
+			}
+		}
+
 		// Browsers ignore the self-closing flag on non-void HTML elements, so these still switch the tokenizer state.
 		[TestCase ("style")]
 		[TestCase ("xmp")]

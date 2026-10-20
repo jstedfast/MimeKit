@@ -44,17 +44,18 @@ namespace MimeKit.Text {
 	/// section of the WHATWG HTML Living Standard) to determine whether a start tag is processed using the
 	/// rules for HTML content or the rules for foreign content. It models the stack of open elements
 	/// (including implied end tags, the various "has an element in scope" checks, the "special" category,
-	/// implied table structure, and the rules for breaking out of foreign content) but does not model
-	/// the list of active formatting elements, the adoption agency algorithm, foster parenting, or the
-	/// select or template insertion modes. Of the document's head/body structure, it only models whether the
-	/// tree builder is still before the body and whether it is in the "in head noscript" insertion mode (since,
-	/// when scripting is disabled, a <c>&lt;noscript&gt;</c> element within the <c>&lt;head&gt;</c> gets closed by
-	/// any tag or character data that is not allowed there, unlike a <c>&lt;noscript&gt;</c> within the body), as
-	/// well as the frameset-ok flag and the frameset insertion modes (since a <c>&lt;frameset&gt;</c> makes browsers
-	/// ignore start tags such as <c>&lt;style&gt;</c> or <c>&lt;svg&gt;</c> that would otherwise switch the tokenizer
-	/// state). It also models the form element pointer, since (outside of a <c>&lt;template&gt;</c>) a
-	/// <c>&lt;/form&gt;</c> end tag removes the <c>&lt;form&gt;</c> element from the stack without closing the elements
-	/// above it (such as an open <c>&lt;svg&gt;</c> element).</para>
+	/// implied table structure, the stack updates of the adoption agency algorithm, and the rules for breaking
+	/// out of foreign content) but does not model the list of active formatting elements, its reconstruction,
+	/// foster parenting, or the select or template insertion modes. Of the document's head/body structure,
+	/// it only models whether the tree builder is still before the body and whether it is in the "in head noscript"
+	/// insertion mode (since, when scripting is disabled, a <c>&lt;noscript&gt;</c> element within the
+	/// <c>&lt;head&gt;</c> gets closed by any tag or character data that is not allowed there, unlike a
+	/// <c>&lt;noscript&gt;</c> within the body), as well as the frameset-ok flag and the frameset insertion modes
+	/// (since a <c>&lt;frameset&gt;</c> makes browsers ignore start tags such as <c>&lt;style&gt;</c> or
+	/// <c>&lt;svg&gt;</c> that would otherwise switch the tokenizer state). It also models the form element
+	/// pointer, since (outside of a <c>&lt;template&gt;</c>) a <c>&lt;/form&gt;</c> end tag removes the
+	/// <c>&lt;form&gt;</c> element from the stack without closing the elements above it (such as an open
+	/// <c>&lt;svg&gt;</c> element).</para>
 	/// <para>Element storage and scope queries are provided by <see cref="HtmlOpenElementStack"/>.
 	/// The controller owns the parsing rules, and reports lexical transitions and tag dispositions to the
 	/// tokenizer. Converters use its structural results separately from their callback contexts.</para>
@@ -1292,6 +1293,82 @@ namespace MimeKit.Text {
 				RemoveEntry (index);
 		}
 
+		void ProcessFormattingEndTag (HtmlTagId id)
+		{
+			int index = stack.IndexOf (id);
+
+			if (!InScope (index, stack.TopScope))
+				return;
+
+			HtmlOpenElementStack.Entry[]? replacement = null;
+
+			// Model the stack effects, not the DOM reparenting. As elsewhere in this controller, formatting
+			// elements are looked up on the stack rather than reconstructed from an active formatting list.
+			for (int outer = 0; outer < 8; outer++) {
+				if (stack.TopSpecial < index) {
+					PopThrough (index);
+					return;
+				}
+
+				int block = index + 1;
+
+				while ((stack[block].Flags & ElementFlags.Special) == 0)
+					block++;
+
+				replacement ??= new HtmlOpenElementStack.Entry[7];
+				var formatting = stack[index];
+				var furthestBlock = stack[block];
+				int count = 0;
+
+				// A folded entry can contain more than one physical node. Only the last formatting node
+				// moves, and only the first special node is the furthest block.
+				if (formatting.Count > 1) {
+					replacement[count] = formatting;
+					replacement[count++].Count--;
+				}
+
+				int first = count;
+				int remaining = 3;
+
+				for (int i = block - 1; i > index && remaining > 0; i--) {
+					var node = stack[i];
+					int retained = Math.Min (remaining, node.Count);
+
+					remaining -= retained;
+
+					if (node.Namespace == HtmlNamespace.Html && node.Id.IsFormattingElement ()) {
+						node.Count = retained;
+						replacement[count++] = node;
+					}
+				}
+
+				// The inner loop visits nodes backwards, but their stack order does not change.
+				Array.Reverse (replacement, first, count - first);
+				replacement[count] = furthestBlock;
+				replacement[count++].Count = 1;
+				replacement[count] = formatting;
+				replacement[count++].Count = 1;
+
+				if (furthestBlock.Count > 1) {
+					replacement[count] = furthestBlock;
+					replacement[count++].Count--;
+				}
+
+				// Non-formatting inner nodes and formatting nodes beyond the first three are removed
+				// together, so a long inner loop does not repeatedly rebuild the same suffix.
+				stack.ReplaceRange (index, block - index + 1, replacement, count);
+				poppedThrough = true;
+
+				if (formPointerIndex >= index)
+					formPointerIndex = stack.IndexOf (HtmlTagId.Form);
+
+				if (DepthExceeded)
+					return;
+
+				index = stack.IndexOf (id);
+			}
+		}
+
 		void ProcessHtmlEndTag (HtmlTagToken tag)
 		{
 			int index;
@@ -1350,13 +1427,7 @@ namespace MimeKit.Text {
 			case HtmlTagId.EM: case HtmlTagId.Font: case HtmlTagId.I: case HtmlTagId.NoBR:
 			case HtmlTagId.S: case HtmlTagId.Small: case HtmlTagId.Strike: case HtmlTagId.Strong:
 			case HtmlTagId.TT: case HtmlTagId.U:
-				// Approximates the adoption agency algorithm: when the formatting element is in scope and there is
-				// no "furthest block" (a special element above it), the formatting element and everything above it
-				// gets popped. Otherwise, the stack is left as-is.
-				index = stack.IndexOf (tag.Id);
-
-				if (InScope (index, stack.TopScope) && stack.TopSpecial < index)
-					PopThrough (index);
+				ProcessFormattingEndTag (tag.Id);
 				return;
 			case HtmlTagId.Unknown:
 				if (tag.Name.Equals ("hgroup", StringComparison.OrdinalIgnoreCase) || tag.Name.Equals ("search", StringComparison.OrdinalIgnoreCase)) {

@@ -87,6 +87,88 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestReplaceRangeRebuildsIndexes ()
+		{
+			var stack = new HtmlOpenElementStack (32) { TrackClosedElements = true };
+
+			stack.Push ("b", HtmlTagId.B, HtmlNamespace.Html, ElementFlags.None);
+			stack.Push ("b", HtmlTagId.B, HtmlNamespace.Html, ElementFlags.None);
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("svg", HtmlTagId.Unknown, HtmlNamespace.Svg, ElementFlags.None);
+			stack.Push ("mi", HtmlTagId.Unknown, HtmlNamespace.MathML, ElementFlags.Scope | ElementFlags.MathMLTextIntegrationPoint);
+
+			var formatting = stack[0];
+			var block = stack[1];
+			formatting.Count = block.Count = 1;
+			stack.ReplaceRange (0, 2, new[] { formatting, block, formatting, block }, 4);
+
+			Assert.That (stack.Count, Is.EqualTo (6));
+			Assert.That (stack.IndexOf (HtmlTagId.B), Is.EqualTo (2));
+			Assert.That (stack[2].PrevSameName, Is.EqualTo (0));
+			Assert.That (stack.IndexOf (HtmlTagId.Div), Is.EqualTo (3));
+			Assert.That (stack[3].PrevSameName, Is.EqualTo (1));
+			Assert.That (stack.IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, "svg"), Is.EqualTo (4));
+			Assert.That (stack.TopSpecial, Is.EqualTo (3));
+			Assert.That (stack.TopScope, Is.EqualTo (5));
+			Assert.That (stack.TopHtml, Is.EqualTo (3));
+			Assert.That (stack.TopHtmlOrIntegrationPoint, Is.EqualTo (5));
+			Assert.That (stack.ClosedElements, Is.Empty);
+
+			stack.PopThrough (2);
+
+			Assert.That (stack.Count, Is.EqualTo (2));
+			Assert.That (stack.IndexOf (HtmlTagId.B), Is.EqualTo (0));
+			Assert.That (stack.TopSpecial, Is.EqualTo (1));
+			Assert.That (stack.TopScope, Is.EqualTo (-1));
+			Assert.That (stack.ClosedElements.Select (element => element.Name), Is.EqualTo (new[] { "mi", "svg", "div" }));
+		}
+
+		[Test]
+		public void TestReplaceRangeFoldsAdjacentRuns ()
+		{
+			var stack = new HtmlOpenElementStack (32);
+
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("b", HtmlTagId.B, HtmlNamespace.Html, ElementFlags.None);
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("svg", HtmlTagId.Unknown, HtmlNamespace.Svg, ElementFlags.None);
+
+			var formatting = stack[1];
+			var block = stack[2];
+			stack.ReplaceRange (1, 2, new[] { block, formatting }, 2);
+
+			Assert.That (stack.Count, Is.EqualTo (3));
+			Assert.That (stack[0].Count, Is.EqualTo (3));
+			Assert.That (stack.TopSpecial, Is.EqualTo (0));
+			Assert.That (stack.IndexOf (HtmlTagId.B), Is.EqualTo (1));
+			Assert.That (stack.IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, "svg"), Is.EqualTo (2));
+		}
+
+		[Test]
+		public void TestReplaceRangeDepthLimit ()
+		{
+			var stack = new HtmlOpenElementStack (3);
+
+			stack.Push ("b", HtmlTagId.B, HtmlNamespace.Html, ElementFlags.None);
+			stack.Push ("b", HtmlTagId.B, HtmlNamespace.Html, ElementFlags.None);
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("div", HtmlTagId.Div, HtmlNamespace.Html, ElementFlags.Special);
+			stack.Push ("svg", HtmlTagId.Unknown, HtmlNamespace.Svg, ElementFlags.None);
+
+			var formatting = stack[0];
+			var block = stack[1];
+			formatting.Count = block.Count = 1;
+			stack.ReplaceRange (0, 2, new[] { formatting, block, formatting, block }, 4);
+
+			Assert.That (stack.DepthExceeded, Is.True);
+			Assert.That (stack.Count, Is.EqualTo (3));
+			Assert.That (stack[2].Count, Is.EqualTo (1));
+			Assert.That (stack.IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, "svg"), Is.EqualTo (-1));
+		}
+
+		[Test]
 		public void TestDepthLimitAndFolding ()
 		{
 			var stack = new HtmlOpenElementStack (1);

@@ -448,6 +448,38 @@ namespace MimeKit.Text {
 			}
 		}
 
+		// Replace a range without reporting implicit closures, rebuilding the indexes of the retained entries.
+		public void ReplaceRange (int index, int length, Entry[] replacement, int replacementCount)
+		{
+			var above = new Entry[count - index - length];
+
+			for (int i = 0; i < above.Length; i++)
+				above[i] = EntryAt (index + length + i);
+
+			while (count > index)
+				RemoveTopEntry ();
+
+			for (int i = 0; i < replacementCount; i++)
+				PushEntry (replacement[i]);
+
+			for (int i = 0; i < above.Length; i++)
+				PushEntry (above[i]);
+		}
+
+		void PushEntry (Entry entry)
+		{
+			if (DepthExceeded)
+				return;
+
+			Push (entry.Name, entry.Id, entry.Namespace, entry.Flags);
+
+			if (!DepthExceeded) {
+				ref var top = ref EntryAt (count - 1);
+
+				top.Count = (int) Math.Min ((long) top.Count + entry.Count - 1, int.MaxValue);
+			}
+		}
+
 		#endregion
 	}
 }

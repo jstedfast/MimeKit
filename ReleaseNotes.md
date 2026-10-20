@@ -606,6 +606,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   `FilterComments`, or a tag deleted by an `HtmlTagCallback`), the `<` could combine with the following text
   to form a new tag.
 
+* Fixed `HtmlTokenizer` to apply the adoption agency algorithm's stack updates when a formatting end tag
+  crosses block elements. For example, `</a>` in `<a><p><svg></a>` now closes the SVG content without
+  discarding the paragraph, so a following `<script>` is recognized as HTML script data instead of foreign
+  content. Previously, this mismatch could hide subsequent tags from `HtmlToHtml.HtmlTagCallback`.
+
 * Fixed `HtmlTokenizer` so that an abruptly terminated DOCTYPE public or system identifier (e.g.
   `<!DOCTYPE x PUBLIC "><a href=&>`) no longer leaves a stale quote character behind. Previously, a
   character reference in an unquoted attribute value of the next tag would resume tokenizing in the quoted

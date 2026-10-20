@@ -638,6 +638,34 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestAdoptionAgencyClosesForeignContent ([Values (false, true)] bool deleteFormatting)
+		{
+			const string input = "<a><p><svg></a><script><!--</script><script></script>";
+			string expected = deleteFormatting ? "<p><svg></svg>" : "<a><p><svg></svg></a>";
+			int scripts = 0;
+			var converter = new HtmlToHtml {
+				HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.Script) {
+						if (!ctx.IsEndTag)
+							scripts++;
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = true;
+					} else if (deleteFormatting && ctx.TagId == HtmlTagId.A) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				}
+			};
+
+			Assert.That (converter.Convert (input), Is.EqualTo (expected));
+			Assert.That (scripts, Is.EqualTo (2));
+			Assert.That (converter.Convert (expected), Is.EqualTo (expected), "Convert again");
+		}
+
+		[Test]
 		public void TestImplicitlyClosedForeignElementsWithDeletedEndTags ()
 		{
 			const string input = "<svg><g><a><body><style><img src=x onerror=alert(1)></style>";
