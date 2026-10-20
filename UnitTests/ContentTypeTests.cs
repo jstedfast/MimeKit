@@ -579,6 +579,29 @@ namespace UnitTests {
 			Assert.That (type.Parameters["name"], Is.EqualTo ("Test Name.pdf"), $"name values do not match: {text}");
 		}
 
+		[TestCase ("text/plain; name=ab cd", "ab cd")]
+		[TestCase ("text/plain; name=ab cd;", "ab cd")]
+		[TestCase ("text/plain; name=ab cd ;charset=utf-8", "ab cd")]
+		[TestCase ("text/plain; name=ab cd \t;charset=utf-8", "ab cd")]
+		[TestCase ("text/plain; name=x ", "x")]
+		[TestCase ("text/plain; name=x \t", "x")]
+		[TestCase ("text/plain; name=x ;charset=utf-8", "x")]
+		[TestCase ("text/plain; charset=utf-8; name=Test Name.pdf ", "Test Name.pdf")]
+		public void TestUnquotedParameterTrailingWhitespace (string text, string expected)
+		{
+			var options = ParserOptions.Default.Clone ();
+			var buffer = Encoding.ASCII.GetBytes ("xyz" + text);
+			ContentType type;
+
+			options.ParameterComplianceMode = RfcComplianceMode.Loose;
+
+			Assert.That (ContentType.TryParse (options, text, out type), Is.True, $"Failed to parse: {text}");
+			Assert.That (type.Parameters["name"], Is.EqualTo (expected), $"name values do not match: {text}");
+
+			Assert.That (ContentType.TryParse (options, buffer, 3, buffer.Length - 3, out type), Is.True, $"Failed to parse (offset): {text}");
+			Assert.That (type.Parameters["name"], Is.EqualTo (expected), $"name values do not match (offset): {text}");
+		}
+
 		[Test]
 		public void TestUnquotedBoundaryWithTrailingNewLineAndSpace ()
 		{

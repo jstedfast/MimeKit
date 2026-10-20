@@ -897,6 +897,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   `UUDecoder`, `UUEncoder` and `YEncoder` to no longer silently overflow for very large input lengths and return
   a negative or too-small estimate. They now throw `ArgumentOutOfRangeException` when the estimated output
   length cannot be represented as an `int`.
+* Fixed `ParameterList` parsing of unquoted parameter values that contain spaces (`RfcComplianceMode.Loose`)
+  so that trailing whitespace is trimmed correctly. Previously, trailing whitespace could be kept and, in some
+  cases, the last character of the value could be dropped (e.g. `n=ab cd` became `ab c`).
 
 ## MimeKit 4.18.1 (2026-09-19)
 

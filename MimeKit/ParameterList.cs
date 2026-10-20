@@ -1,4 +1,4 @@
-﻿//
+//
 // ParameterList.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
@@ -888,7 +888,7 @@ namespace MimeKit {
 
 				// Trim trailing white space characters to work around issues such as the
 				// one described in https://github.com/jstedfast/MimeKit/issues/278
-				while (valueLength > valueIndex && value[valueLength - 1].IsWhitespace ())
+				while (valueLength > 0 && value[valueIndex + valueLength - 1].IsWhitespace ())
 					valueLength--;
 			}
 
