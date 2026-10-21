@@ -41,7 +41,7 @@ namespace Benchmarks {
 		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
 			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset", "QuotedUtf8", "QuotedEncoded",
 			"LongName", "LongUtf8", "LongEquals", "CommentNames", "CommentTabs", "CommentUtf8", "CommentEncoded",
-			"LongComment", "LongCommentUtf8")]
+			"LongComment", "LongCommentUtf8", "EscapedName", "FoldedName", "LongQuotedName", "LongQuotedUtf8", "LongQuotedEquals")]
 		public string Input { get; set; }
 
 		[GlobalSetup]
@@ -61,6 +61,11 @@ namespace Benchmarks {
 				"Quoted" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"Last, First {i}\" <u{i}@example.com>")),
 				"QuotedUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"Ren\u00e9e\\\" M\u00fcller\" <u{i}@example.com>")),
 				"QuotedEncoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"=?utf-8?b?IlxOYW1lIg==?=\" <u{i}@example.com>")),
+				"EscapedName" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"First\\\" Last\\\\ {i}\" <u{i}@example.com>")),
+				"FoldedName" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"First\r\n Last {i}\" <u{i}@example.com>")),
+				"LongQuotedName" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"{new string ('x', 1024)}\" <u{i}@example.com>")),
+				"LongQuotedUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"{new string ('x', 1024)}\u00e9\" <u{i}@example.com>")),
+				"LongQuotedEquals" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"{new string ('x', 1024)}=?\" <u{i}@example.com>")),
 				"LongName" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('x', 1024)} <u{i}@example.com>")),
 				"LongUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('x', 1024)}\u00e9 <u{i}@example.com>")),
 				"LongEquals" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('x', 1024)}=? <u{i}@example.com>")),

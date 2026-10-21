@@ -12,8 +12,8 @@ input to UTF-8. This reduces allocations while preserving existing parsing behav
 offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings
 for contiguous ASCII local-parts and domains, improving throughput and reducing allocations.
 Display names that do not need unquoting are decoded without an intermediate byte-array copy.
-Plain ASCII display names without quoting or RFC 2047 markers also avoid decoder allocations
-when parsing byte-array input.
+Plain ASCII display names without RFC 2047 markers also avoid decoder allocations when parsing
+byte-array input, including quoted names after unquoting.
 Plain ASCII names taken from address comments likewise avoid decoder allocations.
 Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
 allocations when decoding raw UTF-8 display names and other MIME text.

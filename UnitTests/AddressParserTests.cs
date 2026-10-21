@@ -179,6 +179,31 @@ namespace UnitTests {
 			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodeAscii)));
 		}
 
+		[TestCase ("\"\"")]
+		[TestCase ("\"Joe Sixpack\"")]
+		[TestCase ("\"First\\\" Last\"")]
+		[TestCase ("First\\\\Last")]
+		[TestCase ("First\tLast")]
+		[TestCase ("First\\\r\n Last")]
+		[TestCase ("\"A name with more than thirty-two ASCII characters\"")]
+		public void TestQuotedAsciiByteNameAvoidsDecoder (string name)
+		{
+			const string surrounding = "=?utf-8?q?ignored?=\"";
+			var bytes = Encoding.UTF8.GetBytes (surrounding + name + surrounding);
+			var input = new ByteArrayAddressInput (bytes);
+			Func<string> decodeName = () => input.DecodePhrase (ParserOptions.Default, surrounding.Length, name.Length, out _);
+			Func<string> decodeAscii = () => {
+				var unquoted = MimeUtils.Unquote (bytes, surrounding.Length, name.Length, true);
+				return Encoding.UTF8.GetString (unquoted);
+			};
+
+			Assert.That (decodeName (), Is.EqualTo (decodeAscii ()));
+			MeasureAllocation (decodeName);
+			MeasureAllocation (decodeAscii);
+
+			Assert.That (MeasureAllocation (decodeName), Is.LessThanOrEqualTo (MeasureAllocation (decodeAscii)));
+		}
+
 		[TestCase ("")]
 		[TestCase ("Joe Sixpack")]
 		[TestCase (" First\t Last ")]
@@ -253,10 +278,12 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestByteNameDecodingScanBoundaries ([Values (31, 32, 33, 63, 64, 65, 1024)] int length)
+		public void TestByteNameDecodingScanBoundaries ([Values (31, 32, 33, 63, 64, 65, 1024)] int length, [Values (false, true)] bool quoted)
 		{
 			var bytes = Encoding.UTF8.GetBytes ("\u00e9=\"" + new string ('x', length) + "\"=\u00e9");
 			var input = new ByteArrayAddressInput (bytes);
+			int startIndex = quoted ? 3 : 4;
+			int count = quoted ? length + 2 : length;
 
 			foreach (var charset in new[] { Encoding.UTF8, Encoding.GetEncoding (1252) }) {
 				foreach (var compliance in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose }) {
@@ -265,13 +292,13 @@ namespace UnitTests {
 					foreach (int offset in new[] { 0, length / 2, length - 1 }) {
 						for (int value = 0; value < 256; value++) {
 							bytes[4 + offset] = (byte) value;
-							var unquoted = MimeUtils.Unquote (bytes, 4, length, true);
+							var unquoted = MimeUtils.Unquote (bytes, startIndex, count, true);
 							string expected = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out int expectedCodepage);
-							string actual = input.DecodePhrase (options, 4, length, out int codepage);
+							string actual = input.DecodePhrase (options, startIndex, count, out int codepage);
 
 							Assert.That (actual, Is.EqualTo (expected), $"Offset {offset}, byte {value}");
 							Assert.That (codepage, Is.EqualTo (expectedCodepage), $"Offset {offset}, byte {value}");
-							Assert.That (input.DecodeComment (options, 4, length), Is.EqualTo (DecodeCommentWithRfc2047 (options, bytes, 4, length)), $"Comment offset {offset}, byte {value}");
+							Assert.That (input.DecodeComment (options, startIndex, count), Is.EqualTo (DecodeCommentWithRfc2047 (options, bytes, startIndex, count)), $"Comment offset {offset}, byte {value}");
 						}
 
 						bytes[4 + offset] = (byte) 'x';
@@ -290,6 +317,11 @@ namespace UnitTests {
 		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=")]
 		[TestCase ("=?utf-8?b?IlxOYW1lIg==?=")]
 		[TestCase ("\"=?utf-8?b?IlxOYW1lIg==?=\"")]
+		[TestCase ("\"=?iso-8859-1?q?Ren=E9e?=\"")]
+		[TestCase ("\"=\\?utf-8?q?First?=\"")]
+		[TestCase ("\"=?utf-8?q?First?=\r\n\t=?utf-8?q?_Last?=\"")]
+		[TestCase ("\"\"")]
+		[TestCase ("\"First\\\"Last\\\\\"")]
 		[TestCase ("=?unknown?q?Ren=C3=A9e?=")]
 		[TestCase ("=?iso-8859-1?q?Ren=E9e?=")]
 		[TestCase ("=?utf-8?q?incomplete")]

@@ -94,18 +94,22 @@ namespace MimeKit {
 
 		public string DecodePhrase (ParserOptions options, int startIndex, int length, out int codepage)
 		{
-			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) == -1) {
-				if (IsPlainAscii (startIndex, length)) {
-					codepage = 65001;
-					return GetUtf8String (startIndex, length);
-				}
+			var input = this;
 
-				return Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) != -1) {
+				var unquoted = MimeUtils.Unquote (text, startIndex, length, true);
+
+				input = new ByteArrayAddressInput (unquoted);
+				length = unquoted.Length;
+				startIndex = 0;
 			}
 
-			var unquoted = MimeUtils.Unquote (text, startIndex, length, true);
+			if (input.IsPlainAscii (startIndex, length)) {
+				codepage = 65001;
+				return input.GetUtf8String (startIndex, length);
+			}
 
-			return Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
+			return Rfc2047.DecodePhrase (options, input.text, startIndex, length, out codepage);
 		}
 
 		public string DecodeComment (ParserOptions options, int startIndex, int length)
