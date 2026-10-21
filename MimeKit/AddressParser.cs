@@ -40,6 +40,8 @@ namespace MimeKit {
 		readonly ParserOptions options;
 		readonly TInput text;
 		readonly int endIndex;
+		Encoding? cachedEncoding;
+		int cachedCodepage;
 		int index;
 
 		internal AddressParser (ParserOptions options, TInput text, int startIndex, int endIndex)
@@ -47,6 +49,8 @@ namespace MimeKit {
 			this.options = options;
 			this.text = text;
 			this.endIndex = endIndex;
+			cachedEncoding = null;
+			cachedCodepage = 0;
 			index = startIndex;
 		}
 
@@ -365,10 +369,23 @@ namespace MimeKit {
 			return true;
 		}
 
+		Encoding GetEncoding (int codepage)
+		{
+			if (cachedEncoding != null && cachedCodepage == codepage)
+				return cachedEncoding;
+
+			if (!CharsetUtils.TryGetEncoding (codepage, out var encoding))
+				return Encoding.UTF8;
+
+			cachedCodepage = codepage;
+			cachedEncoding = encoding;
+			return encoding;
+		}
+
 		bool TryParseAngleMailbox (in AddressPhrase phrase, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			string name = DecodePhraseName (phrase, out int codepage);
-			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
+			var encoding = GetEncoding (codepage);
 			int startIndex = phrase.StartIndex;
 			DomainList? route = null;
 
@@ -498,7 +515,7 @@ namespace MimeKit {
 			}
 
 			string name = DecodePhraseName (phrase, out int codepage);
-			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
+			var encoding = GetEncoding (codepage);
 
 			// skip over the ':'
 			index++;

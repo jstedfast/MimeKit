@@ -38,7 +38,7 @@ namespace Benchmarks {
 		string text;
 		byte[] buffer;
 
-		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
+		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "MixedEncoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
 			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset", "QuotedUtf8", "QuotedEncoded",
 			"LongName", "LongUtf8", "LongEquals", "CommentNames", "CommentTabs", "CommentUtf8", "CommentEncoded",
 			"LongComment", "LongCommentUtf8", "CommentUtf8Tabs", "CommentEncodedTabs", "CommentUnknownCharsetTabs",
@@ -55,6 +55,9 @@ namespace Benchmarks {
 				"Utf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"Ren\u00e9e M\u00fcller {i} <u{i}@example.com>")),
 				"Utf8Cjk" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\u674e\u5c0f\u9f8d {i} <u{i}@example.com>")),
 				"Encoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?= <u{i}@example.com>")),
+				"MixedEncoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => i % 2 == 0
+					? $"=?utf-8?q?Ren=C3=A9e?= <u{i}@example.com>"
+					: $"=?iso-8859-1?q?Ren=E9e?= <u{i}@example.com>")),
 				"UnknownCharset" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?unknown?q?Ren=C3=A9e?= <u{i}@example.com>")),
 				"Groups" => string.Join (", ", Enumerable.Range (0, 20).Select (i => $"Group {i}: a{i}@example.com, b{i}@example.com;")),
 				"Broken" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"<<<u{i}@example.com>>>")),

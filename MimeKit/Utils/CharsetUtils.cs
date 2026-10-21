@@ -380,13 +380,20 @@ namespace MimeKit.Utils {
 			return Encoding.GetEncoding (codepage);
 		}
 
-		public static Encoding GetEncodingOrDefault (int codepage, Encoding defaultEncoding)
+		public static bool TryGetEncoding (int codepage, [NotNullWhen (true)] out Encoding? encoding)
 		{
 			try {
-				return Encoding.GetEncoding (codepage);
+				encoding = Encoding.GetEncoding (codepage);
+				return true;
 			} catch {
-				return defaultEncoding;
+				encoding = null;
+				return false;
 			}
+		}
+
+		public static Encoding GetEncodingOrDefault (int codepage, Encoding defaultEncoding)
+		{
+			return TryGetEncoding (codepage, out var encoding) ? encoding : defaultEncoding;
 		}
 
 		class InvalidByteCountFallback : DecoderFallback

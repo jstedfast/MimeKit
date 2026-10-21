@@ -34,6 +34,142 @@ namespace UnitTests {
 	[TestFixture]
 	public class AddressParserTests
 	{
+		sealed class TestEncodingProvider : EncodingProvider
+		{
+			public Encoding Utf8Encoding;
+			public Encoding Latin1Encoding;
+			public int Utf8Requests;
+			public int Utf8Failures;
+
+			public override Encoding GetEncoding (int codepage)
+			{
+				if (codepage == 65001 && Utf8Encoding != null) {
+					Utf8Requests++;
+
+					if (Utf8Failures > 0) {
+						Utf8Failures--;
+						throw new NotSupportedException ("Temporary encoding lookup failure.");
+					}
+
+					return Utf8Encoding;
+				}
+
+				return codepage == 28591 ? Latin1Encoding : null;
+			}
+
+			public override Encoding GetEncoding (string name)
+			{
+				return null;
+			}
+
+			public void Reset ()
+			{
+				Utf8Encoding = Latin1Encoding = null;
+				Utf8Requests = Utf8Failures = 0;
+			}
+		}
+
+		static readonly TestEncodingProvider FirstEncodingProvider = new TestEncodingProvider ();
+		static readonly TestEncodingProvider SecondEncodingProvider = new TestEncodingProvider ();
+
+		static void RegisterTestEncodingProvider ()
+		{
+			CharsetUtils.GetEncodingOrDefault (65001, Encoding.UTF8);
+			Encoding.RegisterProvider (FirstEncodingProvider);
+		}
+
+		static InternetAddressList ParseAddresses (string text, bool byteInput)
+		{
+			return byteInput ? InternetAddressList.Parse (Encoding.UTF8.GetBytes (text)) : InternetAddressList.Parse (text);
+		}
+
+		[Test]
+		[NonParallelizable]
+		public void TestReusesEncodingWithinParse (
+			[Values ("First <a@example.com>, Second <b@example.com>",
+				"Group: First <a@example.com>, Second <b@example.com>;",
+				"Outer: Inner: First <a@example.com>;, Second <b@example.com>;")] string text,
+			[Values (false, true)] bool byteInput)
+		{
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = new UTF8Encoding (false, true);
+
+			try {
+				ParseAddresses (text, byteInput);
+
+				Assert.That (FirstEncodingProvider.Utf8Requests, Is.EqualTo (1));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
+
+		[Test]
+		[NonParallelizable]
+		public void TestEncodingProviderRegistrationBetweenParses ([Values (false, true)] bool byteInput)
+		{
+			const string text = "First <a@example.com>, Second <b@example.com>";
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = new UTF8Encoding (false, true);
+
+			try {
+				var firstEncoding = FirstEncodingProvider.Utf8Encoding;
+				var first = ParseAddresses (text, byteInput);
+				FirstEncodingProvider.Utf8Encoding = null;
+				SecondEncodingProvider.Utf8Encoding = new UTF8Encoding (true, false);
+				Encoding.RegisterProvider (SecondEncodingProvider);
+				var second = ParseAddresses (text, byteInput);
+
+				foreach (var address in first)
+					Assert.That (address.Encoding, Is.SameAs (firstEncoding));
+				foreach (var address in second)
+					Assert.That (address.Encoding, Is.SameAs (SecondEncodingProvider.Utf8Encoding));
+			} finally {
+				FirstEncodingProvider.Reset ();
+				SecondEncodingProvider.Reset ();
+			}
+		}
+
+		[Test]
+		[NonParallelizable]
+		public void TestFailedEncodingLookupIsRetried ([Values (false, true)] bool byteInput)
+		{
+			const string text = "First <a@example.com>, Second <b@example.com>, Third <c@example.com>";
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = new UTF8Encoding (false, true);
+			FirstEncodingProvider.Utf8Failures = 1;
+
+			try {
+				var addresses = ParseAddresses (text, byteInput);
+
+				Assert.That (addresses[0].Encoding, Is.SameAs (Encoding.UTF8));
+				Assert.That (addresses[1].Encoding, Is.SameAs (FirstEncodingProvider.Utf8Encoding));
+				Assert.That (addresses[2].Encoding, Is.SameAs (FirstEncodingProvider.Utf8Encoding));
+				Assert.That (FirstEncodingProvider.Utf8Requests, Is.EqualTo (2));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
+
+		[Test]
+		[NonParallelizable]
+		public void TestEncodingCacheUsesRequestedCodepage ([Values (false, true)] bool byteInput)
+		{
+			const string text = "=?iso-8859-1?q?First?= <a@example.com>, Second <b@example.com>";
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = new UTF8Encoding (false, true);
+			FirstEncodingProvider.Latin1Encoding = new UTF8Encoding (true, false);
+
+			try {
+				var addresses = ParseAddresses (text, byteInput);
+
+				Assert.That (addresses[0].Name, Is.EqualTo ("First"));
+				Assert.That (addresses[0].Encoding, Is.SameAs (FirstEncodingProvider.Latin1Encoding));
+				Assert.That (addresses[1].Encoding, Is.SameAs (FirstEncodingProvider.Utf8Encoding));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
+
 		static string Describe (InternetAddress address)
 		{
 			var description = address.GetType ().Name + "|" + address.Name + "|" + address.Encoding.CodePage;
