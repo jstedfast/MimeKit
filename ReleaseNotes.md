@@ -9,7 +9,8 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 Address parsing from strings now shares the byte parser's grammar without converting the entire
 input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
-offsets in parse errors.
+offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings
+for contiguous ASCII local-parts and domains, improving throughput and reducing allocations.
 
 ### Breaking Changes
 

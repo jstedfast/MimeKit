@@ -265,8 +265,57 @@ namespace MimeKit {
 
 		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => ",>;"u8;
 
+		bool TryScanAsciiDotAtom (ref int cursor, ReadOnlySpan<byte> sentinels)
+		{
+			do {
+				int startIndex = cursor;
+
+				while (cursor < endIndex && text.IsAsciiAtom (cursor))
+					cursor++;
+
+				if (cursor == startIndex)
+					return false;
+
+				if (cursor == endIndex || text[cursor] != '.')
+					return true;
+
+				cursor++;
+
+				if (cursor < endIndex && ParseUtils.IsSentinel (text[cursor], sentinels))
+					return false;
+			} while (true);
+		}
+
+		bool TryParseContiguousAddrspec (ReadOnlySpan<byte> sentinels, [NotNullWhen (true)] out string? addrspec, out int at)
+		{
+			int cursor = index;
+
+			addrspec = null;
+			at = -1;
+
+			if (!TryScanAsciiDotAtom (ref cursor, ReadOnlySpan<byte>.Empty) || cursor == endIndex || text[cursor] != '@' || ParseUtils.IsSentinel ('@', sentinels))
+				return false;
+
+			int atIndex = cursor++;
+
+			if (!TryScanAsciiDotAtom (ref cursor, sentinels))
+				return false;
+
+			// CFWS may hide another domain label. Leave it and all repairs to the full grammar.
+			if (cursor < endIndex && !ParseUtils.IsSentinel (text[cursor], sentinels))
+				return false;
+
+			addrspec = text.GetUtf8String (index, cursor - index);
+			at = atIndex - index;
+			index = cursor;
+			return true;
+		}
+
 		internal bool TryParseAddrspec (ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, [NotNullWhen (true)] out string? addrspec, out int at)
 		{
+			if (TryParseContiguousAddrspec (sentinels, out addrspec, out at))
+				return true;
+
 			int startIndex = index;
 
 			addrspec = null;

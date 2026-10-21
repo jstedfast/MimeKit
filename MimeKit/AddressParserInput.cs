@@ -36,6 +36,7 @@ namespace MimeKit {
 	{
 		char this[int index] { get; }
 		int Length { get; }
+		bool IsAsciiAtom (int index);
 		bool IsAtom (int index);
 		bool IsPhraseAtom (int index);
 		bool IsBlank (int index);
@@ -60,6 +61,7 @@ namespace MimeKit {
 
 		public char this[int index] => (char) text[index];
 		public int Length => text.Length;
+		public bool IsAsciiAtom (int index) => text[index].IsAsciiAtom ();
 		public bool IsAtom (int index) => text[index].IsAtom ();
 		public bool IsPhraseAtom (int index) => text[index].IsPhraseAtom ();
 		public bool IsBlank (int index) => text[index].IsBlank ();
@@ -105,6 +107,7 @@ namespace MimeKit {
 
 		public char this[int index] => text[index];
 		public int Length => text.Length;
+		public bool IsAsciiAtom (int index) => text[index] < 128 && ((byte) text[index]).IsAtom ();
 		public bool IsAtom (int index) => text[index] >= 128 || ((byte) text[index]).IsAtom ();
 		public bool IsPhraseAtom (int index) => text[index] >= 128 || ((byte) text[index]).IsPhraseAtom ();
 		public bool IsBlank (int index) => text[index] == ' ' || text[index] == '\t';

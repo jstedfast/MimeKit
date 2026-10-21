@@ -38,7 +38,8 @@ namespace Benchmarks {
 		string text;
 		byte[] buffer;
 
-		[Params ("Single", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment")]
+		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
+			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot")]
 		public string Input { get; set; }
 
 		[GlobalSetup]
@@ -46,6 +47,7 @@ namespace Benchmarks {
 		{
 			text = Input switch {
 				"Single" => "Joe Sixpack <joe@example.com>",
+				"Bare" => "first.last@example.com",
 				"Recipients" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"User {i} <u{i}@example.com>")),
 				"Utf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"Ren\u00e9e M\u00fcller {i} <u{i}@example.com>")),
 				"Encoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?= <u{i}@example.com>")),
@@ -54,6 +56,10 @@ namespace Benchmarks {
 				"LongAtoms" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('a', 48)}{i}@{new string ('b', 48)}.example.com")),
 				"Quoted" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"Last, First {i}\" <u{i}@example.com>")),
 				"Comment" => "(" + new string ('x', 32768) + ") a@example.com",
+				"UnicodeAddr" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\u00e9{i}@\u4e2d.example")),
+				"QuotedLocal" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"first last {i}\"@example.com")),
+				"CFWSDomain" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"a{i}@example (c) . com")),
+				"TrailingDot" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"a{i}@example.com.")),
 				_ => throw new System.InvalidOperationException ("Unknown address parser benchmark input.")
 			};
 			buffer = Encoding.UTF8.GetBytes (text);

@@ -139,6 +139,78 @@ namespace UnitTests {
 			return GC.GetAllocatedBytesForCurrentThread () - before;
 		}
 
+		static long MeasureMailboxAllocation (Func<MailboxAddress> parse)
+		{
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+
+			for (int i = 0; i < 10; i++)
+				parse ();
+
+			return GC.GetAllocatedBytesForCurrentThread () - before;
+		}
+
+		[Test]
+		public void TestContiguousAddrSpecAvoidsIntermediateStrings ([Values (false, true)] bool byteInput)
+		{
+			const string contiguous = "first.last@example.com";
+			const string commented = "first.last@(ignored)example.com";
+			var contiguousBytes = Encoding.UTF8.GetBytes (contiguous);
+			var commentedBytes = Encoding.UTF8.GetBytes (commented);
+			Func<MailboxAddress> parseContiguous = byteInput ? () => MailboxAddress.Parse (contiguousBytes) : () => MailboxAddress.Parse (contiguous);
+			Func<MailboxAddress> parseCommented = byteInput ? () => MailboxAddress.Parse (commentedBytes) : () => MailboxAddress.Parse (commented);
+
+			Assert.That (Describe (parseContiguous ()), Is.EqualTo (Describe (parseCommented ())));
+			MeasureMailboxAllocation (parseContiguous);
+			MeasureMailboxAllocation (parseCommented);
+
+			Assert.That (MeasureMailboxAllocation (parseContiguous), Is.LessThanOrEqualTo (MeasureMailboxAllocation (parseCommented) - 1280));
+		}
+
+		[TestCase ("first.last@example.com", "first.last@example.com")]
+		[TestCase ("first (comment) . last @ example . com", "first.last@example.com")]
+		[TestCase ("\"quoted local\"@example.com", "\"quoted local\"@example.com")]
+		[TestCase ("local@example.com.", "local@example.com")]
+		[TestCase ("local@example.com (name)", "local@example.com")]
+		[TestCase ("local@example. com", "local@example.com")]
+		[TestCase ("local@exa (comment) . mple", "local@exa.mple")]
+		[TestCase ("local@[127.0.0.1]", "local@[127.0.0.1]")]
+		[TestCase ("\u00e9@example.com", "\u00e9@example.com")]
+		[TestCase ("local@b\u00fccher.example", "local@b\u00fccher.example")]
+		public void TestContiguousAddrSpecAndFallback (string text, string expected)
+		{
+			var bytes = Encoding.UTF8.GetBytes ("###" + text + "###");
+
+			foreach (var compliance in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose, RfcComplianceMode.Looser }) {
+				var options = new ParserOptions { AddressParserComplianceMode = compliance };
+				var fromString = MailboxAddress.Parse (options, text);
+				var fromBytes = MailboxAddress.Parse (options, bytes, 3, bytes.Length - 6);
+
+				Assert.That (fromString.Address, Is.EqualTo (expected));
+				Assert.That (Describe (fromString), Is.EqualTo (Describe (fromBytes)));
+			}
+		}
+
+		[TestCase ("local@example.com", "@", "local", 5, -1)]
+		[TestCase ("local@example.com", "c", "local@example", 14, 5)]
+		[TestCase ("local@example..com", ".", "local@example", 14, 5)]
+		[TestCase ("local@example.com,next", ",", "local@example.com", 17, 5)]
+		public void TestContiguousAddrSpecSentinels (string text, string terminators, string expected, int position, int at)
+		{
+			var sentinels = Encoding.ASCII.GetBytes (terminators);
+			var bytes = Encoding.ASCII.GetBytes (text);
+			var stringParser = InternetAddressParser.Create (ParserOptions.Default, text);
+			var byteParser = InternetAddressParser.Create (ParserOptions.Default, bytes, 0, bytes.Length);
+
+			Assert.That (stringParser.TryParseAddrspec (sentinels, RfcComplianceMode.Strict, true, out var fromString, out int stringAt), Is.True);
+			Assert.That (byteParser.TryParseAddrspec (sentinels, RfcComplianceMode.Strict, true, out var fromBytes, out int byteAt), Is.True);
+			Assert.That (fromString, Is.EqualTo (expected));
+			Assert.That (fromBytes, Is.EqualTo (expected));
+			Assert.That (stringParser.Position, Is.EqualTo (position));
+			Assert.That (byteParser.Position, Is.EqualTo (position));
+			Assert.That (stringAt, Is.EqualTo (at));
+			Assert.That (byteAt, Is.EqualTo (at));
+		}
+
 		[Test]
 		public void TestStringParsingDoesNotTranscodeIgnoredInput ()
 		{
