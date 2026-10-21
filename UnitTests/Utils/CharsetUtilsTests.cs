@@ -320,8 +320,30 @@ namespace UnitTests.Utils {
 			Assert.That (CharsetUtils.ConvertToUnicode (new ThrowingGetCharsEncoding (), input, 0, input.Length), Is.EqualTo (string.Empty));
 		}
 
+		[Test]
+		public void TestConvertToUnicodeDoesNotSwallowUnexpectedDecoderExceptions ()
+		{
+			var input = new byte[] { 0x41 };
+			var expected = new InvalidOperationException ("Unexpected decoder failure.");
+			var encoding = new ThrowingGetCharsEncoding (expected);
+
+			var exception = Assert.Throws<InvalidOperationException> (() => CharsetUtils.ConvertToUnicode (encoding, input, 0, input.Length));
+			Assert.That (exception, Is.SameAs (expected));
+		}
+
 		class ThrowingGetCharsEncoding : Encoding
 		{
+			readonly Exception exception;
+
+			public ThrowingGetCharsEncoding () : this (new DecoderFallbackException ("GetChars failed."))
+			{
+			}
+
+			public ThrowingGetCharsEncoding (Exception exception)
+			{
+				this.exception = exception;
+			}
+
 			public override int GetByteCount (char[] chars, int index, int count)
 			{
 				return count;
@@ -342,12 +364,12 @@ namespace UnitTests.Utils {
 
 			public override int GetChars (byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
 			{
-				throw new DecoderFallbackException ("GetChars failed.");
+				throw exception;
 			}
 
 			public override Decoder GetDecoder ()
 			{
-				return new ThrowingGetCharsDecoder ();
+				return new ThrowingGetCharsDecoder (exception);
 			}
 
 			public override int GetMaxByteCount (int charCount)
@@ -363,6 +385,13 @@ namespace UnitTests.Utils {
 
 		class ThrowingGetCharsDecoder : Decoder
 		{
+			readonly Exception exception;
+
+			public ThrowingGetCharsDecoder (Exception exception)
+			{
+				this.exception = exception;
+			}
+
 			public override int GetCharCount (byte[] bytes, int index, int count)
 			{
 				return count;
@@ -370,7 +399,7 @@ namespace UnitTests.Utils {
 
 			public override int GetChars (byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
 			{
-				throw new DecoderFallbackException ("GetChars failed.");
+				throw exception;
 			}
 		}
 	}

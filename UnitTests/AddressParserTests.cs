@@ -40,11 +40,15 @@ namespace UnitTests {
 			public Encoding Latin1Encoding;
 			public int Utf8Requests;
 			public int Utf8Failures;
+			public Exception Utf8Exception;
 
 			public override Encoding GetEncoding (int codepage)
 			{
 				if (codepage == 65001 && Utf8Encoding != null) {
 					Utf8Requests++;
+
+					if (Utf8Exception != null)
+						throw Utf8Exception;
 
 					if (Utf8Failures > 0) {
 						Utf8Failures--;
@@ -66,11 +70,32 @@ namespace UnitTests {
 			{
 				Utf8Encoding = Latin1Encoding = null;
 				Utf8Requests = Utf8Failures = 0;
+				Utf8Exception = null;
 			}
 		}
 
 		static readonly TestEncodingProvider FirstEncodingProvider = new TestEncodingProvider ();
 		static readonly TestEncodingProvider SecondEncodingProvider = new TestEncodingProvider ();
+
+		[Test]
+		[NonParallelizable]
+		public void TestUnexpectedEncodingProviderExceptionIsNotSwallowed ()
+		{
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = Encoding.UTF8;
+			FirstEncodingProvider.Utf8Exception = new InvalidOperationException ("Unexpected encoding provider failure.");
+
+			try {
+				var exception = Assert.Throws<InvalidOperationException> (() => CharsetUtils.GetEncodingOrDefault (65001, Encoding.ASCII));
+				Assert.That (exception, Is.SameAs (FirstEncodingProvider.Utf8Exception));
+
+				var input = Encoding.ASCII.GetBytes ("=?utf-8?q?invalid=FF?=");
+				exception = Assert.Throws<InvalidOperationException> (() => Rfc2047.DecodePhrase (input));
+				Assert.That (exception, Is.SameAs (FirstEncodingProvider.Utf8Exception));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
 
 		[Test]
 		[NonParallelizable]
@@ -226,10 +251,12 @@ namespace UnitTests {
 			if (address is MailboxAddress mailbox)
 				return description + "|" + mailbox.Address + "|" + string.Join (",", mailbox.Route);
 
-			foreach (var member in ((GroupAddress) address).Members)
-				description += "[" + Describe (member) + "]";
+			var builder = new StringBuilder (description);
 
-			return description;
+			foreach (var member in ((GroupAddress) address).Members)
+				builder.Append ('[').Append (Describe (member)).Append (']');
+
+			return builder.ToString ();
 		}
 
 		static string Describe (InternetAddressList addresses)

@@ -420,7 +420,7 @@ namespace MimeKit.Utils {
 
 			do {
 				while (index < endIndex && text.IsDomain (index)) {
-					token.Append ((char) text[index]);
+					token.Append (text[index]);
 					index++;
 				}
 

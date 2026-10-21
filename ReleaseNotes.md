@@ -23,6 +23,9 @@ Charset detection now recognizes valid UTF-8 before running the fallback charset
 allocations when decoding raw UTF-8 display names and other MIME text.
 On .NET 8 and later, RFC 2047 decoding writes valid UTF-8 directly into the output buffer,
 avoiding intermediate character arrays for raw and encoded UTF-8 display names.
+Encoding resolution and explicit-charset decoding now propagate unexpected provider or decoder
+exceptions rather than silently falling back; unsupported encodings and decoding errors still
+use their existing fallbacks.
 
 ### Breaking Changes
 

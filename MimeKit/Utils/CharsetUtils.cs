@@ -382,11 +382,14 @@ namespace MimeKit.Utils {
 
 		public static bool TryGetEncoding (int codepage, [NotNullWhen (true)] out Encoding? encoding)
 		{
+			encoding = null;
+
 			try {
 				encoding = Encoding.GetEncoding (codepage);
 				return true;
-			} catch {
-				encoding = null;
+			} catch (NotSupportedException) {
+				return false;
+			} catch (ArgumentException) {
 				return false;
 			}
 		}
@@ -559,7 +562,7 @@ namespace MimeKit.Utils {
 
 			try {
 				charCount = decoder.GetChars (input, startIndex, length, output, 0, true);
-			} catch {
+			} catch (ArgumentException) {
 				charCount = 0;
 			}
 
@@ -584,17 +587,7 @@ namespace MimeKit.Utils {
 				return;
 #endif
 
-			Encoding? encoding = null;
-
-			if (codepage != -1) {
-				try {
-					encoding = GetEncoding (codepage);
-				} catch (NotSupportedException) {
-				} catch (ArgumentException) {
-				}
-			}
-
-			if (encoding is null) {
+			if (codepage == -1 || !TryGetEncoding (codepage, out var encoding)) {
 				ConvertToUnicode (options, input, startIndex, length, ref output);
 				return;
 			}

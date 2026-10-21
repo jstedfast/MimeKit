@@ -418,6 +418,16 @@ namespace MimeKit.Text {
 				RemoveTopEntry ();
 		}
 
+		Entry[] CopyEntries (int index)
+		{
+			var entries = new Entry[count - index];
+
+			for (int i = 0; i < entries.Length; i++)
+				entries[i] = EntryAt (index + i);
+
+			return entries;
+		}
+
 		// Remove (one instance of) the element at the specified index without popping the elements above it.
 		//
 		// Note: The entries above it cache the indexes of the entries below them, so they get removed and pushed again.
@@ -428,10 +438,7 @@ namespace MimeKit.Text {
 				return;
 			}
 
-			var above = new Entry[count - index - 1];
-
-			for (int i = 0; i < above.Length; i++)
-				above[i] = EntryAt (index + 1 + i);
+			var above = CopyEntries (index + 1);
 
 			while (count > index)
 				RemoveTopEntry ();
@@ -451,10 +458,7 @@ namespace MimeKit.Text {
 		// Replace a range without reporting implicit closures, rebuilding the indexes of the retained entries.
 		public void ReplaceRange (int index, int length, Entry[] replacement, int replacementCount)
 		{
-			var above = new Entry[count - index - length];
-
-			for (int i = 0; i < above.Length; i++)
-				above[i] = EntryAt (index + length + i);
+			var above = CopyEntries (index + length);
 
 			while (count > index)
 				RemoveTopEntry ();

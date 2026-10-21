@@ -66,12 +66,9 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError) || index != endIndex) {
 				if (throwOnError) {
 					int offset = text.GetByteOffset (index);
-					string message;
-
-					if ((flags & AddressParserFlags.TryParse) == AddressParserFlags.TryParse)
-						message = string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", text.GetErrorCharacter (index), offset);
-					else
-						message = string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", offset);
+					string message = (flags & AddressParserFlags.TryParse) == AddressParserFlags.TryParse
+						? string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", text.GetErrorCharacter (index), offset)
+						: string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", offset);
 
 					throw new ParseException (message, offset, offset);
 				}
@@ -485,10 +482,9 @@ namespace MimeKit {
 				}
 			}
 
-			if (route != null)
-				address = new MailboxAddress (encoding, name, route, addrspec, at);
-			else
-				address = new MailboxAddress (encoding, name, addrspec, at);
+			address = route != null
+				? new MailboxAddress (encoding, name, route, addrspec, at)
+				: new MailboxAddress (encoding, name, addrspec, at);
 
 			return true;
 		}
@@ -523,10 +519,9 @@ namespace MimeKit {
 			while (index < endIndex && (text[index] == ':' || text.IsBlank (index)))
 				index++;
 
-			if (TryParseList (flags | AddressParserFlags.AllowMailboxAddress, true, groupDepth + 1, out var members))
-				address = new GroupAddress (encoding, name, members);
-			else
-				address = new GroupAddress (encoding, name);
+			address = TryParseList (flags | AddressParserFlags.AllowMailboxAddress, true, groupDepth + 1, out var members)
+				? new GroupAddress (encoding, name, members)
+				: new GroupAddress (encoding, name);
 
 			if (index >= endIndex || text[index] != (byte) ';') {
 				if (throwOnError && options.AddressParserComplianceMode == RfcComplianceMode.Strict)
@@ -632,7 +627,6 @@ namespace MimeKit {
 		{
 			int nameIndex = phrase.StartIndex;
 			int length = phrase.Length;
-			string name;
 
 			codepage = -1;
 
@@ -642,11 +636,7 @@ namespace MimeKit {
 			}
 
 			// Unquote before decoding to preserve quotes and backslashes inside encoded-words.
-			if (length > 0) {
-				name = text.DecodePhrase (options, nameIndex, length, out codepage);
-			} else {
-				name = string.Empty;
-			}
+			string name = length > 0 ? text.DecodePhrase (options, nameIndex, length, out codepage) : string.Empty;
 
 			if (codepage == -1)
 				codepage = 65001;

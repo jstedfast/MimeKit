@@ -80,8 +80,7 @@ namespace UnitTests.Utils {
 		[TestCase ("\0\u007f\u0080\u07ff\u0800\ud7ff\ue000\uffff\U00010000\U0010ffff")]
 		public void TestTryAppendUtf8 (string text)
 		{
-			foreach (int repeat in new[] { 0, 16, 1024 }) {
-				var expected = new string ('x', repeat) + text;
+			foreach (var expected in new[] { text, new string ('x', 16) + text, new string ('x', 1024) + text }) {
 				var bytes = Encoding.UTF8.GetBytes (expected);
 				var vsb = new ValueStringBuilder (1);
 
