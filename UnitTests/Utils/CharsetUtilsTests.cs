@@ -151,6 +151,85 @@ namespace UnitTests.Utils {
 			Assert.That (CharsetUtils.GetMimeCharset (Encoding.GetEncoding (949)), Is.EqualTo ("euc-kr"));
 		}
 
+		[TestCase ("")]
+		[TestCase ("plain ASCII")]
+		[TestCase ("Ren\u00e9e M\u00fcller")]
+		[TestCase ("\u674e\u5c0f\u9f8d")]
+		[TestCase ("\0\u007f\u0080\u07ff\u0800\ud7ff\ue000\uffff\U00010000\U0010ffff")]
+		public void TestConvertToUnicodePrefersValidUtf8 (string expected)
+		{
+			var bytes = Encoding.UTF8.GetBytes (expected);
+			var input = new byte[bytes.Length + 2];
+
+			input[0] = input[input.Length - 1] = 0xff;
+			bytes.CopyTo (input, 1);
+
+			foreach (int codepage in new[] { 65001, 28591, 1252, 936, 932 }) {
+				var options = new ParserOptions { CharsetEncoding = Encoding.GetEncoding (codepage) };
+				var output = CharsetUtils.ConvertToUnicode (options, input, 1, bytes.Length, out int count);
+
+				Assert.That (count, Is.EqualTo (expected.Length));
+				Assert.That (new string (output, 0, count), Is.EqualTo (expected));
+			}
+		}
+
+		static long MeasureUtf8ConversionAllocation (byte[] input, bool guessCharset)
+		{
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+
+			for (int i = 0; i < 10; i++) {
+				if (guessCharset)
+					CharsetUtils.ConvertToUnicode (ParserOptions.Default, input, 0, input.Length, out _);
+				else
+					Encoding.UTF8.GetChars (input, 0, input.Length);
+			}
+
+			return GC.GetAllocatedBytesForCurrentThread () - before;
+		}
+
+		[Test]
+		public void TestConvertValidUtf8AllocatesOnlyOutput ()
+		{
+			var input = Encoding.UTF8.GetBytes ("Ren\u00e9e M\u00fcller");
+
+			MeasureUtf8ConversionAllocation (input, true);
+			MeasureUtf8ConversionAllocation (input, false);
+
+			Assert.That (MeasureUtf8ConversionAllocation (input, true), Is.EqualTo (MeasureUtf8ConversionAllocation (input, false)));
+		}
+
+		[Test]
+		public void TestAppendValidUtf8DoesNotAllocate ()
+		{
+			var input = Encoding.UTF8.GetBytes ("Ren\u00e9e M\u00fcller \U0001f600");
+			var output = new ValueStringBuilder (input.Length * 101);
+
+			try {
+				CharsetUtils.ConvertToUnicode (ParserOptions.Default, input, 0, input.Length, ref output);
+				long before = GC.GetAllocatedBytesForCurrentThread ();
+
+				for (int i = 0; i < 100; i++)
+					CharsetUtils.ConvertToUnicode (ParserOptions.Default, input, 0, input.Length, ref output);
+
+				Assert.That (GC.GetAllocatedBytesForCurrentThread () - before, Is.EqualTo (0));
+			} finally {
+				output.Dispose ();
+			}
+		}
+
+		[TestCase (new byte[] { 0xc3 }, 28591, "\u00c3")]
+		[TestCase (new byte[] { 0xc0, 0xaf }, 28591, "\u00c0\u00af")]
+		[TestCase (new byte[] { 0xed, 0xa0, 0x80 }, 28591, "\u00ed\u00a0\u0080")]
+		[TestCase (new byte[] { 0xf4, 0x90, 0x80, 0x80 }, 28591, "\u00f4\u0090\u0080\u0080")]
+		[TestCase (new byte[] { 0x80 }, 1252, "\u20ac")]
+		[TestCase (new byte[] { 0xc3, 0xa9, 0xff }, 28591, "\u00c3\u00a9\u00ff")]
+		public void TestConvertInvalidUtf8UsesCharsetFallback (byte[] input, int codepage, string expected)
+		{
+			var options = new ParserOptions { CharsetEncoding = Encoding.GetEncoding (codepage) };
+
+			Assert.That (CharsetUtils.ConvertToUnicode (options, input, 0, input.Length), Is.EqualTo (expected));
+		}
+
 		[Test]
 		public void TestParseInvalidCodePageNames ()
 		{
@@ -219,10 +298,12 @@ namespace UnitTests.Utils {
 		public void TestConvertToUnicodeWithUnsupportedCodePageFallsBackToBestEncoding ()
 		{
 			var input = Encoding.UTF8.GetBytes ("hello");
-			var output = CharsetUtils.ConvertToUnicode (ParserOptions.Default, 999999, input, 0, input.Length, out int charCount);
+			var output = new ValueStringBuilder (1);
 
-			Assert.That (charCount, Is.EqualTo (5));
-			Assert.That (new string (output, 0, charCount), Is.EqualTo ("hello"));
+			CharsetUtils.ConvertToUnicode (ParserOptions.Default, 999999, input, 0, input.Length, ref output);
+
+			Assert.That (output.Length, Is.EqualTo (5));
+			Assert.That (output.ToString (), Is.EqualTo ("hello"));
 		}
 
 		[Test]

@@ -595,99 +595,13 @@ namespace MimeKit {
 
 		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, bool isGroup, int groupDepth, [NotNullWhen (true)] out List<InternetAddress>? addresses)
 		{
-			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
-			var list = new List<InternetAddress> ();
+			var parser = AddressParser.Create (options, text, index, endIndex);
 
-			addresses = null;
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-				return false;
-
-			if (index == endIndex) {
-				if (throwOnError)
-					throw new ParseException ("No addresses found.", index, index);
-
-				return false;
+			try {
+				return parser.TryParseList (flags, isGroup, groupDepth, out addresses);
+			} finally {
+				index = parser.Position;
 			}
-
-			while (index < endIndex) {
-				if (isGroup && text[index] == (byte) ';')
-					break;
-
-				// Save state in case InternetAddress.TryParse() fails and we need to recover.
-				int savedIndex = index;
-
-				if (!InternetAddress.TryParse (flags, options, text, ref index, endIndex, groupDepth, out var address)) {
-					if ((flags & AddressParserFlags.Internal) == 0) {
-						// Note: If flags contains the ThrowOnError flag, then InternetAddress.TryParse() would have thrown.
-						return false;
-					}
-
-					// When the 'Internal' flag is set, it means we are being called from places like MimeMessage or
-					// Header (when trying to reformat an existing header value) where we want to be more lenient with
-					// parsing and simply skip any addresses that we fail to parse instead of throwing an exception or
-					// prematurely abort parsing. In other words, we want to preserve as many valid addresses as possible.
-					//
-					// With that in mind, when InternetAddress.TryParse() fails, skip to the next address and resume parsing.
-					index = savedIndex;
-
-					while (index < endIndex) {
-						if (text[index] == (byte) '"') {
-							if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
-								break;
-						} else if (text[index] == (byte) '(') {
-							if (!ParseUtils.SkipComment (text, ref index, endIndex))
-								break;
-						} else if (text[index] == (byte) ',' || (isGroup && text[index] == (byte) ';')) {
-							break;
-						} else {
-							index++;
-						}
-					}
-				} else {
-					list.Add (address);
-				}
-
-				// Note: we loop here in case there are any extraneous commas
-				bool skippedComma = false;
-
-				do {
-					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-						return false;
-
-					if (index >= endIndex)
-						break;
-
-					if (isGroup && text[index] == (byte) ';')
-						break;
-
-					if (text[index] != (byte) ',') {
-						if (skippedComma)
-							break;
-
-						if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
-							if (throwOnError) {
-								if (isGroup)
-									throw new ParseException ("Expected ',' between addresses or ';' to denote the end of a group of addresses.", index, index);
-								else
-									throw new ParseException ("Expected ',' between addresses.", index, index);
-							}
-
-							return false;
-						} else {
-							// start of a new address?
-							break;
-						}
-					}
-
-					skippedComma = true;
-					index++;
-				} while (true);
-			}
-
-			addresses = list;
-
-			return true;
 		}
 
 		/// <summary>
@@ -844,10 +758,9 @@ namespace MimeKit {
 				return false;
 			}
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int index = 0;
+			var parser = AddressParser.Create (options, text);
 
-			if (!TryParse (AddressParserFlags.TryParse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist)) {
+			if (!parser.TryParseList (AddressParserFlags.TryParse, false, 0, out var addrlist)) {
 				addresses = null;
 				return false;
 			}
@@ -1055,10 +968,8 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int index = 0;
-
-			TryParse (AddressParserFlags.Parse, options, buffer, ref index, buffer.Length, false, 0, out var addrlist);
+			var parser = AddressParser.Create (options, text);
+			parser.TryParseList (AddressParserFlags.Parse, false, 0, out var addrlist);
 
 			return new InternetAddressList (addrlist!);
 		}

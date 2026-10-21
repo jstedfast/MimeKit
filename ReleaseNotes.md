@@ -7,6 +7,23 @@ the split of the cryptography support into its own assembly, the promotion of th
 a redesigned TNEF implementation, DMARC validation, and a new MIME compliance violation reporting API.
 See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
+Address parsing from strings now shares the byte parser's grammar without converting the entire
+input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
+offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings
+for contiguous ASCII local-parts and domains, improving throughput and reducing allocations.
+Display-name decoding avoids intermediate byte-array copies, using pooled storage when unquoting
+is needed.
+Plain ASCII display names without RFC 2047 markers also avoid decoder allocations when parsing
+byte-array input, including quoted names after unquoting.
+Plain ASCII names taken from address comments likewise avoid decoder allocations.
+Non-ASCII and encoded comment names use pooled storage when normalizing tabs.
+Address parsing reuses the last successfully resolved display-name encoding within each parse,
+reducing repeated encoding-provider lookups for names using the same charset.
+Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
+allocations when decoding raw UTF-8 display names and other MIME text.
+On .NET 8 and later, RFC 2047 decoding writes valid UTF-8 directly into the output buffer,
+avoiding intermediate character arrays for raw and encoded UTF-8 display names.
+
 ### Breaking Changes
 
 * OpenPGP decryption now verifies encrypted-data integrity and rejects legacy packets without

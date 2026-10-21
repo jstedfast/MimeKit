@@ -31,6 +31,28 @@ namespace UnitTests.Utils {
 	class ByteArrayBuilderTests
 	{
 		[Test]
+		public void TestGetBuffer ()
+		{
+			var builder = new ByteArrayBuilder (1);
+
+			try {
+				builder.Append (42);
+				var buffer = builder.GetBuffer ();
+
+				Assert.That (buffer, Is.SameAs (builder.GetBuffer ()));
+				Assert.That (buffer.Length, Is.GreaterThanOrEqualTo (builder.Length));
+				Assert.That (buffer[0], Is.EqualTo (42));
+
+				builder.Clear ();
+				builder.Append (43);
+				Assert.That (buffer[0], Is.EqualTo (43));
+				Assert.That (builder.Length, Is.EqualTo (1));
+			} finally {
+				builder.Dispose ();
+			}
+		}
+
+		[Test]
 		public void TestEnsureCapacity ()
 		{
 			var builder = new ByteArrayBuilder (1);

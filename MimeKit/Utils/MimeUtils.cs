@@ -577,43 +577,53 @@ namespace MimeKit.Utils {
 			return builder.ToString ();
 		}
 
-		internal static byte[] Unquote (byte[] text, int startIndex, int length, bool convertTabsToSpaces = false)
+		internal static void UnquoteTo (ReadOnlySpan<byte> text, bool convertTabsToSpaces, ref ByteArrayBuilder output)
 		{
-			using var builder = new ByteArrayBuilder (length);
 			bool escaped = false;
 			bool quoted = false;
 
-			for (int i = startIndex; i < startIndex + length; i++) {
+			for (int i = 0; i < text.Length; i++) {
 				switch ((char) text[i]) {
 				case '\r':
 				case '\n':
 					escaped = false;
 					break;
 				case '\t':
-					builder.Append ((byte) (convertTabsToSpaces ? ' ' : '\t'));
+					output.Append ((byte) (convertTabsToSpaces ? ' ' : '\t'));
 					escaped = false;
 					break;
 				case '\\':
 					if (escaped)
-						builder.Append ((byte) '\\');
+						output.Append ((byte) '\\');
 					escaped = !escaped;
 					break;
 				case '"':
 					if (escaped) {
-						builder.Append ((byte) '"');
+						output.Append ((byte) '"');
 						escaped = false;
 					} else {
 						quoted = !quoted;
 					}
 					break;
 				default:
-					builder.Append (text[i]);
+					output.Append (text[i]);
 					escaped = false;
 					break;
 				}
 			}
+		}
 
-			return builder.ToArray ();
+		internal static byte[] Unquote (byte[] text, int startIndex, int length, bool convertTabsToSpaces = false)
+		{
+			var builder = new ByteArrayBuilder (length);
+
+			try {
+				UnquoteTo (text.AsSpan (startIndex, length), convertTabsToSpaces, ref builder);
+
+				return builder.ToArray ();
+			} finally {
+				builder.Dispose ();
+			}
 		}
 	}
 }

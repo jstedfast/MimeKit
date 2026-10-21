@@ -380,13 +380,20 @@ namespace MimeKit.Utils {
 			return Encoding.GetEncoding (codepage);
 		}
 
-		public static Encoding GetEncodingOrDefault (int codepage, Encoding defaultEncoding)
+		public static bool TryGetEncoding (int codepage, [NotNullWhen (true)] out Encoding? encoding)
 		{
 			try {
-				return Encoding.GetEncoding (codepage);
+				encoding = Encoding.GetEncoding (codepage);
+				return true;
 			} catch {
-				return defaultEncoding;
+				encoding = null;
+				return false;
 			}
+		}
+
+		public static Encoding GetEncodingOrDefault (int codepage, Encoding defaultEncoding)
+		{
+			return TryGetEncoding (codepage, out var encoding) ? encoding : defaultEncoding;
 		}
 
 		class InvalidByteCountFallback : DecoderFallback
@@ -471,6 +478,14 @@ namespace MimeKit.Utils {
 
 		internal static char[] ConvertToUnicode (ParserOptions options, byte[] input, int startIndex, int length, out int charCount)
 		{
+			// UTF-8 is always the first choice when no invalid sequences are present.
+			if (Utf8.IsValid (input.AsSpan (startIndex, length))) {
+				var unicode = UTF8.GetChars (input, startIndex, length);
+
+				charCount = unicode.Length;
+				return unicode;
+			}
+
 			var invalid = new InvalidByteCountFallback ();
 			var userCharset = options.CharsetEncoding;
 			int min = int.MaxValue;
@@ -551,8 +566,24 @@ namespace MimeKit.Utils {
 			return output;
 		}
 
-		internal static char[] ConvertToUnicode (ParserOptions options, int codepage, byte[] input, int startIndex, int length, out int charCount)
+		internal static void ConvertToUnicode (ParserOptions options, byte[] input, int startIndex, int length, ref ValueStringBuilder output)
 		{
+#if NET8_0_OR_GREATER
+			if (output.TryAppendUtf8 (input.AsSpan (startIndex, length)))
+				return;
+#endif
+
+			var unicode = ConvertToUnicode (options, input, startIndex, length, out int charCount);
+			output.Append (unicode.AsSpan (0, charCount));
+		}
+
+		internal static void ConvertToUnicode (ParserOptions options, int codepage, byte[] input, int startIndex, int length, ref ValueStringBuilder output)
+		{
+#if NET8_0_OR_GREATER
+			if (codepage == 65001 && output.TryAppendUtf8 (input.AsSpan (startIndex, length)))
+				return;
+#endif
+
 			Encoding? encoding = null;
 
 			if (codepage != -1) {
@@ -563,10 +594,13 @@ namespace MimeKit.Utils {
 				}
 			}
 
-			if (encoding is null)
-				return ConvertToUnicode (options, input, startIndex, length, out charCount);
+			if (encoding is null) {
+				ConvertToUnicode (options, input, startIndex, length, ref output);
+				return;
+			}
 
-			return ConvertToUnicode (encoding, input, startIndex, length, out charCount);
+			var unicode = ConvertToUnicode (encoding, input, startIndex, length, out int charCount);
+			output.Append (unicode.AsSpan (0, charCount));
 		}
 
 		public static string ConvertToUnicode (Encoding encoding, byte[] buffer, int startIndex, int length)

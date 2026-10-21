@@ -47,6 +47,13 @@ namespace AotCompatibility {
                 Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
                 CryptographyModule.Initialize ();
 
+                const string addresses = "Friends: Example <user@example.com>, \u00e9 <other@example.com>;";
+                var fromString = InternetAddressList.Parse (addresses);
+                var fromBytes = InternetAddressList.Parse (Encoding.UTF8.GetBytes (addresses));
+
+                if (fromString.ToString () != fromBytes.ToString ())
+                    throw new InvalidOperationException ("String and byte address parsing should agree.");
+
                 var path = Path.Combine (dir, "smime", "thunderbird-signed.txt");
                 var message = MimeMessage.Load (path);
 

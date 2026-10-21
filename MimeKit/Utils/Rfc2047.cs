@@ -202,8 +202,7 @@ namespace MimeKit.Utils {
 					}
 				} else if (token.Is8bit) {
 					// *sigh* I hate broken mailers...
-					var unicode = CharsetUtils.ConvertToUnicode (options, input, token.StartIndex, token.Length, out int length);
-					output.Append (unicode.AsSpan (0, length));
+					CharsetUtils.ConvertToUnicode (options, input, token.StartIndex, token.Length, ref output);
 				} else {
 					// pure 7bit ascii, a breath of fresh air...
 					int endIndex = token.StartIndex + token.Length;
@@ -220,8 +219,7 @@ namespace MimeKit.Utils {
 
 				if (scratchLength > 0) {
 					// Convert any decoded encoded-word payloads into unicode and append to our 'decoded' buffer.
-					var unicode = CharsetUtils.ConvertToUnicode (options, curCodepage, scratch, 0, scratchLength, out int length);
-					output.Append (unicode.AsSpan (0, length));
+					CharsetUtils.ConvertToUnicode (options, curCodepage, scratch, 0, scratchLength, ref output);
 					scratchLength = 0;
 				}
 			}

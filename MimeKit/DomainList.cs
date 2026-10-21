@@ -402,6 +402,11 @@ namespace MimeKit {
 		/// <param name="route">The parsed DomainList.</param>
 		internal static bool TryParse (byte[] buffer, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out DomainList? route)
 		{
+			return TryParse (new ByteArrayAddressInput (buffer), ref index, endIndex, throwOnError, out route);
+		}
+
+		internal static bool TryParse<TInput> (TInput buffer, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out DomainList? route) where TInput : struct, IAddressParserInput
+		{
 			var domains = new List<string> ();
 			int startIndex = index;
 
@@ -413,7 +418,7 @@ namespace MimeKit {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete domain-list at offset: {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete domain-list at offset: {0}", buffer.GetByteOffset (startIndex)), buffer.GetByteOffset (startIndex), buffer.GetByteOffset (index));
 
 					return false;
 				}

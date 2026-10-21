@@ -72,6 +72,51 @@ namespace UnitTests.Utils {
 			Assert.That (vsb.ToString (), Is.EqualTo (sb.ToString ()));
 		}
 
+#if NET8_0_OR_GREATER
+		[TestCase ("")]
+		[TestCase ("ASCII")]
+		[TestCase ("Ren\u00e9e M\u00fcller")]
+		[TestCase ("\u674e\u5c0f\u9f8d")]
+		[TestCase ("\0\u007f\u0080\u07ff\u0800\ud7ff\ue000\uffff\U00010000\U0010ffff")]
+		public void TestTryAppendUtf8 (string text)
+		{
+			foreach (int repeat in new[] { 0, 16, 1024 }) {
+				var expected = new string ('x', repeat) + text;
+				var bytes = Encoding.UTF8.GetBytes (expected);
+				var vsb = new ValueStringBuilder (1);
+
+				vsb.Append ("prefix:");
+				Assert.That (vsb.TryAppendUtf8 (bytes), Is.True);
+				Assert.That (vsb.Length, Is.EqualTo (7 + expected.Length));
+				vsb.Append (":suffix");
+				Assert.That (vsb.ToString (), Is.EqualTo ("prefix:" + expected + ":suffix"));
+			}
+		}
+
+		[TestCase (new byte[] { 0xc3 })]
+		[TestCase (new byte[] { 0x80 })]
+		[TestCase (new byte[] { 0xc0, 0xaf })]
+		[TestCase (new byte[] { 0xe2, 0x82 })]
+		[TestCase (new byte[] { 0xed, 0xa0, 0x80 })]
+		[TestCase (new byte[] { 0xf4, 0x90, 0x80, 0x80 })]
+		[TestCase (new byte[] { 0xc3, 0xa9, 0xff })]
+		public void TestTryAppendInvalidUtf8DoesNotAppend (byte[] invalid)
+		{
+			foreach (int prefixLength in new[] { 0, 16, 1024 }) {
+				var bytes = new byte[prefixLength + invalid.Length];
+				Array.Fill (bytes, (byte) 'x', 0, prefixLength);
+				invalid.CopyTo (bytes, prefixLength);
+				var vsb = new ValueStringBuilder (1);
+
+				vsb.Append ("prefix:");
+				Assert.That (vsb.TryAppendUtf8 (bytes), Is.False);
+				Assert.That (vsb.Length, Is.EqualTo (7));
+				Assert.That (vsb.TryAppendUtf8 (Encoding.UTF8.GetBytes ("\u00e9")), Is.True);
+				Assert.That (vsb.ToString (), Is.EqualTo ("prefix:\u00e9"));
+			}
+		}
+#endif
+
 		[Test]
 		public void Append_NullString_MatchesStringBuilder ()
 		{

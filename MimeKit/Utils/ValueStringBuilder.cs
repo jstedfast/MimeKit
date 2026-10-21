@@ -270,6 +270,20 @@ namespace MimeKit.Utils {
 			_pos += value.Length;
 		}
 
+#if NET8_0_OR_GREATER
+		public bool TryAppendUtf8 (ReadOnlySpan<byte> value)
+		{
+			if (_pos > _chars.Length - value.Length)
+				Grow (value.Length);
+
+			if (System.Text.Unicode.Utf8.ToUtf16 (value, _chars.Slice (_pos), out _, out int charsWritten, replaceInvalidSequences: false) != OperationStatus.Done)
+				return false;
+
+			_pos += charsWritten;
+			return true;
+		}
+#endif
+
 #if UNUSED_VALUESTRINGBUILDER_API
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		public Span<char> AppendSpan (int length)

@@ -73,6 +73,12 @@ namespace MimeKit.Utils {
 			length += count;
 		}
 
+		// Only Length bytes are written. The buffer is invalid after growth or disposal.
+		public readonly byte[] GetBuffer ()
+		{
+			return buffer;
+		}
+
 		public readonly byte[] ToArray ()
 		{
 			var array = new byte[length];

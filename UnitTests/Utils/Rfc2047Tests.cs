@@ -139,6 +139,44 @@ namespace UnitTests.Utils {
 			Assert.That (result, Is.EqualTo (text));
 		}
 
+		[TestCase ("=?utf-8?q?Ren=C3=A9e?=", "Ren\u00e9e")]
+		[TestCase ("=?utf-8?q?=E6=9D=8E=F0=9F=98=80?=", "\u674e\U0001f600")]
+		[TestCase ("=?utf-8?q?=C3?= =?utf-8?q?=A9?=", "\u00e9")]
+		[TestCase ("=?utf-8?b?ww==?= =?utf-8?b?qQ==?=", "\u00e9")]
+		[TestCase ("=?utf-8?q?=C3=A9=FF?=", "\u00e9\ufffd")]
+		[TestCase ("=?utf-8?q?=E2=82?=", "\ufffd")]
+		[TestCase ("=?unknown?q?=C3=A9?=", "\u00e9")]
+		[TestCase ("=?unknown?q?=C3=A9=FF?=", "\u00c3\u00a9\u00ff")]
+		[TestCase ("=?iso-8859-1?q?=C3=A9?=", "\u00c3\u00a9")]
+		[TestCase ("=?utf-16?b?QQBCAGkA?=", "ABi")]
+		[TestCase ("=?utf-8?q?=C3=A9?= =?iso-8859-1?q?=E9?= =?utf-8?q?=F0=9F=98=80?=", "\u00e9\u00e9\U0001f600")]
+		public void TestDecodeUtf8IntoExistingOutput (string text, string expected)
+		{
+			var input = Encoding.ASCII.GetBytes ("!prefix " + text + " suffix!");
+			var options = new ParserOptions { CharsetEncoding = Encoding.GetEncoding (28591) };
+
+			Assert.That (Rfc2047.DecodePhrase (options, input, 1, input.Length - 2), Is.EqualTo ("prefix " + expected + " suffix"));
+			Assert.That (Rfc2047.DecodeText (options, input, 1, input.Length - 2), Is.EqualTo ("prefix " + expected + " suffix"));
+		}
+
+		[TestCase (new byte[] { 0xc3, 0xa9 }, 28591, "\u00e9")]
+		[TestCase (new byte[] { 0xc3, 0xa9, 0xff }, 28591, "\u00c3\u00a9\u00ff")]
+		[TestCase (new byte[] { 0xe2, 0x82 }, 28591, "\u00e2\u0082")]
+		[TestCase (new byte[] { 0x80 }, 1252, "\u20ac")]
+		public void TestDecodeRawUtf8IntoExistingOutput (byte[] bytes, int codepage, string expected)
+		{
+			var prefix = Encoding.ASCII.GetBytes ("!prefix ");
+			var suffix = Encoding.ASCII.GetBytes (" suffix!");
+			var input = new byte[prefix.Length + bytes.Length + suffix.Length];
+			prefix.CopyTo (input, 0);
+			bytes.CopyTo (input, prefix.Length);
+			suffix.CopyTo (input, prefix.Length + bytes.Length);
+			var options = new ParserOptions { CharsetEncoding = Encoding.GetEncoding (codepage) };
+
+			Assert.That (Rfc2047.DecodePhrase (options, input, 1, input.Length - 2), Is.EqualTo ("prefix " + expected + " suffix"));
+			Assert.That (Rfc2047.DecodeText (options, input, 1, input.Length - 2), Is.EqualTo ("prefix " + expected + " suffix"));
+		}
+
 		[Test]
 		public void TestDecodeEncodedWordEmptyCharsetWithLang ()
 		{
