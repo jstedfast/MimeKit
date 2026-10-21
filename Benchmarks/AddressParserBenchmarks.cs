@@ -39,7 +39,7 @@ namespace Benchmarks {
 		byte[] buffer;
 
 		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
-			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset")]
+			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset", "QuotedUtf8", "QuotedEncoded")]
 		public string Input { get; set; }
 
 		[GlobalSetup]
@@ -57,6 +57,8 @@ namespace Benchmarks {
 				"Broken" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"<<<u{i}@example.com>>>")),
 				"LongAtoms" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('a', 48)}{i}@{new string ('b', 48)}.example.com")),
 				"Quoted" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"Last, First {i}\" <u{i}@example.com>")),
+				"QuotedUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"Ren\u00e9e\\\" M\u00fcller\" <u{i}@example.com>")),
+				"QuotedEncoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"=?utf-8?b?IlxOYW1lIg==?=\" <u{i}@example.com>")),
 				"Comment" => "(" + new string ('x', 32768) + ") a@example.com",
 				"UnicodeAddr" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\u00e9{i}@\u4e2d.example")),
 				"QuotedLocal" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"first last {i}\"@example.com")),

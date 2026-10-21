@@ -74,6 +74,9 @@ namespace MimeKit {
 
 		public string DecodePhrase (ParserOptions options, int startIndex, int length, out int codepage)
 		{
+			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) == -1)
+				return Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+
 			var unquoted = MimeUtils.Unquote (text, startIndex, length, true);
 
 			return Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);

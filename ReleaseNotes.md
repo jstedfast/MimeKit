@@ -11,6 +11,7 @@ Address parsing from strings now shares the byte parser's grammar without conver
 input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
 offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings
 for contiguous ASCII local-parts and domains, improving throughput and reducing allocations.
+Display names that do not need unquoting are decoded without an intermediate byte-array copy.
 Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
 allocations when decoding raw UTF-8 display names and other MIME text.
 

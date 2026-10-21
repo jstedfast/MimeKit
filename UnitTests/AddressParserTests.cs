@@ -27,6 +27,7 @@
 using System.Text;
 
 using MimeKit;
+using MimeKit.Utils;
 
 namespace UnitTests {
 	[TestFixture]
@@ -139,14 +140,68 @@ namespace UnitTests {
 			return GC.GetAllocatedBytesForCurrentThread () - before;
 		}
 
-		static long MeasureMailboxAllocation (Func<MailboxAddress> parse)
+		static long MeasureAllocation<T> (Func<T> action)
 		{
 			long before = GC.GetAllocatedBytesForCurrentThread ();
 
 			for (int i = 0; i < 10; i++)
-				parse ();
+				action ();
 
 			return GC.GetAllocatedBytesForCurrentThread () - before;
+		}
+
+		[TestCase ("Joe Sixpack", true)]
+		[TestCase ("Ren\u00e9e M\u00fcller", true)]
+		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=", true)]
+		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=", false)]
+		public void TestUnquotedNameAvoidsCopy (string name, bool byteInput)
+		{
+			var bytes = Encoding.UTF8.GetBytes (name);
+			var input = new ByteArrayAddressInput (bytes);
+			var text = new StringAddressInput (name);
+			Func<string> decodeName = byteInput
+				? () => input.DecodePhrase (ParserOptions.Default, 0, bytes.Length, out _)
+				: () => text.DecodePhrase (ParserOptions.Default, 0, name.Length, out _);
+			Func<string> decodePhrase = () => Rfc2047.DecodePhrase (ParserOptions.Default, bytes, 0, bytes.Length);
+
+			Assert.That (decodeName (), Is.EqualTo (decodePhrase ()));
+			MeasureAllocation (decodeName);
+			MeasureAllocation (decodePhrase);
+
+			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodePhrase)));
+		}
+
+		[TestCase ("")]
+		[TestCase ("Joe Sixpack")]
+		[TestCase ("Ren\u00e9e M\u00fcller")]
+		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=")]
+		[TestCase ("=?utf-8?b?IlxOYW1lIg==?=")]
+		[TestCase ("\"=?utf-8?b?IlxOYW1lIg==?=\"")]
+		[TestCase ("=?unknown?q?Ren=C3=A9e?=")]
+		[TestCase ("=?iso-8859-1?q?Ren=E9e?=")]
+		[TestCase ("=?utf-8?q?incomplete")]
+		[TestCase ("\"First\\\" Last\"")]
+		[TestCase ("First\\\\Last")]
+		[TestCase ("First\tLast")]
+		[TestCase ("First\r\n Last")]
+		public void TestNameDecodingPreservesUnquoteOrderAndSlice (string name)
+		{
+			const string surrounding = "\"\\\t\r\n";
+			var bytes = Encoding.UTF8.GetBytes (surrounding + name + surrounding);
+			var original = (byte[]) bytes.Clone ();
+			int length = bytes.Length - surrounding.Length * 2;
+			var input = new ByteArrayAddressInput (bytes);
+
+			foreach (var compliance in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose }) {
+				var options = new ParserOptions { Rfc2047ComplianceMode = compliance };
+				var unquoted = MimeUtils.Unquote (bytes, surrounding.Length, length, true);
+				var expected = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out int expectedCodepage);
+				var actual = input.DecodePhrase (options, surrounding.Length, length, out int codepage);
+
+				Assert.That (actual, Is.EqualTo (expected));
+				Assert.That (codepage, Is.EqualTo (expectedCodepage));
+				Assert.That (bytes, Is.EqualTo (original));
+			}
 		}
 
 		[Test]
@@ -160,10 +215,10 @@ namespace UnitTests {
 			Func<MailboxAddress> parseCommented = byteInput ? () => MailboxAddress.Parse (commentedBytes) : () => MailboxAddress.Parse (commented);
 
 			Assert.That (Describe (parseContiguous ()), Is.EqualTo (Describe (parseCommented ())));
-			MeasureMailboxAllocation (parseContiguous);
-			MeasureMailboxAllocation (parseCommented);
+			MeasureAllocation (parseContiguous);
+			MeasureAllocation (parseCommented);
 
-			Assert.That (MeasureMailboxAllocation (parseContiguous), Is.LessThanOrEqualTo (MeasureMailboxAllocation (parseCommented) - 1280));
+			Assert.That (MeasureAllocation (parseContiguous), Is.LessThanOrEqualTo (MeasureAllocation (parseCommented) - 1280));
 		}
 
 		[TestCase ("first.last@example.com", "first.last@example.com")]
