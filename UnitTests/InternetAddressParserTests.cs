@@ -166,5 +166,67 @@ namespace UnitTests {
 
 			Assert.That (index, Is.EqualTo (3 + text.Length));
 		}
+
+		[TestCase ("", "", 65001, false)]
+		[TestCase ("", "", 65001, true)]
+		[TestCase ("\"Last, First\"", "Last, First", 65001, false)]
+		[TestCase ("\"Last, First\"", "Last, First", 65001, true)]
+		[TestCase ("=?iso-8859-1?q?Andr=E9?=", "Andr\u00e9", 28591, false)]
+		[TestCase ("=?iso-8859-1?q?Andr=E9?=", "Andr\u00e9", 28591, true)]
+		[TestCase ("\"=?utf-8?b?IlxOYW1lIg==?=\"", "\"\\Name\"", 65001, false)]
+		[TestCase ("\"=?utf-8?b?IlxOYW1lIg==?=\"", "\"\\Name\"", 65001, true)]
+		[TestCase ("=?utf-8?q?First?= \t =?utf-8?q?_Last?=", "First Last", 65001, false)]
+		[TestCase ("=?utf-8?q?First?= \t =?utf-8?q?_Last?=", "First Last", 65001, true)]
+		[TestCase ("\"Unclosed", "Unclosed", 65001, false)]
+		[TestCase ("\"Unclosed", "Unclosed", 65001, true)]
+		public void TestPhraseDecodingForMailboxAndGroup (string phrase, string name, int codepage, bool group)
+		{
+			string text = group ? phrase + ": a@example.com;" : phrase + " <a@example.com>";
+			var address = InternetAddress.Parse (text);
+
+			Assert.That (address.Name, Is.EqualTo (name));
+			Assert.That (address.Encoding.CodePage, Is.EqualTo (codepage));
+			Assert.That (address is GroupAddress, Is.EqualTo (group));
+			if (group)
+				Assert.That (((MailboxAddress) ((GroupAddress) address).Members[0]).Address, Is.EqualTo ("a@example.com"));
+			else
+				Assert.That (((MailboxAddress) address).Address, Is.EqualTo ("a@example.com"));
+		}
+
+		[TestCase (RfcComplianceMode.Strict)]
+		[TestCase (RfcComplianceMode.Loose)]
+		[TestCase (RfcComplianceMode.Looser)]
+		public void TestAddrSpecReclassifiedAsDisplayName (RfcComplianceMode compliance)
+		{
+			const string text = "name@example.com (Comment) <actual@example.com>";
+			var options = new ParserOptions { AddressParserComplianceMode = compliance };
+
+			if (compliance == RfcComplianceMode.Strict) {
+				Assert.That (InternetAddress.TryParse (options, text, out _), Is.False);
+				var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, text));
+				Assert.That (ex.TokenIndex, Is.EqualTo (0));
+				Assert.That (ex.ErrorIndex, Is.EqualTo (text.IndexOf ('<')));
+			} else {
+				var address = (MailboxAddress) InternetAddress.Parse (options, text);
+				Assert.That (address.Name, Is.EqualTo ("name@example.com (Comment)"));
+				Assert.That (address.Address, Is.EqualTo ("actual@example.com"));
+			}
+		}
+
+		[Test]
+		public void TestInternalGroupRecoveryLeavesGroupTerminator ()
+		{
+			const string text = "\"bad, name\" (no address); next@example.com";
+			var buffer = Encoding.UTF8.GetBytes (text);
+			var options = new ParserOptions {
+				AddressParserComplianceMode = RfcComplianceMode.Strict,
+				AllowAddressesWithoutDomain = false
+			};
+			int index = 0;
+
+			Assert.That (InternetAddressList.TryParse (AddressParserFlags.InternalTryParse, options, buffer, ref index, buffer.Length, true, 1, out var members), Is.True);
+			Assert.That (members, Is.Empty);
+			Assert.That (index, Is.EqualTo (text.IndexOf (';')));
+		}
 	}
 }

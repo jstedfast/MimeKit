@@ -29,6 +29,7 @@ using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 using MimeKit.Utils;
 
@@ -299,9 +300,11 @@ namespace MimeKit {
 			return true;
 		}
 
-		bool TryParseMailbox (int startIndex, string name, int codepage, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
+		bool TryParseAngleMailbox (in AddressPhrase phrase, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
 		{
+			string name = DecodePhraseName (phrase, out int codepage);
 			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
+			int startIndex = phrase.StartIndex;
 			DomainList? route = null;
 
 			address = null;
@@ -408,10 +411,29 @@ namespace MimeKit {
 			return true;
 		}
 
-		bool TryParseGroup (AddressParserFlags flags, int startIndex, int groupDepth, string name, int codepage, out InternetAddress address)
+		bool TryParseGroup (AddressParserFlags flags, in AddressPhrase phrase, int groupDepth, [NotNullWhen (true)] out InternetAddress? address)
 		{
-			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
 			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
+			int startIndex = phrase.StartIndex;
+
+			address = null;
+
+			if ((flags & AddressParserFlags.AllowGroupAddress) == 0) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Group address token at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			if (groupDepth >= options.MaxAddressGroupDepth) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Exceeded maximum rfc822 group depth at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			string name = DecodePhraseName (phrase, out int codepage);
+			var encoding = CharsetUtils.GetEncodingOrDefault (codepage, Encoding.UTF8);
 
 			// skip over the ':'
 			index++;
@@ -419,7 +441,7 @@ namespace MimeKit {
 			while (index < endIndex && (text[index] == ':' || text[index].IsBlank ()))
 				index++;
 
-			if (TryParseList (flags | AddressParserFlags.AllowMailboxAddress, true, groupDepth, out var members))
+			if (TryParseList (flags | AddressParserFlags.AllowMailboxAddress, true, groupDepth + 1, out var members))
 				address = new GroupAddress (encoding, name, members);
 			else
 				address = new GroupAddress (encoding, name);
@@ -437,27 +459,29 @@ namespace MimeKit {
 			return true;
 		}
 
-		internal bool TryParseAddress (AddressParserFlags flags, int groupDepth, [NotNullWhen (true)] out InternetAddress? address)
+		// A provisional phrase range; its delimiter determines whether it is a name or an addr-spec.
+		readonly struct AddressPhrase
 		{
-			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
+			public readonly int StartIndex;
+			public readonly int Length;
+			public readonly bool TrimLeadingQuote;
 
-			address = null;
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-				return false;
-
-			if (index == endIndex) {
-				if (throwOnError)
-					throw new ParseException ("No address found.", index, index);
-
-				return false;
+			public AddressPhrase (int startIndex, int length, bool trimLeadingQuote)
+			{
+				StartIndex = startIndex;
+				Length = length;
+				TrimLeadingQuote = trimLeadingQuote;
 			}
+		}
+
+		bool TryScanPhrase (bool throwOnError, out AddressPhrase phrase)
+		{
+			phrase = default;
 
 			// keep track of the start & length of the phrase
 			bool trimLeadingQuote = false;
 			int startIndex = index;
 			int length = 0;
-			int words = 0;
 
 			while (index < endIndex) {
 				bool quoted = text[index] == (byte) '"';
@@ -503,8 +527,6 @@ namespace MimeKit {
 					length = index - startIndex;
 				} while (true);
 
-				words++;
-
 				// Note: some clients don't quote commas in the name
 				if (options.AllowUnquotedCommasInAddresses && index < endIndex && text[index] == ',' && !quoted) {
 					index++;
@@ -519,51 +541,166 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			// specials    =  "(" / ")" / "<" / ">" / "@"  ; Must be in quoted-
-			//             /  "," / ";" / ":" / "\" / <">  ;  string, to use
-			//             /  "." / "[" / "]"              ;  within a word.
+			phrase = new AddressPhrase (startIndex, length, trimLeadingQuote);
+			return true;
+		}
 
-			if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) '>' || text[index] == ';') {
-				// we've completely gobbled up an addr-spec w/o a domain
-				byte sentinel = index < endIndex ? text[index] : (byte) ',';
-				string name;
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		string DecodePhraseName (in AddressPhrase phrase, out int codepage)
+		{
+			int nameIndex = phrase.StartIndex;
+			int length = phrase.Length;
+			string name;
 
-				if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
+			codepage = -1;
+
+			if (phrase.TrimLeadingQuote) {
+				nameIndex++;
+				length--;
+			}
+
+			// Unquote before decoding to preserve quotes and backslashes inside encoded-words.
+			if (length > 0) {
+				var unquoted = MimeUtils.Unquote (text, nameIndex, length, true);
+
+				name = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
+			} else {
+				name = string.Empty;
+			}
+
+			if (codepage == -1)
+				codepage = 65001;
+
+			return name;
+		}
+
+		bool TryParseLocalMailbox (AddressParserFlags flags, int startIndex, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
+		{
+			address = null;
+
+			// we've completely gobbled up an addr-spec w/o a domain
+			byte sentinel = index < endIndex ? text[index] : (byte) ',';
+			string name;
+
+			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Addr-spec token at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			if (!options.AllowAddressesWithoutDomain) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
+
+				return false;
+			}
+
+			// rewind back to the beginning of the local-part
+			index = startIndex;
+
+			if (!TryParseLocalPart (options.AddressParserComplianceMode, false, throwOnError, out var addrspec))
+				return false;
+
+			ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+
+			if (index < endIndex && text[index] == '(') {
+				int comment = index + 1;
+
+				// Note: this can't fail because it has already been skipped in TryParseLocalPart() above.
+				ParseUtils.SkipComment (text, ref index, endIndex);
+
+				name = DecodeCommentName (comment, (index - 1) - comment);
+
+				ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError);
+			} else {
+				name = string.Empty;
+			}
+
+			if (index < endIndex && text[index] == (byte) '>') {
+				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Addr-spec token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
 
 					return false;
 				}
 
-				if (!options.AllowAddressesWithoutDomain) {
+				index++;
+			}
+
+			if (index < endIndex && text[index] != sentinel) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) text[index], index), startIndex, index);
+
+				return false;
+			}
+
+			address = new MailboxAddress (Encoding.UTF8, name, addrspec, -1);
+
+			return true;
+		}
+
+		bool TryParseBareMailbox (in AddressPhrase phrase, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
+		{
+			int startIndex = phrase.StartIndex;
+
+			address = null;
+
+			string name;
+
+			// rewind back to the beginning of the local-part
+			index = startIndex;
+
+			if (!TryParseAddrspec (CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out var addrspec, out int at))
+				return false;
+
+			ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+
+			if (index < endIndex && text[index] == '(') {
+				int comment = index;
+
+				if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", comment), comment, index);
 
 					return false;
 				}
 
-				// rewind back to the beginning of the local-part
-				index = startIndex;
+				comment++;
 
-				if (!TryParseLocalPart (options.AddressParserComplianceMode, false, throwOnError, out var addrspec))
+				name = DecodeCommentName (comment, (index - 1) - comment);
+			} else {
+				name = string.Empty;
+			}
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
+
+			if (index >= endIndex) {
+				address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
+				return true;
+			}
+
+			if (text[index] == (byte) '<') {
+				// We have an address like "user@example.com <user@example.com>"; i.e. the name is an unquoted string with an '@'.
+				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+					if (throwOnError)
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '<' token at offset {0}", index), startIndex, index);
+
 					return false;
-
-				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
-
-				if (index < endIndex && text[index] == '(') {
-					int comment = index + 1;
-
-					// Note: this can't fail because it has already been skipped in TryParseLocalPart() above.
-					ParseUtils.SkipComment (text, ref index, endIndex);
-
-					name = DecodeCommentName (comment, (index - 1) - comment);
-
-					ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError);
-				} else {
-					name = string.Empty;
 				}
 
-				if (index < endIndex && text[index] == (byte) '>') {
+				int nameEndIndex = index;
+				while (nameEndIndex > startIndex && text[nameEndIndex - 1].IsWhitespace ())
+					nameEndIndex--;
+
+				var namePhrase = new AddressPhrase (startIndex, nameEndIndex - startIndex, phrase.TrimLeadingQuote);
+
+				return TryParseAngleMailbox (namePhrase, throwOnError, out address);
+			} else {
+				// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
+				// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
+				if (text[index] == (byte) '>') {
 					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 						if (throwOnError)
 							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
@@ -574,169 +711,117 @@ namespace MimeKit {
 					index++;
 				}
 
-				if (index < endIndex && text[index] != sentinel) {
-					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) text[index], index), startIndex, index);
-
-					return false;
-				}
-
-				address = new MailboxAddress (Encoding.UTF8, name, addrspec, -1);
+				address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
 
 				return true;
 			}
+		}
 
-			if (text[index] == (byte) ':') {
-				// rfc2822 group address
-				int nameIndex = startIndex;
-				int codepage = -1;
-				string name;
+		internal bool TryParseAddress (AddressParserFlags flags, int groupDepth, [NotNullWhen (true)] out InternetAddress? address)
+		{
+			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
 
-				if ((flags & AddressParserFlags.AllowGroupAddress) == 0) {
-					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Group address token at offset {0}", startIndex), startIndex, index);
+			address = null;
 
-					return false;
-				}
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+				return false;
 
-				if (groupDepth >= options.MaxAddressGroupDepth) {
-					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Exceeded maximum rfc822 group depth at offset {0}", startIndex), startIndex, index);
-
-					return false;
-				}
-
-				if (trimLeadingQuote) {
-					nameIndex++;
-					length--;
-				}
-
-				// Note: unquote *before* decoding so that quotes and backslashes that were inside of encoded-words are preserved.
-				if (length > 0) {
-					var unquoted = MimeUtils.Unquote (text, nameIndex, length, true);
-
-					name = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
-				} else {
-					name = string.Empty;
-				}
-
-				if (codepage == -1)
-					codepage = 65001;
-
-				return TryParseGroup (flags, startIndex, groupDepth + 1, name, codepage, out address);
-			}
-
-			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
+			if (index == endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Mailbox address token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException ("No address found.", index, index);
 
 				return false;
 			}
 
-			if (text[index] == (byte) '@') {
-				// we're either in the middle of an addr-spec token or we completely gobbled up an addr-spec w/o a domain
-				string name;
+			if (!TryScanPhrase (throwOnError, out var phrase))
+				return false;
 
-				// rewind back to the beginning of the local-part
-				index = startIndex;
+			if (index >= endIndex || text[index] == (byte) ',' || text[index] == (byte) '>' || text[index] == ';')
+				return TryParseLocalMailbox (flags, phrase.StartIndex, throwOnError, out address);
 
-				if (!TryParseAddrspec (CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out var addrspec, out int at))
-					return false;
+			if (text[index] == (byte) ':')
+				return TryParseGroup (flags, phrase, groupDepth, out address);
 
-				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
+				if (throwOnError)
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Mailbox address token at offset {0}", phrase.StartIndex), phrase.StartIndex, index);
 
-				if (index < endIndex && text[index] == '(') {
-					int comment = index;
-
-					if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
-						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", comment), comment, index);
-
-						return false;
-					}
-
-					comment++;
-
-					name = DecodeCommentName (comment, (index - 1) - comment);
-				} else {
-					name = string.Empty;
-				}
-
-				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-					return false;
-
-				if (index >= endIndex) {
-					address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
-					return true;
-				}
-
-				if (text[index] == (byte) '<') {
-					// We have an address like "user@example.com <user@example.com>"; i.e. the name is an unquoted string with an '@'.
-					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
-						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '<' token at offset {0}", index), startIndex, index);
-
-						return false;
-					}
-
-					int nameEndIndex = index;
-					while (nameEndIndex > startIndex && text[nameEndIndex - 1].IsWhitespace ())
-						nameEndIndex--;
-
-					length = nameEndIndex - startIndex;
-
-					// fall through to the rfc822 angle-addr token case...
-				} else {
-					// Note: since there was no '<', there should not be a '>'... but we handle it anyway in order to
-					// deal with the second Unbalanced Angle Brackets example in section 7.1.3: second@example.org>
-					if (text[index] == (byte) '>') {
-						if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
-							if (throwOnError)
-								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
-
-							return false;
-						}
-
-						index++;
-					}
-
-					address = new MailboxAddress (Encoding.UTF8, name, addrspec, at);
-
-					return true;
-				}
+				return false;
 			}
 
-			if (text[index] == (byte) '<') {
-				// rfc2822 angle-addr token
-				int nameIndex = startIndex;
-				int codepage = -1;
-				string name;
+			if (text[index] == (byte) '@')
+				return TryParseBareMailbox (phrase, throwOnError, out address);
 
-				if (trimLeadingQuote) {
-					nameIndex++;
-					length--;
-				}
-
-				if (length > 0) {
-					var unquoted = MimeUtils.Unquote (text, nameIndex, length, true);
-
-					name = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
-				} else {
-					name = string.Empty;
-				}
-
-				if (codepage == -1)
-					codepage = 65001;
-
-				return TryParseMailbox (startIndex, name, codepage, throwOnError, out address);
-			}
+			if (text[index] == (byte) '<')
+				return TryParseAngleMailbox (phrase, throwOnError, out address);
 
 			if (throwOnError)
-				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid address token at offset {0}", startIndex), startIndex, index);
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid address token at offset {0}", phrase.StartIndex), phrase.StartIndex, index);
 
 			return false;
 		}
 
+		// Resynchronize without interpreting quoted strings or comments as address separators.
+		// Leave commas and the group terminator for the list and group productions.
+		void SkipInvalidAddress (int startIndex, bool isGroup)
+		{
+			index = startIndex;
+
+			while (index < endIndex) {
+				if (text[index] == (byte) '"') {
+					if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
+						break;
+				} else if (text[index] == (byte) '(') {
+					if (!ParseUtils.SkipComment (text, ref index, endIndex))
+						break;
+				} else if (text[index] == (byte) ',' || (isGroup && text[index] == (byte) ';')) {
+					break;
+				} else {
+					index++;
+				}
+			}
+		}
+
+		bool TrySkipListSeparator (bool isGroup, bool throwOnError)
+		{
+			// Note: we loop here in case there are any extraneous commas
+			bool skippedComma = false;
+
+			do {
+				if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
+					return false;
+
+				if (index >= endIndex)
+					break;
+
+				if (isGroup && text[index] == (byte) ';')
+					break;
+
+				if (text[index] != (byte) ',') {
+					if (skippedComma)
+						break;
+
+					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
+						if (throwOnError) {
+							if (isGroup)
+								throw new ParseException ("Expected ',' between addresses or ';' to denote the end of a group of addresses.", index, index);
+							else
+								throw new ParseException ("Expected ',' between addresses.", index, index);
+						}
+
+						return false;
+					} else {
+						// start of a new address?
+						break;
+					}
+				}
+
+				skippedComma = true;
+				index++;
+			} while (true);
+
+			return true;
+		}
 
 		internal bool TryParseList (AddressParserFlags flags, bool isGroup, int groupDepth, [NotNullWhen (true)] out List<InternetAddress>? addresses)
 		{
@@ -768,72 +853,18 @@ namespace MimeKit {
 						return false;
 					}
 
-					// When the 'Internal' flag is set, it means we are being called from places like MimeMessage or
-					// Header (when trying to reformat an existing header value) where we want to be more lenient with
-					// parsing and simply skip any addresses that we fail to parse instead of throwing an exception or
-					// prematurely abort parsing. In other words, we want to preserve as many valid addresses as possible.
-					//
-					// With that in mind, when TryParseAddress() fails, skip to the next address and resume parsing.
-					index = savedIndex;
-
-					while (index < endIndex) {
-						if (text[index] == (byte) '"') {
-							if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
-								break;
-						} else if (text[index] == (byte) '(') {
-							if (!ParseUtils.SkipComment (text, ref index, endIndex))
-								break;
-						} else if (text[index] == (byte) ',' || (isGroup && text[index] == (byte) ';')) {
-							break;
-						} else {
-							index++;
-						}
-					}
+					SkipInvalidAddress (savedIndex, isGroup);
 				} else {
 					list.Add (address);
 				}
 
-				// Note: we loop here in case there are any extraneous commas
-				bool skippedComma = false;
-
-				do {
-					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
-						return false;
-
-					if (index >= endIndex)
-						break;
-
-					if (isGroup && text[index] == (byte) ';')
-						break;
-
-					if (text[index] != (byte) ',') {
-						if (skippedComma)
-							break;
-
-						if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
-							if (throwOnError) {
-								if (isGroup)
-									throw new ParseException ("Expected ',' between addresses or ';' to denote the end of a group of addresses.", index, index);
-								else
-									throw new ParseException ("Expected ',' between addresses.", index, index);
-							}
-
-							return false;
-						} else {
-							// start of a new address?
-							break;
-						}
-					}
-
-					skippedComma = true;
-					index++;
-				} while (true);
+				if (!TrySkipListSeparator (isGroup, throwOnError))
+					return false;
 			}
 
 			addresses = list;
 
 			return true;
 		}
-
 	}
 }
