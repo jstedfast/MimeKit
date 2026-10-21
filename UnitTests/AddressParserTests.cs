@@ -150,6 +150,16 @@ namespace UnitTests {
 			return GC.GetAllocatedBytesForCurrentThread () - before;
 		}
 
+		static string DecodeCommentWithRfc2047 (ParserOptions options, byte[] bytes, int startIndex, int length)
+		{
+			var buffer = new byte[length];
+
+			for (int i = 0; i < length; i++)
+				buffer[i] = bytes[startIndex + i] == (byte) '\t' ? (byte) ' ' : bytes[startIndex + i];
+
+			return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+		}
+
 		[TestCase ("")]
 		[TestCase ("Joe Sixpack")]
 		[TestCase (" First  Last ")]
@@ -167,6 +177,59 @@ namespace UnitTests {
 			MeasureAllocation (decodeAscii);
 
 			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodeAscii)));
+		}
+
+		[TestCase ("")]
+		[TestCase ("Joe Sixpack")]
+		[TestCase (" First\t Last ")]
+		[TestCase (" First\r\n Last ")]
+		[TestCase ("A comment with more than thirty-two ASCII characters")]
+		public void TestPlainAsciiByteCommentAvoidsDecoder (string name)
+		{
+			const string surrounding = "=?utf-8?q?ignored?=\t";
+			var bytes = Encoding.UTF8.GetBytes (surrounding + name + surrounding);
+			var input = new ByteArrayAddressInput (bytes);
+			Func<string> decodeName = () => input.DecodeComment (ParserOptions.Default, surrounding.Length, name.Length);
+			Func<string> decodeAscii = () => Encoding.UTF8.GetString (bytes, surrounding.Length, name.Length).Replace ('\t', ' ').Trim ();
+
+			Assert.That (decodeName (), Is.EqualTo (decodeAscii ()));
+			MeasureAllocation (decodeName);
+			MeasureAllocation (decodeAscii);
+
+			Assert.That (MeasureAllocation (decodeName), Is.LessThanOrEqualTo (MeasureAllocation (decodeAscii)));
+		}
+
+		[TestCase ("")]
+		[TestCase (" Joe  Sixpack ")]
+		[TestCase ("\tFirst\t Last\t")]
+		[TestCase ("\r\nFirst\r\n Last\r\n")]
+		[TestCase ("\v\fFirst\v\fLast\v\f")]
+		[TestCase ("\"First\\\" Last\"")]
+		[TestCase ("First (Middle) Last")]
+		[TestCase ("First\0Last")]
+		[TestCase ("First\u007fLast")]
+		[TestCase ("First=Last")]
+		[TestCase ("\u00a0Ren\u00e9e\u00a0")]
+		[TestCase ("=?utf-8?q?First?=\t=?utf-8?q?_Last?=")]
+		[TestCase ("=?iso-8859-1?q?Ren=E9e?=")]
+		[TestCase ("=?unknown?q?Ren=C3=A9e?=")]
+		[TestCase ("=?utf-8?b?IlxOYW1lIg==?=")]
+		[TestCase ("=?utf-8?q?incomplete")]
+		public void TestCommentDecodingPreservesWhitespaceAndSlice (string name)
+		{
+			const string surrounding = "\u00e9=?\t";
+			var bytes = Encoding.UTF8.GetBytes (surrounding + name + surrounding);
+			var original = (byte[]) bytes.Clone ();
+			int startIndex = Encoding.UTF8.GetByteCount (surrounding);
+			int length = bytes.Length - startIndex * 2;
+			var input = new ByteArrayAddressInput (bytes);
+
+			foreach (var compliance in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose }) {
+				var options = new ParserOptions { Rfc2047ComplianceMode = compliance };
+
+				Assert.That (input.DecodeComment (options, startIndex, length), Is.EqualTo (DecodeCommentWithRfc2047 (options, bytes, startIndex, length)));
+				Assert.That (bytes, Is.EqualTo (original));
+			}
 		}
 
 		[TestCase ("Ren\u00e9e M\u00fcller", true)]
@@ -208,6 +271,7 @@ namespace UnitTests {
 
 							Assert.That (actual, Is.EqualTo (expected), $"Offset {offset}, byte {value}");
 							Assert.That (codepage, Is.EqualTo (expectedCodepage), $"Offset {offset}, byte {value}");
+							Assert.That (input.DecodeComment (options, 4, length), Is.EqualTo (DecodeCommentWithRfc2047 (options, bytes, 4, length)), $"Comment offset {offset}, byte {value}");
 						}
 
 						bytes[4 + offset] = (byte) 'x';

@@ -14,6 +14,7 @@ for contiguous ASCII local-parts and domains, improving throughput and reducing 
 Display names that do not need unquoting are decoded without an intermediate byte-array copy.
 Plain ASCII display names without quoting or RFC 2047 markers also avoid decoder allocations
 when parsing byte-array input.
+Plain ASCII names taken from address comments likewise avoid decoder allocations.
 Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
 allocations when decoding raw UTF-8 display names and other MIME text.
 

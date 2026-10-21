@@ -110,6 +110,9 @@ namespace MimeKit {
 
 		public string DecodeComment (ParserOptions options, int startIndex, int length)
 		{
+			if (IsPlainAscii (startIndex, length))
+				return GetUtf8String (startIndex, length).Replace ('\t', ' ').Trim ();
+
 			if (text.AsSpan (startIndex, length).IndexOf ((byte) '\t') == -1)
 				return Rfc2047.DecodePhrase (options, text, startIndex, length).Trim ();
 

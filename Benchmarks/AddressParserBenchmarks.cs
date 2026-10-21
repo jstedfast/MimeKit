@@ -40,7 +40,8 @@ namespace Benchmarks {
 
 		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
 			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset", "QuotedUtf8", "QuotedEncoded",
-			"LongName", "LongUtf8", "LongEquals")]
+			"LongName", "LongUtf8", "LongEquals", "CommentNames", "CommentTabs", "CommentUtf8", "CommentEncoded",
+			"LongComment", "LongCommentUtf8")]
 		public string Input { get; set; }
 
 		[GlobalSetup]
@@ -64,6 +65,12 @@ namespace Benchmarks {
 				"LongUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('x', 1024)}\u00e9 <u{i}@example.com>")),
 				"LongEquals" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('x', 1024)}=? <u{i}@example.com>")),
 				"Comment" => "(" + new string ('x', 32768) + ") a@example.com",
+				"CommentNames" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"u{i}@example.com (User {i})")),
+				"CommentTabs" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"u{i}@example.com (\tFirst\t Last {i}\t)")),
+				"CommentUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"u{i}@example.com (Ren\u00e9e M\u00fcller {i})")),
+				"CommentEncoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"u{i}@example.com (=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=)")),
+				"LongComment" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"u{i}@example.com ({new string ('x', 1024)})")),
+				"LongCommentUtf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"u{i}@example.com ({new string ('x', 1024)}\u00e9)")),
 				"UnicodeAddr" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\u00e9{i}@\u4e2d.example")),
 				"QuotedLocal" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"first last {i}\"@example.com")),
 				"CFWSDomain" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"a{i}@example (c) . com")),
