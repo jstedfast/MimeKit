@@ -471,6 +471,14 @@ namespace MimeKit.Utils {
 
 		internal static char[] ConvertToUnicode (ParserOptions options, byte[] input, int startIndex, int length, out int charCount)
 		{
+			// UTF-8 is always the first choice when no invalid sequences are present.
+			if (Utf8.IsValid (input.AsSpan (startIndex, length))) {
+				var unicode = UTF8.GetChars (input, startIndex, length);
+
+				charCount = unicode.Length;
+				return unicode;
+			}
+
 			var invalid = new InvalidByteCountFallback ();
 			var userCharset = options.CharsetEncoding;
 			int min = int.MaxValue;

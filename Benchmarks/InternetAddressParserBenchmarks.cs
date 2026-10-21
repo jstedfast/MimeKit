@@ -39,7 +39,7 @@ namespace Benchmarks {
 		byte[] buffer;
 
 		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
-			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot")]
+			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset")]
 		public string Input { get; set; }
 
 		[GlobalSetup]
@@ -50,7 +50,9 @@ namespace Benchmarks {
 				"Bare" => "first.last@example.com",
 				"Recipients" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"User {i} <u{i}@example.com>")),
 				"Utf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"Ren\u00e9e M\u00fcller {i} <u{i}@example.com>")),
+				"Utf8Cjk" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\u674e\u5c0f\u9f8d {i} <u{i}@example.com>")),
 				"Encoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?= <u{i}@example.com>")),
+				"UnknownCharset" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?unknown?q?Ren=C3=A9e?= <u{i}@example.com>")),
 				"Groups" => string.Join (", ", Enumerable.Range (0, 20).Select (i => $"Group {i}: a{i}@example.com, b{i}@example.com;")),
 				"Broken" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"<<<u{i}@example.com>>>")),
 				"LongAtoms" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('a', 48)}{i}@{new string ('b', 48)}.example.com")),
