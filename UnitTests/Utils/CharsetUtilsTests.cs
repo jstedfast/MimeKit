@@ -190,6 +190,9 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestConvertValidUtf8AllocatesOnlyOutput ()
 		{
+			if (TestHelper.IsCodeCoverageEnabled)
+				Assert.Ignore ("The code-coverage recorder allocates memory, so allocation budgets cannot be measured.");
+
 			var input = Encoding.UTF8.GetBytes ("Ren\u00e9e M\u00fcller");
 
 			MeasureUtf8ConversionAllocation (input, true);
@@ -201,6 +204,9 @@ namespace UnitTests.Utils {
 		[Test]
 		public void TestAppendValidUtf8DoesNotAllocate ()
 		{
+			if (TestHelper.IsCodeCoverageEnabled)
+				Assert.Ignore ("The code-coverage recorder allocates memory, so allocation budgets cannot be measured.");
+
 			var input = Encoding.UTF8.GetBytes ("Ren\u00e9e M\u00fcller \U0001f600");
 			var output = new ValueStringBuilder (input.Length * 101);
 

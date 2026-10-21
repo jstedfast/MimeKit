@@ -129,7 +129,8 @@ namespace UnitTests {
 			watch.Stop ();
 
 			Assert.That (logger.Count, Is.EqualTo (count * issuesPerRepeat + extraIssues));
-			Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+			if (!TestHelper.IsCodeCoverageEnabled)
+				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
 		}
 
 		[Test]
@@ -146,7 +147,8 @@ namespace UnitTests {
 			watch.Stop ();
 
 			Assert.That (logger.Count, Is.EqualTo (count + 1));
-			Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+			if (!TestHelper.IsCodeCoverageEnabled)
+				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
 		}
 
 		[Test]

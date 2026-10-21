@@ -318,6 +318,9 @@ namespace UnitTests {
 
 		static long MeasureParsingAllocation (string input)
 		{
+			if (TestHelper.IsCodeCoverageEnabled)
+				Assert.Ignore ("The code-coverage recorder allocates memory, so allocation budgets cannot be measured.");
+
 			long before = GC.GetAllocatedBytesForCurrentThread ();
 
 			for (int i = 0; i < 10; i++)
@@ -328,6 +331,9 @@ namespace UnitTests {
 
 		static long MeasureAllocation<T> (Func<T> action)
 		{
+			if (TestHelper.IsCodeCoverageEnabled)
+				Assert.Ignore ("The code-coverage recorder allocates memory, so allocation budgets cannot be measured.");
+
 			long before = GC.GetAllocatedBytesForCurrentThread ();
 
 			for (int i = 0; i < 10; i++)

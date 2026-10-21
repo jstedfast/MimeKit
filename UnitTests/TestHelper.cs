@@ -39,8 +39,8 @@ namespace UnitTests {
 		/// Whether the MimeKit assemblies have been instrumented by AltCover for code coverage.
 		/// </summary>
 		/// <remarks>
-		/// The coverage recorder allocates memory as it tracks visited sequence points, which
-		/// makes allocation-budget assertions meaningless in instrumented builds.
+		/// The coverage recorder adds execution time and allocates memory as it tracks visited
+		/// sequence points, making timing and allocation budgets unreliable in instrumented builds.
 		/// </remarks>
 		public static readonly bool IsCodeCoverageEnabled = IsInstrumented (typeof (MimeKit.MimeMessage).Assembly) ||
 			IsInstrumented (typeof (MimeKit.Cryptography.SecureMimeContext).Assembly);
