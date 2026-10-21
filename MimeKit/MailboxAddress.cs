@@ -795,18 +795,14 @@ namespace MimeKit {
 				return false;
 			}
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int endIndex = buffer.Length;
-			int index = 0;
+			var parser = InternetAddressParser.Create (options, text);
 
-			if (!TryParse (options, buffer, ref index, endIndex, false, out mailbox))
-				return false;
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
+			if (!parser.TryParseCompleteAddress (AddressParserFlags.AllowMailboxAddress, out var address)) {
 				mailbox = null;
 				return false;
 			}
 
+			mailbox = (MailboxAddress) address;
 			return true;
 		}
 
@@ -1038,18 +1034,10 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int endIndex = buffer.Length;
-			int index = 0;
+			var parser = InternetAddressParser.Create (options, text);
+			parser.TryParseCompleteAddress (AddressParserFlags.AllowMailboxAddress | AddressParserFlags.ThrowOnError, out var address);
 
-			TryParse (options, buffer, ref index, endIndex, true, out var mailbox);
-
-			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
-
-			if (index != endIndex)
-				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
-
-			return mailbox!;
+			return (MailboxAddress) address!;
 		}
 
 		/// <summary>

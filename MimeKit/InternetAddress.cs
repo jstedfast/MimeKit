@@ -314,7 +314,7 @@ namespace MimeKit {
 
 		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, [NotNullWhen (true)] out string? addrspec, out int at)
 		{
-			var parser = new InternetAddressParser (ParserOptions.Default, text, index, endIndex);
+			var parser = InternetAddressParser.Create (ParserOptions.Default, text, index, endIndex);
 
 			try {
 				return parser.TryParseAddrspec (sentinels, compliance, throwOnError, out addrspec, out at);
@@ -325,7 +325,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, [NotNullWhen (true)] out InternetAddress? address)
 		{
-			var parser = new InternetAddressParser (options, text, index, endIndex);
+			var parser = InternetAddressParser.Create (options, text, index, endIndex);
 
 			try {
 				return parser.TryParseAddress (flags, groupDepth, out address);
@@ -504,19 +504,9 @@ namespace MimeKit {
 				return false;
 			}
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int endIndex = buffer.Length;
-			int index = 0;
+			var parser = InternetAddressParser.Create (options, text);
 
-			if (!TryParse (AddressParserFlags.TryParse, options, buffer, ref index, endIndex, 0, out address))
-				return false;
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
-				address = null;
-				return false;
-			}
-
-			return true;
+			return parser.TryParseCompleteAddress (AddressParserFlags.TryParse, out address);
 		}
 
 		/// <summary>
@@ -741,16 +731,8 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int endIndex = buffer.Length;
-			int index = 0;
-
-			TryParse (AddressParserFlags.Parse, options, buffer, ref index, endIndex, 0, out var address);
-
-			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
-
-			if (index != endIndex)
-				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) buffer[index], index), index, index);
+			var parser = InternetAddressParser.Create (options, text);
+			parser.TryParseCompleteAddress (AddressParserFlags.Parse, out var address);
 
 			return address!;
 		}

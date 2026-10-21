@@ -38,7 +38,7 @@ namespace Benchmarks {
 		string text;
 		byte[] buffer;
 
-		[Params ("Single", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms")]
+		[Params ("Single", "Recipients", "Utf8", "Encoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment")]
 		public string Input { get; set; }
 
 		[GlobalSetup]
@@ -52,6 +52,8 @@ namespace Benchmarks {
 				"Groups" => string.Join (", ", Enumerable.Range (0, 20).Select (i => $"Group {i}: a{i}@example.com, b{i}@example.com;")),
 				"Broken" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"<<<u{i}@example.com>>>")),
 				"LongAtoms" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"{new string ('a', 48)}{i}@{new string ('b', 48)}.example.com")),
+				"Quoted" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\"Last, First {i}\" <u{i}@example.com>")),
+				"Comment" => "(" + new string ('x', 32768) + ") a@example.com",
 				_ => throw new System.InvalidOperationException ("Unknown address parser benchmark input.")
 			};
 			buffer = Encoding.UTF8.GetBytes (text);

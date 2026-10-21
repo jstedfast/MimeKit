@@ -35,14 +35,14 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	// Owns a complete input slice. Group and list parsing share the same cursor.
-	internal struct InternetAddressParser
+	internal struct InternetAddressParser<TInput> where TInput : struct, IAddressParserInput
 	{
 		readonly ParserOptions options;
-		readonly byte[] text;
+		readonly TInput text;
 		readonly int endIndex;
 		int index;
 
-		internal InternetAddressParser (ParserOptions options, byte[] text, int startIndex, int endIndex)
+		internal InternetAddressParser (ParserOptions options, TInput text, int startIndex, int endIndex)
 		{
 			this.options = options;
 			this.text = text;
@@ -51,6 +51,33 @@ namespace MimeKit {
 		}
 
 		internal int Position => index;
+
+		internal bool TryParseCompleteAddress (AddressParserFlags flags, [NotNullWhen (true)] out InternetAddress? address)
+		{
+			bool throwOnError = (flags & AddressParserFlags.ThrowOnError) != 0;
+
+			if (!TryParseAddress (flags, 0, out address))
+				return false;
+
+			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError) || index != endIndex) {
+				if (throwOnError) {
+					int offset = text.GetByteOffset (index);
+					string message;
+
+					if ((flags & AddressParserFlags.TryParse) == AddressParserFlags.TryParse)
+						message = string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", text.GetErrorCharacter (index), offset);
+					else
+						message = string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", offset);
+
+					throw new ParseException (message, offset, offset);
+				}
+
+				address = null;
+				return false;
+			}
+
+			return true;
+		}
 
 		bool SkipQuoted (bool throwOnError)
 		{
@@ -87,7 +114,7 @@ namespace MimeKit {
 			index++;
 
 			while (index < endIndex) {
-				byte c = text[index];
+				char c = text[index];
 
 				if (c == (byte) '\\') {
 					escaped = !escaped;
@@ -103,7 +130,7 @@ namespace MimeKit {
 					// the double-quote character (%d34), and the delete character (%d127).
 					if ((c < 32 && c != 9) || c == 127) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid control character in quoted-string token at offset {0}", startIndex), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid control character in quoted-string token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 						return false;
 					}
@@ -112,7 +139,7 @@ namespace MimeKit {
 					// though they are allowed by obs-qp. They are just too dangerous.
 					if ((c < 32 && c != 9) || c == 127) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid quoted-pair in quoted-string token at offset {0}", startIndex), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid quoted-pair in quoted-string token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 						return false;
 					}
@@ -125,7 +152,7 @@ namespace MimeKit {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -150,7 +177,7 @@ namespace MimeKit {
 				if (text[index] == (byte) '"') {
 					if (!SkipQuoted (throwOnError))
 						return false;
-				} else if (text[index].IsAtom ()) {
+				} else if (text.IsAtom (index)) {
 					if (!ParseUtils.SkipAtom (text, ref index, endIndex))
 						return false;
 
@@ -170,7 +197,7 @@ namespace MimeKit {
 					}
 				} else {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid local-part at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid local-part at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -178,16 +205,16 @@ namespace MimeKit {
 				string word;
 
 				try {
-					word = CharsetUtils.UTF8.GetString (text, start, index - start);
+					word = text.GetUtf8String (start, index - start);
 				} catch (DecoderFallbackException ex) {
 					if (compliance == RfcComplianceMode.Strict) {
 						if (throwOnError)
-							throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", start, start, ex);
+							throw new ParseException ("Internationalized local-part tokens may only contain UTF-8 characters.", text.GetByteOffset (start), text.GetByteOffset (start), ex);
 
 						return false;
 					}
 
-					word = CharsetUtils.Latin1.GetString (text, start, index - start);
+					word = text.GetLatin1String (start, index - start);
 				}
 
 				if (escapedAt)
@@ -214,7 +241,7 @@ namespace MimeKit {
 
 					if (index >= endIndex) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete local-part at offset {0}", startIndex), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete local-part at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 						return false;
 					}
@@ -233,18 +260,7 @@ namespace MimeKit {
 		// converted into spaces for consistency with how display names in a phrase are handled by MimeUtils.Unquote().
 		string DecodeCommentName (int startIndex, int length)
 		{
-			if (text.AsSpan (startIndex, length).IndexOf ((byte) '\t') == -1)
-				return Rfc2047.DecodePhrase (options, text, startIndex, length).Trim ();
-
-			var buffer = new byte[length];
-
-			for (int i = 0; i < length; i++) {
-				byte c = text[startIndex + i];
-
-				buffer[i] = c == (byte) '\t' ? (byte) ' ' : c;
-			}
-
-			return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+			return text.DecodeComment (options, startIndex, length);
 		}
 
 		static ReadOnlySpan<byte> CommaGreaterThanOrSemiColon => ",>;"u8;
@@ -266,7 +282,7 @@ namespace MimeKit {
 
 			if (text[index] != (byte) '@') {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid addr-spec token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -274,7 +290,7 @@ namespace MimeKit {
 			index++;
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -284,7 +300,7 @@ namespace MimeKit {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -316,7 +332,7 @@ namespace MimeKit {
 			if (index < endIndex && text[index] == (byte) '<') {
 				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Excessive angle brackets at offset {0}", index), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Excessive angle brackets at offset {0}", text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -331,7 +347,7 @@ namespace MimeKit {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete mailbox at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete mailbox at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -340,14 +356,14 @@ namespace MimeKit {
 				// Note: we always pass 'false' as the throwOnError argument here so that we can throw a more informative exception on error
 				if (!DomainList.TryParse (text, ref index, endIndex, false, out route)) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid route in mailbox at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid route in mailbox at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
 
 				if (index >= endIndex || text[index] != (byte) ':') {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete route in mailbox at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete route in mailbox at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -360,7 +376,7 @@ namespace MimeKit {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete mailbox at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete mailbox at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -380,7 +396,7 @@ namespace MimeKit {
 			if (index >= endIndex || text[index] != (byte) '>') {
 				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected end of mailbox at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected end of mailbox at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -392,7 +408,7 @@ namespace MimeKit {
 				if (index < endIndex && text[index] == (byte) '>') {
 					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Excessive angle brackets at offset {0}", index), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Excessive angle brackets at offset {0}", text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 						return false;
 					}
@@ -420,14 +436,14 @@ namespace MimeKit {
 
 			if ((flags & AddressParserFlags.AllowGroupAddress) == 0) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Group address token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Group address token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
 
 			if (groupDepth >= options.MaxAddressGroupDepth) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Exceeded maximum rfc822 group depth at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Exceeded maximum rfc822 group depth at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -438,7 +454,7 @@ namespace MimeKit {
 			// skip over the ':'
 			index++;
 
-			while (index < endIndex && (text[index] == ':' || text[index].IsBlank ()))
+			while (index < endIndex && (text[index] == ':' || text.IsBlank (index)))
 				index++;
 
 			if (TryParseList (flags | AddressParserFlags.AllowMailboxAddress, true, groupDepth + 1, out var members))
@@ -448,7 +464,7 @@ namespace MimeKit {
 
 			if (index >= endIndex || text[index] != (byte) ';') {
 				if (throwOnError && options.AddressParserComplianceMode == RfcComplianceMode.Strict)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected to find ';' at offset {0}", index), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected to find ';' at offset {0}", text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				while (index < endIndex && text[index] != (byte) ';')
 					index++;
@@ -499,7 +515,7 @@ namespace MimeKit {
 
 						if (!ParseUtils.SkipPhraseAtom (text, ref index, endIndex)) {
 							if (throwOnError)
-								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", qstringIndex), qstringIndex, endIndex);
+								throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", text.GetByteOffset (qstringIndex)), text.GetByteOffset (qstringIndex), text.GetByteOffset (endIndex));
 
 							break;
 						}
@@ -561,9 +577,7 @@ namespace MimeKit {
 
 			// Unquote before decoding to preserve quotes and backslashes inside encoded-words.
 			if (length > 0) {
-				var unquoted = MimeUtils.Unquote (text, nameIndex, length, true);
-
-				name = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out codepage);
+				name = text.DecodePhrase (options, nameIndex, length, out codepage);
 			} else {
 				name = string.Empty;
 			}
@@ -579,19 +593,19 @@ namespace MimeKit {
 			address = null;
 
 			// we've completely gobbled up an addr-spec w/o a domain
-			byte sentinel = index < endIndex ? text[index] : (byte) ',';
+			char sentinel = index < endIndex ? text[index] : ',';
 			string name;
 
 			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Addr-spec token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
 
 			if (!options.AllowAddressesWithoutDomain) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -620,7 +634,7 @@ namespace MimeKit {
 			if (index < endIndex && text[index] == (byte) '>') {
 				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -630,7 +644,7 @@ namespace MimeKit {
 
 			if (index < endIndex && text[index] != sentinel) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", (char) text[index], index), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '{0}' token at offset {1}", text.GetErrorCharacter (index), text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -661,7 +675,7 @@ namespace MimeKit {
 
 				if (!ParseUtils.SkipComment (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", comment), comment, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", text.GetByteOffset (comment)), text.GetByteOffset (comment), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -685,13 +699,13 @@ namespace MimeKit {
 				// We have an address like "user@example.com <user@example.com>"; i.e. the name is an unquoted string with an '@'.
 				if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '<' token at offset {0}", index), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '<' token at offset {0}", text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
 
 				int nameEndIndex = index;
-				while (nameEndIndex > startIndex && text[nameEndIndex - 1].IsWhitespace ())
+				while (nameEndIndex > startIndex && text.IsWhitespace (nameEndIndex - 1))
 					nameEndIndex--;
 
 				var namePhrase = new AddressPhrase (startIndex, nameEndIndex - startIndex, phrase.TrimLeadingQuote);
@@ -703,7 +717,7 @@ namespace MimeKit {
 				if (text[index] == (byte) '>') {
 					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 						if (throwOnError)
-							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", index), startIndex, index);
+							throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected '>' token at offset {0}", text.GetByteOffset (index)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 						return false;
 					}
@@ -728,7 +742,7 @@ namespace MimeKit {
 
 			if (index == endIndex) {
 				if (throwOnError)
-					throw new ParseException ("No address found.", index, index);
+					throw new ParseException ("No address found.", text.GetByteOffset (index), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -744,7 +758,7 @@ namespace MimeKit {
 
 			if ((flags & AddressParserFlags.AllowMailboxAddress) == 0) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Mailbox address token at offset {0}", phrase.StartIndex), phrase.StartIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Mailbox address token at offset {0}", text.GetByteOffset (phrase.StartIndex)), text.GetByteOffset (phrase.StartIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -756,7 +770,7 @@ namespace MimeKit {
 				return TryParseAngleMailbox (phrase, throwOnError, out address);
 
 			if (throwOnError)
-				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid address token at offset {0}", phrase.StartIndex), phrase.StartIndex, index);
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid address token at offset {0}", text.GetByteOffset (phrase.StartIndex)), text.GetByteOffset (phrase.StartIndex), text.GetByteOffset (index));
 
 			return false;
 		}
@@ -804,9 +818,9 @@ namespace MimeKit {
 					if (options.AddressParserComplianceMode == RfcComplianceMode.Strict) {
 						if (throwOnError) {
 							if (isGroup)
-								throw new ParseException ("Expected ',' between addresses or ';' to denote the end of a group of addresses.", index, index);
+								throw new ParseException ("Expected ',' between addresses or ';' to denote the end of a group of addresses.", text.GetByteOffset (index), text.GetByteOffset (index));
 							else
-								throw new ParseException ("Expected ',' between addresses.", index, index);
+								throw new ParseException ("Expected ',' between addresses.", text.GetByteOffset (index), text.GetByteOffset (index));
 						}
 
 						return false;
@@ -835,7 +849,7 @@ namespace MimeKit {
 
 			if (index == endIndex) {
 				if (throwOnError)
-					throw new ParseException ("No addresses found.", index, index);
+					throw new ParseException ("No addresses found.", text.GetByteOffset (index), text.GetByteOffset (index));
 
 				return false;
 			}

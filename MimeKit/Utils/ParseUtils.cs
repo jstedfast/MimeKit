@@ -122,9 +122,14 @@ namespace MimeKit.Utils {
 
 		public static bool SkipWhiteSpace (byte[] text, ref int index, int endIndex)
 		{
+			return SkipWhiteSpace (new ByteArrayAddressInput (text), ref index, endIndex);
+		}
+
+		public static bool SkipWhiteSpace<TInput> (TInput text, ref int index, int endIndex) where TInput : struct, IAddressParserInput
+		{
 			int startIndex = index;
 
-			while (index < endIndex && text[index].IsWhitespace ())
+			while (index < endIndex && text.IsWhitespace (index))
 				index++;
 
 			return index > startIndex;
@@ -141,6 +146,11 @@ namespace MimeKit.Utils {
 		}
 
 		public static bool SkipComment (byte[] text, ref int index, int endIndex)
+		{
+			return SkipComment (new ByteArrayAddressInput (text), ref index, endIndex);
+		}
+
+		public static bool SkipComment<TInput> (TInput text, ref int index, int endIndex) where TInput : struct, IAddressParserInput
 		{
 			bool escaped = false;
 			int depth = 1;
@@ -192,6 +202,11 @@ namespace MimeKit.Utils {
 
 		public static bool SkipCommentsAndWhiteSpace (byte[] text, ref int index, int endIndex, bool throwOnError)
 		{
+			return SkipCommentsAndWhiteSpace (new ByteArrayAddressInput (text), ref index, endIndex, throwOnError);
+		}
+
+		public static bool SkipCommentsAndWhiteSpace<TInput> (TInput text, ref int index, int endIndex, bool throwOnError) where TInput : struct, IAddressParserInput
+		{
 			SkipWhiteSpace (text, ref index, endIndex);
 
 			while (index < endIndex && text[index] == (byte) '(') {
@@ -199,7 +214,7 @@ namespace MimeKit.Utils {
 
 				if (!SkipComment (text, ref index, endIndex)) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete comment token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -232,6 +247,11 @@ namespace MimeKit.Utils {
 
 		public static bool SkipQuoted (byte[] text, ref int index, int endIndex, bool throwOnError)
 		{
+			return SkipQuoted (new ByteArrayAddressInput (text), ref index, endIndex, throwOnError);
+		}
+
+		public static bool SkipQuoted<TInput> (TInput text, ref int index, int endIndex, bool throwOnError) where TInput : struct, IAddressParserInput
+		{
 			int startIndex = index;
 			bool escaped = false;
 
@@ -253,7 +273,7 @@ namespace MimeKit.Utils {
 
 			if (index >= endIndex) {
 				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", startIndex), startIndex, index);
+					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete quoted-string token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 				return false;
 			}
@@ -266,9 +286,14 @@ namespace MimeKit.Utils {
 
 		public static bool SkipAtom (byte[] text, ref int index, int endIndex)
 		{
+			return SkipAtom (new ByteArrayAddressInput (text), ref index, endIndex);
+		}
+
+		public static bool SkipAtom<TInput> (TInput text, ref int index, int endIndex) where TInput : struct, IAddressParserInput
+		{
 			int start = index;
 
-			while (index < endIndex && text[index].IsAtom ())
+			while (index < endIndex && text.IsAtom (index))
 				index++;
 
 			return index > start;
@@ -277,9 +302,14 @@ namespace MimeKit.Utils {
 		// Note: a "phrase atom" is a more lenient atom (e.g. mailbox display-name phrase atom)
 		public static bool SkipPhraseAtom (byte[] text, ref int index, int endIndex)
 		{
+			return SkipPhraseAtom (new ByteArrayAddressInput (text), ref index, endIndex);
+		}
+
+		public static bool SkipPhraseAtom<TInput> (TInput text, ref int index, int endIndex) where TInput : struct, IAddressParserInput
+		{
 			int start = index;
 
-			while (index < endIndex && text[index].IsPhraseAtom ())
+			while (index < endIndex && text.IsPhraseAtom (index))
 				index++;
 
 			return index > start;
@@ -297,16 +327,21 @@ namespace MimeKit.Utils {
 
 		public static bool SkipWord (byte[] text, ref int index, int endIndex, bool throwOnError)
 		{
+			return SkipWord (new ByteArrayAddressInput (text), ref index, endIndex, throwOnError);
+		}
+
+		public static bool SkipWord<TInput> (TInput text, ref int index, int endIndex, bool throwOnError) where TInput : struct, IAddressParserInput
+		{
 			if (text[index] == (byte) '"')
 				return SkipQuoted (text, ref index, endIndex, throwOnError);
 
-			if (text[index].IsAtom ())
+			if (text.IsAtom (index))
 				return SkipAtom (text, ref index, endIndex);
 
 			return false;
 		}
 
-		public static bool IsSentinel (byte c, ReadOnlySpan<byte> sentinels)
+		public static bool IsSentinel (char c, ReadOnlySpan<byte> sentinels)
 		{
 			for (int i = 0; i < sentinels.Length; i++) {
 				if (c == sentinels[i])
@@ -316,7 +351,7 @@ namespace MimeKit.Utils {
 			return false;
 		}
 
-		static bool TryParseDotAtom (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, [NotNullWhen (true)] out string? dotatom)
+		static bool TryParseDotAtom<TInput> (TInput text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, string tokenType, [NotNullWhen (true)] out string? dotatom) where TInput : struct, IAddressParserInput
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index;
@@ -325,22 +360,22 @@ namespace MimeKit.Utils {
 			dotatom = null;
 
 			do {
-				if (!text[index].IsAtom ()) {
+				if (!text.IsAtom (index)) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid {0} token at offset {1}", tokenType, startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid {0} token at offset {1}", tokenType, text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
 
 				int start = index;
-				while (index < endIndex && text[index].IsAtom ())
+				while (index < endIndex && text.IsAtom (index))
 					index++;
 
 				try {
-					token.Append (CharsetUtils.UTF8.GetString (text, start, index - start));
+					token.Append (text.GetUtf8String (start, index - start));
 				} catch (DecoderFallbackException ex) {
 					if (throwOnError)
-						throw new ParseException ("Internationalized domains may only contain UTF-8 characters.", start, start, ex);
+						throw new ParseException ("Internationalized domains may only contain UTF-8 characters.", text.GetByteOffset (start), text.GetByteOffset (start), ex);
 
 					return false;
 				}
@@ -372,7 +407,7 @@ namespace MimeKit.Utils {
 			return true;
 		}
 
-		static bool TryParseDomainLiteral (byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out string? domain)
+		static bool TryParseDomainLiteral<TInput> (TInput text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out string? domain) where TInput : struct, IAddressParserInput
 		{
 			using var token = new ValueStringBuilder (128);
 			int startIndex = index++;
@@ -384,7 +419,7 @@ namespace MimeKit.Utils {
 			SkipWhiteSpace (text, ref index, endIndex);
 
 			do {
-				while (index < endIndex && text[index].IsDomain ()) {
+				while (index < endIndex && text.IsDomain (index)) {
 					token.Append ((char) text[index]);
 					index++;
 				}
@@ -393,7 +428,7 @@ namespace MimeKit.Utils {
 
 				if (index >= endIndex) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete domain literal token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete domain literal token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -401,9 +436,9 @@ namespace MimeKit.Utils {
 				if (text[index] == (byte) ']')
 					break;
 
-				if (!text[index].IsDomain ()) {
+				if (!text.IsDomain (index)) {
 					if (throwOnError)
-						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid domain literal token at offset {0}", startIndex), startIndex, index);
+						throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Invalid domain literal token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
 
 					return false;
 				}
@@ -418,6 +453,11 @@ namespace MimeKit.Utils {
 		}
 
 		public static bool TryParseDomain (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, [NotNullWhen (true)] out string? domain)
+		{
+			return TryParseDomain (new ByteArrayAddressInput (text), ref index, endIndex, sentinels, throwOnError, out domain);
+		}
+
+		public static bool TryParseDomain<TInput> (TInput text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, bool throwOnError, [NotNullWhen (true)] out string? domain) where TInput : struct, IAddressParserInput
 		{
 			if (text[index] == (byte) '[')
 				return TryParseDomainLiteral (text, ref index, endIndex, throwOnError, out domain);

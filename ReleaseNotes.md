@@ -7,6 +7,10 @@ the split of the cryptography support into its own assembly, the promotion of th
 a redesigned TNEF implementation, DMARC validation, and a new MIME compliance violation reporting API.
 See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
+Address parsing from strings now shares the byte parser's grammar without converting the entire
+input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
+offsets in parse errors.
+
 ### Breaking Changes
 
 * OpenPGP decryption now verifies encrypted-data integrity and rejects legacy packets without

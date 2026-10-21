@@ -439,18 +439,14 @@ namespace MimeKit {
 				return false;
 			}
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int endIndex = buffer.Length;
-			int index = 0;
+			var parser = InternetAddressParser.Create (options, text);
 
-			if (!TryParse (options, buffer, ref index, endIndex, false, out group))
-				return false;
-
-			if (!ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, false) || index != endIndex) {
+			if (!parser.TryParseCompleteAddress (AddressParserFlags.AllowGroupAddress, out var address)) {
 				group = null;
 				return false;
 			}
 
+			group = (GroupAddress) address;
 			return true;
 		}
 
@@ -676,18 +672,10 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var buffer = Encoding.UTF8.GetBytes (text);
-			int endIndex = buffer.Length;
-			int index = 0;
+			var parser = InternetAddressParser.Create (options, text);
+			parser.TryParseCompleteAddress (AddressParserFlags.AllowGroupAddress | AddressParserFlags.ThrowOnError, out var address);
 
-			TryParse (options, buffer, ref index, endIndex, true, out var group);
-
-			ParseUtils.SkipCommentsAndWhiteSpace (buffer, ref index, endIndex, true);
-
-			if (index != endIndex)
-				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Unexpected token at offset {0}", index), index, index);
-
-			return group!;
+			return (GroupAddress) address!;
 		}
 
 		/// <summary>

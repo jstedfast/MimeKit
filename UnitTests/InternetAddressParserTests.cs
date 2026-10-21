@@ -32,6 +32,126 @@ namespace UnitTests {
 	[TestFixture]
 	public class InternetAddressParserTests
 	{
+		static string Describe (InternetAddress address)
+		{
+			var description = address.GetType ().Name + "|" + address.Name + "|" + address.Encoding.CodePage;
+
+			if (address is MailboxAddress mailbox)
+				return description + "|" + mailbox.Address + "|" + string.Join (",", mailbox.Route);
+
+			foreach (var member in ((GroupAddress) address).Members)
+				description += "[" + Describe (member) + "]";
+
+			return description;
+		}
+
+		static string Describe (InternetAddressList addresses)
+		{
+			return string.Join (";", addresses.Select (Describe));
+		}
+
+		static string ParseOutcome (Func<string> parse)
+		{
+			try {
+				return parse ();
+			} catch (ParseException ex) {
+				return ex.Message + "|" + ex.TokenIndex + "|" + ex.ErrorIndex + "|" + ex.InnerException?.GetType ().Name;
+			}
+		}
+
+		[Test]
+		public void TestStringAndByteInputEquivalence (
+			[Values (RfcComplianceMode.Strict, RfcComplianceMode.Loose, RfcComplianceMode.Looser)] RfcComplianceMode compliance,
+			[Values (RfcComplianceMode.Strict, RfcComplianceMode.Loose)] RfcComplianceMode encodedWords,
+			[Values (false, true)] bool unquotedCommas)
+		{
+			var inputs = new List<string> {
+				"", " \t\r\n", "(ignored) a@example.com", "a@example.com (A\tB)",
+				"\"First\\ Last\" <a@example.com>", "\"A\r\n B\" <a@example.com>",
+				"Andr\u00e9 <\u00e9@b\u00fccher.example>", "\U0001f600 <a@example.com>",
+				"\ud800 <a@example.com>", "\udc00 <a@example.com>", "\ud800\\\udc00 <a@example.com>",
+				"\"\ud800\\\udc00\" <a@example.com>", "\ud800@example.com", "\udc00@example.com",
+				"a@\ud800.example", "a@example.com (\ud800\\\udc00)",
+				"a@example.com (\u00e9)", "=?iso-8859-1?q?Andr=E9?= <a@example.com>",
+				"=?utf-8?q?First?= \t =?utf-8?q?_Last?= <a@example.com>",
+				"\"=?utf-8?b?IlxOYW1lIg==?=\" <a@example.com>", "a@example.com (=?utf-8?q?A_B?=)",
+				"Name <@\u00e9.example,@b.example:\u00e9@example.com>",
+				"\u00e9: \U0001f600: \u00e9@example.com;;", "\u00e9: a@example.com",
+				"\"\u00e9\" <a@", "\u00e9 <a@[\u00e9]>", "\u00e9 <a@example.com\u00a0>",
+				"\u00e9 <a@example.com> \U0001f600", "\u00e9 <a@example.com> (unterminated",
+				"\"bad\0name\" <a@example.com>", "\u00e9: \"bad\\\nname\" <a@example.com>;",
+				"a\\@b@example.com", "a..b@example.com", "\"Unclosed <a@example.com>",
+				"first@example.com, \"Last, First\" (no address), last@example.com"
+			};
+
+			var random = new Random (941);
+			string[] fragments = { "\"", "\\", "(", ")", ":", ";", ",", "<", ">", "@", ".", " ", "\t", "\r\n", "=?", "?=", "\ud800", "\udc00", "\U0001f600", "\u00e9", "\0" };
+			int seedCount = inputs.Count;
+
+			for (int i = 0; i < 512; i++) {
+				string input = inputs[random.Next (seedCount)];
+				int position = random.Next (input.Length + 1);
+				string fragment = i < 128 ? ((char) i).ToString () : fragments[random.Next (fragments.Length)];
+
+				inputs.Add (input.Insert (position, fragment));
+				inputs.Add ("\"" + (char) random.Next (0x10000) + "\" <a@example.com>");
+			}
+
+			foreach (bool allowLocal in new[] { false, true }) {
+				foreach (var charset in new[] { Encoding.UTF8, Encoding.GetEncoding (1252) }) {
+					var options = new ParserOptions {
+						AddressParserComplianceMode = compliance,
+						Rfc2047ComplianceMode = encodedWords,
+						AllowUnquotedCommasInAddresses = unquotedCommas,
+						AllowAddressesWithoutDomain = allowLocal,
+						CharsetEncoding = charset
+					};
+
+					foreach (var input in inputs) {
+						var bytes = Encoding.UTF8.GetBytes (input);
+						string context = $"{compliance}, {allowLocal}, {charset.CodePage}, {input}";
+
+						Assert.That (InternetAddress.TryParse (options, input, out var address), Is.EqualTo (InternetAddress.TryParse (options, bytes, out var byteAddress)), context);
+						Assert.That (address == null ? null : Describe (address), Is.EqualTo (byteAddress == null ? null : Describe (byteAddress)), context);
+						Assert.That (MailboxAddress.TryParse (options, input, out var mailbox), Is.EqualTo (MailboxAddress.TryParse (options, bytes, out var byteMailbox)), context);
+						Assert.That (mailbox == null ? null : Describe (mailbox), Is.EqualTo (byteMailbox == null ? null : Describe (byteMailbox)), context);
+						Assert.That (GroupAddress.TryParse (options, input, out var group), Is.EqualTo (GroupAddress.TryParse (options, bytes, out var byteGroup)), context);
+						Assert.That (group == null ? null : Describe (group), Is.EqualTo (byteGroup == null ? null : Describe (byteGroup)), context);
+						Assert.That (InternetAddressList.TryParse (options, input, out var list), Is.EqualTo (InternetAddressList.TryParse (options, bytes, out var byteList)), context);
+						Assert.That (list == null ? null : Describe (list), Is.EqualTo (byteList == null ? null : Describe (byteList)), context);
+
+						Assert.That (ParseOutcome (() => Describe (InternetAddress.Parse (options, input))), Is.EqualTo (ParseOutcome (() => Describe (InternetAddress.Parse (options, bytes)))), context);
+						Assert.That (ParseOutcome (() => Describe (MailboxAddress.Parse (options, input))), Is.EqualTo (ParseOutcome (() => Describe (MailboxAddress.Parse (options, bytes)))), context);
+						Assert.That (ParseOutcome (() => Describe (GroupAddress.Parse (options, input))), Is.EqualTo (ParseOutcome (() => Describe (GroupAddress.Parse (options, bytes)))), context);
+						Assert.That (ParseOutcome (() => Describe (InternetAddressList.Parse (options, input))), Is.EqualTo (ParseOutcome (() => Describe (InternetAddressList.Parse (options, bytes)))), context);
+					}
+				}
+			}
+		}
+
+		static long MeasureParsingAllocation (string input)
+		{
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+
+			for (int i = 0; i < 10; i++)
+				InternetAddressList.Parse (input);
+
+			return GC.GetAllocatedBytesForCurrentThread () - before;
+		}
+
+		[Test]
+		public void TestStringParsingDoesNotTranscodeIgnoredInput ()
+		{
+			const string shortInput = "(ignored) a@example.com";
+			string longInput = "(" + new string ('x', 32768) + ") a@example.com";
+
+			Assert.That (Describe (InternetAddressList.Parse (longInput)), Is.EqualTo (Describe (InternetAddressList.Parse (shortInput))));
+			MeasureParsingAllocation (shortInput);
+			MeasureParsingAllocation (longInput);
+
+			Assert.That (MeasureParsingAllocation (longInput), Is.LessThanOrEqualTo (MeasureParsingAllocation (shortInput) + 1024));
+		}
+
 		[Test]
 		public void TestPrefixVersusCompleteInput ()
 		{
