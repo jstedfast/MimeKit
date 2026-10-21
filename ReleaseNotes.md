@@ -21,6 +21,8 @@ Address parsing reuses the last successfully resolved display-name encoding with
 reducing repeated encoding-provider lookups for names using the same charset.
 Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
 allocations when decoding raw UTF-8 display names and other MIME text.
+On .NET 8 and later, RFC 2047 decoding writes valid UTF-8 directly into the output buffer,
+avoiding intermediate character arrays for raw and encoded UTF-8 display names.
 
 ### Breaking Changes
 

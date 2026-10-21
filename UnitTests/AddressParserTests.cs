@@ -72,6 +72,55 @@ namespace UnitTests {
 		static readonly TestEncodingProvider FirstEncodingProvider = new TestEncodingProvider ();
 		static readonly TestEncodingProvider SecondEncodingProvider = new TestEncodingProvider ();
 
+		[Test]
+		[NonParallelizable]
+		public void TestEncodedUtf8NamesSkipDecoderEncodingLookup ([Values (false, true)] bool byteInput)
+		{
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = new UTF8Encoding (false, true);
+
+			try {
+				var addresses = ParseAddresses ("=?utf-8?q?Ren=C3=A9e?= <a@example.com>, =?utf-8?q?Andr=C3=A9?= <b@example.com>", byteInput);
+
+				Assert.That (addresses[0].Name, Is.EqualTo ("Ren\u00e9e"));
+				Assert.That (addresses[1].Name, Is.EqualTo ("Andr\u00e9"));
+				Assert.That (FirstEncodingProvider.Utf8Requests, Is.EqualTo (1));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
+
+		[Test]
+		[NonParallelizable]
+		public void TestEncodedNameUsesUtf8ReplacementFallback ([Values (false, true)] bool byteInput)
+		{
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = (Encoding) new UTF8Encoding ().Clone ();
+			FirstEncodingProvider.Utf8Encoding.DecoderFallback = new DecoderReplacementFallback ("[invalid]");
+
+			try {
+				var addresses = ParseAddresses ("=?utf-8?q?Ren=C3=A9e=FF?= <a@example.com>", byteInput);
+
+				Assert.That (addresses[0].Name, Is.EqualTo ("Ren\u00e9e[invalid]"));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
+
+		[Test]
+		[NonParallelizable]
+		public void TestEncodedNameUsesUtf8ExceptionFallback ([Values (false, true)] bool byteInput)
+		{
+			RegisterTestEncodingProvider ();
+			FirstEncodingProvider.Utf8Encoding = new UTF8Encoding (false, true);
+
+			try {
+				Assert.Throws<DecoderFallbackException> (() => ParseAddresses ("=?utf-8?q?Ren=C3=A9e=FF?= <a@example.com>", byteInput));
+			} finally {
+				FirstEncodingProvider.Reset ();
+			}
+		}
+
 		static void RegisterTestEncodingProvider ()
 		{
 			CharsetUtils.GetEncodingOrDefault (65001, Encoding.UTF8);

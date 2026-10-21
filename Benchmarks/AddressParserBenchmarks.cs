@@ -40,7 +40,7 @@ namespace Benchmarks {
 
 		[Params ("Single", "Bare", "Recipients", "Utf8", "Encoded", "MixedEncoded", "Groups", "Broken", "LongAtoms", "Quoted", "Comment",
 			"UnicodeAddr", "QuotedLocal", "CFWSDomain", "TrailingDot", "Utf8Cjk", "UnknownCharset", "QuotedUtf8", "QuotedEncoded",
-			"LongName", "LongUtf8", "LongEquals", "CommentNames", "CommentTabs", "CommentUtf8", "CommentEncoded",
+			"Utf8Emoji", "EncodedCjk", "InvalidEncoded", "LongName", "LongUtf8", "LongEquals", "CommentNames", "CommentTabs", "CommentUtf8", "CommentEncoded",
 			"LongComment", "LongCommentUtf8", "CommentUtf8Tabs", "CommentEncodedTabs", "CommentUnknownCharsetTabs",
 			"LongCommentUtf8Tabs", "LongCommentEqualsTabs", "EscapedName", "FoldedName", "LongQuotedName", "LongQuotedUtf8", "LongQuotedEquals")]
 		public string Input { get; set; }
@@ -54,6 +54,9 @@ namespace Benchmarks {
 				"Recipients" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"User {i} <u{i}@example.com>")),
 				"Utf8" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"Ren\u00e9e M\u00fcller {i} <u{i}@example.com>")),
 				"Utf8Cjk" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"\u674e\u5c0f\u9f8d {i} <u{i}@example.com>")),
+				"Utf8Emoji" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"Name \U0001f600 {i} <u{i}@example.com>")),
+				"EncodedCjk" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?b?5p2O5bCP6b6N?= <u{i}@example.com>")),
+				"InvalidEncoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?q?Ren=C3=A9e=FF?= <u{i}@example.com>")),
 				"Encoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => $"=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?= <u{i}@example.com>")),
 				"MixedEncoded" => string.Join (", ", Enumerable.Range (0, 100).Select (i => i % 2 == 0
 					? $"=?utf-8?q?Ren=C3=A9e?= <u{i}@example.com>"

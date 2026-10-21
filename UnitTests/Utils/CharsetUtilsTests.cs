@@ -198,6 +198,25 @@ namespace UnitTests.Utils {
 			Assert.That (MeasureUtf8ConversionAllocation (input, true), Is.EqualTo (MeasureUtf8ConversionAllocation (input, false)));
 		}
 
+		[Test]
+		public void TestAppendValidUtf8DoesNotAllocate ()
+		{
+			var input = Encoding.UTF8.GetBytes ("Ren\u00e9e M\u00fcller \U0001f600");
+			var output = new ValueStringBuilder (input.Length * 101);
+
+			try {
+				CharsetUtils.ConvertToUnicode (ParserOptions.Default, input, 0, input.Length, ref output);
+				long before = GC.GetAllocatedBytesForCurrentThread ();
+
+				for (int i = 0; i < 100; i++)
+					CharsetUtils.ConvertToUnicode (ParserOptions.Default, input, 0, input.Length, ref output);
+
+				Assert.That (GC.GetAllocatedBytesForCurrentThread () - before, Is.EqualTo (0));
+			} finally {
+				output.Dispose ();
+			}
+		}
+
 		[TestCase (new byte[] { 0xc3 }, 28591, "\u00c3")]
 		[TestCase (new byte[] { 0xc0, 0xaf }, 28591, "\u00c0\u00af")]
 		[TestCase (new byte[] { 0xed, 0xa0, 0x80 }, 28591, "\u00ed\u00a0\u0080")]
@@ -279,10 +298,12 @@ namespace UnitTests.Utils {
 		public void TestConvertToUnicodeWithUnsupportedCodePageFallsBackToBestEncoding ()
 		{
 			var input = Encoding.UTF8.GetBytes ("hello");
-			var output = CharsetUtils.ConvertToUnicode (ParserOptions.Default, 999999, input, 0, input.Length, out int charCount);
+			var output = new ValueStringBuilder (1);
 
-			Assert.That (charCount, Is.EqualTo (5));
-			Assert.That (new string (output, 0, charCount), Is.EqualTo ("hello"));
+			CharsetUtils.ConvertToUnicode (ParserOptions.Default, 999999, input, 0, input.Length, ref output);
+
+			Assert.That (output.Length, Is.EqualTo (5));
+			Assert.That (output.ToString (), Is.EqualTo ("hello"));
 		}
 
 		[Test]
