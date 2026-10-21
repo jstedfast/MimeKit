@@ -1,5 +1,5 @@
 //
-// InternetAddressParserTests.cs
+// AddressParserTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -30,7 +30,7 @@ using MimeKit;
 
 namespace UnitTests {
 	[TestFixture]
-	public class InternetAddressParserTests
+	public class AddressParserTests
 	{
 		static string Describe (InternetAddress address)
 		{
@@ -198,8 +198,8 @@ namespace UnitTests {
 		{
 			var sentinels = Encoding.ASCII.GetBytes (terminators);
 			var bytes = Encoding.ASCII.GetBytes (text);
-			var stringParser = InternetAddressParser.Create (ParserOptions.Default, text);
-			var byteParser = InternetAddressParser.Create (ParserOptions.Default, bytes, 0, bytes.Length);
+			var stringParser = AddressParser.Create (ParserOptions.Default, text);
+			var byteParser = AddressParser.Create (ParserOptions.Default, bytes, 0, bytes.Length);
 
 			Assert.That (stringParser.TryParseAddrspec (sentinels, RfcComplianceMode.Strict, true, out var fromString, out int stringAt), Is.True);
 			Assert.That (byteParser.TryParseAddrspec (sentinels, RfcComplianceMode.Strict, true, out var fromBytes, out int byteAt), Is.True);

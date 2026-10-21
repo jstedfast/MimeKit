@@ -439,7 +439,7 @@ namespace MimeKit {
 				return false;
 			}
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 
 			if (!parser.TryParseCompleteAddress (AddressParserFlags.AllowGroupAddress, out var address)) {
 				group = null;
@@ -672,7 +672,7 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 			parser.TryParseCompleteAddress (AddressParserFlags.AllowGroupAddress | AddressParserFlags.ThrowOnError, out var address);
 
 			return (GroupAddress) address!;

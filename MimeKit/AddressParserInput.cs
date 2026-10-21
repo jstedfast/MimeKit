@@ -245,16 +245,16 @@ namespace MimeKit {
 		}
 	}
 
-	internal static class InternetAddressParser
+	internal static class AddressParser
 	{
-		internal static InternetAddressParser<ByteArrayAddressInput> Create (ParserOptions options, byte[] text, int startIndex, int endIndex)
+		internal static AddressParser<ByteArrayAddressInput> Create (ParserOptions options, byte[] text, int startIndex, int endIndex)
 		{
-			return new InternetAddressParser<ByteArrayAddressInput> (options, new ByteArrayAddressInput (text), startIndex, endIndex);
+			return new AddressParser<ByteArrayAddressInput> (options, new ByteArrayAddressInput (text), startIndex, endIndex);
 		}
 
-		internal static InternetAddressParser<StringAddressInput> Create (ParserOptions options, string text)
+		internal static AddressParser<StringAddressInput> Create (ParserOptions options, string text)
 		{
-			return new InternetAddressParser<StringAddressInput> (options, new StringAddressInput (text), 0, text.Length);
+			return new AddressParser<StringAddressInput> (options, new StringAddressInput (text), 0, text.Length);
 		}
 	}
 }

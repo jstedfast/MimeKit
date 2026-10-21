@@ -1,5 +1,5 @@
 //
-// InternetAddressParserBenchmarks.cs
+// AddressParserBenchmarks.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -33,7 +33,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks {
 	[MemoryDiagnoser]
-	public class InternetAddressParserBenchmarks
+	public class AddressParserBenchmarks
 	{
 		string text;
 		byte[] buffer;

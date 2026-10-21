@@ -595,7 +595,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, bool isGroup, int groupDepth, [NotNullWhen (true)] out List<InternetAddress>? addresses)
 		{
-			var parser = InternetAddressParser.Create (options, text, index, endIndex);
+			var parser = AddressParser.Create (options, text, index, endIndex);
 
 			try {
 				return parser.TryParseList (flags, isGroup, groupDepth, out addresses);
@@ -758,7 +758,7 @@ namespace MimeKit {
 				return false;
 			}
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 
 			if (!parser.TryParseList (AddressParserFlags.TryParse, false, 0, out var addrlist)) {
 				addresses = null;
@@ -968,7 +968,7 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 			parser.TryParseList (AddressParserFlags.Parse, false, 0, out var addrlist);
 
 			return new InternetAddressList (addrlist!);

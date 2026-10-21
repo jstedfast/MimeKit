@@ -314,7 +314,7 @@ namespace MimeKit {
 
 		internal static bool TryParseAddrspec (byte[] text, ref int index, int endIndex, ReadOnlySpan<byte> sentinels, RfcComplianceMode compliance, bool throwOnError, [NotNullWhen (true)] out string? addrspec, out int at)
 		{
-			var parser = InternetAddressParser.Create (ParserOptions.Default, text, index, endIndex);
+			var parser = AddressParser.Create (ParserOptions.Default, text, index, endIndex);
 
 			try {
 				return parser.TryParseAddrspec (sentinels, compliance, throwOnError, out addrspec, out at);
@@ -325,7 +325,7 @@ namespace MimeKit {
 
 		internal static bool TryParse (AddressParserFlags flags, ParserOptions options, byte[] text, ref int index, int endIndex, int groupDepth, [NotNullWhen (true)] out InternetAddress? address)
 		{
-			var parser = InternetAddressParser.Create (options, text, index, endIndex);
+			var parser = AddressParser.Create (options, text, index, endIndex);
 
 			try {
 				return parser.TryParseAddress (flags, groupDepth, out address);
@@ -504,7 +504,7 @@ namespace MimeKit {
 				return false;
 			}
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 
 			return parser.TryParseCompleteAddress (AddressParserFlags.TryParse, out address);
 		}
@@ -731,7 +731,7 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 			parser.TryParseCompleteAddress (AddressParserFlags.Parse, out var address);
 
 			return address!;

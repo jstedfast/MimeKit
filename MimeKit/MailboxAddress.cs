@@ -795,7 +795,7 @@ namespace MimeKit {
 				return false;
 			}
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 
 			if (!parser.TryParseCompleteAddress (AddressParserFlags.AllowMailboxAddress, out var address)) {
 				mailbox = null;
@@ -1034,7 +1034,7 @@ namespace MimeKit {
 		{
 			ArgumentValidator.Validate (options, text);
 
-			var parser = InternetAddressParser.Create (options, text);
+			var parser = AddressParser.Create (options, text);
 			parser.TryParseCompleteAddress (AddressParserFlags.AllowMailboxAddress | AddressParserFlags.ThrowOnError, out var address);
 
 			return (MailboxAddress) address!;

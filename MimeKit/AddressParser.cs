@@ -1,5 +1,5 @@
 //
-// InternetAddressParser.cs
+// AddressParser.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -35,14 +35,14 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	// Owns a complete input slice. Group and list parsing share the same cursor.
-	internal struct InternetAddressParser<TInput> where TInput : struct, IAddressParserInput
+	internal struct AddressParser<TInput> where TInput : struct, IAddressParserInput
 	{
 		readonly ParserOptions options;
 		readonly TInput text;
 		readonly int endIndex;
 		int index;
 
-		internal InternetAddressParser (ParserOptions options, TInput text, int startIndex, int endIndex)
+		internal AddressParser (ParserOptions options, TInput text, int startIndex, int endIndex)
 		{
 			this.options = options;
 			this.text = text;
