@@ -24,6 +24,7 @@
 // THE SOFTWARE.
 //
 
+using System.Buffers;
 using System.Text;
 
 using MimeKit;
@@ -186,22 +187,69 @@ namespace UnitTests {
 		[TestCase ("First\tLast")]
 		[TestCase ("First\\\r\n Last")]
 		[TestCase ("\"A name with more than thirty-two ASCII characters\"")]
-		public void TestQuotedAsciiByteNameAvoidsDecoder (string name)
+		public void TestQuotedAsciiByteNameOnlyAllocatesResult (string name)
 		{
 			const string surrounding = "=?utf-8?q?ignored?=\"";
 			var bytes = Encoding.UTF8.GetBytes (surrounding + name + surrounding);
+			var unquoted = MimeUtils.Unquote (bytes, surrounding.Length, name.Length, true);
 			var input = new ByteArrayAddressInput (bytes);
 			Func<string> decodeName = () => input.DecodePhrase (ParserOptions.Default, surrounding.Length, name.Length, out _);
-			Func<string> decodeAscii = () => {
-				var unquoted = MimeUtils.Unquote (bytes, surrounding.Length, name.Length, true);
-				return Encoding.UTF8.GetString (unquoted);
-			};
+			Func<string> decodeAscii = () => Encoding.UTF8.GetString (unquoted);
 
 			Assert.That (decodeName (), Is.EqualTo (decodeAscii ()));
 			MeasureAllocation (decodeName);
 			MeasureAllocation (decodeAscii);
 
 			Assert.That (MeasureAllocation (decodeName), Is.LessThanOrEqualTo (MeasureAllocation (decodeAscii)));
+		}
+
+		[TestCase ("\"Ren\u00e9e\\\" M\u00fcller\"", false)]
+		[TestCase ("\"Ren\u00e9e\\\" M\u00fcller\"", true)]
+		[TestCase ("\"=?utf-8?b?IlxOYW1lIg==?=\"", false)]
+		[TestCase ("\"=?utf-8?b?IlxOYW1lIg==?=\"", true)]
+		[TestCase ("\"=?unknown?q?Ren=C3=A9e?=\"", false)]
+		[TestCase ("\"=?unknown?q?Ren=C3=A9e?=\"", true)]
+		public void TestQuotedNameAvoidsCopy (string name, bool byteInput)
+		{
+			const string surrounding = "=?ignored?=";
+			string text = surrounding + name + surrounding;
+			var bytes = Encoding.UTF8.GetBytes (text);
+			var unquoted = MimeUtils.Unquote (bytes, surrounding.Length, bytes.Length - surrounding.Length * 2, true);
+			var byteSource = new ByteArrayAddressInput (bytes);
+			var stringSource = new StringAddressInput (text);
+			Func<string> decodeName = byteInput
+				? () => byteSource.DecodePhrase (ParserOptions.Default, surrounding.Length, bytes.Length - surrounding.Length * 2, out _)
+				: () => stringSource.DecodePhrase (ParserOptions.Default, surrounding.Length, name.Length, out _);
+			Func<string> decodePhrase = () => Rfc2047.DecodePhrase (ParserOptions.Default, unquoted, 0, unquoted.Length);
+
+			Assert.That (decodeName (), Is.EqualTo (decodePhrase ()));
+			MeasureAllocation (decodeName);
+			MeasureAllocation (decodePhrase);
+
+			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodePhrase)));
+		}
+
+		[TestCase ("\"First\\\" Last\"", "First\" Last")]
+		[TestCase ("\"Ren\u00e9e M\u00fcller\"", "Ren\u00e9e M\u00fcller")]
+		[TestCase ("\"=?utf-8?q?First_Last?=\"", "First Last")]
+		public void TestQuotedNameUsesOnlyWrittenBytes (string name, string expected)
+		{
+			var bytes = Encoding.UTF8.GetBytes (name);
+			var buffer = ArrayPool<byte>.Shared.Rent (bytes.Length);
+			Array.Fill (buffer, (byte) 0xff);
+			ArrayPool<byte>.Shared.Return (buffer);
+
+			var input = new ByteArrayAddressInput (bytes);
+			string result = input.DecodePhrase (ParserOptions.Default, 0, bytes.Length, out int codepage);
+
+			buffer = ArrayPool<byte>.Shared.Rent (bytes.Length);
+			try {
+				Array.Fill (buffer, (byte) 0xff);
+				Assert.That (result, Is.EqualTo (expected));
+				Assert.That (codepage, Is.EqualTo (65001));
+			} finally {
+				ArrayPool<byte>.Shared.Return (buffer);
+			}
 		}
 
 		[TestCase ("")]

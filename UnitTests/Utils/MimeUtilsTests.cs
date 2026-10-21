@@ -169,5 +169,23 @@ namespace UnitTests.Utils {
 
 			Assert.That (unquoted, Is.EqualTo (expected), "Unquote(byte[])");
 		}
+
+		[Test]
+		public void TestUnquoteToBytes ([Values (false, true)] bool convertTabsToSpaces)
+		{
+			const string quoted = "\"Ren\u00e9e\\\" \r\n\tM\u00fcller\\\\\"";
+			var bytes = Encoding.UTF8.GetBytes ("###" + quoted + "###");
+			var builder = new ByteArrayBuilder (1);
+
+			try {
+				builder.Append ((byte) '>');
+				MimeUtils.UnquoteTo (bytes.AsSpan (3, bytes.Length - 6), convertTabsToSpaces, ref builder);
+				string actual = Encoding.UTF8.GetString (builder.GetBuffer (), 0, builder.Length);
+
+				Assert.That (actual, Is.EqualTo (">" + MimeUtils.Unquote (quoted, convertTabsToSpaces)));
+			} finally {
+				builder.Dispose ();
+			}
+		}
 	}
 }

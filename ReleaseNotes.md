@@ -11,7 +11,8 @@ Address parsing from strings now shares the byte parser's grammar without conver
 input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
 offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings
 for contiguous ASCII local-parts and domains, improving throughput and reducing allocations.
-Display names that do not need unquoting are decoded without an intermediate byte-array copy.
+Display-name decoding avoids intermediate byte-array copies, using pooled storage when unquoting
+is needed.
 Plain ASCII display names without RFC 2047 markers also avoid decoder allocations when parsing
 byte-array input, including quoted names after unquoting.
 Plain ASCII names taken from address comments likewise avoid decoder allocations.

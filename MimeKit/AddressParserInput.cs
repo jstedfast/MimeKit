@@ -92,24 +92,36 @@ namespace MimeKit {
 			return true;
 		}
 
+		string DecodeUnquotedPhrase (ParserOptions options, int startIndex, int length, out int codepage)
+		{
+			if (IsPlainAscii (startIndex, length)) {
+				codepage = 65001;
+				return GetUtf8String (startIndex, length);
+			}
+
+			return Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+		}
+
+		string DecodeQuotedPhrase (ParserOptions options, int startIndex, int length, out int codepage)
+		{
+			var unquoted = new ByteArrayBuilder (length);
+
+			try {
+				MimeUtils.UnquoteTo (text.AsSpan (startIndex, length), true, ref unquoted);
+				var input = new ByteArrayAddressInput (unquoted.GetBuffer ());
+
+				return input.DecodeUnquotedPhrase (options, 0, unquoted.Length, out codepage);
+			} finally {
+				unquoted.Dispose ();
+			}
+		}
+
 		public string DecodePhrase (ParserOptions options, int startIndex, int length, out int codepage)
 		{
-			var input = this;
+			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) == -1)
+				return DecodeUnquotedPhrase (options, startIndex, length, out codepage);
 
-			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) != -1) {
-				var unquoted = MimeUtils.Unquote (text, startIndex, length, true);
-
-				input = new ByteArrayAddressInput (unquoted);
-				length = unquoted.Length;
-				startIndex = 0;
-			}
-
-			if (input.IsPlainAscii (startIndex, length)) {
-				codepage = 65001;
-				return input.GetUtf8String (startIndex, length);
-			}
-
-			return Rfc2047.DecodePhrase (options, input.text, startIndex, length, out codepage);
+			return DecodeQuotedPhrase (options, startIndex, length, out codepage);
 		}
 
 		public string DecodeComment (ParserOptions options, int startIndex, int length)
