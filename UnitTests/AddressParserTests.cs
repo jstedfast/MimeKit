@@ -272,6 +272,68 @@ namespace UnitTests {
 			Assert.That (MeasureAllocation (decodeName), Is.LessThanOrEqualTo (MeasureAllocation (decodeAscii)));
 		}
 
+		[Test]
+		public void TestCommentWithTabsAvoidsCopy (
+			[Values ("\tRen\u00e9e\tM\u00fcller\t", "=?utf-8?q?First?=\t=?utf-8?q?_Last?=", "\t=?unknown?q?Ren=C3=A9e?=\t", "First\t=\tLast")] string name,
+			[Values (0, 128, 129, 1024)] int paddedLength,
+			[Values (false, true)] bool byteInput)
+		{
+			const string surrounding = "=?ignored?=";
+			if (paddedLength > 0)
+				name = new string ('x', paddedLength - Encoding.UTF8.GetByteCount (name) - 1) + " " + name;
+
+			string text = surrounding + name + surrounding;
+			var bytes = Encoding.UTF8.GetBytes (text);
+			var normalized = Encoding.UTF8.GetBytes (name.Replace ('\t', ' '));
+			var byteSource = new ByteArrayAddressInput (bytes);
+			var stringSource = new StringAddressInput (text);
+			Func<string> decodeName = byteInput
+				? () => byteSource.DecodeComment (ParserOptions.Default, surrounding.Length, bytes.Length - surrounding.Length * 2)
+				: () => stringSource.DecodeComment (ParserOptions.Default, surrounding.Length, name.Length);
+			Func<string> decodePhrase = () => Rfc2047.DecodePhrase (ParserOptions.Default, normalized, 0, normalized.Length).Trim ();
+
+			Assert.That (decodeName (), Is.EqualTo (decodePhrase ()));
+			MeasureAllocation (decodeName);
+			MeasureAllocation (decodePhrase);
+
+			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodePhrase)));
+		}
+
+		[Test]
+		public void TestCommentWithTabsUsesOnlyWrittenBytes (
+			[Values ("Ren\u00e9e\tM\u00fcller", "=?utf-8?q?First?=\t=?utf-8?q?_Last?=", "First\t=\tLast")] string name,
+			[Values (0, 127, 128, 129, 1024)] int paddedLength,
+			[Values (false, true)] bool byteInput)
+		{
+			if (paddedLength > 0)
+				name = new string ('x', paddedLength - Encoding.UTF8.GetByteCount (name) - 1) + " " + name;
+
+			var bytes = Encoding.UTF8.GetBytes (name);
+			string expected = DecodeCommentWithRfc2047 (ParserOptions.Default, bytes, 0, bytes.Length);
+			var buffer = ArrayPool<byte>.Shared.Rent (bytes.Length);
+			var other = ArrayPool<byte>.Shared.Rent (bytes.Length);
+			Array.Fill (buffer, (byte) 0xff);
+			Array.Fill (other, (byte) 0xff);
+			ArrayPool<byte>.Shared.Return (buffer);
+			ArrayPool<byte>.Shared.Return (other);
+
+			string result = byteInput
+				? new ByteArrayAddressInput (bytes).DecodeComment (ParserOptions.Default, 0, bytes.Length)
+				: new StringAddressInput (name).DecodeComment (ParserOptions.Default, 0, name.Length);
+
+			buffer = ArrayPool<byte>.Shared.Rent (bytes.Length);
+			other = ArrayPool<byte>.Shared.Rent (bytes.Length);
+			try {
+				Array.Fill (buffer, (byte) 0xff);
+				Array.Fill (other, (byte) 0xff);
+				Assert.That (result, Is.EqualTo (expected));
+				Assert.That (bytes, Is.EqualTo (Encoding.UTF8.GetBytes (name)));
+			} finally {
+				ArrayPool<byte>.Shared.Return (buffer);
+				ArrayPool<byte>.Shared.Return (other);
+			}
+		}
+
 		[TestCase ("")]
 		[TestCase (" Joe  Sixpack ")]
 		[TestCase ("\tFirst\t Last\t")]
@@ -283,6 +345,8 @@ namespace UnitTests {
 		[TestCase ("First\u007fLast")]
 		[TestCase ("First=Last")]
 		[TestCase ("\u00a0Ren\u00e9e\u00a0")]
+		[TestCase ("\tRen\u00e9e\tM\u00fcller\t")]
+		[TestCase ("First\t=\tLast")]
 		[TestCase ("=?utf-8?q?First?=\t=?utf-8?q?_Last?=")]
 		[TestCase ("=?iso-8859-1?q?Ren=E9e?=")]
 		[TestCase ("=?unknown?q?Ren=C3=A9e?=")]

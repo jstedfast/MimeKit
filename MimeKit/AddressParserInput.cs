@@ -124,6 +124,30 @@ namespace MimeKit {
 			return DecodeQuotedPhrase (options, startIndex, length, out codepage);
 		}
 
+		string DecodeCommentWithTabs (ParserOptions options, int startIndex, int length)
+		{
+			var buffer = ArrayPool<byte>.Shared.Rent (length);
+
+			try {
+				ReadOnlySpan<byte> source = text.AsSpan (startIndex, length);
+				var normalized = buffer.AsSpan (0, length);
+
+#if NET8_0_OR_GREATER
+				source.Replace (normalized, (byte) '\t', (byte) ' ');
+#else
+				for (int i = 0; i < source.Length; i++) {
+					byte c = source[i];
+
+					normalized[i] = c == (byte) '\t' ? (byte) ' ' : c;
+				}
+#endif
+
+				return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+			} finally {
+				ArrayPool<byte>.Shared.Return (buffer);
+			}
+		}
+
 		public string DecodeComment (ParserOptions options, int startIndex, int length)
 		{
 			if (IsPlainAscii (startIndex, length))
@@ -132,15 +156,7 @@ namespace MimeKit {
 			if (text.AsSpan (startIndex, length).IndexOf ((byte) '\t') == -1)
 				return Rfc2047.DecodePhrase (options, text, startIndex, length).Trim ();
 
-			var buffer = new byte[length];
-
-			for (int i = 0; i < length; i++) {
-				byte c = text[startIndex + i];
-
-				buffer[i] = c == (byte) '\t' ? (byte) ' ' : c;
-			}
-
-			return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+			return DecodeCommentWithTabs (options, startIndex, length);
 		}
 	}
 

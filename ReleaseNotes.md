@@ -16,6 +16,7 @@ is needed.
 Plain ASCII display names without RFC 2047 markers also avoid decoder allocations when parsing
 byte-array input, including quoted names after unquoting.
 Plain ASCII names taken from address comments likewise avoid decoder allocations.
+Non-ASCII and encoded comment names use pooled storage when normalizing tabs.
 Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
 allocations when decoding raw UTF-8 display names and other MIME text.
 
