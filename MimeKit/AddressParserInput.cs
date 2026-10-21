@@ -72,10 +72,36 @@ namespace MimeKit {
 		public string GetUtf8String (int startIndex, int length) => CharsetUtils.UTF8.GetString (text, startIndex, length);
 		public string GetLatin1String (int startIndex, int length) => CharsetUtils.Latin1.GetString (text, startIndex, length);
 
+		unsafe bool IsPlainAscii (int startIndex, int length)
+		{
+			if (length >= 32) {
+				fixed (byte* ptr = text) {
+					int index = Memory.IndexOf (ptr + startIndex, length, (byte) '=', ByteDetectionOptions.Detect8Bit, out var detected);
+
+					return index == -1 && detected == ByteDetectionResults.Nothing;
+				}
+			}
+
+			int endIndex = startIndex + length;
+
+			for (int i = startIndex; i < endIndex; i++) {
+				if (text[i] >= 128 || text[i] == '=')
+					return false;
+			}
+
+			return true;
+		}
+
 		public string DecodePhrase (ParserOptions options, int startIndex, int length, out int codepage)
 		{
-			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) == -1)
+			if (text.AsSpan (startIndex, length).IndexOfAny ("\"\\\t\r\n"u8) == -1) {
+				if (IsPlainAscii (startIndex, length)) {
+					codepage = 65001;
+					return GetUtf8String (startIndex, length);
+				}
+
 				return Rfc2047.DecodePhrase (options, text, startIndex, length, out codepage);
+			}
 
 			var unquoted = MimeUtils.Unquote (text, startIndex, length, true);
 

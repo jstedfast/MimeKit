@@ -150,7 +150,25 @@ namespace UnitTests {
 			return GC.GetAllocatedBytesForCurrentThread () - before;
 		}
 
-		[TestCase ("Joe Sixpack", true)]
+		[TestCase ("")]
+		[TestCase ("Joe Sixpack")]
+		[TestCase (" First  Last ")]
+		[TestCase ("A name with more than thirty-two ASCII characters")]
+		public void TestPlainAsciiByteNameOnlyAllocatesResult (string name)
+		{
+			const string surrounding = "=?utf-8?q?ignored?=\"\\\t\r\n";
+			var bytes = Encoding.UTF8.GetBytes (surrounding + name + surrounding);
+			var input = new ByteArrayAddressInput (bytes);
+			Func<string> decodeName = () => input.DecodePhrase (ParserOptions.Default, surrounding.Length, name.Length, out _);
+			Func<string> decodeAscii = () => Encoding.UTF8.GetString (bytes, surrounding.Length, name.Length);
+
+			Assert.That (decodeName (), Is.EqualTo (name));
+			MeasureAllocation (decodeName);
+			MeasureAllocation (decodeAscii);
+
+			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodeAscii)));
+		}
+
 		[TestCase ("Ren\u00e9e M\u00fcller", true)]
 		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=", true)]
 		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=", false)]
@@ -171,8 +189,39 @@ namespace UnitTests {
 			Assert.That (MeasureAllocation (decodeName), Is.EqualTo (MeasureAllocation (decodePhrase)));
 		}
 
+		[Test]
+		public void TestByteNameDecodingScanBoundaries ([Values (31, 32, 33, 63, 64, 65, 1024)] int length)
+		{
+			var bytes = Encoding.UTF8.GetBytes ("\u00e9=\"" + new string ('x', length) + "\"=\u00e9");
+			var input = new ByteArrayAddressInput (bytes);
+
+			foreach (var charset in new[] { Encoding.UTF8, Encoding.GetEncoding (1252) }) {
+				foreach (var compliance in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose }) {
+					var options = new ParserOptions { CharsetEncoding = charset, Rfc2047ComplianceMode = compliance };
+
+					foreach (int offset in new[] { 0, length / 2, length - 1 }) {
+						for (int value = 0; value < 256; value++) {
+							bytes[4 + offset] = (byte) value;
+							var unquoted = MimeUtils.Unquote (bytes, 4, length, true);
+							string expected = Rfc2047.DecodePhrase (options, unquoted, 0, unquoted.Length, out int expectedCodepage);
+							string actual = input.DecodePhrase (options, 4, length, out int codepage);
+
+							Assert.That (actual, Is.EqualTo (expected), $"Offset {offset}, byte {value}");
+							Assert.That (codepage, Is.EqualTo (expectedCodepage), $"Offset {offset}, byte {value}");
+						}
+
+						bytes[4 + offset] = (byte) 'x';
+					}
+				}
+			}
+		}
+
 		[TestCase ("")]
 		[TestCase ("Joe Sixpack")]
+		[TestCase (" First  Last ")]
+		[TestCase ("First=Last")]
+		[TestCase ("First\0Last")]
+		[TestCase ("First\u007fLast")]
 		[TestCase ("Ren\u00e9e M\u00fcller")]
 		[TestCase ("=?utf-8?q?Ren=C3=A9e?= =?utf-8?q?_M=C3=BCller?=")]
 		[TestCase ("=?utf-8?b?IlxOYW1lIg==?=")]
