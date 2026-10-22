@@ -851,7 +851,7 @@ namespace UnitTests.Tnef {
 			using var buffer = new TemporaryStream ();
 			using (var writer = new TnefWriter (output, leaveOpen: true)) {
 				writer.TemporaryStreamFactory = () => buffer;
-				IDisposable child = properties ? writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties) : writer.OpenAttributeStream (TnefAttributeTag.Body);
+				using IDisposable child = properties ? writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties) : writer.OpenAttributeStream (TnefAttributeTag.Body);
 
 				Assert.That (buffer.IsDisposed, Is.False);
 				if (complete) {
@@ -860,9 +860,12 @@ namespace UnitTests.Tnef {
 					writer.Flush ();
 					Assert.That (buffer.IsDisposed, Is.True, "written stream is disposed");
 				}
+
+				writer.Dispose ();
 			}
 			Assert.That (buffer.IsDisposed, Is.True, "discarded stream is disposed");
 			Assert.That (output.CanWrite, Is.True, "leaveOpen applies only to output");
+			Assert.That (ReadAttributes (output.ToArray ()).Count, Is.EqualTo (complete ? 3 : 2), "incomplete attributes are discarded");
 		}
 
 		[Test]

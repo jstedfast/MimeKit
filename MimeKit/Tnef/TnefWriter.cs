@@ -539,11 +539,8 @@ namespace MimeKit.Tnef {
 
 				queue.RemoveAt (0);
 
-				try {
+				using (attribute.Value)
 					WriteBufferedAttribute (attribute);
-				} finally {
-					attribute.Value.Dispose ();
-				}
 			}
 		}
 

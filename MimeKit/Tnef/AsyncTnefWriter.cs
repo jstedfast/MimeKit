@@ -90,11 +90,8 @@ namespace MimeKit.Tnef {
 
 				queue.RemoveAt (0);
 
-				try {
+				using (attribute.Value)
 					await WriteBufferedAttributeAsync (attribute, cancellationToken).ConfigureAwait (false);
-				} finally {
-					attribute.Value.Dispose ();
-				}
 			}
 		}
 
