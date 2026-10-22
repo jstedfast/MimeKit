@@ -33,7 +33,7 @@ using MimeKit.Utils;
 
 namespace MimeKit.Tnef {
 	/// <summary>
-	/// A write-only stream that appends an attribute or property value to an in-memory buffer.
+	/// A write-only stream that appends an attribute or property value to a buffer.
 	/// </summary>
 	/// <remarks>
 	/// The owner is notified when the stream is disposed so that it can complete the value.
@@ -103,19 +103,20 @@ namespace MimeKit.Tnef {
 			length += count;
 		}
 
-		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		public override async Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
+			ValidateArguments (buffer, offset, count);
+			CheckDisposed ();
 
-			// Note: The buffer is in memory, so there is nothing to wait for.
-			Write (buffer, offset, count);
-
-			return Task.CompletedTask;
+			await this.buffer.WriteAsync (buffer, offset, count, cancellationToken).ConfigureAwait (false);
+			length += count;
 		}
 
 		public override void Flush ()
 		{
 			CheckDisposed ();
+			buffer.Flush ();
 		}
 
 		public override Task FlushAsync (CancellationToken cancellationToken)
@@ -123,7 +124,7 @@ namespace MimeKit.Tnef {
 			cancellationToken.ThrowIfCancellationRequested ();
 			CheckDisposed ();
 
-			return Task.CompletedTask;
+			return buffer.FlushAsync (cancellationToken);
 		}
 
 		public override long Seek (long offset, SeekOrigin origin)

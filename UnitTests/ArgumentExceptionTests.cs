@@ -38,6 +38,16 @@ namespace UnitTests {
 	public class ArgumentExceptionTests
 	{
 		[Test]
+		public void TestTnefWriterTemporaryStreamFactoryArguments ()
+		{
+			using var output = new MemoryStream ();
+			using var writer = new TnefWriter (output);
+
+			var exception = Assert.Throws<ArgumentNullException> (() => writer.TemporaryStreamFactory = null);
+			Assert.That (exception.ParamName, Is.EqualTo ("value"));
+		}
+
+		[Test]
 		public void TestTemporarySecureMimeContextTrustArguments ()
 		{
 			using var ctx = new TemporarySecureMimeContext ();

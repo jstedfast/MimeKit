@@ -29,7 +29,6 @@ using System.IO;
 using System.Text;
 using System.Buffers.Binary;
 
-using MimeKit.IO;
 using MimeKit.Utils;
 
 namespace MimeKit.Tnef {
@@ -60,7 +59,7 @@ namespace MimeKit.Tnef {
 
 		static readonly byte[] Padding = new byte[4];
 
-		readonly MemoryBlockStream buffer;
+		readonly Stream buffer;
 		readonly byte[] scratch = new byte[16];
 		readonly TnefWriter writer;
 		readonly bool isTable;
@@ -82,7 +81,7 @@ namespace MimeKit.Tnef {
 		string? fault;
 		bool disposed;
 
-		internal TnefPropertyWriter (TnefWriter writer, MemoryBlockStream buffer, bool isTable)
+		internal TnefPropertyWriter (TnefWriter writer, Stream buffer, bool isTable)
 		{
 			this.isTable = isTable;
 			this.writer = writer;
@@ -910,8 +909,8 @@ namespace MimeKit.Tnef {
 		/// <para>Opens a <see cref="TnefWriter"/> for writing an embedded message as the value of an
 		/// <see cref="TnefPropertyType.Object"/> property, such as <see cref="TnefPropertyId.AttachData"/>. The value
 		/// begins with the IID_IMessage interface identifier, which is written automatically.</para>
-		/// <para>The embedded message uses the same codepage as the <see cref="TnefWriter"/> that this property
-		/// writer belongs to.</para>
+		/// <para>The embedded message uses the same codepage and <see cref="TnefWriter.TemporaryStreamFactory"/>
+		/// as the <see cref="TnefWriter"/> that this property writer belongs to.</para>
 		/// <para>The value is completed when the embedded message writer is disposed. No other value or property may
 		/// be written until then.</para>
 		/// </remarks>
@@ -941,6 +940,8 @@ namespace MimeKit.Tnef {
 		/// <para>Opens a <see cref="TnefWriter"/> for writing an embedded message as the value of an
 		/// <see cref="TnefPropertyType.Object"/> property, such as <see cref="TnefPropertyId.AttachData"/>. The value
 		/// begins with the IID_IMessage interface identifier, which is written automatically.</para>
+		/// <para>The embedded message inherits the <see cref="TnefWriter.TemporaryStreamFactory"/> of the
+		/// <see cref="TnefWriter"/> that this property writer belongs to.</para>
 		/// <para>The value is completed when the embedded message writer is disposed. No other value or property may
 		/// be written until then.</para>
 		/// </remarks>
@@ -969,7 +970,9 @@ namespace MimeKit.Tnef {
 
 			// Note: The embedded message writer writes nothing until it is used, so create it first in order to
 			// validate the codepage.
-			var embedded = new TnefWriter (new TnefValueWriteStream (buffer, null), codepage, (w, error) => OnValueClosed (w, error));
+			var embedded = new TnefWriter (new TnefValueWriteStream (buffer, null), codepage, (w, error) => OnValueClosed (w, error)) {
+				TemporaryStreamFactory = writer.TemporaryStreamFactory
+			};
 
 			BeginStreamValue ();
 			buffer.Write (TnefPropertyReader.IID_IMessage.ToByteArray (), 0, ClassIdLength);
@@ -1109,6 +1112,9 @@ namespace MimeKit.Tnef {
 		/// stream has not been disposed), the attribute is discarded and the next call to the <see cref="TnefWriter"/>
 		/// throws an <see cref="InvalidOperationException"/>.</para>
 		/// </remarks>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred while completing the buffered attribute.
+		/// </exception>
 		public void Dispose ()
 		{
 			if (disposed)
@@ -1121,19 +1127,22 @@ namespace MimeKit.Tnef {
 			if (error is null && child != null)
 				error = "The stream or writer for a property value was not disposed.";
 
-			if (error is null) {
-				try {
+			try {
+				if (error is null) {
 					EndRow ();
 
 					if (isTable)
 						PatchInt32 (0, rowCount);
-				} catch (InvalidOperationException ex) {
-					error = ex.Message;
 				}
-			}
+			} catch (Exception ex) {
+				error = ex.Message;
 
-			child = null;
-			writer.OnChildClosed (this, error);
+				if (ex is not InvalidOperationException)
+					throw;
+			} finally {
+				child = null;
+				writer.OnChildClosed (this, error);
+			}
 		}
 	}
 }

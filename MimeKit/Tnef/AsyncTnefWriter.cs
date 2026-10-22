@@ -69,7 +69,7 @@ namespace MimeKit.Tnef {
 
 				value.Position = 0;
 
-				while ((nread = value.Read (buffer, 0, buffer.Length)) > 0) {
+				while ((nread = await value.ReadAsync (buffer, 0, buffer.Length, cancellationToken).ConfigureAwait (false)) > 0) {
 					checksum = TnefChecksum.Update (checksum, buffer, 0, nread);
 					await stream.WriteAsync (buffer, 0, nread, cancellationToken).ConfigureAwait (false);
 				}

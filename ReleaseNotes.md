@@ -27,6 +27,10 @@ Encoding resolution and explicit-charset decoding now propagate unexpected provi
 exceptions rather than silently falling back; unsupported encodings and decoding errors still
 use their existing fallbacks.
 
+`TnefWriter.TemporaryStreamFactory` allows attribute and property buffers to use custom streams,
+such as temporary files in an application-selected directory, instead of memory. Embedded message
+writers inherit the factory, and the writer disposes each temporary stream when it is no longer needed.
+
 ### Breaking Changes
 
 * OpenPGP decryption now verifies encrypted-data integrity and rejects legacy packets without

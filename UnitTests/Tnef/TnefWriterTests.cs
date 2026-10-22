@@ -683,6 +683,352 @@ namespace UnitTests.Tnef {
 			Assert.That (output.IsDisposed, Is.True);
 		}
 
+		sealed class TemporaryStream : MemoryStream
+		{
+			public bool Readable = true;
+			public bool Writable = true;
+			public bool Seekable = true;
+			public bool AsyncOnly;
+			public bool ThrowOnLength, ThrowOnWrite, ThrowOnRead;
+			public bool IsDisposed;
+			public int AsyncReads, AsyncWrites, AsyncFlushes;
+			public CancellationToken LastReadToken, LastWriteToken, LastFlushToken;
+
+			public override bool CanRead => Readable && base.CanRead;
+			public override bool CanWrite => Writable && base.CanWrite;
+			public override bool CanSeek => Seekable && base.CanSeek;
+			public override long Length => ThrowOnLength ? throw new IOException ("Cannot get length.") : base.Length;
+
+			public override int Read (byte[] buffer, int offset, int count)
+			{
+				Assert.That (AsyncOnly, Is.False, "synchronous backing read");
+				if (ThrowOnRead)
+					throw new IOException ("Cannot read.");
+				return base.Read (buffer, offset, count);
+			}
+
+			public override void Write (byte[] buffer, int offset, int count)
+			{
+				Assert.That (AsyncOnly, Is.False, "synchronous backing write");
+				if (ThrowOnWrite)
+					throw new IOException ("Cannot write.");
+				base.Write (buffer, offset, count);
+			}
+
+			public override void Flush ()
+			{
+				Assert.That (AsyncOnly, Is.False, "synchronous backing flush");
+				base.Flush ();
+			}
+
+			public override async Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+			{
+				AsyncReads++;
+				LastReadToken = cancellationToken;
+				await Task.Yield ();
+				cancellationToken.ThrowIfCancellationRequested ();
+				if (ThrowOnRead)
+					throw new IOException ("Cannot read.");
+				return base.Read (buffer, offset, count);
+			}
+
+			public override async Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+			{
+				AsyncWrites++;
+				LastWriteToken = cancellationToken;
+				await Task.Yield ();
+				cancellationToken.ThrowIfCancellationRequested ();
+				base.Write (buffer, offset, count);
+			}
+
+			public override Task FlushAsync (CancellationToken cancellationToken)
+			{
+				AsyncFlushes++;
+				LastFlushToken = cancellationToken;
+				cancellationToken.ThrowIfCancellationRequested ();
+				return Task.CompletedTask;
+			}
+
+			protected override void Dispose (bool disposing)
+			{
+				IsDisposed = true;
+				base.Dispose (disposing);
+			}
+		}
+
+		[Test]
+		public void TestInvalidTemporaryStreams ([Values (false, true)] bool properties)
+		{
+			using var output = new MemoryStream ();
+			using var writer = new TnefWriter (output);
+			var defaultFactory = writer.TemporaryStreamFactory;
+			var streams = new TemporaryStream[] {
+				null,
+				new TemporaryStream { Readable = false },
+				new TemporaryStream { Writable = false },
+				new TemporaryStream { Seekable = false },
+				new TemporaryStream (),
+				new TemporaryStream { Position = 1 },
+				new TemporaryStream ()
+			};
+			streams[4].WriteByte (1);
+			streams[4].Position = 0;
+			streams[6].Dispose ();
+
+			foreach (var stream in streams) {
+				writer.TemporaryStreamFactory = () => stream;
+
+				if (properties)
+					Assert.Throws<InvalidOperationException> (() => writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties));
+				else
+					Assert.Throws<InvalidOperationException> (() => writer.OpenAttributeStream (TnefAttributeTag.MapiProperties));
+
+				if (stream != null)
+					Assert.That (stream.IsDisposed, Is.True);
+			}
+
+			writer.TemporaryStreamFactory = defaultFactory;
+			using (var stream = defaultFactory ())
+				Assert.That (stream, Is.TypeOf<MimeKit.IO.MemoryBlockStream> ());
+
+			// Failed opens must not advance past the message-level attributes.
+			writer.WriteAttribute (TnefAttributeTag.Subject, "retry");
+			using (writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)) {
+			}
+			writer.Flush ();
+			AssertConformant (output.ToArray ());
+		}
+
+		[Test]
+		public void TestTemporaryStreamCreationFailure ([Values (false, true)] bool properties)
+		{
+			using var output = new MemoryStream ();
+			using var writer = new TnefWriter (output);
+			var defaultFactory = writer.TemporaryStreamFactory;
+			var exception = new IOException ("Cannot create temporary stream.");
+			writer.TemporaryStreamFactory = () => throw exception;
+
+			if (properties)
+				Assert.That (Assert.Throws<IOException> (() => writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)), Is.SameAs (exception));
+			else
+				Assert.That (Assert.Throws<IOException> (() => writer.OpenAttributeStream (TnefAttributeTag.MapiProperties)), Is.SameAs (exception));
+
+			Assert.Throws<ArgumentException> (() => writer.OpenAttributeStream (TnefAttributeTag.TnefVersion));
+			Assert.Throws<ArgumentException> (() => writer.OpenPropertyWriter (TnefAttributeTag.Subject));
+
+			writer.TemporaryStreamFactory = defaultFactory;
+			writer.WriteAttribute (TnefAttributeTag.Subject, "retry");
+			using (writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)) {
+			}
+			writer.Flush ();
+			AssertConformant (output.ToArray ());
+		}
+
+		[Test]
+		public void TestTemporaryStreamInitializationFailure ()
+		{
+			using var output = new MemoryStream ();
+			using var writer = new TnefWriter (output);
+			var defaultFactory = writer.TemporaryStreamFactory;
+			using var stream = new ThrowingWriteStream ();
+			writer.TemporaryStreamFactory = () => stream;
+
+			Assert.Throws<IOException> (() => writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties));
+			Assert.That (stream.IsDisposed, Is.True);
+
+			writer.TemporaryStreamFactory = defaultFactory;
+			writer.WriteAttribute (TnefAttributeTag.Subject, "retry");
+			using (writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties)) {
+			}
+			writer.Flush ();
+			AssertConformant (output.ToArray ());
+		}
+
+		[Test]
+		public void TestTemporaryStreamLifetime ([Values (false, true)] bool properties, [Values (false, true)] bool complete)
+		{
+			using var output = new MemoryStream ();
+			using var buffer = new TemporaryStream ();
+			using (var writer = new TnefWriter (output, leaveOpen: true)) {
+				writer.TemporaryStreamFactory = () => buffer;
+				IDisposable child = properties ? writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties) : writer.OpenAttributeStream (TnefAttributeTag.Body);
+
+				Assert.That (buffer.IsDisposed, Is.False);
+				if (complete) {
+					child.Dispose ();
+					Assert.That (buffer.IsDisposed, Is.False, "queued stream remains open");
+					writer.Flush ();
+					Assert.That (buffer.IsDisposed, Is.True, "written stream is disposed");
+				}
+			}
+			Assert.That (buffer.IsDisposed, Is.True, "discarded stream is disposed");
+			Assert.That (output.CanWrite, Is.True, "leaveOpen applies only to output");
+		}
+
+		[Test]
+		public void TestTemporaryStreamCompletionFailure ([Values (false, true)] bool properties)
+		{
+			using var output = new MemoryStream ();
+			using var buffer = new TemporaryStream ();
+			using var writer = new TnefWriter (output);
+			writer.TemporaryStreamFactory = () => buffer;
+			IDisposable child = properties ? writer.OpenPropertyWriter (TnefAttributeTag.MapiProperties) : writer.OpenAttributeStream (TnefAttributeTag.Body);
+
+			if (properties)
+				buffer.ThrowOnWrite = true;
+			else
+				buffer.ThrowOnLength = true;
+
+			Assert.Throws<IOException> (() => child.Dispose ());
+			Assert.That (buffer.IsDisposed, Is.True);
+			Assert.Throws<InvalidOperationException> (() => writer.Flush ());
+			Assert.Throws<InvalidOperationException> (() => writer.WriteAttribute (TnefAttributeTag.Subject, "after failure"));
+		}
+
+		[Test]
+		public async Task TestTemporaryStreamReadFailure ([Values (false, true)] bool doAsync)
+		{
+			using var output = new MemoryStream ();
+			using var buffer = new TemporaryStream { ThrowOnRead = true };
+			using var writer = new TnefWriter (output);
+			writer.TemporaryStreamFactory = () => buffer;
+			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body))
+				stream.WriteByte (0);
+
+			if (doAsync)
+				Assert.ThrowsAsync<IOException> (() => writer.FlushAsync ());
+			else
+				Assert.Throws<IOException> (() => writer.Flush ());
+
+			Assert.That (buffer.IsDisposed, Is.True);
+			await writer.FlushAsync ();
+		}
+
+		[Test]
+		public async Task TestTemporaryStreamAsync ()
+		{
+			using var output = new MemoryStream ();
+			using var buffer = new TemporaryStream { AsyncOnly = true };
+			using var writer = new TnefWriter (output);
+			using var cancellation = new CancellationTokenSource ();
+			var data = Encoding.ASCII.GetBytes ("body\0");
+			writer.TemporaryStreamFactory = () => buffer;
+
+			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.Body)) {
+				await stream.WriteAsync (data, 0, data.Length, cancellation.Token);
+				await stream.FlushAsync (cancellation.Token);
+				Assert.That (stream.Length, Is.EqualTo (data.Length));
+				Assert.That (buffer.LastWriteToken, Is.EqualTo (cancellation.Token));
+				Assert.That (buffer.LastFlushToken, Is.EqualTo (cancellation.Token));
+
+				using var canceled = new CancellationTokenSource ();
+				canceled.Cancel ();
+				Assert.ThrowsAsync<OperationCanceledException> (() => stream.WriteAsync (data, 0, 1, canceled.Token));
+				Assert.ThrowsAsync<OperationCanceledException> (() => stream.FlushAsync (canceled.Token));
+				Assert.That (stream.Length, Is.EqualTo (data.Length));
+			}
+
+			await writer.FlushAsync (cancellation.Token);
+			Assert.That (buffer.AsyncReads, Is.GreaterThan (0));
+			Assert.That (buffer.AsyncWrites, Is.EqualTo (1));
+			Assert.That (buffer.AsyncFlushes, Is.EqualTo (1));
+			Assert.That (buffer.LastReadToken, Is.EqualTo (cancellation.Token));
+			Assert.That (buffer.IsDisposed, Is.True);
+			AssertConformant (output.ToArray ());
+		}
+
+		static async Task WriteFileBackedAttributes (TnefWriter writer, byte[] data, bool doAsync)
+		{
+			writer.WriteAttribute (TnefAttributeTag.AttachRenderData, RenderData);
+			using (var stream = writer.OpenAttributeStream (TnefAttributeTag.AttachData)) {
+				if (doAsync) {
+					await stream.WriteAsync (data, 0, data.Length);
+					await stream.FlushAsync ();
+				} else {
+					stream.Write (data, 0, data.Length);
+					stream.Flush ();
+				}
+			}
+
+			using (var properties = writer.OpenPropertyWriter (TnefAttributeTag.Attachment)) {
+				properties.WritePropertyTag (TnefPropertyTag.AttachLongFilenameW);
+				properties.WriteValue ("data.bin");
+				properties.WritePropertyTag (TnefPropertyTag.AttachDataBin);
+				using var stream = properties.OpenValueStream ();
+				if (doAsync)
+					await stream.WriteAsync (data, 0, data.Length);
+				else
+					stream.Write (data, 0, data.Length);
+			}
+		}
+
+		[Test]
+		public async Task TestFileBackedTemporaryStreams ([Values (false, true)] bool doAsync)
+		{
+			var directory = Path.Combine (Path.GetTempPath (), "MimeKit-" + Guid.NewGuid ().ToString ("N"));
+			var files = new List<string> ();
+			var data = new byte[100000];
+			new Random (42).NextBytes (data);
+			var expected = await WriteAsync (writer => WriteFileBackedAttributes (writer, data, false));
+			Directory.CreateDirectory (directory);
+
+			try {
+				using var output = new MemoryStream ();
+				using (var writer = new TnefWriter (output, leaveOpen: true)) {
+					writer.TemporaryStreamFactory = () => {
+						var path = Path.Combine (directory, Path.GetRandomFileName ());
+						files.Add (path);
+						return new FileStream (path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 4096,
+							FileOptions.DeleteOnClose | FileOptions.Asynchronous);
+					};
+
+					await WriteFileBackedAttributes (writer, data, doAsync);
+					Assert.That (files.Count, Is.EqualTo (2));
+					Assert.That (files.All (File.Exists), Is.True, "queued files remain open");
+					if (doAsync)
+						await writer.FlushAsync ();
+					else
+						writer.Flush ();
+					Assert.That (files.Any (File.Exists), Is.False, "temporary files deleted on close");
+				}
+
+				Assert.That (output.ToArray (), Is.EqualTo (expected));
+				AssertConformant (output.ToArray ());
+			} finally {
+				foreach (var path in files)
+					File.Delete (path);
+				Directory.Delete (directory);
+			}
+		}
+
+		[Test]
+		public void TestEmbeddedMessageTemporaryStreamFactory ()
+		{
+			var streams = new List<TemporaryStream> ();
+			Func<Stream> factory = () => {
+				var stream = new TemporaryStream ();
+				streams.Add (stream);
+				return stream;
+			};
+			var tnef = Write (writer => {
+				writer.TemporaryStreamFactory = factory;
+				writer.WriteAttribute (TnefAttributeTag.AttachRenderData, RenderData);
+				using var properties = writer.OpenPropertyWriter (TnefAttributeTag.Attachment);
+				properties.WritePropertyTag (TnefPropertyTag.AttachDataObj);
+				using var embedded = properties.OpenEmbeddedMessage ();
+				Assert.That (ReferenceEquals (embedded.TemporaryStreamFactory, factory), Is.True);
+
+				writer.TemporaryStreamFactory = () => throw new AssertionException ("Factory changed after inheritance.");
+				using var inner = embedded.OpenPropertyWriter (TnefAttributeTag.MapiProperties);
+				inner.WritePropertyTag (TnefPropertyTag.SubjectW);
+				inner.WriteValue ("inner");
+			});
+
+			Assert.That (streams.Count, Is.EqualTo (2));
+			Assert.That (streams.All (s => s.IsDisposed), Is.True);
+			AssertConformant (tnef);
+		}
+
 		#endregion
 
 		#region Properties

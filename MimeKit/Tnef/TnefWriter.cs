@@ -52,9 +52,9 @@ namespace MimeKit.Tnef {
 	/// attribute and <see cref="TnefAttributeTag.Attachment"/>, if written, must be the last attribute of
 	/// the attachment.</para>
 	/// <para>Attributes that are written using <see cref="OpenAttributeStream"/> or
-	/// <see cref="OpenPropertyWriter"/> are buffered in memory until the stream or property writer is
-	/// disposed and are then written to the output stream by the next call to one of the <c>WriteAttribute</c>
-	/// methods, <see cref="Flush"/>, or <see cref="Dispose"/>.</para>
+	/// <see cref="OpenPropertyWriter"/> are buffered using <see cref="TemporaryStreamFactory"/> until the stream
+	/// or property writer is disposed and are then written to the output stream by the next call to one of the
+	/// <c>WriteAttribute</c> methods, <see cref="Flush"/>, or <see cref="Dispose"/>.</para>
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\TnefExamples.cs" region="TnefWriter"/>
@@ -85,9 +85,9 @@ namespace MimeKit.Tnef {
 		{
 			public readonly TnefAttributeLevel Level;
 			public readonly TnefAttributeTag Tag;
-			public readonly MemoryBlockStream Value;
+			public readonly Stream Value;
 
-			public BufferedAttribute (TnefAttributeLevel level, TnefAttributeTag tag, MemoryBlockStream value)
+			public BufferedAttribute (TnefAttributeLevel level, TnefAttributeTag tag, Stream value)
 			{
 				Level = level;
 				Tag = tag;
@@ -105,8 +105,9 @@ namespace MimeKit.Tnef {
 		// The attribute that is currently being written by a stream or property writer.
 		TnefAttributeLevel childLevel;
 		TnefAttributeTag childTag;
-		MemoryBlockStream? childValue;
+		Stream? childValue;
 		object? child;
+		Func<Stream> temporaryStreamFactory = static () => new MemoryBlockStream ();
 
 		// Set when the embedded message that this writer writes is complete.
 		Action<TnefWriter, string?>? closed;
@@ -182,6 +183,41 @@ namespace MimeKit.Tnef {
 		/// <value>The legacy key.</value>
 		public ushort LegacyKey {
 			get; private set;
+		}
+
+		/// <summary>
+		/// Get or set the factory used to create temporary streams for buffering attributes.
+		/// </summary>
+		/// <remarks>
+		/// <para>The factory is called by <see cref="OpenAttributeStream"/> and <see cref="OpenPropertyWriter"/>.
+		/// Each call must return a new, empty, readable, writable and seekable stream positioned at zero.
+		/// The default factory creates a <see cref="MemoryBlockStream"/>.</para>
+		/// <para>The writer owns the returned streams and disposes them after their attributes have been
+		/// written or discarded, regardless of the constructor's <c>leaveOpen</c> argument. Disposing an
+		/// attribute stream or property writer does not immediately dispose its backing stream.</para>
+		/// <para>Embedded message writers inherit this factory when they are created. Changing the factory
+		/// does not affect streams or embedded message writers that have already been created.</para>
+		/// </remarks>
+		/// <example>
+		/// <code language="c#">
+		/// writer.TemporaryStreamFactory = () => new FileStream (
+		///     Path.Combine (temporaryDirectory, Path.GetRandomFileName ()),
+		///     FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 4096,
+		///     FileOptions.DeleteOnClose | FileOptions.Asynchronous);
+		/// </code>
+		/// </example>
+		/// <value>The temporary stream factory.</value>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="value"/> is <see langword="null"/>.
+		/// </exception>
+		public Func<Stream> TemporaryStreamFactory {
+			get { return temporaryStreamFactory; }
+			set {
+				if (value is null)
+					throw new ArgumentNullException (nameof (value));
+
+				temporaryStreamFactory = value;
+			}
 		}
 
 		internal Encoding Encoding {
@@ -707,20 +743,33 @@ namespace MimeKit.Tnef {
 			WriteAttributeCore (tag, buffer, 0, buffer.Length, nameof (tag));
 		}
 
-		MemoryBlockStream BeginChild (TnefAttributeTag tag, string paramName)
+		T BeginChild<T> (TnefAttributeTag tag, Func<Stream, T> createChild) where T : class
 		{
 			CheckCanWrite ();
 
-			childLevel = BeginAttribute (tag, paramName);
-			childValue = new MemoryBlockStream ();
-			childTag = tag;
+			var previousState = state;
+			Stream? value = null;
 
-			return childValue;
-		}
+			try {
+				var level = BeginAttribute (tag, nameof (tag));
+				value = temporaryStreamFactory ();
 
-		void SetChild (object value)
-		{
-			child = value;
+				if (value is null || !value.CanRead || !value.CanWrite || !value.CanSeek || value.Length != 0 || value.Position != 0)
+					throw new InvalidOperationException ("The temporary stream factory must return a new, empty, readable, writable and seekable stream positioned at zero.");
+
+				var result = createChild (value);
+				childLevel = level;
+				childTag = tag;
+				childValue = value;
+				child = result;
+
+				return result;
+			} finally {
+				if (child is null) {
+					state = previousState;
+					value?.Dispose ();
+				}
+			}
 		}
 
 		/// <summary>
@@ -729,8 +778,8 @@ namespace MimeKit.Tnef {
 		/// <remarks>
 		/// <para>Opens a stream for writing the raw value of an attribute, such as the content of an
 		/// <see cref="TnefAttributeTag.AttachData"/> attribute.</para>
-		/// <para>The value is buffered in memory until the stream is disposed. No other attribute may be written
-		/// until the stream has been disposed.</para>
+		/// <para>The value is buffered using <see cref="TemporaryStreamFactory"/> until the stream is disposed.
+		/// No other attribute may be written until the stream has been disposed.</para>
 		/// </remarks>
 		/// <returns>The value stream.</returns>
 		/// <param name="tag">The attribute tag.</param>
@@ -744,15 +793,15 @@ namespace MimeKit.Tnef {
 		/// <para>The attribute cannot be written at this point in the stream.</para>
 		/// <para>-or-</para>
 		/// <para>The stream or property writer for the previous attribute has not been disposed.</para>
+		/// <para>-or-</para>
+		/// <para>The temporary stream factory returned an invalid stream.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public Stream OpenAttributeStream (TnefAttributeTag tag)
 		{
-			var value = BeginChild (tag, nameof (tag));
-			var valueStream = new TnefValueWriteStream (value, s => OnChildClosed (s, null));
-
-			SetChild (valueStream);
-
-			return valueStream;
+			return BeginChild (tag, value => new TnefValueWriteStream (value, s => OnChildClosed (s, null)));
 		}
 
 		/// <summary>
@@ -762,8 +811,8 @@ namespace MimeKit.Tnef {
 		/// <para>Opens a <see cref="TnefPropertyWriter"/> for writing the properties of a
 		/// <see cref="TnefAttributeTag.MapiProperties"/>, <see cref="TnefAttributeTag.RecipientTable"/> or
 		/// <see cref="TnefAttributeTag.Attachment"/> attribute.</para>
-		/// <para>The properties are buffered in memory until the property writer is disposed. No other attribute
-		/// may be written until the property writer has been disposed.</para>
+		/// <para>The properties are buffered using <see cref="TemporaryStreamFactory"/> until the property writer
+		/// is disposed. No other attribute may be written until the property writer has been disposed.</para>
 		/// </remarks>
 		/// <returns>The property writer.</returns>
 		/// <param name="tag">The attribute tag.</param>
@@ -777,6 +826,11 @@ namespace MimeKit.Tnef {
 		/// <para>The attribute cannot be written at this point in the stream.</para>
 		/// <para>-or-</para>
 		/// <para>The stream or property writer for the previous attribute has not been disposed.</para>
+		/// <para>-or-</para>
+		/// <para>The temporary stream factory returned an invalid stream.</para>
+		/// </exception>
+		/// <exception cref="System.IO.IOException">
+		/// An I/O error occurred.
 		/// </exception>
 		public TnefPropertyWriter OpenPropertyWriter (TnefAttributeTag tag)
 		{
@@ -789,12 +843,7 @@ namespace MimeKit.Tnef {
 				throw new ArgumentException (string.Format ("The {0} attribute does not contain MAPI properties.", tag), nameof (tag));
 			}
 
-			var value = BeginChild (tag, nameof (tag));
-			var writer = new TnefPropertyWriter (this, value, tag == TnefAttributeTag.RecipientTable);
-
-			SetChild (writer);
-
-			return writer;
+			return BeginChild (tag, value => new TnefPropertyWriter (this, value, tag == TnefAttributeTag.RecipientTable));
 		}
 
 		internal void OnChildClosed (object closedChild, string? error)
@@ -802,18 +851,28 @@ namespace MimeKit.Tnef {
 			if (!ReferenceEquals (child, closedChild) || childValue is null)
 				return;
 
-			if (error != null) {
-				fault = error;
-				childValue.Dispose ();
-			} else if (childValue.Length > int.MaxValue) {
-				fault = string.Format ("The value of the {0} attribute is too large.", childTag);
-				childValue.Dispose ();
-			} else {
-				queue.Add (new BufferedAttribute (childLevel, childTag, childValue));
-			}
+			var value = childValue;
+			bool queued = false;
 
 			childValue = null;
 			child = null;
+
+			try {
+				if (error != null) {
+					fault = error;
+				} else if (value.Length > int.MaxValue) {
+					fault = string.Format ("The value of the {0} attribute is too large.", childTag);
+				} else {
+					queue.Add (new BufferedAttribute (childLevel, childTag, value));
+					queued = true;
+				}
+			} catch (Exception ex) {
+				fault = ex.Message;
+				throw;
+			} finally {
+				if (!queued)
+					value.Dispose ();
+			}
 		}
 
 		// Gets the property id that is used for the specified named property within this stream.
