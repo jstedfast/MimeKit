@@ -1,5 +1,5 @@
 ﻿//
-// BoundStream.cs
+// BoundedStream.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -39,14 +39,14 @@ namespace MimeKit.IO {
 	/// <para>When a <see cref="IMimeParser"/> is set to parse a persistent stream, it will construct
 	/// <see cref="MimeContent"/>s using bounded streams instead of loading the content into memory.</para>
 	/// </remarks>
-	public class BoundStream : Stream
+	public class BoundedStream : Stream
 	{
 		long position;
 		bool disposed;
 		bool eos;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="BoundStream"/> class.
+		/// Initialize a new instance of the <see cref="BoundedStream"/> class.
 		/// </summary>
 		/// <remarks>
 		/// If the <paramref name="endBoundary"/> is less than <c>0</c>, then the end of the stream
@@ -56,7 +56,7 @@ namespace MimeKit.IO {
 		/// <param name="startBoundary">The offset in the base stream that will mark the start of this substream.</param>
 		/// <param name="endBoundary">The offset in the base stream that will mark the end of this substream.</param>
 		/// <param name="leaveOpen"><see langword="true" /> to leave the baseStream open after the
-		/// <see cref="BoundStream"/> is disposed; otherwise, <see langword="false" />.</param>
+		/// <see cref="BoundedStream"/> is disposed; otherwise, <see langword="false" />.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="baseStream"/> is <see langword="null"/>.
 		/// </exception>
@@ -66,7 +66,7 @@ namespace MimeKit.IO {
 		/// <para><paramref name="endBoundary"/> is greater than or equal to zero
 		/// -and- is less than <paramref name="startBoundary"/>.</para>
 		/// </exception>
-		public BoundStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
+		public BoundedStream (Stream baseStream, long startBoundary, long endBoundary, bool leaveOpen)
 		{
 			if (baseStream is null)
 				throw new ArgumentNullException (nameof (baseStream));
@@ -123,14 +123,14 @@ namespace MimeKit.IO {
 
 		/// <summary>
 		/// Check whether the underlying stream will remain open after
-		/// the <see cref="BoundStream"/> is disposed.
+		/// the <see cref="BoundedStream"/> is disposed.
 		/// </summary>
 		/// <remarks>
 		/// Checks whether the underlying stream will remain open after
-		/// the <see cref="BoundStream"/> is disposed.
+		/// the <see cref="BoundedStream"/> is disposed.
 		/// </remarks>
 		/// <value><see langword="true" /> if the underlying stream should remain open after the
-		/// <see cref="BoundStream"/> is disposed; otherwise, <see langword="false" />.</value>
+		/// <see cref="BoundedStream"/> is disposed; otherwise, <see langword="false" />.</value>
 		protected bool LeaveOpen {
 			get; private set;
 		}
@@ -138,7 +138,7 @@ namespace MimeKit.IO {
 		void CheckDisposed ()
 		{
 			if (disposed)
-				throw new ObjectDisposedException (nameof (BoundStream));
+				throw new ObjectDisposedException (nameof (BoundedStream));
 		}
 
 		void CheckCanSeek ()
@@ -165,7 +165,7 @@ namespace MimeKit.IO {
 		/// Check whether the stream supports reading.
 		/// </summary>
 		/// <remarks>
-		/// The <see cref="BoundStream"/> will only support reading if the
+		/// The <see cref="BoundedStream"/> will only support reading if the
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />.</value>
@@ -177,7 +177,7 @@ namespace MimeKit.IO {
 		/// Check whether the stream supports writing.
 		/// </summary>
 		/// <remarks>
-		/// The <see cref="BoundStream"/> will only support writing if the
+		/// The <see cref="BoundedStream"/> will only support writing if the
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />.</value>
@@ -189,7 +189,7 @@ namespace MimeKit.IO {
 		/// Check whether the stream supports seeking.
 		/// </summary>
 		/// <remarks>
-		/// The <see cref="BoundStream"/> will only support seeking if the
+		/// The <see cref="BoundedStream"/> will only support seeking if the
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />.</value>
@@ -201,7 +201,7 @@ namespace MimeKit.IO {
 		/// Check whether I/O operations can time out.
 		/// </summary>
 		/// <remarks>
-		/// The <see cref="BoundStream"/> will only support timing out if the
+		/// The <see cref="BoundedStream"/> will only support timing out if the
 		/// <see cref="BaseStream"/> supports it.
 		/// </remarks>
 		/// <value><see langword="true" /> if I/O operations can time out; otherwise, <see langword="false" />.</value>
@@ -695,7 +695,7 @@ namespace MimeKit.IO {
 		}
 
 		/// <summary>
-		/// Release the unmanaged resources used by the <see cref="BoundStream"/> and
+		/// Release the unmanaged resources used by the <see cref="BoundedStream"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
 		/// <remarks>

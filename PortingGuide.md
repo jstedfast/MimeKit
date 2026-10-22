@@ -222,6 +222,7 @@ For most code, the parser change is a source-compatible rename: `new MimeParser 
 | 4.x | 5.0 |
 |---|---|
 | `MessagePartial.Join (ParserOptions, MimeMessage, IEnumerable<MessagePartial>)` (and overloads) | Takes an `IReadOnlyList<MessagePartial>`. Arrays and `List<MessagePartial>` work unchanged; call `.ToList ()` on other sequences. |
+| `MimeKit.IO.BoundStream` | Renamed to `MimeKit.IO.BoundedStream`. Update constructor calls, type references and subclasses; the constructor parameters and stream behavior are unchanged. |
 
 ### Semantic changes
 

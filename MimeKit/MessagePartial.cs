@@ -292,7 +292,7 @@ namespace MimeKit {
 						endIndex = ebx + 1;
 				}
 
-				streams.Add (new BoundStream (memory, startIndex, endIndex, true));
+				streams.Add (new BoundedStream (memory, startIndex, endIndex, true));
 				startIndex = endIndex;
 			}
 

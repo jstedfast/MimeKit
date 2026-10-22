@@ -149,7 +149,7 @@ namespace MimeKit.Tnef {
 		{
 			CheckDisposed ();
 
-			return new BoundStream (content, 0, content.Length, true);
+			return new BoundedStream (content, 0, content.Length, true);
 		}
 
 		/// <summary>

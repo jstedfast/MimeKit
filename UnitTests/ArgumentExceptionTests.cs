@@ -534,11 +534,11 @@ namespace UnitTests {
 			}
 
 			using (var memory = new MemoryStream ()) {
-				Assert.Throws<ArgumentNullException> (() => new BoundStream (null, 0, 10, true));
-				Assert.Throws<ArgumentOutOfRangeException> (() => new BoundStream (memory, -1, 10, true));
-				Assert.Throws<ArgumentOutOfRangeException> (() => new BoundStream (memory, 5, 1, true));
+				Assert.Throws<ArgumentNullException> (() => new BoundedStream (null, 0, 10, true));
+				Assert.Throws<ArgumentOutOfRangeException> (() => new BoundedStream (memory, -1, 10, true));
+				Assert.Throws<ArgumentOutOfRangeException> (() => new BoundedStream (memory, 5, 1, true));
 
-				using (var stream = new BoundStream (memory, 0, -1, true))
+				using (var stream = new BoundedStream (memory, 0, -1, true))
 					AssertStreamArguments (stream);
 			}
 

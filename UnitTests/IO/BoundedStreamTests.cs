@@ -1,5 +1,5 @@
 ﻿//
-// BoundStreamTests.cs
+// BoundedStreamTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -30,14 +30,14 @@ using MimeKit.IO;
 
 namespace UnitTests.IO {
 	[TestFixture]
-	public class BoundStreamTests
+	public class BoundedStreamTests
 	{
 		[Test]
 		public void TestCanReadWriteSeek ()
 		{
 			var buffer = new byte[1024];
 
-			using (var bounded = new BoundStream (new CanReadWriteSeekStream (true, false, false, false), 0, -1, false)) {
+			using (var bounded = new BoundedStream (new CanReadWriteSeekStream (true, false, false, false), 0, -1, false)) {
 				Assert.That (bounded.CanRead, Is.True);
 				Assert.That (bounded.CanWrite, Is.False);
 				Assert.That (bounded.CanSeek, Is.False);
@@ -48,7 +48,7 @@ namespace UnitTests.IO {
 				Assert.Throws<NotSupportedException> (() => bounded.Seek (0, SeekOrigin.End));
 			}
 
-			using (var bounded = new BoundStream (new CanReadWriteSeekStream (false, true, false, false), 0, -1, false)) {
+			using (var bounded = new BoundedStream (new CanReadWriteSeekStream (false, true, false, false), 0, -1, false)) {
 				Assert.That (bounded.CanRead, Is.False);
 				Assert.That (bounded.CanWrite, Is.True);
 				Assert.That (bounded.CanSeek, Is.False);
@@ -59,7 +59,7 @@ namespace UnitTests.IO {
 				Assert.Throws<NotSupportedException> (() => bounded.Seek (0, SeekOrigin.End));
 			}
 
-			using (var bounded = new BoundStream (new CanReadWriteSeekStream (false, false, true, false), 0, -1, false)) {
+			using (var bounded = new BoundedStream (new CanReadWriteSeekStream (false, false, true, false), 0, -1, false)) {
 				Assert.That (bounded.CanRead, Is.False);
 				Assert.That (bounded.CanWrite, Is.False);
 				Assert.That (bounded.CanSeek, Is.True);
@@ -74,7 +74,7 @@ namespace UnitTests.IO {
 		[Test]
 		public void TestGetSetTimeouts ()
 		{
-			using (var bounded = new BoundStream (new TimeoutStream (), 0, -1, false)) {
+			using (var bounded = new BoundedStream (new TimeoutStream (), 0, -1, false)) {
 				Assert.That (bounded.ReadTimeout, Is.EqualTo (0));
 				Assert.That (bounded.WriteTimeout, Is.EqualTo (0));
 
@@ -94,12 +94,12 @@ namespace UnitTests.IO {
 
 				memory.Write (buffer, 0, buffer.Length);
 
-				using (var bounded = new BoundStream (memory, 5, -1, true)) {
+				using (var bounded = new BoundedStream (memory, 5, -1, true)) {
 					long position;
 					string text;
 					int n;
 
-					// make sure that BoundStream will properly reset the underlying stream
+					// make sure that BoundedStream will properly reset the underlying stream
 					Assert.That (bounded.Position, Is.EqualTo (0));
 					n = bounded.Read (buffer, 0, buffer.Length);
 					text = Encoding.ASCII.GetString (buffer, 0, n);
@@ -137,12 +137,12 @@ namespace UnitTests.IO {
 
 				memory.Write (buffer, 0, buffer.Length);
 
-				using (var bounded = new BoundStream (memory, 5, buffer.Length, true)) {
+				using (var bounded = new BoundedStream (memory, 5, buffer.Length, true)) {
 					long position;
 					string text;
 					int n;
 
-					// make sure that BoundStream will properly reset the underlying stream
+					// make sure that BoundedStream will properly reset the underlying stream
 					Assert.That (bounded.Position, Is.EqualTo (0));
 					n = bounded.Read (buffer, 0, buffer.Length);
 					text = Encoding.ASCII.GetString (buffer, 0, n);
@@ -182,7 +182,7 @@ namespace UnitTests.IO {
 
 				memory.Write (buffer, 0, buffer.Length);
 
-				using (var bounded = new BoundStream (memory, 0, -1, true)) {
+				using (var bounded = new BoundedStream (memory, 0, -1, true)) {
 					var buf = new byte[1024];
 
 					Assert.That (bounded.Length, Is.EqualTo (buffer.Length));
@@ -204,7 +204,7 @@ namespace UnitTests.IO {
 
 				memory.Write (buffer, 0, buffer.Length);
 
-				using (var bounded = new BoundStream (memory, 0, buffer.Length, true)) {
+				using (var bounded = new BoundedStream (memory, 0, buffer.Length, true)) {
 					Assert.That (bounded.Length, Is.EqualTo (buffer.Length));
 
 					bounded.SetLength (500);
@@ -219,7 +219,7 @@ namespace UnitTests.IO {
 
 				memory.Write (buffer, 0, buffer.Length);
 
-				using (var bounded = new BoundStream (memory, 0, buffer.Length, true)) {
+				using (var bounded = new BoundedStream (memory, 0, buffer.Length, true)) {
 					Assert.That (bounded.Length, Is.EqualTo (buffer.Length));
 
 					bounded.SetLength (5);
@@ -239,7 +239,7 @@ namespace UnitTests.IO {
 				memory.Write (buffer, 0, buffer.Length);
 				memory.Position = 0;
 
-				using (var bounded = new BoundStream (memory, 0, -1, true)) {
+				using (var bounded = new BoundedStream (memory, 0, -1, true)) {
 					bounded.Position = 10;
 
 					Assert.That (bounded.Position, Is.EqualTo (10), "BoundedStream position");
@@ -257,7 +257,7 @@ namespace UnitTests.IO {
 				memory.Write (buffer, 0, buffer.Length);
 				memory.Position = 0;
 
-				using (var bounded = new BoundStream (memory, 0, 2, true)) {
+				using (var bounded = new BoundedStream (memory, 0, 2, true)) {
 					buffer = new byte[] { (byte) 'b', (byte) 'c', (byte) 'd' };
 
 					Assert.Throws<IOException> (() => bounded.Write (buffer, 0, buffer.Length));
@@ -274,7 +274,7 @@ namespace UnitTests.IO {
 				memory.Write (buffer, 0, buffer.Length);
 				memory.Position = 0;
 
-				using (var bounded = new BoundStream (memory, 0, 2, true)) {
+				using (var bounded = new BoundedStream (memory, 0, 2, true)) {
 					buffer = new byte[] { (byte) 'b', (byte) 'c', (byte) 'd' };
 
 					Assert.ThrowsAsync<IOException> (async () => await bounded.WriteAsync (buffer, 0, buffer.Length));

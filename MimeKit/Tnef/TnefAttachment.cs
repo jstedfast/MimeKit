@@ -215,7 +215,7 @@ namespace MimeKit.Tnef {
 			if (content is null)
 				return new MemoryStream (Array.Empty<byte> (), false);
 
-			return new BoundStream (content, contentOffset, content.Length, true);
+			return new BoundedStream (content, contentOffset, content.Length, true);
 		}
 
 		TnefReader CreateEmbeddedReader ()

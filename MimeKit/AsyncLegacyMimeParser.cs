@@ -263,7 +263,7 @@ namespace MimeKit {
 					endOffset = beginOffset + measured.Length;
 				}
 
-				content = new BoundStream (stream, beginOffset, endOffset, true);
+				content = new BoundedStream (stream, beginOffset, endOffset, true);
 			} else {
 				content = new MemoryBlockStream ();
 

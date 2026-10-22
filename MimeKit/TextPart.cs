@@ -526,7 +526,7 @@ namespace MimeKit {
 		{
 			using (var contentStream = content.Open ()) {
 				// limit processing to first 1024 bytes as per https://html.spec.whatwg.org/multipage/parsing.html#the-input-byte-stream
-				using (var bounded = new BoundStream (contentStream, 0, 1024, true)) {
+				using (var bounded = new BoundedStream (contentStream, 0, 1024, true)) {
 					using (var reader = new StreamReader (bounded, CharsetUtils.Latin1, false, 1024, true))
 						return TryDetectHtmlEncoding (reader, out encoding, out confidence);
 				}

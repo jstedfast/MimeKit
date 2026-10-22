@@ -59,7 +59,7 @@ namespace UnitTests.IO {
 			while (position < bytes.Length) {
 				int n = Math.Min (bytes.Length - position, random.Next () % 4096);
 
-				var stream = new BoundStream (backing, position, position + n, true);
+				var stream = new BoundedStream (backing, position, position + n, true);
 
 				lengths.Add (n);
 				position += n;

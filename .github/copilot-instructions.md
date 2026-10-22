@@ -208,7 +208,7 @@ Keep new converters to the same standard.
 
 ### Streams and filters
 
-`MimeKit/IO/` provides the stream primitives the parser and writer are built on: `BoundStream`,
+`MimeKit/IO/` provides the stream primitives the parser and writer are built on: `BoundedStream`,
 `ChainedStream`, `MeasuringStream`, `MemoryBlockStream`, and `FilteredStream`. Content transforms are
 `IMimeFilter` implementations in `MimeKit/IO/Filters/` (charset conversion, `EncoderFilter`/`DecoderFilter`,
 CRLF conversion, best-encoding detection). New encoders/decoders go in `MimeKit/Encodings/` as

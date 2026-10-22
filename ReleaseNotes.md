@@ -33,6 +33,8 @@ writers inherit the factory, and the writer disposes each temporary stream when 
 
 ### Breaking Changes
 
+* Renamed `MimeKit.IO.BoundStream` to `MimeKit.IO.BoundedStream`. Constructor parameters and
+  stream behavior are unchanged; the old type name is no longer available.
 * `Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncoder` and `EncoderFilter.Create`
   now default to CRLF line endings. New overloads accept `NewLineFormat.Dos` or
   `NewLineFormat.Unix`; `Mixed` is rejected. Specify `Unix` to retain the previous LF output.
