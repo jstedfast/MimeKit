@@ -10,9 +10,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany (".NET Foundation")]
 [assembly: AssemblyProduct ("MessageReader")]
-[assembly: AssemblyCopyright ("Copyright © 2013-2024 .NET Foundation and Contributors")]
+[assembly: AssemblyCopyright ("Copyright © 2013-2026 .NET Foundation and Contributors")]
 [assembly: AssemblyTrademark (".NET Foundation")]
 [assembly: AssemblyCulture ("")]
+[assembly: InternalsVisibleTo ("MessageReader.Tests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

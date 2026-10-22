@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2014-2024 Jeffrey Stedfast
+// Copyright (c) 2014-2026 Jeffrey Stedfast
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,17 +34,28 @@ namespace MessageReader
 	public partial class MessageViewWindow : Form
 	{
 		MimeMessage message;
+		bool loadingPreview;
 
 		public MessageViewWindow ()
 		{
 			InitializeComponent ();
+
+			webBrowser.AllowWebBrowserDrop = false;
+			webBrowser.IsWebBrowserContextMenuEnabled = false;
+			webBrowser.WebBrowserShortcutsEnabled = false;
+			webBrowser.Navigating += (sender, e) => {
+				e.Cancel = !loadingPreview || e.Url.AbsoluteUri != "about:blank";
+				if (!e.Cancel)
+					loadingPreview = false;
+			};
+			webBrowser.NewWindow += (sender, e) => e.Cancel = true;
 		}
 
 		protected override void OnShown (EventArgs e)
 		{
 			base.OnShown (e);
 
-			Message = MimeMessage.Load (GetType ().Assembly.GetManifestResourceStream ("MessageReader.xamarin3.msg"));
+			Message = MimeMessage.Load (GetType ().Assembly.GetManifestResourceStream ("MessageReader.xamarin3.eml"));
 		}
 
 		public MimeMessage Message {
@@ -65,7 +76,14 @@ namespace MessageReader
 			var visitor = new HtmlPreviewVisitor ();
 			message.Accept (visitor);
 
-			webBrowser.DocumentText = visitor.HtmlBody;
+			// DocumentText navigates to about:blank before loading the new document.
+			loadingPreview = true;
+			try {
+				webBrowser.DocumentText = visitor.HtmlBody;
+			} catch {
+				loadingPreview = false;
+				throw;
+			}
 		}
 	}
 }

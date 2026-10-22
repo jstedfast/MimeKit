@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
-// Copyright (c) 2014-2024 Jeffrey Stedfast
+// Copyright (c) 2013-2026 .NET Foundation and Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
+using AngleSharp.Css.Dom;
+using Ganss.Xss;
+
 using MimeKit;
 using MimeKit.Text;
 using MimeKit.Tnef;
@@ -42,6 +45,7 @@ namespace MessageReader
 		readonly List<MultipartRelated> stack = new List<MultipartRelated> ();
 		readonly List<MimeEntity> attachments = new List<MimeEntity> ();
 		readonly List<MimeEntity> calenderAttachments = new List<MimeEntity> ();
+		readonly HtmlSanitizer sanitizer = new HtmlSanitizer ();
 
 		string body;
 
@@ -50,6 +54,53 @@ namespace MessageReader
 		/// </summary>
 		public HtmlPreviewVisitor ()
 		{
+			// This is a read-only email preview, not an interactive web page.
+			sanitizer.AllowedTags.Clear ();
+			sanitizer.AllowedTags.UnionWith (new[] {
+				"html", "head", "body", "style", "a", "abbr", "b", "blockquote", "br",
+				"caption", "center", "cite", "code", "col", "colgroup", "dd", "del",
+				"div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6",
+				"hr", "i", "img", "ins", "li", "ol", "p", "pre", "s", "small", "span",
+				"strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot",
+				"th", "thead", "tr", "u", "ul"
+			});
+
+			sanitizer.AllowedAttributes.Clear ();
+			sanitizer.AllowedAttributes.UnionWith (new[] {
+				"align", "alt", "bgcolor", "border", "cellpadding", "cellspacing",
+				"class", "color", "colspan", "dir", "face", "height", "lang",
+				"rowspan", "size", "span", "src", "start", "style", "title",
+				"type", "valign", "width"
+			});
+
+			// Keep formatting, but not properties capable of loading images, fonts or other resources.
+			sanitizer.AllowedCssProperties.Clear ();
+			sanitizer.AllowedCssProperties.UnionWith (new[] {
+				"background-color", "border", "border-bottom", "border-bottom-color",
+				"border-bottom-style", "border-bottom-width", "border-collapse", "border-color",
+				"border-left", "border-left-color", "border-left-style", "border-left-width",
+				"border-right", "border-right-color", "border-right-style", "border-right-width",
+				"border-spacing", "border-style", "border-top", "border-top-color",
+				"border-top-style", "border-top-width", "border-width", "color", "direction",
+				"display", "float", "font", "font-family", "font-size", "font-style",
+				"font-variant", "font-weight", "height", "letter-spacing", "line-height",
+				"list-style-position", "list-style-type", "margin", "margin-bottom",
+				"margin-left", "margin-right", "margin-top", "max-height", "max-width",
+				"min-height", "min-width", "padding", "padding-bottom", "padding-left",
+				"padding-right", "padding-top", "table-layout", "text-align",
+				"text-decoration", "text-indent", "text-transform", "vertical-align",
+				"white-space", "width", "word-break", "word-spacing", "word-wrap"
+			});
+			sanitizer.AllowedAtRules.Clear ();
+			sanitizer.AllowedAtRules.Add (CssRuleType.Style);
+			sanitizer.AllowedAtRules.Add (CssRuleType.Media);
+			sanitizer.AllowCssCustomProperties = false;
+			sanitizer.AllowDataAttributes = false;
+			sanitizer.KeepChildNodes = false;
+
+			// FilterUrl also runs for rejected schemes. Only our MIME image resolver may supply a URL.
+			sanitizer.AllowedSchemes.Clear ();
+			sanitizer.FilterUrl += FilterUrl;
 		}
 
 		/// <summary>
@@ -97,33 +148,27 @@ namespace MessageReader
 		// look up the image based on the img src url within our multipart/related stack
 		bool TryGetImage (string url, out MimePart image)
 		{
-			UriKind kind;
-			int index;
-			Uri uri;
+			image = null;
 
-			if (Uri.IsWellFormedUriString (url, UriKind.Absolute))
-				kind = UriKind.Absolute;
-			else if (Uri.IsWellFormedUriString (url, UriKind.Relative))
-				kind = UriKind.Relative;
-			else
-				kind = UriKind.RelativeOrAbsolute;
-
-			try {
-				uri = new Uri (url, kind);
-			} catch {
-				image = null;
+			if (!Uri.TryCreate (url, UriKind.RelativeOrAbsolute, out var uri))
 				return false;
-			}
 
 			for (int i = stack.Count - 1; i >= 0; i--) {
-				if ((index = stack[i].IndexOf (uri)) == -1)
+				int index = stack[i].IndexOf (uri);
+
+				if (index == -1)
 					continue;
 
 				image = stack[i][index] as MimePart;
-				return image != null;
-			}
+				if (image == null || image.Content == null)
+					return false;
 
-			image = null;
+				// Do not embed SVG, HTML, or arbitrary MIME types as data: URLs.
+				return image.ContentType.IsMimeType ("image", "png") ||
+					image.ContentType.IsMimeType ("image", "jpeg") ||
+					image.ContentType.IsMimeType ("image", "gif") ||
+					image.ContentType.IsMimeType ("image", "bmp");
+			}
 
 			return false;
 		}
@@ -149,64 +194,17 @@ namespace MessageReader
 			}
 		}
 
-		// Replaces <img src=...> urls that refer to images embedded within the message with
-		// "data:" urls that the browser control will actually be able to load. Also performs
-		// some *very* basic Cross-Site Scripting (XSS) sanitization.
-		void HtmlTagCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
+		void FilterUrl (object sender, FilterUrlEventArgs e)
 		{
-			if (ctx.TagId == HtmlTagId.Meta && !ctx.IsEndTag) {
-				bool isContentType = false;
+			e.SanitizedUrl = null;
 
-				ctx.WriteTag (htmlWriter, false);
-
-				// replace charsets with "utf-8" since our output will be in utf-8 (and not whatever the original charset was)
-				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Id == HtmlAttributeId.Charset) {
-						htmlWriter.WriteAttributeName (attribute.Name);
-						htmlWriter.WriteAttributeValue ("utf-8");
-					} else if (isContentType && attribute.Id == HtmlAttributeId.Content) {
-						htmlWriter.WriteAttributeName (attribute.Name);
-						htmlWriter.WriteAttributeValue ("text/html; charset=utf-8");
-						isContentType = false;
-					} else if (attribute.Id == HtmlAttributeId.HttpEquiv) {
-						if (attribute.Value != null) {
-							if (attribute.Value.Equals ("Content-Type", StringComparison.OrdinalIgnoreCase)) {
-								htmlWriter.WriteAttribute (attribute);
-								isContentType = true;
-							} else {
-								htmlWriter.WriteAttribute (attribute);
-							}
-						}
-					} else {
-						htmlWriter.WriteAttribute (attribute);
-					}
-				}
-			} else if (ctx.TagId == HtmlTagId.Image && !ctx.IsEndTag && stack.Count > 0) {
-				ctx.WriteTag (htmlWriter, false);
-
-				// replace the src attribute with a "data:" URL
-				foreach (var attribute in ctx.Attributes) {
-					if (attribute.Id == HtmlAttributeId.Src) {
-						if (!TryGetImage (attribute.Value, out var image)) {
-							htmlWriter.WriteAttribute (attribute);
-							continue;
-						}
-
-						var dataUri = GetDataUri (image);
-
-						htmlWriter.WriteAttributeName (attribute.Name);
-						htmlWriter.WriteAttributeValue (dataUri);
-					}
-				}
-			} else {
-				// write the tag or end tag as-is since we don't need to modify it
-				ctx.WriteTag (htmlWriter, true);
-			}
+			if (e.Tag.LocalName == "img" && TryGetImage (e.OriginalUrl, out var image))
+				e.SanitizedUrl = GetDataUri (image);
 		}
 
 		protected override void VisitTextPart (TextPart entity)
 		{
-			TextConverter converter;
+			string html;
 
 			// treat text/calendar parts as attachments rather than message bodies
 			if (entity.ContentType.IsMimeType ("text", "calendar")) {
@@ -221,22 +219,20 @@ namespace MessageReader
 			}
 
 			if (entity.IsHtml) {
-				converter = new HtmlToHtml {
-					HtmlTagCallback = HtmlTagCallback
-				};
+				// Sanitize text/html content while multipart/related resources are still in scope.
+				html = sanitizer.SanitizeDocument (entity.Text);
 			} else if (entity.IsFlowed) {
 				var flowed = new FlowedToHtml ();
-				string delsp;
 
-				if (entity.ContentType.Parameters.TryGetValue ("delsp", out delsp))
+				if (entity.ContentType.Parameters.TryGetValue ("delsp", out string delsp))
 					flowed.DeleteSpace = delsp.Equals ("yes", StringComparison.OrdinalIgnoreCase);
 
-				converter = flowed;
+				html = flowed.Convert (entity.Text);
 			} else {
-				converter = new TextToHtml ();
+				html = new TextToHtml ().Convert (entity.Text);
 			}
 
-			body = converter.Convert (entity.Text);
+			body = html;
 		}
 
 		protected override void VisitTnefPart (TnefPart entity)
