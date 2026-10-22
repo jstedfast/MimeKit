@@ -109,6 +109,22 @@ namespace UnitTests.Encodings {
 			}
 		}
 
+		[Test]
+		public void TestNewLineFormat ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat, [Values] CodePath path)
+		{
+			var encode = GetEncodeFunc (path);
+			var encoder = new UUEncoder (newLineFormat);
+			var input = GenerateRandomBytes (new Random (42), 513);
+			var expected = ReferenceEncode (input);
+			var newLine = newLineFormat == NewLineFormat.Dos ? "\r\n" : "\n";
+
+			if (newLineFormat == NewLineFormat.Unix)
+				expected = Encoding.ASCII.GetBytes (Encoding.ASCII.GetString (expected).Replace ("\r\n", "\n"));
+
+			AssertNewLineFormat (encoder, input, expected, (data, index, length, output, flush) => encode (encoder, data, index, length, output, flush));
+			AssertNewLineFormat (encoder, Array.Empty<byte> (), Encoding.ASCII.GetBytes ("`" + newLine));
+		}
+
 		// An independent, deliberately simple, reference implementation of uuencoding (without the begin/end lines).
 		static byte[] ReferenceEncode (byte[] data)
 		{
@@ -131,10 +147,10 @@ namespace UnitTests.Encodings {
 					builder.Append (Encode (b2 & 0x3F));
 				}
 
-				builder.Append ('\n');
+				builder.Append ("\r\n");
 			}
 
-			builder.Append ("`\n");
+			builder.Append ("`\r\n");
 
 			return Encoding.ASCII.GetBytes (builder.ToString ());
 		}

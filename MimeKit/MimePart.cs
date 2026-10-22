@@ -685,13 +685,24 @@ namespace MimeKit {
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (ContentTransferEncoding, encoderMaxLineLength));
+					var encoder = EncoderFilter.Create (ContentTransferEncoding, options.NewLineFormat, encoderMaxLineLength);
+					filtered.Add (encoder);
 
-					if (ContentTransferEncoding != ContentEncoding.Binary)
+					if (encoder is not EncoderFilter && ContentTransferEncoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (ensureNewLine));
 
 					Content.DecodeTo (filtered, cancellationToken);
 					filtered.Flush (cancellationToken);
+
+					// Encoders terminate nonempty output, but an empty body may still need a newline.
+					if (ensureNewLine && encoder is EncoderFilter { HasOutput: false }) {
+						if (cancellable != null) {
+							cancellable.Write (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken);
+						} else {
+							cancellationToken.ThrowIfCancellationRequested ();
+							stream.Write (options.NewLineBytes, 0, options.NewLineBytes.Length);
+						}
+					}
 				}
 
 				if (ContentTransferEncoding == ContentEncoding.UUEncode) {
@@ -743,13 +754,18 @@ namespace MimeKit {
 
 				// transcode the content into the desired Content-Transfer-Encoding
 				using (var filtered = new FilteredStream (stream)) {
-					filtered.Add (EncoderFilter.Create (ContentTransferEncoding, encoderMaxLineLength));
+					var encoder = EncoderFilter.Create (ContentTransferEncoding, options.NewLineFormat, encoderMaxLineLength);
+					filtered.Add (encoder);
 
-					if (ContentTransferEncoding != ContentEncoding.Binary)
+					if (encoder is not EncoderFilter && ContentTransferEncoding != ContentEncoding.Binary)
 						filtered.Add (options.CreateNewLineFilter (ensureNewLine));
 
 					await Content.DecodeToAsync (filtered, cancellationToken).ConfigureAwait (false);
 					await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+
+					// Encoders terminate nonempty output, but an empty body may still need a newline.
+					if (ensureNewLine && encoder is EncoderFilter { HasOutput: false })
+						await stream.WriteAsync (options.NewLineBytes, 0, options.NewLineBytes.Length, cancellationToken).ConfigureAwait (false);
 				}
 
 				if (ContentTransferEncoding == ContentEncoding.UUEncode) {

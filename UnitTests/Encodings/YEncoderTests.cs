@@ -71,7 +71,22 @@ namespace UnitTests.Encodings {
 			int n = encoder.Flush (input, 0, input.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
-			Assert.That (actual, Is.EqualTo ("=@=J=M=}=n=IA\n"));
+			Assert.That (actual, Is.EqualTo ("=@=J=M=}=n=IA\r\n"));
+		}
+
+		[Test]
+		public void TestNewLineFormat ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
+		{
+			var newLine = newLineFormat == NewLineFormat.Dos ? "\r\n" : "\n";
+			var input = Enumerable.Repeat ((byte) 214, 93).ToArray ();
+			var expected = string.Concat (Enumerable.Repeat (string.Concat (Enumerable.Repeat ("=@", 30)) + newLine, 3)) + "=@=@=@" + newLine;
+			var encoder = new YEncoder (newLineFormat, 60);
+
+			AssertNewLineFormat (encoder, input, Encoding.ASCII.GetBytes (expected));
+			var other = new YEncoder (newLineFormat == NewLineFormat.Dos ? NewLineFormat.Unix : NewLineFormat.Dos, 60);
+			other.Flush (input, 0, input.Length, new byte[other.EstimateOutputLength (input.Length)]);
+			Assert.That (encoder.Checksum, Is.EqualTo (other.Checksum), "newline format must not affect checksum");
+			AssertNewLineFormat (encoder, Array.Empty<byte> (), Array.Empty<byte> ());
 		}
 
 		[Test]
@@ -85,7 +100,7 @@ namespace UnitTests.Encodings {
 			int n = encoder.Flush (input, 0, input.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
-			Assert.That (actual, Is.EqualTo (new string ('A', 60) + "\nA\n"));
+			Assert.That (actual, Is.EqualTo (new string ('A', 60) + "\r\nA\r\n"));
 		}
 
 		[TestCase (253)]
@@ -109,7 +124,7 @@ namespace UnitTests.Encodings {
 			Assert.That (lines.Length, Is.GreaterThan (4), "line count");
 
 			foreach (var line in lines)
-				Assert.That (line.Length, Is.LessThanOrEqualTo (lineLength + 1));
+				Assert.That (line.TrimEnd ('\r').Length, Is.LessThanOrEqualTo (lineLength + 1));
 		}
 		static void AssertEstimateIsSufficient (YEncoder encoder, byte[] input, string message)
 		{
@@ -155,7 +170,7 @@ namespace UnitTests.Encodings {
 			var output = new byte[encoder.EstimateOutputLength (input.Length)];
 
 			int n = encoder.Flush (input, 0, input.Length, output);
-			var expected = string.Concat (Enumerable.Repeat ("=@", 30)) + "\n" + string.Concat (Enumerable.Repeat ("=@", 29)) + "\n";
+			var expected = string.Concat (Enumerable.Repeat ("=@", 30)) + "\r\n" + string.Concat (Enumerable.Repeat ("=@", 29)) + "\r\n";
 
 			Assert.That (Encoding.ASCII.GetString (output, 0, n), Is.EqualTo (expected));
 		}

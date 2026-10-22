@@ -180,7 +180,7 @@ namespace UnitTests.Encodings
 			using (var original = new MemoryStream ()) {
 				using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
 					using (var filtered = new FilteredStream (original)) {
-						filtered.Add (new Dos2UnixFilter ());
+						filtered.Add (new Unix2DosFilter ());
 						file.CopyTo (filtered, 4096);
 						filtered.Flush ();
 					}
@@ -188,7 +188,7 @@ namespace UnitTests.Encodings
 
 				using (var encoded = new MemoryStream ()) {
 					if (encoder.Encoding == ContentEncoding.UUEncode) {
-						var begin = Encoding.ASCII.GetBytes ($"begin 644 {fileName}\n");
+						var begin = Encoding.ASCII.GetBytes ($"begin 644 {fileName}\r\n");
 						encoded.Write (begin, 0, begin.Length);
 					}
 
@@ -206,7 +206,7 @@ namespace UnitTests.Encodings
 					}
 
 					if (encoder.Encoding == ContentEncoding.UUEncode) {
-						var end = Encoding.ASCII.GetBytes ("end\n");
+						var end = Encoding.ASCII.GetBytes ("end\r\n");
 						encoded.Write (end, 0, end.Length);
 					}
 
@@ -222,12 +222,52 @@ namespace UnitTests.Encodings
 			}
 		}
 
+		protected static void AssertNewLineFormat (IMimeEncoder encoder, byte[] input, byte[] expected, Func<byte[], int, int, byte[], bool, int> encode = null)
+		{
+			encoder.Reset ();
+			ResetAndAssert (encoder);
+			CloneAndAssert (encoder);
+			encoder.Reset ();
+
+			foreach (int chunkSize in new[] { 1, 2, 3, 44, 45, 46, 56, 57, 58, 4096 }) {
+				using var actual = new MemoryStream ();
+				encoder.Reset ();
+
+				for (int index = 0; index <= input.Length;) {
+					int length = Math.Min (chunkSize, input.Length - index);
+					bool flush = index + length == input.Length;
+					int estimate = encoder.EstimateOutputLength (length);
+					var output = new byte[estimate + 16];
+					Array.Fill (output, (byte) 0xCC);
+
+					int n = encode != null ? encode (input, index, length, output, flush) :
+						flush ? encoder.Flush (input, index, length, output) : encoder.Encode (input, index, length, output);
+
+					Assert.That (n, Is.LessThanOrEqualTo (estimate), $"chunkSize={chunkSize}, index={index}");
+					Assert.That (output.AsSpan (n).IndexOfAnyExcept ((byte) 0xCC), Is.EqualTo (-1), "output overrun");
+					actual.Write (output, 0, n);
+					index += length;
+
+					if (flush)
+						break;
+
+					// Cloning a partially filled line must preserve both state and line endings.
+					var clone = encoder.Clone ();
+					var tail = new byte[clone.EstimateOutputLength (input.Length - index)];
+					int count = clone.Flush (input, index, input.Length - index, tail);
+					Assert.That (actual.ToArray ().Concat (tail.Take (count)).ToArray (), Is.EqualTo (expected), "clone");
+				}
+
+				Assert.That (actual.ToArray (), Is.EqualTo (expected), $"chunkSize={chunkSize}");
+			}
+		}
+
 		protected static void TestEncoderFlush (IMimeEncoder encoder, string fileName, byte[] rawData, string encodedFile)
 		{
 			using (var original = new MemoryStream ()) {
 				using (var file = File.OpenRead (Path.Combine (dataDir, encodedFile))) {
 					using (var filtered = new FilteredStream (original)) {
-						filtered.Add (new Dos2UnixFilter ());
+						filtered.Add (new Unix2DosFilter ());
 						file.CopyTo (filtered, 4096);
 						filtered.Flush ();
 					}
@@ -237,8 +277,8 @@ namespace UnitTests.Encodings
 				byte[] encoded, begin, end;
 
 				if (encoder.Encoding == ContentEncoding.UUEncode) {
-					begin = Encoding.ASCII.GetBytes ($"begin 644 {fileName}\n");
-					end = Encoding.ASCII.GetBytes ("end\n");
+					begin = Encoding.ASCII.GetBytes ($"begin 644 {fileName}\r\n");
+					end = Encoding.ASCII.GetBytes ("end\r\n");
 					outputLength += begin.Length + end.Length;
 				} else {
 					begin = Array.Empty<byte> ();

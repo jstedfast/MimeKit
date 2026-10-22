@@ -41,6 +41,8 @@ namespace MimeKit.IO.Filters {
 	/// </example>
 	public class EncoderFilter : MimeFilterBase
 	{
+		internal bool HasOutput { get; private set; }
+
 		/// <summary>
 		/// Get the encoder used by this filter.
 		/// </summary>
@@ -85,7 +87,7 @@ namespace MimeKit.IO.Filters {
 		/// Create a filter that will encode using specified encoding.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="IMimeFilter"/> for the specified encoding.
+		/// Creates a new <see cref="IMimeFilter"/> for the specified encoding using CRLF line endings.
 		/// </remarks>
 		/// <returns>A new encoder filter.</returns>
 		/// <param name="encoding">The encoding to create a filter for.</param>
@@ -95,10 +97,32 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public static IMimeFilter Create (ContentEncoding encoding, int maxLineLength = 78)
 		{
+			return Create (encoding, NewLineFormat.Dos, maxLineLength);
+		}
+
+		/// <summary>
+		/// Create a filter that will encode using the specified encoding and line endings.
+		/// </summary>
+		/// <remarks>
+		/// Creates an encoder filter for base64, quoted-printable or uuencode. Other encodings pass through unchanged.
+		/// </remarks>
+		/// <returns>A new encoder filter.</returns>
+		/// <param name="encoding">The encoding to create a filter for.</param>
+		/// <param name="newLineFormat">The line ending format.</param>
+		/// <param name="maxLineLength">The maximum line length, excluding line endings, between 60 and 998 (inclusive).</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>,
+		/// or <paramref name="maxLineLength"/> is out of range for the selected encoder.
+		/// </exception>
+		public static IMimeFilter Create (ContentEncoding encoding, NewLineFormat newLineFormat, int maxLineLength = 78)
+		{
+			if (newLineFormat != NewLineFormat.Dos && newLineFormat != NewLineFormat.Unix)
+				throw new ArgumentOutOfRangeException (nameof (newLineFormat));
+
 			switch (encoding) {
-			case ContentEncoding.Base64: return new EncoderFilter (new Base64Encoder (maxLineLength));
-			case ContentEncoding.QuotedPrintable: return new EncoderFilter (new QuotedPrintableEncoder (maxLineLength));
-			case ContentEncoding.UUEncode: return new EncoderFilter (new UUEncoder ());
+			case ContentEncoding.Base64: return new EncoderFilter (new Base64Encoder (newLineFormat, maxLineLength));
+			case ContentEncoding.QuotedPrintable: return new EncoderFilter (new QuotedPrintableEncoder (newLineFormat, maxLineLength));
+			case ContentEncoding.UUEncode: return new EncoderFilter (new UUEncoder (newLineFormat));
 			default: return new PassThroughFilter ();
 			}
 		}
@@ -107,7 +131,7 @@ namespace MimeKit.IO.Filters {
 		/// Create a filter that will encode using specified encoding.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="EncoderFilter"/> for the specified encoding.
+		/// Creates a new <see cref="EncoderFilter"/> for the specified encoding using CRLF line endings.
 		/// </remarks>
 		/// <returns>A new encoder filter.</returns>
 		/// <param name="name">The name of the encoding to create a filter for.</param>
@@ -120,13 +144,35 @@ namespace MimeKit.IO.Filters {
 		/// </exception>
 		public static IMimeFilter Create (string name, int maxLineLength = 78)
 		{
+			return Create (name, NewLineFormat.Dos, maxLineLength);
+		}
+
+		/// <summary>
+		/// Create a filter that will encode using the specified encoding and line endings.
+		/// </summary>
+		/// <remarks>
+		/// Creates an encoder filter for base64, quoted-printable or uuencode. Other encodings pass through unchanged.
+		/// </remarks>
+		/// <returns>A new encoder filter.</returns>
+		/// <param name="name">The name of the encoding to create a filter for.</param>
+		/// <param name="newLineFormat">The line ending format.</param>
+		/// <param name="maxLineLength">The maximum line length, excluding line endings, between 60 and 998 (inclusive).</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="name"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>,
+		/// or <paramref name="maxLineLength"/> is out of range for the selected encoder.
+		/// </exception>
+		public static IMimeFilter Create (string name, NewLineFormat newLineFormat, int maxLineLength = 78)
+		{
 			if (name is null)
 				throw new ArgumentNullException (nameof (name));
 
 			if (!MimeUtils.TryParse (name, out ContentEncoding encoding))
 				encoding = ContentEncoding.Default;
 
-			return Create (encoding, maxLineLength);
+			return Create (encoding, newLineFormat, maxLineLength);
 		}
 
 		/// <summary>
@@ -153,6 +199,7 @@ namespace MimeKit.IO.Filters {
 				outputLength = Encoder.Encode (input, startIndex, length, OutputBuffer);
 
 			outputIndex = 0;
+			HasOutput |= outputLength > 0;
 
 			return OutputBuffer;
 		}
@@ -165,6 +212,7 @@ namespace MimeKit.IO.Filters {
 		/// </remarks>
 		public override void Reset ()
 		{
+			HasOutput = false;
 			Encoder.Reset ();
 			base.Reset ();
 		}

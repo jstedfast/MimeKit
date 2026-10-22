@@ -50,9 +50,9 @@ namespace MimeKit.Encodings {
 	public class UUEncoder : IMimeEncoder
 	{
 		const int MaxInputPerLine = 45;
-		const int MaxOutputPerLine = ((MaxInputPerLine / 3) * 4) + 2;
 
 		readonly byte[] uubuf = new byte[60];
+		readonly NewLineFormat newLineFormat;
 		uint saved;
 		byte nsaved;
 		byte uulen;
@@ -68,10 +68,28 @@ namespace MimeKit.Encodings {
 		/// Initialize a new instance of the <see cref="UUEncoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new Unix-to-Unix encoder.
+		/// Creates a new Unix-to-Unix encoder using CRLF line endings.
 		/// </remarks>
-		public UUEncoder ()
+		public UUEncoder () : this (NewLineFormat.Dos)
 		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="UUEncoder"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new Unix-to-Unix encoder using the specified line endings.
+		/// </remarks>
+		/// <param name="newLineFormat">The line ending format.</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>.
+		/// </exception>
+		public UUEncoder (NewLineFormat newLineFormat)
+		{
+			if (newLineFormat != NewLineFormat.Dos && newLineFormat != NewLineFormat.Unix)
+				throw new ArgumentOutOfRangeException (nameof (newLineFormat));
+
+			this.newLineFormat = newLineFormat;
 		}
 
 		/// <summary>
@@ -83,7 +101,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="UUEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			var encoder = new UUEncoder ();
+			var encoder = new UUEncoder (newLineFormat);
 
 			Buffer.BlockCopy (uubuf, 0, encoder.uubuf, 0, uubuf.Length);
 			encoder.nsaved = nsaved;
@@ -133,9 +151,12 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
+			int newLineLength = newLineFormat == NewLineFormat.Dos ? 2 : 1;
+			int maxOutputPerLine = 61 + newLineLength;
+
 			// Note: up to 44 bytes of input from previous calls may still be buffered (in uubuf and saved), so the
 			// worst case needs to account for them being completed into full lines along with the new input.
-			return ArgumentValidator.ValidateOutputLength (((((long) inputLength + MaxInputPerLine - 1) / MaxInputPerLine) * MaxOutputPerLine) + MaxOutputPerLine + 2);
+			return ArgumentValidator.ValidateOutputLength (((((long) inputLength + MaxInputPerLine - 1) / MaxInputPerLine) * maxOutputPerLine) + maxOutputPerLine + 1 + newLineLength);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -243,6 +264,8 @@ namespace MimeKit.Encodings {
 					// output the uu line length
 					*outptr = Encode (uulen);
 					outptr += ((uulen / 3) * 4) + 1;
+					if (newLineFormat == NewLineFormat.Dos)
+						*outptr++ = (byte) '\r';
 					*outptr++ = (byte) '\n';
 					uulen = 0;
 
@@ -303,13 +326,13 @@ namespace MimeKit.Encodings {
 			return (int) (outptr - output);
 		}
 
-		// Encodes complete 45-byte lines (each producing 'M' + 60 encoded characters + '\n').
+		// Encodes complete 45-byte lines (each producing 'M' + 60 encoded characters + a line ending).
 		//
 		// A line is not a multiple of the 12-byte (Vector128) or 24-byte (Vector256) block size,
 		// so the final block of each line overlaps the previous one. This means that every load
-		// stays within the 45 bytes of input for the line and every store stays within the 62 bytes
+		// stays within the 45 bytes of input for the line and every store stays within the 62 or 63 bytes
 		// of output for the line, so no bounds checks against the end of the buffers are needed.
-		static unsafe byte* Vector128EncodeLines (byte* inptr, byte* outptr, int lines)
+		unsafe byte* Vector128EncodeLines (byte* inptr, byte* outptr, int lines)
 		{
 			// The JIT won't hoist these "constants", so help it
 			Vector128<byte> shuffleVec = Vector128.Create (0x01020001, 0x04050304, 0x07080607, 0x0A0B090A).AsByte ();
@@ -339,10 +362,12 @@ namespace MimeKit.Encodings {
 				// input bytes [33..44] (loaded from [29..44]) -> output chars [44..59]
 				Vector128EncodeBlock (Vector128.LoadUnsafe (ref *(inptr + 29)), shuffleTailVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33, mask8F).Store (outptr + 45);
 
-				outptr[61] = (byte) '\n';
+				outptr += 61;
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
+				*outptr++ = (byte) '\n';
 
 				inptr += MaxInputPerLine;
-				outptr += MaxOutputPerLine;
 			} while (--lines > 0);
 
 			return outptr;
@@ -405,7 +430,7 @@ namespace MimeKit.Encodings {
 			return ((str + const63) & const63) + const33;
 		}
 
-		static unsafe byte* Avx2EncodeLines (byte* inptr, byte* outptr, int lines)
+		unsafe byte* Avx2EncodeLines (byte* inptr, byte* outptr, int lines)
 		{
 			// Each 128-bit lane of the AVX2 shuffle can only access bytes within the same lane, so the
 			// lower lane needs its 12 input bytes at offsets [4..15] and the upper lane needs its 12
@@ -446,10 +471,12 @@ namespace MimeKit.Encodings {
 				str = Avx2.PermuteVar8x32 (Avx.LoadVector256 (inptr + 13).AsInt32 (), permuteTail).AsByte ();
 				Avx.Store (outptr + 29, Avx2EncodeBlock (str, shuffleVec, maskAC, maskBB, shiftAC, shiftBB, const63, const33));
 
-				outptr[61] = (byte) '\n';
+				outptr += 61;
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
+				*outptr++ = (byte) '\n';
 
 				inptr += MaxInputPerLine;
-				outptr += MaxOutputPerLine;
 			} while (--lines > 0);
 
 			return outptr;
@@ -592,7 +619,7 @@ namespace MimeKit.Encodings {
 			return Encode (input, startIndex, length, output, false);
 		}
 
-		// Encodes any remaining buffered input as the final (partial) line, followed by the terminating "`\n" line.
+		// Encodes any remaining buffered input as the final (partial) line, followed by the terminating "`" line.
 		unsafe int Flush (byte* output, byte* uuptr)
 		{
 			byte* outptr = output;
@@ -632,11 +659,15 @@ namespace MimeKit.Encodings {
 				Buffer.MemoryCopy (uuptr, outptr, n, n);
 				outptr += n;
 
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
 				*outptr++ = (byte) '\n';
 				uulen = 0;
 			}
 			
 			*outptr++ = Encode (uulen & 0xFF);
+			if (newLineFormat == NewLineFormat.Dos)
+				*outptr++ = (byte) '\r';
 			*outptr++ = (byte) '\n';
 
 			Reset ();

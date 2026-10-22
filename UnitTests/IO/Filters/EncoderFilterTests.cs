@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+using System.Text;
+
 using MimeKit;
 using MimeKit.IO.Filters;
 
@@ -57,6 +59,36 @@ namespace UnitTests.IO.Filters {
 			var encoder = (EncoderFilter) filter;
 
 			Assert.That (encoder.Encoding, Is.EqualTo (expected), $"Expected encoder's Encoding to be ContentEncoding.{expected}");
+		}
+
+		[Test]
+		public void TestNewLineFormat ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
+		{
+			var newLine = newLineFormat == NewLineFormat.Dos ? "\r\n" : "\n";
+			var input = Encoding.ASCII.GetBytes ("abc");
+			var cases = new[] {
+				(ContentEncoding.Base64, "base64", "YWJj" + newLine),
+				(ContentEncoding.QuotedPrintable, "quoted-printable", "abc=" + newLine),
+				(ContentEncoding.UUEncode, "x-uuencode", "#86)C" + newLine + "`" + newLine),
+				(ContentEncoding.SevenBit, "7bit", "abc")
+			};
+
+			foreach (var (encoding, name, expected) in cases) {
+				foreach (var filter in new[] { EncoderFilter.Create (encoding, newLineFormat), EncoderFilter.Create (name, newLineFormat) }) {
+					var output = filter.Flush (input, 0, input.Length, out int index, out int length);
+					Assert.That (Encoding.ASCII.GetString (output, index, length), Is.EqualTo (expected));
+
+					filter.Reset ();
+					if (filter is EncoderFilter encoder)
+						Assert.That (encoder.HasOutput, Is.False, "Reset");
+					output = filter.Flush (input, 0, input.Length, out index, out length);
+					Assert.That (Encoding.ASCII.GetString (output, index, length), Is.EqualTo (expected), "after Reset");
+				}
+
+				var defaultFilter = EncoderFilter.Create (encoding);
+				var defaultOutput = defaultFilter.Flush (input, 0, input.Length, out int defaultIndex, out int defaultLength);
+				Assert.That (Encoding.ASCII.GetString (defaultOutput, defaultIndex, defaultLength), Is.EqualTo (expected.Replace ("\r\n", "\n").Replace ("\n", "\r\n")), "default");
+			}
 		}
 
 		[Test]

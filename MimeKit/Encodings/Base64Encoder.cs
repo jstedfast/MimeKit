@@ -56,6 +56,7 @@ namespace MimeKit.Encodings {
 	{
 		internal static ReadOnlySpan<byte> base64_alphabet => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"u8;
 
+		readonly NewLineFormat newLineFormat;
 		readonly int quartetsPerLine;
 		int quartets;
 		byte saved1;
@@ -81,8 +82,13 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF).</param>
 		/// <param name="overrideMaxLineLengthLimits">This parameter is not used and is only here to differentiate the constructor signature.</param>
-		internal Base64Encoder (int maxLineLength, bool overrideMaxLineLengthLimits)
+		internal Base64Encoder (int maxLineLength, bool overrideMaxLineLengthLimits) : this (NewLineFormat.Dos, maxLineLength, overrideMaxLineLengthLimits)
 		{
+		}
+
+		internal Base64Encoder (NewLineFormat newLineFormat, int maxLineLength, bool overrideMaxLineLengthLimits)
+		{
+			this.newLineFormat = newLineFormat;
 			quartetsPerLine = maxLineLength / 4;
 		}
 
@@ -90,15 +96,34 @@ namespace MimeKit.Encodings {
 		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// <para>Creates a new base64 encoder.</para>
+		/// <para>Creates a new base64 encoder using CRLF line endings.</para>
 		/// <note type="note">Specifying a <paramref name="maxLineLength"/> value over 76 octets will be ignored and capped at 76.</note>
 		/// </remarks>
 		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
 		/// </exception>
-		public Base64Encoder (int maxLineLength = 76)
+		public Base64Encoder (int maxLineLength = 76) : this (NewLineFormat.Dos, maxLineLength)
 		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="Base64Encoder"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new base64 encoder using the specified line endings. Line lengths over 76 are capped at 76.
+		/// </remarks>
+		/// <param name="newLineFormat">The line ending format.</param>
+		/// <param name="maxLineLength">The maximum line length, excluding line endings, between 60 and 998 (inclusive).</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>,
+		/// or <paramref name="maxLineLength"/> is not between 60 and 998 (inclusive).
+		/// </exception>
+		public Base64Encoder (NewLineFormat newLineFormat, int maxLineLength = 76)
+		{
+			if (newLineFormat != NewLineFormat.Dos && newLineFormat != NewLineFormat.Unix)
+				throw new ArgumentOutOfRangeException (nameof (newLineFormat));
+
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
@@ -106,6 +131,7 @@ namespace MimeKit.Encodings {
 			maxLineLength = Math.Min (maxLineLength, 76);
 
 			quartetsPerLine = maxLineLength / 4;
+			this.newLineFormat = newLineFormat;
 		}
 
 		/// <summary>
@@ -117,7 +143,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="Base64Encoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			return new Base64Encoder (quartetsPerLine * 4) {
+			return new Base64Encoder (newLineFormat, quartetsPerLine * 4, true) {
 				quartets = quartets,
 				saved1 = saved1,
 				saved2 = saved2,
@@ -164,13 +190,14 @@ namespace MimeKit.Encodings {
 		/// </exception>
 		public int EstimateOutputLength (int inputLength)
 		{
-			int maxLineLength = (quartetsPerLine * 4) + 1;
+			int newLineLength = newLineFormat == NewLineFormat.Dos ? 2 : 1;
+			int maxLineLength = (quartetsPerLine * 4) + newLineLength;
 			int maxInputPerLine = quartetsPerLine * 3;
 
 			// Note: up to 2 bytes of input from previous calls may still be saved and the current line may already be
 			// nearly full, so the worst case can complete the current line *and* terminate a new line when flushing,
 			// which requires 1 more newline than the line count alone would suggest.
-			return ArgumentValidator.ValidateOutputLength (((((long) inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength + 1);
+			return ArgumentValidator.ValidateOutputLength (((((long) inputLength + 2) / maxInputPerLine) * maxLineLength) + maxLineLength + newLineLength);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -215,6 +242,8 @@ namespace MimeKit.Encodings {
 
 				// append a newline if we've reached our target quartet count
 				if (++quartets >= quartetsPerLine) {
+					if (newLineFormat == NewLineFormat.Dos)
+						*outptr++ = (byte) '\r';
 					*outptr++ = (byte) '\n';
 					quartets = 0;
 				}
@@ -337,6 +366,8 @@ namespace MimeKit.Encodings {
 
 				// append a newline if we've reached our target quartet count
 				if (quartets >= quartetsPerLine) {
+					if (newLineFormat == NewLineFormat.Dos)
+						*outptr++ = (byte) '\r';
 					*outptr++ = (byte) '\n';
 					quartets = 0;
 				}
@@ -822,6 +853,8 @@ namespace MimeKit.Encodings {
 
 					// append a newline if we've reached our target quartet count
 					if (++quartets >= quartetsPerLine) {
+						if (newLineFormat == NewLineFormat.Dos)
+							*outptr++ = (byte) '\r';
 						*outptr++ = (byte) '\n';
 						quartets = 0;
 					}
@@ -992,6 +1025,8 @@ namespace MimeKit.Encodings {
 			}
 
 			if (quartets > 0) {
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
 				*outptr++ = (byte) '\n';
 				quartets = 0;
 			}

@@ -33,6 +33,11 @@ writers inherit the factory, and the writer disposes each temporary stream when 
 
 ### Breaking Changes
 
+* `Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncoder` and `EncoderFilter.Create`
+  now default to CRLF line endings. New overloads accept `NewLineFormat.Dos` or
+  `NewLineFormat.Unix`; `Mixed` is rejected. Specify `Unix` to retain the previous LF output.
+  MIME serialization still follows `FormatOptions.NewLineFormat`, without a separate newline
+  conversion filter when freshly encoding base64, quoted-printable or uuencoded content.
 * OpenPGP decryption now verifies encrypted-data integrity and rejects legacy packets without
   integrity protection by default. Set `OpenPgpContext.AllowUnauthenticatedDecryption` to `true`
   only when legacy compatibility is required. Stream output must not be used until decryption

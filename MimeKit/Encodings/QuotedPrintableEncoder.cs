@@ -41,14 +41,16 @@ namespace MimeKit.Encodings {
 	{
 		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
 
+		readonly NewLineFormat newLineFormat;
 		readonly short tripletsPerLine;
 		readonly short maxLineLength;
 		short currentLineLength;
 		bool savedCarriageReturn;
 		short saved;
 
-		QuotedPrintableEncoder (short tripletsPerLine, short maxLineLength)
+		QuotedPrintableEncoder (NewLineFormat newLineFormat, short tripletsPerLine, short maxLineLength)
 		{
+			this.newLineFormat = newLineFormat;
 			this.tripletsPerLine = tripletsPerLine;
 			this.maxLineLength = maxLineLength;
 		}
@@ -57,15 +59,35 @@ namespace MimeKit.Encodings {
 		/// Initialize a new instance of the <see cref="QuotedPrintableEncoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// <para>Creates a new quoted-printable encoder.</para>
+		/// <para>Creates a new quoted-printable encoder using CRLF line endings.</para>
 		/// <note type="note">Specifying a <paramref name="maxLineLength"/> value over 76 octets will be ignored and capped at 76.</note>
 		/// </remarks>
 		/// <param name="maxLineLength">The maximum number of octets allowed per line (not counting the CRLF). Must be between <c>60</c> and <c>998</c> (inclusive).</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not between <c>60</c> and <c>998</c> (inclusive).
 		/// </exception>
-		public QuotedPrintableEncoder (int maxLineLength = 76)
+		public QuotedPrintableEncoder (int maxLineLength = 76) : this (NewLineFormat.Dos, maxLineLength)
 		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="QuotedPrintableEncoder"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new quoted-printable encoder using the specified line endings for both hard and soft
+		/// line breaks. Hard line breaks remain in the decoded content. Line lengths over 76 are capped at 76.
+		/// </remarks>
+		/// <param name="newLineFormat">The line ending format.</param>
+		/// <param name="maxLineLength">The maximum line length, excluding line endings, between 60 and 998 (inclusive).</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>,
+		/// or <paramref name="maxLineLength"/> is not between 60 and 998 (inclusive).
+		/// </exception>
+		public QuotedPrintableEncoder (NewLineFormat newLineFormat, int maxLineLength = 76)
+		{
+			if (newLineFormat != NewLineFormat.Dos && newLineFormat != NewLineFormat.Unix)
+				throw new ArgumentOutOfRangeException (nameof (newLineFormat));
+
 			if (maxLineLength < FormatOptions.MinimumLineLength || maxLineLength > FormatOptions.MaximumLineLength)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
@@ -75,6 +97,7 @@ namespace MimeKit.Encodings {
 			// normalize the maximum line length (leaving room for the '=' of a soft line break)
 			tripletsPerLine = (short) ((maxLineLength - 1) / 3);
 			this.maxLineLength = (short) maxLineLength;
+			this.newLineFormat = newLineFormat;
 
 			Reset ();
 		}
@@ -88,7 +111,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="QuotedPrintableEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			return new QuotedPrintableEncoder (tripletsPerLine, maxLineLength) {
+			return new QuotedPrintableEncoder (newLineFormat, tripletsPerLine, maxLineLength) {
 				currentLineLength = currentLineLength,
 				savedCarriageReturn = savedCarriageReturn,
 				saved = saved
@@ -128,12 +151,13 @@ namespace MimeKit.Encodings {
 				length++;
 
 			// Note: In the worst case, every input byte is encoded as a triplet and every tripletsPerLine triplets are
-			// followed by a soft line break ("=\n"). A line that was started by a previous call to Encode() may require
+			// followed by a soft line break. A line that was started by a previous call to Encode() may require
 			// an additional soft line break and Flush() may append a trailing soft line break.
-			long estimate = ((length / tripletsPerLine) * ((tripletsPerLine * 3) + 2)) + ((length % tripletsPerLine) * 3) + 2;
+			int softBreakLength = newLineFormat == NewLineFormat.Dos ? 3 : 2;
+			long estimate = ((length / tripletsPerLine) * ((tripletsPerLine * 3) + softBreakLength)) + ((length % tripletsPerLine) * 3) + softBreakLength;
 
 			if (currentLineLength > 0)
-				estimate += 2;
+				estimate += softBreakLength;
 
 			return ArgumentValidator.ValidateOutputLength (estimate);
 		}
@@ -166,6 +190,8 @@ namespace MimeKit.Encodings {
 			// for the '=' of a soft line break that might need to follow it.
 			if (currentLineLength + length + (endOfLine ? 0 : 1) > maxLineLength) {
 				*outptr++ = (byte) '=';
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
 				*outptr++ = (byte) '\n';
 				currentLineLength = 0;
 			}
@@ -201,6 +227,8 @@ namespace MimeKit.Encodings {
 						if (saved != -1)
 							outptr = WriteSaved (outptr, true, true);
 
+						if (newLineFormat == NewLineFormat.Dos)
+							*outptr++ = (byte) '\r';
 						*outptr++ = (byte) '\n';
 						currentLineLength = 0;
 						continue;
@@ -220,6 +248,8 @@ namespace MimeKit.Encodings {
 					if (saved != -1)
 						outptr = WriteSaved (outptr, true, true);
 
+					if (newLineFormat == NewLineFormat.Dos)
+						*outptr++ = (byte) '\r';
 					*outptr++ = (byte) '\n';
 					currentLineLength = 0;
 				} else {
@@ -228,6 +258,8 @@ namespace MimeKit.Encodings {
 
 						if (currentLineLength + 1 >= maxLineLength) {
 							*outptr++ = (byte) '=';
+							if (newLineFormat == NewLineFormat.Dos)
+								*outptr++ = (byte) '\r';
 							*outptr++ = (byte) '\n';
 							currentLineLength = 0;
 						}
@@ -295,9 +327,11 @@ namespace MimeKit.Encodings {
 
 			if (saved != -1) {
 				// spaces and tabs must be encoded if they are the last character in the content and
-				// we end with =\n so that the \n isn't interpreted as a real \n when it gets decoded later
+				// we end with a soft line break so that it isn't included in the decoded content
 				outptr = WriteSaved (outptr, false, true);
 				*outptr++ = (byte) '=';
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
 				*outptr++ = (byte) '\n';
 			}
 

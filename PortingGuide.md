@@ -275,6 +275,31 @@ retry: do not clear, replace or otherwise mutate them during or after disposal, 
 same tree concurrently. Reentrant disposal of an object already being disposed is ignored. An ownership
 cycle is reported as an `InvalidOperationException`, while other cleanup is still attempted.
 
+### Content encoder line endings
+
+`Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncoder` and the
+`EncoderFilter.Create` factories now default to CRLF rather than LF line endings.
+Their existing constructor and factory signatures remain available. To preserve the old output,
+select `NewLineFormat.Unix` explicitly:
+
+```csharp
+var base64 = new Base64Encoder (NewLineFormat.Unix);
+var quotedPrintable = new QuotedPrintableEncoder (NewLineFormat.Unix, maxLineLength: 76);
+var uuencode = new UUEncoder (NewLineFormat.Unix);
+var yencode = new YEncoder (NewLineFormat.Unix);
+var filter = EncoderFilter.Create (ContentEncoding.Base64, NewLineFormat.Unix);
+```
+
+The new overloads accept only `Dos` and `Unix`; `Mixed` and invalid enum values throw
+`ArgumentOutOfRangeException`. Continue sizing buffers with `EstimateOutputLength` rather than
+assuming one byte per newline. Quoted-printable uses the selected format for both hard and soft
+line breaks: hard breaks survive decoding, whereas soft breaks do not.
+
+Ordinary MIME serialization still uses `FormatOptions.NewLineFormat`. Freshly encoded base64,
+quoted-printable and uuencoded bodies now produce those line endings directly, rather than passing
+through a second conversion filter. Already encoded bodies and unencoded text retain newline
+normalization.
+
 ## HTML
 
 | 4.x | 5.0 |

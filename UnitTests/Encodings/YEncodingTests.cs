@@ -42,7 +42,7 @@ namespace UnitTests.Encodings {
 			using (var encoded = new MemoryStream ()) {
 				var ybegin = Encoding.ASCII.GetBytes ($"-- \n=ybegin line=128 size={contentLength} name={fileName} \n");
 				var yend = Encoding.ASCII.GetBytes ($"=yend size={contentLength} crc32={crc32:x8} \n");
-				var yenc = new YEncoder ();
+				var yenc = new YEncoder (NewLineFormat.Unix);
 
 				encoded.Write (ybegin, 0, ybegin.Length);
 
@@ -76,7 +76,7 @@ namespace UnitTests.Encodings {
 		{
 			var ybegin = Encoding.ASCII.GetBytes ($"-- \n=ybegin line=128 size={contentLength} name={fileName} \n");
 			var yend = Encoding.ASCII.GetBytes ($"=yend size={contentLength} crc32={crc32:x8} \n");
-			var yenc = new YEncoder ();
+			var yenc = new YEncoder (NewLineFormat.Unix);
 
 			int needed = yenc.EstimateOutputLength (contentLength) + ybegin.Length + yend.Length;
 			byte[] encoded = new byte[needed];

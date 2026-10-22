@@ -202,6 +202,21 @@ namespace UnitTests.Encodings {
 			return new Base64Encoder (maxLineLength, overrideMaxLineLengthLimits: true);
 		}
 
+		[Test]
+		public void TestNewLineFormat ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat, [Values] CodePath path)
+		{
+			var encode = GetEncodeFunc (path);
+			var encoder = new Base64Encoder (newLineFormat, 60);
+			var input = GenerateRandomBytes (new Random (42), 513);
+			var expected = ReferenceEncode (input, 60);
+
+			if (newLineFormat == NewLineFormat.Unix)
+				expected = Encoding.ASCII.GetBytes (Encoding.ASCII.GetString (expected).Replace ("\r\n", "\n"));
+
+			AssertNewLineFormat (encoder, input, expected, (data, index, length, output, flush) => encode (encoder, data, index, length, output, flush));
+			AssertNewLineFormat (encoder, Array.Empty<byte> (), Array.Empty<byte> ());
+		}
+
 		// An independent, deliberately simple, reference implementation of base64 encoding with line wrapping.
 		static byte[] ReferenceEncode (byte[] data, int maxLineLength)
 		{
@@ -211,7 +226,7 @@ namespace UnitTests.Encodings {
 
 			for (int index = 0; index < base64.Length; index += lineLength) {
 				builder.Append (base64, index, Math.Min (lineLength, base64.Length - index));
-				builder.Append ('\n');
+				builder.Append ("\r\n");
 			}
 
 			return Encoding.ASCII.GetBytes (builder.ToString ());

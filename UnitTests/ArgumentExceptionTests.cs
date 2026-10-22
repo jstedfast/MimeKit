@@ -30,6 +30,7 @@ using MimeKit;
 using MimeKit.IO;
 using MimeKit.Tnef;
 using MimeKit.Utils;
+using MimeKit.Encodings;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 
@@ -115,6 +116,32 @@ namespace UnitTests {
 			Assert.That (ex.ParamName, Is.EqualTo ("length"));
 
 			filter.Reset ();
+		}
+
+		[Test]
+		public void TestEncoderNewLineFormatArguments ()
+		{
+			foreach (var format in new[] { NewLineFormat.Mixed, (NewLineFormat) 255, (NewLineFormat) 99 }) {
+				Assert.Throws<ArgumentOutOfRangeException> (() => new Base64Encoder (format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => new UUEncoder (format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create (ContentEncoding.Base64, format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ("base64", format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create (ContentEncoding.Binary, format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ("unknown", format));
+			}
+
+			foreach (var format in new[] { NewLineFormat.Dos, NewLineFormat.Unix }) {
+				Assert.Throws<ArgumentNullException> (() => EncoderFilter.Create (null, format));
+				foreach (int maxLineLength in new[] { 59, 999 }) {
+					Assert.Throws<ArgumentOutOfRangeException> (() => new Base64Encoder (format, maxLineLength));
+					Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (format, maxLineLength));
+					Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (format, maxLineLength));
+					Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create (ContentEncoding.Base64, format, maxLineLength));
+					Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ("quoted-printable", format, maxLineLength));
+				}
+			}
 		}
 
 		[Test]

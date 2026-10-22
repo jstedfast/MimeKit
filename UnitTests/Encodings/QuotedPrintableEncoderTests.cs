@@ -93,7 +93,7 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
-		public void TestEstimateOutputLengthAccountsForPartialLine ([Range (60, 76)] int maxLineLength)
+		public void TestEstimateOutputLengthAccountsForPartialLine ([Range (60, 76)] int maxLineLength, [Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
 		{
 			const byte guard = 0xCC;
 			var patterns = new byte[][] {
@@ -107,7 +107,7 @@ namespace UnitTests.Encodings {
 				for (int prefix = 0; prefix <= 80; prefix++) {
 					for (int suffix = 0; suffix <= 80; suffix++) {
 						var input = new byte[prefix + suffix];
-						var encoder = new QuotedPrintableEncoder (maxLineLength);
+						var encoder = new QuotedPrintableEncoder (newLineFormat, maxLineLength);
 
 						for (int i = 0; i < input.Length; i++)
 							input[i] = pattern[i % pattern.Length];
@@ -136,7 +136,7 @@ namespace UnitTests.Encodings {
 		public void TestEncodeSpaceDosLineBreak ()
 		{
 			const string input = "This line ends with a space \r\nbefore a line break.";
-			const string expected = "This line ends with a space=20\nbefore a line break.=\n";
+			const string expected = "This line ends with a space=20\r\nbefore a line break.=\r\n";
 			var output = ArrayPool<byte>.Shared.Rent (1024);
 			var encoder = new QuotedPrintableEncoder ();
 
@@ -155,7 +155,7 @@ namespace UnitTests.Encodings {
 		public void TestEncodeSpaceUnixLineBreak ()
 		{
 			const string input = "This line ends with a space \nbefore a line break.";
-			const string expected = "This line ends with a space=20\nbefore a line break.=\n";
+			const string expected = "This line ends with a space=20\r\nbefore a line break.=\r\n";
 			var output = ArrayPool<byte>.Shared.Rent (1024);
 			var encoder = new QuotedPrintableEncoder ();
 
@@ -173,7 +173,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestEncodeEqualSignAt76 ()
 		{
-			const string expected = "<table style=3D\"width:100%;\" cellpadding=3D\"0\" cellspacing=3D\"0\" border=3D\"=\n0\"><tr><td style=3D\"width:100%;text-align:center;background-color:;\" bgcolo=\nr=3D\"\">Test</td></tr><table>=\n";
+			const string expected = "<table style=3D\"width:100%;\" cellpadding=3D\"0\" cellspacing=3D\"0\" border=3D\"=\r\n0\"><tr><td style=3D\"width:100%;text-align:center;background-color:;\" bgcolo=\r\nr=3D\"\">Test</td></tr><table>=\r\n";
 			const string text = "<table style=\"width:100%;\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"width:100%;text-align:center;background-color:;\" bgcolor=\"\">Test</td></tr><table>";
 			var input = Encoding.ASCII.GetBytes (text);
 			var encoder = new QuotedPrintableEncoder (76);
@@ -188,7 +188,7 @@ namespace UnitTests.Encodings {
 		public void TestFlush ()
 		{
 			const string input = "This line ends with a space ";
-			const string expected = "This line ends with a space=20=\n";
+			const string expected = "This line ends with a space=20=\r\n";
 			var encoder = new QuotedPrintableEncoder ();
 			var decoder = new QuotedPrintableDecoder ();
 			var output = new byte[1024];
@@ -232,10 +232,26 @@ namespace UnitTests.Encodings {
 			return builder.ToString ();
 		}
 
+		[Test]
+		public void TestNewLineFormat ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
+		{
+			var newLine = newLineFormat == NewLineFormat.Dos ? "\r\n" : "\n";
+			var input = Encoding.ASCII.GetBytes (new string ('a', 76) + " \r\nb\nc\rd\t");
+			var expected = Encoding.ASCII.GetBytes (new string ('a', 75) + "=" + newLine + "a=20" + newLine + "b" + newLine + "c=0Dd=09=" + newLine);
+			var encoder = new QuotedPrintableEncoder (newLineFormat);
+
+			AssertNewLineFormat (encoder, input, expected);
+			AssertNewLineFormat (encoder, Array.Empty<byte> (), Array.Empty<byte> ());
+
+			var decoded = new byte[expected.Length];
+			int count = new QuotedPrintableDecoder ().Decode (expected, 0, expected.Length, decoded);
+			Assert.That (Encoding.ASCII.GetString (decoded, 0, count), Is.EqualTo (new string ('a', 76) + " " + newLine + "b" + newLine + "c\rd\t"));
+		}
+
 		static void AssertLineLengths (string encoded, int maxLineLength)
 		{
 			foreach (var line in encoded.Split ('\n'))
-				Assert.That (line.Length, Is.LessThanOrEqualTo (maxLineLength), $"Line too long: {line}");
+				Assert.That (line.TrimEnd ('\r').Length, Is.LessThanOrEqualTo (maxLineLength), $"Line too long: {line}");
 		}
 
 		[TestCase ("\n", false)]
@@ -246,7 +262,7 @@ namespace UnitTests.Encodings {
 		{
 			var prefix = new string ('a', 74);
 			var input = Encoding.Latin1.GetBytes (prefix + "\u00e9b" + newLine + prefix + "\u00e9" + newLine + prefix + " " + newLine + prefix + "\r\u00e9" + newLine);
-			var expected = prefix + "=\n=E9b\n" + prefix + "=\n=E9\n" + prefix + "=\n=20\n" + prefix + "=\n=0D=E9\n";
+			var expected = prefix + "=\r\n=E9b\r\n" + prefix + "=\r\n=E9\r\n" + prefix + "=\r\n=20\r\n" + prefix + "=\r\n=0D=E9\r\n";
 			var encoded = Encode (new QuotedPrintableEncoder (), input, oneByteAtATime);
 
 			Assert.That (encoded, Is.EqualTo (expected));
@@ -258,7 +274,7 @@ namespace UnitTests.Encodings {
 		public void TestEncodeTripletDoesNotExceedMaxLineLengthOnFlush (bool oneByteAtATime)
 		{
 			var input = Encoding.Latin1.GetBytes (new string ('a', 73) + "\u00e9");
-			var expected = new string ('a', 73) + "=\n=E9=\n";
+			var expected = new string ('a', 73) + "=\r\n=E9=\r\n";
 			var encoded = Encode (new QuotedPrintableEncoder (), input, oneByteAtATime);
 
 			Assert.That (encoded, Is.EqualTo (expected));
@@ -271,7 +287,7 @@ namespace UnitTests.Encodings {
 		{
 			var line = new string ('a', 73) + "\u00e9";
 			var input = Encoding.Latin1.GetBytes (line + "\r\n" + line + "\r");
-			var expected = new string ('a', 73) + "=E9\n" + new string ('a', 73) + "=\n=E9=0D=\n";
+			var expected = new string ('a', 73) + "=E9\r\n" + new string ('a', 73) + "=\r\n=E9=0D=\r\n";
 			var encoded = Encode (new QuotedPrintableEncoder (), input, oneByteAtATime);
 
 			Assert.That (encoded, Is.EqualTo (expected));
@@ -279,14 +295,14 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
-		public void TestEncodeAllOctetsDoesNotExceedMaxLineLength ([Range (60, 76)] int maxLineLength)
+		public void TestEncodeAllOctetsDoesNotExceedMaxLineLength ([Range (60, 76)] int maxLineLength, [Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
 		{
 			var random = new Random (maxLineLength);
 			var input = new byte[16 * 1024];
 
 			random.NextBytes (input);
 
-			var encoder = new QuotedPrintableEncoder (maxLineLength);
+			var encoder = new QuotedPrintableEncoder (newLineFormat, maxLineLength);
 			var encoded = Encode (encoder, input, false);
 			var buffer = Encoding.ASCII.GetBytes (encoded);
 			var decoded = new byte[buffer.Length];
@@ -294,16 +310,19 @@ namespace UnitTests.Encodings {
 
 			AssertLineLengths (encoded, maxLineLength);
 			Assert.That (Encode (encoder, input, true), Is.EqualTo (encoded), "one byte at a time");
-			Assert.That (decoded.AsSpan (0, n).ToArray (), Is.EqualTo (CanonicalizeLineBreaks (input)), "round trip");
+			Assert.That (decoded.AsSpan (0, n).ToArray (), Is.EqualTo (CanonicalizeLineBreaks (input, newLineFormat)), "round trip");
 		}
 
-		static byte[] CanonicalizeLineBreaks (byte[] input)
+		static byte[] CanonicalizeLineBreaks (byte[] input, NewLineFormat newLineFormat)
 		{
 			var output = new List<byte> (input.Length);
 
 			for (int i = 0; i < input.Length; i++) {
 				if (input[i] == (byte) '\r' && i + 1 < input.Length && input[i + 1] == (byte) '\n')
 					continue;
+
+				if (input[i] == (byte) '\n' && newLineFormat == NewLineFormat.Dos)
+					output.Add ((byte) '\r');
 
 				output.Add (input[i]);
 			}
@@ -313,7 +332,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestEncodeHebrew ()
 		{
-			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1 =\n=E9=EC=E8=F4=F0)\nis in Hebrew (=FA=E9=F8=E1=F2).\n";
+			const string expected = "This is an ordinary text message in which my name (=ED=E5=EC=F9 =EF=E1 =\r\n=E9=EC=E8=F4=F0)\r\nis in Hebrew (=FA=E9=F8=E1=F2).\r\n";
 			const string input = "This is an ordinary text message in which my name (םולש ןב ילטפנ)\nis in Hebrew (תירבע).\n";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
 			var encoder = new QuotedPrintableEncoder (72);

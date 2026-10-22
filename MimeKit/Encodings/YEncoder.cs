@@ -39,6 +39,7 @@ namespace MimeKit.Encodings {
 	/// </remarks>
 	public class YEncoder : IMimeEncoder
 	{
+		readonly NewLineFormat newLineFormat;
 		readonly int lineLength;
 		int octets;
 		Crc32 crc;
@@ -47,18 +48,38 @@ namespace MimeKit.Encodings {
 		/// Initialize a new instance of the <see cref="YEncoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new yEnc encoder.
+		/// Creates a new yEnc encoder using CRLF line endings.
 		/// </remarks>
 		/// <param name="maxLineLength">The line length to use.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not within the range of <c>60</c> to <c>998</c>.
 		/// </exception>
-		public YEncoder (int maxLineLength = 128)
+		public YEncoder (int maxLineLength = 128) : this (NewLineFormat.Dos, maxLineLength)
 		{
+		}
+
+		/// <summary>
+		/// Initialize a new instance of the <see cref="YEncoder"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new yEnc encoder using the specified line endings.
+		/// </remarks>
+		/// <param name="newLineFormat">The line ending format.</param>
+		/// <param name="maxLineLength">The line length to use, between 60 and 998 (inclusive).</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>,
+		/// or <paramref name="maxLineLength"/> is not between 60 and 998 (inclusive).
+		/// </exception>
+		public YEncoder (NewLineFormat newLineFormat, int maxLineLength = 128)
+		{
+			if (newLineFormat != NewLineFormat.Dos && newLineFormat != NewLineFormat.Unix)
+				throw new ArgumentOutOfRangeException (nameof (newLineFormat));
+
 			if (maxLineLength < 60 || maxLineLength > 998)
 				throw new ArgumentOutOfRangeException (nameof (maxLineLength));
 
 			lineLength = maxLineLength;
+			this.newLineFormat = newLineFormat;
 			crc = new Crc32 (-1);
 			Reset ();
 		}
@@ -83,7 +104,7 @@ namespace MimeKit.Encodings {
 		/// <returns>A new <see cref="YEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			return new YEncoder (lineLength) {
+			return new YEncoder (newLineFormat, lineLength) {
 				crc = crc.Clone (),
 				octets = octets
 			};
@@ -116,8 +137,9 @@ namespace MimeKit.Encodings {
 			// Worst case: every byte is escaped (2 octets each), a line may already be
 			// partially filled from a previous Encode() call, and Flush() appends a final newline.
 			long encodedLength = (long) inputLength * 2;
+			int newLineLength = newLineFormat == NewLineFormat.Dos ? 2 : 1;
 
-			return ArgumentValidator.ValidateOutputLength (encodedLength + (encodedLength / lineLength) + 2);
+			return ArgumentValidator.ValidateOutputLength (encodedLength + ((encodedLength / lineLength) + 2) * newLineLength);
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -161,6 +183,8 @@ namespace MimeKit.Encodings {
 				}
 
 				if (octets >= lineLength) {
+					if (newLineFormat == NewLineFormat.Dos)
+						*outptr++ = (byte) '\r';
 					*outptr++ = (byte) '\n';
 					octets = 0;
 				}
@@ -216,6 +240,8 @@ namespace MimeKit.Encodings {
 				outptr += Encode (input, length, output);
 
 			if (octets > 0) {
+				if (newLineFormat == NewLineFormat.Dos)
+					*outptr++ = (byte) '\r';
 				*outptr++ = (byte) '\n';
 				octets = 0;
 			}

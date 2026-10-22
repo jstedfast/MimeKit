@@ -29,6 +29,8 @@ using System.Text;
 using System.Buffers;
 
 using MimeKit;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 using MimeKit.Utils;
 
 using UnitTests.IO;
@@ -37,6 +39,102 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimePartTests
 	{
+		static async Task AssertWriteContentNewLineFormat (NewLineFormat newLineFormat, ContentEncoding encoding, bool ensureNewLine, string text, bool doAsync)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = newLineFormat;
+			var input = Encoding.ASCII.GetBytes (text);
+			using var part = new MimePart {
+				Content = new MimeContent (new MemoryStream (input), ContentEncoding.Binary),
+				ContentTransferEncoding = encoding
+			};
+			using var expected = new MemoryStream ();
+
+			if (encoding == ContentEncoding.UUEncode)
+				expected.Write (Encoding.ASCII.GetBytes ("begin 0644 unknown" + options.NewLine));
+
+			// Reproduce the old encoder + newline-conversion pipeline.
+			using (var filtered = new FilteredStream (expected)) {
+				filtered.Add (EncoderFilter.Create (encoding, NewLineFormat.Unix));
+				if (encoding != ContentEncoding.Binary)
+					filtered.Add (options.CreateNewLineFilter (ensureNewLine));
+				filtered.Write (input, 0, input.Length);
+				filtered.Flush ();
+			}
+
+			if (encoding == ContentEncoding.UUEncode)
+				expected.Write (Encoding.ASCII.GetBytes ("end" + options.NewLine));
+
+			using var actual = new MemoryStream ();
+			if (doAsync)
+				await part.WriteContentAsync (options, actual, ensureNewLine, CancellationToken.None);
+			else
+				part.WriteContent (options, actual, ensureNewLine, CancellationToken.None);
+
+			Assert.That (actual.ToArray (), Is.EqualTo (expected.ToArray ()));
+		}
+
+		[Test]
+		public void TestWriteContentNewLineFormat (
+			[Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat,
+			[Values (ContentEncoding.Default, ContentEncoding.SevenBit, ContentEncoding.EightBit, ContentEncoding.Binary, ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
+			[Values] bool ensureNewLine, [Values ("", "a\r\nb\nc\rd ", "\r\n\n")] string text)
+		{
+			AssertWriteContentNewLineFormat (newLineFormat, encoding, ensureNewLine, text, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestWriteContentNewLineFormatAsync (
+			[Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat,
+			[Values (ContentEncoding.Default, ContentEncoding.SevenBit, ContentEncoding.EightBit, ContentEncoding.Binary, ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
+			[Values] bool ensureNewLine, [Values ("", "a\r\nb\nc\rd ", "\r\n\n")] string text)
+		{
+			await AssertWriteContentNewLineFormat (newLineFormat, encoding, ensureNewLine, text, true);
+		}
+
+		[Test]
+		public async Task TestWriteContentDecodedEmpty (
+			[Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat,
+			[Values] bool ensureNewLine, [Values] bool doAsync)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = newLineFormat;
+			using var part = new MimePart {
+				Content = new MimeContent (new MemoryStream ("\r\n \t"u8.ToArray ()), ContentEncoding.Base64),
+				ContentTransferEncoding = ContentEncoding.QuotedPrintable
+			};
+			using var output = new MemoryStream ();
+
+			if (doAsync)
+				await part.WriteContentAsync (options, output, ensureNewLine, CancellationToken.None);
+			else
+				part.WriteContent (options, output, ensureNewLine, CancellationToken.None);
+
+			Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo (ensureNewLine ? options.NewLine : ""));
+		}
+
+		[Test]
+		public async Task TestWriteContentAlreadyEncoded (
+			[Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat,
+			[Values (ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
+			[Values] bool doAsync)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = newLineFormat;
+			using var part = new MimePart {
+				Content = new MimeContent (new MemoryStream ("abc\r\ndef\nghi"u8.ToArray ()), encoding),
+				ContentTransferEncoding = encoding
+			};
+			using var output = new MemoryStream ();
+
+			if (doAsync)
+				await part.WriteContentAsync (options, output, true, CancellationToken.None);
+			else
+				part.WriteContent (options, output, true, CancellationToken.None);
+
+			Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo ("abc" + options.NewLine + "def" + options.NewLine + "ghi" + options.NewLine));
+		}
+
 		[Test]
 		public void TestArgumentExceptions ()
 		{
