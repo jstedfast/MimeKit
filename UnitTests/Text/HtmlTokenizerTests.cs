@@ -4060,7 +4060,8 @@ namespace UnitTests.Text {
 
 			watch.Stop ();
 
-			Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (30)));
+			if (!TestHelper.IsCodeCoverageEnabled)
+				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (30)));
 
 			last = lastFew[lastFew.Count - 1];
 
