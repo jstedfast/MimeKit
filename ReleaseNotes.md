@@ -31,6 +31,11 @@ use their existing fallbacks.
 such as temporary files in an application-selected directory, instead of memory. Embedded message
 writers inherit the factory, and the writer disposes each temporary stream when it is no longer needed.
 
+Standalone `YEncReader` and `YEncWriter` APIs in `MimeKit.Encodings` now read and write framed yEnc
+blocks, including individual multipart ranges, with streaming sync/async operations, metadata,
+configurable limits, and size/checksum validation. They do not change MIME parsing or assemble parts.
+Fixed a yEnc decoder bug that lost the initial escape character in single-part framed content.
+
 ### Breaking Changes
 
 * Mailbox sorting now compares IDN-encoded domains, so Unicode domains and their equivalent
@@ -38,7 +43,9 @@ writers inherit the factory, and the writer disposes each temporary stream when 
   then local-parts, using case-insensitive comparisons.
 * Renamed `MimeKit.IO.BoundStream` to `MimeKit.IO.BoundedStream`. Constructor parameters and
   stream behavior are unchanged; the old type name is no longer available.
-* `Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncoder` and `EncoderFilter.Create`
+* Renamed `MimeKit.Encodings.YEncoder` and `YDecoder` to `YEncEncoder` and `YEncDecoder`.
+  Update references to the new names; the low-level checksum representation is unchanged.
+* `Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncEncoder` and `EncoderFilter.Create`
   now default to CRLF line endings. New overloads accept `NewLineFormat.Dos` or
   `NewLineFormat.Unix`; `Mixed` is rejected. Specify `Unix` to retain the previous LF output.
   MIME serialization still follows `FormatOptions.NewLineFormat`, without a separate newline

@@ -55,8 +55,8 @@ namespace MimeKit.Fuzzing.Targets {
 				2 => new QuotedPrintableDecoder (true),
 				3 => new UUDecoder (false),
 				4 => new UUDecoder (true),
-				5 => new YDecoder (false),
-				6 => new YDecoder (true),
+				5 => new YEncDecoder (false),
+				6 => new YEncDecoder (true),
 				_ => new Rfc2231Decoder (),
 			};
 		}
@@ -95,7 +95,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 			RoundTrip (new Base64Encoder (), new Base64Decoder (), input, split);
 			RoundTrip (new UUEncoder (), new UUDecoder (true), input, split);
-			RoundTrip (new YEncoder (), new YDecoder (true), input, split);
+			RoundTrip (new YEncEncoder (), new YEncDecoder (true), input, split);
 			RoundTrip (new QuotedPrintableEncoder (60 + (input.Length % 17)), new QuotedPrintableDecoder (false), input, split);
 		}
 

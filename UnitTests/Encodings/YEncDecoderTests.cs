@@ -1,5 +1,5 @@
 ﻿//
-// YDecoderTests.cs
+// YEncDecoderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -31,18 +31,18 @@ using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
 	[TestFixture]
-	public class YDecoderTests : MimeDecoderTestsBase
+	public class YEncDecoderTests : MimeDecoderTestsBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new YDecoder ());
+			AssertArgumentExceptions (new YEncDecoder ());
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var decoder = new YDecoder ();
+			var decoder = new YEncDecoder ();
 
 			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
 		}
@@ -50,18 +50,18 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestClone ()
 		{
-			CloneAndAssert (new YDecoder (true));
-			CloneAndAssert (new YDecoder (false));
+			CloneAndAssert (new YEncDecoder (true));
+			CloneAndAssert (new YEncDecoder (false));
 		}
 
 		[Test]
 		public void TestReset ()
 		{
-			ResetAndAssert (new YDecoder (true));
-			ResetAndAssert (new YDecoder (false));
+			ResetAndAssert (new YEncDecoder (true));
+			ResetAndAssert (new YEncDecoder (false));
 		}
 
-		static byte[] Decode (YDecoder decoder, byte[] input, int chunkSize)
+		static byte[] Decode (YEncDecoder decoder, byte[] input, int chunkSize)
 		{
 			var decoded = new List<byte> ();
 
@@ -83,10 +83,10 @@ namespace UnitTests.Encodings {
 			byte[] expected = { 214, 224, 227, 19, 4, 223, 23 };
 			var input = Encoding.ASCII.GetBytes (text);
 
-			Assert.That (Decode (new YDecoder (), input, input.Length), Is.EqualTo (expected), "one-shot");
+			Assert.That (Decode (new YEncDecoder (), input, input.Length), Is.EqualTo (expected), "one-shot");
 
 			for (int chunkSize = 1; chunkSize < input.Length; chunkSize++)
-				Assert.That (Decode (new YDecoder (), input, chunkSize), Is.EqualTo (expected), $"chunkSize={chunkSize}");
+				Assert.That (Decode (new YEncDecoder (), input, chunkSize), Is.EqualTo (expected), $"chunkSize={chunkSize}");
 		}
 
 		[Test]
@@ -94,11 +94,11 @@ namespace UnitTests.Encodings {
 		{
 			byte[] expected = { 214, 224, 227, 19, 4, 223, 23 };
 			var input = Encoding.ASCII.GetBytes ("=@=J=M=}=n=IA\n=yend size=7\n");
-			var decoder = new YDecoder (true);
+			var decoder = new YEncDecoder (true);
 			var output = new byte[decoder.EstimateOutputLength (input.Length)];
 
 			int n = decoder.Decode (input, 0, 6, output);
-			var clone = (YDecoder) decoder.Clone ();
+			var clone = (YEncDecoder) decoder.Clone ();
 			var suffix = new byte[decoder.EstimateOutputLength (input.Length - 6)];
 			int m = decoder.Decode (input, 6, input.Length - 6, suffix);
 			var cloneOutput = new byte[clone.EstimateOutputLength (input.Length - 6)];

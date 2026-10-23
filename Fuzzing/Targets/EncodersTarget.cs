@@ -153,8 +153,8 @@ namespace MimeKit.Fuzzing.Targets {
 
 		static void TestYEnc (byte[] input, int maxLineLength, Random random)
 		{
-			var encoder = new YEncoder (maxLineLength);
-			var name = $"YEncoder ({maxLineLength})";
+			var encoder = new YEncEncoder (maxLineLength);
+			var name = $"YEncEncoder ({maxLineLength})";
 			var output = TestStreaming (encoder, name, input, random, false);
 			uint crc = Crc32 (input);
 
@@ -165,8 +165,8 @@ namespace MimeKit.Fuzzing.Targets {
 			Fuzz.Check (((uint) encoder.Checksum ^ 0xFFFFFFFF) == crc, $"{name}.Checksum was 0x{(uint) encoder.Checksum ^ 0xFFFFFFFF:X8} but expected 0x{crc:X8}");
 
 			CheckYEncLines (output, maxLineLength, name);
-			RoundTrip (output, new YDecoder (true), input, name);
-			FilterRoundTrip (encoder, input, output, new DecoderFilter (new YDecoder (true)), input, random, name);
+			RoundTrip (output, new YEncDecoder (true), input, name);
+			FilterRoundTrip (encoder, input, output, new DecoderFilter (new YEncDecoder (true)), input, random, name);
 		}
 
 		static void TestPassThrough (byte[] input, ContentEncoding encoding, Random random)

@@ -39,6 +39,116 @@ namespace UnitTests {
 	public class ArgumentExceptionTests
 	{
 		[Test]
+		public void TestYEncOptionsArguments ()
+		{
+			var options = new YEncOptions ();
+			Assert.That (options.MaxLineLength, Is.EqualTo (16384));
+			Assert.That (options.MaxDecodedSize, Is.EqualTo (1024L * 1024 * 1024));
+			Assert.That (options.NewLineFormat, Is.EqualTo (NewLineFormat.Dos));
+			Assert.That (options.FileNameEncoding.CodePage, Is.EqualTo (28591));
+			Assert.Throws<ArgumentNullException> (() => options.FileNameEncoding = null);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxLineLength = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxLineLength = int.MaxValue - 1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxDecodedSize = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.NewLineFormat = NewLineFormat.Mixed);
+			Assert.Throws<ArgumentOutOfRangeException> (() => options.NewLineFormat = (NewLineFormat) 255);
+		}
+
+		[Test]
+		public void TestYEncHeaderArguments ()
+		{
+			Assert.Throws<ArgumentNullException> (() => new YEncHeader (null, 0));
+			foreach (var name in new[] { "", " x", "x ", "x\0y", "x\ny", "x\ry" })
+				Assert.Throws<ArgumentException> (() => new YEncHeader (name, 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 0, lineLength: 0));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 0, lineLength: int.MaxValue - 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 0, partNumber: -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 0, totalParts: -1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 0, totalParts: 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 1, partNumber: 2, totalParts: 1, begin: 1, end: 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 1, begin: 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 1, end: 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 1, partNumber: 1, begin: 0, end: 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 1, partNumber: 1, begin: 2, end: 2));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 2, partNumber: 1, begin: 2, end: 1));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new YEncHeader ("x", 1, partNumber: 1, begin: 1, end: 2));
+			Assert.That (new YEncHeader ("x", long.MaxValue, partNumber: 1, begin: 1, end: long.MaxValue).DecodedSize, Is.EqualTo (long.MaxValue));
+		}
+
+		[Test]
+		public void TestYEncReaderArguments ()
+		{
+			using var closed = new MemoryStream ();
+			closed.Dispose ();
+			Assert.Throws<ArgumentNullException> (() => new YEncReader (null));
+			Assert.Throws<ArgumentException> (() => new YEncReader (closed));
+			using var input = new MemoryStream ();
+			using var readOnly = new MemoryStream (Array.Empty<byte> (), false);
+			using var reader = new YEncReader (input);
+			Assert.Throws<ArgumentNullException> (() => reader.DecodeTo (null));
+			Assert.Throws<ArgumentException> (() => reader.DecodeTo (readOnly));
+			Assert.Throws<ArgumentException> (() => reader.DecodeTo (input));
+		}
+
+		[Test]
+		public void TestYEncReaderArgumentsAsync ()
+		{
+			using var input = new MemoryStream ();
+			using var readOnly = new MemoryStream (Array.Empty<byte> (), false);
+			using var reader = new YEncReader (input);
+			Assert.ThrowsAsync<ArgumentNullException> (() => reader.DecodeToAsync (null));
+			Assert.ThrowsAsync<ArgumentException> (() => reader.DecodeToAsync (readOnly));
+			Assert.ThrowsAsync<ArgumentException> (() => reader.DecodeToAsync (input));
+		}
+
+		[Test]
+		public void TestYEncWriterArguments ()
+		{
+			using var closed = new MemoryStream ();
+			closed.Dispose ();
+			using var readOnly = new MemoryStream (Array.Empty<byte> (), false);
+			Assert.Throws<ArgumentNullException> (() => new YEncWriter (null));
+			Assert.Throws<ArgumentException> (() => new YEncWriter (readOnly));
+			using var output = new MemoryStream ();
+			using var writer = new YEncWriter (output, new YEncOptions { MaxLineLength = 128, MaxDecodedSize = 9 });
+			var header = new YEncHeader ("x", 0, 60);
+			Assert.Throws<ArgumentNullException> (() => writer.Write (null, readOnly));
+			Assert.Throws<ArgumentNullException> (() => writer.Write (header, null));
+			Assert.Throws<ArgumentException> (() => writer.Write (header, closed));
+			Assert.Throws<ArgumentException> (() => writer.Write (header, output));
+			foreach (int width in new[] { 59, 999, 128 })
+				Assert.Throws<ArgumentOutOfRangeException> (() => writer.Write (new YEncHeader ("x", 0, width), readOnly));
+			Assert.Throws<ArgumentOutOfRangeException> (() => writer.Write (new YEncHeader ("x", 10, 60), readOnly));
+			Assert.Throws<ArgumentException> (() => writer.Write (new YEncHeader (new string ('x', 128), 0, 60), readOnly));
+			Assert.Throws<System.Text.EncoderFallbackException> (() => writer.Write (new YEncHeader ("\u65e5", 0, 60), readOnly));
+			Assert.That (output.Length, Is.Zero);
+			Assert.That (writer.Write (header, readOnly), Is.Zero);
+		}
+
+		[Test]
+		public async Task TestYEncWriterArgumentsAsync ()
+		{
+			using var closed = new MemoryStream ();
+			closed.Dispose ();
+			using var input = new MemoryStream ();
+			using var output = new MemoryStream ();
+			using var writer = new YEncWriter (output, new YEncOptions { MaxLineLength = 128, MaxDecodedSize = 9 });
+			var header = new YEncHeader ("x", 0, 60);
+			Assert.ThrowsAsync<ArgumentNullException> (() => writer.WriteAsync (null, input));
+			Assert.ThrowsAsync<ArgumentNullException> (() => writer.WriteAsync (header, null));
+			Assert.ThrowsAsync<ArgumentException> (() => writer.WriteAsync (header, closed));
+			Assert.ThrowsAsync<ArgumentException> (() => writer.WriteAsync (header, output));
+			foreach (int width in new[] { 59, 999, 128 })
+				Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => writer.WriteAsync (new YEncHeader ("x", 0, width), input));
+			Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => writer.WriteAsync (new YEncHeader ("x", 10, 60), input));
+			Assert.ThrowsAsync<ArgumentException> (() => writer.WriteAsync (new YEncHeader (new string ('x', 128), 0, 60), input));
+			Assert.ThrowsAsync<System.Text.EncoderFallbackException> (() => writer.WriteAsync (new YEncHeader ("\u65e5", 0, 60), input));
+			Assert.That (output.Length, Is.Zero);
+			Assert.That (await writer.WriteAsync (header, input), Is.Zero);
+		}
+
+		[Test]
 		public void TestTnefWriterTemporaryStreamFactoryArguments ()
 		{
 			using var output = new MemoryStream ();
@@ -125,7 +235,7 @@ namespace UnitTests {
 				Assert.Throws<ArgumentOutOfRangeException> (() => new Base64Encoder (format));
 				Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (format));
 				Assert.Throws<ArgumentOutOfRangeException> (() => new UUEncoder (format));
-				Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (format));
+				Assert.Throws<ArgumentOutOfRangeException> (() => new YEncEncoder (format));
 				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create (ContentEncoding.Base64, format));
 				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ("base64", format));
 				Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create (ContentEncoding.Binary, format));
@@ -137,7 +247,7 @@ namespace UnitTests {
 				foreach (int maxLineLength in new[] { 59, 999 }) {
 					Assert.Throws<ArgumentOutOfRangeException> (() => new Base64Encoder (format, maxLineLength));
 					Assert.Throws<ArgumentOutOfRangeException> (() => new QuotedPrintableEncoder (format, maxLineLength));
-					Assert.Throws<ArgumentOutOfRangeException> (() => new YEncoder (format, maxLineLength));
+					Assert.Throws<ArgumentOutOfRangeException> (() => new YEncEncoder (format, maxLineLength));
 					Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create (ContentEncoding.Base64, format, maxLineLength));
 					Assert.Throws<ArgumentOutOfRangeException> (() => EncoderFilter.Create ("quoted-printable", format, maxLineLength));
 				}

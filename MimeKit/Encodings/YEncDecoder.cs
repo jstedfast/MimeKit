@@ -1,5 +1,5 @@
 ﻿//
-// YDecoder.cs
+// YEncDecoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -37,9 +37,9 @@ namespace MimeKit.Encodings {
 	/// is a binary encoding that includes a 32-bit cyclic redundancy check.</para>
 	/// <para>For more information, see <a href="http://www.yenc.org">www.yenc.org</a>.</para>
 	/// </remarks>
-	public class YDecoder : IMimeDecoder
+	public class YEncDecoder : IMimeDecoder
 	{
-		enum YDecoderState : byte {
+		enum YEncDecoderState : byte {
 			ExpectYBegin,
 			YBeginEqual,
 			YBeginEqualY,
@@ -64,15 +64,15 @@ namespace MimeKit.Encodings {
 			Ended,
 		}
 
-		readonly YDecoderState initial;
-		YDecoderState state;
+		readonly YEncDecoderState initial;
+		YEncDecoderState state;
 		bool escaped;
 		byte octet;
 		bool eoln;
 		Crc32 crc;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="YDecoder"/> class.
+		/// Initialize a new instance of the <see cref="YEncDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new yEnc decoder.
@@ -80,20 +80,20 @@ namespace MimeKit.Encodings {
 		/// <param name="payloadOnly">
 		/// If <see langword="true" />, decoding begins immediately rather than after finding an =ybegin line.
 		/// </param>
-		public YDecoder (bool payloadOnly)
+		public YEncDecoder (bool payloadOnly)
 		{
-			initial = payloadOnly ? YDecoderState.Payload : YDecoderState.ExpectYBegin;
+			initial = payloadOnly ? YEncDecoderState.Payload : YEncDecoderState.ExpectYBegin;
 			crc = new Crc32 (-1);
 			Reset ();
 		}
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="YDecoder"/> class.
+		/// Initialize a new instance of the <see cref="YEncDecoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new yEnc decoder.
 		/// </remarks>
-		public YDecoder () : this (false)
+		public YEncDecoder () : this (false)
 		{
 		}
 
@@ -109,15 +109,15 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clone the <see cref="YDecoder"/> with its current state.
+		/// Clone the <see cref="YEncDecoder"/> with its current state.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="YDecoder"/> with exactly the same state as the current decoder.
+		/// Creates a new <see cref="YEncDecoder"/> with exactly the same state as the current decoder.
 		/// </remarks>
-		/// <returns>A new <see cref="YDecoder"/> with identical state.</returns>
+		/// <returns>A new <see cref="YEncDecoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			return new YDecoder (initial == YDecoderState.Payload) {
+			return new YEncDecoder (initial == YEncDecoderState.Payload) {
 				crc = crc.Clone (),
 				escaped = escaped,
 				state = state,
@@ -171,7 +171,7 @@ namespace MimeKit.Encodings {
 		unsafe byte* ScanYBeginMarker (byte* inptr, byte* inend)
 		{
 			while (inptr < inend) {
-				if (state == YDecoderState.ExpectYBegin) {
+				if (state == YEncDecoderState.ExpectYBegin) {
 					if (octet != (byte) '\n') {
 						while (inptr < inend && *inptr != (byte) '\n')
 							inptr++;
@@ -190,96 +190,96 @@ namespace MimeKit.Encodings {
 					if (octet != (byte) '=')
 						continue;
 
-					state = YDecoderState.YBeginEqual;
+					state = YEncDecoderState.YBeginEqual;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqual) {
+				if (state == YEncDecoderState.YBeginEqual) {
 					octet = *inptr++;
 					if (octet != (byte) 'y') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.YBeginEqualY;
+					state = YEncDecoderState.YBeginEqualY;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqualY) {
+				if (state == YEncDecoderState.YBeginEqualY) {
 					octet = *inptr++;
 					if (octet != (byte) 'b') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.YBeginEqualYB;
+					state = YEncDecoderState.YBeginEqualYB;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqualYB) {
+				if (state == YEncDecoderState.YBeginEqualYB) {
 					octet = *inptr++;
 					if (octet != (byte) 'e') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.YBeginEqualYBe;
+					state = YEncDecoderState.YBeginEqualYBe;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqualYBe) {
+				if (state == YEncDecoderState.YBeginEqualYBe) {
 					octet = *inptr++;
 					if (octet != (byte) 'g') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.YBeginEqualYBeg;
+					state = YEncDecoderState.YBeginEqualYBeg;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqualYBeg) {
+				if (state == YEncDecoderState.YBeginEqualYBeg) {
 					octet = *inptr++;
 					if (octet != (byte) 'i') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.YBeginEqualYBegi;
+					state = YEncDecoderState.YBeginEqualYBegi;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqualYBegi) {
+				if (state == YEncDecoderState.YBeginEqualYBegi) {
 					octet = *inptr++;
 					if (octet != (byte) 'n') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.YBeginEqualYBegin;
+					state = YEncDecoderState.YBeginEqualYBegin;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YBeginEqualYBegin) {
+				if (state == YEncDecoderState.YBeginEqualYBegin) {
 					octet = *inptr++;
 					if (octet != (byte) ' ') {
-						state = YDecoderState.ExpectYBegin;
+						state = YEncDecoderState.ExpectYBegin;
 						continue;
 					}
 
-					state = YDecoderState.ExpectYBeginNewLine;
+					state = YEncDecoderState.ExpectYBeginNewLine;
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.ExpectYBeginNewLine) {
+				if (state == YEncDecoderState.ExpectYBeginNewLine) {
 					while (inptr < inend && *inptr != (byte) '\n')
 						inptr++;
 
@@ -288,22 +288,22 @@ namespace MimeKit.Encodings {
 						break;
 					}
 
-					state = YDecoderState.ExpectYPartOrPayload;
+					state = YEncDecoderState.ExpectYPartOrPayload;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.ExpectYPartOrPayload) {
+				if (state == YEncDecoderState.ExpectYPartOrPayload) {
 					if (*inptr != (byte) '=') {
-						state = YDecoderState.Payload;
+						state = YEncDecoderState.Payload;
 						escaped = false;
 						eoln = true;
 						break;
 					}
 
-					state = YDecoderState.YPartEqual;
+					state = YEncDecoderState.YPartEqual;
 					octet = *inptr++;
 					escaped = true;
 
@@ -311,93 +311,93 @@ namespace MimeKit.Encodings {
 						break;
 				}
 
-				if (state == YDecoderState.YPartEqual) {
+				if (state == YEncDecoderState.YPartEqual) {
 					if (*inptr != (byte) 'y') {
-						state = YDecoderState.Payload;
-						escaped = false;
+						state = YEncDecoderState.Payload;
+						escaped = true;
 						eoln = true;
 						return inptr;
 					}
 
-					state = YDecoderState.YPartEqualY;
+					state = YEncDecoderState.YPartEqualY;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YPartEqualY) {
+				if (state == YEncDecoderState.YPartEqualY) {
 					if (*inptr == (byte) 'e') {
 						// we got an "=ye" which can only be an "=yend"
-						state = YDecoderState.Ended;
+						state = YEncDecoderState.Ended;
 						return inptr;
 					}
 
 					if (*inptr != (byte) 'p') {
-						state = YDecoderState.ExpectYBeginNewLine;
+						state = YEncDecoderState.ExpectYBeginNewLine;
 						continue;
 					}
 
-					state = YDecoderState.YPartEqualYP;
+					state = YEncDecoderState.YPartEqualYP;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YPartEqualYP) {
+				if (state == YEncDecoderState.YPartEqualYP) {
 					if (*inptr != (byte) 'a') {
-						state = YDecoderState.ExpectYBeginNewLine;
+						state = YEncDecoderState.ExpectYBeginNewLine;
 						continue;
 					}
 
-					state = YDecoderState.YPartEqualYPa;
+					state = YEncDecoderState.YPartEqualYPa;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YPartEqualYPa) {
+				if (state == YEncDecoderState.YPartEqualYPa) {
 					if (*inptr != (byte) 'r') {
-						state = YDecoderState.ExpectYBeginNewLine;
+						state = YEncDecoderState.ExpectYBeginNewLine;
 						continue;
 					}
 
-					state = YDecoderState.YPartEqualYPar;
+					state = YEncDecoderState.YPartEqualYPar;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YPartEqualYPar) {
+				if (state == YEncDecoderState.YPartEqualYPar) {
 					if (*inptr != (byte) 't') {
-						state = YDecoderState.ExpectYBeginNewLine;
+						state = YEncDecoderState.ExpectYBeginNewLine;
 						continue;
 					}
 
-					state = YDecoderState.YPartEqualYPart;
+					state = YEncDecoderState.YPartEqualYPart;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.YPartEqualYPart) {
+				if (state == YEncDecoderState.YPartEqualYPart) {
 					if (*inptr != (byte) ' ') {
-						state = YDecoderState.ExpectYBeginNewLine;
+						state = YEncDecoderState.ExpectYBeginNewLine;
 						continue;
 					}
 
-					state = YDecoderState.ExpectYPartNewLine;
+					state = YEncDecoderState.ExpectYPartNewLine;
 					octet = *inptr++;
 
 					if (inptr == inend)
 						break;
 				}
 
-				if (state == YDecoderState.ExpectYPartNewLine) {
+				if (state == YEncDecoderState.ExpectYPartNewLine) {
 					while (inptr < inend && *inptr != (byte) '\n')
 						inptr++;
 
@@ -406,7 +406,7 @@ namespace MimeKit.Encodings {
 						break;
 					}
 
-					state = YDecoderState.Payload;
+					state = YEncDecoderState.Payload;
 					octet = *inptr++;
 					escaped = false;
 					eoln = true;
@@ -436,12 +436,12 @@ namespace MimeKit.Encodings {
 			byte* outptr = output;
 			byte* inptr = input;
 
-			if (state < YDecoderState.Payload) {
+			if (state < YEncDecoderState.Payload) {
 				if ((inptr = ScanYBeginMarker (inptr, inend)) == inend)
 					return 0;
 			}
 
-			if (state == YDecoderState.Ended)
+			if (state == YEncDecoderState.Ended)
 				return 0;
 
 			while (inptr < inend) {
@@ -461,7 +461,7 @@ namespace MimeKit.Encodings {
 				if (escaped) {
 					if (eoln && octet == (byte) 'y') {
 						// this can only be =yend
-						state = YDecoderState.Ended;
+						state = YEncDecoderState.Ended;
 						break;
 					}
 

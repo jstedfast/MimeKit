@@ -42,7 +42,7 @@ namespace UnitTests.Encodings {
 			using (var encoded = new MemoryStream ()) {
 				var ybegin = Encoding.ASCII.GetBytes ($"-- \n=ybegin line=128 size={contentLength} name={fileName} \n");
 				var yend = Encoding.ASCII.GetBytes ($"=yend size={contentLength} crc32={crc32:x8} \n");
-				var yenc = new YEncoder (NewLineFormat.Unix);
+				var yenc = new YEncEncoder (NewLineFormat.Unix);
 
 				encoded.Write (ybegin, 0, ybegin.Length);
 
@@ -76,7 +76,7 @@ namespace UnitTests.Encodings {
 		{
 			var ybegin = Encoding.ASCII.GetBytes ($"-- \n=ybegin line=128 size={contentLength} name={fileName} \n");
 			var yend = Encoding.ASCII.GetBytes ($"=yend size={contentLength} crc32={crc32:x8} \n");
-			var yenc = new YEncoder (NewLineFormat.Unix);
+			var yenc = new YEncEncoder (NewLineFormat.Unix);
 
 			int needed = yenc.EstimateOutputLength (contentLength) + ybegin.Length + yend.Length;
 			byte[] encoded = new byte[needed];
@@ -114,7 +114,7 @@ namespace UnitTests.Encodings {
 				var message = MimeMessage.Load (file);
 
 				using (var decoded = new MemoryStream ()) {
-					var ydec = new YDecoder ();
+					var ydec = new YEncDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
@@ -155,7 +155,7 @@ namespace UnitTests.Encodings {
 
 			using (var decoded = new MemoryStream ()) {
 				using (var file = File.OpenRead (Path.Combine (DataDir, "00000020.ntx"))) {
-					var ydec = new YDecoder ();
+					var ydec = new YEncDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
@@ -168,7 +168,7 @@ namespace UnitTests.Encodings {
 				}
 
 				using (var file = File.OpenRead (Path.Combine (DataDir, "00000021.ntx"))) {
-					var ydec = new YDecoder ();
+					var ydec = new YEncDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
@@ -192,7 +192,7 @@ namespace UnitTests.Encodings {
 		{
 			using (var file = File.OpenRead (Path.Combine (DataDir, "state-changes.ntx"))) {
 				using (var decoded = new MemoryStream ()) {
-					var ydec = new YDecoder ();
+					var ydec = new YEncDecoder ();
 
 					using (var filtered = new FilteredStream (decoded)) {
 						filtered.Add (new DecoderFilter (ydec));
@@ -217,7 +217,7 @@ namespace UnitTests.Encodings {
 		};
 
 		static readonly string[] YPartTransitionOutputs = {
-			"xcontent",
+			"8content",
 			string.Empty,
 			string.Empty,
 			string.Empty,
@@ -227,9 +227,38 @@ namespace UnitTests.Encodings {
 		};
 
 		[Test]
+		public void TestFramedRoundTripEveryInitialByte ()
+		{
+			for (int value = 0; value < 256; value++) {
+				var input = new byte[] { (byte) value };
+				var encoder = new YEncEncoder ();
+				var payload = new byte[encoder.EstimateOutputLength (1)];
+				int length = encoder.Flush (input, 0, 1, payload);
+				var header = Encoding.ASCII.GetBytes ("=ybegin line=128 size=1 name=test.bin\r\n");
+				var trailer = Encoding.ASCII.GetBytes ("=yend size=1\r\n");
+				var encoded = new byte[header.Length + length + trailer.Length];
+
+				Buffer.BlockCopy (header, 0, encoded, 0, header.Length);
+				Buffer.BlockCopy (payload, 0, encoded, header.Length, length);
+				Buffer.BlockCopy (trailer, 0, encoded, header.Length + length, trailer.Length);
+
+				for (int split = 0; split <= encoded.Length; split++) {
+					var decoder = new YEncDecoder ();
+					var output = new byte[encoded.Length];
+					int n = decoder.Decode (encoded, 0, split, output);
+					var actual = new List<byte> (output.Take (n));
+					n = decoder.Decode (encoded, split, encoded.Length - split, output);
+					actual.AddRange (output.Take (n));
+
+					Assert.That (actual, Is.EqualTo (input), $"Byte {value}, split {split}");
+				}
+			}
+		}
+
+		[Test]
 		public void TestYDecodeYPartStateTransitions ()
 		{
-			var ydec = new YDecoder ();
+			var ydec = new YEncDecoder ();
 			var decoded = new byte[1024];
 
 			for (int i = 0; i < YPartTransitionInputs.Length; i++) {

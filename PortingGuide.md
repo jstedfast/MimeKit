@@ -278,7 +278,7 @@ cycle is reported as an `InvalidOperationException`, while other cleanup is stil
 
 ### Content encoder line endings
 
-`Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncoder` and the
+`Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncEncoder` and the
 `EncoderFilter.Create` factories now default to CRLF rather than LF line endings.
 Their existing constructor and factory signatures remain available. To preserve the old output,
 select `NewLineFormat.Unix` explicitly:
@@ -287,7 +287,7 @@ select `NewLineFormat.Unix` explicitly:
 var base64 = new Base64Encoder (NewLineFormat.Unix);
 var quotedPrintable = new QuotedPrintableEncoder (NewLineFormat.Unix, maxLineLength: 76);
 var uuencode = new UUEncoder (NewLineFormat.Unix);
-var yencode = new YEncoder (NewLineFormat.Unix);
+var yencode = new YEncEncoder (NewLineFormat.Unix);
 var filter = EncoderFilter.Create (ContentEncoding.Base64, NewLineFormat.Unix);
 ```
 
@@ -300,6 +300,58 @@ Ordinary MIME serialization still uses `FormatOptions.NewLineFormat`. Freshly en
 quoted-printable and uuencoded bodies now produce those line endings directly, rather than passing
 through a second conversion filter. Already encoded bodies and unencoded text retain newline
 normalization.
+
+### yEnc codecs and standalone framing
+
+`MimeKit.Encodings.YEncoder` and `YDecoder` have been renamed to `YEncEncoder` and
+`YEncDecoder`. Update references to the new names. Their `Checksum` properties still expose
+the running CRC state; convert it to a wire checksum with
+`unchecked ((uint) codec.Checksum) ^ 0xffffffff`.
+
+`YEncReader`, `YEncWriter`, `YEncHeader` and `YEncOptions` also live in `MimeKit.Encodings`.
+They process standalone yEnc blocks without changing `MimeParser` or adding a MIME
+content-transfer-encoding. Pass an article body after transport decoding; NNTP dot-unstuffing
+is the caller's responsibility.
+
+```csharp
+using var reader = new YEncReader (articleBody, leaveOpen: true);
+while (reader.ReadNext ()) {
+    var header = reader.Header;
+    using var decoded = new MemoryStream ();
+    reader.DecodeTo (decoded);
+    // Only use decoded content after DecodeTo succeeds.
+}
+
+using var writer = new YEncWriter (destination, leaveOpen: true);
+uint checksum = writer.Write (new YEncHeader ("example.bin", decodedSize), source);
+```
+
+`ReadNextAsync`, `DecodeToAsync` and `WriteAsync` provide equivalent asynchronous operations.
+Input need not be seekable. Each writer source must contain exactly the declared number of
+decoded bytes, starting at its current position. It is left open; the writer does not flush the
+destination. Readers buffer ahead, so do not access the underlying stream between blocks.
+Decode each pending block before calling `ReadNext` again; use `Stream.Null` to discard it
+while still checking its integrity.
+
+For multipart data, construct a `YEncHeader` with the whole-file size, a nonzero `partNumber`,
+optional `totalParts`, and one-based inclusive `begin`/`end` offsets. Supply only that part's
+bytes to the writer. It emits a part checksum and can include an optional whole-file checksum.
+The reader validates each individual range, not gaps, overlaps, or ordering across parts;
+assembly remains the caller's responsibility.
+
+Reader and writer checksums are finalized unsigned CRC32 values, unlike the low-level codecs.
+`ExpectedChecksum` exposes an advertised whole-file CRC; it remains **unverified metadata**
+for a partial range. `ExpectedPartChecksum`, when present, is checked against the current part.
+Absent checksums are accepted. Malformed framing, truncation, size mismatches and applicable
+checksum mismatches throw `FormatException`. Discard partial output on failure; an I/O,
+format or mid-operation cancellation failure invalidates the reader or writer.
+
+`YEncOptions` defaults to a 16 KB encoded-line limit, a 1 GB decoded limit per block/part,
+Latin-1 filenames and CRLF output. Writer payload widths are 60 through 998; the configured
+line limit must also accommodate a final escape pair's extra byte. Readers accept CRLF or LF.
+Options are copied at construction. Set `FileNameEncoding` explicitly for UTF-8 filenames;
+unrepresentable or invalid filenames cause errors instead of replacement characters.
+Treat filenames as untrusted metadata, never as ready-to-use filesystem paths.
 
 ## HTML
 

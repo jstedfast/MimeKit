@@ -1,5 +1,5 @@
 ﻿//
-// YEncoder.cs
+// YEncEncoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -37,7 +37,7 @@ namespace MimeKit.Encodings {
 	/// is a binary encoding that includes a 32-bit cyclic redundancy check.</para>
 	/// <para>For more information, see <a href="http://www.yenc.org">www.yenc.org</a>.</para>
 	/// </remarks>
-	public class YEncoder : IMimeEncoder
+	public class YEncEncoder : IMimeEncoder
 	{
 		readonly NewLineFormat newLineFormat;
 		readonly int lineLength;
@@ -45,7 +45,7 @@ namespace MimeKit.Encodings {
 		Crc32 crc;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="YEncoder"/> class.
+		/// Initialize a new instance of the <see cref="YEncEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new yEnc encoder using CRLF line endings.
@@ -54,12 +54,12 @@ namespace MimeKit.Encodings {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="maxLineLength"/> is not within the range of <c>60</c> to <c>998</c>.
 		/// </exception>
-		public YEncoder (int maxLineLength = 128) : this (NewLineFormat.Dos, maxLineLength)
+		public YEncEncoder (int maxLineLength = 128) : this (NewLineFormat.Dos, maxLineLength)
 		{
 		}
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="YEncoder"/> class.
+		/// Initialize a new instance of the <see cref="YEncEncoder"/> class.
 		/// </summary>
 		/// <remarks>
 		/// Creates a new yEnc encoder using the specified line endings.
@@ -70,7 +70,7 @@ namespace MimeKit.Encodings {
 		/// <paramref name="newLineFormat"/> is not <see cref="NewLineFormat.Dos"/> or <see cref="NewLineFormat.Unix"/>,
 		/// or <paramref name="maxLineLength"/> is not between 60 and 998 (inclusive).
 		/// </exception>
-		public YEncoder (NewLineFormat newLineFormat, int maxLineLength = 128)
+		public YEncEncoder (NewLineFormat newLineFormat, int maxLineLength = 128)
 		{
 			if (newLineFormat != NewLineFormat.Dos && newLineFormat != NewLineFormat.Unix)
 				throw new ArgumentOutOfRangeException (nameof (newLineFormat));
@@ -96,15 +96,15 @@ namespace MimeKit.Encodings {
 		}
 
 		/// <summary>
-		/// Clone the <see cref="YEncoder"/> with its current state.
+		/// Clone the <see cref="YEncEncoder"/> with its current state.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="YEncoder"/> with exactly the same state as the current encoder.
+		/// Creates a new <see cref="YEncEncoder"/> with exactly the same state as the current encoder.
 		/// </remarks>
-		/// <returns>A new <see cref="YEncoder"/> with identical state.</returns>
+		/// <returns>A new <see cref="YEncEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
-			return new YEncoder (newLineFormat, lineLength) {
+			return new YEncEncoder (newLineFormat, lineLength) {
 				crc = crc.Clone (),
 				octets = octets
 			};

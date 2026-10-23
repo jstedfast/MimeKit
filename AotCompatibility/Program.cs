@@ -28,6 +28,7 @@ using System.Text;
 
 using MimeKit;
 using MimeKit.Cryptography;
+using MimeKit.Encodings;
 using MimeKit.Tnef;
 
 namespace AotCompatibility {
@@ -53,6 +54,28 @@ namespace AotCompatibility {
 
                 if (fromString.ToString () != fromBytes.ToString ())
                     throw new InvalidOperationException ("String and byte address parsing should agree.");
+
+                using (var encoded = new MemoryStream ()) {
+                    using var source = new MemoryStream (Encoding.ASCII.GetBytes ("123456789"));
+                    using var writer = new YEncWriter (encoded, leaveOpen: true);
+                    var header = new YEncHeader ("test.bin", 9);
+
+                    if (writer.Write (header, source) != 0xcbf43926)
+                        throw new InvalidOperationException ("Unexpected yEnc checksum.");
+
+                    source.Position = 0;
+                    writer.WriteAsync (header, source).GetAwaiter ().GetResult ();
+                    encoded.Position = 0;
+                    using var reader = new YEncReader (encoded, leaveOpen: true);
+                    if (!reader.ReadNext ())
+                        throw new InvalidOperationException ("Missing yEnc header.");
+                    reader.DecodeTo (Stream.Null);
+                    if (!reader.ReadNextAsync ().GetAwaiter ().GetResult ())
+                        throw new InvalidOperationException ("Missing async yEnc header.");
+                    reader.DecodeToAsync (Stream.Null).GetAwaiter ().GetResult ();
+                    if (reader.Checksum != 0xcbf43926 || reader.ReadNext ())
+                        throw new InvalidOperationException ("Unexpected yEnc result.");
+                }
 
                 var path = Path.Combine (dir, "smime", "thunderbird-signed.txt");
                 var message = MimeMessage.Load (path);
