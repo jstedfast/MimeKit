@@ -1179,7 +1179,7 @@ namespace MimeKit {
 			Headers.Changed -= HeadersChanged;
 
 			try {
-				Headers[name] = value;
+				Headers.Replace (name, value);
 			} finally {
 				Headers.Changed += HeadersChanged;
 			}
