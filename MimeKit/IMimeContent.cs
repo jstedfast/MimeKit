@@ -46,7 +46,7 @@ namespace MimeKit {
 		/// </summary>
         /// <remarks>
         /// If the <see cref="Stream"/> is not encoded, this value will be
-        /// <see cref="ContentEncoding.Default"/>. Otherwise, it will be
+        /// <see cref="ContentEncoding.Unspecified"/>. Otherwise, it will be
         /// set to the raw content encoding of the stream.
         /// </remarks>
 		/// <value>The encoding.</value>

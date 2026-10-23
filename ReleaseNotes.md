@@ -42,6 +42,8 @@ lookups for AVIF and JSON-LD.
 
 ### Breaking Changes
 
+* Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains
+  zero and its behavior is unchanged: no explicit transfer encoding is selected.
 * `MimeTypes.GetMimeType` now returns `application/gzip` for `.gz`/`.gzip`, `audio/flac` for
   `.flac`, `video/matroska` for `.mkv`, and `model/stl` for `.stl`. The previous MIME names
   remain supported by `TryGetExtension`.

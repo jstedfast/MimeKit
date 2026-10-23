@@ -36,34 +36,34 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new PassThroughDecoder (ContentEncoding.Default));
+			AssertArgumentExceptions (new PassThroughDecoder (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var decoder = new PassThroughDecoder (ContentEncoding.Default);
+			var decoder = new PassThroughDecoder (ContentEncoding.Unspecified);
 
-			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
+			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestClone ()
 		{
-			CloneAndAssert (new PassThroughDecoder (ContentEncoding.Default));
+			CloneAndAssert (new PassThroughDecoder (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestReset ()
 		{
-			ResetAndAssert (new PassThroughDecoder (ContentEncoding.Default));
+			ResetAndAssert (new PassThroughDecoder (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestDecode ()
 		{
 			const int bufferSize = 1024;
-			var decoder = new PassThroughDecoder (ContentEncoding.Default);
+			var decoder = new PassThroughDecoder (ContentEncoding.Unspecified);
 			var output = ArrayPool<byte>.Shared.Rent (bufferSize);
 			var input = ArrayPool<byte>.Shared.Rent (bufferSize);
 

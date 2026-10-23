@@ -45,7 +45,7 @@ namespace UnitTests {
 		}
 
 		public ContentEncoding Encoding {
-			get { return ContentEncoding.Default; }
+			get { return ContentEncoding.Unspecified; }
 		}
 
 		public NewLineFormat? NewLineFormat {

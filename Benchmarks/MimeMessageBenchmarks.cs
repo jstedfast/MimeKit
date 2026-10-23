@@ -54,7 +54,7 @@ namespace Benchmarks {
 		static void MimeMessage_Prepare (EncodingConstraint constraint)
 		{
 			foreach (var bodyPart in UnpreparedMessage.BodyParts.OfType<MimePart> ())
-				bodyPart.ContentTransferEncoding = ContentEncoding.Default;
+				bodyPart.ContentTransferEncoding = ContentEncoding.Unspecified;
 
 			UnpreparedMessage.Prepare (constraint);
 		}

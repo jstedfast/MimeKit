@@ -118,7 +118,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		/// <value>The encoding.</value>
 		public ContentEncoding Encoding {
-			get { return ContentEncoding.Default; }
+			get { return ContentEncoding.Unspecified; }
 		}
 
 		/// <summary>

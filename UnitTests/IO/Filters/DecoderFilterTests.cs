@@ -65,7 +65,7 @@ namespace UnitTests.IO.Filters {
 			Assert.That (DecoderFilter.Create ("binary"), Is.InstanceOf<PassThroughFilter> ());
 
 			Assert.That (DecoderFilter.Create ((ContentEncoding) (-1)), Is.InstanceOf<PassThroughFilter> ());
-			Assert.That (DecoderFilter.Create (ContentEncoding.Default), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (DecoderFilter.Create (ContentEncoding.Unspecified), Is.InstanceOf<PassThroughFilter> ());
 			Assert.That (DecoderFilter.Create ("x-invalid"), Is.InstanceOf<PassThroughFilter> ());
 
 			Assert.That (DecoderFilter.Create (ContentEncoding.EightBit), Is.InstanceOf<PassThroughFilter> ());

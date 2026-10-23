@@ -145,7 +145,7 @@ namespace UnitTests {
 			msg.Content.DecodeTo (buffer);
 			buffer.Seek (0, SeekOrigin.Begin);
 
-			Assert.That (msg.Content.Encoding, Is.EqualTo (ContentEncoding.Default), "ContentEncoding is wrong");
+			Assert.That (msg.Content.Encoding, Is.EqualTo (ContentEncoding.Unspecified), "ContentEncoding is wrong");
 			Assert.That (buffer.ToArray (), Is.EqualTo (data), "ContentEncoding is wrong");
 		}
 	}

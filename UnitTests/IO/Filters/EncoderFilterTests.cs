@@ -103,7 +103,7 @@ namespace UnitTests.IO.Filters {
 			Assert.That (EncoderFilter.Create ("binary"), Is.InstanceOf<PassThroughFilter> ());
 
 			Assert.That (EncoderFilter.Create ((ContentEncoding) (-1)), Is.InstanceOf<PassThroughFilter> ());
-			Assert.That (EncoderFilter.Create (ContentEncoding.Default), Is.InstanceOf<PassThroughFilter> ());
+			Assert.That (EncoderFilter.Create (ContentEncoding.Unspecified), Is.InstanceOf<PassThroughFilter> ());
 			Assert.That (EncoderFilter.Create ("x-invalid"), Is.InstanceOf<PassThroughFilter> ());
 
 			Assert.That (EncoderFilter.Create (ContentEncoding.EightBit), Is.InstanceOf<PassThroughFilter> ());

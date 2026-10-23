@@ -310,7 +310,7 @@ namespace MimeKit {
 			case ContentEncoding.SevenBit:
 			case ContentEncoding.EightBit:
 			case ContentEncoding.Binary:
-			case ContentEncoding.Default:
+			case ContentEncoding.Unspecified:
 				return false;
 			default:
 				return true;

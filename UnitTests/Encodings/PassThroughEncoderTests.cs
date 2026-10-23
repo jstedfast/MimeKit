@@ -36,34 +36,34 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new PassThroughEncoder (ContentEncoding.Default));
+			AssertArgumentExceptions (new PassThroughEncoder (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var encoder = new PassThroughEncoder (ContentEncoding.Default);
+			var encoder = new PassThroughEncoder (ContentEncoding.Unspecified);
 
-			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.Default));
+			Assert.That (encoder.Encoding, Is.EqualTo (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestClone ()
 		{
-			CloneAndAssert (new PassThroughEncoder (ContentEncoding.Default));
+			CloneAndAssert (new PassThroughEncoder (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestReset ()
 		{
-			ResetAndAssert (new PassThroughEncoder (ContentEncoding.Default));
+			ResetAndAssert (new PassThroughEncoder (ContentEncoding.Unspecified));
 		}
 
 		[Test]
 		public void TestEncode ()
 		{
 			const int bufferSize = 1024;
-			var encoder = new PassThroughEncoder (ContentEncoding.Default);
+			var encoder = new PassThroughEncoder (ContentEncoding.Unspecified);
 			var output = ArrayPool<byte>.Shared.Rent (bufferSize);
 			var input = ArrayPool<byte>.Shared.Rent (bufferSize);
 
@@ -87,7 +87,7 @@ namespace UnitTests.Encodings {
 		public void TestFlush ()
 		{
 			const int bufferSize = 1024;
-			var encoder = new PassThroughEncoder (ContentEncoding.Default);
+			var encoder = new PassThroughEncoder (ContentEncoding.Unspecified);
 			var output = ArrayPool<byte>.Shared.Rent (bufferSize);
 			var input = ArrayPool<byte>.Shared.Rent (bufferSize);
 

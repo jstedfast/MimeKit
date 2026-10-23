@@ -223,6 +223,13 @@ For most code, the parser change is a source-compatible rename: `new MimeParser 
 |---|---|
 | `MessagePartial.Join (ParserOptions, MimeMessage, IEnumerable<MessagePartial>)` (and overloads) | Takes an `IReadOnlyList<MessagePartial>`. Arrays and `List<MessagePartial>` work unchanged; call `.ToList ()` on other sequences. |
 | `MimeKit.IO.BoundStream` | Renamed to `MimeKit.IO.BoundedStream`. Update constructor calls, type references and subclasses; the constructor parameters and stream behavior are unchanged. |
+| `ContentEncoding.Default` | Renamed to `ContentEncoding.Unspecified`; its numeric value remains zero. |
+
+`ContentEncoding.Unspecified` retains the old behavior: assigning it to
+`MimePart.ContentTransferEncoding` removes the header, while using it for `MimeContent.Encoding`
+indicates that the stream has not been transfer-encoded. Encoder and decoder filters pass the
+data through unchanged. Update any stored enum names from `Default` to `Unspecified`; numeric
+values are unchanged.
 
 ### Semantic changes
 

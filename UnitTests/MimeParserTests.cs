@@ -1658,7 +1658,7 @@ This is the message body.
 				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
 				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
 				Assert.That (header.Value, Is.EqualTo (": base64"));
-				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified), "Expected Content-Transfer-Encoding to be Unspecified");
 
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
@@ -1685,7 +1685,7 @@ This is the message body.
 				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
 				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
 				Assert.That (header.Value, Is.EqualTo (": base64"));
-				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified), "Expected Content-Transfer-Encoding to be Unspecified");
 
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
@@ -1729,7 +1729,7 @@ This is the message body.
 				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
 				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
 				Assert.That (header.Value, Is.EqualTo (": base64"));
-				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified), "Expected Content-Transfer-Encoding to be Unspecified");
 
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");
@@ -1756,7 +1756,7 @@ This is the message body.
 				Assert.That (header.Id, Is.EqualTo (HeaderId.ContentTransferEncoding), "Expected Content-Transfer-Encoding header");
 				Assert.That (header.IsInvalid, Is.False, "IsInvalid is expected to be false");
 				Assert.That (header.Value, Is.EqualTo (": base64"));
-				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected Content-Transfer-Encoding to be Default");
+				Assert.That (body.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified), "Expected Content-Transfer-Encoding to be Unspecified");
 
 				Assert.That (body.ContentType.MimeType, Is.EqualTo ("text/plain"), "Expected text/plain");
 				Assert.That (body.ContentType.Charset, Is.EqualTo ("utf-8"), "Expected to keep Content-Type parameters");

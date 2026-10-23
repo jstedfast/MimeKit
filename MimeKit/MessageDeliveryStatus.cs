@@ -125,7 +125,7 @@ namespace MimeKit {
 			try {
 				using (var stream = content.Open ()) {
 					var parser = new MimeParser (stream, MimeFormat.Entity);
-					var encoding = ContentEncoding.Default;
+					var encoding = ContentEncoding.Unspecified;
 
 					// According to rfc3464, there are 1 or more Status Groups consisting of a block of field/value
 					// pairs (aka headers) separated by a blank line.
@@ -154,11 +154,11 @@ namespace MimeKit {
 
 							// Note: If the Content-Transfer-Encoding is 7bit, 8bit, or even binary, then the content doesn't need to
 							// be decoded in order to continue parsing the remaining Status Groups.
-							encoding = ContentEncoding.Default;
+							encoding = ContentEncoding.Unspecified;
 						}
 					}
 
-					if (encoding != ContentEncoding.Default) {
+					if (encoding != ContentEncoding.Unspecified) {
 						// This means that the remainder of the Status Groups have been encoded, so we'll need to decode
 						// the rest of the content stream in order to parse them.
 						using (var rawContent = parser.ReadToEos ()) {

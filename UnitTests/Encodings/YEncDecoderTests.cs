@@ -44,7 +44,7 @@ namespace UnitTests.Encodings {
 		{
 			var decoder = new YEncDecoder ();
 
-			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
+			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Unspecified));
 		}
 
 		[Test]

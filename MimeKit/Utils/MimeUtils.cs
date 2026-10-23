@@ -362,7 +362,7 @@ namespace MimeKit.Utils {
 		public static bool TryParse (string? text, out ContentEncoding encoding)
 		{
 			if (text is null) {
-				encoding = ContentEncoding.Default;
+				encoding = ContentEncoding.Unspecified;
 				return false;
 			}
 
@@ -398,9 +398,9 @@ namespace MimeKit.Utils {
 			else if (IsEncoding ("x-uue", text, startIndex, n))
 				encoding = ContentEncoding.UUEncode;
 			else
-				encoding = ContentEncoding.Default;
+				encoding = ContentEncoding.Unspecified;
 
-			return encoding != ContentEncoding.Default;
+			return encoding != ContentEncoding.Unspecified;
 		}
 
 		/// <summary>

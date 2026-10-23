@@ -77,7 +77,7 @@ namespace UnitTests {
 		[Test]
 		public void TestWriteContentNewLineFormat (
 			[Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat,
-			[Values (ContentEncoding.Default, ContentEncoding.SevenBit, ContentEncoding.EightBit, ContentEncoding.Binary, ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
+			[Values (ContentEncoding.Unspecified, ContentEncoding.SevenBit, ContentEncoding.EightBit, ContentEncoding.Binary, ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
 			[Values] bool ensureNewLine, [Values ("", "a\r\nb\nc\rd ", "\r\n\n")] string text)
 		{
 			AssertWriteContentNewLineFormat (newLineFormat, encoding, ensureNewLine, text, false).GetAwaiter ().GetResult ();
@@ -86,7 +86,7 @@ namespace UnitTests {
 		[Test]
 		public async Task TestWriteContentNewLineFormatAsync (
 			[Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat,
-			[Values (ContentEncoding.Default, ContentEncoding.SevenBit, ContentEncoding.EightBit, ContentEncoding.Binary, ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
+			[Values (ContentEncoding.Unspecified, ContentEncoding.SevenBit, ContentEncoding.EightBit, ContentEncoding.Binary, ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode)] ContentEncoding encoding,
 			[Values] bool ensureNewLine, [Values ("", "a\r\nb\nc\rd ", "\r\n\n")] string text)
 		{
 			await AssertWriteContentNewLineFormat (newLineFormat, encoding, ensureNewLine, text, true);
@@ -521,7 +521,8 @@ namespace UnitTests {
 		{
 			using var part = new MimePart ();
 
-			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default));
+			Assert.That ((int) ContentEncoding.Unspecified, Is.Zero);
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified));
 
 			part.ContentTransferEncoding = ContentEncoding.EightBit;
 			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.EightBit));
@@ -529,19 +530,19 @@ namespace UnitTests {
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => part.ContentTransferEncoding = (ContentEncoding) 500);
 
-			part.ContentTransferEncoding = ContentEncoding.Default;
-			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default));
+			part.ContentTransferEncoding = ContentEncoding.Unspecified;
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified));
 			Assert.That (part.Headers.Contains (HeaderId.ContentTransferEncoding), Is.False, "Expected header to be removed");
 
 			part.Headers.Add (HeaderId.ContentTransferEncoding, "base64");
 			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Base64), "Expected ContentTransferEncoding to be set again");
 
 			part.Headers.Remove (HeaderId.ContentTransferEncoding);
-			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected ContentTransferEncoding to be default again");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified), "Expected ContentTransferEncoding to be unspecified again");
 
 			part.ContentTransferEncoding = ContentEncoding.UUEncode;
 			part.Headers.Clear ();
-			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Default), "Expected ContentTransferEncoding to be default again");
+			Assert.That (part.ContentTransferEncoding, Is.EqualTo (ContentEncoding.Unspecified), "Expected ContentTransferEncoding to be unspecified again");
 		}
 
 		[Test]

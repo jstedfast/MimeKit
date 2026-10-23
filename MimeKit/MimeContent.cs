@@ -40,7 +40,7 @@ namespace MimeKit {
 	/// </summary>
 	/// <remarks>
 	/// A <see cref="MimeContent"/> represents the content of a <see cref="MimePart"/>.
-	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Default"/>).
+	/// The content has both a stream and an encoding (typically <see cref="ContentEncoding.Unspecified"/>).
 	/// </remarks>
 	/// <example>
 	/// <code language="c#" source="Examples\AttachmentExamples.cs" region="SaveAttachments" />
@@ -54,7 +54,7 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// When creating new <see cref="MimePart"/>s, the <paramref name="encoding"/>
-		/// should typically be <see cref="ContentEncoding.Default"/> unless the
+		/// should typically be <see cref="ContentEncoding.Unspecified"/> unless the
 		/// <paramref name="stream"/> has already been encoded.
 		/// </remarks>
 		/// <param name="stream">The content stream.</param>
@@ -67,7 +67,7 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> does not support seeking.</para>
 		/// </exception>
-		public MimeContent (Stream stream, ContentEncoding encoding = ContentEncoding.Default)
+		public MimeContent (Stream stream, ContentEncoding encoding = ContentEncoding.Unspecified)
 		{
 			if (stream is null)
 				throw new ArgumentNullException (nameof (stream));
@@ -97,7 +97,7 @@ namespace MimeKit {
 		/// <remarks>
 		/// If the <see cref="MimePart"/> was parsed from an existing stream, the
 		/// encoding will be identical to the <see cref="MimePart.ContentTransferEncoding"/>,
-		/// otherwise it will typically be <see cref="ContentEncoding.Default"/>.
+		/// otherwise it will typically be <see cref="ContentEncoding.Unspecified"/>.
 		/// </remarks>
 		/// <value>The content encoding.</value>
 		public ContentEncoding Encoding {

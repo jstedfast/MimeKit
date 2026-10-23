@@ -105,7 +105,7 @@ namespace UnitTests.Text {
 				memory.Position = 0;
 
 				var body = new TextPart ("plain") {
-					Content = new MimeContent (memory, ContentEncoding.Default)
+					Content = new MimeContent (memory, ContentEncoding.Unspecified)
 				};
 				body.ContentType.Charset = "x-unknown";
 
@@ -121,7 +121,7 @@ namespace UnitTests.Text {
 				memory.Position = 0;
 
 				var body = new TextPart ("plain") {
-					Content = new MimeContent (memory, ContentEncoding.Default)
+					Content = new MimeContent (memory, ContentEncoding.Unspecified)
 				};
 				body.ContentType.Charset = "x-unknown";
 
@@ -137,7 +137,7 @@ namespace UnitTests.Text {
 				memory.Position = 0;
 
 				var body = new TextPart ("plain") {
-					Content = new MimeContent (memory, ContentEncoding.Default)
+					Content = new MimeContent (memory, ContentEncoding.Unspecified)
 				};
 				body.ContentType.Charset = "x-unknown";
 

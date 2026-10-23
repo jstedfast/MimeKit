@@ -653,7 +653,7 @@ namespace MimeKit {
 
 			var best = GetBestEncoding (constraint, maxLineLength);
 
-			if (ContentTransferEncoding == ContentEncoding.Default && best == ContentEncoding.SevenBit)
+			if (ContentTransferEncoding == ContentEncoding.Unspecified && best == ContentEncoding.SevenBit)
 				return;
 
 			encoderMaxLineLength = maxLineLength;
@@ -815,7 +815,7 @@ namespace MimeKit {
 				switch (header!.Id) {
 				case HeaderId.ContentTransferEncoding:
 					LazyLoaded &= ~LazyLoadedFields.ContentTransferEncoding;
-					encoding = ContentEncoding.Default;
+					encoding = ContentEncoding.Unspecified;
 					break;
 				case HeaderId.ContentDescription:
 					LazyLoaded &= ~LazyLoadedFields.ContentDescription;
@@ -833,7 +833,7 @@ namespace MimeKit {
 				break;
 			case HeaderListChangedAction.Cleared:
 				LazyLoaded = LazyLoadedFields.None;
-				encoding = ContentEncoding.Default;
+				encoding = ContentEncoding.Unspecified;
 				description = null;
 				duration = null;
 				md5sum = null;

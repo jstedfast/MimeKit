@@ -36,9 +36,15 @@ namespace MimeKit {
 	/// <seealso cref="MimeKit.MimePart.ContentTransferEncoding"/>
 	public enum ContentEncoding {
 		/// <summary>
-		/// The default encoding (aka no encoding at all).
+		/// No content transfer encoding is specified.
 		/// </summary>
-		Default,
+		/// <remarks>
+		/// Setting <see cref="MimePart.ContentTransferEncoding"/> to this value removes the
+		/// Content-Transfer-Encoding header. For <see cref="MimeContent.Encoding"/>, this value
+		/// indicates that the stream has not been transfer-encoded. Encoder and decoder filters
+		/// pass the data through unchanged.
+		/// </remarks>
+		Unspecified = 0,
 
 		/// <summary>
 		/// The 7bit content transfer encoding. This encoding should be restricted to textual content
