@@ -36,8 +36,15 @@ blocks, including individual multipart ranges, with streaming sync/async operati
 configurable limits, and size/checksum validation. They do not change MIME parsing or assemble parts.
 Fixed a yEnc decoder bug that lost the initial escape character in single-part framed content.
 
+Updated `MimeTypes` with mappings for WebAssembly, YAML, TOML, Zstandard, CBOR, GeoJSON, web
+manifests, Parquet, HEIC/HEIF, JPEG XL, APNG, WebVTT, glTF, 3MF, and OBJ, plus missing reverse
+lookups for AVIF and JSON-LD.
+
 ### Breaking Changes
 
+* `MimeTypes.GetMimeType` now returns `application/gzip` for `.gz`/`.gzip`, `audio/flac` for
+  `.flac`, `video/matroska` for `.mkv`, and `model/stl` for `.stl`. The previous MIME names
+  remain supported by `TryGetExtension`.
 * Mailbox sorting now compares IDN-encoded domains, so Unicode domains and their equivalent
   punycode forms sort together. Display names still take precedence, followed by domains and
   then local-parts, using case-insensitive comparisons.

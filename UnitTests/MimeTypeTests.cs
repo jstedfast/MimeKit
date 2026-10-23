@@ -71,6 +71,61 @@ namespace UnitTests {
 			Assert.That (MimeTypes.GetMimeType ("filename.csv"), Is.EqualTo ("text/csv"));
 		}
 
+		[TestCase (".3mf", "model/3mf")]
+		[TestCase (".apng", "image/apng")]
+		[TestCase (".avif", "image/avif")]
+		[TestCase (".cbor", "application/cbor")]
+		[TestCase (".flac", "audio/flac")]
+		[TestCase (".geojson", "application/geo+json")]
+		[TestCase (".glb", "model/gltf-binary")]
+		[TestCase (".gltf", "model/gltf+json")]
+		[TestCase (".gz", "application/gzip")]
+		[TestCase (".heic", "image/heic")]
+		[TestCase (".heif", "image/heif")]
+		[TestCase (".jsonld", "application/ld+json")]
+		[TestCase (".jxl", "image/jxl")]
+		[TestCase (".mkv", "video/matroska")]
+		[TestCase (".obj", "model/obj")]
+		[TestCase (".parquet", "application/vnd.apache.parquet")]
+		[TestCase (".stl", "model/stl")]
+		[TestCase (".toml", "application/toml")]
+		[TestCase (".vtt", "text/vtt")]
+		[TestCase (".wasm", "application/wasm")]
+		[TestCase (".webmanifest", "application/manifest+json")]
+		[TestCase (".yaml", "application/yaml")]
+		[TestCase (".zst", "application/zstd")]
+		public void TestRegisteredMimeType (string extension, string mimeType)
+		{
+			Assert.That (MimeTypes.GetMimeType ("filename" + extension), Is.EqualTo (mimeType));
+			Assert.That (MimeTypes.GetMimeType ("filename" + extension.ToUpperInvariant ()), Is.EqualTo (mimeType));
+			Assert.That (MimeTypes.TryGetExtension (mimeType, out var actual), Is.True);
+			Assert.That (actual, Is.EqualTo (extension));
+			Assert.That (MimeTypes.TryGetExtension (mimeType.ToUpperInvariant (), out actual), Is.True);
+			Assert.That (actual, Is.EqualTo (extension));
+		}
+
+		[TestCase (".yml", "application/yaml", ".yaml")]
+		[TestCase (".gzip", "application/gzip", ".gz")]
+		public void TestAlternateExtension (string extension, string mimeType, string preferredExtension)
+		{
+			Assert.That (MimeTypes.GetMimeType ("filename" + extension), Is.EqualTo (mimeType));
+			Assert.That (MimeTypes.GetMimeType ("filename" + extension.ToUpperInvariant ()), Is.EqualTo (mimeType));
+			Assert.That (MimeTypes.TryGetExtension (mimeType, out var actual), Is.True);
+			Assert.That (actual, Is.EqualTo (preferredExtension));
+		}
+
+		[TestCase ("application/x-gzip", ".gz")]
+		[TestCase ("audio/x-flac", ".flac")]
+		[TestCase ("video/x-matroska", ".mkv")]
+		[TestCase ("application/sla", ".stl")]
+		public void TestLegacyMimeTypeAlias (string mimeType, string extension)
+		{
+			Assert.That (MimeTypes.TryGetExtension (mimeType, out var actual), Is.True);
+			Assert.That (actual, Is.EqualTo (extension));
+			Assert.That (MimeTypes.TryGetExtension (mimeType.ToUpperInvariant (), out actual), Is.True);
+			Assert.That (actual, Is.EqualTo (extension));
+		}
+
 		[Test]
 		public void TestTryGetExtensionTextPlain ()
 		{
