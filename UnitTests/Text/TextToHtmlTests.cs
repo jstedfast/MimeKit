@@ -243,6 +243,16 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
+		[TestCaseSource (typeof (UrlScannerTests), nameof (UrlScannerTests.UrlRenderingCases))]
+		public void TestUrlScannerFixesToHtml (string text, string expected)
+		{
+			var converter = new TextToHtml { OutputHtmlFragment = true };
+
+			Assert.That (converter.Convert (text + "\n"), Is.EqualTo (expected + "<br/>"));
+			Assert.That (converter.Convert ("> " + text + "\nnext\n"),
+				Is.EqualTo ("<blockquote>" + expected + "<br/></blockquote>next<br/>"));
+		}
+
 		// The end tags of the blockquotes that were still open at the end of the text used to be written even if
 		// the HtmlTagCallback deleted them.
 		[Test]

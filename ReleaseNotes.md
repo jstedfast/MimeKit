@@ -40,6 +40,10 @@ Updated `MimeTypes` with mappings for WebAssembly, YAML, TOML, Zstandard, CBOR, 
 manifests, Parquet, HEIC/HEIF, JPEG XL, APNG, WebVTT, glTF, 3MF, and OBJ, plus missing reverse
 lookups for AVIF and JSON-LD.
 
+Fixed URL detection in `TextToHtml` and `FlowedToHtml` for address literals at end of input,
+balanced delimiters, host-only fragments, query components, IDNA A-label TLDs, and web URLs
+with IPv6 hosts or user information. Malformed IPv6 groups are now rejected.
+
 ### Breaking Changes
 
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains

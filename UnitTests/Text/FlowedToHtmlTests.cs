@@ -229,6 +229,17 @@ namespace UnitTests.Text {
 			Assert.That (result, Is.EqualTo (expected));
 		}
 
+		[TestCaseSource (typeof (UrlScannerTests), nameof (UrlScannerTests.UrlRenderingCases))]
+		public void TestUrlScannerFixesToHtml (string text, string expected)
+		{
+			var converter = new FlowedToHtml { OutputHtmlFragment = true };
+
+			Assert.That (converter.Convert (text + "\n"), Is.EqualTo ("<p>" + expected + "</p>" + Environment.NewLine));
+			Assert.That (converter.Convert ("> " + text + "\nnext\n"),
+				Is.EqualTo ("<blockquote><p>" + expected + "</p>" + Environment.NewLine +
+					"</blockquote><p>next</p>" + Environment.NewLine));
+		}
+
 		// Tests fix for issue #1130
 		[Test]
 		public void TestFlowedTextEndingWithSpace ()

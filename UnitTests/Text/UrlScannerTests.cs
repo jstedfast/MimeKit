@@ -51,6 +51,295 @@ namespace UnitTests.Text {
 			Assert.That (scanner.Scan (text, 0, text.Length, out match), Is.False, "Should not have found a match");
 		}
 
+		[TestCase ("a@[1.2.3.4]", "a@[1.2.3.4]", "mailto:")]
+		[TestCase ("mailto:a@[1.2.3.4]", "mailto:a@[1.2.3.4]", "")]
+		[TestCase ("a@[IPv6:::]", "a@[IPv6:::]", "mailto:")]
+		[TestCase ("mailto:a@[IPv6:::]", "mailto:a@[IPv6:::]", "")]
+		[TestCase ("(http://example.com/Foo_(bar))", "http://example.com/Foo_(bar)", "")]
+		[TestCase ("[http://example.com/a[0]]", "http://example.com/a[0]", "")]
+		[TestCase ("{http://example.com/a{0}}", "http://example.com/a{0}", "")]
+		[TestCase ("(file:///Foo_(bar))", "file:///Foo_(bar)", "")]
+		[TestCase ("(mailto:a@example.com?subject=(hi))", "mailto:a@example.com?subject=(hi)", "")]
+		[TestCase ("http://example.com#section", "http://example.com#section", "")]
+		[TestCase ("http://example.com?_=1", "http://example.com?_=1", "")]
+		[TestCase ("http://example.com?%78=1", "http://example.com?%78=1", "")]
+		[TestCase ("http://example.com?x=1&_=2", "http://example.com?x=1&_=2", "")]
+		[TestCase ("a@[IPv6:1:2:3:4:5:6:7:]", null, null)]
+		[TestCase ("mailto:a@[IPv6:1:2:3:4:5:6:7:]", null, null)]
+		[TestCase ("user@example.xn--p1ai", "user@example.xn--p1ai", "mailto:")]
+		[TestCase ("http://[::1]/", "http://[::1]/", "")]
+		[TestCase ("http://user:pass@example.com/path", "http://user:pass@example.com/path", "")]
+		public void TestUrlScannerFixes (string input, string expected, string prefix)
+		{
+			AssertUrlMatch (input, expected, prefix);
+		}
+
+		void AssertUrlMatch (string input, string expected, string prefix)
+		{
+			// Exercise both physical EOF and a bounded range surrounded by text that must not be read.
+			foreach (int offset in new[] { 0, 5 }) {
+				var text = (offset == 0 ? input : "skip " + input + "outside http://ignored.example").ToCharArray ();
+				bool found = scanner.Scan (text, offset, input.Length, out var match);
+
+				if (expected == null) {
+					Assert.That (found, Is.False, input);
+					continue;
+				}
+
+				Assert.That (found, Is.True, input);
+				Assert.That (match.StartIndex, Is.EqualTo (offset + input.IndexOf (expected, StringComparison.Ordinal)), input);
+				Assert.That (match.EndIndex, Is.EqualTo (match.StartIndex + expected.Length), input);
+				Assert.That (match.Prefix, Is.EqualTo (prefix), input);
+				Assert.That (new string (text, match.StartIndex, match.EndIndex - match.StartIndex), Is.EqualTo (expected), input);
+			}
+		}
+
+		[TestCase ("1.2.3.4", true)]
+		[TestCase ("0.0.0.0", true)]
+		[TestCase ("255.255.255.255", true)]
+		[TestCase ("001.002.003.004", true)]
+		[TestCase ("256.1.2.3", false)]
+		[TestCase ("1.2.3", false)]
+		[TestCase ("1.2.3.4.5", false)]
+		[TestCase ("1..2.3", false)]
+		[TestCase ("1.2.3.", false)]
+		[TestCase ("1.2.3.4444", false)]
+		[TestCase ("0x1.2.3.4", false)]
+		[TestCase ("1.2.3.-4", false)]
+		public void TestIPv4LiteralBoundaries (string literal, bool valid)
+		{
+			foreach (var scheme in new[] { "", "mailto:" }) {
+				var address = scheme + "a@[" + literal + "]";
+				var prefix = scheme.Length == 0 ? "mailto:" : "";
+
+				AssertUrlMatch (address, valid ? address : null, prefix);
+				AssertUrlMatch ("See " + address + ", then.", valid ? address : null, prefix);
+			}
+		}
+
+		[TestCase ("::", true, true)]
+		[TestCase ("::1", true, true)]
+		[TestCase ("1::", true, true)]
+		[TestCase ("2001:db8::1", true, true)]
+		[TestCase ("1:2:3:4:5:6:7:8", true, true)]
+		[TestCase ("FE80:0000:0000:0000:0202:B3FF:FE1E:8329", true, true)]
+		[TestCase ("1:2:3:4:5:6::", true, true)]
+		[TestCase ("1:2:3:4:5:6::8", false, true)]
+		[TestCase ("::2:3:4:5:6:7:8", false, true)]
+		[TestCase ("1:2:3:4:5:6:7::", false, true)]
+		[TestCase ("::192.0.2.1", true, true)]
+		[TestCase ("::ffff:192.0.2.1", true, true)]
+		[TestCase ("1:2:3:4:5:6:192.0.2.1", true, true)]
+		[TestCase ("1:2:3:4::192.0.2.1", true, true)]
+		[TestCase ("1:2:3:4:5::192.0.2.1", false, true)]
+		[TestCase ("::ffff:192.000.002.1", true, false)]
+		[TestCase ("", false, false)]
+		[TestCase (":", false, false)]
+		[TestCase ("1:2:3:4:5:6:7:", false, false)]
+		[TestCase (":1:2:3:4:5:6:7", false, false)]
+		[TestCase ("1:2:3:4:5:6:7", false, false)]
+		[TestCase ("1:2:3:4:5:6:7:8:9", false, false)]
+		[TestCase ("1:2:3:4:5:6:7:8::", false, false)]
+		[TestCase ("1::2::3", false, false)]
+		[TestCase (":::1", false, false)]
+		[TestCase ("1:::", false, false)]
+		[TestCase ("fffff::1", false, false)]
+		[TestCase ("::g", false, false)]
+		[TestCase ("192.0.2.1", false, false)]
+		[TestCase ("::ffff:192.0.2", false, false)]
+		[TestCase ("::ffff:192.0.2.", false, false)]
+		[TestCase ("::ffff:192.0.2.256", false, false)]
+		[TestCase ("::ffff:192.0.2.1:2", false, false)]
+		[TestCase ("::ffff:192.0.2.1.2", false, false)]
+		[TestCase ("::ffff:192.0.2.1234", false, false)]
+		[TestCase ("::ffff:0xc0.0.2.1", false, false)]
+		[TestCase ("1:2:3:4:5:6:7:192.0.2.1", false, false)]
+		[TestCase ("fe80::1%25eth0", false, false)]
+		public void TestIPv6LiteralBoundaries (string literal, bool smtp, bool uri)
+		{
+			foreach (var scheme in new[] { "", "mailto:" }) {
+				var address = scheme + "a@[IPv6:" + literal + "]";
+				var prefix = scheme.Length == 0 ? "mailto:" : "";
+
+				AssertUrlMatch (address, smtp ? address : null, prefix);
+				AssertUrlMatch ("See " + address + ", then.", smtp ? address : null, prefix);
+			}
+
+			var url = "http://[" + literal + "]/";
+			AssertUrlMatch (url, uri ? url : null, "");
+		}
+
+		[TestCase ("a@[1.2.3.4]")]
+		[TestCase ("mailto:a@[1.2.3.4]")]
+		[TestCase ("a@[IPv6:::]")]
+		[TestCase ("mailto:a@[IPv6:::1]")]
+		[TestCase ("http://[::1]")]
+		public void TestTruncatedLiterals (string input)
+		{
+			for (int length = 0; length < input.Length; length++) {
+				var text = input.ToCharArray ();
+
+				Assert.That (scanner.Scan (text, 0, length, out _), Is.False, input.Substring (0, length));
+				AssertUrlMatch (input.Substring (0, length), null, null);
+			}
+		}
+
+		[TestCase ("(", ")")]
+		[TestCase ("[", "]")]
+		[TestCase ("{", "}")]
+		[TestCase ("<", ">")]
+		[TestCase ("|", "|")]
+		public void TestBalancedEnclosedUrls (string open, string close)
+		{
+			foreach (var prefix in new[] { "http://example.com/", "file:///path/", "mailto:a@example.com?subject=", "mailto:?subject=" }) {
+				var url = prefix + "a(b(c))[d[e]]{f{g}}";
+
+				AssertUrlMatch (open + url + close + ")., next", url, "");
+			}
+		}
+
+		[TestCase ("(http://example.com/a(bar))).", "http://example.com/a(bar)", "")]
+		[TestCase ("[http://example.com/a([b]{c})].", "http://example.com/a([b]{c})", "")]
+		[TestCase ("{http://example.com/a({b}[c])}.", "http://example.com/a({b}[c])", "")]
+		[TestCase ("http://example.com#section.", "http://example.com#section", "")]
+		[TestCase ("http://example.com:00099999#section", "http://example.com:00099999#section", "")]
+		[TestCase ("http://example.com/path#section", "http://example.com/path#section", "")]
+		[TestCase ("http://example.com?x=1#section", "http://example.com?x=1#section", "")]
+		[TestCase ("(www.example.com#part_(one)).", "www.example.com#part_(one)", "http://")]
+		[TestCase ("ftp.example.com#section", "ftp.example.com#section", "ftp://")]
+		[TestCase ("http://example.com#\u0440\u0430\u0437\u0434\u0435\u043b", "http://example.com#\u0440\u0430\u0437\u0434\u0435\u043b", "")]
+		[TestCase ("http://example.com#", "http://example.com#", "")]
+		[TestCase ("(http://example.com#).", "http://example.com#", "")]
+		[TestCase ("http://example.com?x=#", "http://example.com?x=#", "")]
+		[TestCase ("http://example.com?-x=1", "http://example.com?-x=1", "")]
+		[TestCase ("http://example.com?=value&x=&_=2#frag", "http://example.com?=value&x=&_=2#frag", "")]
+		[TestCase ("http://example.com?&x=1&&y=", "http://example.com?&x=1&&y=", "")]
+		[TestCase ("http://example.com?x=a?b&y=/c?d", "http://example.com?x=a?b&y=/c?d", "")]
+		[TestCase ("http://example.com??x=1", "http://example.com??x=1", "")]
+		[TestCase ("http://example.com?!", "http://example.com", "")]
+		[TestCase ("http://example.com?x=1?!", "http://example.com?x=1", "")]
+		[TestCase ("http://example.com?_=1\u00A0next", "http://example.com?_=1", "")]
+		[TestCase ("http://example.com?_=1\u202Enext", "http://example.com?_=1", "")]
+		[TestCase ("http://example.com#section\u200Bnext", "http://example.com#section", "")]
+		[TestCase ("http://example.com#section\0next", "http://example.com#section", "")]
+		[TestCase ("http://example.com#section\u2028next", "http://example.com#section", "")]
+		public void TestUrlSuffixBoundaries (string input, string expected, string prefix)
+		{
+			AssertUrlMatch (input, expected, prefix);
+		}
+
+		[TestCase ("example.xn--p1ai", true)]
+		[TestCase ("EXAMPLE.XN--P1AI", true)]
+		[TestCase ("example.\u0440\u0444", true)]
+		[TestCase ("example.xn--fiqs8s", true)]
+		[TestCase ("example.\u4e2d\u56fd", true)]
+		[TestCase ("example.xn--", false)]
+		[TestCase ("example.xn--a", false)]
+		[TestCase ("example.xn---a", false)]
+		[TestCase ("example.xn--0", false)]
+		[TestCase ("example.xn--abc-", false)]
+		[TestCase ("example.xn--p1ai-", false)]
+		[TestCase ("xn--p1ai", false)]
+		[TestCase ("example", false)]
+		[TestCase ("example.123", false)]
+		[TestCase ("example.c", false)]
+		[TestCase ("example.c0m", false)]
+		[TestCase ("example.a-b", false)]
+		public void TestIdnaTopLevelDomains (string domain, bool valid)
+		{
+			var address = "user@" + domain;
+			AssertUrlMatch (address, valid ? address : null, "mailto:");
+
+			// An explicit mailto still does not require the bare-address TLD heuristic.
+			AssertUrlMatch ("mailto:" + address, "mailto:" + address, "");
+		}
+
+		[TestCase ("http://[::]", "http://[::]")]
+		[TestCase ("HTTP://[2001:DB8::1]:00099999#f", "HTTP://[2001:DB8::1]:00099999#f")]
+		[TestCase ("[http://[::1]/a[0]]", "http://[::1]/a[0]")]
+		[TestCase ("http://user@example.com:080/path?_=1#f", "http://user@example.com:080/path?_=1#f")]
+		[TestCase ("http://user:p%40ss@[::1]:080/path?x=1&_=2#f", "http://user:p%40ss@[::1]:080/path?x=1&_=2#f")]
+		[TestCase ("http://u%3aser:p%2Fss@example.com/", "http://u%3aser:p%2Fss@example.com/")]
+		[TestCase ("http://u-._~!$&'()*+,;=:p@example.com/", "http://u-._~!$&'()*+,;=:p@example.com/")]
+		[TestCase ("(http://u(a(b)):p@example.com/)", "http://u(a(b)):p@example.com/")]
+		[TestCase ("http://@example.com/", "http://@example.com/")]
+		[TestCase ("http://user:@example.com/", "http://user:@example.com/")]
+		[TestCase ("http://us\u00e9r@b\u00fccher.example/", "http://us\u00e9r@b\u00fccher.example/")]
+		[TestCase ("http://user%xx@example.com/", "http://user")]
+		[TestCase ("http://user%2@example.com/", "http://user")]
+		[TestCase ("http://user%40", "http://user")]
+		[TestCase ("http://user\u202E@example.com/", "http://user")]
+		[TestCase ("http://example.com/path@elsewhere.test", "http://example.com/path@elsewhere.test")]
+		[TestCase ("http://example.com?x=user@elsewhere.test", "http://example.com?x=user@elsewhere.test")]
+		[TestCase ("http://example.com#user@elsewhere.test", "http://example.com#user@elsewhere.test")]
+		[TestCase ("http://user@", null)]
+		[TestCase ("http://user@/", null)]
+		[TestCase ("http://user@-host/", null)]
+		[TestCase ("http://user@.example/", null)]
+		[TestCase ("http://user@@example.com/", null)]
+		[TestCase ("http://[::1", null)]
+		[TestCase ("http://user@[::1", null)]
+		[TestCase ("http://[]/", null)]
+		[TestCase ("http://[IPv6:::1]/", null)]
+		[TestCase ("http://[127.0.0.1]/", null)]
+		[TestCase ("http://[v1.future]/", null)]
+		[TestCase ("http://[fe80::1%25eth0]/", null)]
+		public void TestWebAuthorityBoundaries (string input, string expected)
+		{
+			AssertUrlMatch (input, expected, "");
+		}
+
+		[Test]
+		public void TestNewUrlComponentLengths ()
+		{
+			var ulabel = new string ('\u00e9', 57);
+			var alabel = new IdnMapping ().GetAscii (ulabel);
+			Assert.That (alabel.Length, Is.EqualTo (63));
+			AssertUrlMatch ("user@example." + alabel, "user@example." + alabel, "mailto:");
+			AssertUrlMatch ("user@example." + ulabel, "user@example." + ulabel, "mailto:");
+			AssertUrlMatch ("user@example." + alabel + "a", null, null);
+
+			var longLabel = new string ('a', 64);
+			AssertUrlMatch ("user@example.xn--" + longLabel, null, null);
+			AssertUrlMatch ("http://user@" + longLabel + ".com", null, null);
+
+			var label = new string ('a', 63);
+			var host = $"{label}.{label}.{label}.{new string ('a', 59)}.com";
+			var url = "http://" + new string ('u', 10000) + "@" + host + ":00099999#f";
+			AssertUrlMatch (url, url, "");
+			AssertUrlMatch ("http://user@" + host + "a", null, null);
+		}
+
+		public static IEnumerable<TestCaseData> UrlRenderingCases {
+			get {
+				yield return new TestCaseData (
+					"See (http://example.com/Foo_(bar)), [file:///a[0]] and (mailto:a@example.com?subject=(hi)).",
+					"See (<a href=\"http://example.com/Foo_(bar)\">http://example.com/Foo_(bar)</a>), " +
+					"[<a href=\"file:///a[0]\">file:///a[0]</a>] and " +
+					"(<a href=\"mailto:a@example.com?subject=(hi)\">mailto:a@example.com?subject=(hi)</a>).");
+				yield return new TestCaseData (
+					"See <http://example.com?_=1&%78=\"x\"#section> & done.",
+					"See &lt;<a href=\"http://example.com?_=1&amp;%78=&quot;x&quot;#section\">" +
+					"http://example.com?_=1&amp;%78=&quot;x&quot;#section</a>&gt; &amp; done.");
+				yield return new TestCaseData (
+					"http://user:p%40ss@[::1]:080/path?_=1&-=2#f",
+					"<a href=\"http://user:p%40ss@[::1]:080/path?_=1&amp;-=2#f\">" +
+					"http://user:p%40ss@[::1]:080/path?_=1&amp;-=2#f</a>");
+				yield return new TestCaseData (
+					"Bad http://[1:2:3:4:5:6:7:] then www.example.com#f and a@[1.2.3.4]",
+					"Bad http://[1:2:3:4:5:6:7:] then <a href=\"http://www.example.com#f\">www.example.com#f</a> " +
+					"and <a href=\"mailto:a@[1.2.3.4]\">a@[1.2.3.4]</a>");
+				yield return new TestCaseData (
+					"user@example.xn--p1ai and a@[IPv6:::] and mailto:a@[1.2.3.4]",
+					"<a href=\"mailto:user@example.xn--p1ai\">user@example.xn--p1ai</a> and " +
+					"<a href=\"mailto:a@[IPv6:::]\">a@[IPv6:::]</a> and " +
+					"<a href=\"mailto:a@[1.2.3.4]\">mailto:a@[1.2.3.4]</a>");
+				yield return new TestCaseData (
+					"http://example.com?_=1\u202Ehidden",
+					"<a href=\"http://example.com?_=1\">http://example.com?_=1</a>&#8238;hidden");
+			}
+		}
+
 		void TestUrlScanner (string input, string expected)
 		{
 			char[] text = input.ToCharArray ();
@@ -546,6 +835,17 @@ namespace UnitTests.Text {
 			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("a.", n)) + string.Concat (Enumerable.Repeat ("@-", n)));
 			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("www.", n)));
 			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("http:// ", n)));
+			AssertLinearTime (n => "(http://example.com/" + new string ('(', n) + new string (')', n) + ")");
+			AssertLinearTime (n => "(http://example.com/" + new string ('(', n));
+			AssertLinearTime (n => "http://example.com/" + new string (')', n));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("http://[1:2:3:4:5:6:7:]/ ", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("http://user:pass@- ", n)));
+			AssertLinearTime (n => "http://" + string.Concat (Enumerable.Repeat ("user:", n)) + "@");
+			AssertLinearTime (n => "http://" + string.Concat (Enumerable.Repeat ("www.", n)));
+			AssertLinearTime (n => "http://" + string.Concat (Enumerable.Repeat ("sip:", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("sip:", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("a@[1111.2.3.4] ", n)));
+			AssertLinearTime (n => string.Concat (Enumerable.Repeat ("a@[IPv6:fffff::1] ", n)));
 		}
 	}
 }

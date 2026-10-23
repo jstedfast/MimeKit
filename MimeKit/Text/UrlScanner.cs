@@ -437,7 +437,7 @@ namespace MimeKit.Text {
 			return SkipAtomBackwards (text, startIndex, ref index);
 		}
 
-		static bool SkipIPv4Literal (char[] text, int endIndex, ref int index)
+		static bool SkipIPv4Literal (char[] text, int endIndex, ref int index, bool allowLeadingZeros = true)
 		{
 			int groups = 0;
 
@@ -454,10 +454,18 @@ namespace MimeKit.Text {
 				if (index == startIndex || index - startIndex > 3 || value > 255)
 					return false;
 
+				// URI dec-octets (rfc3986) exclude leading zeros, unlike SMTP's Snum.
+				if (!allowLeadingZeros && index - startIndex > 1 && text[startIndex] == '0')
+					return false;
+
 				groups++;
 
-				if (groups < 4 && index < endIndex && text[index] == '.')
+				if (groups < 4) {
+					if (index >= endIndex || text[index] != '.')
+						return false;
+
 					index++;
+				}
 			}
 
 			return groups == 4;
@@ -505,76 +513,99 @@ namespace MimeKit.Text {
 		//             ; The "::" represents at least 2 16-bit groups of zeros
 		//             ; No more than 4 groups in addition to the "::" and
 		//             ; IPv4-address-literal may be present
-		static bool SkipIPv6Literal (char[] text, int endIndex, ref int index)
+		// SMTP (rfc5321, section 4.1.3) requires "::" to replace at least two groups; URI hosts
+		// (rfc3986, section 3.2.2) allow one. Count groups, not colons, to reject empty single-colon groups.
+		static bool SkipIPv6Literal (char[] text, int endIndex, ref int index, bool smtp)
 		{
 			bool compact = false;
-			int colons = 0;
+			int groups = 0;
 
-			while (index < endIndex) {
+			if (index < endIndex && text[index] == ':') {
+				if (endIndex - index < 2 || text[index + 1] != ':')
+					return false;
+
+				index += 2;
+				compact = true;
+			}
+
+			while (index < endIndex && text[index] != ']') {
 				int startIndex = index;
+
+				if (groups == 8)
+					return false;
 
 				// Note: Stop after 5 hex digits; any more than 4 hex digits is invalid anyway.
 				while (index < endIndex && index - startIndex < 5 && IsHexDigit (text[index]))
 					index++;
 
-				if (index >= endIndex)
-					break;
+				int count = index - startIndex;
+				if (count == 0 || count > 4)
+					return false;
 
-				if (index > startIndex && colons > 2 && text[index] == '.') {
-					// IPv6v4
+				if (index < endIndex && text[index] == '.') {
+					// The IPv4 tail occupies two groups and must end the address.
 					index = startIndex;
 
-					if (!SkipIPv4Literal (text, endIndex, ref index))
+					if (groups > 6 || !SkipIPv4Literal (text, endIndex, ref index, smtp))
 						return false;
 
-					return compact ? colons < 6 : colons == 6;
+					groups += 2;
+					break;
 				}
 
-				int count = index - startIndex;
-				if (count > 4)
-					return false;
+				groups++;
 
-				if (text[index] != ':')
+				if (index >= endIndex || text[index] != ':')
 					break;
 
-				startIndex = index;
-				while (index < endIndex && text[index] == ':')
-					index++;
+				index++;
 
-				count = index - startIndex;
-				if (count > 2)
-					return false;
-
-				if (count == 2) {
+				if (index < endIndex && text[index] == ':') {
 					if (compact)
 						return false;
 
 					compact = true;
-					colons += 2;
-				} else {
-					colons++;
+					index++;
+				} else if (index >= endIndex || !IsHexDigit (text[index])) {
+					return false;
 				}
 			}
 
-			if (colons < 2)
-				return false;
-
-			return compact ? colons < 7 : colons == 7;
+			return compact ? groups <= (smtp ? 6 : 7) : groups == 8;
 		}
 
-		// A fully-qualified domain has at least 2 labels where the last label (the top-level domain) consists of at least 2 letters.
+		// Require at least two labels and an alphabetic TLD or a validated IDNA A-label to avoid linking "foo@bar".
 		static bool IsFullyQualifiedDomain (char[] text, int startIndex, int endIndex)
 		{
 			int index = endIndex;
+			bool letters = true;
 
 			while (index > startIndex && text[index - 1] != '.') {
 				if (!char.IsLetter (text[index - 1]))
-					return false;
+					letters = false;
 
 				index--;
 			}
 
-			return index > startIndex && endIndex - index >= 2;
+			int length = endIndex - index;
+			if (index == startIndex || length < 2)
+				return false;
+
+			if (letters)
+				return true;
+
+			if (length <= 4 || length > MaxLabelLength || (text[index] != 'x' && text[index] != 'X') ||
+				(text[index + 1] != 'n' && text[index + 1] != 'N') || text[index + 2] != '-' || text[index + 3] != '-')
+				return false;
+
+			// The IDNA provider leaves invalid input unchanged. Require a decode and canonical round-trip;
+			// merely recognizing "xn--" would accept fake A-labels. Only allocate for this bounded label.
+			var idn = MailboxAddress.IdnMapping;
+			var label = new string (text, index, length);
+			var unicode = idn.Decode (label);
+
+			return !string.Equals (label, unicode, StringComparison.OrdinalIgnoreCase) &&
+				string.Equals (label, idn.Encode (unicode), StringComparison.OrdinalIgnoreCase);
 		}
 
 		static bool GetAddrspecStartIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
@@ -638,13 +669,13 @@ namespace MimeKit.Text {
 			// address literal
 			index++;
 
-			// we need at least 8 more characters
-			if (index + 8 >= endIndex)
+			// Both "1.2.3.4]" and "IPv6:::]" need exactly eight remaining characters, including ']'.
+			if (endIndex - index < 8)
 				return false;
 			
 			if (IsIPv6 (text, index)) {
 				index += "IPv6:".Length;
-				if (!SkipIPv6Literal (text, endIndex, ref index))
+				if (!SkipIPv6Literal (text, endIndex, ref index, true))
 					return false;
 			} else {
 				if (!SkipIPv4Literal (text, endIndex, ref index))
@@ -714,13 +745,36 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		static bool IsEnclosingDelimiter (char c, char close, ref int depth)
+		{
+			if (c == close) {
+				if (depth == 0)
+					return true;
+
+				depth--;
+			} else if ((c == '(' && close == ')') || (c == '[' && close == ']') || (c == '{' && close == '}')) {
+				depth++;
+			}
+
+			return false;
+		}
+
+		static void SkipUrlSuffix (char[] text, int endIndex, char close, ref int index)
+		{
+			int depth = 0;
+
+			// A matching inner pair belongs to the URL, not to its enclosing prose. This needs only
+			// a depth counter for the outer delimiter; trailing unmatched closers are trimmed separately.
+			while (index < endIndex && IsUrlSafe (text[index]) && !IsEnclosingDelimiter (text[index], close, ref depth))
+				index++;
+		}
+
 		static bool GetFileEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			char close = GetClosingBrace (match, text, startIndex);
 			int index = matchIndex + match.Pattern.Length;
 
-			while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
-				index++;
+			SkipUrlSuffix (text, endIndex, close, ref index);
 
 			TrimTrailingPunctuation (text, matchIndex + match.Pattern.Length, ref index);
 
@@ -773,13 +827,13 @@ namespace MimeKit.Text {
 				// address literal
 				index++;
 
-				// we need at least 8 more characters
-				if (index + 8 >= endIndex)
+				// Include the closing ']' in the minimum, allowing the literal to end at the scan boundary.
+				if (endIndex - index < 8)
 					return false;
 
 				if (IsIPv6 (text, index)) {
 					index += "IPv6:".Length;
-					if (!SkipIPv6Literal (text, endIndex, ref index))
+					if (!SkipIPv6Literal (text, endIndex, ref index, true))
 						return false;
 				} else {
 					if (!SkipIPv4Literal (text, endIndex, ref index))
@@ -808,10 +862,7 @@ namespace MimeKit.Text {
 			if (index < endIndex && text[index] == '?') {
 				int queryIndex = index;
 
-				index++;
-
-				while (index < endIndex && IsUrlSafe (text[index]) && text[index] != close)
-					index++;
+				SkipUrlSuffix (text, endIndex, close, ref index);
 
 				TrimTrailingPunctuation (text, queryIndex, ref index);
 			}
@@ -827,16 +878,60 @@ namespace MimeKit.Text {
 			return true;
 		}
 
+		static void SkipUserInfo (char[] text, int endIndex, char close, ref int index)
+		{
+			int depth = 0, cursor = index;
+
+			// rfc3986, section 3.2.1: userinfo = *(unreserved / pct-encoded / sub-delims / ":").
+			// Only called for "://" patterns: the next such candidate contains '/', which stops this
+			// lookahead. In particular, never rescan an unbounded run of implied hosts or "sip:" prefixes.
+			while (cursor < endIndex) {
+				char c = text[cursor];
+
+				if (c == '@') {
+					index = cursor + 1;
+					return;
+				}
+
+				if (IsEnclosingDelimiter (c, close, ref depth))
+					return;
+
+				if (c == '%') {
+					if (endIndex - cursor < 3 || !IsHexDigit (text[cursor + 1]) || !IsHexDigit (text[cursor + 2]))
+						return;
+
+					cursor += 3;
+				} else if ((c >= 128 && IsNonAsciiUrlSafe (c)) || IsLetterOrDigit (c) || "-._~!$&'()*+,;=:".IndexOf (c) != -1) {
+					cursor++;
+				} else {
+					return;
+				}
+			}
+		}
+
 		static bool GetWebEndIndex (UrlMatch match, char[] text, int startIndex, int matchIndex, int endIndex)
 		{
 			char close = GetClosingBrace (match, text, startIndex);
 			int index = matchIndex + match.Pattern.Length;
+			bool authority = match.Pattern.EndsWith ("://", StringComparison.Ordinal);
+
+			if (authority)
+				SkipUserInfo (text, endIndex, close, ref index);
 
 			// Note: For patterns such as "www." and "ftp.", the pattern is part of the hostname.
 			int hostIndex = match.Pattern[match.Pattern.Length - 1] == '.' ? matchIndex : index;
 
-			if (index >= endIndex || !SkipDomain (text, endIndex, hostIndex, ref index))
+			if (index >= endIndex)
 				return false;
+
+			if (authority && text[index] == '[') {
+				index++;
+
+				if (!SkipIPv6Literal (text, endIndex, ref index, false) || index >= endIndex || text[index++] != ']')
+					return false;
+			} else if (!SkipDomain (text, endIndex, hostIndex, ref index)) {
+				return false;
+			}
 
 			// check for a port
 			if (index + 1 < endIndex && text[index] == ':' && IsDigit (text[index + 1])) {
@@ -846,26 +941,12 @@ namespace MimeKit.Text {
 					index++;
 			}
 
-			// check for a path or query in cases where the link looks like this: https://www.domain.com?query
-			if (index < endIndex && (text[index] == '/' || text[index] == '?')) {
+			// Query and fragment data use pchar / "/" / "?" (rfc3986, sections 3.4-3.5), not
+			// letter/digit-prefixed parameters. Keep an empty '#', but still trim prose punctuation.
+			if (index < endIndex && (text[index] == '/' || text[index] == '?' || text[index] == '#')) {
 				int pathIndex = index;
 
-				if (text[index] == '/')
-					index++;
-
-				while (index < endIndex && text[index] != close) {
-					if (text[index] == '?' || text[index] == '&') {
-						if (index + 1 >= endIndex || !char.IsLetterOrDigit (text[index + 1]))
-							break;
-
-						index++;
-					} else if (!IsUrlSafe (text[index])) {
-						break;
-					}
-
-					index++;
-				}
-
+				SkipUrlSuffix (text, endIndex, close, ref index);
 				TrimTrailingPunctuation (text, pathIndex, ref index);
 			}
 
