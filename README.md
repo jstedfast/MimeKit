@@ -212,6 +212,22 @@ dotnet build MimeKit.sln -c Release
 
 Note: The .NET Framework 4.8 target is only built on Windows.
 
+### Regenerating the HTML entity decoder
+
+The standalone `tools\HtmlEntityDecoderGenerator` project generates
+`MimeKit\Text\HtmlEntityDecoder.g.cs` from the checked-in
+`UnitTests\TestData\html\HtmlEntities.json` snapshot, which is also used by the decoder tests.
+From the repository root, run:
+
+```powershell
+dotnet run --project tools\HtmlEntityDecoderGenerator
+```
+
+The tool requires the .NET 10.0 SDK and does not download entity data. It preserves the snapshot's
+entity order and writes UTF-8 without a BOM, with CRLF line endings. Optional arguments
+`-- <entities.json> [<output.cs>]` override the input and output paths. After changing the snapshot,
+regenerate the decoder and run the `UnitTests.Text.HtmlEntityDecoderTests` fixture.
+
 ## Using MimeKit
 
 ### Parsing Messages
