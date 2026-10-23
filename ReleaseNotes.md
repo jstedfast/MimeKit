@@ -33,6 +33,9 @@ writers inherit the factory, and the writer disposes each temporary stream when 
 
 ### Breaking Changes
 
+* Mailbox sorting now compares IDN-encoded domains, so Unicode domains and their equivalent
+  punycode forms sort together. Display names still take precedence, followed by domains and
+  then local-parts, using case-insensitive comparisons.
 * Renamed `MimeKit.IO.BoundStream` to `MimeKit.IO.BoundedStream`. Constructor parameters and
   stream behavior are unchanged; the old type name is no longer available.
 * `Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncoder` and `EncoderFilter.Create`

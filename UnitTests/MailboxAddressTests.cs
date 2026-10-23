@@ -105,6 +105,27 @@ namespace UnitTests {
 			Assert.That (mailbox.Domain, Is.EqualTo (string.Empty), "Unix non-Domain");
 		}
 
+		[TestCase ("z@a.example", "a@z.example", -1)]
+		[TestCase ("z@example.com", "a@example.com.au", -1)]
+		[TestCase ("user@example.com", "user@example.com.au", -1)]
+		[TestCase ("alice@b\u00fccher.example", "bob@xn--bcher-kva.example", -1)]
+		[TestCase ("USER@b\u00fccher.example", "user@XN--BCHER-KVA.EXAMPLE", 0)]
+		[TestCase ("z@b\u00fccher.example", "a@z.example", -1)]
+		[TestCase ("alex@example.com", "alex+tag@example.com", -1)]
+		[TestCase ("alice@EXAMPLE.COM", "bob@example.com", -1)]
+		[TestCase ("z", "a@z.example", 1)]
+		[TestCase ("user", "USER@example.com", 0)]
+		[TestCase ("a", "b", -1)]
+		[TestCase ("", "a", -1)]
+		public void TestCompareToDomainsFirst (string address, string otherAddress, int expected)
+		{
+			var mailbox = new MailboxAddress (string.Empty, address);
+			var other = new MailboxAddress (string.Empty, otherAddress);
+
+			Assert.That (Math.Sign (mailbox.CompareTo (other)), Is.EqualTo (expected), "forward");
+			Assert.That (Math.Sign (other.CompareTo (mailbox)), Is.EqualTo (-expected), "reverse");
+		}
+
 		[Test]
 		public void TestSetEmptyAddress ()
 		{

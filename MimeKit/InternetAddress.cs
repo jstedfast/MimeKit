@@ -142,7 +142,8 @@ namespace MimeKit {
 		/// Compares two internet addresses.
 		/// </summary>
 		/// <remarks>
-		/// Compares two internet addresses for the purpose of sorting.
+		/// Compares display names first. For mailboxes with matching display names, compares IDN-encoded
+		/// domains when both addresses have a domain, then local-parts. Comparisons are case-insensitive.
 		/// </remarks>
 		/// <returns>The sort order of the current internet address compared to the other internet address.</returns>
 		/// <param name="other">The internet address to compare to.</param>
@@ -163,27 +164,31 @@ namespace MimeKit {
 			var mailbox = this as MailboxAddress;
 
 			if (mailbox != null && otherMailbox != null) {
-				string otherAddress = otherMailbox.Address;
+				// Note: We'll compare IDN-encoded addrspecs because we'll be using that as the canonical representation.
+				string otherAddress = otherMailbox.GetAddress (true);
 				int otherAt = otherAddress.IndexOf ('@');
-				string address = mailbox.Address;
+				string address = mailbox.GetAddress (true);
 				int at = address.IndexOf ('@');
 
+				// Sort by domain first so everyone at the same domain is grouped together.
 				if (at != -1 && otherAt != -1) {
-					int length = Math.Min (address.Length - (at + 1), otherAddress.Length - (otherAt + 1));
+					int otherLength = otherAddress.Length - (otherAt + 1);
+					int length = address.Length - (at + 1);
+					int n = Math.Min (length, otherLength);
 
-					rv = string.Compare (address, at + 1, otherAddress, otherAt + 1, length, StringComparison.OrdinalIgnoreCase);
+					if ((rv = string.Compare (address, at + 1, otherAddress, otherAt + 1, n, StringComparison.OrdinalIgnoreCase)) == 0)
+						rv = length - otherLength;
 				}
 
+				// ...Then sort by local-part if the domains are the same (or if one or both addresses don't have a domain).
 				if (rv == 0) {
 					int otherLength = otherAt == -1 ? otherAddress.Length : otherAt;
 					int length = at == -1 ? address.Length : at;
 					int n = Math.Min (length, otherLength);
 
-					if ((rv = string.Compare (address, 0, otherAddress, 0, n, StringComparison.OrdinalIgnoreCase)) == 0) {
-						// The local-part's of the addresses are identical for the first `n` characters. The address
-						// with the longer local-part should sort as > the address with the shorter local-part.
+					// Note: technically, the local-part of an email address is case-sensitive, but in practice, it is not.
+					if ((rv = string.Compare (address, 0, otherAddress, 0, n, StringComparison.OrdinalIgnoreCase)) == 0)
 						rv = length - otherLength;
-					}
 				}
 
 				return rv;
