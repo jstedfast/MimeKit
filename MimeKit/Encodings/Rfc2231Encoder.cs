@@ -1,5 +1,5 @@
 ﻿//
-// HexEncoder.cs
+// Rfc2231Encoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -30,13 +30,13 @@ using MimeKit.Utils;
 
 namespace MimeKit.Encodings {
 	/// <summary>
-	/// Encodes content using a Uri hex encoding.
+	/// Encodes parameter values using RFC 2231 percent-encoding.
 	/// </summary>
 	/// <remarks>
-	/// This is mostly meant for decoding parameter values encoded using
+	/// This is meant for encoding parameter values using
 	/// the rules specified by rfc2184 and rfc2231.
 	/// </remarks>
-	static class HexEncoder
+	static class Rfc2231Encoder
 	{
 		static ReadOnlySpan<byte> hex_alphabet => "0123456789ABCDEF"u8;
 

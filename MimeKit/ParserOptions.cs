@@ -49,7 +49,7 @@ namespace MimeKit {
 		static volatile ICryptographicEntityFactory? CryptographicEntityFactory;
 		int maxHeaderLength;
 
-		internal const int DefaultMaxHeaderLength = 16 * 1024 * 1024;
+		internal const int DefaultMaxHeaderLength = 16 * 1024;
 
 		/// <summary>
 		/// The default parser options.
@@ -136,7 +136,7 @@ namespace MimeKit {
 		/// <para>The length is measured in bytes of raw header data and includes the field name, the colon,
 		/// the raw value (including any folding), and the terminating newline sequence.</para>
 		/// <para>When a header exceeds this limit, the parser will throw a <see cref="FormatException"/>.</para>
-		/// <para>The default value is <c>16777216</c> (16 MB).</para>
+		/// <para>The default value is <c>16384</c> (16 KB).</para>
 		/// </remarks>
 		/// <value>The maximum header length, in bytes.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">

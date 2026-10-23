@@ -1,5 +1,5 @@
 ﻿//
-// HexEncoderTests.cs
+// Rfc2231EncoderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -30,18 +30,18 @@ using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
 	[TestFixture]
-	public class HexEncoderTests : MimeEncoderTestsBase
+	public class Rfc2231EncoderTests : MimeEncoderTestsBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
 			var output = Array.Empty<byte> ();
 
-			Assert.Throws<ArgumentNullException> (() => HexEncoder.Encode (null, 0, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => HexEncoder.Encode (Array.Empty<byte> (), -1, 0, output));
-			Assert.Throws<ArgumentOutOfRangeException> (() => HexEncoder.Encode (new byte[1], 0, 10, output));
-			Assert.Throws<ArgumentNullException> (() => HexEncoder.Encode (new byte[1], 0, 1, null));
-			Assert.Throws<ArgumentException> (() => HexEncoder.Encode (new byte[1], 0, 1, output));
+			Assert.Throws<ArgumentNullException> (() => Rfc2231Encoder.Encode (null, 0, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2231Encoder.Encode (Array.Empty<byte> (), -1, 0, output));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2231Encoder.Encode (new byte[1], 0, 10, output));
+			Assert.Throws<ArgumentNullException> (() => Rfc2231Encoder.Encode (new byte[1], 0, 1, null));
+			Assert.Throws<ArgumentException> (() => Rfc2231Encoder.Encode (new byte[1], 0, 1, output));
 		}
 
 		[Test]
@@ -53,12 +53,12 @@ namespace UnitTests.Encodings {
 			var buf = encoding.GetBytes (input);
 			int n;
 
-			n = HexEncoder.EstimateOutputLength (buf.Length);
+			n = Rfc2231Encoder.EstimateOutputLength (buf.Length);
 			
 			Assert.That (n, Is.EqualTo (buf.Length * 3), "EstimateOutputLength");
 
 			var output = new byte[n];
-			n = HexEncoder.Encode (buf, 0, buf.Length, output);
+			n = Rfc2231Encoder.Encode (buf, 0, buf.Length, output);
 			var actual = encoding.GetString (output, 0, n);
 
 			Assert.That (actual, Is.EqualTo (expected), "Encode");
@@ -72,12 +72,12 @@ namespace UnitTests.Encodings {
 			var buf = Encoding.ASCII.GetBytes (input);
 			int n;
 
-			n = HexEncoder.EstimateOutputLength (buf.Length);
+			n = Rfc2231Encoder.EstimateOutputLength (buf.Length);
 
 			Assert.That (n, Is.EqualTo (buf.Length * 3), "EstimateOutputLength");
 
 			var output = new byte[n];
-			n = HexEncoder.Encode (buf, 0, buf.Length, output);
+			n = Rfc2231Encoder.Encode (buf, 0, buf.Length, output);
 			var actual = Encoding.ASCII.GetString (output, 0, n);
 
 			Assert.That (actual, Is.EqualTo (expected), "Encode");
@@ -86,10 +86,10 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestEstimateOutputLengthDoesNotOverflow ()
 		{
-			Assert.Throws<ArgumentOutOfRangeException> (() => HexEncoder.EstimateOutputLength (1 << 30));
-			Assert.That (HexEncoder.EstimateOutputLength (int.MaxValue / 3), Is.EqualTo ((int.MaxValue / 3) * 3));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Rfc2231Encoder.EstimateOutputLength (1 << 30));
+			Assert.That (Rfc2231Encoder.EstimateOutputLength (int.MaxValue / 3), Is.EqualTo ((int.MaxValue / 3) * 3));
 
-			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (HexEncoder.EstimateOutputLength);
+			TestHelper.AssertEstimateOutputLengthDoesNotOverflow (Rfc2231Encoder.EstimateOutputLength);
 		}
 	}
 }

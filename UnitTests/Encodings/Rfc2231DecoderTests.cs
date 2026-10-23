@@ -1,5 +1,5 @@
 ﻿//
-// HexDecoderTests.cs
+// Rfc2231DecoderTests.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -31,18 +31,18 @@ using MimeKit.Encodings;
 
 namespace UnitTests.Encodings {
 	[TestFixture]
-	public class HexDecoderTests : MimeDecoderTestsBase
+	public class Rfc2231DecoderTests : MimeDecoderTestsBase
 	{
 		[Test]
 		public void TestArgumentExceptions ()
 		{
-			AssertArgumentExceptions (new HexDecoder ());
+			AssertArgumentExceptions (new Rfc2231Decoder ());
 		}
 
 		[Test]
 		public void TestEncoding ()
 		{
-			var decoder = new HexDecoder ();
+			var decoder = new Rfc2231Decoder ();
 
 			Assert.That (decoder.Encoding, Is.EqualTo (ContentEncoding.Default));
 		}
@@ -50,13 +50,13 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestClone ()
 		{
-			CloneAndAssert (new HexDecoder ());
+			CloneAndAssert (new Rfc2231Decoder ());
 		}
 
 		[Test]
 		public void TestReset ()
 		{
-			ResetAndAssert (new HexDecoder ());
+			ResetAndAssert (new Rfc2231Decoder ());
 		}
 
 		[Test]
@@ -65,7 +65,7 @@ namespace UnitTests.Encodings {
 			const string input = "This should decode: (%ED%E5%EC%F9 %EF%E1 %E9%EC%E8%F4%F0) while %X1%S1%Z1 should not";
 			const string expected = "This should decode: (םולש ןב ילטפנ) while %X1%S1%Z1 should not";
 			var encoding = Encoding.GetEncoding ("iso-8859-8");
-			var decoder = new HexDecoder ();
+			var decoder = new Rfc2231Decoder ();
 			var output = new byte[1024];
 
 			var buf = Encoding.ASCII.GetBytes (input);
@@ -80,7 +80,7 @@ namespace UnitTests.Encodings {
 		{
 			const string input = "%20%09%0D%0AABCabc123!%40#$%25^&%2A%28%29_+`-%3D%5B%5D%5C{}|%3B%3A%27%22%2C.%2F%3C%3E%3F";
 			const string expected = " \t\r\nABCabc123!@#$%^&*()_+`-=[]\\{}|;:'\",./<>?";
-			var decoder = new HexDecoder ();
+			var decoder = new Rfc2231Decoder ();
 			var output = new byte[1024];
 
 			var buf = Encoding.ASCII.GetBytes (input);
@@ -93,7 +93,7 @@ namespace UnitTests.Encodings {
 		[Test]
 		public void TestEstimateOutputLengthIncludesPendingEscapeBytes ()
 		{
-			var decoder = new HexDecoder ();
+			var decoder = new Rfc2231Decoder ();
 			var output = new byte[8];
 			var input = Encoding.ASCII.GetBytes ("%");
 
@@ -118,7 +118,7 @@ namespace UnitTests.Encodings {
 		[TestCase ("%4", 2)]
 		public void TestEstimateOutputLengthDoesNotOverflow (string pending, int extra)
 		{
-			var decoder = new HexDecoder ();
+			var decoder = new Rfc2231Decoder ();
 			var output = new byte[8];
 			var input = Encoding.ASCII.GetBytes (pending);
 

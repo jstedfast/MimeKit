@@ -208,7 +208,7 @@ For most code, the parser change is a source-compatible rename: `new MimeParser 
   boundary (RFC 2046) and is no longer passed to `OnMimePartContentRead[Async] ()` or
   `OnMultipartEpilogueRead[Async] ()`. The bytes passed to these callbacks now exactly match the range
   between the `Begin` and `End` offsets. Remove any code that trimmed the trailing newline itself.
-- **Header length limit.** The new `ParserOptions.MaxHeaderLength` (16 MB by default) bounds how much a
+- **Header length limit.** The new `ParserOptions.MaxHeaderLength` (16 KB by default) bounds how much a
   single header can buffer. Longer headers make the parser throw a `FormatException`.
 - **Byte-for-byte round trips.** `MimeParser` now re-serializes messages exactly as they were parsed, even
   when they're truncated or don't end with a newline. If you append messages to an mbox file, set
@@ -338,7 +338,7 @@ These APIs were removed without a direct replacement (most were already obsolete
 | 4.x | 5.0 |
 |---|---|
 | `QEncoder` | Removed. Use `Rfc2047.EncodePhrase ()` or `Rfc2047.EncodeText ()` to encode header text. |
-| `HexEncoder`, `HexDecoder` | Removed (`HexDecoder` is now internal) |
+| `HexEncoder`, `HexDecoder` | Removed from the public API; internal implementations are named `Rfc2231Encoder` and `Rfc2231Decoder` |
 | `TnefPropertyTag.Puid` | `TnefPropertyTag.PuidA` or `TnefPropertyTag.PuidW` |
 
 The obsolete members of `MimeReader`, `DkimSigner`, `ArcSigner`, `DkimSignerBase`, `HtmlToHtml` and

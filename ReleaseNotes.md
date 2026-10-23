@@ -103,7 +103,7 @@ writers inherit the factory, and the writer disposes each temporary stream when 
   `OnMboxMarkerBegin ()` call, which makes the signature consistent with `OnMimePartContentRead ()`.
 * Removed previously obsoleted APIs:
   * The `QEncoder` class, and the public `HexEncoder` `IMimeEncoder` implementation. `HexDecoder` is
-    now internal.
+    now internal. The internal implementations are named `Rfc2231Encoder` and `Rfc2231Decoder`.
   * The `HtmlToHtml.FilterHtml` property. Use a dedicated library such as HtmlSanitizer instead.
   * The obsolete `IX509CertificateDatabase` APIs.
   * The obsolete `DkimSigner` and `ArcSigner` APIs, including the protected `DkimSignerBase.PrivateKey`
@@ -467,7 +467,7 @@ writers inherit the factory, and the writer disposes each temporary stream when 
   documentation for the security implications of each setting.
 * Added `ParserOptions.MaxHeaderLength` to limit how much memory the parser will use to buffer any
   single header. A header whose raw length exceeds the limit causes the parser to throw a `FormatException`.
-  The default limit is 16 MB.
+  The default limit is 16 KB.
 * Added `HtmlTokenizer.MaxElementDepth` and `HtmlToHtml.MaxElementDepth` to limit the number of distinct
   nested elements that the tokenizer tracks in order to tokenize the content of elements such as `<style>`
   and `<![CDATA[` sections inside of SVG and MathML the way a browser would. Previously, deeply nested markup

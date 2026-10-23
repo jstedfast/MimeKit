@@ -1,5 +1,5 @@
 ﻿//
-// HexDecoder.cs
+// Rfc2231Decoder.cs
 //
 // Author: Jeffrey Stedfast <jestedfa@microsoft.com>
 //
@@ -30,43 +30,43 @@ using MimeKit.Utils;
 
 namespace MimeKit.Encodings {
 	/// <summary>
-	/// Incrementally decodes content encoded with a Uri hex encoding.
+	/// Incrementally decodes RFC 2231 percent-encoded parameter values.
 	/// </summary>
 	/// <remarks>
 	/// This is mostly meant for decoding parameter values encoded using
 	/// the rules specified by rfc2184 and rfc2231.
 	/// </remarks>
-	class HexDecoder : IMimeDecoder
+	class Rfc2231Decoder : IMimeDecoder
 	{
-		enum HexDecoderState : byte {
+		enum Rfc2231DecoderState : byte {
 			PassThrough,
 			Percent,
 			DecodeByte
 		}
 
-		HexDecoderState state;
+		Rfc2231DecoderState state;
 		byte saved;
 
 		/// <summary>
-		/// Initialize a new instance of the <see cref="HexDecoder"/> class.
+		/// Initialize a new instance of the <see cref="Rfc2231Decoder"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new hex decoder.
+		/// Creates a new RFC 2231 decoder.
 		/// </remarks>
-		public HexDecoder ()
+		public Rfc2231Decoder ()
 		{
 		}
 
 		/// <summary>
-		/// Clone the <see cref="HexDecoder"/> with its current state.
+		/// Clone the <see cref="Rfc2231Decoder"/> with its current state.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="HexDecoder"/> with exactly the same state as the current decoder.
+		/// Creates a new <see cref="Rfc2231Decoder"/> with exactly the same state as the current decoder.
 		/// </remarks>
-		/// <returns>A new <see cref="HexDecoder"/> with identical state.</returns>
+		/// <returns>A new <see cref="Rfc2231Decoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
-			return new HexDecoder {
+			return new Rfc2231Decoder {
 				state = state,
 				saved = saved
 			};
@@ -97,8 +97,8 @@ namespace MimeKit.Encodings {
 		public int EstimateOutputLength (int inputLength)
 		{
 			switch (state) {
-			case HexDecoderState.PassThrough: return inputLength;
-			case HexDecoderState.Percent: return ArgumentValidator.ValidateOutputLength ((long) inputLength + 1); // add an extra byte in case the '%' character is not the start of a valid hex sequence
+			case Rfc2231DecoderState.PassThrough: return inputLength;
+			case Rfc2231DecoderState.Percent: return ArgumentValidator.ValidateOutputLength ((long) inputLength + 1); // add an extra byte in case the '%' character is not the start of a valid hex sequence
 			default: return ArgumentValidator.ValidateOutputLength ((long) inputLength + 2); // add an extra 2 bytes in case the %X sequence is not the start of a valid hex sequence
 			}
 		}
@@ -143,24 +143,24 @@ namespace MimeKit.Encodings {
 
 			while (inptr < inend) {
 				switch (state) {
-				case HexDecoderState.PassThrough:
+				case Rfc2231DecoderState.PassThrough:
 					while (inptr < inend) {
 						c = *inptr++;
 
 						if (c == '%') {
-							state = HexDecoderState.Percent;
+							state = Rfc2231DecoderState.Percent;
 							break;
 						}
 
 						*outptr++ = c;
 					}
 					break;
-				case HexDecoderState.Percent:
+				case Rfc2231DecoderState.Percent:
 					c = *inptr++;
-					state = HexDecoderState.DecodeByte;
+					state = Rfc2231DecoderState.DecodeByte;
 					saved = c;
 					break;
-				case HexDecoderState.DecodeByte:
+				case Rfc2231DecoderState.DecodeByte:
 					c = *inptr++;
 					if (c.IsXDigit () && saved.IsXDigit ()) {
 						saved = saved.ToXDigit ();
@@ -174,7 +174,7 @@ namespace MimeKit.Encodings {
 						*outptr++ = c;
 					}
 
-					state = HexDecoderState.PassThrough;
+					state = Rfc2231DecoderState.PassThrough;
 					break;
 				}
 			}
@@ -229,7 +229,7 @@ namespace MimeKit.Encodings {
 		/// </remarks>
 		public void Reset ()
 		{
-			state = HexDecoderState.PassThrough;
+			state = Rfc2231DecoderState.PassThrough;
 			saved = 0;
 		}
 	}

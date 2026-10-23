@@ -77,7 +77,7 @@ namespace MimeKit.Fuzzing.Targets {
 			case 5: TestRfc2047Base64 (input); break;
 			case 6: TestRfc2047QuotedPrintable (input, QEncodeMode.Phrase); break;
 			case 7: TestRfc2047QuotedPrintable (input, QEncodeMode.Text); break;
-			default: TestHex (input); break;
+			default: TestRfc2231 (input); break;
 			}
 		}
 
@@ -523,17 +523,17 @@ namespace MimeKit.Fuzzing.Targets {
 			RoundTrip (output, new QuotedPrintableDecoder (true), input, name);
 		}
 
-		static void TestHex (byte[] input)
+		static void TestRfc2231 (byte[] input)
 		{
-			int estimate = HexEncoder.EstimateOutputLength (input.Length);
+			int estimate = Rfc2231Encoder.EstimateOutputLength (input.Length);
 			var output = new byte[estimate + GuardLength];
 
 			Array.Fill (output, Guard);
 
-			int n = HexEncoder.Encode (input, 0, input.Length, output);
+			int n = Rfc2231Encoder.Encode (input, 0, input.Length, output);
 
-			Fuzz.Check (n >= 0 && n <= estimate, $"HexEncoder.Encode returned {n} bytes but EstimateOutputLength ({input.Length}) was {estimate}");
-			CheckGuard (output, estimate, $"HexEncoder.Encode overran its output estimate of {estimate} bytes");
+			Fuzz.Check (n >= 0 && n <= estimate, $"Rfc2231Encoder.Encode returned {n} bytes but EstimateOutputLength ({input.Length}) was {estimate}");
+			CheckGuard (output, estimate, $"Rfc2231Encoder.Encode overran its output estimate of {estimate} bytes");
 
 			var encoded = output.AsSpan (0, n).ToArray ();
 
@@ -541,15 +541,15 @@ namespace MimeKit.Fuzzing.Targets {
 				byte c = encoded[i];
 
 				if (c == (byte) '%') {
-					Fuzz.Check (i + 2 < encoded.Length && IsHexDigit (encoded[i + 1]) && IsHexDigit (encoded[i + 2]), $"HexEncoder emitted an invalid '%' sequence at offset {i}");
+					Fuzz.Check (i + 2 < encoded.Length && IsHexDigit (encoded[i + 1]) && IsHexDigit (encoded[i + 2]), $"Rfc2231Encoder emitted an invalid '%' sequence at offset {i}");
 					i += 2;
 				} else {
 					// rfc2231 attribute-char: any (US-ASCII) CHAR except SPACE, CTLs, "*", "'", "%", or tspecials.
-					Fuzz.Check (c > 0x20 && c < 0x7F && "*'%()<>@,;:\\\"/[]?=".IndexOf ((char) c) < 0, $"HexEncoder emitted 0x{c:X2} at offset {i}");
+					Fuzz.Check (c > 0x20 && c < 0x7F && "*'%()<>@,;:\\\"/[]?=".IndexOf ((char) c) < 0, $"Rfc2231Encoder emitted 0x{c:X2} at offset {i}");
 				}
 			}
 
-			RoundTrip (encoded, new HexDecoder (), input, "HexEncoder");
+			RoundTrip (encoded, new Rfc2231Decoder (), input, "Rfc2231Encoder");
 		}
 
 		static byte[] CanonicalizeLineBreaks (byte[] input)

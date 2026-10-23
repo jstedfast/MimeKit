@@ -936,7 +936,7 @@ namespace MimeKit {
 			return true;
 		}
 
-		static string DecodeRfc2231 (out Encoding? encoding, ref Decoder? decoder, HexDecoder hex, byte[] text, int startIndex, int count, bool flush)
+		static string DecodeRfc2231 (out Encoding? encoding, ref Decoder? decoder, Rfc2231Decoder hex, byte[] text, int startIndex, int count, bool flush)
 		{
 			int endIndex = startIndex + count;
 			int index = startIndex;
@@ -1042,7 +1042,7 @@ namespace MimeKit {
 			} while (true);
 
 			paramList = new ParameterList ();
-			var hex = new HexDecoder ();
+			var hex = new Rfc2231Decoder ();
 
 			foreach (var param in @params) {
 				var method = ParameterEncodingMethod.Default;

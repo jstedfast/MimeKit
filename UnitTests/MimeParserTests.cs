@@ -6453,13 +6453,14 @@ This is the message body.
 		{
 			var path = Path.Combine (TestHelper.ProjectDir, "TestData", fileName);
 			var expected = GetExpectedRoundTripOutput (path, out var mimeFormat);
+			var parserOptions = new ParserOptions { MaxHeaderLength = 16 * 1024 * 1024 };
 			var options = FormatOptions.Default.Clone ();
 
 			options.NewLineFormat = DetectNewLineFormat (path);
 
 			foreach (var persistent in new bool[] { false, true }) {
 				using var stream = new MemoryStream (expected, false);
-				var parser = new MimeParser (stream, mimeFormat, persistent);
+				var parser = new MimeParser (parserOptions, stream, mimeFormat, persistent);
 				using var output = new MemoryStream ();
 
 				using var message = parser.ParseMessage ();
@@ -6481,13 +6482,14 @@ This is the message body.
 		{
 			var path = Path.Combine (TestHelper.ProjectDir, "TestData", fileName);
 			var expected = GetExpectedRoundTripOutput (path, out var mimeFormat);
+			var parserOptions = new ParserOptions { MaxHeaderLength = 16 * 1024 * 1024 };
 			var options = FormatOptions.Default.Clone ();
 
 			options.NewLineFormat = DetectNewLineFormat (path);
 
 			foreach (var persistent in new bool[] { false, true }) {
 				using var stream = new MemoryStream (expected, false);
-				var parser = new MimeParser (stream, mimeFormat, persistent);
+				var parser = new MimeParser (parserOptions, stream, mimeFormat, persistent);
 				using var output = new MemoryStream ();
 
 				using var message = await parser.ParseMessageAsync ();
@@ -7913,16 +7915,17 @@ Content-Type: text/plain; charset=utf-8
 		public void TestHugeFoldedHeader ([Values (1, 100, 50000)] int lines)
 		{
 			var data = CreateMessageWithHugeFoldedHeader (lines, out var expectedRawValue, out var subjectOffset);
+			var options = new ParserOptions { MaxHeaderLength = 16 * 1024 * 1024 };
 
 			using (var stream = new MemoryStream (data, false)) {
-				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
 			}
 
 			using (var stream = new ChunkedReadStream (data, 7)) {
-				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
 				var message = parser.ParseMessage ();
 
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
@@ -7933,16 +7936,17 @@ Content-Type: text/plain; charset=utf-8
 		public async Task TestHugeFoldedHeaderAsync ([Values (1, 100, 50000)] int lines)
 		{
 			var data = CreateMessageWithHugeFoldedHeader (lines, out var expectedRawValue, out var subjectOffset);
+			var options = new ParserOptions { MaxHeaderLength = 16 * 1024 * 1024 };
 
 			using (var stream = new MemoryStream (data, false)) {
-				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
 				var message = await parser.ParseMessageAsync ();
 
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
 			}
 
 			using (var stream = new ChunkedReadStream (data, 7)) {
-				var parser = new MimeParser (stream, MimeFormat.Entity);
+				var parser = new MimeParser (options, stream, MimeFormat.Entity);
 				var message = await parser.ParseMessageAsync ();
 
 				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, lines);
@@ -8353,13 +8357,13 @@ Content-Type: text/plain; charset=utf-8
 		public void TestMaxHeaderLengthExceeded ([Values (false, true)] bool chunked)
 		{
 			var data = CreateMessageWithHugeFoldedHeader (1000, out _, out _);
-			var options = new ParserOptions { MaxHeaderLength = 1000 };
+			var options = new ParserOptions ();
 
 			using (var stream = CreateStream (data, chunked)) {
 				var parser = new MimeParser (options, stream, MimeFormat.Entity);
 				var ex = Assert.Throws<FormatException> (() => parser.ParseMessage ());
 
-				AssertExcessiveHeaderLength (ex, 26, 1000);
+				AssertExcessiveHeaderLength (ex, 26, 16 * 1024);
 
 				// The parser should have stopped reading shortly after exceeding the limit.
 				Assert.That (stream.Position, Is.LessThan (data.Length));
@@ -8370,13 +8374,13 @@ Content-Type: text/plain; charset=utf-8
 		public async Task TestMaxHeaderLengthExceededAsync ([Values (false, true)] bool chunked)
 		{
 			var data = CreateMessageWithHugeFoldedHeader (1000, out _, out _);
-			var options = new ParserOptions { MaxHeaderLength = 1000 };
+			var options = new ParserOptions ();
 
 			using (var stream = CreateStream (data, chunked)) {
 				var parser = new MimeParser (options, stream, MimeFormat.Entity);
 				var ex = Assert.ThrowsAsync<FormatException> (() => parser.ParseMessageAsync ());
 
-				AssertExcessiveHeaderLength (ex, 26, 1000);
+				AssertExcessiveHeaderLength (ex, 26, 16 * 1024);
 
 				// The parser should have stopped reading shortly after exceeding the limit.
 				Assert.That (stream.Position, Is.LessThan (data.Length));

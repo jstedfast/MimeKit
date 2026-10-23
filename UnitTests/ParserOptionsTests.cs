@@ -73,7 +73,7 @@ namespace UnitTests {
 		{
 			var options = new ParserOptions ();
 
-			Assert.That (options.MaxHeaderLength, Is.EqualTo (16 * 1024 * 1024), "Default MaxHeaderLength");
+			Assert.That (options.MaxHeaderLength, Is.EqualTo (16 * 1024), "Default MaxHeaderLength");
 
 			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxHeaderLength = 0);
 			Assert.Throws<ArgumentOutOfRangeException> (() => options.MaxHeaderLength = -1);

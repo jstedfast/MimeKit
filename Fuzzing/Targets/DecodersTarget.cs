@@ -57,7 +57,7 @@ namespace MimeKit.Fuzzing.Targets {
 				4 => new UUDecoder (true),
 				5 => new YDecoder (false),
 				6 => new YDecoder (true),
-				_ => new HexDecoder (),
+				_ => new Rfc2231Decoder (),
 			};
 		}
 

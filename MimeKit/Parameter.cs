@@ -541,11 +541,11 @@ namespace MimeKit {
 					}
 				}
 
-				n = HexEncoder.EstimateOutputLength (count);
+				n = Rfc2231Encoder.EstimateOutputLength (count);
 				if (encoded.Length < n)
 					Array.Resize<byte> (ref encoded, n);
 
-				n = HexEncoder.Encode (bytes, 0, count, encoded);
+				n = Rfc2231Encoder.Encode (bytes, 0, count, encoded);
 				if (length > minLength && n > 3 && n > maxLength) {
 					int x = 0;
 
