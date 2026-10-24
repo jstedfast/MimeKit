@@ -592,28 +592,28 @@ namespace MimeKit {
 			// Note: We'll compare IDN-encoded addrspecs because we'll be using that as the canonical representation.
 			string otherAddress = otherMailbox.GetAddress (true);
 			int otherAt = otherAddress.IndexOf ('@');
-			string address = GetAddress (true);
-			int at = address.IndexOf ('@');
+			string thisAddress = GetAddress (true);
+			int thisAt = thisAddress.IndexOf ('@');
 			int rv = 0;
 
 			// Sort by domain first so everyone at the same domain is grouped together.
-			if (at != -1 && otherAt != -1) {
+			if (thisAt != -1 && otherAt != -1) {
 				int otherLength = otherAddress.Length - (otherAt + 1);
-				int length = address.Length - (at + 1);
+				int length = thisAddress.Length - (thisAt + 1);
 				int n = Math.Min (length, otherLength);
 
-				if ((rv = string.Compare (address, at + 1, otherAddress, otherAt + 1, n, StringComparison.OrdinalIgnoreCase)) == 0)
+				if ((rv = string.Compare (thisAddress, thisAt + 1, otherAddress, otherAt + 1, n, StringComparison.OrdinalIgnoreCase)) == 0)
 					rv = length - otherLength;
 			}
 
 			// ...Then sort by local-part if the domains are the same (or if one or both addresses don't have a domain).
 			if (rv == 0) {
 				int otherLength = otherAt == -1 ? otherAddress.Length : otherAt;
-				int length = at == -1 ? address.Length : at;
+				int length = thisAt == -1 ? thisAddress.Length : thisAt;
 				int n = Math.Min (length, otherLength);
 
 				// Note: technically, the local-part of an email address is case-sensitive, but in practice, it is not.
-				if ((rv = string.Compare (address, 0, otherAddress, 0, n, StringComparison.OrdinalIgnoreCase)) == 0)
+				if ((rv = string.Compare (thisAddress, 0, otherAddress, 0, n, StringComparison.OrdinalIgnoreCase)) == 0)
 					rv = length - otherLength;
 			}
 
