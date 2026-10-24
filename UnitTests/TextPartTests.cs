@@ -137,6 +137,28 @@ namespace UnitTests {
 			Assert.That (text.IsFormat (TextFormat.Enriched), Is.True, "IsFormat");
 		}
 
+		[TestCase (null, TextFormat.Plain)]
+		[TestCase ("fixed", TextFormat.Plain)]
+		[TestCase ("flowed", TextFormat.Flowed)]
+		[TestCase ("FLOWED", TextFormat.Flowed)]
+		[TestCase (" fLoWeD ", TextFormat.Flowed)]
+		public void TestPlainFormatCaseInsensitive (string format, TextFormat expected)
+		{
+			foreach (var mediaType in new[] { "text", "TEXT", "TeXt" }) {
+				foreach (var subtype in new[] { "plain", "PLAIN", "pLaIn" }) {
+					using var text = new TextPart (new ContentType (mediaType, subtype));
+
+					if (format != null)
+						text.ContentType.Parameters["format"] = format;
+
+					Assert.That (text.Format, Is.EqualTo (expected), $"{mediaType}/{subtype}: Format");
+					Assert.That (text.IsPlain, Is.True, $"{mediaType}/{subtype}: IsPlain");
+					Assert.That (text.IsFlowed, Is.EqualTo (expected == TextFormat.Flowed), $"{mediaType}/{subtype}: IsFlowed");
+					Assert.That (text.IsFormat (expected), Is.True, $"{mediaType}/{subtype}: IsFormat");
+				}
+			}
+		}
+
 		[Test]
 		public void TestGetText ()
 		{

@@ -220,7 +220,7 @@ namespace MimeKit {
 				CheckDisposed ();
 
 				if (ContentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
-					if (ContentType.MediaSubtype.Equals ("plain")) {
+					if (ContentType.MediaSubtype.Equals ("plain", StringComparison.OrdinalIgnoreCase)) {
 						if (ContentType.Parameters.TryGetValue ("format", out string? format)) {
 							format = format.Trim ();
 
