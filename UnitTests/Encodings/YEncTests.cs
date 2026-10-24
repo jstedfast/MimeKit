@@ -434,7 +434,7 @@ namespace UnitTests.Encodings {
 		static async Task StateAndOwnership (bool leaveOpen, bool doAsync)
 		{
 			using var stream = new MemoryStream (Encoding.ASCII.GetBytes (EmptyBlock));
-			var reader = new YEncReader (stream, leaveOpen: leaveOpen);
+			using var reader = new YEncReader (stream, leaveOpen: leaveOpen);
 			Assert.ThrowsAsync<InvalidOperationException> (async () => await DecodeTo (reader, Stream.Null, doAsync));
 			Assert.That (await ReadNext (reader, doAsync), Is.True);
 			Assert.ThrowsAsync<InvalidOperationException> (async () => await ReadNext (reader, doAsync));
@@ -452,7 +452,7 @@ namespace UnitTests.Encodings {
 
 			using var destination = new MemoryStream ();
 			using var empty = new MemoryStream ();
-			var writer = new YEncWriter (destination, leaveOpen: leaveOpen);
+			using var writer = new YEncWriter (destination, leaveOpen: leaveOpen);
 			var header = new YEncHeader ("x", 0);
 			Assert.ThrowsAsync<OperationCanceledException> (async () => await Write (writer, header, empty, doAsync, token: canceled));
 			Assert.That (destination.Length, Is.Zero);

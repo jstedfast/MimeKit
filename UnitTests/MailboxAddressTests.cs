@@ -126,6 +126,33 @@ namespace UnitTests {
 			Assert.That (Math.Sign (other.CompareTo (mailbox)), Is.EqualTo (-expected), "reverse");
 		}
 
+		[TestCase ("Same", "Same", -1)]
+		[TestCase ("Same", "SAME", -1)]
+		[TestCase ("", "", -1)]
+		[TestCase ("Alice", "Bob", -1)]
+		[TestCase ("Bob", "Alice", 1)]
+		public void TestCompareToGroups (string mailboxName, string groupName, int expected)
+		{
+			InternetAddress mailbox = new MailboxAddress (mailboxName, "user@example.com");
+			InternetAddress group = new GroupAddress (groupName);
+
+			Assert.That (Math.Sign (mailbox.CompareTo (group)), Is.EqualTo (expected), "forward");
+			Assert.That (Math.Sign (group.CompareTo (mailbox)), Is.EqualTo (-expected), "reverse");
+		}
+
+		[Test]
+		public void TestCompareToDerivedMailbox ()
+		{
+			InternetAddress mailbox = new SecureMailboxAddress ("Same", "z@a.example", "ffff");
+			InternetAddress other = new MailboxAddress ("Same", "a@z.example");
+			InternetAddress group = new GroupAddress ("Same");
+
+			Assert.That (mailbox.CompareTo (other), Is.LessThan (0), "forward");
+			Assert.That (other.CompareTo (mailbox), Is.GreaterThan (0), "reverse");
+			Assert.That (mailbox.CompareTo (group), Is.EqualTo (-1), "mailbox before group");
+			Assert.That (group.CompareTo (mailbox), Is.EqualTo (1), "group after mailbox");
+		}
+
 		[Test]
 		public void TestSetEmptyAddress ()
 		{

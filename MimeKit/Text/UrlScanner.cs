@@ -752,8 +752,14 @@ namespace MimeKit.Text {
 					return true;
 
 				depth--;
-			} else if ((c == '(' && close == ')') || (c == '[' && close == ']') || (c == '{' && close == '}')) {
-				depth++;
+			} else {
+				switch (c) {
+				case '(' when close == ')':
+				case '[' when close == ']':
+				case '{' when close == '}':
+					depth++;
+					break;
+				}
 			}
 
 			return false;

@@ -191,11 +191,10 @@ namespace UnitTests.Text {
 		[TestCase ("|", "|")]
 		public void TestBalancedEnclosedUrls (string open, string close)
 		{
-			foreach (var prefix in new[] { "http://example.com/", "file:///path/", "mailto:a@example.com?subject=", "mailto:?subject=" }) {
-				var url = prefix + "a(b(c))[d[e]]{f{g}}";
+			var prefixes = new[] { "http://example.com/", "file:///path/", "mailto:a@example.com?subject=", "mailto:?subject=" };
 
+			foreach (var url in prefixes.Select (prefix => prefix + "a(b(c))[d[e]]{f{g}}"))
 				AssertUrlMatch (open + url + close + ")., next", url, "");
-			}
 		}
 
 		[TestCase ("(http://example.com/a(bar))).", "http://example.com/a(bar)", "")]

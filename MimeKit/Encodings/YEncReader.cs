@@ -435,10 +435,8 @@ namespace MimeKit.Encodings {
 			if (YEncFormat.Number (fields, "size") != DecodedSize || DecodedSize != header.DecodedSize)
 				throw new FormatException ("The yEnc decoded size does not match its header or trailer.");
 
-			if (header.PartNumber != 0 || fields.ContainsKey ("part")) {
-				if (YEncFormat.Integer (fields, "part") != header.PartNumber)
-					throw new FormatException ("The yEnc trailer part number does not match its header.");
-			}
+			if ((header.PartNumber != 0 || fields.ContainsKey ("part")) && YEncFormat.Integer (fields, "part") != header.PartNumber)
+				throw new FormatException ("The yEnc trailer part number does not match its header.");
 
 			if (fields.ContainsKey ("total") && YEncFormat.Integer (fields, "total") != header.TotalParts)
 				throw new FormatException ("The yEnc trailer part count does not match its header.");

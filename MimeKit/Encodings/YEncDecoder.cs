@@ -436,10 +436,8 @@ namespace MimeKit.Encodings {
 			byte* outptr = output;
 			byte* inptr = input;
 
-			if (state < YEncDecoderState.Payload) {
-				if ((inptr = ScanYBeginMarker (inptr, inend)) == inend)
-					return 0;
-			}
+			if (state < YEncDecoderState.Payload && (inptr = ScanYBeginMarker (inptr, inend)) == inend)
+				return 0;
 
 			if (state == YEncDecoderState.Ended)
 				return 0;
