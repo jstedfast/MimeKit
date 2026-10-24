@@ -40,6 +40,7 @@ and the [Release Notes](https://github.com/jstedfast/MimeKit/blob/master/Release
   * [Parsing Messages](#parsing-messages)
   * [Getting the Body of a Message](#getting-the-body-of-a-message)
   * [Converting HTML to Plain Text](#converting-html-to-plain-text)
+  * [Converting Enriched Text to HTML](#converting-enriched-text-to-html)
   * [Traversing a MimeMessage](#traversing-a-mimemessage)
   * [Quick and Dirty Enumeration of Message Body Parts](#quick-and-dirty-enumeration-of-message-body-parts)
   * [Getting the Decoded Content of a MIME Part](#getting-the-decoded-content-of-a-mime-part)
@@ -387,6 +388,35 @@ For untrusted input, `MaxElementDepth` defaults to 4096, `MaxInputLength` to 16,
 characters and `MaxOutputLength` to 67,108,864 UTF-16 characters. The input limit includes markup
 and suppressed content; the output limit includes generated indentation, URLs and line endings.
 The literal header and footer are excluded from these length limits. Exceeding a limit throws
+`FormatException`; a streaming destination may already contain partial output.
+
+### Converting Enriched Text to HTML
+
+Use `MimeKit.Text.EnrichedToHtml` to convert RFC 1896 `text/enriched` content:
+
+```csharp
+var converter = new MimeKit.Text.EnrichedToHtml {
+    OutputHtmlFragment = true
+};
+
+string html = converter.Convert ("<bold>Hello</bold> <color><param>red</param>world</color>!");
+```
+
+The converter supports emphasis, font families, colors, relative font sizes, alignment,
+paragraph indentation, excerpts, language tags and `nofill`. It applies enriched-text newline
+folding and escapes literal text, including `<<` for a literal less-than sign. Unknown commands
+are ignored, their body text is retained, and parameter content is never displayed. This does
+not support the older `text/richtext` format.
+
+Strings, streams and `TextReader`/`TextWriter` pairs are supported. By default the result is
+wrapped in `<html><body>`; set `OutputHtmlFragment` to omit that wrapper. Caller-owned readers,
+writers and streams remain open. Text headers and footers are converted with `TextToHtml`;
+headers and footers explicitly marked as HTML are trusted markup, not sanitized input.
+
+For untrusted input, `MaxElementDepth` and `MaxParameterLength` default to 4096, `MaxInputLength`
+to 16,777,216 UTF-16 characters and `MaxOutputLength` to 67,108,864 UTF-16 characters. The input
+limit includes commands and suppressed parameters, but excludes configured headers and footers.
+The output limit includes all markup, escaping, headers and footers. Exceeding a limit throws
 `FormatException`; a streaming destination may already contain partial output.
 
 ### Traversing a MimeMessage

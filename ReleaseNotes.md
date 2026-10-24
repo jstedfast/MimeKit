@@ -49,6 +49,11 @@ paragraphs, headings, nested lists, blockquotes and preformatted whitespace. Lin
 image alt text can be included independently. Conversion has configurable input, output and nesting
 limits; CSS rendering and aligned tables are not supported.
 
+Added `MimeKit.Text.EnrichedToHtml` for RFC 1896 `text/enriched` conversion, preserving character
+formatting, colors, fonts, alignment, indentation, excerpts, language tags and newline semantics.
+Supports HTML documents or fragments, headers and footers, and configurable resource limits.
+The older `text/richtext` format is not supported.
+
 Setting Subject, Date, Message-Id, In-Reply-To, MIME-Version, Importance, Priority or X-Priority
 through message properties now removes duplicate occurrences, even when assigning a cached value.
 Updating Resent-Date or Resent-Message-Id continues to modify only the first occurrence,

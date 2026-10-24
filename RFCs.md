@@ -12,6 +12,7 @@ MimeKit implements the following IETF specifications defining Internet Mail and 
 * [1864](https://tools.ietf.org/html/rfc1864): The Content-MD5 Header Field (Obsoletes rfc1544)
 * [1872](https://tools.ietf.org/html/rfc1872): The MIME Multipart/Related Content-type
 * [1892](https://tools.ietf.org/html/rfc1892): The Multipart/Report Content Type for the Reporting of  Mail System Administrative Messages
+* [1896](https://tools.ietf.org/html/rfc1896): The text/enriched MIME Content-type (Obsoletes rfc1523, rfc1563)
 * [2015](https://tools.ietf.org/html/rfc2015): MIME Security with Pretty Good Privacy (PGP)
 * [2045](https://tools.ietf.org/html/rfc2045): Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies
 * [2046](https://tools.ietf.org/html/rfc2046): Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types

@@ -40,6 +40,34 @@ namespace UnitTests {
 	public class ArgumentExceptionTests
 	{
 		[Test]
+		public void TestEnrichedToHtmlArguments ()
+		{
+			var converter = new EnrichedToHtml ();
+			using var reader = new StringReader ("");
+			using var writer = new StringWriter ();
+
+			foreach (int value in new[] { 0, -1 }) {
+				Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = value);
+				Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxParameterLength = value);
+				Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxInputLength = value);
+				Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxOutputLength = value);
+			}
+			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
+			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = 0);
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, writer));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, writer));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (TextWriter) null));
+		}
+
+		[Test]
 		public void TestHtmlToTextArguments ()
 		{
 			var converter = new HtmlToText ();

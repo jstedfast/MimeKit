@@ -57,6 +57,12 @@ namespace AotCompatibility {
                 if (plainText != expectedText)
                     throw new InvalidOperationException ("Unexpected HTML to plain text conversion.");
 
+                var enrichedToHtml = new EnrichedToHtml { OutputHtmlFragment = true };
+                var enrichedHtml = enrichedToHtml.Convert ("<bold><color><param>red</param>Hello</color></bold>");
+
+                if (enrichedHtml != "<div style=\"white-space: pre-wrap;\"><div><span style=\"font-weight: bold; color: red;\">Hello</span></div></div>")
+                    throw new InvalidOperationException ("Unexpected enriched text to HTML conversion.");
+
                 const string addresses = "Friends: Example <user@example.com>, \u00e9 <other@example.com>;";
                 var fromString = InternetAddressList.Parse (addresses);
                 var fromBytes = InternetAddressList.Parse (Encoding.UTF8.GetBytes (addresses));
