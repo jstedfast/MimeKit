@@ -28,6 +28,7 @@ using System.Reflection;
 
 using MimeKit;
 using MimeKit.IO;
+using MimeKit.Text;
 using MimeKit.Tnef;
 using MimeKit.Utils;
 using MimeKit.Encodings;
@@ -38,6 +39,34 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		[Test]
+		public void TestHtmlToTextArguments ()
+		{
+			var converter = new HtmlToText ();
+			using var reader = new StringReader ("");
+			using var writer = new StringWriter ();
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxElementDepth = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxInputLength = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxInputLength = -1);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxOutputLength = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.MaxOutputLength = -1);
+			Assert.Throws<ArgumentNullException> (() => converter.InputEncoding = null);
+			Assert.Throws<ArgumentNullException> (() => converter.OutputEncoding = null);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.InputStreamBufferSize = 0);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.OutputStreamBufferSize = 0);
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, Stream.Null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (Stream) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((Stream) null, writer));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (Stream.Null, (TextWriter) null));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert ((TextReader) null, writer));
+			Assert.Throws<ArgumentNullException> (() => converter.Convert (reader, (TextWriter) null));
+		}
+
 		[Test]
 		public void TestYEncOptionsArguments ()
 		{

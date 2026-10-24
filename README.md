@@ -39,6 +39,7 @@ and the [Release Notes](https://github.com/jstedfast/MimeKit/blob/master/Release
 * [Using MimeKit](#using-mimekit)
   * [Parsing Messages](#parsing-messages)
   * [Getting the Body of a Message](#getting-the-body-of-a-message)
+  * [Converting HTML to Plain Text](#converting-html-to-plain-text)
   * [Traversing a MimeMessage](#traversing-a-mimemessage)
   * [Quick and Dirty Enumeration of Message Body Parts](#quick-and-dirty-enumeration-of-message-body-parts)
   * [Getting the Decoded Content of a MIME Part](#getting-the-decoded-content-of-a-mime-part)
@@ -350,6 +351,43 @@ a child of a `multipart/related`, allowing it to refer to images and other types
 are also contained within that `multipart/related` entity. This property is really only a convenience
 property and is not a really good substitute for traversing the MIME structure yourself so that you
 may properly interpret related content.
+
+### Converting HTML to Plain Text
+
+Use `MimeKit.Text.HtmlToText` to turn an HTML document or fragment into readable plain text:
+
+```csharp
+var converter = new MimeKit.Text.HtmlToText {
+    OutputLinkUrls = true,
+    OutputImageAltText = true
+};
+
+string text = converter.Convert ("<h1>Hello</h1><p>Visit <a href=\"https://example.com\">Example</a>.</p>");
+```
+
+The result is:
+
+```text
+# Hello
+
+Visit Example (https://example.com).
+```
+
+The converter preserves paragraph breaks, nested lists, blockquotes and preformatted whitespace.
+It accepts strings, streams or a `TextReader`/`TextWriter` pair. Output is not word-wrapped;
+line endings follow the destination writer's `NewLine` property. Headers and footers are literal
+text, and caller-owned readers, writers and streams remain open.
+
+This is a structural text conversion, not browser rendering or Markdown serialization. CSS and
+inline emphasis styling are not reproduced; tables are flattened without borders or aligned columns.
+Script, style, title, template and hidden-element content is omitted, and external resources are
+never fetched. Link URLs and image alt text are enabled by default and can be disabled independently.
+
+For untrusted input, `MaxElementDepth` defaults to 4096, `MaxInputLength` to 16,777,216 UTF-16
+characters and `MaxOutputLength` to 67,108,864 UTF-16 characters. The input limit includes markup
+and suppressed content; the output limit includes generated indentation, URLs and line endings.
+The literal header and footer are excluded from these length limits. Exceeding a limit throws
+`FormatException`; a streaming destination may already contain partial output.
 
 ### Traversing a MimeMessage
 

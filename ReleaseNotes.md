@@ -44,6 +44,11 @@ Fixed URL detection in `TextToHtml` and `FlowedToHtml` for address literals at e
 balanced delimiters, host-only fragments, query components, IDNA A-label TLDs, and web URLs
 with IPv6 hosts or user information. Malformed IPv6 groups are now rejected.
 
+Added `MimeKit.Text.HtmlToText` for converting HTML documents and fragments to plain text with
+paragraphs, headings, nested lists, blockquotes and preformatted whitespace. Link destinations and
+image alt text can be included independently. Conversion has configurable input, output and nesting
+limits; CSS rendering and aligned tables are not supported.
+
 ### Breaking Changes
 
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains

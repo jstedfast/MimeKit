@@ -30,6 +30,7 @@ using MimeKit;
 using MimeKit.Cryptography;
 using MimeKit.Encodings;
 using MimeKit.Tnef;
+using MimeKit.Text;
 
 namespace AotCompatibility {
     class Program
@@ -47,6 +48,14 @@ namespace AotCompatibility {
             try {
                 Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
                 CryptographyModule.Initialize ();
+
+                var htmlToText = new HtmlToText ();
+                var plainText = htmlToText.Convert ("<h1>Title</h1><ul><li>one<li>two</ul>");
+                var expectedText = "# Title" + Environment.NewLine + Environment.NewLine +
+                    "- one" + Environment.NewLine + "- two";
+
+                if (plainText != expectedText)
+                    throw new InvalidOperationException ("Unexpected HTML to plain text conversion.");
 
                 const string addresses = "Friends: Example <user@example.com>, \u00e9 <other@example.com>;";
                 var fromString = InternetAddressList.Parse (addresses);
