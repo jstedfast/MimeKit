@@ -524,6 +524,128 @@ namespace UnitTests {
 			Assert.That (message.To.Count, Is.EqualTo (0));
 		}
 
+		static readonly object[][] SingletonHeaderSetters = {
+			new object[] {
+				HeaderId.Subject, "original", "updated",
+				new Action<MimeMessage, bool> ((message, same) => message.Subject = same ? message.Subject : "updated")
+			},
+			new object[] {
+				HeaderId.Date, "Fri, 23 Oct 2026 12:00:00 +0000", "Sat, 24 Oct 2026 12:00:00 +0000",
+				new Action<MimeMessage, bool> ((message, same) => message.Date = same ? message.Date : new DateTimeOffset (2026, 10, 24, 12, 0, 0, TimeSpan.Zero))
+			},
+			new object[] {
+				HeaderId.MessageId, "<original@example.com>", "<updated@example.com>",
+				new Action<MimeMessage, bool> ((message, same) => message.MessageId = same ? message.MessageId : "updated@example.com")
+			},
+			new object[] {
+				HeaderId.InReplyTo, "<original@example.com>", "<updated@example.com>",
+				new Action<MimeMessage, bool> ((message, same) => message.InReplyTo = same ? message.InReplyTo : "updated@example.com")
+			},
+			new object[] {
+				HeaderId.MimeVersion, "1.0", "2.0",
+				new Action<MimeMessage, bool> ((message, same) => message.MimeVersion = same ? message.MimeVersion : new Version (2, 0))
+			},
+			new object[] {
+				HeaderId.Importance, "high", "normal",
+				new Action<MimeMessage, bool> ((message, same) => message.Importance = same ? message.Importance : MessageImportance.Normal)
+			},
+			new object[] {
+				HeaderId.Priority, "urgent", "normal",
+				new Action<MimeMessage, bool> ((message, same) => message.Priority = same ? message.Priority : MessagePriority.Normal)
+			},
+			new object[] {
+				HeaderId.XPriority, "1 (Highest)", "3 (Normal)",
+				new Action<MimeMessage, bool> ((message, same) => message.XPriority = same ? message.XPriority : XMessagePriority.Normal)
+			}
+		};
+
+		[TestCaseSource (nameof (SingletonHeaderSetters))]
+		public void TestSettingSingletonHeaders (HeaderId id, string original, string updated, Action<MimeMessage, bool> set)
+		{
+			foreach (bool same in new[] { false, true }) {
+				foreach (bool duplicate in new[] { false, true }) {
+					using var message = new MimeMessage ();
+					message.Headers.Clear ();
+					message.Headers.Add ("X-Before", "before");
+					message.Headers.Add (id, original);
+					message.Headers.Add ("X-Between", "between");
+					if (duplicate) {
+						message.Headers.Add (id.ToHeaderName ().ToLowerInvariant (), original);
+						message.Headers.Add (id.ToHeaderName ().ToUpperInvariant (), original);
+					}
+					message.Headers.Add ("X-After", "after");
+
+					var first = message.Headers[1];
+
+					set (message, same);
+
+					Assert.That (message.Headers.Count, Is.EqualTo (4), $"{id}: header count");
+					Assert.That (message.Headers[1].Id, Is.EqualTo (id), $"{id}: position");
+					Assert.That (message.Headers[id], Is.EqualTo (same ? original : updated), $"{id}: value");
+					Assert.That (message.Headers[0].Field, Is.EqualTo ("X-Before"));
+					Assert.That (message.Headers[2].Field, Is.EqualTo ("X-Between"));
+					Assert.That (message.Headers[3].Field, Is.EqualTo ("X-After"));
+
+					if (same && !duplicate && id != HeaderId.Subject)
+						Assert.That (message.Headers[1], Is.SameAs (first), $"{id}: unchanged header");
+				}
+			}
+		}
+
+		[Test]
+		public void TestSettingDefaultPrioritiesDoesNotAddHeaders ()
+		{
+			using var message = new MimeMessage ();
+			message.Headers.Clear ();
+
+			message.Importance = MessageImportance.Normal;
+			message.Priority = MessagePriority.Normal;
+			message.XPriority = XMessagePriority.Normal;
+
+			Assert.That (message.Headers.Count, Is.EqualTo (0));
+		}
+
+		[Test]
+		public void TestSettingResentHeadersPreservesOlderBlocks ([Values (false, true)] bool cached)
+		{
+			const string text = "rEsEnT-dAtE: Fri, 23 Oct 2026 12:00:00 +0000\r\n" +
+				"Resent-From: latest@example.com\r\n" +
+				"rEsEnT-mEsSaGe-Id: <latest@example.com>\r\n" +
+				"Resent-Date: Thu, 22 Oct 2026 12:00:00 +0000\r\n" +
+				"Resent-From: older@example.com\r\n" +
+				"Resent-Message-Id: <older@example.com>\r\n\r\n";
+			using var stream = new MemoryStream (Encoding.ASCII.GetBytes (text), false);
+			using var message = MimeMessage.Load (stream);
+			var headers = message.Headers.ToArray ();
+			var olderDate = headers[3].RawValue.ToArray ();
+			var olderMessageId = headers[5].RawValue.ToArray ();
+			var dateOffset = headers[0].Offset;
+			var messageIdOffset = headers[2].Offset;
+
+			if (cached) {
+				Assert.That (message.ResentDate, Is.EqualTo (new DateTimeOffset (2026, 10, 23, 12, 0, 0, TimeSpan.Zero)));
+				Assert.That (message.ResentMessageId, Is.EqualTo ("latest@example.com"));
+			}
+
+			var date = new DateTimeOffset (2026, 10, 24, 12, 0, 0, TimeSpan.Zero);
+			message.ResentDate = date;
+			message.ResentMessageId = "updated@example.com";
+
+			Assert.That (message.ResentDate, Is.EqualTo (date));
+			Assert.That (message.ResentMessageId, Is.EqualTo ("updated@example.com"));
+			Assert.That (message.Headers.Count, Is.EqualTo (headers.Length));
+			for (int i = 0; i < headers.Length; i++)
+				Assert.That (message.Headers[i], Is.SameAs (headers[i]), $"Header {i}");
+			Assert.That (headers[0].Value, Is.EqualTo (DateUtils.FormatDate (date)));
+			Assert.That (headers[2].Value, Is.EqualTo ("<updated@example.com>"));
+			Assert.That (headers[0].Field, Is.EqualTo ("rEsEnT-dAtE"));
+			Assert.That (headers[2].Field, Is.EqualTo ("rEsEnT-mEsSaGe-Id"));
+			Assert.That (headers[0].Offset, Is.EqualTo (dateOffset));
+			Assert.That (headers[2].Offset, Is.EqualTo (messageIdOffset));
+			Assert.That (headers[3].RawValue, Is.EqualTo (olderDate));
+			Assert.That (headers[5].RawValue, Is.EqualTo (olderMessageId));
+		}
+
 		[Test]
 		public void TestPrependHeader ()
 		{

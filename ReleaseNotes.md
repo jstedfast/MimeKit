@@ -49,6 +49,12 @@ paragraphs, headings, nested lists, blockquotes and preformatted whitespace. Lin
 image alt text can be included independently. Conversion has configurable input, output and nesting
 limits; CSS rendering and aligned tables are not supported.
 
+Setting Subject, Date, Message-Id, In-Reply-To, MIME-Version, Importance, Priority or X-Priority
+through message properties now removes duplicate occurrences, even when assigning a cached value.
+Updating Resent-Date or Resent-Message-Id continues to modify only the first occurrence,
+preserving older resent blocks.
+Priority setters now load the existing value before deciding that an assignment is a no-op.
+
 ### Breaking Changes
 
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains

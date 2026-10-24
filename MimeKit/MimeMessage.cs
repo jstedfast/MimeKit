@@ -361,14 +361,14 @@ namespace MimeKit {
 				return importance;
 			}
 			set {
-				if (value == importance)
+				if (value == Importance && !HasDuplicateHeader (HeaderId.Importance))
 					return;
 
 				switch (value) {
 				case MessageImportance.Normal:
 				case MessageImportance.High:
 				case MessageImportance.Low:
-					SetHeader ("Importance", value.ToString ().ToLowerInvariant ());
+					SetHeader ("Importance", value.ToString ().ToLowerInvariant (), replace: true);
 					lazyLoaded |= LazyLoadedFields.Importance;
 					importance = value;
 					break;
@@ -408,7 +408,7 @@ namespace MimeKit {
 				return priority;
 			}
 			set {
-				if (value == priority)
+				if (value == Priority && !HasDuplicateHeader (HeaderId.Priority))
 					return;
 
 				string rawValue;
@@ -427,7 +427,7 @@ namespace MimeKit {
 					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 
-				SetHeader ("Priority", rawValue);
+				SetHeader ("Priority", rawValue, replace: true);
 
 				lazyLoaded |= LazyLoadedFields.Priority;
 				priority = value;
@@ -465,7 +465,7 @@ namespace MimeKit {
 				return xpriority;
 			}
 			set {
-				if (value == xpriority)
+				if (value == XPriority && !HasDuplicateHeader (HeaderId.XPriority))
 					return;
 
 				string rawValue;
@@ -490,7 +490,7 @@ namespace MimeKit {
 					throw new ArgumentOutOfRangeException (nameof (value));
 				}
 
-				SetHeader ("X-Priority", rawValue);
+				SetHeader ("X-Priority", rawValue, replace: true);
 
 				lazyLoaded |= LazyLoadedFields.XPriority;
 				xpriority = value;
@@ -801,7 +801,7 @@ namespace MimeKit {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
-				SetHeader ("Subject", value);
+				SetHeader ("Subject", value, replace: true);
 			}
 		}
 
@@ -828,10 +828,10 @@ namespace MimeKit {
 				return date;
 			}
 			set {
-				if ((lazyLoaded & LazyLoadedFields.Date) != 0 && date == value)
+				if ((lazyLoaded & LazyLoadedFields.Date) != 0 && date == value && !HasDuplicateHeader (HeaderId.Date))
 					return;
 
-				SetHeader ("Date", DateUtils.FormatDate (value));
+				SetHeader ("Date", DateUtils.FormatDate (value), replace: true);
 				lazyLoaded |= LazyLoadedFields.Date;
 				date = value;
 			}
@@ -862,7 +862,7 @@ namespace MimeKit {
 				if (resentDate == value)
 					return;
 
-				SetHeader ("Resent-Date", DateUtils.FormatDate (value));
+				SetHeader ("Resent-Date", DateUtils.FormatDate (value), replace: false);
 				lazyLoaded |= LazyLoadedFields.ResentDate;
 				resentDate = value;
 			}
@@ -928,7 +928,7 @@ namespace MimeKit {
 				return inreplyto;
 			}
 			set {
-				if ((lazyLoaded & LazyLoadedFields.InReplyTo) != 0 && inreplyto == value)
+				if ((lazyLoaded & LazyLoadedFields.InReplyTo) != 0 && inreplyto == value && !HasDuplicateHeader (HeaderId.InReplyTo))
 					return;
 
 				if (value is null) {
@@ -944,7 +944,7 @@ namespace MimeKit {
 				lazyLoaded |= LazyLoadedFields.InReplyTo;
 				inreplyto = msgid;
 
-				SetHeader ("In-Reply-To", "<" + inreplyto + ">");
+				SetHeader ("In-Reply-To", "<" + inreplyto + ">", replace: true);
 			}
 		}
 
@@ -986,7 +986,7 @@ namespace MimeKit {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
-				if ((lazyLoaded & LazyLoadedFields.MessageId) != 0 && messageId == value)
+				if ((lazyLoaded & LazyLoadedFields.MessageId) != 0 && messageId == value && !HasDuplicateHeader (HeaderId.MessageId))
 					return;
 
 				if (!ParseUtils.TryParseMsgIdValue (value, out var msgid))
@@ -995,7 +995,7 @@ namespace MimeKit {
 				lazyLoaded |= LazyLoadedFields.MessageId;
 				messageId = msgid;
 
-				SetHeader ("Message-Id", "<" + messageId + ">");
+				SetHeader ("Message-Id", "<" + messageId + ">", replace: true);
 			}
 		}
 
@@ -1043,7 +1043,7 @@ namespace MimeKit {
 				lazyLoaded |= LazyLoadedFields.ResentMessageId;
 				resentMessageId = msgid;
 
-				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">");
+				SetHeader ("Resent-Message-Id", "<" + resentMessageId + ">", replace: false);
 			}
 		}
 
@@ -1077,10 +1077,10 @@ namespace MimeKit {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
-				if (version != null && version.CompareTo (value) == 0)
+				if (version != null && version.CompareTo (value) == 0 && !HasDuplicateHeader (HeaderId.MimeVersion))
 					return;
 
-				SetHeader ("MIME-Version", value.ToString ());
+				SetHeader ("MIME-Version", value.ToString (), replace: true);
 				lazyLoaded |= LazyLoadedFields.MimeVersion;
 				version = value;
 			}
@@ -1881,12 +1881,20 @@ namespace MimeKit {
 			}
 		}
 
-		void SetHeader (string name, string value)
+		bool HasDuplicateHeader (HeaderId id)
+		{
+			return Headers.IndexOf (id) != Headers.LastIndexOf (id);
+		}
+
+		void SetHeader (string name, string value, bool replace)
 		{
 			Headers.Changed -= HeadersChanged;
 
 			try {
-				Headers[name] = value;
+				if (replace)
+					Headers.Replace (name, value);
+				else
+					Headers[name] = value;
 			} finally {
 				Headers.Changed += HeadersChanged;
 			}
