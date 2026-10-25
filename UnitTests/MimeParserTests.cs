@@ -6283,7 +6283,7 @@ This is the message body.
 			readonly Stack<MimeOffsets> stack = new Stack<MimeOffsets> ();
 			bool isMessageBody;
 
-			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format) : base (options, stream, format)
+			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false) : base (options, stream, format, persistent)
 			{
 			}
 
@@ -8287,6 +8287,208 @@ Content-Type: text/plain; charset=utf-8
 			Assert.That (expected.Count, Is.EqualTo (format == MimeFormat.Mbox ? 3 : 1));
 
 			AssertShortReads (expected, await ParseAllAsync (new ChunkedReadStream (data, chunkSize), format, legacy));
+		}
+
+		const string MessagePartMboxMarker = "From sender Sat Jan  1 00:00:00 2000";
+
+		static void AssertMessagePartTextBody (MimeMessage message, string expected)
+		{
+			Assert.That (message.Subject, Is.EqualTo ("inner"));
+			Assert.That (message.Body, Is.InstanceOf<TextPart> ());
+			using var content = new MemoryStream ();
+			((TextPart) message.Body).Content.DecodeTo (content);
+			Assert.That (content.ToArray (), Is.EqualTo (Encoding.ASCII.GetBytes (expected)));
+		}
+
+		static async Task AssertMessagePartShortReads (string text, MimeFormat format, bool seekable, bool persistent, bool doAsync, int count, Action<MimeMessage, CustomMimeParser, int> assertMessage)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+			var serialized = new byte[count][];
+			List<MimeOffsets> offsets = null;
+
+			foreach (int chunkSize in new[] { 4096, 7, 1 }) {
+				using var memory = new ChunkedReadStream (data, chunkSize);
+				using var stream = seekable ? (Stream) memory : new NonSeekableStream (memory);
+				var parser = new CustomMimeParser (new ParserOptions { MaxMimeDepth = 16 }, stream, format, persistent);
+
+				for (int i = 0; i < count; i++) {
+					Assert.That (parser.IsEndOfStream, Is.False, $"message {i}, chunk size {chunkSize}");
+					using var message = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+					assertMessage (message, parser, i);
+
+					using var output = new MemoryStream ();
+					if (doAsync)
+						await message.WriteToAsync (UnixFormatOptions, output);
+					else
+						message.WriteTo (UnixFormatOptions, output);
+
+					if (chunkSize == 4096)
+						serialized[i] = output.ToArray ();
+					else
+						Assert.That (output.ToArray (), Is.EqualTo (serialized[i]), $"serialized message {i}, chunk size {chunkSize}");
+				}
+
+				Assert.That (parser.IsEndOfStream, Is.True);
+				Assert.That (parser.Position, Is.EqualTo (data.LongLength));
+				Assert.That (parser.Offsets.Count, Is.EqualTo (count));
+				if (offsets == null) {
+					offsets = parser.Offsets;
+				} else {
+					for (int i = 0; i < count; i++)
+						AssertMimeOffsets (offsets[i], parser.Offsets[i], i, "");
+				}
+			}
+		}
+
+		static Task AssertMessagePartImmediateMboxBoundary (bool dos, bool seekable, bool persistent, string marker, bool doAsync)
+		{
+			string newline = dos ? "\r\n" : "\n";
+			string prefix = MessagePartMboxMarker + newline + "Content-Type: message/rfc822" + newline + newline;
+			string text = prefix + marker + newline + "Subject: inner" + newline + newline + "body" + newline;
+
+			return AssertMessagePartShortReads (text, MimeFormat.Mbox, seekable, persistent, doAsync, 2, (message, parser, index) => {
+				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (index == 0 ? 0 : prefix.Length));
+				Assert.That (Encoding.ASCII.GetBytes (parser.MboxMarker), Is.EqualTo (Encoding.ASCII.GetBytes (index == 0 ? MessagePartMboxMarker : marker)));
+
+				if (index == 0) {
+					Assert.That (parser.Position, Is.EqualTo (prefix.Length));
+					Assert.That (message.Body, Is.InstanceOf<MessagePart> ());
+					Assert.That (((MessagePart) message.Body).Message, Is.Null);
+				} else {
+					AssertMessagePartTextBody (message, "body" + newline);
+				}
+			});
+		}
+
+		[Test]
+		public void TestMessagePartImmediateMboxBoundary ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values ("From invalid\0preheader", "From sender Sat Jan  1 00:00:01 2000")] string marker)
+		{
+			AssertMessagePartImmediateMboxBoundary (dos, seekable, persistent, marker, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestMessagePartImmediateMboxBoundaryAsync ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values ("From invalid\0preheader", "From sender Sat Jan  1 00:00:01 2000")] string marker)
+		{
+			await AssertMessagePartImmediateMboxBoundary (dos, seekable, persistent, marker, true);
+		}
+
+		static Task AssertMessagePartImmediateMultipartBoundary (bool dos, bool seekable, bool persistent, bool closing, int boundaryLength, bool doAsync)
+		{
+			string newline = dos ? "\r\n" : "\n";
+			string boundary = new string ('b', boundaryLength);
+			string text = "Content-Type: multipart/mixed; boundary=\"" + boundary + "\"" + newline + newline +
+				"--" + boundary + newline + "Content-Type: message/rfc822" + newline + newline;
+			if (!closing)
+				text += "--" + boundary + newline + "Content-Type: text/plain" + newline + newline + "sibling" + newline;
+			text += "--" + boundary + "--" + newline;
+
+			return AssertMessagePartShortReads (text, MimeFormat.Entity, seekable, persistent, doAsync, 1, (message, parser, index) => {
+				Assert.That (message.Body, Is.InstanceOf<Multipart> ());
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Count, Is.EqualTo (closing ? 1 : 2));
+				Assert.That (multipart[0], Is.InstanceOf<MessagePart> ());
+				Assert.That (((MessagePart) multipart[0]).Message, Is.Null);
+				if (!closing) {
+					Assert.That (multipart[1], Is.InstanceOf<TextPart> ());
+					Assert.That (((TextPart) multipart[1]).Text, Is.EqualTo ("sibling"));
+				}
+			});
+		}
+
+		[Test]
+		public void TestMessagePartImmediateMultipartBoundary ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values (false, true)] bool closing, [Values (1, 140)] int boundaryLength)
+		{
+			AssertMessagePartImmediateMultipartBoundary (dos, seekable, persistent, closing, boundaryLength, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestMessagePartImmediateMultipartBoundaryAsync ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values (false, true)] bool closing, [Values (1, 140)] int boundaryLength)
+		{
+			await AssertMessagePartImmediateMultipartBoundary (dos, seekable, persistent, closing, boundaryLength, true);
+		}
+
+		static Task AssertMessagePartAtEndOfStream (bool dos, bool seekable, bool persistent, MimeFormat format, bool doAsync)
+		{
+			string newline = dos ? "\r\n" : "\n";
+			string text = "Content-Type: message/rfc822" + newline + newline;
+			if (format == MimeFormat.Mbox)
+				text = MessagePartMboxMarker + newline + text;
+
+			return AssertMessagePartShortReads (text, format, seekable, persistent, doAsync, 1, (message, parser, index) => {
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> ());
+				var part = (MessagePart) message.Body;
+				if (format == MimeFormat.Mbox) {
+					Assert.That (part.Message, Is.Null);
+				} else {
+					Assert.That (part.Message, Is.Not.Null);
+					Assert.That (part.Message.Headers, Is.Empty);
+					Assert.That (part.Message.Body, Is.InstanceOf<TextPart> ());
+					Assert.That (((TextPart) part.Message.Body).Text, Is.Empty);
+				}
+			});
+		}
+
+		[Test]
+		public void TestMessagePartAtEndOfStream ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values (MimeFormat.Entity, MimeFormat.Mbox)] MimeFormat format)
+		{
+			AssertMessagePartAtEndOfStream (dos, seekable, persistent, format, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestMessagePartAtEndOfStreamAsync ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values (MimeFormat.Entity, MimeFormat.Mbox)] MimeFormat format)
+		{
+			await AssertMessagePartAtEndOfStream (dos, seekable, persistent, format, true);
+		}
+
+		static Task AssertMessagePartEmbeddedMessageShortReads (bool dos, bool seekable, bool persistent, MimeFormat format, bool doAsync)
+		{
+			string newline = dos ? "\r\n" : "\n";
+			string text = "Content-Type: message/rfc822" + newline + newline +
+				"Subject: inner" + newline + newline + "body" + newline;
+			if (format == MimeFormat.Mbox)
+				text = MessagePartMboxMarker + newline + text;
+
+			return AssertMessagePartShortReads (text, format, seekable, persistent, doAsync, 1, (message, parser, index) => {
+				Assert.That (message.Body, Is.InstanceOf<MessagePart> ());
+				var part = (MessagePart) message.Body;
+				Assert.That (part.Message, Is.Not.Null);
+				AssertMessagePartTextBody (part.Message, "body" + newline);
+			});
+		}
+
+		[Test]
+		public void TestMessagePartEmbeddedMessageShortReads ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values (MimeFormat.Entity, MimeFormat.Mbox)] MimeFormat format)
+		{
+			AssertMessagePartEmbeddedMessageShortReads (dos, seekable, persistent, format, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestMessagePartEmbeddedMessageShortReadsAsync ([Values (false, true)] bool dos, [Values (false, true)] bool seekable, [Values (false, true)] bool persistent,
+			[Values (MimeFormat.Entity, MimeFormat.Mbox)] MimeFormat format)
+		{
+			await AssertMessagePartEmbeddedMessageShortReads (dos, seekable, persistent, format, true);
+		}
+
+		[Test]
+		public async Task TestMessagePartBoundaryLookaheadIsBounded ([Values (false, true)] bool doAsync)
+		{
+			string prefix = MessagePartMboxMarker + "\nContent-Type: message/rfc822\n\n";
+			var data = Encoding.ASCII.GetBytes (prefix + "From " + new string ('x', 10000) + "\nSubject: inner\n\nbody\n");
+			using var stream = new ThrowingReadStream (data, prefix.Length + 128, 1);
+			var parser = new MimeParser (stream, MimeFormat.Mbox);
+			using var message = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+
+			Assert.That (message.Body, Is.InstanceOf<MessagePart> ());
+			Assert.That (((MessagePart) message.Body).Message, Is.Null);
+			Assert.That (parser.Position, Is.EqualTo (prefix.Length));
+			Assert.That (stream.Position, Is.LessThanOrEqualTo (prefix.Length + 128));
 		}
 
 		static Stream CreateStream (byte[] data, bool chunked)

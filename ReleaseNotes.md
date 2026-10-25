@@ -60,6 +60,10 @@ Updating Resent-Date or Resent-Message-Id continues to modify only the first occ
 preserving older resent blocks.
 Priority setters now load the existing value before deciding that an assignment is a no-op.
 
+Fixed short-read-dependent parsing of empty `message/rfc822` parts immediately followed by
+mbox or multipart delimiters. Boundary lookahead and entity end offsets now remain consistent
+when markers and their preceding newlines are split across stream reads.
+
 ### Breaking Changes
 
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains

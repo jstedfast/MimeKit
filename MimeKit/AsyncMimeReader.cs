@@ -57,7 +57,8 @@ namespace MimeKit {
 
 			do {
 				previous = inputEnd - inputIndex;
-				available = await ReadAheadAsync (atleast, save, cancellationToken).ConfigureAwait (false);
+				await ReadAheadAsync (atleast, save, cancellationToken).ConfigureAwait (false);
+				available = inputEnd - inputIndex;
 			} while (available < atleast && available > previous);
 
 			return available;
@@ -576,7 +577,9 @@ namespace MimeKit {
 			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
-				if (await ReadAheadAsync (atleast, 0, cancellationToken).ConfigureAwait (false) <= 0) {
+				// Short reads must not leave the boundary probe with only part of a marker.
+				// Preserve the preceding newline for GetEndOffset() if a boundary is found.
+				if (await ReadAheadAtLeastAsync (atleast, 2, cancellationToken).ConfigureAwait (false) <= 0) {
 					boundaryType = MimeBoundaryType.Eos;
 					frame.Lines = 0;
 					return true;

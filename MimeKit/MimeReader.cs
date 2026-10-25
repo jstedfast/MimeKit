@@ -1471,7 +1471,8 @@ namespace MimeKit {
 
 			do {
 				previous = inputEnd - inputIndex;
-				available = ReadAhead (atleast, save, cancellationToken);
+				ReadAhead (atleast, save, cancellationToken);
+				available = inputEnd - inputIndex;
 			} while (available < atleast && available > previous);
 
 			return available;
@@ -1494,10 +1495,10 @@ namespace MimeKit {
 
 		long GetEndOffset (int index, long beginOffset)
 		{
-			if (boundaryType != MimeBoundaryType.Eos && index > 1 && input[index - 1] == (byte) '\n') {
+			if (boundaryType != MimeBoundaryType.Eos && index > 0 && input[index - 1] == (byte) '\n') {
 				index--;
 
-				if (index > 1 && input[index - 1] == (byte) '\r')
+				if (index > 0 && input[index - 1] == (byte) '\r')
 					index--;
 			}
 
@@ -3601,7 +3602,9 @@ namespace MimeKit {
 			if (boundaries != null) {
 				int atleast = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 
-				if (ReadAhead (atleast, 0, cancellationToken) <= 0) {
+				// Short reads must not leave the boundary probe with only part of a marker.
+				// Preserve the preceding newline for GetEndOffset() if a boundary is found.
+				if (ReadAheadAtLeast (atleast, 2, cancellationToken) <= 0) {
 					boundaryType = MimeBoundaryType.Eos;
 					frame.Lines = 0;
 					return true;
