@@ -25,11 +25,27 @@
 //
 
 using System;
+using System.IO;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MimeKit.Utils {
 	static class ArgumentValidator
 	{
+		public static void Validate ([NotNull] Stream? stream, MimeFormat format, MimeContentStorage storage)
+		{
+			if (stream is null)
+				throw new ArgumentNullException (nameof (stream));
+
+			if (format != MimeFormat.Entity && format != MimeFormat.Mbox)
+				throw new ArgumentOutOfRangeException (nameof (format));
+
+			if (storage != MimeContentStorage.Memory && storage != MimeContentStorage.Source)
+				throw new ArgumentOutOfRangeException (nameof (storage));
+
+			if (storage == MimeContentStorage.Source && !stream.CanSeek)
+				throw new ArgumentException ("Source content storage requires a seekable stream.", nameof (stream));
+		}
+
 		// Note: Used by the IMimeEncoder, IMimeDecoder and IRfc2047Encoder EstimateOutputLength() implementations, which
 		// compute their estimates using 64-bit arithmetic. An estimate that cannot be represented as an int must not be
 		// clamped (that would underestimate the required output buffer size), so reject it instead. Callers can process

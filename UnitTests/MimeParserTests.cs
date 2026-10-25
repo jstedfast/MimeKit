@@ -128,9 +128,9 @@ namespace UnitTests {
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (null, stream, MimeFormat.Default));
 				Assert.Throws<ArgumentNullException> (() => new MimeParser (ParserOptions.Default, null, MimeFormat.Default));
 
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, false));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeContentStorage.Memory));
 				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default));
-				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default, false));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Default, MimeContentStorage.Memory));
 
 				Assert.Throws<ArgumentNullException> (() => parser.Options = null);
 			}
@@ -139,6 +139,184 @@ namespace UnitTests {
 		static string GetText (MimeMessage message)
 		{
 			return ((TextPart) message.Body).Text;
+		}
+
+		static async Task AssertRejectedSetStream (bool legacy, MimeContentStorage storage, bool doAsync)
+		{
+			const string text = "From sender@example.com Sat Jan  1 00:00:00 2000\nSubject: first\n\nfirst body\n" +
+				"From sender@example.com Sat Jan  1 00:00:00 2000\nSubject: second\n\nsecond body\n";
+			using var source = new MemoryStream (Encoding.ASCII.GetBytes (text));
+			using var replacement = new MemoryStream (Encoding.ASCII.GetBytes ("Subject: replacement\n\nreplacement"));
+			using var nonseekable = new NonSeekableStream (replacement);
+			IMimeParser parser = legacy ? new LegacyMimeParser (source, MimeFormat.Mbox, storage == MimeContentStorage.Source) : new MimeParser (source, MimeFormat.Mbox, storage);
+			using var first = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+			var position = parser.Position;
+			var markerOffset = parser.MboxMarkerOffset;
+			var marker = parser.MboxMarker;
+			var options = parser.Options;
+
+			void AssertUnchanged ()
+			{
+				Assert.That (parser.Position, Is.EqualTo (position));
+				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (markerOffset));
+				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				Assert.That (parser.Options, Is.SameAs (options));
+				Assert.That (parser.IsEndOfStream, Is.False);
+			}
+
+			Assert.Throws<ArgumentException> (() => parser.SetStream (nonseekable, MimeContentStorage.Source));
+			AssertUnchanged ();
+			Assert.Throws<ArgumentException> (() => parser.SetStream (nonseekable, MimeFormat.Entity, MimeContentStorage.Source));
+			AssertUnchanged ();
+			Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (replacement, (MimeContentStorage) 2));
+			AssertUnchanged ();
+			Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (replacement, MimeFormat.Entity, (MimeContentStorage) (-1)));
+			AssertUnchanged ();
+			Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (replacement, (MimeFormat) 255, storage));
+			AssertUnchanged ();
+			Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Entity, storage));
+			AssertUnchanged ();
+			Assert.That (GetText (first), Does.StartWith ("first body"));
+			using var second = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+			Assert.That (second.Subject, Is.EqualTo ("second"));
+			Assert.That (GetText (second), Does.StartWith ("second body"));
+			Assert.That (((MimePart) second.Body).Content.Stream is BoundedStream, Is.EqualTo (storage == MimeContentStorage.Source));
+			Assert.That (parser.IsEndOfStream, Is.True);
+		}
+
+		[Test]
+		public void TestRejectedSetStream ([Values (false, true)] bool legacy, [Values] MimeContentStorage storage)
+		{
+			AssertRejectedSetStream (legacy, storage, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestRejectedSetStreamAsync ([Values (false, true)] bool legacy, [Values] MimeContentStorage storage)
+		{
+			await AssertRejectedSetStream (legacy, storage, true);
+		}
+
+		static async Task AssertContentStorageLifetime (int api, MimeContentStorage storage, bool useDefault, bool doAsync)
+		{
+			var data = Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\noriginal body");
+			using var source = new MemoryStream (data);
+			MimeMessage message = null;
+			TextPart part;
+
+			if (api < 2) {
+				IMimeParser parser;
+				if (api == 0)
+					parser = useDefault ? new MimeParser (source) : new MimeParser (source, storage);
+				else
+					parser = useDefault ? new LegacyMimeParser (source) : new LegacyMimeParser (source, storage == MimeContentStorage.Source);
+				message = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+				parser.SetStream (Stream.Null);
+				part = (TextPart) message.Body;
+			} else if (api == 2) {
+				if (doAsync)
+					message = useDefault ? await MimeMessage.LoadAsync (source) : await MimeMessage.LoadAsync (source, storage);
+				else
+					message = useDefault ? MimeMessage.Load (source) : MimeMessage.Load (source, storage);
+				part = (TextPart) message.Body;
+			} else {
+				if (doAsync)
+					part = (TextPart) (useDefault ? await MimeEntity.LoadAsync (source) : await MimeEntity.LoadAsync (source, storage));
+				else
+					part = (TextPart) (useDefault ? MimeEntity.Load (source) : MimeEntity.Load (source, storage));
+			}
+
+			using (part) {
+				using (message) {
+					bool referencesSource = !useDefault && storage == MimeContentStorage.Source;
+					Assert.That (part.Content.Stream is BoundedStream, Is.EqualTo (referencesSource));
+					Assert.That (part.Text, Is.EqualTo ("original body"));
+					if (referencesSource) {
+						if (message != null)
+							message.Dispose ();
+						else
+							part.Dispose ();
+						Assert.That (source.CanRead, Is.True, "Disposing content must not close the caller's stream");
+
+						source.Position = 0;
+						using var another = doAsync ? await MimeMessage.LoadAsync (source, storage) : MimeMessage.Load (source, storage);
+						source.Dispose ();
+						Assert.Throws<NotSupportedException> (() => { _ = ((TextPart) another.Body).Text; });
+					} else {
+						source.Position = source.Length - 13;
+						source.Write (Encoding.ASCII.GetBytes ("modified body"), 0, 13);
+						source.Dispose ();
+						Assert.That (part.Text, Is.EqualTo ("original body"), "Memory content is independent of the input");
+					}
+				}
+			}
+		}
+
+		[Test]
+		public void TestContentStorageLifetime ([Values (0, 1, 2, 3)] int api, [Values] MimeContentStorage storage, [Values (false, true)] bool useDefault)
+		{
+			AssertContentStorageLifetime (api, storage, useDefault, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestContentStorageLifetimeAsync ([Values (0, 1, 2, 3)] int api, [Values] MimeContentStorage storage, [Values (false, true)] bool useDefault)
+		{
+			await AssertContentStorageLifetime (api, storage, useDefault, true);
+		}
+
+		static async Task AssertSetStreamContentStorage (bool legacy, MimeContentStorage storage, bool shortOverload, bool doAsync)
+		{
+			using var source = new MemoryStream (Encoding.ASCII.GetBytes ("Content-Type: text/plain\r\n\r\nbody"));
+			IMimeParser parser = legacy ? new LegacyMimeParser (Stream.Null) : new MimeParser (Stream.Null);
+			if (shortOverload)
+				parser.SetStream (source, storage);
+			else
+				parser.SetStream (source, MimeFormat.Entity, storage);
+
+			using var message = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+			Assert.That (((MimePart) message.Body).Content.Stream is BoundedStream, Is.EqualTo (storage == MimeContentStorage.Source));
+			Assert.That (GetText (message), Is.EqualTo ("body"));
+			source.Position = 0;
+			parser.SetStream (source);
+			using var copied = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+			Assert.That (((MimePart) copied.Body).Content.Stream, Is.TypeOf<MemoryBlockStream> ());
+			message.Dispose ();
+			Assert.That (source.CanRead, Is.True);
+		}
+
+		[Test]
+		public void TestSetStreamContentStorage ([Values (false, true)] bool legacy, [Values] MimeContentStorage storage, [Values (false, true)] bool shortOverload)
+		{
+			AssertSetStreamContentStorage (legacy, storage, shortOverload, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestSetStreamContentStorageAsync ([Values (false, true)] bool legacy, [Values] MimeContentStorage storage, [Values (false, true)] bool shortOverload)
+		{
+			await AssertSetStreamContentStorage (legacy, storage, shortOverload, true);
+		}
+
+		[Test]
+		public void TestLegacyPersistentNonseekableCompatibility ()
+		{
+			using var memory = new MemoryStream (Encoding.ASCII.GetBytes ("\r\nbody"));
+			using var source = new NonSeekableStream (memory);
+			var parser = new LegacyMimeParser (source, true);
+			parser.SetStream (source, MimeFormat.Entity, true);
+			using var message = parser.ParseMessage ();
+			Assert.That (GetText (message), Is.EqualTo ("body"));
+			Assert.That (((MimePart) message.Body).Content.Stream, Is.TypeOf<MemoryBlockStream> ());
+		}
+
+		[Test]
+		public async Task TestLegacyPersistentNonseekableCompatibilityAsync ()
+		{
+			using var memory = new MemoryStream (Encoding.ASCII.GetBytes ("\r\nbody"));
+			using var source = new NonSeekableStream (memory);
+			var parser = new LegacyMimeParser (source, true);
+			parser.SetStream (source, true);
+			using var message = await parser.ParseMessageAsync ();
+			Assert.That (GetText (message), Is.EqualTo ("body"));
+			Assert.That (((MimePart) message.Body).Content.Stream, Is.TypeOf<MemoryBlockStream> ());
 		}
 
 		[Test]
@@ -150,7 +328,7 @@ namespace UnitTests {
 			var parser = new MimeParser (Stream.Null);
 
 			using (var stream = new MemoryStream (first, false)) {
-				parser.SetStream (stream, MimeFormat.Entity, true);
+				parser.SetStream (stream, MimeFormat.Entity, MimeContentStorage.Source);
 
 				using var message = parser.ParseMessage ();
 
@@ -160,7 +338,7 @@ namespace UnitTests {
 			}
 
 			using (var stream = new MemoryStream (second, false)) {
-				parser.SetStream (stream, true);
+				parser.SetStream (stream, MimeContentStorage.Source);
 
 				using var message = parser.ParseMessage ();
 
@@ -179,7 +357,7 @@ namespace UnitTests {
 			var parser = new MimeParser (Stream.Null);
 
 			using (var stream = new MemoryStream (first, false)) {
-				parser.SetStream (stream, MimeFormat.Entity, true);
+				parser.SetStream (stream, MimeFormat.Entity, MimeContentStorage.Source);
 
 				using var message = await parser.ParseMessageAsync ();
 
@@ -189,7 +367,7 @@ namespace UnitTests {
 			}
 
 			using (var stream = new MemoryStream (second, false)) {
-				parser.SetStream (stream, true);
+				parser.SetStream (stream, MimeContentStorage.Source);
 
 				using var message = await parser.ParseMessageAsync ();
 
@@ -6283,7 +6461,7 @@ This is the message body.
 			readonly Stack<MimeOffsets> stack = new Stack<MimeOffsets> ();
 			bool isMessageBody;
 
-			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false) : base (options, stream, format, persistent)
+			public CustomMimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false) : base (options, stream, format, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory)
 			{
 			}
 
@@ -6460,7 +6638,7 @@ This is the message body.
 
 			foreach (var persistent in new bool[] { false, true }) {
 				using var stream = new MemoryStream (expected, false);
-				var parser = new MimeParser (parserOptions, stream, mimeFormat, persistent);
+				var parser = new MimeParser (parserOptions, stream, mimeFormat, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 				using var output = new MemoryStream ();
 
 				using var message = parser.ParseMessage ();
@@ -6489,7 +6667,7 @@ This is the message body.
 
 			foreach (var persistent in new bool[] { false, true }) {
 				using var stream = new MemoryStream (expected, false);
-				var parser = new MimeParser (parserOptions, stream, mimeFormat, persistent);
+				var parser = new MimeParser (parserOptions, stream, mimeFormat, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 				using var output = new MemoryStream ();
 
 				using var message = await parser.ParseMessageAsync ();
@@ -6712,7 +6890,7 @@ This is the message body.
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox, true);
+				var parser = new MimeParser (stream, MimeFormat.Mbox, MimeContentStorage.Source);
 
 				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
 				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
@@ -6754,7 +6932,7 @@ This is the message body.
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new MimeParser (stream, MimeFormat.Mbox, true);
+				var parser = new MimeParser (stream, MimeFormat.Mbox, MimeContentStorage.Source);
 
 				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
 				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
@@ -8309,6 +8487,10 @@ Content-Type: text/plain; charset=utf-8
 			foreach (int chunkSize in new[] { 4096, 7, 1 }) {
 				using var memory = new ChunkedReadStream (data, chunkSize);
 				using var stream = seekable ? (Stream) memory : new NonSeekableStream (memory);
+				if (persistent && !seekable) {
+					Assert.Throws<ArgumentException> (() => new CustomMimeParser (new ParserOptions { MaxMimeDepth = 16 }, stream, format, persistent));
+					continue;
+				}
 				var parser = new CustomMimeParser (new ParserOptions { MaxMimeDepth = 16 }, stream, format, persistent);
 
 				for (int i = 0; i < count; i++) {

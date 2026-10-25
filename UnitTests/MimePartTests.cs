@@ -205,11 +205,11 @@ namespace UnitTests {
 			Assert.Throws<ArgumentOutOfRangeException> (() => part.Prepare (EncodingConstraint.SevenBit, 1));
 
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((Stream) null));
-			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((Stream) null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((Stream) null, MimeContentStorage.Source));
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((ParserOptions) null, Stream.Null));
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (Stream) null));
-			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, Stream.Null, true));
-			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (Stream) null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (null, Stream.Null, MimeContentStorage.Source));
+			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (Stream) null, MimeContentStorage.Source));
 
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load ((ContentType) null, Stream.Null));
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (new ContentType ("application", "octet-stream"), null));
@@ -222,11 +222,11 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => MimeEntity.Load (ParserOptions.Default, (string) null));
 
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((Stream) null, MimeContentStorage.Source));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ParserOptions) null, Stream.Null));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, Stream.Null, true));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (null, Stream.Null, MimeContentStorage.Source));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (ParserOptions.Default, (Stream) null, MimeContentStorage.Source));
 
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync ((ContentType) null, Stream.Null));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeEntity.LoadAsync (new ContentType ("application", "octet-stream"), null));

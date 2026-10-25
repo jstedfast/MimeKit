@@ -447,7 +447,7 @@ namespace UnitTests.IO {
 				stream.Add (headers);
 				stream.Add (content);
 
-				var entity = MimeEntity.Load (stream, true) as TextPart;
+				var entity = MimeEntity.Load (stream, MimeContentStorage.Source) as TextPart;
 
 				Assert.That (entity.Text, Is.EqualTo ("Hello, world!" + Environment.NewLine));
 			}

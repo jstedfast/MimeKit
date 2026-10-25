@@ -80,7 +80,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 		static string ParseEntity (byte[] input, bool persistent, bool async, MimeComplianceChecker? checker, out MimeMessage? message)
 		{
-			var parser = new MimeParser (MimeRoundTrip.CreateParserOptions (), new MemoryStream (input, false), MimeFormat.Entity, persistent);
+			var parser = new MimeParser (MimeRoundTrip.CreateParserOptions (), new MemoryStream (input, false), MimeFormat.Entity, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 
 			if (checker != null) {
 				parser.ComplianceLogger = checker;
@@ -112,7 +112,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 		static string ParseMbox (byte[] input, bool persistent, bool async, MimeComplianceChecker? checker)
 		{
-			var parser = new MimeParser (MimeRoundTrip.CreateParserOptions (), new MemoryStream (input, false), MimeFormat.Mbox, persistent);
+			var parser = new MimeParser (MimeRoundTrip.CreateParserOptions (), new MemoryStream (input, false), MimeFormat.Mbox, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 			var result = new StringBuilder ();
 			long position = parser.Position;
 			int count = 0;

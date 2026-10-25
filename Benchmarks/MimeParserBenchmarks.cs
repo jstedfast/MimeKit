@@ -188,7 +188,7 @@ header parser.
 		static void MimeParserSingleMessage (byte[] data, bool persistent = false)
 		{
 			using var stream = new MemoryStream (data, false);
-			var parser = new MimeParser (stream, MimeFormat.Entity, persistent);
+			var parser = new MimeParser (stream, MimeFormat.Entity, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 			var message = parser.ParseMessage ();
 			message.Dispose ();
 		}
@@ -208,7 +208,7 @@ header parser.
 		static void MimeParserMboxFile (byte[] data, bool persistent = false)
 		{
 			using var stream = new MemoryStream (data, false);
-			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent);
+			var parser = new MimeParser (stream, MimeFormat.Mbox, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 
 			while (!parser.IsEndOfStream) {
 				var message = parser.ParseMessage ();
@@ -244,7 +244,7 @@ header parser.
 		public void MimeParser_HeaderStressTest ()
 		{
 			using var stream = new MemoryStream (MessageHeaderStressTestData, false);
-			var parser = new MimeParser (stream, MimeFormat.Entity, true);
+			var parser = new MimeParser (stream, MimeFormat.Entity, MimeContentStorage.Source);
 			var message = parser.ParseMessage ();
 			message.Dispose ();
 		}

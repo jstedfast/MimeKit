@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using MimeKit.IO;
+using MimeKit.Utils;
 
 namespace MimeKit {
 	/// <summary>
@@ -70,28 +71,31 @@ namespace MimeKit {
 		bool hasBodySeparator;
 		int depth;
 
-		bool persistent;
+		MimeContentStorage storage;
 
 		/// <summary>
 		/// Initialize a new instance of the <see cref="MimeParser"/> class.
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="BoundedStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// <para><see cref="MimeContentStorage.Memory"/> copies MIME part content into memory (the default).
+		/// <see cref="MimeContentStorage.Source"/> references content in the seekable input stream instead.
+		/// The caller owns the stream in both modes. With Source, keep it open and its contents unchanged
+		/// while the parsed content is in use. Disposing parsed messages or entities does not close the input stream.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
+		/// <param name="storage">The storage used for parsed MIME part content.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="format"/> or <paramref name="storage"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="storage"/> is <see cref="MimeContentStorage.Source"/> and <paramref name="stream"/> is not seekable.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
-		public MimeParser (Stream stream, MimeFormat format, bool persistent = false) : this (ParserOptions.Default, stream, format, persistent)
+		public MimeParser (Stream stream, MimeFormat format, MimeContentStorage storage = MimeContentStorage.Memory) : this (ParserOptions.Default, stream, format, storage)
 		{
 		}
 
@@ -100,20 +104,23 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="BoundedStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// <para><see cref="MimeContentStorage.Memory"/> copies MIME part content into memory (the default).
+		/// <see cref="MimeContentStorage.Source"/> references content in the seekable input stream instead.
+		/// The caller owns the stream in both modes. With Source, keep it open and its contents unchanged
+		/// while the parsed content is in use. Disposing parsed messages or entities does not close the input stream.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
+		/// <param name="storage">The storage used for parsed MIME part content.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="storage"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="storage"/> is <see cref="MimeContentStorage.Source"/> and <paramref name="stream"/> is not seekable.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
-		public MimeParser (Stream stream, bool persistent = false) : this (ParserOptions.Default, stream, MimeFormat.Default, persistent)
+		public MimeParser (Stream stream, MimeContentStorage storage = MimeContentStorage.Memory) : this (ParserOptions.Default, stream, MimeFormat.Default, storage)
 		{
 		}
 
@@ -122,23 +129,26 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="BoundedStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// <para><see cref="MimeContentStorage.Memory"/> copies MIME part content into memory (the default).
+		/// <see cref="MimeContentStorage.Source"/> references content in the seekable input stream instead.
+		/// The caller owns the stream in both modes. With Source, keep it open and its contents unchanged
+		/// while the parsed content is in use. Disposing parsed messages or entities does not close the input stream.</para>
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
+		/// <param name="storage">The storage used for parsed MIME part content.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="storage"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="storage"/> is <see cref="MimeContentStorage.Source"/> and <paramref name="stream"/> is not seekable.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public MimeParser (ParserOptions options, Stream stream, bool persistent = false) : this (options, stream, MimeFormat.Default, persistent)
+		public MimeParser (ParserOptions options, Stream stream, MimeContentStorage storage = MimeContentStorage.Memory) : this (options, stream, MimeFormat.Default, storage)
 		{
 		}
 
@@ -147,28 +157,33 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Creates a new <see cref="MimeParser"/> that will parse the specified stream.</para>
-		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="BoundedStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// <para><see cref="MimeContentStorage.Memory"/> copies MIME part content into memory (the default).
+		/// <see cref="MimeContentStorage.Source"/> references content in the seekable input stream instead.
+		/// The caller owns the stream in both modes. With Source, keep it open and its contents unchanged
+		/// while the parsed content is in use. Disposing parsed messages or entities does not close the input stream.</para>
 		/// </remarks>
 		/// <param name="options">The parser options.</param>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
+		/// <param name="storage">The storage used for parsed MIME part content.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="format"/> or <paramref name="storage"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="storage"/> is <see cref="MimeContentStorage.Source"/> and <paramref name="stream"/> is not seekable.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="options"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public MimeParser (ParserOptions options, Stream stream, MimeFormat format, bool persistent = false)
+		public MimeParser (ParserOptions options, Stream stream, MimeFormat format, MimeContentStorage storage = MimeContentStorage.Memory)
 		{
+			ArgumentValidator.Validate (stream, format, storage);
+
 			reader = new Reader (this, options, stream, format);
 
-			OnSetStream (stream, format, persistent);
+			OnSetStream (format, storage);
 		}
 
 		/// <summary>
@@ -276,9 +291,9 @@ namespace MimeKit {
 			get { return mboxMarkerOffset != -1 ? Encoding.UTF8.GetString (mboxMarkerBuffer!, 0, mboxMarkerLength) : null; }
 		}
 
-		void OnSetStream (Stream stream, MimeFormat format, bool persistent)
+		void OnSetStream (MimeFormat format, MimeContentStorage storage)
 		{
-			this.persistent = persistent && stream.CanSeek;
+			this.storage = storage;
 
 			mboxMarkerOffset = -1;
 
@@ -291,43 +306,49 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="BoundedStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// <para><see cref="MimeContentStorage.Memory"/> copies MIME part content into memory (the default).
+		/// <see cref="MimeContentStorage.Source"/> references content in the seekable input stream instead.
+		/// The caller owns the stream in both modes. With Source, keep it open and its contents unchanged
+		/// while the parsed content is in use. Disposing parsed messages or entities does not close the input stream.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
-		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
+		/// <param name="storage">The storage used for parsed MIME part content.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="format"/> or <paramref name="storage"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="storage"/> is <see cref="MimeContentStorage.Source"/> and <paramref name="stream"/> is not seekable.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
-		public void SetStream (Stream stream, MimeFormat format, bool persistent)
+		public void SetStream (Stream stream, MimeFormat format, MimeContentStorage storage)
 		{
+			ArgumentValidator.Validate (stream, format, storage);
+
 			reader.SetStream (stream, format);
 
-			OnSetStream (stream, format, persistent);
+			OnSetStream (format, storage);
 		}
 
 		/// <summary>
 		/// Set the stream to parse.
 		/// </summary>
 		/// <remarks>
-		/// Sets the stream to parse.
+		/// Sets the stream to parse, copying MIME part content into memory.
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
 		/// <param name="format">The format of the stream.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="format"/> is not a valid value.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
 		public virtual void SetStream (Stream stream, MimeFormat format = MimeFormat.Default)
 		{
-			reader.SetStream (stream, format);
-
-			OnSetStream (stream, format, false);
+			SetStream (stream, format, MimeContentStorage.Memory);
 		}
 
 		/// <summary>
@@ -335,22 +356,25 @@ namespace MimeKit {
 		/// </summary>
 		/// <remarks>
 		/// <para>Sets the stream to parse.</para>
-		/// <para>If <paramref name="persistent"/> is <see langword="true" /> and <paramref name="stream"/> is seekable, then
-		/// the <see cref="MimeParser"/> will not copy the content of <see cref="MimePart"/>s into memory. Instead,
-		/// it will use a <see cref="BoundedStream"/> to reference a substream of <paramref name="stream"/>.
-		/// This has the potential to not only save memory usage, but also improve <see cref="MimeParser"/>
-		/// performance.</para>
-		/// <para>It should be noted, however, that disposing <paramref name="stream"/> will make it impossible
-		/// for <see cref="MimeContent"/> to read the content.</para>
+		/// <para><see cref="MimeContentStorage.Memory"/> copies MIME part content into memory (the default).
+		/// <see cref="MimeContentStorage.Source"/> references content in the seekable input stream instead.
+		/// The caller owns the stream in both modes. With Source, keep it open and its contents unchanged
+		/// while the parsed content is in use. Disposing parsed messages or entities does not close the input stream.</para>
 		/// </remarks>
 		/// <param name="stream">The stream to parse.</param>
-		/// <param name="persistent"><see langword="true" /> if the stream is persistent; otherwise, <see langword="false" />.</param>
+		/// <param name="storage">The storage used for parsed MIME part content.</param>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="storage"/> is not a valid value.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="storage"/> is <see cref="MimeContentStorage.Source"/> and <paramref name="stream"/> is not seekable.
+		/// </exception>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <see langword="null"/>.
 		/// </exception>
-		public void SetStream (Stream stream, bool persistent)
+		public void SetStream (Stream stream, MimeContentStorage storage)
 		{
-			SetStream (stream, MimeFormat.Default, persistent);
+			SetStream (stream, MimeFormat.Default, storage);
 		}
 
 		void PushEntity (MimeEntity entity)
@@ -772,7 +796,7 @@ namespace MimeKit {
 		/// <param name="cancellationToken">The cancellation token.</param>
 		protected virtual void OnMimePartContentBegin (long beginOffset, int beginLineNumber, CancellationToken cancellationToken)
 		{
-			content = persistent ? null : new MemoryBlockStream ();
+			content = storage == MimeContentStorage.Source ? null : new MemoryBlockStream ();
 		}
 
 		/// <summary>
@@ -853,7 +877,7 @@ namespace MimeKit {
 
 			var part = (MimePart) stack.Peek ();
 
-			if (content is null /* aka 'persistent' */) {
+			if (content is null /* Source storage */) {
 				content = new BoundedStream (reader.stream, beginOffset, endOffset, true);
 			} else {
 				// Note: MimeReader only passes the bytes within [beginOffset, endOffset) to OnMimePartContentRead(), so this
@@ -1547,7 +1571,7 @@ namespace MimeKit {
 			// Note: if a previously parsed MimePart's content has been read,
 			// then the stream position will have moved and will need to be
 			// reset.
-			if (persistent && reader.stream.Position != reader.position)
+			if (storage == MimeContentStorage.Source && reader.stream.Position != reader.position)
 				reader.stream.Seek (reader.position, SeekOrigin.Begin);
 
 			this.parsingMessageHeaders = parsingMessageHeaders;

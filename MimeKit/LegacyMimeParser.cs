@@ -447,6 +447,18 @@ namespace MimeKit {
 			SetStream (stream, MimeFormat.Default, persistent);
 		}
 
+		void IMimeParser.SetStream (Stream stream, MimeFormat format, MimeContentStorage storage)
+		{
+			ArgumentValidator.Validate (stream, format, storage);
+
+			SetStream (stream, format, storage == MimeContentStorage.Source);
+		}
+
+		void IMimeParser.SetStream (Stream stream, MimeContentStorage storage)
+		{
+			((IMimeParser) this).SetStream (stream, MimeFormat.Default, storage);
+		}
+
 		/// <summary>
 		/// An event signifying the beginning of a new <see cref="MimeMessage"/> has been encountered.
 		/// </summary>

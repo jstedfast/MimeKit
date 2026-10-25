@@ -7,6 +7,14 @@ the split of the cryptography support into its own assembly, the promotion of th
 a redesigned TNEF implementation, DMARC validation, and a new MIME compliance violation reporting API.
 See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
+Replaced the `persistent` boolean in `MimeParser`, `IMimeParser.SetStream`
+and `MimeMessage`/`MimeEntity` stream `Load` and `LoadAsync` APIs with `MimeContentStorage`.
+`Memory` (0) is the default and copies part content; `Source` (1) references the caller-owned
+input stream, which must remain open and unchanged while the content is used. `Source` now rejects
+nonseekable streams with `ArgumentException` instead of silently copying. Invalid enum values
+throw `ArgumentOutOfRangeException`. Rejected `SetStream` arguments leave the parser unchanged.
+`LegacyMimeParser` retains its public boolean APIs and implements the new interface overloads explicitly.
+
 Address parsing from strings now shares the byte parser's grammar without converting the entire
 input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
 offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings

@@ -1082,7 +1082,7 @@ namespace MimeKit.Cryptography {
 			var memory = new MemoryStream (signed.ContentInfo.Content, false);
 
 			try {
-				entity = MimeEntity.Load (memory, true, cancellationToken);
+				entity = MimeEntity.Load (memory, MimeContentStorage.Source, cancellationToken);
 			} catch {
 				memory.Dispose ();
 				throw;
@@ -1465,7 +1465,7 @@ namespace MimeKit.Cryptography {
 
 			var memory = new MemoryStream (decrypted, false);
 
-			return MimeEntity.Load (memory, true, cancellationToken);
+			return MimeEntity.Load (memory, MimeContentStorage.Source, cancellationToken);
 		}
 
 		/// <summary>
@@ -1496,7 +1496,7 @@ namespace MimeKit.Cryptography {
 
 			var memory = new MemoryStream (decrypted, false);
 
-			return await MimeEntity.LoadAsync (memory, true, cancellationToken).ConfigureAwait (false);
+			return await MimeEntity.LoadAsync (memory, MimeContentStorage.Source, cancellationToken).ConfigureAwait (false);
 		}
 
 		/// <summary>

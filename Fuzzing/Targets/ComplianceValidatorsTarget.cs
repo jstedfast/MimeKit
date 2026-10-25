@@ -96,7 +96,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 		static string Parse (byte[] input, MimeComplianceOptions? options, MimeComplianceChecker? checker)
 		{
-			var parser = new MimeParser (MimeRoundTrip.CreateParserOptions (), new MemoryStream (input, false), MimeFormat.Entity, false);
+			var parser = new MimeParser (MimeRoundTrip.CreateParserOptions (), new MemoryStream (input, false), MimeFormat.Entity, MimeContentStorage.Memory);
 
 			if (checker != null) {
 				parser.ComplianceOptions = options!;

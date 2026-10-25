@@ -64,7 +64,7 @@ namespace MimeKit.Fuzzing.Helpers {
 
 		public static MimeMessage Parse (byte[] data, bool persistent, ParserOptions? options = null)
 		{
-			var parser = new MimeParser (options ?? CreateParserOptions (), new MemoryStream (data, false), MimeFormat.Entity, persistent);
+			var parser = new MimeParser (options ?? CreateParserOptions (), new MemoryStream (data, false), MimeFormat.Entity, persistent ? MimeContentStorage.Source : MimeContentStorage.Memory);
 
 			return parser.ParseMessage ();
 		}

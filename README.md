@@ -104,7 +104,7 @@ both CPU time and memory allocations to a minimum. Some of the techniques it rel
 * Pooled buffers and lazily-decoded headers so that only the data you actually access is ever decoded.
 * Hardware-accelerated (SIMD) scanning and base64/uuencode encoding and decoding on x64 and ARM64 platforms
   when supported by the runtime.
-* Persistent stream support (`MimeParser` with `persistent: true`) so that MIME part content can reference
+* Source stream storage (`MimeParser` with `storage: MimeContentStorage.Source`) so that MIME part content can reference
   the original stream instead of being copied into memory.
 
 The result is a parser that can comfortably process very large messages and multi-gigabyte mbox files while

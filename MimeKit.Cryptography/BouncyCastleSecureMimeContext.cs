@@ -1960,7 +1960,7 @@ namespace MimeKit.Cryptography {
 				var decrypted = GetDecryptedContent (parser);
 
 				try {
-					return MimeEntity.Load (decrypted.ContentStream, false, cancellationToken);
+					return MimeEntity.Load (decrypted.ContentStream, MimeContentStorage.Memory, cancellationToken);
 				} finally {
 					decrypted.ContentStream.Dispose ();
 				}
@@ -1994,7 +1994,7 @@ namespace MimeKit.Cryptography {
 				var decrypted = GetDecryptedContent (parser);
 
 				try {
-					return await MimeEntity.LoadAsync (decrypted.ContentStream, false, cancellationToken).ConfigureAwait (false);
+					return await MimeEntity.LoadAsync (decrypted.ContentStream, MimeContentStorage.Memory, cancellationToken).ConfigureAwait (false);
 				} finally {
 					decrypted.ContentStream.Dispose ();
 				}

@@ -66,22 +66,22 @@ namespace UnitTests {
 			Assert.Throws<ArgumentNullException> (() => message.MimeVersion = null);
 
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((Stream) null));
-			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((Stream) null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((Stream) null, MimeContentStorage.Source));
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, Stream.Null));
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (Stream) null));
-			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, Stream.Null, true));
-			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (Stream) null, true));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, Stream.Null, MimeContentStorage.Source));
+			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (Stream) null, MimeContentStorage.Source));
 
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load ((string) null));
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (null, "fileName"));
 			Assert.Throws<ArgumentNullException> (() => MimeMessage.Load (ParserOptions.Default, (string) null));
 
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((Stream) null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((Stream) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((Stream) null, MimeContentStorage.Source));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, Stream.Null));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (ParserOptions.Default, (Stream) null));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, Stream.Null, true));
-			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (ParserOptions.Default, (Stream) null, true));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, Stream.Null, MimeContentStorage.Source));
+			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (ParserOptions.Default, (Stream) null, MimeContentStorage.Source));
 
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync ((string) null));
 			Assert.ThrowsAsync<ArgumentNullException> (async () => await MimeMessage.LoadAsync (null, "fileName"));
@@ -716,14 +716,14 @@ This is the message body.
 			const string rawMessageText = "From: Example From <from@example.com>\nTo: Example To <to@example.com>\nSubject: Test\n\nBody";
 
 			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				using var message = MimeMessage.Load (stream, true);
+				using var message = MimeMessage.Load (stream, MimeContentStorage.Source);
 
 				Assert.That (message.Subject, Is.EqualTo ("Test"), "Subject");
 				Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("Body"), "Body");
 			}
 
 			using (var stream = new MemoryStream (Encoding.UTF8.GetBytes (rawMessageText))) {
-				using var message = await MimeMessage.LoadAsync (stream, true);
+				using var message = await MimeMessage.LoadAsync (stream, MimeContentStorage.Source);
 
 				Assert.That (message.Subject, Is.EqualTo ("Test"), "Subject");
 				Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("Body"), "Body");

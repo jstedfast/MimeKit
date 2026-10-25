@@ -35,10 +35,95 @@ using MimeKit.Encodings;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
 
+using UnitTests.IO;
+
 namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		static IMimeParser CreateStorageParser (int overload, ParserOptions options, Stream stream, MimeContentStorage storage)
+		{
+			switch (overload) {
+			case 0: return new MimeParser (stream, storage);
+			case 1: return new MimeParser (stream, MimeFormat.Entity, storage);
+			case 2: return new MimeParser (options, stream, storage);
+			default: return new MimeParser (options, stream, MimeFormat.Entity, storage);
+			}
+		}
+
+		[Test]
+		public void TestContentStorageParserArguments ([Values (0, 1, 2, 3)] int overload)
+		{
+			using var memory = new MemoryStream ();
+			using var nonseekable = new NonSeekableStream (memory);
+			var options = ParserOptions.Default;
+			var parser = CreateStorageParser (overload, options, memory, MimeContentStorage.Memory);
+
+			foreach (var storage in new[] { (MimeContentStorage) (-1), (MimeContentStorage) 2, (MimeContentStorage) int.MaxValue }) {
+				Assert.That (Assert.Throws<ArgumentOutOfRangeException> (() => CreateStorageParser (overload, options, memory, storage)).ParamName, Is.EqualTo ("storage"));
+				Assert.That (Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (memory, storage)).ParamName, Is.EqualTo ("storage"));
+				Assert.That (Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (memory, MimeFormat.Mbox, storage)).ParamName, Is.EqualTo ("storage"));
+			}
+
+			Assert.That (Assert.Throws<ArgumentException> (() => CreateStorageParser (overload, options, nonseekable, MimeContentStorage.Source)).ParamName, Is.EqualTo ("stream"));
+			Assert.That (Assert.Throws<ArgumentException> (() => parser.SetStream (nonseekable, MimeContentStorage.Source)).ParamName, Is.EqualTo ("stream"));
+			Assert.That (Assert.Throws<ArgumentException> (() => parser.SetStream (nonseekable, MimeFormat.Mbox, MimeContentStorage.Source)).ParamName, Is.EqualTo ("stream"));
+			Assert.DoesNotThrow (() => CreateStorageParser (overload, options, nonseekable, MimeContentStorage.Memory));
+			Assert.DoesNotThrow (() => parser.SetStream (nonseekable, MimeContentStorage.Memory));
+
+			foreach (var storage in new[] { MimeContentStorage.Memory, MimeContentStorage.Source }) {
+				Assert.Throws<ArgumentNullException> (() => CreateStorageParser (overload, options, null, storage));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, storage));
+				Assert.Throws<ArgumentNullException> (() => parser.SetStream (null, MimeFormat.Mbox, storage));
+				if (overload >= 2)
+					Assert.Throws<ArgumentNullException> (() => CreateStorageParser (overload, null, memory, storage));
+			}
+
+			Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (memory, (MimeFormat) 255));
+			Assert.Throws<ArgumentOutOfRangeException> (() => parser.SetStream (memory, (MimeFormat) 255, MimeContentStorage.Memory));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new MimeParser (memory, (MimeFormat) 255));
+		}
+
+		[Test]
+		public void TestContentStorageLoadArguments ()
+		{
+			using var memory = new MemoryStream ();
+			using var nonseekable = new NonSeekableStream (memory);
+			var options = ParserOptions.Default;
+
+			foreach (var storage in new[] { (MimeContentStorage) (-1), (MimeContentStorage) 2, (MimeContentStorage) int.MaxValue }) {
+				Assert.Throws<ArgumentOutOfRangeException> (() => MimeMessage.Load (memory, storage));
+				Assert.Throws<ArgumentOutOfRangeException> (() => MimeMessage.Load (options, memory, storage));
+				Assert.Throws<ArgumentOutOfRangeException> (() => MimeEntity.Load (memory, storage));
+				Assert.Throws<ArgumentOutOfRangeException> (() => MimeEntity.Load (options, memory, storage));
+			}
+
+			Assert.Throws<ArgumentException> (() => MimeMessage.Load (nonseekable, MimeContentStorage.Source));
+			Assert.Throws<ArgumentException> (() => MimeMessage.Load (options, nonseekable, MimeContentStorage.Source));
+			Assert.Throws<ArgumentException> (() => MimeEntity.Load (nonseekable, MimeContentStorage.Source));
+			Assert.Throws<ArgumentException> (() => MimeEntity.Load (options, nonseekable, MimeContentStorage.Source));
+		}
+
+		[Test]
+		public void TestContentStorageLoadArgumentsAsync ()
+		{
+			using var memory = new MemoryStream ();
+			using var nonseekable = new NonSeekableStream (memory);
+			var options = ParserOptions.Default;
+
+			foreach (var storage in new[] { (MimeContentStorage) (-1), (MimeContentStorage) 2, (MimeContentStorage) int.MaxValue }) {
+				Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await MimeMessage.LoadAsync (memory, storage));
+				Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await MimeMessage.LoadAsync (options, memory, storage));
+				Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await MimeEntity.LoadAsync (memory, storage));
+				Assert.ThrowsAsync<ArgumentOutOfRangeException> (async () => await MimeEntity.LoadAsync (options, memory, storage));
+			}
+
+			Assert.ThrowsAsync<ArgumentException> (async () => await MimeMessage.LoadAsync (nonseekable, MimeContentStorage.Source));
+			Assert.ThrowsAsync<ArgumentException> (async () => await MimeMessage.LoadAsync (options, nonseekable, MimeContentStorage.Source));
+			Assert.ThrowsAsync<ArgumentException> (async () => await MimeEntity.LoadAsync (nonseekable, MimeContentStorage.Source));
+			Assert.ThrowsAsync<ArgumentException> (async () => await MimeEntity.LoadAsync (options, nonseekable, MimeContentStorage.Source));
+		}
+
 		[Test]
 		public void TestEnrichedToHtmlArguments ()
 		{

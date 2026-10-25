@@ -194,9 +194,39 @@ DnsClient.NET.
 | `mimeParser.ReadHeaders ()`, `ReadEntity ()`, `ReadMessage ()` (and `Async` variants), inherited from `MimeReader` | Removed. `MimeParser` no longer derives from `MimeReader`. Use `ParseHeaders ()`, `ParseEntity ()` or `ParseMessage ()`, or subclass `MimeReader` directly. |
 | `OnMboxMarkerRead (byte[] buffer, int startIndex, int count, long beginOffset, int lineNumber, CancellationToken)` (and `Async`) | `OnMboxMarkerRead (byte[] buffer, int startIndex, int count, CancellationToken)`. The offset and line number are passed to `OnMboxMarkerBegin ()`. |
 | `OnMultipartBoundary ()`, `OnMultipartEndBoundary ()` (and `Async`; obsolete) | `OnMultipartBoundaryEnd ()`, `OnMultipartEndBoundaryEnd ()` |
+| `persistent: false` in parser constructors, `SetStream`, or stream `Load`/`LoadAsync` | `storage: MimeContentStorage.Memory` (or omit it where optional) |
+| `persistent: true` in the same APIs | `storage: MimeContentStorage.Source` (requires a seekable stream) |
 
 For most code, the parser change is a source-compatible rename: `new MimeParser (stream)` and
 `MimeMessage.Load ()` keep working, but are now backed by the new parser.
+
+### Content storage
+
+The `persistent` boolean overloads are replaced, not retained. This applies to `MimeParser`,
+`IMimeParser.SetStream`, `MimeMessage.Load`/`LoadAsync`, and `MimeEntity.Load`/`LoadAsync`.
+`LegacyMimeParser` retains its public boolean constructors and `SetStream` overloads, including
+their nonseekable-stream fallback. It implements the new `IMimeParser.SetStream` overloads
+explicitly, so calls through `IMimeParser` use the enum and its stricter validation.
+
+`MimeContentStorage.Memory` (0) copies MIME part content into memory and remains the default.
+You may close or change the input stream after parsing. `MimeContentStorage.Source` (1) avoids
+the copy by retaining bounded references to the input stream. The caller owns the stream in
+both modes. For `Source`, keep it open and its contents unchanged until all parsed content is
+no longer needed. Disposing a parsed message or entity does not close the source stream.
+There is no ownership-transfer option.
+
+Unlike `persistent: true`, `Source` throws `ArgumentException` for a nonseekable stream rather
+than falling back to copying. To explicitly retain the old fallback, use
+`stream.CanSeek ? MimeContentStorage.Source : MimeContentStorage.Memory`.
+Invalid storage or format enum values throw `ArgumentOutOfRangeException`; rejected
+`SetStream` arguments do not reset or otherwise change the parser.
+`MimeReader` only scans input and has no content storage option.
+
+```csharp
+using var stream = File.OpenRead ("message.eml");
+using var message = MimeMessage.Load (stream, MimeContentStorage.Source);
+// Use message content before disposing stream.
+```
 
 ### Semantic changes
 
