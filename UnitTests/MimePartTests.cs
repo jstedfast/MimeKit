@@ -39,6 +39,62 @@ namespace UnitTests {
 	[TestFixture]
 	public class MimePartTests
 	{
+		static async Task AssertSignatureWriterContent (NewLineFormat newLineFormat, ContentEncoding encoding, bool transcode, bool verifyingSignature, bool doAsync)
+		{
+			string text = newLineFormat switch {
+				NewLineFormat.Dos => "a\r\nb\r\nc",
+				NewLineFormat.Unix => "a\nb\nc",
+				_ => "a\r\nb\nc"
+			};
+			var data = Encoding.ASCII.GetBytes (text);
+			using var part = new MimePart {
+				Content = new MimeContent (new MemoryStream (data), encoding) { NewLineFormat = newLineFormat },
+				ContentTransferEncoding = transcode ? ContentEncoding.Base64 : encoding
+			};
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+			string normal = transcode ? Convert.ToBase64String (data) + "\r\n" :
+				encoding == ContentEncoding.Binary ? text : "a\r\nb\r\nc";
+			string expected = verifyingSignature && !transcode && newLineFormat == NewLineFormat.Mixed ? text : normal;
+
+			using var output = new MemoryStream ();
+			var writer = new MimeWriter (output, CancellationToken.None) { VerifyingSignature = verifyingSignature };
+			if (doAsync)
+				await writer.WriteAsync (part, options, true);
+			else
+				writer.Write (part, options, true);
+
+			Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo (expected));
+
+			// Reusing the entity and options for an ordinary write must not retain verification behavior.
+			output.SetLength (0);
+			output.Position = 0;
+			if (doAsync)
+				await part.WriteToAsync (options, output, true);
+			else
+				part.WriteTo (options, output, true);
+
+			Assert.That (Encoding.ASCII.GetString (output.ToArray ()), Is.EqualTo (normal));
+		}
+
+		[Test]
+		public void TestSignatureWriterContent (
+			[Values (NewLineFormat.Dos, NewLineFormat.Unix, NewLineFormat.Mixed)] NewLineFormat newLineFormat,
+			[Values (ContentEncoding.SevenBit, ContentEncoding.Binary)] ContentEncoding encoding,
+			[Values] bool transcode, [Values] bool verifyingSignature)
+		{
+			AssertSignatureWriterContent (newLineFormat, encoding, transcode, verifyingSignature, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public async Task TestSignatureWriterContentAsync (
+			[Values (NewLineFormat.Dos, NewLineFormat.Unix, NewLineFormat.Mixed)] NewLineFormat newLineFormat,
+			[Values (ContentEncoding.SevenBit, ContentEncoding.Binary)] ContentEncoding encoding,
+			[Values] bool transcode, [Values] bool verifyingSignature)
+		{
+			await AssertSignatureWriterContent (newLineFormat, encoding, transcode, verifyingSignature, true);
+		}
+
 		static async Task AssertWriteContentNewLineFormat (NewLineFormat newLineFormat, ContentEncoding encoding, bool ensureNewLine, string text, bool doAsync)
 		{
 			var options = FormatOptions.Default.Clone ();

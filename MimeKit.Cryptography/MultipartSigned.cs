@@ -778,12 +778,13 @@ namespace MimeKit.Cryptography {
 				signatureData.Position = 0;
 
 				using (var cleartext = new MemoryBlockStream ()) {
+					var writer = new MimeWriter (cleartext, cancellationToken) { VerifyingSignature = true };
+
 					// Note: see rfc2015 or rfc3156, section 5.1
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
-					options.VerifyingSignature = true;
 
-					this[0].WriteTo (options, cleartext, cancellationToken);
+					writer.Write (this[0], options);
 					cleartext.Position = 0;
 
 					return ctx.Verify (cleartext, signatureData, cancellationToken);
@@ -848,12 +849,13 @@ namespace MimeKit.Cryptography {
 				signatureData.Position = 0;
 
 				using (var cleartext = new MemoryBlockStream ()) {
+					var writer = new MimeWriter (cleartext, cancellationToken) { VerifyingSignature = true };
+
 					// Note: see rfc2015 or rfc3156, section 5.1
 					var options = FormatOptions.Default.Clone ();
 					options.NewLineFormat = NewLineFormat.Dos;
-					options.VerifyingSignature = true;
 
-					await this[0].WriteToAsync (options, cleartext, cancellationToken);
+					await writer.WriteAsync (this[0], options).ConfigureAwait (false);
 					cleartext.Position = 0;
 
 					return await ctx.VerifyAsync (cleartext, signatureData, cancellationToken).ConfigureAwait (false);

@@ -455,11 +455,10 @@ namespace UnitTests {
 			return (Multipart) MimeEntity.Load (stream);
 		}
 
-		static FormatOptions GetRawBoundaryFormatOptions (NewLineFormat format, bool verifyingSignature)
+		static FormatOptions GetRawBoundaryFormatOptions (NewLineFormat format)
 		{
 			var options = FormatOptions.Default.Clone ();
 			options.NewLineFormat = format;
-			options.VerifyingSignature = verifyingSignature;
 			return options;
 		}
 
@@ -482,11 +481,14 @@ namespace UnitTests {
 		public void TestWriteRawBoundaries (string inputNewLine, NewLineFormat format, bool verifyingSignature)
 		{
 			var expected = GetExpectedRawBoundaryOutput (inputNewLine, format, verifyingSignature);
-			var options = GetRawBoundaryFormatOptions (format, verifyingSignature);
+			var options = GetRawBoundaryFormatOptions (format);
 			var multipart = LoadRawBoundaryMultipart (inputNewLine);
 
 			using var output = new MemoryStream ();
-			multipart.WriteTo (options, output);
+			if (verifyingSignature)
+				new MimeWriter (output, CancellationToken.None) { VerifyingSignature = true }.Write (multipart, options);
+			else
+				multipart.WriteTo (options, output);
 			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
 
 			Assert.That (actual, Is.EqualTo (expected));
@@ -501,11 +503,14 @@ namespace UnitTests {
 		public async Task TestWriteRawBoundariesAsync (string inputNewLine, NewLineFormat format, bool verifyingSignature)
 		{
 			var expected = GetExpectedRawBoundaryOutput (inputNewLine, format, verifyingSignature);
-			var options = GetRawBoundaryFormatOptions (format, verifyingSignature);
+			var options = GetRawBoundaryFormatOptions (format);
 			var multipart = LoadRawBoundaryMultipart (inputNewLine);
 
 			using var output = new MemoryStream ();
-			await multipart.WriteToAsync (options, output);
+			if (verifyingSignature)
+				await new MimeWriter (output, CancellationToken.None) { VerifyingSignature = true }.WriteAsync (multipart, options);
+			else
+				await multipart.WriteToAsync (options, output);
 			var actual = Encoding.ASCII.GetString (output.GetBuffer (), 0, (int) output.Length);
 
 			Assert.That (actual, Is.EqualTo (expected));
@@ -518,12 +523,15 @@ namespace UnitTests {
 		public void TestWriteRawBoundariesCancellableStream (string inputNewLine, NewLineFormat format, bool verifyingSignature)
 		{
 			var expected = GetExpectedRawBoundaryOutput (inputNewLine, format, verifyingSignature);
-			var options = GetRawBoundaryFormatOptions (format, verifyingSignature);
+			var options = GetRawBoundaryFormatOptions (format);
 			var multipart = LoadRawBoundaryMultipart (inputNewLine);
 
 			using var output = new MemoryStream ();
 			using (var stream = new FilteredStream (output)) {
-				multipart.WriteTo (options, stream);
+				if (verifyingSignature)
+					new MimeWriter (stream, CancellationToken.None) { VerifyingSignature = true }.Write (multipart, options);
+				else
+					multipart.WriteTo (options, stream);
 				stream.Flush ();
 			}
 			var actual = Encoding.ASCII.GetString (output.ToArray ());

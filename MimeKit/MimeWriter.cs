@@ -60,10 +60,47 @@ namespace MimeKit {
 		MultipartFrame[]? frames;
 		int depth;
 
-		MimeWriter (Stream stream, CancellationToken cancellationToken)
+		/// <summary>
+		/// Initialize a MIME writer for the specified stream.
+		/// </summary>
+		/// <param name="stream">The output stream.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		public MimeWriter (Stream stream, CancellationToken cancellationToken)
 		{
 			this.cancellationToken = cancellationToken;
 			this.stream = stream;
+		}
+
+		/// <summary>
+		/// Get or set whether to serialize content for signature verification.
+		/// </summary>
+		/// <remarks>
+		/// Callers must also select DOS newlines in the formatting options.
+		/// Raw boundaries are canonicalized, but mixed-newline content is preserved.
+		/// </remarks>
+		public bool VerifyingSignature { get; set; }
+
+		/// <summary>
+		/// Write an entity using this writer's settings.
+		/// </summary>
+		/// <param name="entity">The entity.</param>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="contentOnly">Whether to omit the entity's headers.</param>
+		public void Write (MimeEntity entity, FormatOptions options, bool contentOnly = false)
+		{
+			Write (entity, options, contentOnly, entity.EnsureNewLine);
+		}
+
+		/// <summary>
+		/// Asynchronously write an entity using this writer's settings.
+		/// </summary>
+		/// <returns>An awaitable task.</returns>
+		/// <param name="entity">The entity.</param>
+		/// <param name="options">The formatting options.</param>
+		/// <param name="contentOnly">Whether to omit the entity's headers.</param>
+		public Task WriteAsync (MimeEntity entity, FormatOptions options, bool contentOnly = false)
+		{
+			return WriteAsync (entity, options, contentOnly, entity.EnsureNewLine);
 		}
 
 		/// <summary>
@@ -119,7 +156,7 @@ namespace MimeKit {
 		{
 			var writer = new MimeWriter (stream, cancellationToken);
 
-			writer.Write (entity, options, contentOnly, entity.EnsureNewLine);
+			writer.Write (entity, options, contentOnly);
 		}
 
 		/// <summary>
@@ -135,7 +172,7 @@ namespace MimeKit {
 		{
 			var writer = new MimeWriter (stream, cancellationToken);
 
-			return writer.WriteAsync (entity, options, contentOnly, entity.EnsureNewLine);
+			return writer.WriteAsync (entity, options, contentOnly);
 		}
 
 		// Gets the body of the message that should be written after the message headers (if any) and whether it must end with a new-line.
@@ -254,7 +291,7 @@ namespace MimeKit {
 		{
 			int startIndex = 0;
 
-			if (options.VerifyingSignature) {
+			if (VerifyingSignature) {
 				int index = 0, n;
 
 				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
@@ -327,6 +364,14 @@ namespace MimeKit {
 			}
 		}
 
+		// Preserve mixed line endings when verifying signatures, but never bypass a requested transcode.
+		// See https://github.com/jstedfast/MimeKit/issues/569 for details.
+		bool ShouldPreserveContent (MimePart part)
+		{
+			return VerifyingSignature && part.Content != null &&
+				part.Content.Encoding == part.ContentTransferEncoding && part.Content.NewLineFormat == NewLineFormat.Mixed;
+		}
+
 		// Write the entity (and all of its descendants).
 		void Write (MimeEntity? entity, FormatOptions options, bool contentOnly, bool ensureNewLine)
 		{
@@ -358,8 +403,12 @@ namespace MimeKit {
 							entity = null;
 						}
 					} else {
-						if (entity is MimePart part)
-							part.WriteContent (options, stream, ensureNewLine, cancellationToken);
+						if (entity is MimePart part) {
+							if (ShouldPreserveContent (part))
+								part.Content!.WriteTo (stream, cancellationToken);
+							else
+								part.WriteContent (options, stream, ensureNewLine, cancellationToken);
+						}
 
 						entity = null;
 					}
@@ -415,7 +464,7 @@ namespace MimeKit {
 		{
 			int startIndex = 0;
 
-			if (options.VerifyingSignature) {
+			if (VerifyingSignature) {
 				int index = 0, n;
 
 				while ((n = rawBoundary.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
@@ -521,8 +570,12 @@ namespace MimeKit {
 							entity = null;
 						}
 					} else {
-						if (entity is MimePart part)
-							await part.WriteContentAsync (options, stream, ensureNewLine, cancellationToken).ConfigureAwait (false);
+						if (entity is MimePart part) {
+							if (ShouldPreserveContent (part))
+								await part.Content!.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
+							else
+								await part.WriteContentAsync (options, stream, ensureNewLine, cancellationToken).ConfigureAwait (false);
+						}
 
 						entity = null;
 					}

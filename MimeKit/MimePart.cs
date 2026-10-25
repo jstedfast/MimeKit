@@ -720,12 +720,6 @@ namespace MimeKit {
 			} else if (ContentTransferEncoding == ContentEncoding.Binary) {
 				// Do not alter binary content.
 				Content.WriteTo (stream, cancellationToken);
-			} else if (options.VerifyingSignature && Content.NewLineFormat.HasValue && Content.NewLineFormat.Value == NewLineFormat.Mixed) {
-				// Allow pass-through of the original parsed content without canonicalization when verifying signatures
-				// if the content contains a mix of line-endings.
-				//
-				// See https://github.com/jstedfast/MimeKit/issues/569 for details.
-				Content.WriteTo (stream, cancellationToken);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {
 					// Note: if we are writing the top-level MimePart, make sure it ends with a new-line so that
@@ -776,12 +770,6 @@ namespace MimeKit {
 				}
 			} else if (ContentTransferEncoding == ContentEncoding.Binary) {
 				// Do not alter binary content.
-				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
-			} else if (options.VerifyingSignature && Content.NewLineFormat.HasValue && Content.NewLineFormat.Value == NewLineFormat.Mixed) {
-				// Allow pass-through of the original parsed content without canonicalization when verifying signatures
-				// if the content contains a mix of line-endings.
-				//
-				// See https://github.com/jstedfast/MimeKit/issues/569 for details.
 				await Content.WriteToAsync (stream, cancellationToken).ConfigureAwait (false);
 			} else {
 				using (var filtered = new FilteredStream (stream)) {

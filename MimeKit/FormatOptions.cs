@@ -52,7 +52,6 @@ namespace MimeKit {
 		bool alwaysQuoteParameterValues;
 		bool allowMixedHeaderCharsets;
 		NewLineFormat newLineFormat;
-		bool verifyingSignature;
 		bool ensureNewLine;
 		bool international;
 		int maxLineLength;
@@ -166,11 +165,6 @@ namespace MimeKit {
 
 		internal byte[] NewLineBytes {
 			get { return NewLineFormats[(int) NewLineFormat]; }
-		}
-
-		internal bool VerifyingSignature {
-			get { return verifyingSignature; }
-			set { verifyingSignature = value; }
 		}
 
 		/// <summary>
@@ -340,7 +334,6 @@ namespace MimeKit {
 				allowMixedHeaderCharsets = allowMixedHeaderCharsets,
 				parameterEncodingMethod = parameterEncodingMethod,
 				alwaysQuoteParameterValues = alwaysQuoteParameterValues,
-				verifyingSignature = verifyingSignature,
 				international = international
 			};
 		}
