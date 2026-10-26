@@ -949,28 +949,6 @@ namespace MimeKit {
 			{
 				return text.AsSpan (startIndex, length);
 			}
-
-			public IEnumerable<Word> Break (FormatOptions format, int lineLength)
-			{
-				int endIndex = startIndex + length;
-				int index = startIndex;
-
-				lineLength = Math.Max (lineLength, 1);
-
-				while (index < endIndex) {
-					int len = Math.Min (format.MaxLineLength - lineLength, endIndex - index);
-
-					if (char.IsSurrogatePair (text, index + len - 1))
-						len--;
-
-					yield return new Word (text, index, len);
-
-					index += len;
-					lineLength = 1;
-				}
-
-				yield break;
-			}
 		}
 
 		static IEnumerable<Word> TokenizeText (string text)
@@ -1004,7 +982,7 @@ namespace MimeKit {
 		{
 			using var folded = new ValueStringBuilder (value.Length);
 			int lineLength = field.Length + 2;
-			int lastLwsp = -1;
+			int lastLwsp = 0;
 
 			folded.Append (' ');
 
@@ -1014,7 +992,7 @@ namespace MimeKit {
 				if (IsWhiteSpace (word[0])) {
 					if (lineLength + word.Length > format.MaxLineLength) {
 						for (int i = 0; i < word.Length; i++) {
-							if (lineLength > format.MaxLineLength) {
+							if (lineLength >= format.MaxLineLength) {
 								folded.Append (format.NewLine);
 								lineLength = 0;
 							}
@@ -1037,21 +1015,15 @@ namespace MimeKit {
 					lastLwsp = -1;
 				}
 
-				if (word.Length > format.MaxLineLength) {
-					foreach (var broken in word.Break (format, lineLength)) {
-						if (lineLength + broken.Length > format.MaxLineLength) {
-							folded.Append (format.NewLine);
-							folded.Append (' ');
-							lineLength = 1;
-						}
-
-						folded.Append (broken.AsSpan ());
-						lineLength += broken.Length;
-					}
-				} else {
-					folded.Append (word.AsSpan ());
-					lineLength += word.Length;
+				if (word.Length >= format.MaxLineLength) {
+					// Folding inside a word would insert whitespace into its decoded value.
+					// Encode the whole value so whitespace between adjacent encoded words is preserved.
+					var encoded = Rfc2047.EncodeText (format, CharsetUtils.UTF8, value);
+					return Encoding.UTF8.GetString (Rfc2047.FoldUnstructuredHeader (format, field, encoded));
 				}
+
+				folded.Append (word.AsSpan ());
+				lineLength += word.Length;
 			}
 
 			folded.Append (format.NewLine);

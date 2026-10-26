@@ -72,6 +72,11 @@ Fixed short-read-dependent parsing of empty `message/rfc822` parts immediately f
 mbox or multipart delimiters. Boundary lookahead and entity end offsets now remain consistent
 when markers and their preceding newlines are split across stream reads.
 
+Fixed lossy folding of internationalized unstructured headers containing long words.
+Values that cannot be folded at existing whitespace now use RFC 2047 encoding, preserving
+Unicode characters and whitespace when decoded. Encoded text words are also split at Unicode
+scalar boundaries when encoding expansion or intervening whitespace would exceed the line limit.
+
 ### Breaking Changes
 
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains

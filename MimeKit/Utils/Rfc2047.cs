@@ -285,6 +285,12 @@ namespace MimeKit.Utils {
 						if (input[n] == (byte) '\r')
 							continue;
 
+						if (input[n] != (byte) '\n' && lineLength >= options.MaxLineLength) {
+							output.Append (options.NewLine);
+							lineLength = 0;
+							tab = 0;
+						}
+
 						lwsp = output.Length;
 						if (input[n] == (byte) '\t')
 							tab = output.Length;
@@ -1117,6 +1123,46 @@ namespace MimeKit.Utils {
 			return builder.Length - startLength;
 		}
 
+		static void AppendEncodedWords (ref ValueStringBuilder builder, FormatOptions options, Encoding charset, string text, int startIndex, int length, QEncodeMode mode)
+		{
+			if (mode == QEncodeMode.Phrase) {
+				AppendEncodedWord (ref builder, charset, text, startIndex, length, mode);
+				return;
+			}
+
+			int maxLength = Math.Min (75, options.MaxLineLength - 1);
+			int endIndex = startIndex + length;
+			int chunkLength = length;
+
+			while (startIndex < endIndex) {
+				int startLength = builder.Length;
+				int count = Math.Min (chunkLength, endIndex - startIndex);
+
+				if (char.IsSurrogatePair (text, startIndex + count - 1))
+					count = count > 1 ? count - 1 : 2;
+
+				while (AppendEncodedWord (ref builder, charset, text, startIndex, count, mode) > maxLength) {
+					int scalarLength = char.IsSurrogatePair (text, startIndex) ? 2 : 1;
+
+					if (count == scalarLength)
+						break;
+
+					// Estimates can miss Q-encoding expansion or whitespace included from the preceding gap.
+					builder.Length = startLength;
+					count = Math.Max (count / 2, scalarLength);
+
+					if (char.IsSurrogatePair (text, startIndex + count - 1))
+						count--;
+
+					chunkLength = count;
+				}
+
+				startIndex += count;
+				if (startIndex < endIndex)
+					builder.Append (' ');
+			}
+		}
+
 		static void AppendQuoted (ref ValueStringBuilder str, string text, int startIndex, int length)
 		{
 			int lastIndex = startIndex + length;
@@ -1644,13 +1690,13 @@ namespace MimeKit.Utils {
 
 					switch (word.Encoding) {
 					case WordEncoding.Ascii:
-						AppendEncodedWord (ref builder, Encoding.ASCII, text, start, length, mode);
+						AppendEncodedWords (ref builder, options, Encoding.ASCII, text, start, length, mode);
 						break;
 					case WordEncoding.Latin1:
-						AppendEncodedWord (ref builder, CharsetUtils.Latin1, text, start, length, mode);
+						AppendEncodedWords (ref builder, options, CharsetUtils.Latin1, text, start, length, mode);
 						break;
 					default: // custom charset
-						AppendEncodedWord (ref builder, charset, text, start, length, mode);
+						AppendEncodedWords (ref builder, options, charset, text, start, length, mode);
 						break;
 					}
 					break;

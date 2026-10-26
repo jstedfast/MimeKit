@@ -226,7 +226,7 @@ namespace UnitTests {
 		[Test]
 		public void TestSubjectHeaderFolding ()
 		{
-			const string expected = " =?utf-8?b?0KLQtdGB0YLQvtCy0YvQuSDQt9Cw0LPQvtC70L7QstC+0Log0L/QuNGB0YzQvNCw?=\n";
+			const string expected = " =?utf-8?b?0KLQtdGB0YLQvtCy0YvQuSDQt9Cw0LM=?=\n =?utf-8?b?0L7Qu9C+0LLQvtC6INC/0LjRgdGM0Lw=?= =?utf-8?b?0LA=?=\n";
 			var header = new Header ("Subject", "Тестовый заголовок письма");
 			var actual = ByteArrayToString (header.RawValue).Replace ("\r", "");
 
@@ -442,6 +442,22 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestInternationalizedUnstructuredHeaderSupplementaryRoundTrip ()
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.International = true;
+			options.MaxLineLength = 60;
+			options.NewLineFormat = NewLineFormat.Unix;
+			var original = new string ('a', 50) + "\U0001F600" + new string ('b', 20);
+			var header = new Header (HeaderId.Subject, "");
+			header.SetValue (options, Encoding.UTF8, original);
+			var serialized = Encoding.ASCII.GetBytes ("Subject:").Concat (header.RawValue).ToArray ();
+			Assert.That (Header.TryParse (serialized, out var parsed), Is.True);
+
+			Assert.That (parsed.Value, Is.EqualTo (original));
+		}
+
+		[Test]
 		public void TestJapaneseInternationalizedUnstructuredHeaderFolding ()
 		{
 			var options = FormatOptions.Default.Clone ();
@@ -451,7 +467,8 @@ namespace UnitTests {
 
 			original = "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。" + "狂ったこの世で狂うなら気は確かだ。";
 			folded = Header.Fold (options, "Subject", original);
-			unfolded = Header.Unfold (folded).Replace (" ", "");
+			Assert.That (Header.TryParse (Encoding.UTF8.GetBytes ("Subject:" + folded), out var parsed), Is.True);
+			unfolded = parsed.Value;
 
 			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
 			Assert.That (GetMaxLineLength (folded), Is.LessThan (FormatOptions.Default.MaxLineLength), "The raw header value is not folded properly.");
@@ -466,11 +483,62 @@ namespace UnitTests {
 			string folded, unfolded;
 
 			folded = Header.Fold (options, "Subject", original);
-			unfolded = Header.Unfold (folded).Replace (" _", "_");
+			Assert.That (Header.TryParse (Encoding.UTF8.GetBytes ("Subject:" + folded), out var parsed), Is.True);
+			unfolded = parsed.Value;
 
 			Assert.That (folded[folded.Length - 1], Is.EqualTo ('\n'), "The folded header does not end with a new line.");
 			Assert.That (GetMaxLineLength (folded), Is.LessThanOrEqualTo (FormatOptions.Default.MaxLineLength), "The raw header value is not folded properly.");
 			Assert.That (unfolded, Is.EqualTo (original), "Unfolded header does not match the original header value.");
+		}
+
+		static readonly string[] InternationalizedUnstructuredHeaderValues = {
+			new string ('a', 120),
+			new string ('a', 60),
+			new string ('a', 59),
+			string.Concat (Enumerable.Repeat ("\u65e5\u672c\u8a9e", 30)),
+			string.Concat (Enumerable.Repeat ("\U0001F600", 40)),
+			new string ('a', 50) + "\U0001F600" + new string ('b', 20),
+			"short  " + new string ('a', 80) + "   next\t\t" + new string ('b', 80) + "  end",
+			new string ('a', 80) + "   \u65e5\u672c\u8a9e   " + new string ('b', 80),
+			new string ('a', 80) + new string (' ', 80) + new string ('b', 80),
+			new string ('a', 80) + new string (' ', 80) + string.Concat (Enumerable.Repeat ("b\U0001F600", 40)),
+			"before" + new string (' ', 80) + "after",
+			"with_a_really_really_really_long_word_that_will_need_to_be_broken_up_in_order_to_fold",
+			"short  \u65e5\u672c\u8a9e  \U0001F600"
+		};
+
+		[Test]
+		public void TestInternationalizedUnstructuredHeaderRoundTrip (
+			[ValueSource (nameof (InternationalizedUnstructuredHeaderValues))] string original,
+			[Values (NewLineFormat.Unix, NewLineFormat.Dos)] NewLineFormat newLineFormat,
+			[Values (60, 78)] int maxLineLength,
+			[Values (false, true)] bool allowMixedHeaderCharsets)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.International = true;
+			options.MaxLineLength = maxLineLength;
+			options.NewLineFormat = newLineFormat;
+			options.AllowMixedHeaderCharsets = allowMixedHeaderCharsets;
+			var header = new Header (HeaderId.Subject, "");
+			header.SetValue (options, Encoding.UTF8, original);
+			var serialized = Encoding.ASCII.GetBytes ("Subject:").Concat (header.RawValue).ToArray ();
+			var raw = new UTF8Encoding (false, true).GetString (header.RawValue);
+
+			Assert.That (Header.TryParse (serialized, out var parsed), Is.True);
+			Assert.That (parsed.Value, Is.EqualTo (original));
+			Assert.That (raw.EndsWith (options.NewLine, StringComparison.Ordinal), Is.True);
+			Assert.That (GetMaxLineLength (raw), Is.LessThanOrEqualTo (options.MaxLineLength));
+			foreach (var word in raw.Split (new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+				if (word.StartsWith ("=?", StringComparison.Ordinal))
+					Assert.That (word.Length, Is.LessThanOrEqualTo (75));
+			}
+			if (newLineFormat == NewLineFormat.Unix)
+				Assert.That (raw, Does.Not.Contain ("\r"));
+			else
+				Assert.That (raw.Replace ("\r\n", ""), Does.Not.Contain ("\n"));
+
+			if (original.Length < 30)
+				Assert.That (raw, Is.EqualTo (" " + original + options.NewLine));
 		}
 
 		[Test]

@@ -34,13 +34,11 @@ namespace MimeKit.Utils {
 
 		public int Length {
 			get => _pos;
-#if UNUSED_VALUESTRINGBUILDER_API
 			set {
 				Debug.Assert (value >= 0);
 				Debug.Assert (value <= _chars.Length);
 				_pos = value;
 			}
-#endif
 		}
 
 #if UNUSED_VALUESTRINGBUILDER_API
