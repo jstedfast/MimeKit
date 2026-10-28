@@ -404,7 +404,7 @@ namespace MimeKit {
 				{ ".pub", "application/x-mspublisher" },
 				{ ".pwz", "application/vnd.ms-powerpoint" },
 				{ ".pyc", "application/x-bytecode.python" },
-				{ ".py", "text/x-script.phyton" },
+				{ ".py", "text/x-script.python" },
 				{ ".qcp", "audio/vnd.qcelp" },
 				{ ".qif", "image/x-quicktime" },
 				{ ".qtc", "video/x-qtc" },
