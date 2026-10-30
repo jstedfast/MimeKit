@@ -33,6 +33,26 @@ namespace UnitTests.Utils {
 	[TestFixture]
 	public class ParseUtilsTests
 	{
+		[TestCase (null, null)]
+		[TestCase ("", "")]
+		[TestCase (" \t\r\n", "")]
+		[TestCase (" \tvalue\r\n ", "value")]
+		[TestCase (" \t\u00a0value\u2008\r\n ", "\u00a0value\u2008")]
+		[TestCase ("\vvalue\f", "\vvalue\f")]
+		public void TestTrimWhiteSpace (string text, string expected)
+		{
+			Assert.That (ParseUtils.TrimWhiteSpace (text), Is.EqualTo (expected));
+		}
+
+		[Test]
+		public void TestWhiteSpaceCharacters ()
+		{
+			for (int c = char.MinValue; c <= char.MaxValue; c++) {
+				bool expected = c == ' ' || c == '\t' || c == '\r' || c == '\n';
+				Assert.That (ParseUtils.IsWhiteSpace ((char) c), Is.EqualTo (expected), $"U+{c:X4}");
+			}
+		}
+
 		[Test]
 		public void TestTryParseInt32 ()
 		{

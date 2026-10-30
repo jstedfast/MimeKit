@@ -487,7 +487,7 @@ namespace MimeKit {
 					return false;
 
 				type = CharsetUtils.ConvertToUnicode (options, text, atom, index - atom);
-				type = MimeUtils.Unquote (type).Trim ();
+				type = ParseUtils.TrimWhiteSpace (MimeUtils.Unquote (type));
 
 				// Note: if the quoted value is not a valid atom, then we would not be able to serialize it in a way that
 				// could be parsed again, so treat it the same as an empty value.

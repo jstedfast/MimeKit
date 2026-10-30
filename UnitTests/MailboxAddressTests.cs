@@ -168,7 +168,7 @@ namespace UnitTests {
 		{
 			var mailbox = new MailboxAddress (" \tJohn Smith\u00A0 ", "j.smith@example.com");
 
-			Assert.That (mailbox.Name, Is.EqualTo ("John Smith"), "Constructor");
+			Assert.That (mailbox.Name, Is.EqualTo ("John Smith\u00A0"), "Constructor");
 
 			mailbox.Name = "  Jane Smith  ";
 			Assert.That (mailbox.Name, Is.EqualTo ("Jane Smith"), "Setter");

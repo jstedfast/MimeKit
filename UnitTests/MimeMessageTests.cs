@@ -360,6 +360,8 @@ namespace UnitTests {
 		// MailKit issues #134, #138, #976 and #1407); the parsed values must always be assignable to the msg-id setters.
 		static readonly string[] MsgIdRoundTripValues = {
 			"<a@example.com>",
+			"<\u00a0id@example.com\u00a0>",
+			"<\u2008id@example.com\u3000>",
 			"<(paren@example.com>",
 			"<\"x\r\n y\"@example.com>",
 			"garbage <a@example.com>",

@@ -27,6 +27,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
+using MimeKit.Utils;
+
 namespace MimeKit {
 	/// <summary>
 	/// A multipart/report MIME entity.
@@ -137,7 +139,7 @@ namespace MimeKit {
 				if (ReportType == value)
 					return;
 
-				ContentType.Parameters["report-type"] = value.Trim ();
+				ContentType.Parameters["report-type"] = ParseUtils.TrimWhiteSpace (value);
 			}
 		}
 

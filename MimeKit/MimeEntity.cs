@@ -306,7 +306,7 @@ namespace MimeKit {
 
 				if ((LazyLoaded & LazyLoadedFields.ContentBase) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentBase, out var header)) {
-						var value = header.Value.Trim ();
+						var value = ParseUtils.TrimWhiteSpace (header.Value);
 
 						if (Uri.IsWellFormedUriString (value, UriKind.Absolute))
 							baseUri = new Uri (value, UriKind.Absolute);
@@ -360,7 +360,7 @@ namespace MimeKit {
 
 				if ((LazyLoaded & LazyLoadedFields.ContentLocation) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentLocation, out var header)) {
-						var value = header.Value.Trim ();
+						var value = ParseUtils.TrimWhiteSpace (header.Value);
 
 						if (Uri.IsWellFormedUriString (value, UriKind.Absolute))
 							location = new Uri (value, UriKind.Absolute);

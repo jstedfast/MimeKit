@@ -357,7 +357,7 @@ namespace MimeKit.Cryptography {
 				if ((backslashes & 1) == 0)
 					return unfolded;
 
-				unfolded = unfolded.Substring (0, unfolded.Length - 1).TrimEnd ();
+				unfolded = ParseUtils.TrimWhiteSpace (unfolded.Substring (0, unfolded.Length - 1));
 			}
 		}
 

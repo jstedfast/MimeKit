@@ -35,6 +35,29 @@ namespace MimeKit.Utils {
 	static class ParseUtils
 	{
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		public static bool IsWhiteSpace (char c)
+		{
+			return c is ' ' or '\t' or '\r' or '\n';
+		}
+
+		[return: NotNullIfNotNull (nameof (text))]
+		public static string? TrimWhiteSpace (string? text)
+		{
+			if (text is null)
+				return null;
+
+			int startIndex = 0, endIndex = text.Length;
+
+			while (startIndex < endIndex && IsWhiteSpace (text[startIndex]))
+				startIndex++;
+
+			while (endIndex > startIndex && IsWhiteSpace (text[endIndex - 1]))
+				endIndex--;
+
+			return startIndex == 0 && endIndex == text.Length ? text : text.Substring (startIndex, endIndex - startIndex);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
 		public static unsafe byte* EndOfLine (byte* inptr, byte* inend)
 		{
 			// Note: callers are expected to set a '\n' sentinel at *inend and then pass inend + 1,
@@ -667,7 +690,7 @@ namespace MimeKit.Utils {
 		public static bool TryParseMsgIdValue (string value, [NotNullWhen (true)] out string? msgid)
 		{
 			using var unfolded = new ValueStringBuilder (value.Length);
-			var text = value.Trim ();
+			var text = TrimWhiteSpace (value);
 
 			msgid = null;
 

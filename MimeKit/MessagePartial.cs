@@ -123,7 +123,7 @@ namespace MimeKit {
 			get {
 				var text = ContentType.Parameters["number"];
 
-				if (text is null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int number))
+				if (text is null || !int.TryParse (ParseUtils.TrimWhiteSpace (text), NumberStyles.None, CultureInfo.InvariantCulture, out int number))
 					return null;
 
 				return number;
@@ -141,7 +141,7 @@ namespace MimeKit {
 			get {
 				var text = ContentType.Parameters["total"];
 
-				if (text is null || !int.TryParse (text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out int total))
+				if (text is null || !int.TryParse (ParseUtils.TrimWhiteSpace (text), NumberStyles.None, CultureInfo.InvariantCulture, out int total))
 					return null;
 
 				return total;

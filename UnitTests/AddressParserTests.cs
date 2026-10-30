@@ -376,7 +376,7 @@ namespace UnitTests {
 			for (int i = 0; i < length; i++)
 				buffer[i] = bytes[startIndex + i] == (byte) '\t' ? (byte) ' ' : bytes[startIndex + i];
 
-			return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+			return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim (' ', '\t', '\r', '\n');
 		}
 
 		[TestCase ("")]

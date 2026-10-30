@@ -142,7 +142,7 @@ namespace MimeKit {
 				}
 #endif
 
-				return Rfc2047.DecodePhrase (options, buffer, 0, length).Trim ();
+				return ParseUtils.TrimWhiteSpace (Rfc2047.DecodePhrase (options, buffer, 0, length));
 			} finally {
 				ArrayPool<byte>.Shared.Return (buffer);
 			}
@@ -151,10 +151,10 @@ namespace MimeKit {
 		public string DecodeComment (ParserOptions options, int startIndex, int length)
 		{
 			if (IsPlainAscii (startIndex, length))
-				return GetUtf8String (startIndex, length).Replace ('\t', ' ').Trim ();
+				return ParseUtils.TrimWhiteSpace (GetUtf8String (startIndex, length).Replace ('\t', ' '));
 
 			if (text.AsSpan (startIndex, length).IndexOf ((byte) '\t') == -1)
-				return Rfc2047.DecodePhrase (options, text, startIndex, length).Trim ();
+				return ParseUtils.TrimWhiteSpace (Rfc2047.DecodePhrase (options, text, startIndex, length));
 
 			return DecodeCommentWithTabs (options, startIndex, length);
 		}
@@ -303,7 +303,7 @@ namespace MimeKit {
 		public string DecodeComment (ParserOptions options, int startIndex, int length)
 		{
 			if (IsPlainAscii (startIndex, length))
-				return text.Substring (startIndex, length).Replace ('\t', ' ').Trim ();
+				return ParseUtils.TrimWhiteSpace (text.Substring (startIndex, length).Replace ('\t', ' '));
 
 			return DecodeName (options, startIndex, length, false, out _);
 		}

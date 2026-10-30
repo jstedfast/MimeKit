@@ -82,6 +82,11 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 
 ### Breaking Changes
 
+* MIME header and address normalization now removes only ASCII spaces, tabs and line breaks,
+  preserving non-ASCII whitespace in decoded text and message identifiers. Internationalized
+  display-name folding no longer replaces Unicode whitespace with spaces. MIME token and numeric
+  parsing no longer treats non-linear whitespace as padding.
+  `MimePart.FileName` and `Multipart.Boundary` preserve their parameter values without trimming.
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains
   zero and its behavior is unchanged: no explicit transfer encoding is selected.
 * `MimeTypes.GetMimeType` now returns `application/gzip` for `.gz`/`.gzip`, `audio/flac` for

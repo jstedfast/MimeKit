@@ -921,7 +921,7 @@ namespace MimeKit {
 
 		static bool IsWhiteSpace (char c)
 		{
-			return c is ' ' or '\t' or '\r' or '\n';
+			return ParseUtils.IsWhiteSpace (c);
 		}
 
 		readonly struct Word
@@ -1400,7 +1400,7 @@ namespace MimeKit {
 			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
-			textValue = Unfold (value.Trim ());
+			textValue = Unfold (value);
 
 			rawValue = FormatRawValue (format, encoding, textValue);
 			explicitRawValue = false;
@@ -1566,7 +1566,7 @@ namespace MimeKit {
 			if (text is null)
 				return string.Empty;
 
-			while (i < text.Length && char.IsWhiteSpace (text[i]))
+			while (i < text.Length && IsWhiteSpace (text[i]))
 				i++;
 
 			if (i == text.Length)
@@ -1576,7 +1576,7 @@ namespace MimeKit {
 			endIndex = i;
 
 			while (i < text.Length) {
-				if (!char.IsWhiteSpace (text[i++]))
+				if (!IsWhiteSpace (text[i++]))
 					endIndex = i;
 			}
 

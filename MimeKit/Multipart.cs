@@ -213,8 +213,6 @@ namespace MimeKit {
 				if (value is null)
 					throw new ArgumentNullException (nameof (value));
 
-				value = value.Trim ();
-
 				// TODO: Consider validating the boundary according to rfc2046 (i.e. 1-70 characters long
 				// and only containing bchars, not ending with a space) and throw ArgumentException if invalid.
 

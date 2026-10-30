@@ -220,7 +220,7 @@ namespace MimeKit {
 
 				if ((LazyLoaded & LazyLoadedFields.ContentDescription) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentDescription, out var header))
-						description = header.Value.Trim ();
+						description = ParseUtils.TrimWhiteSpace (header.Value);
 
 					LazyLoaded |= LazyLoadedFields.ContentDescription;
 				}
@@ -233,7 +233,7 @@ namespace MimeKit {
 				if ((LazyLoaded & LazyLoadedFields.ContentDescription) != 0 && description == value)
 					return;
 
-				description = value?.Trim ();
+				description = ParseUtils.TrimWhiteSpace (value);
 
 				if (description != null) {
 					SetHeader ("Content-Description", description);
@@ -265,7 +265,7 @@ namespace MimeKit {
 
 				if ((LazyLoaded & LazyLoadedFields.ContentDuration) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentDuration, out var header)) {
-						if (int.TryParse (header.Value, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out var value))
+						if (int.TryParse (ParseUtils.TrimWhiteSpace (header.Value), NumberStyles.None, CultureInfo.InvariantCulture, out var value))
 							duration = value;
 					}
 
@@ -313,7 +313,7 @@ namespace MimeKit {
 
 				if ((LazyLoaded & LazyLoadedFields.ContentMd5) == 0) {
 					if (Headers.TryGetHeader (HeaderId.ContentMd5, out var header))
-						md5sum = header.Value.Trim ();
+						md5sum = ParseUtils.TrimWhiteSpace (header.Value);
 
 					LazyLoaded |= LazyLoadedFields.ContentMd5;
 				}
@@ -326,7 +326,7 @@ namespace MimeKit {
 				if ((LazyLoaded & LazyLoadedFields.ContentMd5) != 0 && md5sum == value)
 					return;
 
-				md5sum = value?.Trim ();
+				md5sum = ParseUtils.TrimWhiteSpace (value);
 
 				if (md5sum != null) {
 					SetHeader ("Content-Md5", md5sum);
@@ -422,7 +422,7 @@ namespace MimeKit {
 
 				filename ??= ContentType.Name;
 
-				return filename?.Trim ();
+				return filename;
 			}
 			set {
 				if (value != null) {

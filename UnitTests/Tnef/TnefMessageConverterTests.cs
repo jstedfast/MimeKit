@@ -889,6 +889,13 @@ X-Exchange-MIME-Skeleton-Content-Id: <image@example.com>
 		}
 
 		[Test]
+		public void TestMimeSkeletonDoesNotTrimContentIds ()
+		{
+			using (var result = Convert (CreateSkeletonMessage (Skeleton, attachmentContentId: "\u00a0image@example.com\u00a0")))
+				AssertSkeletonFallback (result);
+		}
+
+		[Test]
 		public void TestMimeSkeletonWithUnknownBodyFallsBackToProperties ()
 		{
 			var skeleton = Skeleton.Replace ("text/plain; charset=utf-8", "text/html; charset=utf-8");

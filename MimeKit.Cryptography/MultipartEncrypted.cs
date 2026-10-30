@@ -33,6 +33,7 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using MimeKit.Utils;
 
 namespace MimeKit.Cryptography {
 	/// <summary>
@@ -1991,7 +1992,7 @@ namespace MimeKit.Cryptography {
 
 			CheckDisposed ();
 
-			var protocol = ContentType.Parameters["protocol"]?.Trim ();
+			var protocol = ParseUtils.TrimWhiteSpace (ContentType.Parameters["protocol"]);
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ();
 
@@ -2099,7 +2100,7 @@ namespace MimeKit.Cryptography {
 		{
 			CheckDisposed ();
 
-			var protocol = ContentType.Parameters["protocol"]?.Trim ();
+			var protocol = ParseUtils.TrimWhiteSpace (ContentType.Parameters["protocol"]);
 			if (string.IsNullOrEmpty (protocol))
 				throw new FormatException ();
 

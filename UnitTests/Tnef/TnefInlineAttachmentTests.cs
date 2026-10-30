@@ -248,6 +248,18 @@ namespace UnitTests.Tnef {
 			Assert.That (IsInline (entity), Is.True);
 		}
 
+		[TestCase ("image1@example.com", "\u00a0image1@example.com\u00a0", false)]
+		[TestCase ("\u00a0image1@example.com\u00a0", "image1@example.com", false)]
+		[TestCase ("\u00a0image1@example.com\u00a0", "\u00a0image1@example.com\u00a0", true)]
+		public void TestContentIdWhitespaceIsSignificant (string reference, string contentId, bool inline)
+		{
+			var html = "<html><body><img src=\"cid:" + Uri.EscapeDataString (reference) + "\"></body></html>";
+			var entity = ConvertSingle (CreateMessage (Bodies.Html, html), Flagged (contentId));
+
+			Assert.That (IsInline (entity), Is.EqualTo (inline));
+			Assert.That (entity.ContentId, Is.EqualTo (contentId));
+		}
+
 		[Test]
 		public void TestHtmlBestBodyReferencedByEncodedContentId ()
 		{

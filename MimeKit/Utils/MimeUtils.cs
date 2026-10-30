@@ -369,14 +369,14 @@ namespace MimeKit.Utils {
 			int i = 0;
 
 			// trim leading whitespace
-			while (i < text.Length && char.IsWhiteSpace (text[i]))
+			while (i < text.Length && ParseUtils.IsWhiteSpace (text[i]))
 				i++;
 
 			int startIndex = i, n = 0;
 
 			// Note: Google Docs tacks a ';' on the end... *sigh*
 			// See https://github.com/jstedfast/MimeKit/issues/106 for an example.
-			while (i < text.Length && text[i] != ';' && !char.IsWhiteSpace (text[i])) {
+			while (i < text.Length && text[i] != ';' && !ParseUtils.IsWhiteSpace (text[i])) {
 				i++;
 				n++;
 			}

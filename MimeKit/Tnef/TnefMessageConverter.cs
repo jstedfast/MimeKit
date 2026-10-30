@@ -916,10 +916,10 @@ namespace MimeKit.Tnef {
 				if (value is null)
 					return null;
 
-				value = value.Trim ();
+				value = ParseUtils.TrimWhiteSpace (value);
 
 				if (value.Length >= 2 && value[0] == '<' && value[value.Length - 1] == '>')
-					value = value.Substring (1, value.Length - 2).Trim ();
+					value = ParseUtils.TrimWhiteSpace (value.Substring (1, value.Length - 2));
 
 				return value.Length > 0 ? value : null;
 			}
@@ -2007,10 +2007,10 @@ namespace MimeKit.Tnef {
 			if (value is null)
 				return null;
 
-			value = value.Trim ();
+			value = ParseUtils.TrimWhiteSpace (value);
 
 			if (value.Length >= 2 && value[0] == '<' && value[value.Length - 1] == '>')
-				value = value.Substring (1, value.Length - 2).Trim ();
+				value = ParseUtils.TrimWhiteSpace (value.Substring (1, value.Length - 2));
 
 			return value.Length > 0 ? value : null;
 		}

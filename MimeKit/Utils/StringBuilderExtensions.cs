@@ -37,7 +37,7 @@ namespace MimeKit.Utils {
 			if (text.Length == 0)
 				return text;
 
-			if (char.IsWhiteSpace (text[text.Length - 1])) {
+			if (text[text.Length - 1] is ' ' or '\t') {
 				text.Insert (text.Length - 1, options.NewLine);
 			} else {
 				text.Append (options.NewLine);
@@ -113,7 +113,7 @@ namespace MimeKit.Utils {
 						lwspIndex++;
 				} else {
 					// normal word
-					while (lwspIndex < value.Length && !char.IsWhiteSpace (value[lwspIndex]))
+					while (lwspIndex < value.Length && !ParseUtils.IsWhiteSpace (value[lwspIndex]))
 						lwspIndex++;
 				}
 
@@ -128,7 +128,7 @@ namespace MimeKit.Utils {
 				firstToken = false;
 
 				wordIndex = lwspIndex;
-				while (wordIndex < value.Length && char.IsWhiteSpace (value[wordIndex]))
+				while (wordIndex < value.Length && ParseUtils.IsWhiteSpace (value[wordIndex]))
 					wordIndex++;
 
 				if (wordIndex < value.Length && wordIndex > lwspIndex) {
@@ -189,4 +189,3 @@ namespace MimeKit.Utils {
 #endif
 	}
 }
-

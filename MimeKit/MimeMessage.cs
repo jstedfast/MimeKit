@@ -348,7 +348,7 @@ namespace MimeKit {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.Importance) == 0) {
 					if (Headers.TryGetHeader (HeaderId.Importance, out var header)) {
-						switch (header.Value.ToLowerInvariant ().Trim ()) {
+						switch (ParseUtils.TrimWhiteSpace (header.Value).ToLowerInvariant ()) {
 						case "high": importance = MessageImportance.High; break;
 						case "low": importance = MessageImportance.Low; break;
 						default: importance = MessageImportance.Normal; break;
@@ -395,7 +395,7 @@ namespace MimeKit {
 			get {
 				if ((lazyLoaded & LazyLoadedFields.Priority) == 0) {
 					if (Headers.TryGetHeader (HeaderId.Priority, out var header)) {
-						switch (header.Value.ToLowerInvariant ().Trim ()) {
+						switch (ParseUtils.TrimWhiteSpace (header.Value).ToLowerInvariant ()) {
 						case "non-urgent": priority = MessagePriority.NonUrgent; break;
 						case "urgent": priority = MessagePriority.Urgent; break;
 						default: priority = MessagePriority.Normal; break;

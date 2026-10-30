@@ -222,7 +222,7 @@ namespace MimeKit {
 				if (ContentType.MediaType.Equals ("text", StringComparison.OrdinalIgnoreCase)) {
 					if (ContentType.MediaSubtype.Equals ("plain", StringComparison.OrdinalIgnoreCase)) {
 						if (ContentType.Parameters.TryGetValue ("format", out string? format)) {
-							format = format.Trim ();
+							format = ParseUtils.TrimWhiteSpace (format);
 
 							if (format.Equals ("flowed", StringComparison.OrdinalIgnoreCase))
 								return TextFormat.Flowed;
@@ -282,7 +282,7 @@ namespace MimeKit {
 				if (!IsPlain || !ContentType.Parameters.TryGetValue ("format", out string? format))
 					return false;
 
-				format = format.Trim ();
+				format = ParseUtils.TrimWhiteSpace (format);
 
 				return format.Equals ("flowed", StringComparison.OrdinalIgnoreCase);
 			}
