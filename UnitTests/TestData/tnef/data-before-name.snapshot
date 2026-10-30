@@ -7,24 +7,24 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=6 sha256=60958ccac3e5dfa6ae74aa4f8d6206fd33a5fc9546b8abaad65e3f1c4023c5bf
+        content: encoding=Unspecified length=6 sha256=60958ccac3e5dfa6ae74aa4f8d6206fd33a5fc9546b8abaad65e3f1c4023c5bf
         text: asdf\r\n
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=81 sha256=023cd39d37e22ea750af132575f89ad4b9d3193727c2037210aa75617cd9f237
+        content: encoding=Unspecified length=81 sha256=023cd39d37e22ea750af132575f89ad4b9d3193727c2037210aa75617cd9f237
         text: <html><body><div><span style="font-size: 10pt;">asdf</span></div>\r\n</body></html>
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=AUTOEXEC.BAT
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=AUTOEXEC.BAT; size=3605; modification-date=2000-03-24T09:30:09Z
-      content: encoding=Default length=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      content: encoding=Unspecified length=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=CONFIG.SYS
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=CONFIG.SYS; size=3599; modification-date=2000-03-24T09:30:09Z
-      content: encoding=Default length=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      content: encoding=Unspecified length=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=boot.ini
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=boot.ini; size=3882; modification-date=2000-03-24T09:26:59Z
-      content: encoding=Default length=289 sha256=a815374e31481bbb939d99e73ecfe1de7914363ecd5c670c60a9022474251bce
+      content: encoding=Unspecified length=289 sha256=a815374e31481bbb939d99e73ecfe1de7914363ecd5c670c60a9022474251bce

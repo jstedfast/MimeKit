@@ -70,13 +70,13 @@ namespace UnitTests {
 
 		// Note: Latin1 round-trips every byte value, which lets a test case embed raw 8-bit bytes
 		// that are not valid UTF-8.
-		static List<MimeComplianceIssue> Validate (string field, string value)
+		static List<MimeComplianceIssue> Validate (string field, string value, ParserOptions options = null)
 		{
 			var text = $"{field}: {value}\r\nSubject: test\r\n\r\nbody\r\n";
 			var logger = new TestMimeComplianceLogger ();
 
 			using (var stream = new MemoryStream (Encoding.Latin1.GetBytes (text), false)) {
-				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+				var reader = new MimeReader (options ?? ParserOptions.Default, stream) { ComplianceLogger = logger };
 
 				reader.ReadMessage ();
 			}
@@ -461,7 +461,9 @@ namespace UnitTests {
 			// drive the stack depth.
 			const int depth = 100000;
 			var value = string.Concat (Enumerable.Repeat ("g:", depth)) + "a@example.com" + new string (';', depth);
-			var issues = Validate ("To", value);
+			// Allow the complete "To: " header and its CRLF so that the test reaches the address validator.
+			var options = new ParserOptions { MaxHeaderLength = value.Length + 6 };
+			var issues = Validate ("To", value, options);
 
 			Assert.That (issues, Has.Count.EqualTo (depth - 1));
 			Assert.That (issues.Select (i => i.Violation).Distinct (), Is.EqualTo (new[] { MimeComplianceViolation.NestedAddressGroup }));

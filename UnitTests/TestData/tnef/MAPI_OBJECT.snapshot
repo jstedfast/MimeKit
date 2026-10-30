@@ -8,14 +8,14 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=342 sha256=620138775aa7b4fb84701adbda3f87e9a6ce8cddde9996ead629946208197d66
+        content: encoding=Unspecified length=342 sha256=620138775aa7b4fb84701adbda3f87e9a6ce8cddde9996ead629946208197d66
         text: Attached is the updated October Discounted Price List of refurbished HP products available to staff members.\r\nAs these items are highly sought after, please be quick if you really want the product.\r\nPlease contact either Cherie or Claudio on (03) 9848 8110...
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=831 sha256=f91825ca13564905c4a447f516dabb7c301c315d81aae7dee8f443e02bfd4131
+        content: encoding=Unspecified length=831 sha256=f91825ca13564905c4a447f516dabb7c301c315d81aae7dee8f443e02bfd4131
         text: <html><body><div><span style="font-size: 10pt;">Attached is the updated October Discounted Price List of refurbished HP products available to staff members.</span></div>\r\n<div><span style="font-size: 10pt;">As these items are highly sought after, please be...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=Untitled_Attachment
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=Untitled_Attachment; size=628302; creation-date=2002-10-08T00:13:48Z; modification-date=2002-10-08T00:13:48Z
-      content: encoding=Default length=628224 sha256=f89a1afbdfb2fc38b8888b8e0fd84509a801fa6d5491306f6f8d34a3d62931e3
+      content: encoding=Unspecified length=628224 sha256=f89a1afbdfb2fc38b8888b8e0fd84509a801fa6d5491306f6f8d34a3d62931e3

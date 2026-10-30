@@ -7,14 +7,14 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=61 sha256=a1650bab3ccd9509d9d8ee7b4cdab72e9ca81d153b7122c8723e9d9ccadd6338
+        content: encoding=Unspecified length=61 sha256=a1650bab3ccd9509d9d8ee7b4cdab72e9ca81d153b7122c8723e9d9ccadd6338
         text: You received a voice mail from Curie Conf Room at 208225.\r\n\r\n
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=694 sha256=1548da41b00fd10b6f1f8ecb535831aff2e7005f72755badb5b675d54859c1e4
+        content: encoding=Unspecified length=694 sha256=1548da41b00fd10b6f1f8ecb535831aff2e7005f72755badb5b675d54859c1e4
         text: <html><head>\r\n<style type="text/css"> a:link { color: #3399ff; } a:visited { color: #3366cc; } a:active { color: #ff9900; } </style></head><body><style type="text/css"> a:link { color: #3399ff; } a:visited { color: #3366cc; } a:active { color: #ff9900; } <...
     MimePart audio/mp3
       Content-Type: audio/mp3; name=208225__5_seconds__Voice_Mail.mp3
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=208225__5_seconds__Voice_Mail.mp3; size=10875; modification-date=2014-07-11T14:07:44Z
-      content: encoding=Default length=10656 sha256=cf2e3cd4175a3acd5cd193623cd8f79fda1c22f4823560213e561851c3fdd4e8
+      content: encoding=Unspecified length=10656 sha256=cf2e3cd4175a3acd5cd193623cd8f79fda1c22f4823560213e561851c3fdd4e8

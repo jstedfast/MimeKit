@@ -6,14 +6,14 @@ message
     Content-Type: multipart/alternative; boundary="=-snapshot-boundary-0"
     TextPart text/plain
       Content-Type: text/plain; charset=utf-8
-      content: encoding=Default length=20 sha256=7bd083a2a0823481c6a6bd1109c2c4f54d8a8a324e4c33f39ab0558c1ec57a25
+      content: encoding=Unspecified length=20 sha256=7bd083a2a0823481c6a6bd1109c2c4f54d8a8a324e4c33f39ab0558c1ec57a25
       text: Sample description\r\n
     TextPart text/html
       Content-Type: text/html; charset=utf-8
-      content: encoding=Default length=95 sha256=cc910755ae762f2948e6000ee6f38c96637cf8dfc2a2cf28ed485ef78fc67c4b
+      content: encoding=Unspecified length=95 sha256=cc910755ae762f2948e6000ee6f38c96637cf8dfc2a2cf28ed485ef78fc67c4b
       text: <html><body><div><span style="font-size: 10pt;">Sample description</span></div>\r\n</body></html>
     TextPart text/calendar
       Content-Type: text/calendar; charset=utf-8; method=PUBLISH
       Content-Transfer-Encoding: 7bit
-      content: encoding=Default length=650 sha256=0828fa9831207cb259902b172b07ea5742c09c50ef6c58ac1621e2f1ea83091a
+      content: encoding=Unspecified length=650 sha256=0828fa9831207cb259902b172b07ea5742c09c50ef6c58ac1621e2f1ea83091a
       text: BEGIN:VCALENDAR\r\nMETHOD:PUBLISH\r\nPRODID:-//.NET Foundation//MimeKit//EN\r\nVERSION:2.0\r\nX-MS-OLK-FORCEINSPECTOROPEN:TRUE\r\nBEGIN:VEVENT\r\nCLASS:PUBLIC\r\nCREATED:20030523T132539Z\r\nDESCRIPTION:Sample description\r\nDTEND:20030523T150000Z\r\nDTSTAMP:20030523T132617Z\r\n...

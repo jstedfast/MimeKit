@@ -10,10 +10,10 @@ message
     Content-Type: multipart/mixed; boundary="=-snapshot-boundary-0"
     TextPart text/html
       Content-Type: text/html; charset=us-ascii
-      content: encoding=Default length=1226 sha256=2b1faef9cdcfcf896e3aaa8b93a33de5285a35e86697397df4b5aa58ad81209f
+      content: encoding=Unspecified length=1226 sha256=2b1faef9cdcfcf896e3aaa8b93a33de5285a35e86697397df4b5aa58ad81209f
       text: <html>\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">\r\n<style type="text/css" style="display:none"><!--P{margin-top:0;margin-bottom:0;} .ms-cui-menu {background-color:#ffffff;border:1px rgb(171, 171, 171) solid;font-family:...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=example.dat
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=example.dat; creation-date=2017-03-07T12:04:23Z; modification-date=2017-03-07T12:04:23Z
-      content: encoding=Default length=1024 sha256=b188960490adc65828dc99f6183137bd9951725ed739982920c9814bc842ccb5
+      content: encoding=Unspecified length=1024 sha256=b188960490adc65828dc99f6183137bd9951725ed739982920c9814bc842ccb5

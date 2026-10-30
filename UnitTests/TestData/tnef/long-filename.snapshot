@@ -10,14 +10,14 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=729 sha256=d98d982b0011c7748c7a5e087c3c9479b0775ea287c80e1de1060f65a04ff871
+        content: encoding=Unspecified length=729 sha256=d98d982b0011c7748c7a5e087c3c9479b0775ea287c80e1de1060f65a04ff871
         text: I've attached a temp. license for QARun 4.7.  Do you need something more permanent?  If so, give me your host id and host name of the machine you want to put it on and indicate whether you want a single user perm. license or a concurrent user perm. license...
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=1689 sha256=64180063a72ed12d5415625622458b98ec7e0271305d465e1fd818b44a3bc663
+        content: encoding=Unspecified length=1689 sha256=64180063a72ed12d5415625622458b98ec7e0271305d465e1fd818b44a3bc663
         text: <html><body><div><span style="font-size: 10pt;">I&#39;ve attached a temp. license for QARun 4.7. &#160;Do you need something more permanent? &#160;If so, give me your host id and host name of the machine you want to put it on and indicate whether you want ...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=allproductsmar2000.dat
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=allproductsmar2000.dat; size=3855; creation-date=1999-09-13T16:52:09Z; modification-date=1999-11-17T20:33:34Z
-      content: encoding=Default length=279 sha256=de2ad5d4e20a2456ad12808dee82af2d0d1236ddf5bd55832581a7886cdcd807
+      content: encoding=Unspecified length=279 sha256=de2ad5d4e20a2456ad12808dee82af2d0d1236ddf5bd55832581a7886cdcd807

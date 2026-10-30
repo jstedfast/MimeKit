@@ -9,4 +9,4 @@ message
       Content-Type: application/octet-stream; name="AUTHORS file for tnef"
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=AUTHORS; size=308; creation-date=1999-10-14T02:49:46Z; modification-date=1999-10-14T02:49:46Z
-      content: encoding=Default length=244 sha256=36c47da7d11846caf0474a4b3df83bb4eba9ea01d2bca500c288fa108e123d28
+      content: encoding=Unspecified length=244 sha256=36c47da7d11846caf0474a4b3df83bb4eba9ea01d2bca500c288fa108e123d28

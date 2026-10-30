@@ -25,23 +25,23 @@ message
     Content-Type: multipart/related; boundary="=-snapshot-boundary-0";\ttype="text/html"
     TextPart text/html
       Content-Type: text/html; charset=iso-8859-1
-      content: encoding=Default length=10561 sha256=4827810231cf06061e129e0082f7e922137bc75409915d95a1d64907fa0bae00
+      content: encoding=Unspecified length=10561 sha256=4827810231cf06061e129e0082f7e922137bc75409915d95a1d64907fa0bae00
       text: <html>\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">\r\n<style type="text/css" style="display:none;"><!-- P {margin-top:0;margin-bottom:0;} --></style>\r\n</head>\r\n<body dir="ltr">\r\n<div id="divtagdefaultwrapper" style="font...
     MimePart image/jpeg
       Content-Type: image/jpeg; name=image001.jpg
       Content-Transfer-Encoding: base64
       Content-Disposition: inline; filename=image001.jpg; creation-date=2015-12-18T13:38:48Z; modification-date=2015-12-18T13:38:48Z
       Content-Id: <image001.jpg@01D139A1.76DB0C80>
-      content: encoding=Default length=11250 sha256=ee9bec688ebc6b535fa1c06b3c7f388510f501509a2d6ae17e964a3eda92f8db
+      content: encoding=Unspecified length=11250 sha256=ee9bec688ebc6b535fa1c06b3c7f388510f501509a2d6ae17e964a3eda92f8db
     MimePart image/jpeg
       Content-Type: image/jpeg; name=image002.jpg
       Content-Transfer-Encoding: base64
       Content-Disposition: inline; filename=image002.jpg; creation-date=2015-12-18T13:38:49Z; modification-date=2015-12-18T13:38:49Z
       Content-Id: <image002.jpg@01D139A1.76DB0C80>
-      content: encoding=Default length=9583 sha256=a497dd22b4a1f2de15da0929f17429edb502f94d767a0fa2ce67da35162cc62f
+      content: encoding=Unspecified length=9583 sha256=a497dd22b4a1f2de15da0929f17429edb502f94d767a0fa2ce67da35162cc62f
     MimePart image/png
       Content-Type: image/png; name=image003.png
       Content-Transfer-Encoding: base64
       Content-Disposition: inline; filename=image003.png; creation-date=2015-12-18T13:38:49Z; modification-date=2015-12-18T13:38:49Z
       Content-Id: <image003.png@01D139A1.76DB0C80>
-      content: encoding=Default length=7147 sha256=7c65885b27f3cd66501fdb7a4711c22ba8b6f64e51ea6c2a3ec9db6fa968a7b8
+      content: encoding=Unspecified length=7147 sha256=7c65885b27f3cd66501fdb7a4711c22ba8b6f64e51ea6c2a3ec9db6fa968a7b8

@@ -9,29 +9,29 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=957 sha256=318795a6db0a738742b464617ad2f0f270fd69db879cc1bd66b09f505baa96b9
+        content: encoding=Unspecified length=957 sha256=318795a6db0a738742b464617ad2f0f270fd69db879cc1bd66b09f505baa96b9
         text: Hi Stephen,\r\n\r\nSue has encountered a Date problem while running our' New Books List'.  Can you please help us.  Apparently it is having a hernia with the ADD_DT which I would have presumed was fixed with your patches.\r\n\r\nAttached is the PRC file : generpts...
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=1591 sha256=281eaa0b64a348acf4ee1080cd1034cd57b0348c977ff137d9e835f8bb1b2faf
+        content: encoding=Unspecified length=1591 sha256=281eaa0b64a348acf4ee1080cd1034cd57b0348c977ff137d9e835f8bb1b2faf
         text: <html><body><div><span style="font-size: 10pt;">Hi Stephen,</span></div>\r\n<div><br/></div>\r\n<div><span style="font-size: 10pt;">Sue has encountered a Date problem while running our&#39; New Books List&#39;. &#160;Can you please help us. &#160;Apparently it...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=generpts.src
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=generpts.src; size=64750; creation-date=2000-02-11T04:51:34Z; modification-date=2000-02-11T04:51:34Z
-      content: encoding=Default length=61210 sha256=69ebd0e9c298f62d1bcced07a66fce16c43f0e6e0228336e1a56d8df8874b3b9
+      content: encoding=Unspecified length=61210 sha256=69ebd0e9c298f62d1bcced07a66fce16c43f0e6e0228336e1a56d8df8874b3b9
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=TechlibDEC99.doc
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=TechlibDEC99.doc; size=33856; creation-date=2000-02-11T06:13:44Z; modification-date=2000-02-11T06:13:44Z
-      content: encoding=Default length=33792 sha256=d1a592c2e3729270860ec3dcac357799e2667fa9859febd1b258c6ca3612f532
+      content: encoding=Unspecified length=33792 sha256=d1a592c2e3729270860ec3dcac357799e2667fa9859febd1b258c6ca3612f532
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=TechlibDEC99-JAN00.doc
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=TechlibDEC99-JAN00.doc; size=34368; creation-date=2000-02-11T06:13:46Z; modification-date=2000-02-11T06:13:46Z
-      content: encoding=Default length=34304 sha256=360db5c11b1f21c60ffbf7aa040a91f48fdef402663c303cfeddd4ef4a3dc9cd
+      content: encoding=Unspecified length=34304 sha256=360db5c11b1f21c60ffbf7aa040a91f48fdef402663c303cfeddd4ef4a3dc9cd
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name=TechlibNOV99.doc
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=TechlibNOV99.doc; size=33856; creation-date=2000-02-11T06:13:49Z; modification-date=2000-02-11T06:13:49Z
-      content: encoding=Default length=33792 sha256=b1e6b103cc5a9b759dd0a436d45bba131e69ca06a8b4c99d9beebf76d95cde93
+      content: encoding=Unspecified length=33792 sha256=b1e6b103cc5a9b759dd0a436d45bba131e69ca06a8b4c99d9beebf76d95cde93

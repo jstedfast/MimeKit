@@ -8,24 +8,24 @@ message
       Content-Type: multipart/alternative; boundary="=-snapshot-boundary-1"
       TextPart text/plain
         Content-Type: text/plain; charset=utf-8
-        content: encoding=Default length=2028 sha256=07f0642e707c9222bceb6559f5c0a2ebe76633bcc059b8fbc2536d0d9d60b593
+        content: encoding=Unspecified length=2028 sha256=07f0642e707c9222bceb6559f5c0a2ebe76633bcc059b8fbc2536d0d9d60b593
         text: Det er jo en velkjent sak at bodødamene er noe mer jålete/velkledde (to sider av samme sak?) enn de noe mer allværskledde søstrene i landsdelshovedstaden. Det er litt flere perlekjeder og plisséskjørt hist ved Saltstraumen. Og så snakker de jo litt penere,...
       TextPart text/html
         Content-Type: text/html; charset=utf-8
-        content: encoding=Default length=3429 sha256=4883773ac357a7ac9c4dc871168e74538ba1e1c536fd852a2cc60b50bac45a07
+        content: encoding=Unspecified length=3429 sha256=4883773ac357a7ac9c4dc871168e74538ba1e1c536fd852a2cc60b50bac45a07
         text: <html><body><div><span style="font-size: 10pt;">Det er jo en velkjent sak at bod&#248;damene er noe mer j&#229;lete/velkledde (to sider av samme sak?) enn de noe mer allv&#230;rskledde s&#248;strene i landsdelshovedstaden. Det er litt flere perlekjeder og ...
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name="VIA Nytt 1402.doc"
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=VIA_Nytt_1402.doc; size=62030; creation-date=2002-07-26T08:47:42Z; modification-date=2002-08-20T11:27:58Z
-      content: encoding=Default length=61952 sha256=9955935516d1407e0f833d91242f7416c68a66eae69e73d855ae17724e04fe60
+      content: encoding=Unspecified length=61952 sha256=9955935516d1407e0f833d91242f7416c68a66eae69e73d855ae17724e04fe60
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name="VIA Nytt 1402.pdf"
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=VIA_Nytt_1402.pdf; size=213763; creation-date=2002-08-20T07:57:50Z; modification-date=2002-08-20T11:28:01Z
-      content: encoding=Default length=213685 sha256=968c9c4a8a6a02ff9a6c4e2621d5f5d512593a30d57379f704c4274ead48d72e
+      content: encoding=Unspecified length=213685 sha256=968c9c4a8a6a02ff9a6c4e2621d5f5d512593a30d57379f704c4274ead48d72e
     MimePart application/octet-stream
       Content-Type: application/octet-stream; name="VIA Nytt 14021.htm"
       Content-Transfer-Encoding: base64
       Content-Disposition: attachment; filename=VIA_Nytt_14021.htm; size=68997; creation-date=2002-08-20T10:41:01Z; modification-date=2002-08-20T11:28:05Z
-      content: encoding=Default length=68919 sha256=c2ee04f99e59079afa8661913dbd8b9002ea005c7540aaec85a67ed113e9a7b8
+      content: encoding=Unspecified length=68919 sha256=c2ee04f99e59079afa8661913dbd8b9002ea005c7540aaec85a67ed113e9a7b8
