@@ -32,6 +32,23 @@ namespace MimeKit.Fuzzing.Helpers {
 		public static readonly Encoding Latin1 = Encoding.Latin1;
 		public static readonly Encoding Utf8 = new UTF8Encoding (false);
 
+		public static byte[] CanonicalizeLineBreaks (byte[] input, NewLineFormat newLineFormat)
+		{
+			using var output = new MemoryStream (input.Length);
+
+			for (int i = 0; i < input.Length; i++) {
+				if (input[i] == (byte) '\r' && i + 1 < input.Length && input[i + 1] == (byte) '\n')
+					continue;
+
+				if (input[i] == (byte) '\n' && newLineFormat == NewLineFormat.Dos)
+					output.WriteByte ((byte) '\r');
+
+				output.WriteByte (input[i]);
+			}
+
+			return output.ToArray ();
+		}
+
 		public static void Check (bool condition, string message)
 		{
 			if (!condition)

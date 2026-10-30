@@ -76,10 +76,16 @@ namespace MimeKit.Fuzzing.Helpers {
 		public static void Check (MimeMessage message, string what)
 		{
 			var first = Serialize (message);
+			var options = CreateParserOptions ();
+
+			// Generated headers can exceed the default input limit. Bound reparsing by the output
+			// already in memory without relaxing the limits used to parse the original fuzz input.
+			options.MaxHeaderLength = Math.Max (options.MaxHeaderLength, first.Length);
+
 			MimeMessage reparsed;
 
 			try {
-				reparsed = Parse (first, false);
+				reparsed = Parse (first, false, options);
 			} catch (FormatException ex) {
 				throw new FuzzInvariantException ($"{what}: MimeKit failed to parse its own output: {ex.Message}");
 			}
@@ -94,7 +100,7 @@ namespace MimeKit.Fuzzing.Helpers {
 				first = second;
 
 				try {
-					reparsed = Parse (first, false);
+					reparsed = Parse (first, false, options);
 				} catch (FormatException ex) {
 					throw new FuzzInvariantException ($"{what}: MimeKit failed to parse its own output: {ex.Message}");
 				}

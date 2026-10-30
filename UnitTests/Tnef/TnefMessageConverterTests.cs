@@ -1107,6 +1107,61 @@ X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
 
 		#region API
 
+		static async Task ConvertLongSubject (NewLineFormat newLineFormat, bool doAsync)
+		{
+			var subject = new string ('\u00e9', 6000);
+			var builder = new TnefBuilder ().WriteTnefVersion ().WriteOemCodepage (1252)
+				.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, Encoding.Latin1.GetBytes (subject + "\0"));
+
+			using var input = builder.ToStream ();
+			using var tnef = doAsync ? await TnefMessage.LoadAsync (input) : TnefMessage.Load (input);
+			using var result = tnef.ConvertToMime ();
+			using var output = new MemoryStream ();
+			var format = FormatOptions.Default.Clone ();
+			format.NewLineFormat = newLineFormat;
+
+			Assert.That (result.Message.Subject, Is.EqualTo (subject));
+
+			if (doAsync)
+				await result.Message.WriteToAsync (format, output);
+			else
+				result.Message.WriteTo (format, output);
+
+			var bytes = output.ToArray ();
+			Assert.That (bytes.Length, Is.GreaterThan (ParserOptions.Default.MaxHeaderLength));
+			output.Position = 0;
+			if (doAsync)
+				Assert.ThrowsAsync<FormatException> (() => MimeMessage.LoadAsync (output));
+			else
+				Assert.Throws<FormatException> (() => MimeMessage.Load (output));
+
+			// A generated RFC 2047 header can exceed the parser's default input budget.
+			var options = new ParserOptions { MaxHeaderLength = bytes.Length };
+			output.Position = 0;
+			using var parsed = doAsync ? await MimeMessage.LoadAsync (options, output) : MimeMessage.Load (options, output);
+			Assert.That (parsed.Subject, Is.EqualTo (subject));
+
+			using var serialized = new MemoryStream ();
+			if (doAsync)
+				await parsed.WriteToAsync (format, serialized);
+			else
+				parsed.WriteTo (format, serialized);
+
+			Assert.That (serialized.ToArray (), Is.EqualTo (bytes));
+		}
+
+		[Test]
+		public void TestConvertLongSubject ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
+		{
+			ConvertLongSubject (newLineFormat, false).GetAwaiter ().GetResult ();
+		}
+
+		[Test]
+		public Task TestConvertLongSubjectAsync ([Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
+		{
+			return ConvertLongSubject (newLineFormat, true);
+		}
+
 		static TnefPart CreateTnefPart (string subject)
 		{
 			var properties = new TnefMapiPropertyBuilder ();

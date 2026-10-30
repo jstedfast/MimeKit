@@ -93,10 +93,12 @@ namespace MimeKit.Fuzzing.Targets {
 
 			Fuzz.Equal (whole, chunked, $"{name} whole vs split at {split}");
 
-			RoundTrip (new Base64Encoder (), new Base64Decoder (), input, split);
-			RoundTrip (new UUEncoder (), new UUDecoder (true), input, split);
-			RoundTrip (new YEncEncoder (), new YEncDecoder (true), input, split);
-			RoundTrip (new QuotedPrintableEncoder (60 + (input.Length % 17)), new QuotedPrintableDecoder (false), input, split);
+			var newLineFormat = (data[0] & 0x80) != 0 ? NewLineFormat.Unix : NewLineFormat.Dos;
+
+			RoundTrip (new Base64Encoder (newLineFormat), new Base64Decoder (), input, split, newLineFormat);
+			RoundTrip (new UUEncoder (newLineFormat), new UUDecoder (true), input, split, newLineFormat);
+			RoundTrip (new YEncEncoder (newLineFormat), new YEncDecoder (true), input, split, newLineFormat);
+			RoundTrip (new QuotedPrintableEncoder (newLineFormat, 60 + (input.Length % 17)), new QuotedPrintableDecoder (false), input, split, newLineFormat);
 		}
 
 		// Note: The array-based Decode() methods of some decoders (e.g. Base64Decoder and UUDecoder) use SIMD kernels
@@ -137,7 +139,7 @@ namespace MimeKit.Fuzzing.Targets {
 				Fuzz.Check (output[i] == Guard, message);
 		}
 
-		static void RoundTrip (IMimeEncoder encoder, IMimeDecoder decoder, byte[] input, int split)
+		static void RoundTrip (IMimeEncoder encoder, IMimeDecoder decoder, byte[] input, int split, NewLineFormat newLineFormat)
 		{
 			var name = encoder.GetType ().Name;
 			var encoded = new MemoryStream ();
@@ -164,24 +166,10 @@ namespace MimeKit.Fuzzing.Targets {
 			var bytes = encoded.ToArray ();
 			var decoded = Decode (decoder, bytes, 0, bytes.Length, decoder.GetType ().Name);
 
-			// The quoted-printable encoder treats CRLF as a hard line break and always emits it as a bare LF.
-			var expected = encoder is QuotedPrintableEncoder ? CanonicalizeLineBreaks (input) : input;
+			// Quoted-printable hard line breaks use the requested newline format; bare CRs remain data.
+			var expected = encoder is QuotedPrintableEncoder ? Fuzz.CanonicalizeLineBreaks (input, newLineFormat) : input;
 
 			Fuzz.Equal (expected, decoded, $"{decoder.GetType ().Name} (Encode ({name}, x))");
-		}
-
-		static byte[] CanonicalizeLineBreaks (byte[] input)
-		{
-			var output = new MemoryStream (input.Length);
-
-			for (int i = 0; i < input.Length; i++) {
-				if (input[i] == (byte) '\r' && i + 1 < input.Length && input[i + 1] == (byte) '\n')
-					continue;
-
-				output.WriteByte (input[i]);
-			}
-
-			return output.ToArray ();
 		}
 	}
 }

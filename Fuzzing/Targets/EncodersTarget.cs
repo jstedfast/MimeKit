@@ -32,8 +32,8 @@ using MimeKit.IO.Filters;
 using MimeKit.Fuzzing.Helpers;
 
 namespace MimeKit.Fuzzing.Targets {
-	// Encodes the input with the encoder chosen by the first byte (the second byte selects the line length and seeds the
-	// chunking pattern), checking that:
+	// Encodes the input with the encoder chosen by the first byte (the second byte selects the line length/newline format
+	// and seeds the chunking pattern), checking that:
 	//
 	// * encoding the input in many (possibly empty) chunks produces the same output as encoding it all at once;
 	// * an encoder cloned mid-stream behaves identically to the original;
@@ -65,14 +65,15 @@ namespace MimeKit.Fuzzing.Targets {
 
 			int kind = data[0] % 9;
 			int option = data[1];
+			var newLineFormat = (option & 0x80) != 0 ? NewLineFormat.Unix : NewLineFormat.Dos;
 			var input = data.Slice (2).ToArray ();
 			var random = new Random ((data[0] << 8) | data[1]);
 
 			switch (kind) {
-			case 0: TestBase64 (input, 60 + (option % 17), random); break;
-			case 1: TestQuotedPrintable (input, 60 + (option * 4 % 939), random); break;
-			case 2: TestUU (input, random); break;
-			case 3: TestYEnc (input, 60 + (option * 4 % 939), random); break;
+			case 0: TestBase64 (input, newLineFormat, 60 + (option % 17), random); break;
+			case 1: TestQuotedPrintable (input, newLineFormat, 60 + (option * 4 % 939), random); break;
+			case 2: TestUU (input, newLineFormat, random); break;
+			case 3: TestYEnc (input, newLineFormat, 60 + (option * 4 % 939), random); break;
 			case 4: TestPassThrough (input, (option & 1) != 0 ? ContentEncoding.Binary : ContentEncoding.EightBit, random); break;
 			case 5: TestRfc2047Base64 (input); break;
 			case 6: TestRfc2047QuotedPrintable (input, QEncodeMode.Phrase); break;
@@ -81,16 +82,17 @@ namespace MimeKit.Fuzzing.Targets {
 			}
 		}
 
-		static void TestBase64 (byte[] input, int maxLineLength, Random random)
+		static void TestBase64 (byte[] input, NewLineFormat newLineFormat, int maxLineLength, Random random)
 		{
-			var encoder = new Base64Encoder (maxLineLength);
-			var name = $"Base64Encoder ({maxLineLength})";
+			var encoder = new Base64Encoder (newLineFormat, maxLineLength);
+			var name = $"Base64Encoder ({newLineFormat}, {maxLineLength})";
 			var output = TestStreaming (encoder, name, input, random, true);
+			var normalized = NormalizeNewLines (output, newLineFormat, name);
 
-			CheckBase64Lines (output, Math.Min (maxLineLength, 76) / 4 * 4, name);
+			CheckBase64Lines (normalized, Math.Min (maxLineLength, 76) / 4 * 4, name);
 
 			var expected = Convert.ToBase64String (input);
-			var actual = Fuzz.Latin1.GetString (output).Replace ("\n", string.Empty);
+			var actual = Fuzz.Latin1.GetString (normalized).Replace ("\n", string.Empty);
 
 			Fuzz.Equal (expected, actual, $"{name} vs Convert.ToBase64String");
 
@@ -114,25 +116,25 @@ namespace MimeKit.Fuzzing.Targets {
 			FilterRoundTrip (encoder, input, output, DecoderFilter.Create (ContentEncoding.Base64), input, random, name);
 		}
 
-		static void TestQuotedPrintable (byte[] input, int maxLineLength, Random random)
+		static void TestQuotedPrintable (byte[] input, NewLineFormat newLineFormat, int maxLineLength, Random random)
 		{
-			var encoder = new QuotedPrintableEncoder (maxLineLength);
-			var name = $"QuotedPrintableEncoder ({maxLineLength})";
+			var encoder = new QuotedPrintableEncoder (newLineFormat, maxLineLength);
+			var name = $"QuotedPrintableEncoder ({newLineFormat}, {maxLineLength})";
 			var output = TestStreaming (encoder, name, input, random, true);
-			var expected = CanonicalizeLineBreaks (input);
+			var expected = Fuzz.CanonicalizeLineBreaks (input, newLineFormat);
 
-			CheckQuotedPrintableLines (output, Math.Min (maxLineLength, 76), name);
+			CheckQuotedPrintableLines (NormalizeNewLines (output, newLineFormat, name), Math.Min (maxLineLength, 76), name);
 			RoundTrip (output, new QuotedPrintableDecoder (false), expected, name);
 			FilterRoundTrip (encoder, input, output, DecoderFilter.Create (ContentEncoding.QuotedPrintable), expected, random, name);
 		}
 
-		static void TestUU (byte[] input, Random random)
+		static void TestUU (byte[] input, NewLineFormat newLineFormat, Random random)
 		{
-			var encoder = new UUEncoder ();
-			var name = "UUEncoder";
+			var encoder = new UUEncoder (newLineFormat);
+			var name = $"UUEncoder ({newLineFormat})";
 			var output = TestStreaming (encoder, name, input, random, true);
 
-			CheckUULines (output, input.Length, name);
+			CheckUULines (NormalizeNewLines (output, newLineFormat, name), input.Length, name);
 
 			var paths = new List<(string, EncodeFunc)> {
 				("scalar", ((UUEncoder) encoder.Clone ()).ScalarEncode)
@@ -151,10 +153,10 @@ namespace MimeKit.Fuzzing.Targets {
 			FilterRoundTrip (encoder, input, output, new DecoderFilter (new UUDecoder (true)), input, random, name);
 		}
 
-		static void TestYEnc (byte[] input, int maxLineLength, Random random)
+		static void TestYEnc (byte[] input, NewLineFormat newLineFormat, int maxLineLength, Random random)
 		{
-			var encoder = new YEncEncoder (maxLineLength);
-			var name = $"YEncEncoder ({maxLineLength})";
+			var encoder = new YEncEncoder (newLineFormat, maxLineLength);
+			var name = $"YEncEncoder ({newLineFormat}, {maxLineLength})";
 			var output = TestStreaming (encoder, name, input, random, false);
 			uint crc = Crc32 (input);
 
@@ -164,7 +166,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 			Fuzz.Check (((uint) encoder.Checksum ^ 0xFFFFFFFF) == crc, $"{name}.Checksum was 0x{(uint) encoder.Checksum ^ 0xFFFFFFFF:X8} but expected 0x{crc:X8}");
 
-			CheckYEncLines (output, maxLineLength, name);
+			CheckYEncLines (NormalizeNewLines (output, newLineFormat, name), maxLineLength, name);
 			RoundTrip (output, new YEncDecoder (true), input, name);
 			FilterRoundTrip (encoder, input, output, new DecoderFilter (new YEncDecoder (true)), input, random, name);
 		}
@@ -552,18 +554,17 @@ namespace MimeKit.Fuzzing.Targets {
 			RoundTrip (encoded, new Rfc2231Decoder (), input, "Rfc2231Encoder");
 		}
 
-		static byte[] CanonicalizeLineBreaks (byte[] input)
+		static byte[] NormalizeNewLines (byte[] output, NewLineFormat newLineFormat, string name)
 		{
-			var output = new MemoryStream (input.Length);
-
-			for (int i = 0; i < input.Length; i++) {
-				if (input[i] == (byte) '\r' && i + 1 < input.Length && input[i + 1] == (byte) '\n')
-					continue;
-
-				output.WriteByte (input[i]);
+			// Validate the requested format before normalizing for the line/alphabet checks.
+			for (int i = 0; i < output.Length; i++) {
+				if (output[i] == (byte) '\r')
+					Fuzz.Check (newLineFormat == NewLineFormat.Dos && i + 1 < output.Length && output[i + 1] == (byte) '\n', $"{name} emitted an unexpected CR at offset {i}");
+				else if (output[i] == (byte) '\n' && newLineFormat == NewLineFormat.Dos)
+					Fuzz.Check (i > 0 && output[i - 1] == (byte) '\r', $"{name} emitted a bare LF at offset {i}");
 			}
 
-			return output.ToArray ();
+			return newLineFormat == NewLineFormat.Unix ? output : Fuzz.CanonicalizeLineBreaks (output, NewLineFormat.Unix);
 		}
 	}
 }
