@@ -47,6 +47,9 @@ Fixed a yEnc decoder bug that lost the initial escape character in single-part f
 Updated `MimeTypes` with mappings for WebAssembly, YAML, TOML, Zstandard, CBOR, GeoJSON, web
 manifests, Parquet, HEIC/HEIF, JPEG XL, APNG, WebVTT, glTF, 3MF, and OBJ, plus missing reverse
 lookups for AVIF and JSON-LD.
+Added mappings for Apache Arrow, SQLite, Matroska audio, HLS playlists, Photoshop, JPEG 2000,
+HEIC/HEIF image sequences, OpenDocument graphics/formula files and document templates.
+Corrected legacy mappings and the M3U, EOT, scriptlet and Python reverse-lookup spelling errors.
 
 Fixed URL detection in `TextToHtml` and `FlowedToHtml` for address literals at end of input,
 balanced delimiters, host-only fragments, query components, IDNA A-label TLDs, and web URLs
@@ -84,6 +87,12 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 * `MimeTypes.GetMimeType` now returns `application/gzip` for `.gz`/`.gzip`, `audio/flac` for
   `.flac`, `video/matroska` for `.mkv`, and `model/stl` for `.stl`. The previous MIME names
   remain supported by `TryGetExtension`.
+* `MimeTypes` now uses registered names for PKCS#12, Debian packages, Dart, DWG/DXF, EOT,
+  BinHex, FrameMaker MIF, PCL, SMIL, STEP, Visio, WordPerfect, legacy Excel and troff files.
+  Ogg Opus files now use `audio/ogg`. AIFF, AVI, AU, ASF playlists, Java class files, M3U,
+  portable anymaps, XPM, VRML and scriptlets also use corrected mappings. Previous MIME names
+  remain accepted by `TryGetExtension`; its preferred extensions for `image/x-xpixmap` and
+  `model/vrml` are now `.xpm` and `.wrl`, respectively.
 * Mailbox sorting now compares IDN-encoded domains, so Unicode domains and their equivalent
   punycode forms sort together. Display names still take precedence, followed by domains and
   then local-parts, using case-insensitive comparisons.
