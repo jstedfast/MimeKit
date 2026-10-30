@@ -44,6 +44,9 @@ blocks, including individual multipart ranges, with streaming sync/async operati
 configurable limits, and size/checksum validation. They do not change MIME parsing or assemble parts.
 Fixed a yEnc decoder bug that lost the initial escape character in single-part framed content.
 
+Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
+line endings, while preserving permissive decoding and in-place operation.
+
 Updated `MimeTypes` with mappings for WebAssembly, YAML, TOML, Zstandard, CBOR, GeoJSON, web
 manifests, Parquet, HEIC/HEIF, JPEG XL, APNG, WebVTT, glTF, 3MF, and OBJ, plus missing reverse
 lookups for AVIF and JSON-LD.

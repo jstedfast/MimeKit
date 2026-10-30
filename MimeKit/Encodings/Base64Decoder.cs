@@ -31,9 +31,13 @@
 // The .NET Core implementation was, in turn, inspired by the work done by Wojciech Mula
 // in his base64simd project: https://github.com/WojciechMula/base64simd
 //
+// Further optimization was inspired by studying https://github.com/simdutf/SimdBase64.
+// The MIME-line tail fast path below is specialized for this decoder rather than a direct port.
+//
 // Unlike Base64.DecodeFromUtf8(), the loop driving these kernels is designed for MIME's lenient
-// base64 decoding rules: line breaks, whitespace, garbage and (possibly mid-stream) padding are
-// all handed off to the scalar decoder, which also preserves the decoder state across calls.
+// base64 decoding rules: MIME-line tails are handled in the AVX2 loop, while other line breaks,
+// whitespace, garbage and (possibly mid-stream) padding are handed off to the scalar decoder,
+// which also preserves the decoder state across calls.
 
 using System;
 using System.Diagnostics;
@@ -242,9 +246,9 @@ namespace MimeKit.Encodings {
 			return AdvSimd.Arm64.VectorTableLookup (left, right & mask8F);
 		}
 
-		// Decodes as many complete 32-byte blocks as possible, stopping at the first block that contains
-		// anything other than the 64 base64 alphabet characters (e.g. whitespace, garbage, or '=' padding).
-		// Each block writes 32 bytes of output (of which only the first 24 are meaningful).
+		// Decodes complete 32-byte blocks and the 12-character tails of 76-character MIME lines.
+		// Other whitespace, garbage and '=' padding are left to the narrower kernels.
+		// Each full block writes 32 bytes of output (of which only the first 24 are meaningful).
 		static unsafe void Avx2DecodeBlocks (ref byte* input, ref byte* output, byte* inend, byte* outend)
 		{
 			Debug.Assert (Avx2.IsSupported);
@@ -276,8 +280,30 @@ namespace MimeKit.Encodings {
 				var hi = Avx2.Shuffle (lutHi, hiNibbles);
 				var lo = Avx2.Shuffle (lutLo, loNibbles);
 
-				if (!Avx.TestZ (lo, hi))
+				if (!Avx.TestZ (lo, hi)) {
+					int consumed = inptr[12] == (byte) '\n' ? 13 : inptr[12] == (byte) '\r' && inptr[13] == (byte) '\n' ? 14 : 0;
+					var invalid = Avx2.And (lo, hi).GetLower ();
+
+					if (consumed != 0 && (Sse2.MoveMask (Sse2.CompareEqual (invalid, Vector128<sbyte>.Zero)) & 0xfff) == 0xfff) {
+						// Stay in this loop for the 12 characters left after two 32-character blocks.
+						var tail = str.GetLower ();
+						var tailShift = Ssse3.Shuffle (lutShift.GetLower (), Sse2.Add (Sse2.CompareEqual (tail, mask2F.GetLower ()), hiNibbles.GetLower ()));
+						tail = Sse2.Add (tail, tailShift);
+
+						var mergedTail = Ssse3.MultiplyAddAdjacent (tail.AsByte (), mergeConstant0.GetLower ());
+						var packedTail = Sse2.MultiplyAddAdjacent (mergedTail, mergeConstant1.GetLower ());
+						var result = Ssse3.Shuffle (packedTail.AsSByte (), packBytesInLaneMask.GetLower ()).AsByte ();
+
+						// Store exactly nine bytes so in-place decoding cannot overwrite unconsumed input.
+						Unsafe.WriteUnaligned (outptr, result.AsUInt64 ().GetElement (0));
+						outptr[8] = result.GetElement (8);
+						outptr += 9;
+						inptr += consumed;
+						continue;
+					}
+
 					break;
+				}
 
 				var eq2F = Avx2.CompareEqual (str, mask2F);
 				var shift = Avx2.Shuffle (lutShift, Avx2.Add (eq2F, hiNibbles));

@@ -420,6 +420,24 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
+		public void TestDecodeMimeLineTails ([Values] CodePath path, [Values ("\n", "\r\n")] string newLine)
+		{
+			var decode = GetDecodeFunc (path);
+			var data = new byte[228];
+			new Random (76).NextBytes (data);
+			var original = Wrap (Convert.ToBase64String (data), 76, newLine);
+			int[] chunkSizes = { 77, 78, 100, int.MaxValue };
+
+			for (int value = 0; value < 256; value++) {
+				for (int position = 64; position < 76 + newLine.Length; position++) {
+					var encoded = (byte[]) original.Clone ();
+					encoded[position] = (byte) value;
+					AssertMatchesScalar (decode, encoded, chunkSizes, $"value=0x{value:X2}, position={position}");
+				}
+			}
+		}
+
+		[Test]
 		public void TestDecodeAllLineLengths ([Values] CodePath path, [Values ("\n", "\r\n", " \r\n")] string newLine)
 		{
 			int[] dataLengths = { 1, 2, 3, 11, 12, 13, 23, 24, 25, 47, 48, 49, 200, 301 };
