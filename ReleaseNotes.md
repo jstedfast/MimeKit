@@ -46,6 +46,7 @@ Fixed a yEnc decoder bug that lost the initial escape character in single-part f
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.
+Improved SIMD Base64 encoding throughput on x86 by vectorizing the nine-byte MIME-line tails.
 
 Updated `MimeTypes` with mappings for WebAssembly, YAML, TOML, Zstandard, CBOR, GeoJSON, web
 manifests, Parquet, HEIC/HEIF, JPEG XL, APNG, WebVTT, glTF, 3MF, and OBJ, plus missing reverse

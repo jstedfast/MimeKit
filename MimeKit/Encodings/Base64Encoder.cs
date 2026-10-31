@@ -260,31 +260,9 @@ namespace MimeKit.Encodings {
 				byte* lineEnd = inptr + remainingLineInput;
 				int nread;
 
-				// Note: The standard MIME base64-encoded line length is 76 characters which means that the maximum number
-				// of input characters that can be processed per line is 57 characters (3 bytes per quartet).
-				//
-				// Given that, here's what we would expect for various hardware configurations:
-				//
-				// Intel/AMD x86/64 CPUs:
-				// - AVX512 supported:
-				//   - Encodes the first 48 bytes using Avx512Encode() which performs a single loop.
-				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
-				// - AVX2 supported:
-				//   - Encodes the first 48 bytes using Avx2Encode() which performs 2 loops.
-				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
-				// - SSSE3 supported:
-				//   - Encodes the first 48 bytes using Vector128Encode() which performs 4 loops.
-				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
-				// - No SIMD support:
-				//   - Encodes all 57 bytes using the "slow" loop that processes 3 input bytes per loop for 19 loops.
-				//
-				// ARM64 CPUs:
-				// - AdvSIMD supported (>= 48 remaining input bytes):
-				//   - Encodes the first 48 bytes using AdvSimdEncode() which performs a single loop.
-				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
-				// - AdvSIMD supported (>= 12 remaining input bytes):
-				//   - Encodes the first 12, 24, or 36 bytes using Vector128Encode() which performs 1, 2, or 3 loops.
-				//   - Encodes the remaining 9 bytes using the "slow" loop that processes 3 input bytes per loop for 3 loops.
+				// A standard MIME line encodes 57 input bytes into 76 characters. The first 48 bytes take one
+				// AVX512 or AdvSimdEncode iteration, two AVX2 iterations, or four Vector128Encode iterations.
+				// On x86, the overlapping vector below handles the remaining nine bytes without a scalar tail.
 
 				if (Ssse3.IsSupported) {
 					// Hardware accelerated Intel/AMD code-path...
@@ -345,6 +323,18 @@ namespace MimeKit.Encodings {
 						//remainingLineInput -= nread;
 						remainingInput -= nread;
 					}
+				}
+
+				if (Ssse3.IsSupported && lineEnd - inptr == 9 && quartets > 0 && inptr - input >= 7 && outptr - output >= 4) {
+					// Re-encode the preceding triplet, provided its quartet was written in this call and belongs
+					// to this line. Load seven bytes before the tail and select the last twelve bytes without
+					// reading past lineEnd.
+					var shuffle = Vector128.Create (0x05060405, 0x08090708, 0x0B0C0A0B, 0x0E0F0D0E).AsByte ();
+					Vector128Encode (Vector128.Load (inptr - 7), shuffle).Store (outptr - 4);
+					inptr += 9;
+					outptr += 12;
+					remainingInput -= 9;
+					quartets += 3;
 				}
 
 				// prevent the while-loop from reading beyond the end of the line
@@ -703,107 +693,12 @@ namespace MimeKit.Encodings {
 			// But because we read 16 bytes at a time, ensure we have enough room to do a
 			// full 16-byte read without segfaulting.
 
-			// input, bytes MSB to LSB:
-			// 0 0 0 0 l k j i h g f e d c b a
-
-			// The JIT won't hoist these "constants", so help it
 			Vector128<byte> shuffleVec = Vector128.Create (0x01020001, 0x04050304, 0x07080607, 0x0A0B090A).AsByte ();
-			Vector128<byte> lut = Vector128.Create (0xFCFC4741, 0xFCFCFCFC, 0xFCFCFCFC, 0x0000F0ED).AsByte ();
-			Vector128<byte> maskAC = Vector128.Create (0x0fc0fc00).AsByte ();
-			Vector128<byte> maskBB = Vector128.Create (0x003f03f0).AsByte ();
-			Vector128<ushort> shiftAC = Vector128.Create (0x04000040).AsUInt16 ();
-			Vector128<short> shiftBB = Vector128.Create (0x01000010).AsInt16 ();
-			Vector128<byte> const51 = Vector128.Create ((byte) 51);
-			Vector128<sbyte> const25 = Vector128.Create ((sbyte) 25);
-			Vector128<byte> mask8F = Vector128.Create ((byte) 0x8F);
 			byte* outptr = output;
 			byte* inptr = input;
 
 			do {
-				Vector128<byte> str = Vector128.LoadUnsafe (ref *inptr);
-
-				// Reshuffle
-				str = SimdShuffle (str, shuffleVec, mask8F);
-				// str, bytes MSB to LSB:
-				// k l j k
-				// h i g h
-				// e f d e
-				// b c a b
-
-				Vector128<byte> t0 = str & maskAC;
-				// bits, upper case are most significant bits, lower case are least significant bits
-				// 0000kkkk LL000000 JJJJJJ00 00000000
-				// 0000hhhh II000000 GGGGGG00 00000000
-				// 0000eeee FF000000 DDDDDD00 00000000
-				// 0000bbbb CC000000 AAAAAA00 00000000
-
-				Vector128<byte> t2 = str & maskBB;
-				// 00000000 00llllll 000000jj KKKK0000
-				// 00000000 00iiiiii 000000gg HHHH0000
-				// 00000000 00ffffff 000000dd EEEE0000
-				// 00000000 00cccccc 000000aa BBBB0000
-
-				Vector128<ushort> t1;
-				if (Ssse3.IsSupported) {
-					t1 = Sse2.MultiplyHigh (t0.AsUInt16 (), shiftAC);
-				} else if (AdvSimd.IsSupported) {
-					Vector128<ushort> odd = Vector128.ShiftRightLogical (AdvSimd.Arm64.UnzipOdd (t0.AsUInt16 (), t0.AsUInt16 ()), 6);
-					Vector128<ushort> even = Vector128.ShiftRightLogical (AdvSimd.Arm64.UnzipEven (t0.AsUInt16 (), t0.AsUInt16 ()), 10);
-					t1 = AdvSimd.Arm64.ZipLow (even, odd);
-				} else {
-					// explicitly recheck each IsSupported query to ensure that the trimmer can see which paths are live/dead
-					t1 = default;
-				}
-				// 00000000 00kkkkLL 00000000 00JJJJJJ
-				// 00000000 00hhhhII 00000000 00GGGGGG
-				// 00000000 00eeeeFF 00000000 00DDDDDD
-				// 00000000 00bbbbCC 00000000 00AAAAAA
-
-				Vector128<short> t3 = t2.AsInt16 () * shiftBB;
-				// 00llllll 00000000 00jjKKKK 00000000
-				// 00iiiiii 00000000 00ggHHHH 00000000
-				// 00ffffff 00000000 00ddEEEE 00000000
-				// 00cccccc 00000000 00aaBBBB 00000000
-
-				str = t1.AsByte () | t3.AsByte ();
-				// 00llllll 00kkkkLL 00jjKKKK 00JJJJJJ
-				// 00iiiiii 00hhhhII 00ggHHHH 00GGGGGG
-				// 00ffffff 00eeeeFF 00ddEEEE 00DDDDDD
-				// 00cccccc 00bbbbCC 00aaBBBB 00AAAAAA
-
-				// Translation
-				// LUT contains Absolute offset for all ranges:
-				// Translate values 0..63 to the Base64 alphabet. There are five sets:
-				// #  From      To         Abs    Index  Characters
-				// 0  [0..25]   [65..90]   +65        0  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-				// 1  [26..51]  [97..122]  +71        1  abcdefghijklmnopqrstuvwxyz
-				// 2  [52..61]  [48..57]    -4  [2..11]  0123456789
-				// 3  [62]      [43]       -19       12  +
-				// 4  [63]      [47]       -16       13  /
-
-				// Create LUT indices from input:
-				// the index for range #0 is right, others are 1 less than expected:
-				Vector128<byte> indices;
-				if (Ssse3.IsSupported) {
-					indices = Sse2.SubtractSaturate (str.AsByte (), const51);
-				} else if (AdvSimd.IsSupported) {
-					indices = AdvSimd.SubtractSaturate (str.AsByte (), const51);
-				} else {
-					// explicitly recheck each IsSupported query to ensure that the trimmer can see which paths are live/dead
-					indices = default;
-				}
-
-				// mask is 0xFF (-1) for range #[1..4] and 0x00 for range #0:
-				Vector128<sbyte> mask = Vector128.GreaterThan (str.AsSByte (), const25);
-
-				// subtract -1, so add 1 to indices for range #[1..4], All indices are now correct:
-				Vector128<sbyte> tmp = indices.AsSByte () - mask;
-
-				// Add offsets to input values:
-				str += SimdShuffle (lut, tmp.AsByte (), mask8F);
-
-				str.Store (outptr);
-
+				Vector128Encode (Vector128.LoadUnsafe (ref *inptr), shuffleVec).Store (outptr);
 				inptr += 12;
 				outptr += 16;
 				quartets += 4;
@@ -815,6 +710,101 @@ namespace MimeKit.Encodings {
 			input = inptr;
 
 			return nread;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static Vector128<byte> Vector128Encode (Vector128<byte> str, Vector128<byte> shuffleVec)
+		{
+			Vector128<byte> lut = Vector128.Create (0xFCFC4741, 0xFCFCFCFC, 0xFCFCFCFC, 0x0000F0ED).AsByte ();
+			Vector128<byte> maskAC = Vector128.Create (0x0fc0fc00).AsByte ();
+			Vector128<byte> maskBB = Vector128.Create (0x003f03f0).AsByte ();
+			Vector128<ushort> shiftAC = Vector128.Create (0x04000040).AsUInt16 ();
+			Vector128<short> shiftBB = Vector128.Create (0x01000010).AsInt16 ();
+			Vector128<byte> const51 = Vector128.Create ((byte) 51);
+			Vector128<sbyte> const25 = Vector128.Create ((sbyte) 25);
+			Vector128<byte> mask8F = Vector128.Create ((byte) 0x8F);
+
+			// Reshuffle
+			str = SimdShuffle (str, shuffleVec, mask8F);
+			// str, bytes MSB to LSB:
+			// k l j k
+			// h i g h
+			// e f d e
+			// b c a b
+
+			Vector128<byte> t0 = str & maskAC;
+			// bits, upper case are most significant bits, lower case are least significant bits
+			// 0000kkkk LL000000 JJJJJJ00 00000000
+			// 0000hhhh II000000 GGGGGG00 00000000
+			// 0000eeee FF000000 DDDDDD00 00000000
+			// 0000bbbb CC000000 AAAAAA00 00000000
+
+			Vector128<byte> t2 = str & maskBB;
+			// 00000000 00llllll 000000jj KKKK0000
+			// 00000000 00iiiiii 000000gg HHHH0000
+			// 00000000 00ffffff 000000dd EEEE0000
+			// 00000000 00cccccc 000000aa BBBB0000
+
+			Vector128<ushort> t1;
+			if (Ssse3.IsSupported) {
+				t1 = Sse2.MultiplyHigh (t0.AsUInt16 (), shiftAC);
+			} else if (AdvSimd.IsSupported) {
+				Vector128<ushort> odd = Vector128.ShiftRightLogical (AdvSimd.Arm64.UnzipOdd (t0.AsUInt16 (), t0.AsUInt16 ()), 6);
+				Vector128<ushort> even = Vector128.ShiftRightLogical (AdvSimd.Arm64.UnzipEven (t0.AsUInt16 (), t0.AsUInt16 ()), 10);
+				t1 = AdvSimd.Arm64.ZipLow (even, odd);
+			} else {
+				// explicitly recheck each IsSupported query to ensure that the trimmer can see which paths are live/dead
+				t1 = default;
+			}
+			// 00000000 00kkkkLL 00000000 00JJJJJJ
+			// 00000000 00hhhhII 00000000 00GGGGGG
+			// 00000000 00eeeeFF 00000000 00DDDDDD
+			// 00000000 00bbbbCC 00000000 00AAAAAA
+
+			Vector128<short> t3 = t2.AsInt16 () * shiftBB;
+			// 00llllll 00000000 00jjKKKK 00000000
+			// 00iiiiii 00000000 00ggHHHH 00000000
+			// 00ffffff 00000000 00ddEEEE 00000000
+			// 00cccccc 00000000 00aaBBBB 00000000
+
+			str = t1.AsByte () | t3.AsByte ();
+			// 00llllll 00kkkkLL 00jjKKKK 00JJJJJJ
+			// 00iiiiii 00hhhhII 00ggHHHH 00GGGGGG
+			// 00ffffff 00eeeeFF 00ddEEEE 00DDDDDD
+			// 00cccccc 00bbbbCC 00aaBBBB 00AAAAAA
+
+			// Translation
+			// LUT contains Absolute offset for all ranges:
+			// Translate values 0..63 to the Base64 alphabet. There are five sets:
+			// #  From      To         Abs    Index  Characters
+			// 0  [0..25]   [65..90]   +65        0  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+			// 1  [26..51]  [97..122]  +71        1  abcdefghijklmnopqrstuvwxyz
+			// 2  [52..61]  [48..57]    -4  [2..11]  0123456789
+			// 3  [62]      [43]       -19       12  +
+			// 4  [63]      [47]       -16       13  /
+
+			// Create LUT indices from input:
+			// the index for range #0 is right, others are 1 less than expected:
+			Vector128<byte> indices;
+			if (Ssse3.IsSupported) {
+				indices = Sse2.SubtractSaturate (str.AsByte (), const51);
+			} else if (AdvSimd.IsSupported) {
+				indices = AdvSimd.SubtractSaturate (str.AsByte (), const51);
+			} else {
+				// explicitly recheck each IsSupported query to ensure that the trimmer can see which paths are live/dead
+				indices = default;
+			}
+
+			// mask is 0xFF (-1) for range #[1..4] and 0x00 for range #0:
+			Vector128<sbyte> mask = Vector128.GreaterThan (str.AsSByte (), const25);
+
+			// subtract -1, so add 1 to indices for range #[1..4], All indices are now correct:
+			Vector128<sbyte> tmp = indices.AsSByte () - mask;
+
+			// Add offsets to input values:
+			str += SimdShuffle (lut, tmp.AsByte (), mask8F);
+
+			return str;
 		}
 
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]

@@ -354,6 +354,34 @@ namespace UnitTests.Encodings {
 		}
 
 		[Test]
+		public void TestEncodeLineTails ([Values] CodePath path, [Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat, [Values (60, 64, 68, 72, 76)] int maxLineLength)
+		{
+			var encode = GetEncodeFunc (path);
+			int inputPerLine = (maxLineLength / 4) * 3;
+			var data = GenerateRandomBytes (new Random (maxLineLength), inputPerLine * 3 + 9);
+			var expected = ReferenceEncode (data, maxLineLength);
+
+			if (newLineFormat == NewLineFormat.Unix)
+				expected = Encoding.ASCII.GetBytes (Encoding.ASCII.GetString (expected).Replace ("\r\n", "\n"));
+
+			// Exercise tails after every partial-line state, including a nine-byte final line whose
+			// preceding quartet belongs to another line and must not be overwritten.
+			for (int prefix = 0; prefix <= inputPerLine + 2; prefix++) {
+				var encoder = new Base64Encoder (newLineFormat, maxLineLength);
+				var output = new byte[encoder.EstimateOutputLength (data.Length)];
+				using var actual = new MemoryStream ();
+
+				int n = encode (encoder, data, 0, prefix, output, false);
+				actual.Write (output, 0, n);
+				Assert.That (encode (encoder, Array.Empty<byte> (), 0, 0, output, false), Is.Zero);
+				n = encode (encoder, data, prefix, data.Length - prefix, output, true);
+				actual.Write (output, 0, n);
+
+				Assert.That (actual.ToArray (), Is.EqualTo (expected), $"prefix={prefix}");
+			}
+		}
+
+		[Test]
 		public void TestEncodeRoundTrip ([Values] CodePath path, [Values (1, 16, 57, 1024, 4096)] int chunkSize)
 		{
 			var encode = GetEncodeFunc (path);
