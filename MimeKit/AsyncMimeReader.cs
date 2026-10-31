@@ -158,6 +158,7 @@ namespace MimeKit {
 			seenMessageHeaders = 0;
 			seenResentHeaders = 0;
 			seenMimeVersion = false;
+			seenContentDisposition = false;
 
 			currentContentLength = null;
 

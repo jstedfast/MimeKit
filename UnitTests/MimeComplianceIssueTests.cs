@@ -374,6 +374,7 @@ namespace UnitTests {
 			// mailboxes out of the same header.
 			var critical = new [] {
 				MimeComplianceViolation.RepeatedContentType,
+				MimeComplianceViolation.RepeatedBoundaryParameter,
 				MimeComplianceViolation.RepeatedContentTransferEncoding,
 				MimeComplianceViolation.UnexpectedNullBytesInHeader,
 				MimeComplianceViolation.UnexpectedNullBytesInBody,
@@ -549,6 +550,10 @@ namespace UnitTests {
 				{ MimeComplianceViolation.BlankHeaderContinuationLine, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentType, Interop | Security },
 				{ MimeComplianceViolation.RepeatedContentType, Interop | Security },
+				{ MimeComplianceViolation.RepeatedContentDisposition, Interop | Security },
+				{ MimeComplianceViolation.RepeatedBoundaryParameter, Interop | Security },
+				{ MimeComplianceViolation.RepeatedFilenameParameter, Interop | Security },
+				{ MimeComplianceViolation.RepeatedParameter, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },

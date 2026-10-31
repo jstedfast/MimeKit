@@ -68,8 +68,13 @@ namespace MimeKit {
 		Address         = 1 << 3,
 
 		/// <summary>
+		/// The validator for repeated parameters in Content-Type and Content-Disposition headers.
+		/// </summary>
+		Parameters      = 1 << 4,
+
+		/// <summary>
 		/// All validators.
 		/// </summary>
-		All             = Base64 | QuotedPrintable | UUEncode | Address
+		All             = Base64 | QuotedPrintable | UUEncode | Address | Parameters
 	}
 }

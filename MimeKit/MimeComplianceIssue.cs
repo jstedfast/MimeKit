@@ -400,6 +400,7 @@ namespace MimeKit {
 			// end-user's mail client can be made to disagree about the content of the message.
 			case MimeComplianceViolation.RepeatedContentType:
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
+			case MimeComplianceViolation.RepeatedBoundaryParameter:
 			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 			// Note: Parsers disagree about whether a bare CR ends a line, so a bare CR can make a
@@ -419,6 +420,9 @@ namespace MimeKit {
 				return MimeComplianceSeverity.Critical;
 
 			// Ambiguity or corruption that different MIME parsers may resolve differently.
+			case MimeComplianceViolation.RepeatedContentDisposition:
+			case MimeComplianceViolation.RepeatedFilenameParameter:
+			case MimeComplianceViolation.RepeatedParameter:
 			case MimeComplianceViolation.InvalidHeader:
 			case MimeComplianceViolation.IncompleteHeader:
 			case MimeComplianceViolation.BlankHeaderContinuationLine:
@@ -623,6 +627,10 @@ namespace MimeKit {
 			// which is a classic way of getting a scanner to skip content that a client will render.
 			case MimeComplianceViolation.InvalidContentType:
 			case MimeComplianceViolation.RepeatedContentType:
+			case MimeComplianceViolation.RepeatedContentDisposition:
+			case MimeComplianceViolation.RepeatedBoundaryParameter:
+			case MimeComplianceViolation.RepeatedFilenameParameter:
+			case MimeComplianceViolation.RepeatedParameter:
 				return Interop | Security;
 
 			// Note: As above, but an unrecognized or duplicated encoding also means the content may
@@ -886,6 +894,14 @@ namespace MimeKit {
 				return "A folded MIME part or message header contained a continuation line made up entirely of whitespace.";
 			case MimeComplianceViolation.RepeatedContentType:
 				return "A MIME part contained multiple Content-Type headers.";
+			case MimeComplianceViolation.RepeatedContentDisposition:
+				return "A MIME part contained multiple Content-Disposition headers.";
+			case MimeComplianceViolation.RepeatedBoundaryParameter:
+				return "A Content-Type header contained repeated boundary parameter declarations.";
+			case MimeComplianceViolation.RepeatedFilenameParameter:
+				return "A Content-Type name or Content-Disposition filename parameter was repeated.";
+			case MimeComplianceViolation.RepeatedParameter:
+				return "A MIME parameter other than a boundary or filename parameter was repeated.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
 			case MimeComplianceViolation.RepeatedDate:
@@ -1088,6 +1104,14 @@ namespace MimeKit {
 				return "Section 3.2.2 of rfc5322 forbids folding a header field in such a way that any of its lines is made up entirely of whitespace characters; such lines are only tolerated by the obsolete folding whitespace syntax in section 4.2. As described in section 7.3 of rfc7103, agents disagree about what such a line means: a parser that follows the obsolete syntax treats it as a continuation of the previous header, but an agent that strips trailing whitespace from each line sees an empty line instead, which ends the header block. That disagreement can be exploited so that the header fields that follow the line are processed as headers by one component and as part of the body by another.";
 			case MimeComplianceViolation.RepeatedContentType:
 				return "The MIME specifications require that each MIME part contain only one Content-Type header. Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Type headers as their \"source of truth\".";
+			case MimeComplianceViolation.RepeatedContentDisposition:
+				return "Repeated Content-Disposition headers can cause MIME parsers to disagree about a part's filename or whether it should be displayed inline or treated as an attachment.";
+			case MimeComplianceViolation.RepeatedBoundaryParameter:
+				return "Competing boundary values can cause MIME parsers to discover different body parts. Ordinary and extended values compete, as do repeated RFC 2231 continuation indices. Distinct segments of a single continued value are not repetitions.";
+			case MimeComplianceViolation.RepeatedFilenameParameter:
+				return "Repeated filename declarations can cause MIME parsers to assign different names or extensions to the same content. Repeated RFC 2231 continuation indices are also reported. One ordinary fallback together with one extended or continued representation is tolerated. This does not imply that their decoded values agree.";
+			case MimeComplianceViolation.RepeatedParameter:
+				return "Parameter names are compared without regard to case. Competing ordinary, extended, or continued representations and repeated continuation indices are reported, even when their values are identical. Distinct segments of one continued value are not repetitions.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
 			case MimeComplianceViolation.RepeatedDate:

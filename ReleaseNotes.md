@@ -49,6 +49,12 @@ Comments following unquoted MIME parameter values are now ignored in loose parsi
 including folded values, while unquoted spaces remain supported. Literal parentheses in
 parameter values must be quoted or encoded.
 
+Added optional compliance validation for repeated MIME parameters, with separate violations for
+boundaries, filenames, and other parameters. Distinct RFC 2231 continuation segments and one
+ordinary filename fallback alongside an extended or continued representation are tolerated.
+Repeated Content-Disposition headers are now reported as a structural compliance violation.
+These checks do not change parameter precedence or message parsing.
+
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.
 Improved SIMD Base64 encoding throughput on x86 by vectorizing the nine-byte MIME-line tails.

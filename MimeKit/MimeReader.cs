@@ -110,6 +110,7 @@ namespace MimeKit {
 		ulong seenResentHeaders;
 		bool messageHeaderBlock;
 		bool seenMimeVersion;
+		bool seenContentDisposition;
 
 		MimeParserState state;
 		MimeFormat format;
@@ -1974,6 +1975,13 @@ namespace MimeKit {
 			}
 
 			switch (header.Id) {
+			case HeaderId.ContentDisposition:
+				if (complianceLogger != null) {
+					if (seenContentDisposition)
+						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.RepeatedContentDisposition, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					seenContentDisposition = true;
+				}
+				break;
 			case HeaderId.ContentTransferEncoding:
 				if (!currentEncoding.HasValue) {
 					// Note: The Content-Transfer-Encoding violations are all properties of the value, so
@@ -2417,6 +2425,13 @@ namespace MimeKit {
 
 						validator.Validate (value, 0, value.Length);
 					}
+
+					if ((header.Id == HeaderId.ContentType || header.Id == HeaderId.ContentDisposition) &&
+						(enabledValidators & MimeComplianceValidators.Parameters) != 0) {
+						var validator = new ParameterValidator (complianceLogger, complianceContext, header.Id, beginOffset + headerFieldLength + 1, beginLineNumber, headerFieldLength + 2);
+
+						validator.Validate (value, 0, value.Length);
+					}
 				}
 			}
 
@@ -2446,6 +2461,7 @@ namespace MimeKit {
 			seenMessageHeaders = 0;
 			seenResentHeaders = 0;
 			seenMimeVersion = false;
+			seenContentDisposition = false;
 
 			currentContentLength = null;
 
