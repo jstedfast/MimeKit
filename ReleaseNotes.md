@@ -59,6 +59,9 @@ Segment tracking uses a balanced tree and stores only observed indices, so large
 adversarially chosen segment numbers cannot drive index-sized allocations or hash collisions.
 Content-Type values with unexpected text after a valid media type now report `InvalidContentType`,
 without changing tolerant parsing or classifying parameter syntax failures as media-type errors.
+Optional parameter validation now reports `InvalidParameter` for malformed declarations, including
+missing names, equals signs or values and unterminated quoted strings or comments. Recovery and
+parameter decoding are unchanged; encoded RFC 2231 value syntax is not validated by this check.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

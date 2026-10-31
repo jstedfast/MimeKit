@@ -424,6 +424,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedFilenameParameter:
 			case MimeComplianceViolation.RepeatedParameter:
 			case MimeComplianceViolation.MissingParameterSegment:
+			case MimeComplianceViolation.InvalidParameter:
 			case MimeComplianceViolation.InvalidHeader:
 			case MimeComplianceViolation.IncompleteHeader:
 			case MimeComplianceViolation.BlankHeaderContinuationLine:
@@ -633,6 +634,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedFilenameParameter:
 			case MimeComplianceViolation.RepeatedParameter:
 			case MimeComplianceViolation.MissingParameterSegment:
+			case MimeComplianceViolation.InvalidParameter:
 				return Interop | Security;
 
 			// Note: As above, but an unrecognized or duplicated encoding also means the content may
@@ -906,6 +908,8 @@ namespace MimeKit {
 				return "A MIME parameter other than a boundary or filename parameter was repeated.";
 			case MimeComplianceViolation.MissingParameterSegment:
 				return "An RFC 2231 parameter continuation was missing one or more segments.";
+			case MimeComplianceViolation.InvalidParameter:
+				return "A MIME parameter declaration was malformed.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
 			case MimeComplianceViolation.RepeatedDate:
@@ -1118,6 +1122,8 @@ namespace MimeKit {
 				return "Parameter names are compared without regard to case. Competing ordinary, extended, or continued representations and repeated continuation indices are reported, even when their values are identical. Distinct segments of one continued value are not repetitions.";
 			case MimeComplianceViolation.MissingParameterSegment:
 				return "Segments may appear in any order, but their indices must start at zero and be consecutive. Missing segments can cause MIME parsers to assemble different parameter values. The issue is reported once per parameter, at its first continuation declaration.";
+			case MimeComplianceViolation.InvalidParameter:
+				return "Missing or invalid names, missing equals signs or values, and unterminated quoted strings or comments can cause MIME parsers to discard or interpret parameters differently. The issue is reported at the start of the malformed declaration or fragment. Validation follows tolerant parameter tokenization rather than enforcing every grammar rule; it does not validate the encoded contents of RFC 2231 parameter values.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
 			case MimeComplianceViolation.RepeatedDate:

@@ -42,6 +42,7 @@ namespace MimeKit {
 			public MimeComplianceIssue MissingSegmentIssue;
 			public bool Extended;
 			public bool Plain;
+
 			int highestSegment = -1;
 
 			// Distinct nonnegative indices cover 0..n-1 iff their maximum is n-1.
@@ -53,12 +54,14 @@ namespace MimeKit {
 
 				if (segment >= 0) {
 					repeated = false;
+
 					if (Segments is null) {
 						Segments = new SortedSet<int> ();
 						repeated = Extended || (Plain && !allowFallback);
 					}
 
 					highestSegment = Math.Max (highestSegment, segment);
+
 					return !Segments.Add (segment) || repeated;
 				}
 
@@ -149,12 +152,9 @@ namespace MimeKit {
 			encoded = false;
 			start = index;
 
-			if (!SkipCommentsAndWhiteSpace ())
-				return false;
-
-			start = index;
 			while (index < endIndex && text[index].IsAttr ())
 				index++;
+
 			int length = index - start;
 
 			if (length == 0 || !SkipCommentsAndWhiteSpace () || index == endIndex)
@@ -162,6 +162,7 @@ namespace MimeKit {
 
 			if (text[index] == (byte) '*') {
 				index++;
+
 				if (!SkipCommentsAndWhiteSpace () || index == endIndex)
 					return false;
 
@@ -188,24 +189,39 @@ namespace MimeKit {
 				return false;
 
 			index++;
+
 			name = Encoding.ASCII.GetString (text, start, length);
+
 			return true;
 		}
 
-		bool SkipValue ()
+		bool SkipValue (out bool invalid)
 		{
+			invalid = true;
+
 			if (!SkipCommentsAndWhiteSpace () || index == endIndex)
 				return false;
 
 			if (text[index] == (byte) '"') {
 				if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
 					return false;
+
+				invalid = false;
 			} else {
+				int start = index;
+
 				while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '(')
 					index++;
+
+				invalid = index == start;
 			}
 
-			if (!SkipCommentsAndWhiteSpace () || index == endIndex)
+			if (!SkipCommentsAndWhiteSpace ()) {
+				invalid = true;
+				return false;
+			}
+
+			if (index == endIndex)
 				return false;
 
 			// Loose parameter parsing also accepts a missing separator after a quote or comment.
@@ -232,7 +248,26 @@ namespace MimeKit {
 			var parameters = new Dictionary<string, ParameterState> (MimeUtils.OrdinalIgnoreCase);
 
 			while (index < endIndex) {
-				if (!TryParseParameter (out var name, out int segment, out bool encoded, out int start)) {
+				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
+
+				int start = index;
+
+				if (!SkipCommentsAndWhiteSpace ()) {
+					logger.Log (CreateIssue (MimeComplianceViolation.InvalidParameter, start, MimeCompliancePositionKind.ElementStart));
+					break;
+				}
+
+				if (index == endIndex)
+					break;
+
+				// Empty parameter slots are also ignored by ParameterList.
+				if (text[index] == (byte) ';') {
+					index++;
+					continue;
+				}
+
+				if (!TryParseParameter (out var name, out int segment, out bool encoded, out start)) {
+					logger.Log (CreateIssue (MimeComplianceViolation.InvalidParameter, start, MimeCompliancePositionKind.ElementStart));
 					if (!SkipToNextParameter ())
 						break;
 					continue;
@@ -253,6 +288,7 @@ namespace MimeKit {
 
 				if (state.Add (segment, encoded, filename)) {
 					var violation = MimeComplianceViolation.RepeatedParameter;
+
 					if (header == HeaderId.ContentType && name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
 						violation = MimeComplianceViolation.RepeatedBoundaryParameter;
 					else if (filename)
@@ -261,7 +297,12 @@ namespace MimeKit {
 					logger.Log (CreateIssue (violation, start));
 				}
 
-				if (!SkipValue ())
+				bool more = SkipValue (out bool invalid);
+
+				if (invalid)
+					logger.Log (CreateIssue (MimeComplianceViolation.InvalidParameter, start, MimeCompliancePositionKind.ElementStart));
+
+				if (!more)
 					break;
 			}
 

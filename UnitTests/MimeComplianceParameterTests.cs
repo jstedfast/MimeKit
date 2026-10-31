@@ -39,6 +39,7 @@ namespace UnitTests {
 		const MimeComplianceViolation Parameter = MimeComplianceViolation.RepeatedParameter;
 		const MimeComplianceViolation Disposition = MimeComplianceViolation.RepeatedContentDisposition;
 		const MimeComplianceViolation MissingSegment = MimeComplianceViolation.MissingParameterSegment;
+		const MimeComplianceViolation Invalid = MimeComplianceViolation.InvalidParameter;
 		const MimeComplianceViolation None = MimeComplianceViolation.None;
 
 		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
@@ -99,6 +100,87 @@ namespace UnitTests {
 				foreach (bool chunked in new[] { false, true })
 					yield return new TestCaseData (item.Field, item.Value, item.Violation, item.Count, chunked);
 			}
+		}
+
+		// Malformed parameter cases inspired by https://github.com/noxxi/mime-is-broken.
+		static IEnumerable<TestCaseData> InvalidParameterCases ()
+		{
+			var cases = new (string Parameters, int Invalid)[] {
+				("", 0),
+				(" ; ; (comment)", 0),
+				("(nested (comment; filename=ignored))", 0),
+				("filename=\"\"", 0),
+				("filename=(comment) \"file.txt\"", 0),
+				("filename=unquoted file.txt", 0),
+				("filename=unquoted\r\n\tfile.txt", 0),
+				("filename=\"file.txt\" filename=other.txt", 0),
+				("filename=file.txt(comment)filename=other.txt", 0),
+				("filename=\"file; \\\"name\\\".txt\"; size=1", 0),
+				("filename*=''file.txt", 0),
+				("filename*=utf-8''%GG", 0),
+				("filename*=no-prefix", 0),
+				("filename*0=file; filename*2=.txt", 0),
+				("filename", 1),
+				("filename value", 1),
+				("filename (comment)", 1),
+				("=file.txt", 1),
+				("\"filename\"=file.txt", 1),
+				("file/name=file.txt", 1),
+				("filenam\u00e9=file.txt", 1),
+				("filename*", 1),
+				("filename*0", 1),
+				("filename*0x=file.txt", 1),
+				("filename**=file.txt", 1),
+				("filename*2147483648=file.txt", 1),
+				("filename=", 1),
+				("filename= \t ; size=1", 1),
+				("filename=(comment)", 1),
+				("filename=(comment); size=1", 1),
+				("filename=\"unterminated; size=1", 1),
+				("filename=file(comment", 1),
+				("filename (comment", 1),
+				("(unterminated", 1),
+				("filename=\"file\".zip", 1),
+				("filename; =bad; size=1", 2),
+				("\"bad; ignored=1\"=x; filename=file.txt", 1),
+				("broken (comment; ignored=1); filename=a; filename=b", 1),
+				("filename=; filename=good; filename=again", 1),
+				("filename*0=; filename*2=x", 1)
+			};
+
+			foreach (var item in cases) {
+				foreach (bool chunked in new[] { false, true }) {
+					yield return new TestCaseData ("Content-Disposition: attachment; " + item.Parameters, item.Invalid, chunked);
+					yield return new TestCaseData ("Content-Type: text/plain; " + item.Parameters.Replace ("filename", "name"), item.Invalid, chunked);
+				}
+			}
+
+			foreach (bool chunked in new[] { false, true }) {
+				yield return new TestCaseData ("X-Parameters: attachment; broken", 0, chunked);
+				yield return new TestCaseData ("Content-Type: text/plain junk", 0, chunked);
+				yield return new TestCaseData ("Content-Disposition: \"attachment; broken\"", 0, chunked);
+				yield return new TestCaseData ("Content-Disposition: attachment (comment; broken)", 0, chunked);
+				yield return new TestCaseData ("Content-Disposition: attachment (comment; broken); filename", 1, chunked);
+			}
+		}
+
+		static void AssertInvalidParameters (List<MimeComplianceIssue> issues, int count)
+		{
+			var invalid = issues.Where (x => x.Violation == Invalid).ToList ();
+			Assert.That (invalid, Has.Count.EqualTo (count));
+			Assert.That (invalid.All (x => x.PositionKind == MimeCompliancePositionKind.ElementStart), Is.True);
+		}
+
+		[TestCaseSource (nameof (InvalidParameterCases))]
+		public void TestInvalidParameters (string header, int count, bool chunked)
+		{
+			AssertInvalidParameters (Read (header + "\r\n\r\nbody\r\n", chunked), count);
+		}
+
+		[TestCaseSource (nameof (InvalidParameterCases))]
+		public async Task TestInvalidParametersAsync (string header, int count, bool chunked)
+		{
+			AssertInvalidParameters (await ReadAsync (header + "\r\n\r\nbody\r\n", chunked), count);
 		}
 
 		static Stream CreateStream (string text, bool chunked)
@@ -272,6 +354,59 @@ namespace UnitTests {
 			AssertContinuationPositions (await ReadAsync (FoldedContinuations, chunked));
 		}
 
+		const string MalformedParameters = "X-Prefix: \u00e9\r\nContent-Type: text/plain; z*2=x;\r\n" +
+			"\t(\u00e9) name;\r\n\tz*2=y; filename=;\r\n\tsize=\"unterminated\r\n\r\nbody\r\n";
+
+		static void AssertMalformedPositions (List<MimeComplianceIssue> issues)
+		{
+			AssertInvalidParameters (issues, 3);
+			var invalid = issues.Where (x => x.Violation == Invalid).ToList ();
+			AssertPosition (MalformedParameters, "name;", invalid[0], MimeCompliancePositionKind.ElementStart);
+			AssertPosition (MalformedParameters, "filename=", invalid[1], MimeCompliancePositionKind.ElementStart);
+			AssertPosition (MalformedParameters, "size=", invalid[2], MimeCompliancePositionKind.ElementStart);
+			AssertPosition (MalformedParameters, "z*2=x", issues.Single (x => x.Violation == MissingSegment), MimeCompliancePositionKind.ElementStart);
+			AssertPosition (MalformedParameters, "z*2=y", issues.Single (x => x.Violation == Parameter), MimeCompliancePositionKind.Exact);
+		}
+
+		[Test]
+		public void TestMalformedParameterPositions ([Values (false, true)] bool chunked)
+		{
+			AssertMalformedPositions (Read (MalformedParameters, chunked));
+		}
+
+		[Test]
+		public async Task TestMalformedParameterPositionsAsync ([Values (false, true)] bool chunked)
+		{
+			AssertMalformedPositions (await ReadAsync (MalformedParameters, chunked));
+		}
+
+		const string IgnoredMalformedHeaders = "Content-Type: text/plain\r\n" +
+			"Content-Type: text/html; name\r\n" +
+			"Content-Disposition: attachment; filename=a\r\n" +
+			"Content-Disposition: inline; filename=\r\n\r\nbody\r\n";
+
+		static void AssertIgnoredMalformedHeaders (List<MimeComplianceIssue> issues, bool enabled)
+		{
+			AssertInvalidParameters (issues, enabled ? 2 : 0);
+			if (enabled) {
+				var invalid = issues.Where (x => x.Violation == Invalid).ToList ();
+				AssertPosition (IgnoredMalformedHeaders, "name\r\n", invalid[0], MimeCompliancePositionKind.ElementStart);
+				AssertPosition (IgnoredMalformedHeaders, "filename=\r\n", invalid[1], MimeCompliancePositionKind.ElementStart);
+			}
+		}
+
+		[Test]
+		public void TestMalformedParametersInIgnoredHeaders ([Values (false, true)] bool chunked, [Values (MimeComplianceValidators.All, MimeComplianceValidators.None)] MimeComplianceValidators validators)
+		{
+			AssertIgnoredMalformedHeaders (Read (IgnoredMalformedHeaders, chunked, new MimeComplianceOptions { EnabledValidators = validators }), validators != MimeComplianceValidators.None);
+		}
+
+		[Test]
+		public async Task TestMalformedParametersInIgnoredHeadersAsync ([Values (false, true)] bool chunked, [Values (MimeComplianceValidators.All, MimeComplianceValidators.None)] MimeComplianceValidators validators)
+		{
+			AssertIgnoredMalformedHeaders (await ReadAsync (IgnoredMalformedHeaders, chunked, new MimeComplianceOptions { EnabledValidators = validators }), validators != MimeComplianceValidators.None);
+		}
+
 		const string SeparateContinuations = "Content-Type: text/plain; name*0=a\r\n" +
 			"Content-Type: text/plain; name*1=b\r\n" +
 			"Content-Disposition: attachment; filename*0=a\r\n" +
@@ -382,34 +517,36 @@ namespace UnitTests {
 		[Test]
 		public void TestHeaderLengthLimitPrecedesParameterValidation ()
 		{
-			using (var stream = CreateStream ("Content-Type: text/plain; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
+			using (var stream = CreateStream ("Content-Type: text/plain; broken; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
 				var logger = new TestMimeComplianceLogger ();
 				var reader = new MimeReader (new ParserOptions { MaxHeaderLength = 128 }, stream) { ComplianceLogger = logger };
 				Assert.Throws<FormatException> (() => reader.ReadMessage ());
 				AssertParameters (logger.Issues, None, 0);
 				Assert.That (logger.Issues.Any (x => x.Violation == MissingSegment), Is.False);
+				AssertInvalidParameters (logger.Issues, 0);
 			}
 		}
 
 		[Test]
 		public void TestHeaderLengthLimitPrecedesParameterValidationAsync ()
 		{
-			using (var stream = CreateStream ("Content-Type: text/plain; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
+			using (var stream = CreateStream ("Content-Type: text/plain; broken; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
 				var logger = new TestMimeComplianceLogger ();
 				var reader = new MimeReader (new ParserOptions { MaxHeaderLength = 128 }, stream) { ComplianceLogger = logger };
 				Assert.ThrowsAsync<FormatException> (async () => await reader.ReadMessageAsync ());
 				AssertParameters (logger.Issues, None, 0);
 				Assert.That (logger.Issues.Any (x => x.Violation == MissingSegment), Is.False);
+				AssertInvalidParameters (logger.Issues, 0);
 			}
 		}
 
 		const string LimitedParameters = "Content-Type: text/plain; x=1; x=2; x=3; x=4; boundary=a; boundary=b\r\n" +
-			"Content-Disposition: attachment; filename=a; filename=b; filename=c; a*1=x; b*3=y\r\n" +
+			"Content-Disposition: attachment; filename=a; filename=b; filename=c; a*1=x; b*3=y; bad; broken=\r\n" +
 			"Content-Disposition: inline\r\nContent-Disposition: attachment\r\n\r\nbody\r\n";
 
 		static void AssertSeparateBudgets (List<MimeComplianceIssue> issues)
 		{
-			foreach (var violation in new[] { Boundary, Filename, Parameter, Disposition, MissingSegment, MimeComplianceViolation.TooManyComplianceIssues })
+			foreach (var violation in new[] { Boundary, Filename, Parameter, Disposition, MissingSegment, Invalid, MimeComplianceViolation.TooManyComplianceIssues })
 				Assert.That (issues.Count (x => x.Violation == violation), Is.EqualTo (1), violation.ToString ());
 			Assert.That (issues.All (x => x.Context == MimeComplianceContext.Storage), Is.True);
 		}
@@ -429,6 +566,9 @@ namespace UnitTests {
 		const string ContinuedHeaders = "Content-Type: text/plain\r\n" +
 			"Content-Disposition: attachment; filename*0=file.; filename*2=txt\r\n\r\nbody\r\n";
 
+		const string InvalidHeaders = "Content-Type: text/plain; name\r\n" +
+			"Content-Disposition: attachment; filename=a\r\n\r\nbody\r\n";
+
 		static byte[] AssertUnchangedMessage (MimeMessage message, bool continued)
 		{
 			Assert.That (message.Body.ContentType.Name, Is.Null);
@@ -442,7 +582,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestReportingDoesNotChangeParsing ([Values (RepeatedHeaders, ContinuedHeaders)] string text)
+		public void TestReportingDoesNotChangeParsing ([Values (RepeatedHeaders, ContinuedHeaders, InvalidHeaders, IgnoredMalformedHeaders)] string text)
 		{
 			byte[] expected = null;
 			foreach (bool logging in new[] { false, true }) {
@@ -459,6 +599,8 @@ namespace UnitTests {
 							Assert.That (actual, Is.EqualTo (expected));
 							Assert.That (logger.Issues.Count (x => x.Violation == MissingSegment),
 								Is.EqualTo (logging && validators != MimeComplianceValidators.None && text == ContinuedHeaders ? 1 : 0));
+							int invalid = text == InvalidHeaders ? 1 : text == IgnoredMalformedHeaders ? 2 : 0;
+							AssertInvalidParameters (logger.Issues, logging && validators != MimeComplianceValidators.None ? invalid : 0);
 						}
 					}
 				}
@@ -466,7 +608,7 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public async Task TestReportingDoesNotChangeParsingAsync ([Values (RepeatedHeaders, ContinuedHeaders)] string text)
+		public async Task TestReportingDoesNotChangeParsingAsync ([Values (RepeatedHeaders, ContinuedHeaders, InvalidHeaders, IgnoredMalformedHeaders)] string text)
 		{
 			byte[] expected = null;
 			foreach (bool logging in new[] { false, true }) {
@@ -483,6 +625,8 @@ namespace UnitTests {
 							Assert.That (actual, Is.EqualTo (expected));
 							Assert.That (logger.Issues.Count (x => x.Violation == MissingSegment),
 								Is.EqualTo (logging && validators != MimeComplianceValidators.None && text == ContinuedHeaders ? 1 : 0));
+							int invalid = text == InvalidHeaders ? 1 : text == IgnoredMalformedHeaders ? 2 : 0;
+							AssertInvalidParameters (logger.Issues, logging && validators != MimeComplianceValidators.None ? invalid : 0);
 						}
 					}
 				}
@@ -545,6 +689,54 @@ namespace UnitTests {
 				var complete = Encoding.ASCII.GetBytes ("text/plain; name*0=a; name*1=b");
 				validator.Validate (complete, 0, complete.Length);
 				Assert.That (logger.Issues, Is.Empty);
+			}
+		}
+
+		[Test]
+		public void TestMalformedValidatorReuseAndOffsets ()
+		{
+			const string value = "text/plain; broken;\r\n x=";
+			var bytes = Encoding.ASCII.GetBytes ("xx" + value + "yy");
+			var valid = Encoding.ASCII.GetBytes ("text/plain; x=\"\"");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new ParameterValidator (logger, MimeComplianceContext.Storage, HeaderId.ContentType, 100, 5, 7);
+			for (int i = 0; i < 2; i++) {
+				logger.Issues.Clear ();
+				validator.Validate (bytes, 2, bytes.Length - 4);
+				AssertInvalidParameters (logger.Issues, 2);
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (100 + value.IndexOf ("broken")));
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (5));
+				Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (7 + value.IndexOf ("broken")));
+				Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (100 + value.IndexOf ("x=")));
+				Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (6));
+				Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (2));
+				Assert.That (logger.Issues.All (x => x.Context == MimeComplianceContext.Storage), Is.True);
+
+				logger.Issues.Clear ();
+				validator.Validate (valid, 0, valid.Length);
+				Assert.That (logger.Issues, Is.Empty);
+			}
+		}
+
+		[Test]
+		public void TestManyMalformedParametersAreBounded ([Values ("broken", "x=")] string parameter)
+		{
+			const int count = 16384;
+			var bytes = Encoding.ASCII.GetBytes ("text/plain" + string.Concat (Enumerable.Repeat (";\r\n " + parameter, count)));
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new ParameterValidator (logger, MimeComplianceContext.Transport, HeaderId.ContentType, 0, 1, 1);
+			var watch = System.Diagnostics.Stopwatch.StartNew ();
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+			validator.Validate (bytes, 0, bytes.Length);
+			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
+			watch.Stop ();
+
+			AssertInvalidParameters (logger.Issues, count);
+			AssertParameters (logger.Issues, Parameter, parameter == "x=" ? count - 1 : 0);
+			Assert.That (logger.Issues[logger.Issues.Count - 1].LineNumber, Is.EqualTo (count + 1));
+			if (!TestHelper.IsCodeCoverageEnabled) {
+				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+				Assert.That (allocated, Is.LessThan (count * 256L + 65536));
 			}
 		}
 
