@@ -528,10 +528,9 @@ namespace UnitTests {
 			Assert.That (parsed.Value, Is.EqualTo (original));
 			Assert.That (raw.EndsWith (options.NewLine, StringComparison.Ordinal), Is.True);
 			Assert.That (GetMaxLineLength (raw), Is.LessThanOrEqualTo (options.MaxLineLength));
-			foreach (var word in raw.Split (new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
-				if (word.StartsWith ("=?", StringComparison.Ordinal))
-					Assert.That (word.Length, Is.LessThanOrEqualTo (75));
-			}
+			foreach (var word in raw.Split (new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+				.Where (word => word.StartsWith ("=?", StringComparison.Ordinal)))
+				Assert.That (word.Length, Is.LessThanOrEqualTo (75));
 			if (newLineFormat == NewLineFormat.Unix)
 				Assert.That (raw, Does.Not.Contain ("\r"));
 			else

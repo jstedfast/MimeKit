@@ -203,30 +203,30 @@ namespace UnitTests {
 			MimeMessage message = null;
 			TextPart part;
 
-			if (api < 2) {
-				IMimeParser parser;
-				if (api == 0)
-					parser = useDefault ? new MimeParser (source) : new MimeParser (source, storage);
-				else
-					parser = useDefault ? new LegacyMimeParser (source) : new LegacyMimeParser (source, storage == MimeContentStorage.Source);
-				message = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
-				parser.SetStream (Stream.Null);
-				part = (TextPart) message.Body;
-			} else if (api == 2) {
-				if (doAsync)
-					message = useDefault ? await MimeMessage.LoadAsync (source) : await MimeMessage.LoadAsync (source, storage);
-				else
-					message = useDefault ? MimeMessage.Load (source) : MimeMessage.Load (source, storage);
-				part = (TextPart) message.Body;
-			} else {
-				if (doAsync)
-					part = (TextPart) (useDefault ? await MimeEntity.LoadAsync (source) : await MimeEntity.LoadAsync (source, storage));
-				else
-					part = (TextPart) (useDefault ? MimeEntity.Load (source) : MimeEntity.Load (source, storage));
-			}
+			try {
+				if (api < 2) {
+					IMimeParser parser;
+					if (api == 0)
+						parser = useDefault ? new MimeParser (source) : new MimeParser (source, storage);
+					else
+						parser = useDefault ? new LegacyMimeParser (source) : new LegacyMimeParser (source, storage == MimeContentStorage.Source);
+					message = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+					parser.SetStream (Stream.Null);
+					part = (TextPart) message.Body;
+				} else if (api == 2) {
+					if (doAsync)
+						message = useDefault ? await MimeMessage.LoadAsync (source) : await MimeMessage.LoadAsync (source, storage);
+					else
+						message = useDefault ? MimeMessage.Load (source) : MimeMessage.Load (source, storage);
+					part = (TextPart) message.Body;
+				} else {
+					if (doAsync)
+						part = (TextPart) (useDefault ? await MimeEntity.LoadAsync (source) : await MimeEntity.LoadAsync (source, storage));
+					else
+						part = (TextPart) (useDefault ? MimeEntity.Load (source) : MimeEntity.Load (source, storage));
+				}
 
-			using (part) {
-				using (message) {
+				using (part) {
 					bool referencesSource = !useDefault && storage == MimeContentStorage.Source;
 					Assert.That (part.Content.Stream is BoundedStream, Is.EqualTo (referencesSource));
 					Assert.That (part.Text, Is.EqualTo ("original body"));
@@ -248,6 +248,8 @@ namespace UnitTests {
 						Assert.That (part.Text, Is.EqualTo ("original body"), "Memory content is independent of the input");
 					}
 				}
+			} finally {
+				message?.Dispose ();
 			}
 		}
 
