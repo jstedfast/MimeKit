@@ -36,9 +36,16 @@ namespace MimeKit {
 	{
 		sealed class ParameterState
 		{
-			public HashSet<int>? Segments;
+			// Unlike HashSet, a balanced tree avoids attacker-controlled integer hash
+			// collisions making insertion quadratic.
+			public SortedSet<int>? Segments;
+			public MimeComplianceIssue MissingSegmentIssue;
 			public bool Extended;
 			public bool Plain;
+			int highestSegment = -1;
+
+			// Distinct nonnegative indices cover 0..n-1 iff their maximum is n-1.
+			public bool HasMissingSegments => Segments != null && highestSegment != Segments.Count - 1;
 
 			public bool Add (int segment, bool encoded, bool allowFallback)
 			{
@@ -47,10 +54,11 @@ namespace MimeKit {
 				if (segment >= 0) {
 					repeated = false;
 					if (Segments is null) {
-						Segments = new HashSet<int> ();
+						Segments = new SortedSet<int> ();
 						repeated = Extended || (Plain && !allowFallback);
 					}
 
+					highestSegment = Math.Max (highestSegment, segment);
 					return !Segments.Add (segment) || repeated;
 				}
 
@@ -91,7 +99,7 @@ namespace MimeKit {
 			this.columnNumber = columnNumber;
 		}
 
-		void Log (MimeComplianceViolation violation, int at)
+		MimeComplianceIssue CreateIssue (MimeComplianceViolation violation, int at, MimeCompliancePositionKind positionKind = MimeCompliancePositionKind.Exact)
 		{
 			while (scanIndex < at) {
 				if (text[scanIndex++] == (byte) '\n') {
@@ -102,7 +110,7 @@ namespace MimeKit {
 				}
 			}
 
-			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + at - startIndex, scanLine, scanColumn));
+			return new MimeComplianceIssue (context, violation, streamOffset + at - startIndex, scanLine, scanColumn, positionKind);
 		}
 
 		bool SkipCommentsAndWhiteSpace ()
@@ -239,6 +247,10 @@ namespace MimeKit {
 					parameters.Add (name, state);
 				}
 
+				// Capture the first segment's position before later issues advance the scan cursor.
+				if (segment >= 0 && state.Segments is null)
+					state.MissingSegmentIssue = CreateIssue (MimeComplianceViolation.MissingParameterSegment, start, MimeCompliancePositionKind.ElementStart);
+
 				if (state.Add (segment, encoded, filename)) {
 					var violation = MimeComplianceViolation.RepeatedParameter;
 					if (header == HeaderId.ContentType && name.Equals ("boundary", StringComparison.OrdinalIgnoreCase))
@@ -246,11 +258,16 @@ namespace MimeKit {
 					else if (filename)
 						violation = MimeComplianceViolation.RepeatedFilenameParameter;
 
-					Log (violation, start);
+					logger.Log (CreateIssue (violation, start));
 				}
 
 				if (!SkipValue ())
 					break;
+			}
+
+			foreach (var state in parameters.Values) {
+				if (state.HasMissingSegments)
+					logger.Log (state.MissingSegmentIssue);
 			}
 		}
 	}

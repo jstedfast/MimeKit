@@ -423,6 +423,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedContentDisposition:
 			case MimeComplianceViolation.RepeatedFilenameParameter:
 			case MimeComplianceViolation.RepeatedParameter:
+			case MimeComplianceViolation.MissingParameterSegment:
 			case MimeComplianceViolation.InvalidHeader:
 			case MimeComplianceViolation.IncompleteHeader:
 			case MimeComplianceViolation.BlankHeaderContinuationLine:
@@ -631,6 +632,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedBoundaryParameter:
 			case MimeComplianceViolation.RepeatedFilenameParameter:
 			case MimeComplianceViolation.RepeatedParameter:
+			case MimeComplianceViolation.MissingParameterSegment:
 				return Interop | Security;
 
 			// Note: As above, but an unrecognized or duplicated encoding also means the content may
@@ -902,6 +904,8 @@ namespace MimeKit {
 				return "A Content-Type name or Content-Disposition filename parameter was repeated.";
 			case MimeComplianceViolation.RepeatedParameter:
 				return "A MIME parameter other than a boundary or filename parameter was repeated.";
+			case MimeComplianceViolation.MissingParameterSegment:
+				return "An RFC 2231 parameter continuation was missing one or more segments.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
 			case MimeComplianceViolation.RepeatedDate:
@@ -1112,6 +1116,8 @@ namespace MimeKit {
 				return "Repeated filename declarations can cause MIME parsers to assign different names or extensions to the same content. Repeated RFC 2231 continuation indices are also reported. One ordinary fallback together with one extended or continued representation is tolerated. This does not imply that their decoded values agree.";
 			case MimeComplianceViolation.RepeatedParameter:
 				return "Parameter names are compared without regard to case. Competing ordinary, extended, or continued representations and repeated continuation indices are reported, even when their values are identical. Distinct segments of one continued value are not repetitions.";
+			case MimeComplianceViolation.MissingParameterSegment:
+				return "Segments may appear in any order, but their indices must start at zero and be consecutive. Missing segments can cause MIME parsers to assemble different parameter values. The issue is reported once per parameter, at its first continuation declaration.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
 			case MimeComplianceViolation.RepeatedDate:

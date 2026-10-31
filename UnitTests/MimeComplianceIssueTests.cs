@@ -554,6 +554,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.RepeatedBoundaryParameter, Interop | Security },
 				{ MimeComplianceViolation.RepeatedFilenameParameter, Interop | Security },
 				{ MimeComplianceViolation.RepeatedParameter, Interop | Security },
+				{ MimeComplianceViolation.MissingParameterSegment, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },
