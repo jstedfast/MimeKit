@@ -2420,12 +2420,24 @@ namespace MimeKit {
 					if (!ascii && !isAddressHeader && !Utf8.IsValid (value))
 						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
-					if (isAddressHeader && value.Length > 0 && (enabledValidators & MimeComplianceValidators.Address) != 0) {
+					if (isAddressHeader && value.Length > 0 && (enabledValidators & (MimeComplianceValidators.Address | MimeComplianceValidators.EncodedWords)) != 0) {
 						// Note: beginOffset is the start of the header, and therefore the start of a line,
 						// so the value begins at the column just past "<field>:".
-						var validator = new AddressValidator (complianceLogger, complianceContext, beginOffset + headerFieldLength + 1, beginLineNumber, headerFieldLength + 2);
+						var validator = new AddressValidator (complianceLogger, complianceContext, beginOffset + headerFieldLength + 1, beginLineNumber, headerFieldLength + 2) {
+							ValidateSyntax = (enabledValidators & MimeComplianceValidators.Address) != 0,
+							ValidateEncodedWords = (enabledValidators & MimeComplianceValidators.EncodedWords) != 0
+						};
 
 						validator.Validate (value, 0, value.Length);
+					}
+
+					if (!isAddressHeader && (enabledValidators & MimeComplianceValidators.EncodedWords) != 0 &&
+						(header.Id == HeaderId.Subject || header.Id == HeaderId.Comments || header.Id == HeaderId.ContentDescription ||
+						 header.Field.StartsWith ("X-", StringComparison.OrdinalIgnoreCase))) {
+						var validator = new EncodedWordValidator (complianceLogger, complianceContext, value, 0, value.Length,
+							beginOffset + headerFieldLength + 1, beginLineNumber, headerFieldLength + 2);
+
+						validator.Validate (value.Length, EncodedWordContext.Text);
 					}
 
 					if ((header.Id == HeaderId.ContentType || header.Id == HeaderId.ContentDisposition) &&

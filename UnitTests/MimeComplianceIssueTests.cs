@@ -558,6 +558,8 @@ namespace UnitTests {
 				{ MimeComplianceViolation.InvalidParameter, Interop | Security },
 				{ MimeComplianceViolation.InvalidRfc2231Parameter, Interop | Security },
 				{ MimeComplianceViolation.EncodedWordInParameter, Interop | Security },
+				{ MimeComplianceViolation.InvalidEncodedWord, Interop | Security },
+				{ MimeComplianceViolation.InvalidEncodedWordPlacement, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },

@@ -69,6 +69,11 @@ quoted encoded values, and mixed encoded/plain continuations retain their existi
 Parameter validation also reports `EncodedWordInParameter` when a value contains recognizable
 RFC 2047 B/Q encoded-word syntax. Detection handles quoted-pair escapes without charset lookups,
 payload decoding, or assembling continuation values. Tolerant filename recovery is unchanged.
+The independent `EncodedWords` validator reports `InvalidEncodedWord` for malformed RFC 2047
+syntax in address headers, Subject, Comments, Content-Description, and X- headers. It checks
+B/Q payload syntax, word lengths, separation, and address phrase/comment restrictions without
+charset lookup or decoding. `InvalidEncodedWordPlacement` reports complete encoded-word
+envelopes in quoted strings or addr-specs. Existing address and header recovery is unchanged.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

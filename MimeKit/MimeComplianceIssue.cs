@@ -427,6 +427,8 @@ namespace MimeKit {
 			case MimeComplianceViolation.InvalidParameter:
 			case MimeComplianceViolation.InvalidRfc2231Parameter:
 			case MimeComplianceViolation.EncodedWordInParameter:
+			case MimeComplianceViolation.InvalidEncodedWord:
+			case MimeComplianceViolation.InvalidEncodedWordPlacement:
 			case MimeComplianceViolation.InvalidHeader:
 			case MimeComplianceViolation.IncompleteHeader:
 			case MimeComplianceViolation.BlankHeaderContinuationLine:
@@ -639,6 +641,8 @@ namespace MimeKit {
 			case MimeComplianceViolation.InvalidParameter:
 			case MimeComplianceViolation.InvalidRfc2231Parameter:
 			case MimeComplianceViolation.EncodedWordInParameter:
+			case MimeComplianceViolation.InvalidEncodedWord:
+			case MimeComplianceViolation.InvalidEncodedWordPlacement:
 				return Interop | Security;
 
 			// Note: As above, but an unrecognized or duplicated encoding also means the content may
@@ -918,6 +922,10 @@ namespace MimeKit {
 				return "An RFC 2231 encoded parameter value was malformed.";
 			case MimeComplianceViolation.EncodedWordInParameter:
 				return "A MIME parameter value contained RFC 2047 encoded-word syntax.";
+			case MimeComplianceViolation.InvalidEncodedWord:
+				return "A header contained malformed RFC 2047 encoded-word syntax.";
+			case MimeComplianceViolation.InvalidEncodedWordPlacement:
+				return "An address header contained an encoded-word in a prohibited location.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "A MIME part contained multiple Content-Transfer-Encoding headers.";
 			case MimeComplianceViolation.RepeatedDate:
@@ -1136,6 +1144,10 @@ namespace MimeKit {
 				return "Encoded initial values require charset and language delimiters, even when either field is empty. Encoded data must contain attribute characters or complete percent-encoded octets within each segment. The issue is reported once per malformed declaration, at its start. Outer quotes are tolerated, and charset availability, language-tag registration, and decoded character validity are not checked.";
 			case MimeComplianceViolation.EncodedWordInParameter:
 				return "RFC 2047 encoded-words are not permitted in Content-Type or Content-Disposition parameters. Clients that decode them can interpret a filename differently from clients that retain the literal text. Recognizable B/Q encoded-word syntax is reported once per declaration, at its start. Quoted-pair escapes are handled, but encoded-word lengths, charsets and payload encodings are not validated. RFC 2231 values are not decoded or assembled.";
+			case MimeComplianceViolation.InvalidEncodedWord:
+				return "Reports invalid delimiters, charset tokens, encoding markers, B/Q payload syntax, word lengths, or separation from adjacent text. Phrase and comment restrictions are checked in address headers. Charset availability and decoded text are not checked. The position identifies the beginning of the candidate encoded-word.";
+			case MimeComplianceViolation.InvalidEncodedWordPlacement:
+				return "Complete encoded-word envelopes in quoted strings or addr-specs are reported, independently of malformed payload syntax. Literal incomplete lookalikes in addr-specs are not interpreted as encoded-words. No address recovery is changed. The position identifies the beginning of the candidate encoded-word.";
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 				return "The MIME specifications require that each MIME part contain only one Content-Transfer-Encoding header. Multiple Content-Transfer-Encoding headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Transfer-Encoding headers as their \"source of truth\".";
 			case MimeComplianceViolation.RepeatedDate:

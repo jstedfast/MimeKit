@@ -99,6 +99,9 @@ namespace MimeKit {
 		readonly int lineNumber;
 		readonly int columnNumber;
 		byte[] text;
+		EncodedWordValidator encodedWords;
+		internal bool ValidateEncodedWords { get; set; }
+		internal bool ValidateSyntax { get; set; } = true;
 		int startIndex;
 		int endIndex;
 		int index;
@@ -187,6 +190,9 @@ namespace MimeKit {
 
 		void Log (MimeComplianceViolation violation, int at)
 		{
+			if (!ValidateSyntax)
+				return;
+
 			int end = Math.Min (at, endIndex);
 			var lineStarts = recovery?.LineStarts;
 
@@ -302,6 +308,7 @@ namespace MimeKit {
 			while (index < endIndex) {
 				if (text[index] == (byte) '\\') {
 					index++;
+
 					if (index >= endIndex)
 						break;
 				} else if (text[index] == (byte) '"') {
@@ -1467,10 +1474,12 @@ namespace MimeKit {
 		/// </summary>
 		bool ValidateAddress (bool inGroup)
 		{
-			int start = index;
 			bool unquotedSpecial = false;
 			bool hasContent = true;
 			int specialIndex = -1;
+			int start = index;
+
+			ValidateEncodedWordsTo (start, EncodedWordContext.Forbidden);
 
 			if (start < phraseEnd && TryGetPhraseEnd (start, out int end)) {
 				index = end;
@@ -1483,13 +1492,18 @@ namespace MimeKit {
 				bool confirmed = ContainsAt (start, index);
 
 				index = start;
+
 				ValidateAddrspec (false, confirmed);
+				ValidateEncodedWordsTo (index, EncodedWordContext.Forbidden);
+
 				return true;
 			}
 
 			byte c = text[index];
 
 			if (c == (byte) ':') {
+				ValidateEncodedWordsTo (index, EncodedWordContext.Phrase);
+
 				// Note: rfc5322 does not permit a group inside a group (a group-list is a mailbox-list).
 				if (inGroup)
 					Log (MimeComplianceViolation.NestedAddressGroup, start);
@@ -1521,6 +1535,8 @@ namespace MimeKit {
 			}
 
 			if (c == (byte) '<') {
+				ValidateEncodedWordsTo (index, EncodedWordContext.Phrase);
+
 				if (unquotedSpecial)
 					Log (MimeComplianceViolation.UnquotedDisplayName, specialIndex);
 
@@ -1530,6 +1546,8 @@ namespace MimeKit {
 				CheckNullBytesInDisplayName (start, index);
 
 				ValidateAngleAddr ();
+				ValidateEncodedWordsTo (index, EncodedWordContext.Forbidden);
+
 				return true;
 			}
 
@@ -1555,9 +1573,18 @@ namespace MimeKit {
 			}
 
 			index = start;
+
 			ValidateAddrspec (false, hasAt);
+			ValidateEncodedWordsTo (index, EncodedWordContext.Forbidden);
 
 			return true;
+		}
+
+		void ValidateEncodedWordsTo (int end, EncodedWordContext location)
+		{
+			// Classify finalized ranges, not speculative phrase scans that may be reread as addr-specs.
+			if (ValidateEncodedWords)
+				encodedWords.Validate (end, location);
 		}
 
 		/// <summary>
@@ -1761,6 +1788,8 @@ namespace MimeKit {
 			this.startIndex = startIndex;
 			endIndex = startIndex + length;
 			index = startIndex;
+			if (ValidateEncodedWords)
+				encodedWords = new EncodedWordValidator (logger, context, buffer, startIndex, length, streamOffset, lineNumber, columnNumber);
 
 			iso2022Cursor = -1;
 			nullCursor = -1;
@@ -1789,14 +1818,17 @@ namespace MimeKit {
 			if (endIndex == startIndex)
 				return;
 
-			ScanForControlCharacters ();
+			if (ValidateSyntax) {
+				ScanForControlCharacters ();
 
-			// Note: rfc6532 extends the address grammar to UTF-8 and to nothing else, so any 8-bit
-			// content that is not valid UTF-8 has no defined interpretation.
-			if (!Utf8.IsValid (new ReadOnlySpan<byte> (buffer, startIndex, length)))
-				Log (MimeComplianceViolation.Invalid8BitAddress, startIndex);
+				// Note: rfc6532 extends the address grammar to UTF-8 and to nothing else, so any 8-bit
+				// content that is not valid UTF-8 has no defined interpretation.
+				if (!Utf8.IsValid (new ReadOnlySpan<byte> (buffer, startIndex, length)))
+					Log (MimeComplianceViolation.Invalid8BitAddress, startIndex);
+			}
 
 			ValidateAddressList ();
+			ValidateEncodedWordsTo (endIndex, EncodedWordContext.Forbidden);
 
 			// Note: These have to run after the parse, because until then there is no telling which of
 			// the recorded ISO-2022 sequences landed in a local-part, or which null bytes landed in a

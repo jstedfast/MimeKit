@@ -75,8 +75,15 @@ namespace MimeKit {
 		Parameters      = 1 << 4,
 
 		/// <summary>
+		/// The validator for RFC 2047 encoded-word syntax in address headers, Subject, Comments,
+		/// Content-Description, and user-defined X- headers, including placement in address headers.
+		/// This is independent of the address syntax and MIME parameter validators.
+		/// </summary>
+		EncodedWords    = 1 << 5,
+
+		/// <summary>
 		/// All validators.
 		/// </summary>
-		All             = Base64 | QuotedPrintable | UUEncode | Address | Parameters
+		All             = Base64 | QuotedPrintable | UUEncode | Address | Parameters | EncodedWords
 	}
 }

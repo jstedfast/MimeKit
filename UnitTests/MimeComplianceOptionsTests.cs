@@ -75,6 +75,8 @@ namespace UnitTests {
 			yield return new TestCaseData (MimeComplianceValidators.QuotedPrintable, QuotedPrintableMessage);
 			yield return new TestCaseData (MimeComplianceValidators.UUEncode, UUEncodeMessage);
 			yield return new TestCaseData (MimeComplianceValidators.Address, AddressMessage);
+			yield return new TestCaseData (MimeComplianceValidators.EncodedWords,
+				"Subject: =?utf-8?Q?bad=GG?=\r\n\r\nbody\r\n");
 			yield return new TestCaseData (MimeComplianceValidators.Parameters,
 				"Content-Type: text/plain; charset=utf-8; charset=us-ascii\r\n\r\nbody\r\n");
 		}
