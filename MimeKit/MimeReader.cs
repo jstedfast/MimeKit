@@ -2005,10 +2005,12 @@ namespace MimeKit {
 				break;
 			case HeaderId.ContentType:
 				if (currentContentType is null) {
-					// FIXME: do we really need all this fallback stuff for parameters? I doubt it.
-					if (!ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type) && type is null) {
+					ContentType.TryParse (options, rawValue, ref index, rawValue.Length, false, out var type, out bool invalidMimeType);
+					if (invalidMimeType)
 						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.InvalidContentType, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 
+					// FIXME: do we really need all this fallback stuff for parameters? I doubt it.
+					if (type is null) {
 						// if 'type' is null, then it means that even the mime-type was unintelligible
 						type = new ContentType ("application", "octet-stream");
 

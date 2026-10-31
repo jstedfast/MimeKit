@@ -535,7 +535,8 @@ namespace MimeKit {
 		/// A Content-Type header value was not valid.
 		/// </summary>
 		/// <remarks>
-		/// <para>This indicates that the Content-Type header was not properly formatted and could not be parsed.
+		/// <para>This indicates that the Content-Type media type was not properly formatted, including unexpected
+		/// text after a recognizable type/subtype and before any parameter separator.
 		/// Since MIME parsers rely on the Content-Type header to decide how to interpret the content of a MIME
 		/// part, an invalid Content-Type header can lead to ambiguity and inconsistent behavior among different
 		/// MIME parser implementations.</para>

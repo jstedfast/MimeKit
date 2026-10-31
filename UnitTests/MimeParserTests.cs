@@ -1585,6 +1585,104 @@ namespace UnitTests {
 			}
 		}
 
+		// Regression cases inspired by the https://github.com/noxxi/mime-is-broken audit.
+		static IEnumerable<TestCaseData> ContentTypeSyntaxCases ()
+		{
+			var cases = new (string Value, bool Invalid, string MimeType, string Charset)[] {
+				("text/plain junk", true, "text/plain", null),
+				("text/plain junk; charset=utf-8", true, "text/plain", null),
+				("text/plain charset=utf-8", true, "text/plain", null),
+				("text/plain (comment; charset=ignored) junk", true, "text/plain", null),
+				("text/plain\r\n\tjunk", true, "text/plain", null),
+				("\r\n\ttext/plain (comment)\r\n\tjunk; charset=utf-8", true, "text/plain", null),
+				("text/plain, text/html", true, "text/plain", null),
+				("text/plain\"junk\"", true, "text/plain", null),
+				("text/plain", false, "text/plain", null),
+				("text/plain (comment; junk)", false, "text/plain", null),
+				("text/plain (comment); charset=utf-8", false, "text/plain", "utf-8"),
+				("text/plain;\r\n\tcharset=\"utf-8\"", false, "text/plain", "utf-8"),
+				("text/plain;", false, "text/plain", null),
+				("text/plain; charset", false, "text/plain", null),
+				("text/plain; charset=utf-8; broken", false, "text/plain", null),
+				("text/plain; (unterminated", false, "text/plain", null),
+				("text/plain (unterminated", true, "application/octet-stream", null),
+				("garbage; charset=utf-8", true, "application/octet-stream", "utf-8")
+			};
+
+			foreach (var item in cases) {
+				foreach (bool chunked in new[] { false, true }) {
+					foreach (var mode in new[] { RfcComplianceMode.Loose, RfcComplianceMode.Strict })
+						yield return new TestCaseData (item.Value, item.Invalid, item.MimeType, item.Charset, chunked, mode);
+				}
+			}
+		}
+
+		const string ContentTypeSyntaxPrefix = "Subject: content-type syntax\r\n";
+
+		static void AssertContentTypeSyntax (MimeMessage message, TestMimeComplianceLogger logger, bool invalid, string mimeType, string charset)
+		{
+			Assert.That (message.Body, Is.InstanceOf<MimePart> ());
+			var part = (MimePart) message.Body;
+			Assert.That (part.ContentType.MimeType, Is.EqualTo (mimeType));
+			Assert.That (part.ContentType.Charset, Is.EqualTo (charset));
+			Assert.That (part.ContentType.Parameters.Count, Is.EqualTo (charset is null ? 0 : 1));
+			using (var decoded = new MemoryStream ()) {
+				part.Content.DecodeTo (decoded);
+				Assert.That (Encoding.ASCII.GetString (decoded.ToArray ()), Is.EqualTo ("body\r\n"));
+			}
+
+			var issues = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.InvalidContentType).ToList ();
+			Assert.That (issues, Has.Count.EqualTo (invalid ? 1 : 0));
+			if (invalid) {
+				Assert.That (issues[0].StreamOffset, Is.EqualTo (ContentTypeSyntaxPrefix.Length));
+				Assert.That (issues[0].LineNumber, Is.EqualTo (2));
+				Assert.That (issues[0].ColumnNumber, Is.EqualTo (1));
+				Assert.That (issues[0].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart));
+			}
+		}
+
+		[TestCaseSource (nameof (ContentTypeSyntaxCases))]
+		public void TestContentTypeSyntaxReporting (string value, bool invalid, string mimeType, string charset, bool chunked, RfcComplianceMode mode)
+		{
+			var text = ContentTypeSyntaxPrefix + "Content-Type: " + value + "\r\n\r\nbody\r\n";
+			var options = new ParserOptions { ParameterComplianceMode = mode };
+			foreach (var validators in new[] { MimeComplianceValidators.None, MimeComplianceValidators.All }) {
+				foreach (bool logging in new[] { false, true }) {
+					using (var stream = CreateStream (Encoding.ASCII.GetBytes (text), chunked)) {
+						var logger = new TestMimeComplianceLogger ();
+						var parser = new MimeParser (options, stream);
+						parser.ComplianceOptions.EnabledValidators = validators;
+						if (logging)
+							parser.ComplianceLogger = logger;
+						using var message = parser.ParseMessage ();
+						AssertContentTypeSyntax (message, logger, invalid && logging, mimeType, charset);
+						AssertSerialization (message, NewLineFormat.Dos, text);
+					}
+				}
+			}
+		}
+
+		[TestCaseSource (nameof (ContentTypeSyntaxCases))]
+		public async Task TestContentTypeSyntaxReportingAsync (string value, bool invalid, string mimeType, string charset, bool chunked, RfcComplianceMode mode)
+		{
+			var text = ContentTypeSyntaxPrefix + "Content-Type: " + value + "\r\n\r\nbody\r\n";
+			var options = new ParserOptions { ParameterComplianceMode = mode };
+			foreach (var validators in new[] { MimeComplianceValidators.None, MimeComplianceValidators.All }) {
+				foreach (bool logging in new[] { false, true }) {
+					using (var stream = CreateStream (Encoding.ASCII.GetBytes (text), chunked)) {
+						var logger = new TestMimeComplianceLogger ();
+						var parser = new MimeParser (options, stream);
+						parser.ComplianceOptions.EnabledValidators = validators;
+						if (logging)
+							parser.ComplianceLogger = logger;
+						using var message = await parser.ParseMessageAsync ();
+						AssertContentTypeSyntax (message, logger, invalid && logging, mimeType, charset);
+						await AssertSerializationAsync (message, NewLineFormat.Dos, text);
+					}
+				}
+			}
+		}
+
 		[TestCase ("garbage")]
 		[TestCase ("!%^#&^!\\t  ")]
 		public void TestInvalidContentType (string mimeType)

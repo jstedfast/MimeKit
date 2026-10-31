@@ -57,6 +57,8 @@ These checks do not change parameter precedence or message parsing.
 Parameter validation also reports missing RFC 2231 continuation segments once per parameter.
 Segment tracking uses a balanced tree and stores only observed indices, so large or
 adversarially chosen segment numbers cannot drive index-sized allocations or hash collisions.
+Content-Type values with unexpected text after a valid media type now report `InvalidContentType`,
+without changing tolerant parsing or classifying parameter syntax failures as media-type errors.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

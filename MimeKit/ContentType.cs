@@ -453,10 +453,16 @@ namespace MimeKit {
 
 		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ContentType? contentType)
 		{
+			return TryParse (options, text, ref index, endIndex, throwOnError, out contentType, out _);
+		}
+
+		internal static bool TryParse (ParserOptions options, byte[] text, ref int index, int endIndex, bool throwOnError, [NotNullWhen (true)] out ContentType? contentType, out bool invalidMimeType)
+		{
 			string type, subtype;
 			int start;
 
 			contentType = null;
+			invalidMimeType = true;
 
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
@@ -502,10 +508,13 @@ namespace MimeKit {
 
 			contentType = new ContentType (type, subtype);
 
+			// Distinguish malformed media types from failures in the parameter list.
+			invalidMimeType = index < endIndex && text[index] != (byte) ';';
+
 			if (index >= endIndex)
 				return true;
 
-			if (text[index] != (byte) ';') {
+			if (invalidMimeType) {
 				if (throwOnError)
 					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Expected ';' at position {0}", index), index, index);
 
