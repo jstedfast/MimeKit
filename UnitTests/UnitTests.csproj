@@ -60,6 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Fuzzing\Helpers\BrowserOracle.Markup.cs" Link="Fuzzing\BrowserOracle.Markup.cs" />
     <Compile Remove="TestData\smime\mkcert.cs" />
     <Compile Remove="Utils\OptimizedOrdinalComparerTests.cs" Condition=" !$(TargetFramework.StartsWith('net4')) " />
   </ItemGroup>

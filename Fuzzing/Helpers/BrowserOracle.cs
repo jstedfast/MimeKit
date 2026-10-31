@@ -41,9 +41,8 @@ namespace MimeKit.Fuzzing.Helpers {
 	//
 	// When fuzzing, the browser is launched by Warmup before libFuzzer starts, since a cold start can take longer than the
 	// per-input timeout. Otherwise (e.g. when replaying), it is only launched the first time that it is needed.
-	static class BrowserOracle
+	static partial class BrowserOracle
 	{
-		const string MarkerPrefix = "mkoracle";
 		const string Url = "http://oracle.invalid/";
 
 		// Collects every element (including those in <template> contents) in document order.
@@ -225,45 +224,6 @@ namespace MimeKit.Fuzzing.Helpers {
 			}
 
 			return int.TryParse (attribute.AsSpan (MarkerPrefix.Length, end - MarkerPrefix.Length), out index);
-		}
-
-		// Inserts a marker attribute after the name of each start tag that HtmlTokenizer emitted.
-		static string Mark (string html, IReadOnlyDictionary<int, HtmlTagToken> tags, out List<HtmlTagToken> markers)
-		{
-			var offsets = new List<int> (tags.Keys);
-			var builder = new StringBuilder (html.Length + tags.Count * 16);
-			int index = 0;
-
-			markers = new List<HtmlTagToken> (tags.Count);
-			offsets.Sort ();
-
-			foreach (var offset in offsets) {
-				int end = offset + 1;
-
-				while (end < html.Length && html[end] is not ('\t' or '\n' or '\f' or ' ' or '/' or '>'))
-					end++;
-
-				// Note: Inserting an attribute between "--" and '>' or "]]" and '>' would change where the browser ends a comment
-				// or CDATA section if it treats this markup as text (which is what HtmlTokenizer might have gotten wrong), so repeat
-				// the trailing '-', ']' and '!' characters of the tag name after the marker (e.g. "<x--" becomes "<x-- mkoracle0--").
-				// The marker ends with a digit, so the browser would still end the comment or CDATA section at the same '>'.
-				int suffix = end;
-
-				if (end < html.Length && html[end] == '>') {
-					while (html[suffix - 1] is '-' or ']' or '!')
-						suffix--;
-				}
-
-				builder.Append (html, index, end - index);
-				builder.Append (' ').Append (MarkerPrefix).Append (markers.Count);
-				builder.Append (html, suffix, end - suffix);
-				markers.Add (tags[offset]);
-				index = end;
-			}
-
-			builder.Append (html, index, html.Length - index);
-
-			return builder.ToString ();
 		}
 
 		static string Parse (IBrowser browser, string html, bool scriptingEnabled)
