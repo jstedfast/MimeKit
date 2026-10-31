@@ -66,6 +66,9 @@ The separate `InvalidRfc2231Parameter` violation reports missing charset/languag
 invalid percent escapes, and invalid raw bytes in encoded parameter data. Checks are performed
 per declaration without assembling values or looking up charsets. Empty charset/language fields,
 quoted encoded values, and mixed encoded/plain continuations retain their existing handling.
+Parameter validation also reports `EncodedWordInParameter` when a value contains recognizable
+RFC 2047 B/Q encoded-word syntax. Detection handles quoted-pair escapes without charset lookups,
+payload decoding, or assembling continuation values. Tolerant filename recovery is unchanged.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

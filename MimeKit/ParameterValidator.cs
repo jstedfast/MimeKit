@@ -34,6 +34,18 @@ namespace MimeKit {
 	// Inspect raw declarations independently of parameter decoding and precedence.
 	sealed class ParameterValidator
 	{
+		enum EncodedWordState {
+			Text,
+			Equals,
+			CharsetStart,
+			Charset,
+			Encoding,
+			Separator,
+			PayloadStart,
+			Payload,
+			Question
+		}
+
 		sealed class ParameterState
 		{
 			// Unlike HashSet, a balanced tree avoids attacker-controlled integer hash
@@ -255,6 +267,7 @@ namespace MimeKit {
 					while (start < end && text[start] != (byte) '\'') {
 						if (text[start] <= 32 || text[start] >= 127)
 							return false;
+
 						start++;
 					}
 
@@ -271,15 +284,102 @@ namespace MimeKit {
 				if (text[start] == (byte) '%') {
 					if (end - start < 3 || !text[start + 1].IsXDigit () || !text[start + 2].IsXDigit ())
 						return false;
+
 					start += 3;
 				} else {
 					if (!text[start].IsAttr ())
 						return false;
+
 					start++;
 				}
 			}
 
 			return true;
+		}
+
+		static bool IsEncodedWordToken (byte c)
+		{
+			return c.IsToken () && c != (byte) '.';
+		}
+
+		bool ContainsEncodedWord (int start, int end)
+		{
+			bool quoted = end - start >= 2 && text[start] == (byte) '"' && text[end - 1] == (byte) '"';
+			var state = EncodedWordState.Text;
+			bool payloadEndsWithEquals = false;
+
+			if (quoted) {
+				start++;
+				end--;
+			}
+
+			for (; start < end; start++) {
+				byte c = text[start];
+
+				if (quoted && c == (byte) '\\' && start + 1 < end)
+					c = text[++start];
+
+				switch (state) {
+				case EncodedWordState.Equals:
+					if (c == (byte) '?') {
+						state = EncodedWordState.CharsetStart;
+						continue;
+					}
+					break;
+				case EncodedWordState.CharsetStart:
+				case EncodedWordState.Charset:
+					if (state == EncodedWordState.Charset && c == (byte) '?') {
+						state = EncodedWordState.Encoding;
+						continue;
+					}
+
+					if (IsEncodedWordToken (c) && (state == EncodedWordState.Charset || c != (byte) '*')) {
+						state = EncodedWordState.Charset;
+						continue;
+					}
+					break;
+				case EncodedWordState.Encoding:
+					if (c == (byte) 'B' || c == (byte) 'b' || c == (byte) 'Q' || c == (byte) 'q') {
+						state = EncodedWordState.Separator;
+						continue;
+					}
+					break;
+				case EncodedWordState.Separator:
+					if (c == (byte) '?') {
+						state = EncodedWordState.PayloadStart;
+						continue;
+					}
+					break;
+				case EncodedWordState.PayloadStart:
+				case EncodedWordState.Payload:
+					if (state == EncodedWordState.Payload && c == (byte) '?') {
+						state = EncodedWordState.Question;
+						continue;
+					}
+
+					if (c > 32 && c < 127 && c != (byte) '?') {
+						payloadEndsWithEquals = c == (byte) '=';
+						state = EncodedWordState.Payload;
+						continue;
+					}
+					break;
+				case EncodedWordState.Question:
+					if (c == (byte) '=')
+						return true;
+
+					// An unterminated word may contain the start of another word.
+					// Resume at its charset without rescanning the preceding payload.
+					if (payloadEndsWithEquals && c != (byte) '*' && IsEncodedWordToken (c)) {
+						state = EncodedWordState.Charset;
+						continue;
+					}
+					break;
+				}
+
+				state = c == (byte) '=' ? EncodedWordState.Equals : EncodedWordState.Text;
+			}
+
+			return false;
 		}
 
 		public void Validate (byte[] buffer, int startIndex, int length)
@@ -354,6 +454,9 @@ namespace MimeKit {
 					logger.Log (CreateIssue (MimeComplianceViolation.InvalidParameter, start, MimeCompliancePositionKind.ElementStart));
 				else if (encoded && !ValidateEncodedValue (valueStart, valueEnd, segment <= 0))
 					logger.Log (CreateIssue (MimeComplianceViolation.InvalidRfc2231Parameter, start, MimeCompliancePositionKind.ElementStart));
+
+				if (!invalid && ContainsEncodedWord (valueStart, valueEnd))
+					logger.Log (CreateIssue (MimeComplianceViolation.EncodedWordInParameter, start, MimeCompliancePositionKind.ElementStart));
 
 				if (!more)
 					break;

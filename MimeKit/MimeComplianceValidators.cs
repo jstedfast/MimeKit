@@ -68,8 +68,9 @@ namespace MimeKit {
 		Address         = 1 << 3,
 
 		/// <summary>
-		/// The validator for malformed or repeated parameters, malformed RFC 2231 encoded values,
-		/// and missing continuation segments in Content-Type and Content-Disposition headers.
+		/// The validator for malformed or repeated parameters, RFC 2047 encoded-words, malformed
+		/// RFC 2231 encoded values, and missing continuation segments in Content-Type and
+		/// Content-Disposition headers.
 		/// </summary>
 		Parameters      = 1 << 4,
 

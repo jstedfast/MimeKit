@@ -41,6 +41,7 @@ namespace UnitTests {
 		const MimeComplianceViolation MissingSegment = MimeComplianceViolation.MissingParameterSegment;
 		const MimeComplianceViolation Invalid = MimeComplianceViolation.InvalidParameter;
 		const MimeComplianceViolation InvalidEncoded = MimeComplianceViolation.InvalidRfc2231Parameter;
+		const MimeComplianceViolation EncodedWord = MimeComplianceViolation.EncodedWordInParameter;
 		const MimeComplianceViolation None = MimeComplianceViolation.None;
 
 		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
@@ -271,6 +272,94 @@ namespace UnitTests {
 			AssertInvalidParameters (issues, 0);
 		}
 
+		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
+		static IEnumerable<TestCaseData> EncodedWordCases ()
+		{
+			var cases = new (string Parameters, int Count)[] {
+				("filename=\"=?utf-8?B?ZmlsZS50eHQ=?=\"", 1),
+				("filename==?utf-8?Q?file=2Etxt?=", 1),
+				("filename=\"=?UTF-8?q?file_name.txt?=\"", 1),
+				("filename=\"=?utf-8?b?ZmlsZS50eHQ=?=\"", 1),
+				("filename=\"=?x-unknown?Q?file.txt?=\"", 1),
+				("filename=\"=?utf-8*en?Q?file.txt?=\"", 1),
+				("filename=\"=?utf-8*?Q?file.txt?=\"", 1),
+				("filename=\"prefix=?utf-8?Q?file?=.txt\"", 1),
+				("filename=\"=?utf-8?Q?file?= =?utf-8?Q?.txt?=\"", 1),
+				("filename=\"=?utf-8?Q?file?=\r\n\t=?utf-8?Q?.txt?=\"", 1),
+				("filename=\"=?utf-8?Q?file?=\"; filename=\"=?utf-8?Q?other?=\"", 2),
+				("filename=\"=\\?utf-8\\?Q\\?file.txt?\\=\"", 1),
+				("filename=\"\\=\\?utf-8\\?Q\\?file.txt\\?\\=\"", 1),
+				("filename=\"=?utf-8?Q?file\\_name.txt?=\"", 1),
+				("filename=\"=?utf-8?Q?file.txt?=\" filename=plain", 1),
+				("filename=(comment) \"=?utf-8?Q?file.txt?=\" (comment)", 1),
+				("filename=\"(=?utf-8?Q?file.txt?=)\"", 1),
+				("filename=\"=?broken=?utf-8?Q?file.txt?=\"", 1),
+				("filename=\"=?utf-8?Q?broken=?utf-8?B?ZmlsZQ==?=\"", 1),
+				("filename=\"=?utf-8?Q?=?utf-8?Q?file.txt?=\"", 1),
+				("filename=\"=?utf-8?X?bad?==?utf-8?Q?file.txt?=\"", 1),
+				("filename=\"=?utf-8?Q??==?utf-8?Q?file.txt?=\"", 1),
+				("filename=\"=?utf-8?B?not-base64!?=\"", 1),
+				("filename=\"=?utf-8?Q?bad=GG?=\"", 1),
+				("filename=\"=?utf-8?Q?" + new string ('a', 100) + "?=\"", 1),
+				("filename*0=\"=?utf-8?Q?file?=\"; filename*1=.txt", 1),
+				("filename*2=\"=?utf-8?Q?file?=\"", 1),
+				("filename*=\"utf-8''=?utf-8?Q?file?=\"", 1),
+				("filename*=utf-8''%3D%3Futf-8%3FQ%3Ffile%3F%3D", 0),
+				("filename*0=\"=?utf-8?Q?file\"; filename*1=\"?=\"", 0),
+				("filename=(=?utf-8?Q?ignored?=) plain", 0),
+				("filename=plain (=?utf-8?Q?ignored?=)", 0),
+				("(=?utf-8?Q?ignored?=); filename=plain", 0),
+				("filename=\"\"", 0),
+				("filename=\"=?\"", 0),
+				("filename=\"=?utf-8?Q?unfinished\"", 0),
+				("filename=\"=?utf-8?Q?unfinished?\"", 0),
+				("filename=\"=?utf-8?Q??=\"", 0),
+				("filename=\"=??Q?file?=\"", 0),
+				("filename=\"=?*en?Q?file?=\"", 0),
+				("filename=\"=?utf-8?X?file?=\"", 0),
+				("filename=\"=?utf-8?QQ?file?=\"", 0),
+				("filename=\"=?utf-8?Qfile?=\"", 0),
+				("filename=\"=?utf 8?Q?file?=\"", 0),
+				("filename=\"=?utf.8?Q?file?=\"", 0),
+				("filename=\"=?utf-8?Q?file name?=\"", 0),
+				("filename=\"=?utf-8?Q?file\tname?=\"", 0),
+				("filename=\"=?utf-8?Q?caf\u00e9?=\"", 0),
+				("filename=\"=?utf-8?Q?file?name?=\"", 0),
+				("filename=\"=?utf-8?Q?file\r\n\tname?=\"", 0)
+			};
+
+			foreach (var item in cases) {
+				foreach (bool chunked in new[] { false, true }) {
+					yield return new TestCaseData ("Content-Disposition: attachment; " + item.Parameters, item.Count, chunked);
+					yield return new TestCaseData ("Content-Type: text/plain; " + item.Parameters.Replace ("filename", "name"), item.Count, chunked);
+				}
+			}
+
+			foreach (bool chunked in new[] { false, true }) {
+				yield return new TestCaseData ("Subject: =?utf-8?Q?subject?=", 0, chunked);
+				yield return new TestCaseData ("X-Parameters: attachment; filename=\"=?utf-8?Q?file?=\"", 0, chunked);
+			}
+		}
+
+		static void AssertEncodedWords (List<MimeComplianceIssue> issues, int count)
+		{
+			var words = issues.Where (x => x.Violation == EncodedWord).ToList ();
+			Assert.That (words, Has.Count.EqualTo (count));
+			Assert.That (words.All (x => x.PositionKind == MimeCompliancePositionKind.ElementStart), Is.True);
+		}
+
+		[TestCaseSource (nameof (EncodedWordCases))]
+		public void TestEncodedWordsInParameters (string header, int count, bool chunked)
+		{
+			AssertEncodedWords (Read (header + "\r\n\r\nbody\r\n", chunked), count);
+		}
+
+		[TestCaseSource (nameof (EncodedWordCases))]
+		public async Task TestEncodedWordsInParametersAsync (string header, int count, bool chunked)
+		{
+			AssertEncodedWords (await ReadAsync (header + "\r\n\r\nbody\r\n", chunked), count);
+		}
+
 		static Stream CreateStream (string text, bool chunked)
 		{
 			var bytes = Encoding.UTF8.GetBytes (text);
@@ -496,19 +585,51 @@ namespace UnitTests {
 		}
 
 		const string IgnoredEncodedHeaders = "Content-Type: text/plain\r\n" +
-			"Content-Type: text/html; name*=bad\r\n" +
+			"Content-Type: text/html; name*=bad; title=\"=?utf-8?Q?ignored?=\"\r\n" +
 			"Content-Disposition: attachment; filename=a\r\n" +
-			"Content-Disposition: inline; filename*=utf-8''%GG\r\n\r\nbody\r\n";
+			"Content-Disposition: inline; filename*=utf-8''%GG; info=\"=?utf-8?Q?ignored?=\"\r\n\r\nbody\r\n";
 
 		static void AssertIgnoredEncodedHeaders (List<MimeComplianceIssue> issues, MimeComplianceValidators validators)
 		{
 			bool enabled = (validators & MimeComplianceValidators.Parameters) != 0;
 			AssertInvalidEncodedParameters (issues, enabled ? 2 : 0);
+			AssertEncodedWords (issues, enabled ? 2 : 0);
 			if (enabled) {
 				var invalid = issues.Where (x => x.Violation == InvalidEncoded).ToList ();
 				AssertPosition (IgnoredEncodedHeaders, "name*=", invalid[0], MimeCompliancePositionKind.ElementStart);
 				AssertPosition (IgnoredEncodedHeaders, "filename*=", invalid[1], MimeCompliancePositionKind.ElementStart);
+				var words = issues.Where (x => x.Violation == EncodedWord).ToList ();
+				AssertPosition (IgnoredEncodedHeaders, "title=", words[0], MimeCompliancePositionKind.ElementStart);
+				AssertPosition (IgnoredEncodedHeaders, "info=", words[1], MimeCompliancePositionKind.ElementStart);
 			}
+		}
+
+		const string FoldedEncodedWords = "X-Prefix: \u00e9\r\nContent-Type: text/plain;\r\n" +
+			"\t(\u00e9) name*2=\"=?utf-8?Q?first?=\";\r\n\tname*2=\"=?utf-8?Q?second?=\";\r\n" +
+			"\tbad*=\"utf-8''=?utf-8?Q?third?=\"\r\n\r\nbody\r\n";
+
+		static void AssertEncodedWordPositions (List<MimeComplianceIssue> issues)
+		{
+			AssertEncodedWords (issues, 3);
+			var words = issues.Where (x => x.Violation == EncodedWord).ToList ();
+			AssertPosition (FoldedEncodedWords, "name*2=\"=?utf-8?Q?first", words[0], MimeCompliancePositionKind.ElementStart);
+			AssertPosition (FoldedEncodedWords, "name*2=\"=?utf-8?Q?second", words[1], MimeCompliancePositionKind.ElementStart);
+			AssertPosition (FoldedEncodedWords, "bad*=", words[2], MimeCompliancePositionKind.ElementStart);
+			AssertPosition (FoldedEncodedWords, "name*2=\"=?utf-8?Q?first", issues.Single (x => x.Violation == MissingSegment), MimeCompliancePositionKind.ElementStart);
+			AssertPosition (FoldedEncodedWords, "name*2=\"=?utf-8?Q?second", issues.Single (x => x.Violation == Filename), MimeCompliancePositionKind.Exact);
+			AssertPosition (FoldedEncodedWords, "bad*=", issues.Single (x => x.Violation == InvalidEncoded), MimeCompliancePositionKind.ElementStart);
+		}
+
+		[Test]
+		public void TestEncodedWordPositions ([Values (false, true)] bool chunked)
+		{
+			AssertEncodedWordPositions (Read (FoldedEncodedWords, chunked));
+		}
+
+		[Test]
+		public async Task TestEncodedWordPositionsAsync ([Values (false, true)] bool chunked)
+		{
+			AssertEncodedWordPositions (await ReadAsync (FoldedEncodedWords, chunked));
 		}
 
 		[Test]
@@ -662,7 +783,7 @@ namespace UnitTests {
 		[Test]
 		public void TestHeaderLengthLimitPrecedesParameterValidation ()
 		{
-			using (var stream = CreateStream ("Content-Type: text/plain; broken; bad*=missing; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
+			using (var stream = CreateStream ("Content-Type: text/plain; broken; bad*=missing; word=\"=?utf-8?Q?file?=\"; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
 				var logger = new TestMimeComplianceLogger ();
 				var reader = new MimeReader (new ParserOptions { MaxHeaderLength = 128 }, stream) { ComplianceLogger = logger };
 				Assert.Throws<FormatException> (() => reader.ReadMessage ());
@@ -670,13 +791,14 @@ namespace UnitTests {
 				Assert.That (logger.Issues.Any (x => x.Violation == MissingSegment), Is.False);
 				AssertInvalidParameters (logger.Issues, 0);
 				AssertInvalidEncodedParameters (logger.Issues, 0);
+				AssertEncodedWords (logger.Issues, 0);
 			}
 		}
 
 		[Test]
 		public void TestHeaderLengthLimitPrecedesParameterValidationAsync ()
 		{
-			using (var stream = CreateStream ("Content-Type: text/plain; broken; bad*=missing; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
+			using (var stream = CreateStream ("Content-Type: text/plain; broken; bad*=missing; word=\"=?utf-8?Q?file?=\"; x*1=1; x*1=2; x=" + new string ('a', 256) + "\r\n\r\n", true)) {
 				var logger = new TestMimeComplianceLogger ();
 				var reader = new MimeReader (new ParserOptions { MaxHeaderLength = 128 }, stream) { ComplianceLogger = logger };
 				Assert.ThrowsAsync<FormatException> (async () => await reader.ReadMessageAsync ());
@@ -684,16 +806,18 @@ namespace UnitTests {
 				Assert.That (logger.Issues.Any (x => x.Violation == MissingSegment), Is.False);
 				AssertInvalidParameters (logger.Issues, 0);
 				AssertInvalidEncodedParameters (logger.Issues, 0);
+				AssertEncodedWords (logger.Issues, 0);
 			}
 		}
 
 		const string LimitedParameters = "Content-Type: text/plain; x=1; x=2; x=3; x=4; boundary=a; boundary=b\r\n" +
-			"Content-Disposition: attachment; filename=a; filename=b; filename=c; a*1=x; b*3=y; enc*=bad; other*=bad; bad; broken=\r\n" +
+			"Content-Disposition: attachment; filename=a; filename=b; filename=c; a*1=x; b*3=y; enc*=bad; other*=bad;\r\n" +
+			"\tword=\"=?utf-8?Q?first?=\"; word=\"=?utf-8?Q?second?=\"; bad; broken=\r\n" +
 			"Content-Disposition: inline\r\nContent-Disposition: attachment\r\n\r\nbody\r\n";
 
 		static void AssertSeparateBudgets (List<MimeComplianceIssue> issues)
 		{
-			foreach (var violation in new[] { Boundary, Filename, Parameter, Disposition, MissingSegment, Invalid, InvalidEncoded, MimeComplianceViolation.TooManyComplianceIssues })
+			foreach (var violation in new[] { Boundary, Filename, Parameter, Disposition, MissingSegment, Invalid, InvalidEncoded, EncodedWord, MimeComplianceViolation.TooManyComplianceIssues })
 				Assert.That (issues.Count (x => x.Violation == violation), Is.EqualTo (1), violation.ToString ());
 			Assert.That (issues.All (x => x.Context == MimeComplianceContext.Storage), Is.True);
 		}
@@ -716,9 +840,9 @@ namespace UnitTests {
 		const string InvalidHeaders = "Content-Type: text/plain; name\r\n" +
 			"Content-Disposition: attachment; filename=a\r\n\r\nbody\r\n";
 
-		static byte[] AssertUnchangedMessage (MimeMessage message, string filename)
+		static byte[] AssertUnchangedMessage (MimeMessage message, string filename, string name = null)
 		{
-			Assert.That (message.Body.ContentType.Name, Is.Null);
+			Assert.That (message.Body.ContentType.Name, Is.EqualTo (name));
 			Assert.That (message.Body.ContentDisposition.FileName, Is.EqualTo (filename));
 			Assert.That (message.Body, Is.InstanceOf<TextPart> ());
 			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("body\r\n"));
@@ -749,6 +873,7 @@ namespace UnitTests {
 							int invalid = text == InvalidHeaders ? 1 : text == IgnoredMalformedHeaders ? 2 : 0;
 							AssertInvalidParameters (logger.Issues, logging && validators != MimeComplianceValidators.None ? invalid : 0);
 							AssertInvalidEncodedParameters (logger.Issues, logging && validators != MimeComplianceValidators.None && text == IgnoredEncodedHeaders ? 2 : 0);
+							AssertEncodedWords (logger.Issues, logging && validators != MimeComplianceValidators.None && text == IgnoredEncodedHeaders ? 2 : 0);
 						}
 					}
 				}
@@ -776,6 +901,7 @@ namespace UnitTests {
 							int invalid = text == InvalidHeaders ? 1 : text == IgnoredMalformedHeaders ? 2 : 0;
 							AssertInvalidParameters (logger.Issues, logging && validators != MimeComplianceValidators.None ? invalid : 0);
 							AssertInvalidEncodedParameters (logger.Issues, logging && validators != MimeComplianceValidators.None && text == IgnoredEncodedHeaders ? 2 : 0);
+							AssertEncodedWords (logger.Issues, logging && validators != MimeComplianceValidators.None && text == IgnoredEncodedHeaders ? 2 : 0);
 						}
 					}
 				}
@@ -785,29 +911,40 @@ namespace UnitTests {
 		// Preserve recovery for malformed encodings encountered in https://github.com/noxxi/mime-is-broken.
 		static IEnumerable<TestCaseData> EncodedPreservationCases ()
 		{
-			var cases = new (string Parameters, string Filename, int Invalid)[] {
-				("filename*0*=utf-8''caf%C3; filename*1*=%A9.txt", "caf\u00e9.txt", 0),
-				("filename*0*=utf-8''caf%C; filename*1*=3%A9.txt", "caf\u00e9.txt", 1),
-				("filename*1*=3%A9.txt; filename*0*=utf-8''caf%C", "caf\u00e9.txt", 1),
-				("filename*0*=\"utf-8''caf%\"; filename*1*=\"C3%A9.txt\"", "caf\u00e9.txt", 1),
-				("filename*=''file%GG.txt", "file%GG.txt", 1),
-				("filename*=utf-8'file.txt", "utf-8'file.txt", 1),
-				("filename*=x-unsupported-charset''caf%E9.txt", "caf\u00e9.txt", 0),
-				("filename*0=file; filename*1*=%2Etxt", "file.txt", 0)
+			var cases = new (string Parameters, string Filename, int Invalid, int Words)[] {
+				("filename*0*=utf-8''caf%C3; filename*1*=%A9.txt", "caf\u00e9.txt", 0, 0),
+				("filename*0*=utf-8''caf%C; filename*1*=3%A9.txt", "caf\u00e9.txt", 1, 0),
+				("filename*1*=3%A9.txt; filename*0*=utf-8''caf%C", "caf\u00e9.txt", 1, 0),
+				("filename*0*=\"utf-8''caf%\"; filename*1*=\"C3%A9.txt\"", "caf\u00e9.txt", 1, 0),
+				("filename*=''file%GG.txt", "file%GG.txt", 1, 0),
+				("filename*=utf-8'file.txt", "utf-8'file.txt", 1, 0),
+				("filename*=x-unsupported-charset''caf%E9.txt", "caf\u00e9.txt", 0, 0),
+				("filename*0=file; filename*1*=%2Etxt", "file.txt", 0, 0),
+				("filename=\"=?utf-8?Q?caf=C3=A9.txt?=\"", "caf\u00e9.txt", 0, 1),
+				("filename=\"=?utf-8?B?ZmlsZS50eHQ=?=\"", "file.txt", 0, 1),
+				("filename=\"=?utf-8?Q?file?=\r\n\t=?utf-8?Q?.txt?=\"", "file.txt", 0, 1),
+				("filename=\"=\\?utf-8?Q?file=2Etxt?\\=\"", "file.txt", 0, 1),
+				("filename=\"=?x-unknown?Q?file.txt?=\"", "file.txt", 0, 1),
+				("filename*0=\"=?utf-8?Q?file?=\"; filename*1=.txt", "=?utf-8?Q?file?=.txt", 0, 1),
+				("filename*=utf-8''%3D%3Futf-8%3FQ%3Ffile%3F%3D", "=?utf-8?Q?file?=", 0, 0)
 			};
 
 			foreach (var item in cases) {
 				foreach (bool chunked in new[] { false, true }) {
-					foreach (var mode in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose })
-						yield return new TestCaseData (item.Parameters, item.Filename, item.Invalid, chunked, mode);
+					foreach (bool contentType in new[] { false, true }) {
+						foreach (var mode in new[] { RfcComplianceMode.Strict, RfcComplianceMode.Loose })
+							yield return new TestCaseData (item.Parameters, item.Filename, item.Invalid, item.Words, chunked, contentType, mode);
+					}
 				}
 			}
 		}
 
 		[TestCaseSource (nameof (EncodedPreservationCases))]
-		public void TestEncodedReportingDoesNotChangeParsing (string parameters, string filename, int count, bool chunked, RfcComplianceMode mode)
+		public void TestEncodedReportingDoesNotChangeParsing (string parameters, string filename, int count, int words, bool chunked, bool contentType, RfcComplianceMode mode)
 		{
-			string text = "Content-Type: text/plain\r\nContent-Disposition: attachment; " + parameters + "\r\n\r\nbody\r\n";
+			string text = contentType ?
+				"Content-Type: text/plain; " + parameters.Replace ("filename", "name") + "\r\nContent-Disposition: attachment; filename=a\r\n\r\nbody\r\n" :
+				"Content-Type: text/plain\r\nContent-Disposition: attachment; " + parameters + "\r\n\r\nbody\r\n";
 			byte[] expected = null;
 			foreach (bool logging in new[] { false, true }) {
 				foreach (var validators in new[] { MimeComplianceValidators.All, MimeComplianceValidators.All & ~MimeComplianceValidators.Parameters }) {
@@ -818,10 +955,11 @@ namespace UnitTests {
 						if (logging)
 							parser.ComplianceLogger = logger;
 						using (var message = parser.ParseMessage ()) {
-							var actual = AssertUnchangedMessage (message, filename);
+							var actual = AssertUnchangedMessage (message, contentType ? "a" : filename, contentType ? filename : null);
 							expected ??= actual;
 							Assert.That (actual, Is.EqualTo (expected));
 							AssertInvalidEncodedParameters (logger.Issues, logging && (validators & MimeComplianceValidators.Parameters) != 0 ? count : 0);
+							AssertEncodedWords (logger.Issues, logging && (validators & MimeComplianceValidators.Parameters) != 0 ? words : 0);
 						}
 					}
 				}
@@ -829,9 +967,11 @@ namespace UnitTests {
 		}
 
 		[TestCaseSource (nameof (EncodedPreservationCases))]
-		public async Task TestEncodedReportingDoesNotChangeParsingAsync (string parameters, string filename, int count, bool chunked, RfcComplianceMode mode)
+		public async Task TestEncodedReportingDoesNotChangeParsingAsync (string parameters, string filename, int count, int words, bool chunked, bool contentType, RfcComplianceMode mode)
 		{
-			string text = "Content-Type: text/plain\r\nContent-Disposition: attachment; " + parameters + "\r\n\r\nbody\r\n";
+			string text = contentType ?
+				"Content-Type: text/plain; " + parameters.Replace ("filename", "name") + "\r\nContent-Disposition: attachment; filename=a\r\n\r\nbody\r\n" :
+				"Content-Type: text/plain\r\nContent-Disposition: attachment; " + parameters + "\r\n\r\nbody\r\n";
 			byte[] expected = null;
 			foreach (bool logging in new[] { false, true }) {
 				foreach (var validators in new[] { MimeComplianceValidators.All, MimeComplianceValidators.All & ~MimeComplianceValidators.Parameters }) {
@@ -842,10 +982,11 @@ namespace UnitTests {
 						if (logging)
 							parser.ComplianceLogger = logger;
 						using (var message = await parser.ParseMessageAsync ()) {
-							var actual = AssertUnchangedMessage (message, filename);
+							var actual = AssertUnchangedMessage (message, contentType ? "a" : filename, contentType ? filename : null);
 							expected ??= actual;
 							Assert.That (actual, Is.EqualTo (expected));
 							AssertInvalidEncodedParameters (logger.Issues, logging && (validators & MimeComplianceValidators.Parameters) != 0 ? count : 0);
+							AssertEncodedWords (logger.Issues, logging && (validators & MimeComplianceValidators.Parameters) != 0 ? words : 0);
 						}
 					}
 				}
@@ -1017,6 +1158,79 @@ namespace UnitTests {
 			watch.Stop ();
 
 			AssertInvalidEncodedParameters (logger.Issues, 1);
+			if (!TestHelper.IsCodeCoverageEnabled) {
+				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+				Assert.That (allocated, Is.LessThan (65536));
+			}
+		}
+
+		[Test]
+		public void TestEncodedWordValidatorReuseAndOffsets ()
+		{
+			const string value = "text/plain;\r\n name=\"=\\?utf-8?Q?file.txt?=\"";
+			var bytes = Encoding.ASCII.GetBytes ("xx" + value + "yy");
+			const string incomplete = "text/plain; name==?utf-8?Q?file?";
+			var truncated = Encoding.ASCII.GetBytes (incomplete + "=");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new ParameterValidator (logger, MimeComplianceContext.Storage, HeaderId.ContentType, 100, 5, 7);
+			for (int i = 0; i < 2; i++) {
+				logger.Issues.Clear ();
+				validator.Validate (bytes, 2, value.Length);
+				AssertEncodedWords (logger.Issues, 1);
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (100 + value.IndexOf ("name=")));
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (6));
+				Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (2));
+				Assert.That (logger.Issues[0].Context, Is.EqualTo (MimeComplianceContext.Storage));
+
+				logger.Issues.Clear ();
+				validator.Validate (truncated, 0, incomplete.Length);
+				Assert.That (logger.Issues, Is.Empty);
+				validator.Validate (truncated, 0, truncated.Length);
+				AssertEncodedWords (logger.Issues, 1);
+			}
+		}
+
+		[Test]
+		public void TestManyEncodedWordParametersAreBounded ()
+		{
+			const int count = 16384;
+			var bytes = Encoding.ASCII.GetBytes ("text/plain" + string.Concat (Enumerable.Repeat (";\r\n x=\"=?utf-8?Q?file?=\"", count)));
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new ParameterValidator (logger, MimeComplianceContext.Transport, HeaderId.ContentType, 0, 1, 1);
+			var watch = System.Diagnostics.Stopwatch.StartNew ();
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+			validator.Validate (bytes, 0, bytes.Length);
+			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
+			watch.Stop ();
+
+			AssertEncodedWords (logger.Issues, count);
+			AssertParameters (logger.Issues, Parameter, count - 1);
+			Assert.That (logger.Issues[logger.Issues.Count - 1].LineNumber, Is.EqualTo (count + 1));
+			if (!TestHelper.IsCodeCoverageEnabled) {
+				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
+				Assert.That (allocated, Is.LessThan (count * 256L + 65536));
+			}
+		}
+
+		[Test]
+		public void TestEncodedWordScanIsBounded ([Values ("plain", "=?", "=?utf-8?Q?payload")] string fragment, [Values (false, true)] bool complete)
+		{
+			var text = new StringBuilder ("text/plain; name=\"");
+			while (text.Length < 1024 * 1024)
+				text.Append (fragment);
+			if (complete)
+				text.Append ("=?utf-8?Q?end?=");
+			text.Append ('"');
+			var bytes = Encoding.ASCII.GetBytes (text.ToString ());
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new ParameterValidator (logger, MimeComplianceContext.Transport, HeaderId.ContentType, 0, 1, 1);
+			var watch = System.Diagnostics.Stopwatch.StartNew ();
+			long before = GC.GetAllocatedBytesForCurrentThread ();
+			validator.Validate (bytes, 0, bytes.Length);
+			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
+			watch.Stop ();
+
+			AssertEncodedWords (logger.Issues, complete ? 1 : 0);
 			if (!TestHelper.IsCodeCoverageEnabled) {
 				Assert.That (watch.Elapsed, Is.LessThan (TimeSpan.FromSeconds (5)));
 				Assert.That (allocated, Is.LessThan (65536));
