@@ -62,6 +62,10 @@ without changing tolerant parsing or classifying parameter syntax failures as me
 Optional parameter validation now reports `InvalidParameter` for malformed declarations, including
 missing names, equals signs or values and unterminated quoted strings or comments. Recovery and
 parameter decoding are unchanged; encoded RFC 2231 value syntax is not validated by this check.
+The separate `InvalidRfc2231Parameter` violation reports missing charset/language delimiters,
+invalid percent escapes, and invalid raw bytes in encoded parameter data. Checks are performed
+per declaration without assembling values or looking up charsets. Empty charset/language fields,
+quoted encoded values, and mixed encoded/plain continuations retain their existing handling.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

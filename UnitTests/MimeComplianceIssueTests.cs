@@ -556,6 +556,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.RepeatedParameter, Interop | Security },
 				{ MimeComplianceViolation.MissingParameterSegment, Interop | Security },
 				{ MimeComplianceViolation.InvalidParameter, Interop | Security },
+				{ MimeComplianceViolation.InvalidRfc2231Parameter, Interop | Security },
 				{ MimeComplianceViolation.InvalidContentTransferEncoding, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.IllegalMessageRfc822ContentTransferEncoding, Interop | Security },
 				{ MimeComplianceViolation.IllegalMultipartContentTransferEncoding, Interop | Security },

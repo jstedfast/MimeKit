@@ -195,25 +195,36 @@ namespace MimeKit {
 			return true;
 		}
 
-		bool SkipValue (out bool invalid)
+		bool SkipValue (bool allowEmpty, out bool invalid, out int valueStart, out int valueEnd)
 		{
 			invalid = true;
+			valueStart = valueEnd = index;
 
-			if (!SkipCommentsAndWhiteSpace () || index == endIndex)
+			if (!SkipCommentsAndWhiteSpace ())
 				return false;
+
+			valueStart = valueEnd = index;
+
+			if (index == endIndex) {
+				invalid = !allowEmpty;
+				return false;
+			}
 
 			if (text[index] == (byte) '"') {
 				if (!ParseUtils.SkipQuoted (text, ref index, endIndex, false))
 					return false;
 
+				valueEnd = index;
 				invalid = false;
 			} else {
-				int start = index;
-
 				while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '(')
 					index++;
 
-				invalid = index == start;
+				valueEnd = index;
+				while (valueEnd > valueStart && text[valueEnd - 1].IsWhitespace ())
+					valueEnd--;
+
+				invalid = valueEnd == valueStart && !allowEmpty;
 			}
 
 			if (!SkipCommentsAndWhiteSpace ()) {
@@ -229,6 +240,46 @@ namespace MimeKit {
 				index++;
 
 			return index < endIndex;
+		}
+
+		bool ValidateEncodedValue (int start, int end, bool initial)
+		{
+			// Match the decoder's tolerance for quoted extended values.
+			if (end - start >= 2 && text[start] == (byte) '"' && text[end - 1] == (byte) '"') {
+				start++;
+				end--;
+			}
+
+			if (initial) {
+				for (int field = 0; field < 2; field++) {
+					while (start < end && text[start] != (byte) '\'') {
+						if (text[start] <= 32 || text[start] >= 127)
+							return false;
+						start++;
+					}
+
+					if (start == end)
+						return false;
+
+					start++;
+				}
+			}
+
+			// RFC 2231 section 7 requires complete ext-octets in each segment,
+			// even though a multibyte character may span several segments.
+			while (start < end) {
+				if (text[start] == (byte) '%') {
+					if (end - start < 3 || !text[start + 1].IsXDigit () || !text[start + 2].IsXDigit ())
+						return false;
+					start += 3;
+				} else {
+					if (!text[start].IsAttr ())
+						return false;
+					start++;
+				}
+			}
+
+			return true;
 		}
 
 		public void Validate (byte[] buffer, int startIndex, int length)
@@ -297,10 +348,12 @@ namespace MimeKit {
 					logger.Log (CreateIssue (violation, start));
 				}
 
-				bool more = SkipValue (out bool invalid);
+				bool more = SkipValue (encoded && segment > 0, out bool invalid, out int valueStart, out int valueEnd);
 
 				if (invalid)
 					logger.Log (CreateIssue (MimeComplianceViolation.InvalidParameter, start, MimeCompliancePositionKind.ElementStart));
+				else if (encoded && !ValidateEncodedValue (valueStart, valueEnd, segment <= 0))
+					logger.Log (CreateIssue (MimeComplianceViolation.InvalidRfc2231Parameter, start, MimeCompliancePositionKind.ElementStart));
 
 				if (!more)
 					break;
