@@ -256,28 +256,86 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestIncompleteComments ()
+		public void TestIncompleteComments ([Values (RfcComplianceMode.Loose, RfcComplianceMode.Strict)] RfcComplianceMode mode)
 		{
 			var options = ParserOptions.Default.Clone ();
+			options.ParameterComplianceMode = mode;
 
-			foreach (var text in new [] { "(comment", "name(comment", "name*(comment", "name*0(comment", "name*0*(comment", "name=(comment" }) {
+			foreach (var text in new [] { "(comment", "name(comment", "name*(comment", "name*0(comment", "name*0*(comment", "name=(comment", "name=value(comment", "name=value\r\n\t(comment" }) {
 				var input = Encoding.ASCII.GetBytes (text);
 				var index = 0;
 
 				Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.False, text);
 				Assert.That (paramList, Is.Null, text);
+
+				index = 0;
+				Assert.Throws<ParseException> (() => ParameterList.TryParse (options, input, ref index, input.Length, true, out _), text);
 			}
+		}
 
-			options.ParameterComplianceMode = RfcComplianceMode.Strict;
+		static void AssertParameterValue (string text, string expected, RfcComplianceMode mode)
+		{
+			var options = ParserOptions.Default.Clone ();
+			options.ParameterComplianceMode = mode;
 
-			{
-				const string text = "name=value(comment";
-				var input = Encoding.ASCII.GetBytes (text);
-				var index = 0;
+			foreach (string suffix in new[] { "", "; next=ok" }) {
+				foreach (bool throwOnError in new[] { false, true }) {
+					var input = Encoding.ASCII.GetBytes ("prefix" + text + suffix);
+					int index = 6;
 
-				Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, false, out var paramList), Is.False, text);
-				Assert.That (paramList, Is.Null, text);
+					Assert.That (ParameterList.TryParse (options, input, ref index, input.Length, throwOnError, out var parameters), Is.True, text);
+					Assert.That (parameters["name"], Is.EqualTo (expected), text);
+					Assert.That (parameters.Count, Is.EqualTo (suffix.Length == 0 ? 1 : 2), text);
+					Assert.That (index, Is.EqualTo (input.Length), text);
+					if (suffix.Length > 0)
+						Assert.That (parameters["next"], Is.EqualTo ("ok"), text);
+				}
 			}
+		}
+
+		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
+		[TestCase ("name*=''file.zip", "file.zip")]
+		[TestCase ("name*='en'file%2Ezip", "file.zip")]
+		[TestCase ("name*=''caf%E9%27s%20file.zip", "caf\u00e9's file.zip")]
+		[TestCase ("name*=''", "")]
+		[TestCase ("name*='en'", "")]
+		[TestCase ("name*0*=''file; name*1*=%2Ezip", "file.zip")]
+		[TestCase ("name*0*='en'file; name*1=.zip", "file.zip")]
+		[TestCase ("name*0*=''; name*1*=file%2Ezip", "file.zip")]
+		[TestCase ("name*0*='en'caf%E9; name*1*=%27s%20file.zip", "caf\u00e9's file.zip")]
+		[TestCase ("name*=\"''file%2Ezip\"", "file.zip")]
+		[TestCase ("name*='file%2Ezip", "'file.zip")]
+		public void TestRfc2231EmptyCharset (string text, string expected)
+		{
+			AssertParameterValue (text, expected, RfcComplianceMode.Loose);
+			AssertParameterValue (text, expected, RfcComplianceMode.Strict);
+		}
+
+		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
+		[TestCase ("name=value(comment)", "value")]
+		[TestCase ("name=value (comment) (another)", "value")]
+		[TestCase ("name=value(nested (comment); ignored=yes)", "value")]
+		[TestCase ("name=value(escaped \\) comment)", "value")]
+		[TestCase ("name=value(comment\r\n\tcontinued)", "value")]
+		[TestCase ("name=value\r\n\t(comment)", "value")]
+		[TestCase ("name=\"value(literal)\"(comment)", "value(literal)")]
+		[TestCase ("name*=us-ascii''value%28literal%29(comment)", "value(literal)")]
+		[TestCase ("name*0=value(comment); name*1=.zip(other)", "value.zip")]
+		[TestCase ("name*0*=''value(comment); name*1*=%2Ezip(other)", "value.zip")]
+		public void TestParameterComments (string text, string expected)
+		{
+			AssertParameterValue (text, expected, RfcComplianceMode.Loose);
+			AssertParameterValue (text, expected, RfcComplianceMode.Strict);
+		}
+
+		// Cover the https://github.com/noxxi/mime-is-broken comment issue with loose parsing extensions.
+		[TestCase ("name=Test Name.pdf (comment)", "Test Name.pdf")]
+		[TestCase ("name=Test\r\n\tName.pdf(comment)", "Test\tName.pdf")]
+		[TestCase ("name=Test Name.pdf\r\n\t(comment)", "Test Name.pdf")]
+		[TestCase ("name=Test\r\n\tName.pdf\r\n\t(comment)", "Test\tName.pdf")]
+		public void TestLooseParameterComments (string text, string expected)
+		{
+			AssertParameterValue (text, expected, RfcComplianceMode.Loose);
 		}
 
 		[Test]

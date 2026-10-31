@@ -8133,6 +8133,90 @@ Content-Type: text/plain; charset=utf-8
 			}
 		}
 
+		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
+		static readonly string[] CommentedAndEncodedBoundaries = {
+			"boundary*=''audit",
+			"boundary*='en'audit",
+			"boundary*0*=''; boundary*1*=audit",
+			"boundary=audit(comment)",
+			"boundary=audit\r\n\t(nested (comment); ignored=yes)"
+		};
+
+		static byte[] CreateCommentedParameterMessage (string boundary, string delimiter = "audit")
+		{
+			return Encoding.ASCII.GetBytes ("From: sender@example.com\r\n" +
+				"Date: Sat, 31 Oct 2026 10:00:00 -0400\r\nMIME-Version: 1.0\r\n" +
+				"Content-Type: multipart/mixed; " + boundary + "\r\n\r\n" +
+				"--" + delimiter + "\r\nContent-Type: application/octet-stream; name=file.zip(comment)\r\n" +
+				"Content-Disposition: attachment; filename*=''file%2Ezip(comment)\r\n" +
+				"Content-Transfer-Encoding: base64\r\n\r\naGVsbG8=\r\n--" + delimiter + "--\r\n");
+		}
+
+		static void AssertCommentedParameterMessage (MimeMessage message, string boundary = "audit")
+		{
+			Assert.That (message.Body, Is.InstanceOf<Multipart> ());
+			var multipart = (Multipart) message.Body;
+			Assert.That (multipart.Boundary, Is.EqualTo (boundary));
+			Assert.That (multipart.Count, Is.EqualTo (1));
+			Assert.That (multipart[0], Is.InstanceOf<MimePart> ());
+			var part = (MimePart) multipart[0];
+			Assert.That (part.ContentType.Name, Is.EqualTo ("file.zip"));
+			Assert.That (part.ContentDisposition.FileName, Is.EqualTo ("file.zip"));
+			using (var decoded = new MemoryStream ()) {
+				part.Content.DecodeTo (decoded);
+				Assert.That (decoded.ToArray (), Is.EqualTo (Encoding.ASCII.GetBytes ("hello")));
+			}
+		}
+
+		[Test]
+		public void TestCommentedAndEncodedBoundary ([ValueSource (nameof (CommentedAndEncodedBoundaries))] string boundary, [Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateStream (CreateCommentedParameterMessage (boundary), chunked))
+			using (var message = MimeMessage.Load (stream))
+				AssertCommentedParameterMessage (message);
+		}
+
+		[Test]
+		public async Task TestCommentedAndEncodedBoundaryAsync ([ValueSource (nameof (CommentedAndEncodedBoundaries))] string boundary, [Values (false, true)] bool chunked)
+		{
+			using (var stream = CreateStream (CreateCommentedParameterMessage (boundary), chunked))
+			using (var message = await MimeMessage.LoadAsync (stream))
+				AssertCommentedParameterMessage (message);
+		}
+
+		static void AssertLiteralParenthesesBoundary (MimeMessage message, bool quoted)
+		{
+			if (quoted) {
+				AssertCommentedParameterMessage (message, "audit(comment)");
+			} else {
+				Assert.That (message.Body, Is.InstanceOf<Multipart> ());
+				var multipart = (Multipart) message.Body;
+				Assert.That (multipart.Boundary, Is.EqualTo ("audit"));
+				Assert.That (multipart.Count, Is.EqualTo (0));
+			}
+		}
+
+		// Literal-parenthesis boundary variants from https://github.com/noxxi/mime-is-broken require quoting.
+		[Test]
+		public void TestLiteralParenthesesBoundary ([Values (false, true)] bool quoted, [Values (false, true)] bool chunked)
+		{
+			string boundary = quoted ? "boundary=\"audit(comment)\"" : "boundary=audit(comment)";
+
+			using (var stream = CreateStream (CreateCommentedParameterMessage (boundary, "audit(comment)"), chunked))
+			using (var message = MimeMessage.Load (stream))
+				AssertLiteralParenthesesBoundary (message, quoted);
+		}
+
+		[Test]
+		public async Task TestLiteralParenthesesBoundaryAsync ([Values (false, true)] bool quoted, [Values (false, true)] bool chunked)
+		{
+			string boundary = quoted ? "boundary=\"audit(comment)\"" : "boundary=audit(comment)";
+
+			using (var stream = CreateStream (CreateCommentedParameterMessage (boundary, "audit(comment)"), chunked))
+			using (var message = await MimeMessage.LoadAsync (stream))
+				AssertLiteralParenthesesBoundary (message, quoted);
+		}
+
 		static void DescribeStructure (StringBuilder builder, MimeEntity entity, int depth)
 		{
 			builder.Append (' ', depth * 2).Append (entity.ContentType.MimeType).Append (" headers=").Append (entity.Headers.Count).Append ('\n');

@@ -44,6 +44,11 @@ blocks, including individual multipart ranges, with streaming sync/async operati
 configurable limits, and size/checksum validation. They do not change MIME parsing or assemble parts.
 Fixed a yEnc decoder bug that lost the initial escape character in single-part framed content.
 
+Fixed RFC 2231 parameter decoding when the charset field is empty, including continued values.
+Comments following unquoted MIME parameter values are now ignored in loose parsing mode,
+including folded values, while unquoted spaces remain supported. Literal parentheses in
+parameter values must be quoted or encoded.
+
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.
 Improved SIMD Base64 encoding throughput on x86 by vectorizing the nine-byte MIME-line tails.

@@ -856,12 +856,12 @@ namespace MimeKit {
 				// Note: Google Docs, for example, does not always quote name/filename parameters
 				// with spaces in the name. See https://github.com/jstedfast/MimeKit/issues/106
 				// for details.
-				while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
+				while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '(' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
 					index++;
 
 				valueLength = index - valueIndex;
 
-				if (index < endIndex && text[index] != (byte) ';') {
+				if (index < endIndex && (text[index] == (byte) '\r' || text[index] == (byte) '\n')) {
 					// Note: https://github.com/jstedfast/MimeKit/issues/159 adds to this suckage
 					// by having a multi-line unquoted value with spaces... don't you just love
 					// mail software written by people who have never heard of standards?
@@ -874,11 +874,11 @@ namespace MimeKit {
 
 							valueIndex = index;
 
-							while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
+							while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '(' && text[index] != (byte) '\r' && text[index] != (byte) '\n')
 								index++;
 
 							buffer.Append (text, valueIndex, index - valueIndex);
-						} while (index < endIndex && text[index] != ';');
+						} while (index < endIndex && text[index] != (byte) ';' && text[index] != (byte) '(');
 
 						value = buffer.ToArray ();
 						valueLength = value.Length;
@@ -917,7 +917,7 @@ namespace MimeKit {
 					break;
 			}
 
-			if (i == startIndex || i == endIndex)
+			if (i == endIndex)
 				return false;
 
 			charsetEnd = i;
@@ -943,7 +943,7 @@ namespace MimeKit {
 
 			// Note: decoder is only null if this is the first segment
 			if (decoder is null) {
-				if (TryGetCharset (text, ref index, endIndex, out string? charset)) {
+				if (TryGetCharset (text, ref index, endIndex, out string? charset) && charset.Length > 0) {
 					try {
 						encoding = CharsetUtils.GetEncoding (charset, "?");
 						decoder = encoding.GetDecoder ();
