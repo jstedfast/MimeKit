@@ -845,7 +845,7 @@ namespace UnitTests {
 			Assert.That (message.Body.ContentType.Name, Is.EqualTo (name));
 			Assert.That (message.Body.ContentDisposition.FileName, Is.EqualTo (filename));
 			Assert.That (message.Body, Is.InstanceOf<TextPart> ());
-			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("body\r\n"));
+			Assert.That (((TextPart) message.Body).Text, Is.EqualTo ("body" + Environment.NewLine));
 			using (var stream = new MemoryStream ()) {
 				message.WriteTo (stream);
 				return stream.ToArray ();
