@@ -74,6 +74,8 @@ syntax in address headers, Subject, Comments, Content-Description, and X- header
 B/Q payload syntax, word lengths, separation, and address phrase/comment restrictions without
 charset lookup or decoding. `InvalidEncodedWordPlacement` reports complete encoded-word
 envelopes in quoted strings or addr-specs. Existing address and header recovery is unchanged.
+Reduced scanning and allocation overhead in optional encoded-word and MIME parameter
+compliance validation, without changing reported diagnostics.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

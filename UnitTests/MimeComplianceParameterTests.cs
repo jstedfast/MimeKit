@@ -1053,6 +1053,46 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestMultipleContinuationFamiliesAndReuse ()
+		{
+			const string value = "text/plain; first*2=a;\r\n second*1=b; third*3=c;\r\n first*2=d; second*1=e";
+			var bytes = Encoding.ASCII.GetBytes ("xx" + value + "yy");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new ParameterValidator (logger, MimeComplianceContext.Storage, HeaderId.ContentType, 100, 5, 7);
+			var names = new[] { "first*2=d", "second*1=e", "first*2=a", "second*1=b", "third*3=c" };
+			var violations = new[] { Parameter, Parameter, MissingSegment, MissingSegment, MissingSegment };
+			for (int run = 0; run < 2; run++) {
+				validator.Validate (bytes, 2, value.Length);
+				Assert.That (logger.Issues, Has.Count.EqualTo (names.Length));
+				for (int i = 0; i < names.Length; i++) {
+					int offset = value.IndexOf (names[i], StringComparison.Ordinal);
+					int line = 5, column = 7;
+					for (int at = 0; at < offset; at++) {
+						if (value[at] == '\n') {
+							line++;
+							column = 1;
+						} else {
+							column++;
+						}
+					}
+
+					var issue = logger.Issues[i];
+					Assert.That (issue.Violation, Is.EqualTo (violations[i]));
+					Assert.That (issue.StreamOffset, Is.EqualTo (100 + offset));
+					Assert.That (issue.LineNumber, Is.EqualTo (line));
+					Assert.That (issue.ColumnNumber, Is.EqualTo (column));
+				}
+
+				foreach (string clean in new[] { "text/plain", "text/plain; first*0=a; second*0=b; first*1=c; second*1=d" }) {
+					logger.Issues.Clear ();
+					var complete = Encoding.ASCII.GetBytes (clean);
+					validator.Validate (complete, 0, complete.Length);
+					Assert.That (logger.Issues, Is.Empty);
+				}
+			}
+		}
+
+		[Test]
 		public void TestMalformedValidatorReuseAndOffsets ()
 		{
 			const string value = "text/plain; broken;\r\n x=";

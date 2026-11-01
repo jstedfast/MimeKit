@@ -32,7 +32,7 @@ using MimeKit.Utils;
 
 namespace MimeKit {
 	// Inspect raw declarations independently of parameter decoding and precedence.
-	sealed class ParameterValidator
+	struct ParameterValidator
 	{
 		enum EncodedWordState {
 			Text,
@@ -396,7 +396,10 @@ namespace MimeKit {
 				return;
 
 			// The reader's MaxHeaderLength bounds the number and size of declarations.
-			var parameters = new Dictionary<string, ParameterState> (MimeUtils.OrdinalIgnoreCase);
+			// Keep the first name outside the dictionary for single-parameter headers.
+			Dictionary<string, ParameterState>? parameters = null;
+			ParameterState? firstState = null;
+			string? firstName = null;
 
 			while (index < endIndex) {
 				ParseUtils.SkipWhiteSpace (text, ref index, endIndex);
@@ -428,9 +431,17 @@ namespace MimeKit {
 					name.Equals ("name", StringComparison.OrdinalIgnoreCase) :
 					name.Equals ("filename", StringComparison.OrdinalIgnoreCase);
 
-				if (!parameters.TryGetValue (name, out var state)) {
-					state = new ParameterState ();
-					parameters.Add (name, state);
+				firstName ??= name;
+				ParameterState? state;
+
+				if (MimeUtils.OrdinalIgnoreCase.Equals (name, firstName)) {
+					state = firstState ??= new ParameterState ();
+				} else {
+					parameters ??= new Dictionary<string, ParameterState> (MimeUtils.OrdinalIgnoreCase);
+					if (!parameters.TryGetValue (name, out state)) {
+						state = new ParameterState ();
+						parameters.Add (name, state);
+					}
 				}
 
 				// Capture the first segment's position before later issues advance the scan cursor.
@@ -462,9 +473,14 @@ namespace MimeKit {
 					break;
 			}
 
-			foreach (var state in parameters.Values) {
-				if (state.HasMissingSegments)
-					logger.Log (state.MissingSegmentIssue);
+			if (firstState != null && firstState.HasMissingSegments)
+				logger.Log (firstState.MissingSegmentIssue);
+
+			if (parameters != null) {
+				foreach (var state in parameters.Values) {
+					if (state.HasMissingSegments)
+						logger.Log (state.MissingSegmentIssue);
+				}
 			}
 		}
 	}

@@ -308,6 +308,67 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestValidatorIncrementalPositions ([Values (false, true)] bool address, [Values (false, true)] bool incremental)
+		{
+			const string valid = "=?utf-8?Q?valid?=";
+			const string badComment = "=?utf-8?Q?bad=GG?=";
+			const string badQuoted = "=?utf-8?Q?bad=G?=";
+			const string badFolded = "=?utf-8?Q?bad\r\n value?=";
+			const string badBase64 = "=?utf-8?B?YQ?=";
+			string value = address ?
+				valid + " (escaped \\) \\\" text\r\n " + badComment + ")\r\n \"" + badQuoted + "\"" :
+				"ordinary text\r\n " + valid + "\r\n\t" + badFolded + "\r\n " + badBase64;
+			var bytes = Encoding.ASCII.GetBytes ("xx" + value + "yy");
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new EncodedWordValidator (logger, MimeComplianceContext.Storage, bytes, 2, value.Length, 100, 5, 7);
+			var context = address ? EncodedWordContext.Phrase : EncodedWordContext.Text;
+
+			if (incremental) {
+				for (int end = 2; end <= value.Length + 2; end++)
+					validator.Validate (end, context);
+			} else {
+				validator.Validate (value.Length + 2, context);
+			}
+
+			var words = address ? new[] { badComment, badQuoted, badQuoted } : new[] { badFolded, badBase64 };
+			var violations = address ? new[] { Invalid, Placement, Invalid } : new[] { Invalid, Invalid };
+			Assert.That (logger.Issues, Has.Count.EqualTo (words.Length));
+			for (int i = 0; i < words.Length; i++) {
+				int offset = value.IndexOf (words[i], StringComparison.Ordinal);
+				int line = 5, column = 7;
+				for (int at = 0; at < offset; at++) {
+					if (value[at] == '\n') {
+						line++;
+						column = 1;
+					} else {
+						column++;
+					}
+				}
+
+				var issue = logger.Issues[i];
+				Assert.That (issue.Violation, Is.EqualTo (violations[i]));
+				Assert.That (issue.StreamOffset, Is.EqualTo (100 + offset));
+				Assert.That (issue.LineNumber, Is.EqualTo (line));
+				Assert.That (issue.ColumnNumber, Is.EqualTo (column));
+				Assert.That (issue.Context, Is.EqualTo (MimeComplianceContext.Storage));
+				Assert.That (issue.PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart));
+			}
+		}
+
+		[Test]
+		public void TestValidatorPlainSlice ([Values (false, true)] bool address)
+		{
+			const string value = "plain = text\r\n without words";
+			const string outside = "=?utf-8?Q?bad=GG?=";
+			var bytes = Encoding.ASCII.GetBytes (outside + value + outside);
+			var logger = new TestMimeComplianceLogger ();
+			var validator = new EncodedWordValidator (logger, MimeComplianceContext.Transport, bytes, outside.Length, value.Length, 0, 1, 1);
+			for (int end = outside.Length; end <= outside.Length + value.Length; end++)
+				validator.Validate (end, address ? EncodedWordContext.Phrase : EncodedWordContext.Text);
+			Assert.That (logger.Issues, Is.Empty);
+		}
+
+		[Test]
 		public async Task TestAddressSyntaxGating ([Values (false, true)] bool async)
 		{
 			foreach (var validators in new[] { MimeComplianceValidators.EncodedWords, MimeComplianceValidators.Address,

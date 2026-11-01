@@ -47,6 +47,7 @@ namespace MimeKit {
 		readonly int startIndex;
 		readonly int endIndex;
 		int index;
+		int scanIndex;
 		int line;
 		int column;
 		int commentDepth;
@@ -64,6 +65,7 @@ namespace MimeKit {
 			this.line = line;
 			this.column = column;
 			this.index = startIndex;
+			this.scanIndex = startIndex;
 			this.commentDepth = 0;
 			this.quoted = this.literal = false;
 		}
@@ -160,35 +162,54 @@ namespace MimeKit {
 
 		void Log (MimeComplianceViolation violation)
 		{
-			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + index - startIndex, line, column, MimeCompliancePositionKind.ElementStart));
-		}
+			while (scanIndex < index) {
+				int newline = text.AsSpan (scanIndex, index - scanIndex).IndexOf ((byte) '\n');
 
-		void Advance (int end)
-		{
-			while (index < end) {
-				if (text[index++] == (byte) '\n') {
-					line++;
-					column = 1;
-				} else {
-					column++;
+				if (newline < 0) {
+					column += index - scanIndex;
+					scanIndex = index;
+					break;
 				}
+
+				scanIndex += newline + 1;
+				line++;
+				column = 1;
 			}
+
+			logger.Log (new MimeComplianceIssue (context, violation, streamOffset + index - startIndex, line, column, MimeCompliancePositionKind.ElementStart));
 		}
 
 		public void Validate (int end, EncodedWordContext location)
 		{
+			if (index == startIndex && index < end && text.AsSpan (startIndex, endIndex - startIndex).IndexOf ("=?"u8) < 0) {
+				index = endIndex;
+				return;
+			}
+
 			while (index < end) {
 				byte c = text[index];
 				var wordContext = location;
 
-				if (location != EncodedWordContext.Text) {
+				if (location == EncodedWordContext.Text) {
+					if (c != (byte) '=') {
+						int next = text.AsSpan (index, end - index).IndexOf ((byte) '=');
+
+						if (next < 0) {
+							index = end;
+							return;
+						}
+
+						index += next;
+						c = text[index];
+					}
+				} else {
 					if (commentDepth > 0)
 						wordContext = EncodedWordContext.Comment;
 					else if (quoted || literal)
 						wordContext = EncodedWordContext.Forbidden;
 
 					if (c == (byte) '\\' && (commentDepth > 0 || quoted || literal)) {
-						Advance (Math.Min (index + 2, endIndex));
+						index = Math.Min (index + 2, endIndex);
 						continue;
 					}
 
@@ -220,12 +241,12 @@ namespace MimeKit {
 					}
 
 					if (complete) {
-						Advance (wordEnd);
+						index = wordEnd;
 						continue;
 					}
 				}
 
-				Advance (index + 1);
+				index++;
 			}
 		}
 	}
