@@ -5,132 +5,27 @@
 MimeKit 5.0 is a major release containing a number of breaking changes. The headline changes are
 the split of the cryptography support into its own assembly, the promotion of the new MIME parser,
 a redesigned TNEF implementation, DMARC validation, and a new MIME compliance violation reporting API.
+These notes describe changes since MimeKit 4.18.1.
 See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
-
-Replaced the `persistent` boolean in `MimeParser`, `IMimeParser.SetStream`
-and `MimeMessage`/`MimeEntity` stream `Load` and `LoadAsync` APIs with `MimeContentStorage`.
-`Memory` (0) is the default and copies part content; `Source` (1) references the caller-owned
-input stream, which must remain open and unchanged while the content is used. `Source` now rejects
-nonseekable streams with `ArgumentException` instead of silently copying. Invalid enum values
-throw `ArgumentOutOfRangeException`. Rejected `SetStream` arguments leave the parser unchanged.
-`LegacyMimeParser` retains its public boolean APIs and implements the new interface overloads explicitly.
-
-Address parsing from strings now shares the byte parser's grammar without converting the entire
-input to UTF-8. This reduces allocations while preserving existing parsing behavior and UTF-8 byte
-offsets in parse errors. Both string and byte-array address parsing now avoid intermediate strings
-for contiguous ASCII local-parts and domains, improving throughput and reducing allocations.
-Display-name decoding avoids intermediate byte-array copies, using pooled storage when unquoting
-is needed.
-Plain ASCII display names without RFC 2047 markers also avoid decoder allocations when parsing
-byte-array input, including quoted names after unquoting.
-Plain ASCII names taken from address comments likewise avoid decoder allocations.
-Non-ASCII and encoded comment names use pooled storage when normalizing tabs.
-Address parsing reuses the last successfully resolved display-name encoding within each parse,
-reducing repeated encoding-provider lookups for names using the same charset.
-Charset detection now recognizes valid UTF-8 before running the fallback charset probes, reducing
-allocations when decoding raw UTF-8 display names and other MIME text.
-On .NET 8 and later, RFC 2047 decoding writes valid UTF-8 directly into the output buffer,
-avoiding intermediate character arrays for raw and encoded UTF-8 display names.
-Encoding resolution and explicit-charset decoding now propagate unexpected provider or decoder
-exceptions rather than silently falling back; unsupported encodings and decoding errors still
-use their existing fallbacks.
-
-`TnefWriter.TemporaryStreamFactory` allows attribute and property buffers to use custom streams,
-such as temporary files in an application-selected directory, instead of memory. Embedded message
-writers inherit the factory, and the writer disposes each temporary stream when it is no longer needed.
-
-Standalone `YEncReader` and `YEncWriter` APIs in `MimeKit.Encodings` now read and write framed yEnc
-blocks, including individual multipart ranges, with streaming sync/async operations, metadata,
-configurable limits, and size/checksum validation. They do not change MIME parsing or assemble parts.
-Fixed a yEnc decoder bug that lost the initial escape character in single-part framed content.
-
-Fixed RFC 2231 parameter decoding when the charset field is empty, including continued values.
-Comments following unquoted MIME parameter values are now ignored in loose parsing mode,
-including folded values, while unquoted spaces remain supported. Literal parentheses in
-parameter values must be quoted or encoded.
-
-Added optional compliance validation for repeated MIME parameters, with separate violations for
-boundaries, filenames, and other parameters. Distinct RFC 2231 continuation segments and one
-ordinary filename fallback alongside an extended or continued representation are tolerated.
-Repeated Content-Disposition headers are now reported as a structural compliance violation.
-Repeated Content-Id headers are also reported per MIME part, including identical or malformed
-values, without comparing identifiers across parts or changing identifier selection.
-These checks do not change parameter precedence or message parsing.
-Parameter validation also reports missing RFC 2231 continuation segments once per parameter.
-Segment tracking uses a balanced tree and stores only observed indices, so large or
-adversarially chosen segment numbers cannot drive index-sized allocations or hash collisions.
-Content-Type values with unexpected text after a valid media type now report `InvalidContentType`,
-without changing tolerant parsing or classifying parameter syntax failures as media-type errors.
-Optional parameter validation now reports `InvalidParameter` for malformed declarations, including
-missing names, equals signs or values and unterminated quoted strings or comments. Recovery and
-parameter decoding are unchanged; encoded RFC 2231 value syntax is not validated by this check.
-The separate `InvalidRfc2231Parameter` violation reports missing charset/language delimiters,
-invalid percent escapes, and invalid raw bytes in encoded parameter data. Checks are performed
-per declaration without assembling values or looking up charsets. Empty charset/language fields,
-quoted encoded values, and mixed encoded/plain continuations retain their existing handling.
-Parameter validation also reports `EncodedWordInParameter` when a value contains recognizable
-RFC 2047 B/Q encoded-word syntax. Detection handles quoted-pair escapes without charset lookups,
-payload decoding, or assembling continuation values. Tolerant filename recovery is unchanged.
-The independent `EncodedWords` validator reports `InvalidEncodedWord` for malformed RFC 2047
-syntax in address headers, Subject, Comments, Content-Description, and X- headers. It checks
-B/Q payload syntax, word lengths, separation, and address phrase/comment restrictions without
-charset lookup or decoding. `InvalidEncodedWordPlacement` reports complete encoded-word
-envelopes in quoted strings or addr-specs. Existing address and header recovery is unchanged.
-Reduced scanning and allocation overhead in optional encoded-word and MIME parameter
-compliance validation, without changing reported diagnostics.
-Reduced `MimeReader` instance size by compacting header tracking and content-length state,
-without changing parsing or compliance reporting.
-Compliance validation now reports nonzero Base64 pad bits in encoded words and MIME part
-content as `InvalidEncodedWord` and `InvalidBase64Padding`, respectively. Tolerant decoding
-is unchanged.
-
-Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
-line endings, while preserving permissive decoding and in-place operation.
-Improved SIMD Base64 encoding throughput on x86 by vectorizing the nine-byte MIME-line tails.
-
-Updated `MimeTypes` with mappings for WebAssembly, YAML, TOML, Zstandard, CBOR, GeoJSON, web
-manifests, Parquet, HEIC/HEIF, JPEG XL, APNG, WebVTT, glTF, 3MF, and OBJ, plus missing reverse
-lookups for AVIF and JSON-LD.
-Added mappings for Apache Arrow, SQLite, Matroska audio, HLS playlists, Photoshop, JPEG 2000,
-HEIC/HEIF image sequences, OpenDocument graphics/formula files and document templates.
-Corrected legacy mappings and the M3U, EOT, scriptlet and Python reverse-lookup spelling errors.
-
-Fixed URL detection in `TextToHtml` and `FlowedToHtml` for address literals at end of input,
-balanced delimiters, host-only fragments, query components, IDNA A-label TLDs, and web URLs
-with IPv6 hosts or user information. Malformed IPv6 groups are now rejected.
-
-Added `MimeKit.Text.HtmlToText` for converting HTML documents and fragments to plain text with
-paragraphs, headings, nested lists, blockquotes and preformatted whitespace. Link destinations and
-image alt text can be included independently. Conversion has configurable input, output and nesting
-limits; CSS rendering and aligned tables are not supported.
-
-Added `MimeKit.Text.EnrichedToHtml` for RFC 1896 `text/enriched` conversion, preserving character
-formatting, colors, fonts, alignment, indentation, excerpts, language tags and newline semantics.
-Supports HTML documents or fragments, headers and footers, and configurable resource limits.
-The older `text/richtext` format is not supported.
-
-Setting Subject, Date, Message-Id, In-Reply-To, MIME-Version, Importance, Priority or X-Priority
-through message properties now removes duplicate occurrences, even when assigning a cached value.
-Updating Resent-Date or Resent-Message-Id continues to modify only the first occurrence,
-preserving older resent blocks.
-Priority setters now load the existing value before deciding that an assignment is a no-op.
-
-Fixed short-read-dependent parsing of empty `message/rfc822` parts immediately followed by
-mbox or multipart delimiters. Boundary lookahead and entity end offsets now remain consistent
-when markers and their preceding newlines are split across stream reads.
-
-Fixed lossy folding of internationalized unstructured headers containing long words.
-Values that cannot be folded at existing whitespace now use RFC 2047 encoding, preserving
-Unicode characters and whitespace when decoded. Encoded text words are also split at Unicode
-scalar boundaries when encoding expansion or intervening whitespace would exceed the line limit.
 
 ### Breaking Changes
 
+* Replaced the `persistent` boolean in `MimeParser`, `IMimeParser.SetStream` and
+  `MimeMessage`/`MimeEntity` stream `Load` and `LoadAsync` APIs with `MimeContentStorage`.
+  `Memory` (0) is the default and copies part content; `Source` (1) references the caller-owned
+  input stream, which must remain open and unchanged while the content is used. `Source` rejects
+  nonseekable streams with `ArgumentException` instead of silently copying.
+  `LegacyMimeParser` retains its public boolean APIs.
 * MIME header and address normalization now removes only ASCII spaces, tabs and line breaks,
   preserving non-ASCII whitespace in decoded text and message identifiers. Internationalized
   display-name folding no longer replaces Unicode whitespace with spaces. MIME token and numeric
   parsing no longer treats non-linear whitespace as padding.
   `MimePart.FileName` and `Multipart.Boundary` preserve their parameter values without trimming.
+  `InternetAddress.Name` trims leading and trailing ASCII whitespace when set, including through
+  constructors and parsing; a name such as `" John Smith "` becomes `"John Smith"`.
+* Encoding resolution and explicit-charset decoding now propagate unexpected provider or decoder
+  exceptions rather than silently falling back. Unsupported encodings and decoding errors retain
+  their existing fallbacks.
 * Renamed `ContentEncoding.Default` to `ContentEncoding.Unspecified`. Its numeric value remains
   zero and its behavior is unchanged: no explicit transfer encoding is selected.
 * `MimeTypes.GetMimeType` now returns `application/gzip` for `.gz`/`.gzip`, `audio/flac` for
@@ -186,35 +81,31 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
     `CryptographicMimeVisitor` class in `MimeKit.Cryptography`. Visitors that override any of these
     methods must now derive from `CryptographicMimeVisitor`. A visitor that derives from `MimeVisitor`
     will visit these entities via `VisitMultipart ()` or `VisitMimePart ()` instead.
-* Promoted the new MIME parser. This is a source-compatible rename for most consumers, but the
-  underlying implementation is different:
+* Promoted the new MIME parser, replacing the implementation used by default in 4.18.1:
   * `ExperimentalMimeParser` has been renamed to `MimeParser`.
   * The previous `MimeParser` implementation has been renamed to `LegacyMimeParser` and is retained
     for compatibility.
   * `MessageDeliveryStatus` now uses the new parser and is no longer tied to `LegacyMimeParser`.
-  * `MimeParser` no longer derives from `MimeReader`, so it no longer exposes the `ReadHeaders ()`,
-    `ReadEntity ()` and `ReadMessage ()` methods (or their `Async` variants), which could corrupt the
-    parser's state if called directly. It still exposes the `Options`, `IsEndOfStream`, `Position`,
-    `ComplianceLogger` and `ComplianceOptions` properties, and mirrors all of `MimeReader`'s `On*`
-    callbacks as `protected virtual` methods for subclasses. Subclasses that override them must call
-    the base implementation.
+  * Unlike `ExperimentalMimeParser`, the new `MimeParser` uses a `MimeReader` internally instead of
+    inheriting from it. Use its `Parse*` methods, not `MimeReader.ReadHeaders ()`, `ReadEntity ()` or
+    `ReadMessage ()`. It exposes `Options`, `IsEndOfStream`, `Position`, `ComplianceLogger` and
+    `ComplianceOptions`, and mirrors the reader's `On*` callbacks as `protected virtual` methods.
+    Subclasses overriding these callbacks must call the base implementation.
 * `CryptographyContext` no longer registers a default S/MIME implementation. Applications must now
   explicitly register the context they want (for example via `CryptographyContext.Register ()`).
   This change is what makes MimeKit AOT-compatible; the `DefaultSecureMimeContext` constructors that
   rely on reflection to load a platform-appropriate SQLite library remain available for applications
   that do not need AOT compatibility.
-* Removed the `DbConnection` parameter from the protected `X509CertificateDatabase` APIs
+* Removed the `DbConnection` parameter from protected `X509CertificateDatabase` and
+  `SqlCertificateDatabase` APIs
   (`GetSelectCommand`, `GetSelectAllCrlsCommand`, `GetInsertCommand`, `GetUpdateCommand`,
   `GetDeleteCommand`, `GetTableColumns`, `CreateTable`, `AddTableColumn`, `CreateIndex` and
-  `RemoveIndex`). No implementation ever used it, and a subclass calling `connection.CreateCommand ()`
-  directly would silently bypass `ExecuteWithinTransaction ()`. The constructors still take a
-  `DbConnection`.
+  `RemoveIndex`). Subclasses must update their overrides. The constructors still take a `DbConnection`.
 * Removed the `beginOffset` and `lineNumber` arguments from `MimeReader.OnMboxMarkerRead ()` and
   `OnMboxMarkerReadAsync ()`. Both values are already supplied by the corresponding
   `OnMboxMarkerBegin ()` call, which makes the signature consistent with `OnMimePartContentRead ()`.
 * Removed previously obsoleted APIs:
-  * The `QEncoder` class, and the public `HexEncoder` `IMimeEncoder` implementation. `HexDecoder` is
-    now internal. The internal implementations are named `Rfc2231Encoder` and `Rfc2231Decoder`.
+  * The `QEncoder` class and the public `HexEncoder` and `HexDecoder` implementations.
   * The `HtmlToHtml.FilterHtml` property. Use a dedicated library such as HtmlSanitizer instead.
   * The obsolete `IX509CertificateDatabase` APIs.
   * The obsolete `DkimSigner` and `ArcSigner` APIs, including the protected `DkimSignerBase.PrivateKey`
@@ -298,11 +189,6 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 * Replaced `HtmlTokenizerState.AttributeValueQuoted` with separate `AttributeValueDoubleQuoted` and
   `AttributeValueSingleQuoted` states, matching the HTML specification. This also changes the numeric
   values of the `HtmlTokenizerState` members that follow them.
-* `InternetAddress.Name` (and therefore the names of `MailboxAddress` and `GroupAddress`) is now trimmed of
-  leading and trailing whitespace when it is set, including by the constructors and the address parser.
-  This whitespace could not be reliably preserved when encoding the address (folding collapses it and it is
-  dropped when adjacent to an rfc2047 encoded-word), so a name such as `" John Smith "` is now
-  `"John Smith"`, and a whitespace-only name becomes an empty string.
 * The address parser and the `MailboxAddress.Address` setter no longer decode IDN-encoded (punycode) domains.
   `MailboxAddress.Address` and `Domain` now return the domain exactly as it was parsed or set, so
   `user@xn--bcher-kva.example` is no longer turned into `user@bücher.example`. Decoding was lossy (re-encoding
@@ -316,9 +202,6 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
     its domain as-is when `FormatOptions.International` is `true`.
   * `MailboxAddress.Equals ()` compares the addresses as-is, so an address with an IDN-encoded domain is no longer
     equal to the same address with a Unicode domain. Compare `GetAddress (true)` to compare them regardless of form.
-  * `SmtpUtf8AddressValidator` now rejects a parsed mailbox with an IDN-encoded domain with
-    `SmtpUtf8AddressError.ALabel` unless `SmtpUtf8AddressValidationOptions.DecodeIdn` is specified, and
-    `SmtpAddressValidator` now accepts it.
 * `MimeIterator.PathSpecifier` now returns `"1"` (instead of `"0"`) for a non-multipart top-level message body,
   consistent with IMAP part specifiers and with the `"N.1"` already used for the non-multipart body of a
   `message/rfc822` part. `MimeIterator.MoveTo ()` now expects `"1"` for such a body. A multipart that is the body
@@ -356,7 +239,7 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
     `adkim` and `aspf` tags. Unrelated identifier domains never trigger DNS queries.
   * DKIM signatures are verified automatically (using the `DkimVerifier` property) unless the caller
     supplies existing `DkimSignatureValidationResult`s, and only once a DMARC policy has been found.
-    `DkimSignatureValidationResult` now has a public constructor for this purpose.
+    `DkimSignatureValidationResult` has a public constructor for supplying existing results.
   * MimeKit does not implement SPF. Callers supply the result of their own SPF check as an
     `SpfCheckResult`, using the new `SpfStatus` enum.
   * The `DmarcValidationResult` exposes the `DmarcStatus` (`None`, `Pass`, `Fail`, `TempError` or
@@ -373,54 +256,29 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 
 ### MIME Compliance Violation Reporting
 
-* Added an API for reporting MIME compliance violations found while reading a message. Set
-  `MimeReader.ComplianceLogger` to an `IMimeComplianceLogger` implementation to receive a
-  `MimeComplianceIssue` for each violation. Each issue carries the `MimeComplianceViolation`, a
-  stream offset, line and column numbers, and a `MimeCompliancePositionKind` describing what the
-  position refers to.
+* Added optional MIME compliance reporting to `MimeReader` and `MimeParser`. Set `ComplianceLogger`
+  to an `IMimeComplianceLogger` implementation to receive `MimeComplianceIssue` diagnostics with
+  the violation, stream offset, line and column numbers, and `MimeCompliancePositionKind`.
+  Reporting does not change tolerant parsing or decoding.
 * Violations are classified along two axes: a `MimeComplianceSeverity` and a set of
   `MimeComplianceCategories` (`Interoperability`, `DataLoss` and `Security`). Severity is further
   qualified by the `MimeComplianceContext` (`Transport` or `Storage`), since defects such as a bare
   linefeed are far more serious in flight than at rest.
-* Added address header validation covering quoted local-parts, ISO-2022 sequences, stray carriage
-  returns and null bytes, domain-literal `dtext`, empty domain labels, unterminated quoted-strings
-  and comments, missing group terminators, spoofing patterns and unquoted addresses in display
-  names. The validator is vectorized and avoids re-scanning phrases.
-* Added violations for repeated header fields, and corrected the reported positions of the
-  `InvalidHeader`, `Content-Transfer-Encoding` and `BareLinefeedInBody` violations.
-* Added a `BareCarriageReturnInHeader` violation, reported for the first carriage return in each header
-  that is not followed by a linefeed. Parsers disagree about whether a bare carriage return ends a line,
-  which can be used to make different components see different headers for the same message.
-* Added a `BlankHeaderContinuationLine` violation, reported for each folded header line that contains
-  only whitespace (rfc5322 section 3.2.2, rfc7103 section 7.3). Agents that strip trailing whitespace
-  see such a line as the end of the header block, so the fields that follow it can be processed as
-  headers by one component and as body by another.
-* Added `MissingDate`, `MissingFrom`, `MissingMessageId` and `MissingMimeVersion` violations,
-  reported when a top-level message's header block lacks a required field (rfc5322 section 3.6,
-  rfc2045 section 4, rfc7103 sections 7.5.2 and 8.1). `MissingMimeVersion` is only reported when the
-  header block has a `Content-Type` or `Content-Transfer-Encoding` header. Embedded message/rfc822
-  parts are not checked.
-* Added a `MimeDepthLimitExceeded` violation, reported (once per parse) when a `multipart` or
-  `message/rfc822` entity is nested deeper than `ParserOptions.MaxMimeDepth`. Its content is then
-  parsed as an opaque leaf part, so anything nested inside it is not visible to the application.
-* Added a `NestedAddressGroup` violation, reported when an address group is nested inside another
-  address group (rfc5322 section 3.4 only permits mailboxes within a group). Nested groups were previously
-  reported as `NonConformantAddress`, and the `;` that terminated the nested group was treated as the end
-  of the enclosing group.
-* The base64, quoted-printable and uuencode validators now report column numbers and report each
-  violation at most once per line.
-* Added `MimeComplianceOptions`, set via `MimeReader.ComplianceOptions`, to control how violations are
-  reported. Its `Context` property selects the `MimeComplianceContext` used to rate severities.
-* Added `MimeComplianceOptions.MaxIssuesPerViolation`, a configurable cap on how many times each
-  individual violation will be reported. The cap is per-violation rather than a single total so that
-  a flood of one violation cannot suppress the reporting of any other. When a budget is exhausted, a
-  single `TooManyComplianceIssues` is logged so that a truncated report is never silently truncated.
-  The default is `0` (no limit).
-* Added `MimeComplianceOptions.EnabledValidators`, which allows the base64, quoted-printable, uuencode
-  and address validators to be individually disabled (for example, from application configuration) if
-  one of them proves too expensive for, or misbehaves on, a particular deployment's mail, without having
-  to disable compliance reporting altogether. Changing `MimeComplianceOptions.Default` at startup
-  applies the setting to every `MimeReader` created afterward. All validators are enabled by default.
+* Structural checks cover malformed, missing and repeated headers, ambiguous line endings and
+  whitespace-only continuation lines, malformed MIME structure, and exceeded MIME nesting limits.
+  Repeated `Content-Id` fields are checked per MIME part, not by comparing identifiers across parts.
+* Address checks cover malformed mailbox and group syntax, nested groups, unterminated strings and
+  comments, invalid characters, and potentially misleading display names.
+* Parameter checks cover malformed and repeated declarations, invalid RFC 2231 encoding, missing
+  continuation segments, and RFC 2047 encoded words used in parameter values. Legitimate continuation
+  segments and an ordinary filename fallback alongside an extended filename are accepted.
+* Encoded-word checks cover RFC 2047 B/Q payload syntax, padding, length, separation and placement in
+  headers. Base64, quoted-printable and uuencode content validators check transfer-encoding syntax,
+  including nonzero Base64 pad bits. These checks do not perform charset-level text validation.
+* `MimeComplianceOptions` controls the reporting context, enables or disables individual address,
+  parameter, encoded-word and transfer-encoding validators, and caps reports with
+  `MaxIssuesPerViolation`. All validators are enabled by default; the default report cap is `0`
+  (unlimited). A `TooManyComplianceIssues` diagnostic indicates when a cap has been reached.
 * Added a `MimeAnalyzer` sample that reports violations in a compiler-style
   `file:line:column: severity: message` format.
 
@@ -439,7 +297,7 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
     `TnefMessage.ConvertToMime ()`, which follows [MS-OXCMAIL] (including `PidTagMimeSkeleton`,
     `PS_INTERNET_HEADERS` and transport `Received` headers) and reports anything it could not
     represent via `TnefConversionResult.Losses`.
-  * `TnefMessage.ConvertToMime ()` now generates a `text/calendar` part for appointments, meeting
+  * MIME conversion generates a `text/calendar` part for appointments, meeting
     requests, responses, counter-proposals and cancellations, following [MS-OXCICAL]. It covers time
     zones, recurrence rules, deleted and modified occurrences, attendees and reminders. Per
     [MS-OXCMAIL] 2.1.3.3.8 it is added as the last alternative of the body. Exception attachments it
@@ -459,7 +317,7 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
     placeholders with the attachments in `PidTagRenderingPosition` order ([MS-OXRTFEX] 2.2.3.4,
     [MS-OXCMAIL] 2.1.3.4.1.1). Attachments that are browser-displayable images become inline,
     `Content-Id`-referenced `<img>` elements in the generated HTML, grouped with the body in a
-    `multipart/related`. OLE attachments are no longer marked inline. When the RTF encapsulates HTML,
+    `multipart/related`. OLE attachments require explicit conversion to render inline. When the RTF encapsulates HTML,
     the attachments that the extracted HTML references are inline and in the `multipart/related`,
     following the HTML best body rules ([MS-OXCMAIL] 2.1.3.4.1.2).
   * Added `TnefConversionOptions.AttachmentPlaceholderCallback` (`TnefAttachmentPlaceholderCallback`),
@@ -471,7 +329,8 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
   * See the [TNEF section of the Porting Guide](PortingGuide.md#tnef) for help migrating from MimeKit 4.x.
 * Added `TnefWriter` and `TnefPropertyWriter` for producing [MS-OXTNEF] streams, including named
   properties, multi-valued properties, recipient tables, embedded messages and [MS-OXRTFCP]
-  compressed RTF.
+  compressed RTF. `TnefWriter.TemporaryStreamFactory` allows attribute and property buffers to use
+  application-selected temporary streams instead of memory.
 * Hardened the TNEF reader against malformed and malicious input: the TNEF signature, attribute
   levels, attribute containment, `attMessageClass` and checksums are now validated; truncation is
   reported as `StreamTruncated`; property, value and row counts are clamped to the attribute size;
@@ -484,13 +343,26 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
   available.
 * Fixed the compressed RTF decoder to not trust `COMPSIZE`/`RAWSIZE`, to stop at the end of
   `CONTENTS`, to skip the CRC for uncompressed streams, and to discard unknown `COMPTYPE`s.
-* Added `TnefNameId.ToString ()`. Named properties previously printed as the type name, which also
-  affected `TnefProperty.ToString ()`.
-* Added the `RecipientFlags` and `RecipientTrackStatus` property IDs and tags, and the
-  `AppointmentCounterProposal`, `AppointmentProposedStartWhole` and `AppointmentProposedEndWhole`
-  named property IDs.
 
 ### Other Enhancements
+
+* Added standalone `YEncReader` and `YEncWriter` APIs for framed yEnc content, including individual
+  multipart ranges, streaming sync/async operations, metadata, configurable limits, and size/checksum
+  validation. They do not change MIME parsing or assemble multipart downloads.
+* Added `MimeKit.Text.HtmlToText` for converting HTML documents and fragments to plain text, with
+  support for paragraphs, headings, lists, blockquotes and preformatted whitespace. Link destinations
+  and image alt text are optional, and input, output and nesting limits are configurable.
+* Added `MimeKit.Text.EnrichedToHtml` for RFC 1896 `text/enriched`, supporting formatting, colors,
+  fonts, alignment, excerpts, language tags, document or fragment output, and resource limits.
+  The older `text/richtext` format is not supported.
+* Expanded `MimeTypes` mappings for modern document, image, audio, video, archive and data formats,
+  including WebAssembly, YAML, TOML, Zstandard, CBOR, GeoJSON, Parquet, Apache Arrow, SQLite,
+  HEIC/HEIF, JPEG XL, APNG, WebVTT and glTF. Corrected legacy names and reverse lookups; changed
+  preferred MIME types are listed under Breaking Changes.
+* Setting Subject, Date, Message-Id, In-Reply-To, MIME-Version, Importance, Priority or X-Priority
+  through message properties removes duplicate occurrences, even when assigning a cached value.
+  Updating Resent-Date or Resent-Message-Id continues to modify only the first occurrence,
+  preserving older resent blocks.
 
 * `MimeReader` (and therefore `MimeParser`) no longer uses recursion to parse nested multipart and
   message/rfc822 parts. Instead, it keeps an explicit stack of the entities being parsed, so a maliciously
@@ -518,9 +390,8 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
   no A-labels, only PRECIS IdentifierClass code points (with the RFC 5892 contextual rules), Unicode
   Normalization Form C, and at most one script per address (Han may be combined with Hiragana and Katakana,
   with Hangul, or with Bopomofo). `TryValidate ()` reports the reason through `SmtpUtf8AddressError`. The
-  validation tables are generated from Unicode 18.0.0 by `tools/SmtpUtf8TableGenerator`.
-  `SmtpUtf8AddressValidationOptions` has two flags for detecting addresses that may be spoofing another
-  address, such as when displaying them to users. `DecodeIdn` decodes IDN-encoded (`xn--`) domain labels
+  validation tables use Unicode 18.0.0.
+  `SmtpUtf8AddressValidationOptions.DecodeIdn` decodes IDN-encoded (`xn--`) domain labels
   and then validates the Unicode form. `AsciiIsLatin` counts ASCII letters as Latin, checking the
   local-part and each domain label separately, so that homographs such as `paypal@рaypal.com` (with a
   Cyrillic `р`) are detected. `EnforceLengthLimits` enforces the RFC 5321 length limits (64-octet local-part,
@@ -529,7 +400,8 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 * Added `SmtpAddressValidator`, which checks whether an address is a well-formed RFC 5321 mailbox that can be
   used in the `MAIL FROM` and `RCPT TO` commands without the `SMTPUTF8` extension. `TryValidate ()` reports
   the reason through `SmtpAddressError`; addresses that are only invalid because they contain non-ASCII
-  characters are reported as `NonAscii`. `SmtpAddressValidationOptions.AllowIso2022JpLocalPart` permits
+  characters are reported as `NonAscii`. IDN-encoded domains are accepted.
+  `SmtpAddressValidationOptions.AllowIso2022JpLocalPart` permits
   ISO-2022-JP escape sequences within a quoted-string local-part (as used by some Japanese mail systems), and
   `EnforceLengthLimits` enforces the RFC 5321 length limits.
 
@@ -546,26 +418,14 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
   elements are handled (see `HtmlToHtml.NoScriptHandling` below). `RtfToHtml.AttachmentPlaceholderCallback` and
   `RtfToText.AttachmentPlaceholderCallback` let the caller write content at each `\objattph` attachment
   placeholder.
-* Added RTF compliance violation reporting. Set `RtfToText.ComplianceLogger` or `RtfToHtml.ComplianceLogger`
-  to an `IRtfComplianceLogger` implementation to receive an `RtfComplianceIssue` for each `RtfComplianceViolation`
-  found while converting (for example, a missing `\rtf1` header, invalid hex escapes, unbalanced groups, undefined
-  fonts or exceeded table and depth limits). Each issue carries a byte offset, line and column numbers and the group
-  depth. `RtfToText.ComplianceOptions` and `RtfToHtml.ComplianceOptions` (an `RtfComplianceOptions`) control how
-  violations are reported: `MaxIssuesPerViolation` caps how many times each violation is reported per document
-  (`0`, the default, means no limit), and a single `TooManyComplianceIssues` is logged when a cap is reached.
-* Added HTML compliance violation reporting. Set `HtmlTokenizer.ComplianceLogger` or `HtmlToHtml.ComplianceLogger`
-  to an `IHtmlComplianceLogger` implementation to receive an `HtmlComplianceIssue` for each `HtmlComplianceViolation`
-  found while tokenizing. The violations are the parse errors defined by the HTML specification's tokenizer (for
-  example, duplicate attributes, unexpected NUL characters, malformed comments and DOCTYPEs, and invalid or
-  unterminated character references), plus `NestedComment`, `UnknownNamedCharacterReference` and
-  `ElementDepthLimitExceeded`. Tree-construction behavior that HTML processors commonly disagree on is also
-  reported: `IgnoredStartTag` (e.g. a second `<head>`, a nested `<form>`, a `<tr>` outside of a table, or a
-  non-frameset tag in a frameset document), `ForeignContentBreakout` (a tag that implicitly closes SVG or MathML
-  content, such as `<svg><p>`) and `AttributesMergedIntoExistingElement` (a later `<html>` or `<body>` start tag
-  whose attributes get added to the existing element). Each issue carries a character offset and line and column numbers. Character
-  references are checked even when `DecodeCharacterReferences` is `false` (as it is for `HtmlToHtml`), without
-  changing the output. `HtmlTokenizer.ComplianceOptions` and `HtmlToHtml.ComplianceOptions` (an
-  `HtmlComplianceOptions`) work the same way as they do for the RTF converters.
+* Added optional RTF compliance reporting through `IRtfComplianceLogger`, configured on `RtfToText`
+  and `RtfToHtml`. Diagnostics cover malformed syntax, unbalanced groups, undefined fonts and resource
+  limits, with byte offsets, line and column numbers, and group depth. `RtfComplianceOptions` supports
+  per-violation report caps.
+* Added optional HTML compliance reporting through `IHtmlComplianceLogger`, configured on
+  `HtmlTokenizer` and `HtmlToHtml`. Diagnostics cover tokenizer errors, ignored tags, foreign-content
+  transitions and depth limits, with character offsets and line and column numbers.
+  `HtmlComplianceOptions` supports per-violation report caps. Reporting does not change the output.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
   `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
   markup (`false`).
@@ -579,15 +439,9 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 * Added `ParserOptions.MaxHeaderLength` to limit how much memory the parser will use to buffer any
   single header. A header whose raw length exceeds the limit causes the parser to throw a `FormatException`.
   The default limit is 16 KB.
-* Added `HtmlTokenizer.MaxElementDepth` and `HtmlToHtml.MaxElementDepth` to limit the number of distinct
-  nested elements that the tokenizer tracks in order to tokenize the content of elements such as `<style>`
-  and `<![CDATA[` sections inside of SVG and MathML the way a browser would. Previously, deeply nested markup
-  such as repeated `<table><tr><td>` could make the tokenizer allocate roughly 22 times the size of the input
-  (and `HtmlToHtml` roughly 32 times). Consecutive identical elements only count once. If a start tag exceeds
-  the limit, it is the last tag token and the rest of the input is returned as literal character data (which
-  `HtmlToHtml` writes as encoded text) so that no markup can be hidden from the `HtmlToHtml.HtmlTagCallback`.
-  The default limit is 4096. The tracked elements are also now stored in fixed-size chunks rather than in a
-  single array that is copied every time it grows, keeping allocations off the large object heap.
+* Added `HtmlTokenizer.MaxElementDepth` and `HtmlToHtml.MaxElementDepth` to bound element tracking
+  (default: 4096). Consecutive identical elements count once. When the limit is exceeded, the remaining
+  input is returned as literal character data, which `HtmlToHtml` escapes rather than emitting as markup.
 * Added `HtmlToHtml.OutputHtmlFragment`, which removes the `<!DOCTYPE>`, `<html>`, `<head>` (including its
   content) and `<body>` tags so that the output can be embedded within another HTML document. Like browsers,
   it treats the `<head>` element as implicitly closed at the first start tag or non-whitespace text that does
@@ -610,472 +464,109 @@ scalar boundaries when encoding expansion or intervening whitespace would exceed
 
 ### Performance
 
+* Reduced address parsing and RFC 2047 decoding allocations, including direct parsing of string
+  input, fewer intermediate buffers for display names and ASCII addresses, and reuse of charset
+  lookups within a parse. On .NET 8 and later, valid UTF-8 is decoded directly into the output buffer.
+* Improved Base64 encoding and decoding throughput, including MIME line wrapping. `Base64Decoder`
+  uses MimeKit's own SSSE3, AVX2 and Arm64 AdvSimd kernels while preserving permissive decoding.
+  `EnableHardwareAcceleration` is enabled by default on .NET 8 and later; it was disabled in 4.18.1
+  because of bugs in the runtime's Base64 decoder.
+* Added SSSE3, AVX2 and Arm64 AdvSimd acceleration to `UUEncoder` and `UUDecoder`, with scalar fallback
+  for malformed input. Both expose an `EnableHardwareAcceleration` property.
+* Improved quoted-printable decoding throughput by scanning and copying literal runs in bulk,
+  particularly for mostly-ASCII content.
 * DKIM and ARC signed-header selection now indexes headers once and consumes repeated fields in
-  linear time, avoiding quadratic work on large attacker-controlled signed-header lists.
-  Headers are merged in serialization order, including developer-constructed headers stored in
-  either the message or body header list.
-
+  linear time, avoiding quadratic work on large signed-header lists.
 * `MimeIterator.MoveTo ()` now navigates directly to the specified entity in time proportional to its depth,
   rather than walking the tree from the beginning (or from the current position). `MimeIterator` also no longer
   allocates for each level it descends into.
 * `MimeMessage.BodyParts` and `Attachments` now walk the MIME tree with `MimeIterator` instead of nested
   iterators, so each step no longer costs time and stack space proportional to the nesting depth.
-* Optimized `MimeMessage` address header tracking to use a lazily allocated array instead of a
-  `Dictionary`, and to avoid subscribing to change events for unused address headers.
-* Optimized `HeaderList` creation by supplying an initial capacity wherever it is known, caching the
-  `HeaderChanged` delegate, and using `Dictionary.TryAdd ()` internally on modern frameworks.
-* Optimized the check for whether a header is a `Content-*` header.
-* Removed a redundant `And` masking before `MoveMask` in `Memory.IndexOf ()`, dropping a dependent
-  instruction from the hot loop's dependency chain at all eight SSE2 and AVX2 8-bit detection sites.
-* Replaced the `Base64.DecodeFromUtf8 ()`-based hardware-accelerated path in `Base64Decoder` with
-  MimeKit's own SSSE3, AVX2 and Arm64 AdvSimd kernels, which fall back to the scalar decoder for
-  whitespace, line breaks, padding and invalid characters. The output is identical to the scalar
-  decoder but is 5.5x faster, so `Base64Decoder.EnableHardwareAcceleration` is now enabled by default
-  on .NET 8 and later (it was previously disabled because of bugs in `Base64.DecodeFromUtf8 ()`).
-* Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUDecoder` that decode whole well-formed lines at a
-  time (roughly 19x faster than the scalar decoder), falling back to the scalar decoder for anything
-  else. They can be disabled using the new `UUDecoder.EnableHardwareAcceleration` property.
-* Added SSSE3, AVX2 and Arm64 AdvSimd kernels to `UUEncoder` that encode whole 45-byte lines at a
-  time (roughly 14x faster with SSSE3 and 16x faster with AVX2 than the scalar encoder). They can be
-  disabled using the new `UUEncoder.EnableHardwareAcceleration` property.
-* Optimized `QuotedPrintableDecoder` to locate the next `=` using `IndexOf ()` and copy the literal text
-  that precedes it in bulk, rather than copying one byte at a time. Mostly-ASCII content now decodes about
-  4x faster. Content with a high density of encoded octets (e.g. non-Latin text) decodes at about the same
-  speed as before.
-* Fixed quadratic behavior when parsing very long (e.g. heavily folded) headers. `MimeReader` and
-  `LegacyMimeParser` grew their header buffers by only a small fixed amount at a time, copying the entire
-  header on every refill of the input buffer (or, for the legacy parser, on every line). The buffers now grow
-  geometrically (by 1.5x). Parsing a message with an 80,000-recipient `To` header went from roughly 230 ms
-  to 3 ms with `MimeParser` and from 13 s to 3.5 ms with `LegacyMimeParser`.
-* Fixed quadratic behavior in address compliance validation for malformed lists with missing separators,
-  quoted local-parts, comments or domain literals, and for repeated diagnostics reported out of position
-  order. Overlapping lookahead scans and backward line-position lookups are now indexed lazily, preserving
-  the reported violations without repeatedly scanning the same header suffixes or prefixes.
-* Optimized `MimeReader`'s (and therefore `MimeParser`'s) content scanning on .NET 8 and later to use
-  SIMD to skip over runs of lines that cannot be a boundary marker (i.e. lines that do not start with
-  `--`, or `From ` in Mbox mode) instead of examining every line. This makes parsing roughly 1.3x
-  to 1.9x faster depending on the message. The fast path is not used when a `ComplianceLogger` is set.
-* Fixed quadratic behavior in `HtmlToHtml` and `HtmlTextPreviewer` when processing HTML with a large number
-  of unclosed elements. Every token caused a scan of the entire list of open elements, so a small, malicious
-  document could consume minutes of CPU time (100,000 unclosed `<b>` tags followed by 100,000 unmatched end
-  tags, about 700 KB of HTML, took over 2 minutes in `HtmlToHtml`). Every open-element operation is now O(1),
-  so the same input is converted in about 50 ms.
-* Reduced memory allocations in `HtmlTokenizer` by about 40% and in `HtmlToHtml` by about 55%. `HtmlTagToken`
-  no longer allocates an attribute collection for tags without attributes, `HtmlAttributeCollection` no longer
-  allocates a redundant list, recently used tag names, attribute names and short attribute values are shared
-  rather than allocated again for every occurrence, and `HtmlToHtml` no longer allocates a node for every open
-  element or a string for every run of character data.
-* Optimized `HtmlTokenizer` to scan character data, RCDATA, RAWTEXT, script data, comments and quoted
-  attribute values in bulk (using `SearchValues<char>` on .NET 8 and later) rather than one character at a
-  time, and to no longer interrupt each bulk scan at every newline just to track line numbers. Combined with
-  the allocation reductions above, tokenizing HTML is now about 15-25% faster than in MimeKit 4.18.1 and
-  allocates 34-39% less memory.
-  `HtmlToHtml` allocates 25-52% less memory and is about 7-20% faster when converting to a `TextWriter`,
-  depending on the document.
+* Reduced allocations for message and header bookkeeping, and removed no-op finalizers that
+  needlessly placed managed objects on the GC finalization queue.
+* Fixed quadratic buffer growth when parsing long or heavily folded headers in both MIME parsers.
+* Accelerated `MimeReader` content scanning with SIMD on .NET 8 and later when compliance reporting
+  is disabled.
+* Fixed quadratic processing of unclosed elements in `HtmlToHtml` and `HtmlTextPreviewer`.
+  Bulk scanning and allocation reductions also improve ordinary HTML processing: compared with
+  4.18.1, the benchmarked documents tokenize about 15-25% faster with 34-39% fewer allocations;
+  `HtmlToHtml` uses 25-52% fewer allocations and is about 7-20% faster with `TextWriter` output.
 
 ### Bug Fixes
 
-* Fixed missing OpenPGP modification detection and implicit trust of message-supplied certificates
-  in `TemporarySecureMimeContext`.
-* Bounded CMS decompression and fixed cancellation during synchronous decompression to a stream.
-* Restricted opt-in CRL retrieval to certificates on a path validated against configured trust
-  anchors. Unrelated certificates in signed messages or local stores no longer trigger requests.
-  Revocation checking is still performed after retrieval.
-
-* Fixed `OpenPgpContext.Verify ()` and `VerifyAsync ()` so that they throw a `FormatException` instead of an
-  `InvalidCastException` when the signature data contains a PGP packet other than a signature.
-
-* Fixed `MimeReader` so that a CRLF sequence in a MIME part's content that is split across two reads of the
-  underlying stream is no longer reported as a `BareLinefeedInBody` violation, and no longer causes the
-  content's `NewLineFormat` to be reported as `Mixed`.
-
-* Fixed `FilteredStream.Read ()` and `ReadAsync ()` so that they flush the filters when the source stream reaches
-  the end, and so that they no longer return 0 before the end of the stream when the filters hold back an entire
-  chunk of input. Previously, a trailing lone CR (or any other output that a filter only emits on flush) was
-  lost, and reading could stop early.
-
-* Fixed `BestEncodingFilter` so that a CRLF split across two `Filter ()` calls is no longer counted as part of
-  the line length, which could result in an unnecessary `QuotedPrintable` recommendation.
-
-* Fixed `OpenPgpDetectionFilter` so that it no longer throws `IndexOutOfRangeException` on lines that follow an
-  `-----END PGP PRIVATE KEY BLOCK-----` marker, and so that the reported `BeginOffset` and `EndOffset` are
-  correct when the input is fed in chunks that split a line.
-
-* Fixed `QuotedPrintableEncoder` so that it never produces lines longer than the maximum line length (76 by
-  default, as required by RFC 2045). Previously, an encoded octet (such as `=E9`) near the end of a line, or the last
-  octet before a line break, could produce lines of up to 78 characters.
-
-* Fixed `YEncoder` so that it wraps lines when the line length is 254 or more. Previously, an internal counter
-  overflowed and the encoder never inserted a line break.
-
-* `MessageIdList` (`MimeMessage.References`) now validates the message-ids that are added to it. Previously, a
-  value containing line breaks (such as `"id@example.com\r\nBcc: someone@example.com"`) would be written to the
-  References header verbatim, producing a malformed message.
-
-* `Received.Id` no longer accepts values that contain line breaks, control characters or trailing garbage, and
-  `Received.ToString ()` now unfolds `ReceivedClause.Comments`, so that the result is always a well-formed
-  header value.
-
-* Fixed `HtmlTokenizer` so that a short, unrecognized keyword following the DOCTYPE name (for example
-  `<!DOCTYPE html foo>`) no longer leaks into the name of the next tag. Previously, input such as
-  `<!DOCTYPE html </div><div class=x>` produced a start tag named `</divdiv`, which caused `HtmlToHtml`
-  to throw an `ArgumentException` (Invalid tag name) for attacker-controllable input.
-
-* Fixed a number of `HtmlTokenizer` states that consumed a character which the HTML specification says
-  must be reconsumed in another state (tag open, markup declaration open, self-closing start tag, the
-  RCDATA/RAWTEXT/script data end tag name states and the script data escape states). These differences
-  from how browsers tokenize HTML allowed markup such as `<script>x</scrip</script><img onerror=...>`,
-  `<!DOC><img onerror=...>` or `<<img onerror=...>` to be treated as character data, hiding tags from
-  the `HtmlToHtml.HtmlTagCallback`. Also, `<img/onerror=...>` now has an `onerror` attribute (rather than
-  `nerror`) and a `/` at the start of an unquoted attribute value (e.g. `<a href=/path>`) is now part of
-  the value.
-
-* Fixed `HtmlWriter` and `HtmlTagToken.WriteTo` so that an attribute whose name begins with `=`
-  (e.g. from `<a href/=javascript:...>`) cannot be reparsed as the value of a preceding valueless attribute.
-
-* Fixed `HtmlCommentToken.WriteTo` to write bogus comments that came from `</` followed by a character
-  that cannot start a tag name (e.g. `</<script x>`) with the leading `</`. Previously the `/` was dropped,
-  so `HtmlToHtml` could turn such a comment into a tag (`<<script x>`).
-
-* `HtmlTokenizer` now tracks SVG and MathML foreign content using an approximation of the HTML tree
-  builder's stack of open elements, so that it agrees with browsers about where foreign content begins
-  and ends. Previously, `<![CDATA[` was recognized everywhere, allowing input such as
-  `<![CDATA[<img onerror=...>]]>` to hide a tag from `HtmlToHtml.HtmlTagCallback`, while `<style>` and
-  `<script>` inside `<svg>`/`<math>` were incorrectly treated as raw text, which hid the markup within
-  them. CDATA sections are now only recognized in foreign content (elsewhere they are bogus comments, as
-  in browsers), and self-closing raw-text elements such as `<style/>` and `<script/>` in HTML content now
-  switch the tokenizer into the appropriate raw-text state, as browsers ignore the self-closing flag on
-  non-void HTML elements. `HtmlToHtml` and `HtmlTextPreviewer` now suppress the content that follows a
-  self-closing raw-text element when its content is suppressed. `HtmlToHtml` also writes explicit end tags
-  for the SVG and MathML elements (and the elements nested inside them) that a start tag implicitly closes,
-  e.g. `<svg><p>`, so that a browser parsing the output leaves foreign content where `HtmlToHtml` did.
-
-* Fixed `HtmlToHtml` so that a literal `<` at the end of character data (e.g. the first `<` in `<</>c>`)
-  is written as `&lt;`. Previously, if the markup following it was dropped (e.g. `</>`, a comment removed by
-  `FilterComments`, or a tag deleted by an `HtmlTagCallback`), the `<` could combine with the following text
-  to form a new tag.
-
-* Fixed `HtmlTokenizer` to apply the adoption agency algorithm's stack updates when a formatting end tag
-  crosses block elements. For example, `</a>` in `<a><p><svg></a>` now closes the SVG content without
-  discarding the paragraph, so a following `<script>` is recognized as HTML script data instead of foreign
-  content. Previously, this mismatch could hide subsequent tags from `HtmlToHtml.HtmlTagCallback`.
-
-* Fixed `HtmlTokenizer` so that an abruptly terminated DOCTYPE public or system identifier (e.g.
-  `<!DOCTYPE x PUBLIC "><a href=&>`) no longer leaves a stale quote character behind. Previously, a
-  character reference in an unquoted attribute value of the next tag would resume tokenizing in the quoted
-  attribute value state, causing the tag (and the markup that followed) to be emitted as character data.
-
-* Fixed `HtmlToHtml` to drop a tag that is truncated by the end of the input (e.g. `foo<img src=x onerror=...`).
-  Previously the partial tag was written to the output as-is without ever being passed to the
-  `HtmlTagCallback`, so it could be completed by whatever markup the output was later combined with.
-
-* Fixed a number of bugs in the URL detection used by `TextToHtml` and `FlowedToHtml`:
-  * A pattern that was not part of a valid URL (e.g. the `@` in `email me @ home`) no longer prevents the
-    URLs that follow it on the same line from being detected.
-  * Text in which a prefix of one pattern was followed by another pattern (e.g. `wwww.example.com` or
-    `sftp.example.com`) could cause the wrong link text to be detected.
-  * Pattern matching is now culture-invariant. Previously, in some cultures (e.g. Turkish), `FILE://` and
-    `MAILTO:` were not detected while `fİle://` was.
-  * Non-ASCII whitespace (e.g. a non-breaking space), control characters and invisible formatting characters
-    (e.g. bidirectional overrides such as U+202E or zero-width spaces) are no longer considered part of a URL
-    or email address, since they could be used to disguise the link target.
-  * Email addresses with a dot-atom local-part at the start of a line (e.g. `a.b@example.com`) are now detected.
-  * To reduce false positives, email addresses (that are not preceded by `mailto:`) now require a fully-qualified
-    domain whose last label consists of at least 2 letters (e.g. `user@example.com`, but not `user@localhost`
-    or `user@host.123`). Address literals such as `user@[127.0.0.1]` are still detected.
-  * Email address local-parts are now limited to 64 characters and domains to 255 characters (as per rfc5321),
-    web link hostnames are now limited to 255 characters, and domain labels are now limited to 63 characters (as
-    per rfc1035). IP address literals are validated without scanning arbitrarily long runs of digits. Together,
-    these limits keep the cost of detecting URLs linear.
-  * Trailing punctuation (`.`, `,`, `:`, `;`, `!`, `?`, `'`, `"` and `*`) is no longer included in the URL
-    (e.g. `See http://example.com/path.`), and neither are unbalanced closing parentheses, brackets or braces
-    (e.g. `(see http://example.com/path)`). Balanced ones are kept, so URLs such as
-    `http://en.wikipedia.org/wiki/Foo_(bar)` are still detected in full.
-  * URL detection is now 2-3x faster. Instead of feeding every character through a state machine, the scanner
-    now jumps between the `@`, `:` and `.` characters that every supported URL pattern contains, using
-    `IndexOfAny`, which is vectorized on modern runtimes.
-
-* Brought `HtmlTokenizer` into conformance with the html5lib tokenizer test suite. Every test now passes
-  except for a few deliberate differences (valueless attributes have a `null` value, DOCTYPE names keep
-  their case, CR/LF is not normalized) and the newly specified processing-instruction tokens. Changes
-  include:
-  * Numeric character references now follow the specification: they consume any number of digits, the
-    trailing `;` is optional (`&#65` is `A`), values outside the Unicode range become U+FFFD, and control
-    characters and noncharacters are decoded rather than left as literal text. This also affects
-    `HtmlEntityDecoder` and `HtmlUtils.HtmlDecode`.
-  * In attribute values, a legacy named character reference without a `;` that is followed by `=` or an
-    alphanumeric character is now left as-is (e.g. `href="?a=1&not=2"`), as browsers do. Named
-    character references at the end of the input are now decoded.
-  * Unrecognized text after a DOCTYPE name (e.g. `<!DOCTYPE html PUB>`) now sets `ForceQuirksMode`, while
-    an end-of-file in the bogus DOCTYPE state no longer does.
-  * A `<` or `</` at the end of the input, and an incomplete end tag at the end of RCDATA or RAWTEXT
-    content (e.g. `<title>foo</ti`), are now emitted as character data even when `IgnoreTruncatedTags` is
-    enabled, since they are text rather than truncated tags. A `<!`, `<!-`, `<!DOC` or `<![CDATA` at the
-    end of the input is now a (bogus) comment rather than character data.
-  * NUL characters in bogus comments started by `</` and after `--` in escaped script data are now
-    replaced with U+FFFD.
-
-* Removed the no-op finalizers from `MimeContent`, `MimeEntity`, `MimeIterator`, `MimeMessage`,
-  `HtmlWriter`, `TnefReader` and `X509CertificateDatabase`. Each simply called `Dispose (false)`
-  against a `Dispose (bool)` implementation guarded by `if (disposing)`, making the finalizer a
-  complete no-op. None of these classes directly owns unmanaged resources, so per CA1063 they should
-  not have had one at all. This also resolves the CodeQL
-  `cs/virtual-call-in-constructor-or-destructor` alerts for `MimeMessage` and
-  `X509CertificateDatabase`, and avoids needlessly adding every entity, message and content instance
-  to the GC's finalization queue. `Dispose ()`, `Dispose (bool)` and the `GC.SuppressFinalize ()`
-  calls are unchanged, so subclasses that need a finalizer can still add one.
-* Fixed `MimeReader.GetEntityType ()` to use the same `MaxMimeDepth` check as
-  `ParserOptions.CreateEntity ()`. The two comparisons were off by one with respect to each other,
-  which could result in an `InvalidCastException` rather than a quiet behavior difference.
-* Fixed `BouncyCastleSecureMimeContext.Verify ()` to rethrow rather than return a disposed
-  `MemoryBlockStream` to the caller, which previously surfaced as a confusing
-  `ObjectDisposedException` with the original cause lost.
-* Fixed `DownloadCrlOverHttp[Async] ()` and `ArcVerifier.VerifyAsync ()` to propagate
-  `OperationCanceledException` instead of swallowing it. A cancelled CRL download previously degraded
-  silently into "no CRL available" and certificate revocation checking carried on without it. An
-  `HttpClient` timeout still returns `false` as before.
-* Fixed `X509Certificate2Extensions.AsBouncyCastleCertificate ()` to pass the original exception along
-  as the `InnerException` rather than discarding it, and narrowed the catch clauses in both it and
-  `DecodeEncryptionAlgorithms ()`.
-* Fixed the empty-catch-block and catch-of-all-exception issues in `WindowsSecureMimeContext`.
-* Fixed `WindowsSecureMimeContext` to import a signer's certificate into the `AddressBook` store when
-  verifying a signature that includes S/MIME capabilities. Previously the certificate was only imported
-  when the signature did not include them. The certificate is now always imported, independently of
-  `UpdateSecureMimeCapabilities ()`, which now keeps the advertised encryption algorithms in memory for
-  the lifetime of the context. `GetPreferredEncryptionAlgorithm ()` uses them in preference to the
-  certificate's S/MIME capabilities extension, so replies can use the strongest algorithm the
-  recipient supports instead of falling back to Triple-DES.
-* Fixed `UUDecoder` to remember across `Decode ()` calls that the previous input ended with a line
-  break. Previously, for a line with fewer encoded characters than its length octet claimed, the
-  output could differ depending on where the input was split into buffers.
-* Fixed `UUEncoder` to output the bytes in the correct order when 1 byte was left over from a
-  previous `Encode ()` call and the next call passed exactly 2 bytes. Previously those 3 bytes were
-  held back and output after the input of the next call.
-* Fixed `UUEncoder.EstimateOutputLength ()` to account for input left over from previous `Encode ()`
-  calls. It could previously underestimate, so a caller allocating an output buffer of the estimated
-  size could have its output buffer overrun.
-* Fixed `Base64Encoder` to no longer dereference a null pointer when given an empty input array while
-  hardware acceleration is enabled.
-* Fixed `Base64Encoder.EstimateOutputLength ()` to account for a partially-filled line left over from
-  previous `Encode ()` calls. It could previously underestimate by 1 byte, so a caller allocating an
-  output buffer of the estimated size could have its output buffer overrun.
-* Fixed `Multipart.WriteTo ()` and `WriteToAsync ()` to convert bare LFs to CRLF in the boundary markers
-  preserved by the parser when `FormatOptions.VerifyingSignature` is set. Previously, the parsed boundary
-  markers were always written verbatim, so verifying a `multipart/signed` message that was stored with LF
-  line endings (for example, in a Unix mbox or a Git checkout on Linux) hashed a mix of LF and CRLF line
-  endings and failed. Otherwise, the boundary markers are still written exactly as they were parsed.
-* Fixed the `SqliteCertificateDatabase (string fileName, string password)` and
-  `SqliteCertificateDatabase (string fileName, string password, SecureRandom random)` constructors to
-  validate the `password` and `random` arguments before creating the database file. Previously, a `null`
-  argument threw an `ArgumentNullException` but left an empty database file behind.
-* Fixed reserialization of truncated multiparts parsed by `MimeParser`. A boundary marker at the very
-  end of the stream that is not followed by a MIME part is no longer dropped, and the last part of a
-  multipart without an end boundary no longer gets an extra newline appended to it. This was the last
-  fix needed for messages parsed by `MimeParser` to reliably re-serialize byte-for-byte identical to the
-  original input, including truncated messages that do not end with a newline. Set
-  `FormatOptions.EnsureNewLine` to `true` if the output must end with a newline (for example, when
-  appending to an mbox file). `LegacyMimeParser` still has other re-serialization issues, which is
-  another reason to switch to the new `MimeParser`.
-* Fixed `QuotedPrintableEncoder.EstimateOutputLength ()` to account for a partially-filled line left
-  over from previous `Encode ()` calls and for the soft line break that follows a full line of encoded
-  triplets when the maximum line length is a multiple of 3 (e.g. 60 or 75; the default of 76 was not
-  affected by the latter). It could previously underestimate, so a caller allocating an output buffer
-  of the estimated size could have its output buffer overrun.
-* Fixed `MimeReader` to report a line count of 0 rather than -1 for a multipart or message/rfc822
-  entity with empty content that is immediately followed by a boundary marker or an mbox "From " line.
-* Fixed `RtfCompressedToRtf.IsValidCrc32` to return `false` when the input ends before the 16-byte
-  header has been read in full. Previously, a truncated header could report a valid CRC32, and the
-  result could change depending on how the input was split across `Filter ()` calls.
-* Fixed parameters with an empty value (e.g. `boundary=""`) to be serialized as a quoted empty string
-  rather than `boundary=`, which MimeKit could not parse.
-* Fixed `MailboxAddress` to wrap an address without a domain in angle brackets when it is encoded
-  without a display name (e.g. `<user>` instead of `user`), so that the output can be parsed again
-  when `ParserOptions.AllowAddressesWithoutDomain` is `false`.
-* Fixed `MimeReader` to never report an end offset smaller than the begin offset for an empty entity
-  that is immediately followed by a boundary marker or an mbox "From " line.
-* Fixed `Rfc2047.EncodeText ()` and `Rfc2047.EncodePhrase ()` (and so header encoding) to encode
-  text that looks like an rfc2047 encoded-word (e.g. `=?utf-8?b?...?=`) instead of writing it as-is,
-  which would cause it to be decoded into something else when parsed. This also applies to text that
-  follows a `"` in a display name (encoded-words within quoted-strings are decoded in Loose mode).
-* Fixed `Rfc2047.EncodePhrase ()` so that a word that is too long for a single line is not given
-  extra whitespace when it is split across lines (this affected display names in address headers).
-* Fixed `DateUtils.FormatDate ()` to format negative UTC offsets that are not a whole number of hours
-  correctly (e.g. `-0330` rather than `-03-30`, and `-0005` rather than `+00-05`).
-* Fixed the address parser to convert tabs into spaces in a display name that comes from a trailing
-  comment (e.g. `user@example.com (Display<TAB>Name)`), like it already did for other display names.
-* Fixed the address parser to preserve quotes and backslashes that appear inside an rfc2047
-  encoded-word in a group name (they were previously removed after the name was decoded).
-* Fixed `ContentDisposition` parsing of a quoted disposition value (e.g. `"inline"`) to fall back to
-  `attachment` if the value is not a valid atom, rather than keeping a value that could not be
-  serialized in a way that could be parsed again.
-* Fixed `Dos2UnixFilter` to output a trailing `\r` at the end of the stream rather than dropping it
-  (or, when `ensureNewLine` is `true`, to convert it into the final `\n`).
-* Fixed `MimeParser` and `MimeReader` so that an invalid header line (one without a `:`) at the
-  very end of the input no longer causes a parse failure when valid headers come before it.
-* Fixed `MimeParser` and `MimeReader` to report a parse error (like `LegacyMimeParser` does) when an
-  mbox "From " line at the start of a message is followed by lines that are not valid headers, rather
-  than treating all of the content as part of the mbox marker and losing it.
-* Fixed rfc2047 Q-encoding (used for headers and for `ParameterEncodingMethod.Rfc2047` parameter
-  values) to encode `\` as `=5C`, so that it isn't treated as a quoting character when the encoded
-  value is inside a quoted-string.
-* Fixed the rfc2047 decoder so that a word containing `=?` that isn't an encoded-word no longer
-  prevents the encoded-word that follows it from being decoded (e.g. `abc=? =?utf-8?q?caf=C3=A9?=`).
-  Likewise, an unterminated encoded-word (e.g. `=?utf-8?q?foo bar =?utf-8?q?caf=C3=A9?=`) no longer
-  swallows the next encoded-word's `?=` terminator.
-* Fixed `Punycode.Encode` (and therefore address/domain serialization) to no longer emit IDNA output
-  that contains ASCII whitespace or specials (e.g. U+2009 THIN SPACE maps to a space and U+FF20 maps
-  to `@`); the original domain is used instead, the same as when IDNA encoding fails.
-* Fixed `UUDecoder` and `UUValidator` so that a NUL byte is no longer mistaken for the start of the
-  stream when looking for the `begin` line, which could cause a `begin` that wasn't at the start of a
-  line to be accepted depending on how the input was split into chunks.
-* `MimeParser.ParseMessage` now throws `FormatException` (`End of stream.`) for a stream that consists of
-  nothing but mbox From-lines instead of returning an empty message with no headers (which could not be
-  re-parsed once serialized).
-* Fixed `Parameter` encoding to use UTF-8 when the parameter's `Encoding` cannot represent the entire
-  value, rather than silently replacing characters with `?` (e.g. after parsing an rfc2047-encoded
-  value that mixes charsets) or, for rfc2231 with an exception fallback, throwing. Rfc2047-encoded values
-  use UTF-8 for every encoded-word rather than mixing charsets, which would change the remembered
-  `Encoding` (and therefore the output) each time the value was parsed and serialized again.
-* Fixed `Parameter` encoding of an empty value when the parameter name is too long to fit on a line;
-  the value was written as `name=` (which cannot be parsed) rather than `name=""`.
-* `GroupAddress` now encodes an empty group name as `""` (rfc5322 requires a display-name), which also
-  allows an unnamed group nested inside another group to be parsed again.
-* Fixed rfc2047 encoding of phrases and unstructured text (including address and group names that
-  remember the charset they were decoded from) to fall back to UTF-8 for characters the charset cannot
-  represent, rather than silently replacing them with `?`.
-* `Parameter` values that contain a literal `=?` sequence are now encoded rather than written as a plain
-  quoted-string, so that they are not mistaken for rfc2047 encoded-words when parsed again.
-* Parameter values that were rfc2047-encoded using UTF-8 now keep `ParameterEncodingMethod.Rfc2047` when parsed
-  (like values encoded with any other charset), so that re-serializing them does not switch to rfc2231.
-* `DomainList` parsing (used for obsolete mailbox routes) now skips domains that consist entirely of
-  (non-ASCII) whitespace, which were already omitted when the route was serialized.
-* Fixed rfc2231 encoding of long `Parameter` values to never split a surrogate pair between two
-  continuation values, which caused the character to be replaced with `?` when parsed again.
-* Fixed `MimeParser` and `MimeReader` to no longer loop forever when an mbox stream ends in the middle of
-  an mbox marker (`From ` line) with a trailing carriage return.
-* Fixed `MimeParser` and `MimeReader` to no longer treat a header field without a colon at the very end of
-  the stream as a `Content-Type` or `Content-Transfer-Encoding` header. Previously, such a header could
-  override the entity's content type and cause compliance issues to be reported at a stream offset beyond
-  the end of the stream.
-* `TnefPropertyReader` now treats a multi-valued `Null` property as having no values (and reports an
-  `InvalidValueCount` compliance issue if it claims any). Previously, a huge value count could cause the
-  reader to spin for a very long time and allocate an enormous array, since `Null` values occupy no bytes.
-* Fixed `AuthenticationResults.Parse` and `TryParse` with a start index to no longer rewind to the start of
-  the buffer (instead of the start index) when parsing Office 365-style headers that lack an authserv-id.
-* `AuthenticationResults.Parse` and `TryParse` now accept an empty property value (e.g. `header.from=`) at
-  the end of the input, the same as they already did when it was followed by a `;`. Previously, the
-  `ToString()` output of such headers could not be parsed again, and the result could depend on whether
-  the input was followed by more bytes in the buffer.
-* `AuthenticationResults.ToString()` now quotes the authserv-id when it is not a valid token (e.g. when it
-  was parsed from a quoted-string), so that the result can be parsed again.
-* `TnefMessage.ConvertToMime ()` no longer throws when a TNEF message's Message-Id or correlation key is
-  only parseable with its angle brackets (e.g. `<(comment@example.com>`). Such ids are now ignored like
-  other invalid ids, rather than passed to the `MimeMessage.MessageId` setter, which rejected them.
-* `HeaderList.WriteTo ()` and `MimeMessage.WriteTo ()` now write a header line that consists of nothing but
-  carriage returns (e.g. `\r\r\n`) verbatim instead of passing it through the newline filter. `MimeParser`
-  treats such a line as an invalid header, but with `NewLineFormat.Unix` the filter stripped one carriage
-  return per round trip until the line became the blank line that ends the header block, which changed the
-  structure of the message.
-* `AuthenticationResults.Parse` and `TryParse` no longer include trailing whitespace or comments in the
-  method name of a dotted method (e.g. `gateway.spf (comment) =pass`) or in an Office 365-style authserv-id
-  that is followed by CFWS. Previously, the folded whitespace or comment became part of the name.
-* `AuthenticationResults.Parse` and `TryParse` no longer leave a dangling backslash at the end of a
-  `ResultComment` that ends with an escaped whitespace character (e.g. `(comment\ )`). Previously,
-  `ToString()` would emit a backslash that escaped the closing parenthesis, so the result could not be
-  parsed again.
-* `DkimPublicKeyRecord.TryParse` now returns `false` for an Ed25519 key that is not a valid curve point
-  instead of throwing an `ArgumentException`. As a result, `DkimVerifier` and `ArcVerifier` now skip such a
-  DNS record instead of failing the whole verification.
-* `TextToFlowed` now space-stuffs a soft-broken line that starts with `>`, so that it is no longer read
-  back as a quoted line. It also no longer inserts a soft line break into the middle of a word that does
-  not fit on a line of its own (including at very deep quote depths). Such a word is now sent as is, as
-  rfc3676 recommends, unless the line would exceed 998 characters.
-* `TextToFlowed` no longer puts each word on its own line when the quote markers of a very deeply quoted
-  line (39 levels or more) take up most of a line. Previously, the size of the output grew with the quote
-  depth multiplied by the number of words (e.g. 10 KB of text quoted 900 levels deep became 4.5 MB). Lines
-  now always leave at least as much room for text as the quote markers take up.
-* `TextToHtml` and `FlowedToHtml` no longer write the `</blockquote>` end tags that are still open at the
-  end of the text when the `HtmlTagCallback` set `DeleteEndTag`. They also no longer invoke the callback
-  for (and write) blockquotes nested inside a blockquote whose inner content is suppressed.
-* `HtmlDocTypeToken.WriteTo ()` now quotes the public and system identifiers with the quote character
-  used in the original markup (or whichever one the identifier does not contain), so that an identifier
-  containing a `"` no longer ends early when the output is parsed again.
-* `HtmlTokenizer` now terminates an empty CDATA section (`<![CDATA[]]>`) in foreign content. Previously,
-  everything after it was treated as part of the CDATA section. This allowed markup such as
-  `<svg><![CDATA[]]><img src=x onerror=alert(1)>` to bypass the `HtmlTagCallback` of `HtmlToHtml`.
-* Parsing an address with a domain literal (such as `user@[IPv6:...]`) no longer IDN-decodes the literal.
-  Previously, a literal containing `.xn--` came back lowercased and with Unicode labels.
-* The `DKIM-Signature` and `ARC-*` tag parser used by `DkimVerifier` and `ArcVerifier` now enforces the
-  rfc6376 tag-name grammar (`ALPHA *(ALPHA / DIGIT / "_")`). It now reports a malformed header when a
-  tag name contains whitespace or other invalid characters, or when a tag has no `=`. Previously, such
-  tags were misparsed (or the last one silently ignored), which could produce confusing
-  "duplicate parameter" errors.
-* `AuthenticationResults` now quotes empty property values (`header.s=""`) and values containing
-  whitespace or control characters when serializing. Previously, an empty value was written as
-  `header.s=`, which caused the following property to be parsed as its value.
-* The date parser now rejects numeric timezone offsets whose minutes are 60 or greater (e.g. `+0099`).
-* `AuthenticationResults` no longer drops a property value made up entirely of non-space whitespace
-  (such as form feeds) when folding a long header.
-* `HtmlToHtml` now writes the correct end tags after an end tag that the HTML parser ignores (such as
-  `</mi>` when the MathML `<mi>` element is in the way). Previously, the wrong elements could be left open
-  in the output, so parsing it again produced a different document.
-* `AuthenticationResults` now drops a backslash that quotes a CR or LF in a comment (such as `(a(\<CR>)b)`)
-  when it unfolds the comment. Previously, the backslash escaped the next character instead, so the
-  serialized header could not be parsed again.
-* `HtmlToHtml` now writes the end tag of a self-closing non-void HTML element (such as `<e/>` inside a
-  MathML `<mi>` element) when the element is implicitly closed. Previously, the end tags written for the
-  enclosing foreign elements were ignored, so converting the output again produced different output.
-* `HtmlToHtml` no longer writes a `</noscript>` end tag for a `<noscript>` element inside SVG or MathML
-  content that is implicitly closed when `NoScriptHandling` is `Unwrap`. Previously, the start tag was
-  removed but the end tag was still written, so converting the output again produced different output.
-* `HtmlToHtml` no longer writes an end tag that the HTML parser ignores because a `<noscript>` element is in
-  the way (such as the `</span>` in `<span><noscript><svg></span>`) when `NoScriptHandling` is `Unwrap`.
-  Previously, since the `<noscript>` tags are removed from the output, the end tag was no longer ignored when
-  the output was parsed again, so it implicitly closed the SVG or MathML elements.
-* `HtmlTokenizer` now treats a `<noscript>` element in the `<head>` as implicitly closed by any start tag
-  or non-whitespace text that does not belong in the `<head>` when `ScriptingEnabled` is `false`, like
-  browsers do. Previously, the tokenizer could lose track of SVG or MathML content and tokenize a
-  subsequent `<script>` or `<style>` element differently than browsers do.
-* Fixed `DkimSimpleBodyFilter` and `DkimRelaxedBodyFilter` to no longer throw `IndexOutOfRangeException`
-  when canonicalizing a body containing many consecutive empty lines that end with a bare LF (which
-  are written out as CRLF), such as when verifying a DKIM or ARC signature.
-* `DkimSimpleBodyFilter` and `DkimRelaxedBodyFilter` now treat a bare CR (one not followed by LF) as line
-  content, per RFC 6376. Previously, the simple filter dropped a bare CR at the start of a line, and the
-  relaxed filter could drop a bare CR at the end of the body, drop the whitespace before a bare CR, write
-  a bare CR before any deferred empty lines, or omit the final CRLF of a body ending with a bare CR. As a
-  result, the DKIM body hash of a message containing bare CRs may differ from earlier versions.
-* `HtmlTokenizer` now tracks whether the `<body>` gets replaced by a `<frameset>` (using the HTML
-  frameset-ok flag), since browsers ignore most start tags in a frameset document. Previously, an ignored
-  start tag (such as the `<noscript>` in `<frameset><noscript><frame>` when `ScriptingEnabled` is `true`)
-  could switch the tokenizer into a state in which it treated subsequent markup as text, or vice versa.
-  As in browsers, a `<frameset>` start tag that comes before the `<body>` has been inserted takes effect even
-  if the frameset-ok flag is "not ok" (e.g. after a `<template>` in the `<head>`), and inserting an implied
-  `<body>` sets the flag back to "ok".
-* `HtmlToHtml` now removes the tags that browsers ignore in a frameset document (any tag other than
-  `<frameset>`, `<frame>` and `<noframes>`), so that converting the output again produces the same output.
-  It also removes `<frameset>` start tags that browsers ignore because the frameset-ok flag is "not ok" (e.g.
-  `<body><frameset>`). Previously, such a tag could replace the `<body>` and all of its content when the
-  output was interpreted without the `<body>` tag (e.g. when `OutputHtmlFragment` is `true`).
-* `HtmlTokenizer` now tracks the HTML form element pointer. Outside of a `<template>`, a `</form>` end tag
-  removes the `<form>` element from the stack of open elements without closing the elements above it, and a
-  nested `<form>` start tag is ignored. Previously, `</form>` closed any SVG or MathML elements opened
-  within the `<form>`, so in input such as `<form><svg></form><style><img onerror=...></style>`, the tokenizer
-  treated the `<style>` content as raw text while browsers create an `<img>` element, hiding the tag from
-  `HtmlToHtml.HtmlTagCallback`.
-* Fixed `MimeParser` and `MimeReader` to no longer fail with "Failed to find mbox From marker" (or misparse
-  headers) when the underlying stream returns fewer bytes per read than requested (e.g. a network stream or a
-  stream that returns 1 byte at a time).
-* Fixed `UUValidator` to always report an overlong file mode in a uuencode `begin` line at the fifth digit.
-  Previously, the digit counter wrapped after 255 digits, so a very long file mode could be reported at the
-  wrong position or not at all, depending on how the input was split across calls to `Write ()`.
-* Fixed the `EstimateOutputLength ()` methods of `Base64Encoder`, `HexDecoder`, `HexEncoder`,
-  `QuotedPrintableDecoder`, `QuotedPrintableEncoder`, `Rfc2047Base64Encoder`, `Rfc2047QuotedPrintableEncoder`,
-  `UUDecoder`, `UUEncoder` and `YEncoder` to no longer silently overflow for very large input lengths and return
-  a negative or too-small estimate. They now throw `ArgumentOutOfRangeException` when the estimated output
-  length cannot be represented as an `int`.
-* Fixed `ParameterList` parsing of unquoted parameter values that contain spaces (`RfcComplianceMode.Loose`)
-  so that trailing whitespace is trimmed correctly. Previously, trailing whitespace could be kept and, in some
-  cases, the last character of the value could be dropped (e.g. `n=ab cd` became `ab c`).
+* Fixed MIME parsing with short stream reads, including mbox markers and empty `message/rfc822`
+  parts followed by multipart or mbox delimiters. Empty entities now have consistent offsets and
+  line counts, and CRLF sequences split across reads are recognized correctly.
+* Fixed hangs on truncated mbox markers ending in a carriage return, and handling of malformed
+  headers at end of input. An mbox marker without a valid message no longer silently consumes
+  following content or produces an empty message.
+* Fixed MIME depth-limit handling that could cause an `InvalidCastException` in the reader-based
+  parser (previously `ExperimentalMimeParser`).
+* Improved preservation of truncated multipart messages when reserializing with `MimeParser`,
+  including trailing boundary markers and missing final newlines. Use `FormatOptions.EnsureNewLine`
+  when the output must end with a newline.
+* Fixed signature verification of multipart messages stored with LF line endings: preserved boundary
+  markers are converted to CRLF when `FormatOptions.VerifyingSignature` is set.
+* Preserved malformed carriage-return-only header lines during newline conversion, preventing
+  repeated serialization from turning them into the blank line that ends the header block.
+* Fixed lossy folding of internationalized headers and long RFC 2047 words, preserving Unicode
+  characters and whitespace. Header and parameter encoding falls back to UTF-8 when the selected
+  charset cannot represent the value, rather than losing characters.
+* Fixed RFC 2047 handling of literal encoded-word-like text, backslashes in Q-encoded values,
+  malformed words preceding valid words, and quotes and backslashes in encoded group names.
+* Fixed RFC 2231 decoding with empty charset fields and encoding of supplementary Unicode
+  characters across continuation segments.
+* Fixed parameter round-tripping for empty values, literal `=?` text, and RFC 2047-encoded UTF-8.
+  Loose parsing of unquoted values now preserves the last character, trims trailing whitespace
+  correctly, and ignores following comments. Literal parentheses must be quoted or encoded.
+* Fixed serialization of domainless mailboxes and empty group names, and normalization of tabs in
+  comment-derived display names. IDNA encoding no longer emits domains containing ASCII whitespace
+  or address syntax characters.
+* Fixed `Received.Id` validation and unfolding of `ReceivedClause.Comments`, and recovery of invalid
+  quoted `Content-Disposition` values.
+* Fixed negative fractional-hour UTC offsets in date formatting and rejection of numeric timezone
+  offsets with invalid minutes.
+* Fixed `AuthenticationResults` parsing with buffer offsets, empty values, dotted method names,
+  Office 365-style headers and escaped comments. Serialization now quotes authserv-ids and property
+  values as needed and preserves whitespace-containing values when folding.
+* Corrected encoder output-size estimates for pending input and line breaks, preventing buffer
+  overruns. Encoder and decoder estimates throw `ArgumentOutOfRangeException` rather than overflow
+  when the result cannot be represented as an `int`.
+* Fixed hardware-accelerated Base64 encoding of empty input, uuencode byte ordering across calls,
+  and chunk-dependent uudecoding of malformed lines.
+* Fixed quoted-printable line wrapping that could exceed the configured limit, yEnc wrapping at
+  long line lengths, and loss of the initial yEnc escape character in single-part framed content.
+* Fixed `FilteredStream` reads to flush filters at end of input and avoid reporting end-of-stream
+  prematurely when a filter buffers an entire chunk.
+* Fixed trailing carriage-return handling in `Dos2UnixFilter`, split-CRLF line lengths in
+  `BestEncodingFilter`, and chunk-dependent offsets and exceptions in `OpenPgpDetectionFilter`.
+* Fixed `RtfCompressedToRtf.IsValidCrc32` incorrectly accepting truncated headers.
+* Improved HTML tokenization and serialization of malformed tags, comments, DOCTYPEs, character
+  references and truncated input. Corrected cases where markup could be hidden from
+  `HtmlToHtml.HtmlTagCallback` or created accidentally when filtered output was parsed again.
+* HTML tokenization now accounts for SVG/MathML foreign content, CDATA, self-closing raw-text
+  elements, forms, framesets and misnested formatting. `HtmlToHtml` and `HtmlTextPreviewer` handle
+  the corresponding content suppression and element closures consistently.
+* Fixed HTML attribute and DOCTYPE identifier quoting, and escaping of literal `<` characters
+  adjacent to removed markup.
+* Improved URL detection in `TextToHtml` and `FlowedToHtml`, including culture-independent matching,
+  balanced delimiters, IPv6 hosts, address literals, IDNA domains, query strings and fragments.
+  Whitespace, control characters and invisible formatting characters no longer disguise link
+  targets; bounded scanning also avoids excessive work on malformed addresses.
+* Fixed `TextToFlowed` space-stuffing and long-word wrapping, and excessive output growth at deep
+  quote depths. `TextToHtml` and `FlowedToHtml` now honor callback suppression of blockquote end tags
+  and nested content.
+* Fixed DKIM/ARC tag-name parsing and DKIM body canonicalization of bare carriage returns and long
+  runs of empty LF-terminated lines. Body hashes for messages containing bare CRs may change.
+* Restricted opt-in CRL retrieval to certificates on paths validated against configured trust
+  anchors. Unrelated certificates no longer trigger requests.
+* Fixed cancellation propagation during CRL downloads, ARC verification and synchronous CMS
+  decompression, and preservation of original failures during S/MIME verification.
+* `OpenPgpContext.Verify[Async] ()` now throws `FormatException`, rather than `InvalidCastException`,
+  for non-signature packets in signature data.
+* Fixed `WindowsSecureMimeContext` to import signer certificates regardless of whether S/MIME
+  capabilities are present, and to retain advertised capabilities for selecting reply encryption.
+* `SqliteCertificateDatabase` validates constructor arguments before creating the database file.
 
 ## MimeKit 4.18.1 (2026-09-19)
 
