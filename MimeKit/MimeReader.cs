@@ -101,16 +101,14 @@ namespace MimeKit {
 		int currentEncodingLineNumber;
 		long currentEncodingOffset;
 
-		long? currentContentLength;
+		int? currentContentLength;
 
-		// Note: Bitmasks of the header fields that RFC 5322, Section 3.6 limits to one occurrence.
-		// seenResentHeaders covers the current block of resent fields and is cleared by any header
-		// field that is not a resent field.
-		ulong seenMessageHeaders;
-		ulong seenResentHeaders;
+		// Note: Upper bits track the current resent block; lower bits track the whole message.
+		uint seenHeaders;
 		bool messageHeaderBlock;
 		bool seenMimeVersion;
 		bool seenContentDisposition;
+		bool seenContentId;
 
 		MimeParserState state;
 		MimeFormat format;
@@ -1789,6 +1787,7 @@ namespace MimeKit {
 		// resent fields are limited to one occurrence per block of resent fields rather than one per
 		// message, so they are tracked separately and occupy the upper indexes.
 		const int FirstResentHeaderIndex = 12;
+		const uint MessageHeadersMask = (1u << FirstResentHeaderIndex) - 1;
 
 		static readonly MimeComplianceViolation[] RepeatedHeaderViolations = {
 			MimeComplianceViolation.RepeatedDate,
@@ -1845,25 +1844,18 @@ namespace MimeKit {
 			if (index < FirstResentHeaderIndex) {
 				// Note: Resent fields corresponding to a single resending of the message are grouped
 				// together, so any other header field ends the current block.
-				seenResentHeaders = 0;
+				seenHeaders &= MessageHeadersMask;
 
 				if (index < 0)
 					return;
-
-				ulong bit = 1UL << index;
-
-				if ((seenMessageHeaders & bit) != 0)
-					complianceLogger!.Log (new MimeComplianceIssue (complianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
-				else
-					seenMessageHeaders |= bit;
-			} else {
-				ulong bit = 1UL << index;
-
-				if ((seenResentHeaders & bit) != 0)
-					complianceLogger!.Log (new MimeComplianceIssue (complianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
-				else
-					seenResentHeaders |= bit;
 			}
+
+			uint bit = 1u << index;
+
+			if ((seenHeaders & bit) != 0)
+				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, RepeatedHeaderViolations[index], beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+			else
+				seenHeaders |= bit;
 		}
 
 		// Note: The header fields that RFC 5322, Section 3.6 and RFC 2045, Section 4 require a message to
@@ -1888,13 +1880,13 @@ namespace MimeKit {
 				kind = MimeCompliancePositionKind.Exact;
 			}
 
-			if ((seenMessageHeaders & (1UL << GetRepeatableHeaderIndex (HeaderId.Date))) == 0)
+			if ((seenHeaders & (1u << GetRepeatableHeaderIndex (HeaderId.Date))) == 0)
 				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingDate, offset, lineNumber, columnNumber, kind));
 
-			if ((seenMessageHeaders & (1UL << GetRepeatableHeaderIndex (HeaderId.From))) == 0)
+			if ((seenHeaders & (1u << GetRepeatableHeaderIndex (HeaderId.From))) == 0)
 				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingFrom, offset, lineNumber, columnNumber, kind));
 
-			if ((seenMessageHeaders & (1UL << GetRepeatableHeaderIndex (HeaderId.MessageId))) == 0)
+			if ((seenHeaders & (1u << GetRepeatableHeaderIndex (HeaderId.MessageId))) == 0)
 				complianceLogger!.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMessageId, offset, lineNumber, columnNumber, kind));
 
 			// Note: A message that does not use MIME at all has no need of a MIME-Version header field.
@@ -1980,6 +1972,13 @@ namespace MimeKit {
 					if (seenContentDisposition)
 						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.RepeatedContentDisposition, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
 					seenContentDisposition = true;
+				}
+				break;
+			case HeaderId.ContentId:
+				if (complianceLogger != null) {
+					if (seenContentId)
+						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.RepeatedContentId, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					seenContentId = true;
 				}
 				break;
 			case HeaderId.ContentTransferEncoding:
@@ -2472,10 +2471,10 @@ namespace MimeKit {
 			headerCount = 0;
 
 			messageHeaderBlock = state == MimeParserState.MessageHeaders;
-			seenMessageHeaders = 0;
-			seenResentHeaders = 0;
+			seenHeaders = 0;
 			seenMimeVersion = false;
 			seenContentDisposition = false;
+			seenContentId = false;
 
 			currentContentLength = null;
 

@@ -394,6 +394,54 @@ namespace UnitTests {
 			await TestMboxAsync (options, "content-length");
 		}
 
+		static async Task AssertContentLengthRange (string length, int expectedMessages, bool async)
+		{
+			const string marker = "From sender@example.com Mon Jan 1 00:00:00 2024\r\n";
+			var text = marker + $"Subject: first\r\nContent-Length: {length}\r\n\r\nbody\r\n" +
+				marker + "Subject: second\r\n\r\nbody\r\n";
+			var data = Encoding.ASCII.GetBytes (text);
+			var options = ParserOptions.Default.Clone ();
+			options.RespectContentLength = true;
+
+			foreach (bool chunked in new[] { false, true }) {
+				using Stream stream = chunked ? new ChunkedReadStream (data, 1) : new MemoryStream (data, false);
+				var reader = new CustomMimeReader (options, stream, MimeFormat.Mbox);
+
+				for (int i = 0; i < expectedMessages; i++) {
+					if (async)
+						await reader.ReadMessageAsync ();
+					else
+						reader.ReadMessage ();
+				}
+
+				Assert.That (reader.IsEndOfStream, Is.True, $"End of stream (chunked={chunked})");
+				Assert.That (reader.Offsets, Has.Count.EqualTo (expectedMessages));
+				Assert.That (reader.Offsets[expectedMessages - 1].EndOffset, Is.EqualTo (data.Length));
+			}
+		}
+
+		[TestCase ("0", 2)]
+		[TestCase ("-1", 2)]
+		[TestCase ("2147483647", 1)]
+		[TestCase ("2147483648", 2)]
+		[TestCase ("2147483648\r\nContent-Length: 2147483647", 1)]
+		[TestCase ("0\r\nContent-Length: 2147483647", 2)]
+		public Task TestContentLengthRange (string length, int expectedMessages)
+		{
+			return AssertContentLengthRange (length, expectedMessages, false);
+		}
+
+		[TestCase ("0", 2)]
+		[TestCase ("-1", 2)]
+		[TestCase ("2147483647", 1)]
+		[TestCase ("2147483648", 2)]
+		[TestCase ("2147483648\r\nContent-Length: 2147483647", 1)]
+		[TestCase ("0\r\nContent-Length: 2147483647", 2)]
+		public Task TestContentLengthRangeAsync (string length, int expectedMessages)
+		{
+			return AssertContentLengthRange (length, expectedMessages, true);
+		}
+
 		[Test]
 		public void TestIssue1189Mbox ()
 		{

@@ -53,6 +53,8 @@ Added optional compliance validation for repeated MIME parameters, with separate
 boundaries, filenames, and other parameters. Distinct RFC 2231 continuation segments and one
 ordinary filename fallback alongside an extended or continued representation are tolerated.
 Repeated Content-Disposition headers are now reported as a structural compliance violation.
+Repeated Content-Id headers are also reported per MIME part, including identical or malformed
+values, without comparing identifiers across parts or changing identifier selection.
 These checks do not change parameter precedence or message parsing.
 Parameter validation also reports missing RFC 2231 continuation segments once per parameter.
 Segment tracking uses a balanced tree and stores only observed indices, so large or
@@ -76,6 +78,8 @@ charset lookup or decoding. `InvalidEncodedWordPlacement` reports complete encod
 envelopes in quoted strings or addr-specs. Existing address and header recovery is unchanged.
 Reduced scanning and allocation overhead in optional encoded-word and MIME parameter
 compliance validation, without changing reported diagnostics.
+Reduced `MimeReader` instance size by compacting header tracking and content-length state,
+without changing parsing or compliance reporting.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

@@ -551,6 +551,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.InvalidContentType, Interop | Security },
 				{ MimeComplianceViolation.RepeatedContentType, Interop | Security },
 				{ MimeComplianceViolation.RepeatedContentDisposition, Interop | Security },
+				{ MimeComplianceViolation.RepeatedContentId, Interop | Security },
 				{ MimeComplianceViolation.RepeatedBoundaryParameter, Interop | Security },
 				{ MimeComplianceViolation.RepeatedFilenameParameter, Interop | Security },
 				{ MimeComplianceViolation.RepeatedParameter, Interop | Security },

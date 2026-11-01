@@ -178,6 +178,25 @@ namespace UnitTests {
 				MimeComplianceViolation.RepeatedFrom);
 		}
 
+		[TestCase ("Resent-Date", MimeComplianceViolation.RepeatedResentDate)]
+		[TestCase ("Resent-From", MimeComplianceViolation.RepeatedResentFrom)]
+		[TestCase ("Resent-Sender", MimeComplianceViolation.RepeatedResentSender)]
+		[TestCase ("Resent-To", MimeComplianceViolation.RepeatedResentTo)]
+		[TestCase ("Resent-Cc", MimeComplianceViolation.RepeatedResentCc)]
+		[TestCase ("Resent-Bcc", MimeComplianceViolation.RepeatedResentBcc)]
+		[TestCase ("Resent-Message-Id", MimeComplianceViolation.RepeatedResentMessageId)]
+		public void TestResentBlockResetPreservesMessageHeaders (string field, MimeComplianceViolation expected)
+		{
+			AssertViolations (
+				"From: one@example.com\r\nReturn-Path: <one@example.com>\r\n" +
+				$"{field}: x\r\n{field}: y\r\nReceived: by relay\r\n" +
+				$"{field}: z\r\nSubject: separator\r\n{field}: a\r\n{field}: b\r\n" +
+				"From: two@example.com\r\nReturn-Path: <two@example.com>\r\n\r\nbody\r\n",
+				expected, expected,
+				MimeComplianceViolation.RepeatedFrom,
+				MimeComplianceViolation.RepeatedReturnPath);
+		}
+
 		[Test]
 		public void TestRepeatedHeaderIsReportedInATruncatedMessage ()
 		{

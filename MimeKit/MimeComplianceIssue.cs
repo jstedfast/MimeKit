@@ -421,6 +421,7 @@ namespace MimeKit {
 
 			// Ambiguity or corruption that different MIME parsers may resolve differently.
 			case MimeComplianceViolation.RepeatedContentDisposition:
+			case MimeComplianceViolation.RepeatedContentId:
 			case MimeComplianceViolation.RepeatedFilenameParameter:
 			case MimeComplianceViolation.RepeatedParameter:
 			case MimeComplianceViolation.MissingParameterSegment:
@@ -634,6 +635,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.InvalidContentType:
 			case MimeComplianceViolation.RepeatedContentType:
 			case MimeComplianceViolation.RepeatedContentDisposition:
+			case MimeComplianceViolation.RepeatedContentId:
 			case MimeComplianceViolation.RepeatedBoundaryParameter:
 			case MimeComplianceViolation.RepeatedFilenameParameter:
 			case MimeComplianceViolation.RepeatedParameter:
@@ -908,6 +910,8 @@ namespace MimeKit {
 				return "A MIME part contained multiple Content-Type headers.";
 			case MimeComplianceViolation.RepeatedContentDisposition:
 				return "A MIME part contained multiple Content-Disposition headers.";
+			case MimeComplianceViolation.RepeatedContentId:
+				return "A MIME part contained multiple Content-Id headers.";
 			case MimeComplianceViolation.RepeatedBoundaryParameter:
 				return "A Content-Type header contained repeated boundary parameter declarations.";
 			case MimeComplianceViolation.RepeatedFilenameParameter:
@@ -1130,6 +1134,8 @@ namespace MimeKit {
 				return "The MIME specifications require that each MIME part contain only one Content-Type header. Multiple Content-Type headers can lead to ambiguity and inconsistent behavior among different MIME parser implementations which may choose to use different Content-Type headers as their \"source of truth\".";
 			case MimeComplianceViolation.RepeatedContentDisposition:
 				return "Repeated Content-Disposition headers can cause MIME parsers to disagree about a part's filename or whether it should be displayed inline or treated as an attachment.";
+			case MimeComplianceViolation.RepeatedContentId:
+				return "Repeated Content-Id headers can cause MIME parsers to disagree about a part's identifier and which content a reference to that identifier selects. Each header after the first is reported, even when its value is identical or invalid. The check is per MIME part, not a comparison of identifiers across different parts.";
 			case MimeComplianceViolation.RepeatedBoundaryParameter:
 				return "Competing boundary values can cause MIME parsers to discover different body parts. Ordinary and extended values compete, as do repeated RFC 2231 continuation indices. Distinct segments of a single continued value are not repetitions.";
 			case MimeComplianceViolation.RepeatedFilenameParameter:
