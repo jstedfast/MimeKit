@@ -81,6 +81,7 @@ namespace MimeKit.Encodings {
 		int lineNumber;
 		int padding;
 		uint total;
+		byte lastAlphabet;
 		bool invalid;
 		// Note: These latch their corresponding violation so that it is reported at most once per
 		// line. The number of invalid octets on a line is attacker-controlled, so reporting every one
@@ -284,6 +285,20 @@ namespace MimeKit.Encodings {
 		}
 #endif
 
+		// Recover the last alphabet character only at chunk ends and padding, rather than
+		// adding tracking work to every scalar byte and SIMD block.
+		unsafe byte GetLastAlphabet (ref byte table, byte* input, byte* end)
+		{
+			while (end > input) {
+				byte c = *--end;
+
+				if (Unsafe.Add (ref table, c) == Alphabet)
+					return c;
+			}
+
+			return lastAlphabet;
+		}
+
 #if NET6_0_OR_GREATER
 		[SkipLocalsInit]
 #endif
@@ -328,6 +343,12 @@ namespace MimeKit.Encodings {
 							Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset + (inptr - input) - 1);
 							invalid = true;
 						} else {
+							int mask = n % 4 == 2 ? 0x0f : 0x03;
+							byte last = GetLastAlphabet (ref table, input, inptr - 1);
+
+							if ((Base64Decoder.GetRank (last) & mask) != 0)
+								Log (MimeComplianceViolation.InvalidBase64Padding, streamOffset + (inptr - input) - 1);
+
 							padding = 1;
 							n++;
 						}
@@ -371,6 +392,10 @@ namespace MimeKit.Encodings {
 					invalid = true;
 				}
 			}
+
+			// Only a partial quantum that can accept padding needs its last alphabet character.
+			if (n % 4 >= 2 && padding == 0 && n != total)
+				lastAlphabet = GetLastAlphabet (ref table, input, inptr);
 
 			streamOffset += length;
 			total = n;

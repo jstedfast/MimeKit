@@ -92,6 +92,11 @@ namespace MimeKit.Encodings {
 #endif
 		}
 
+		internal static byte GetRank (byte c)
+		{
+			return base64_rank[c];
+		}
+
 		/// <summary>
 		/// Initialize a new instance of the <see cref="Base64Decoder"/> class.
 		/// </summary>

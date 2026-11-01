@@ -1146,10 +1146,13 @@ namespace MimeKit {
 		/// The base64 encoded content of a MIME part contained invalid padding.
 		/// </summary>
 		/// <remarks>
-		/// Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME
+		/// <para>Invalid padding within base64 content can lead to decoding issues and inconsistent behavior among different MIME
 		/// parser implementations. Some base64 decoders will ignore extraneous '=' padding characters if any are found within
 		/// the middle of the base64 encoded block while others will treat decode it as 6 bits of 0's and may stop decoding as
-		/// soon as they are encountered.
+		/// soon as they are encountered.</para>
+		/// <para>This also includes nonzero unused bits in the alphabet character before padding. These bits must be zero
+		/// for a canonical encoding; permissive decoders ignore them, while strict decoders may reject them.</para>
+		/// Nonzero pad bits are reported at the first '=' padding character.
 		/// </remarks>
 		InvalidBase64Padding                        = 89,
 

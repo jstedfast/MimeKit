@@ -283,6 +283,105 @@ namespace UnitTests.Encodings {
 			return Encoding.ASCII.GetBytes (builder.ToString ());
 		}
 
+		[Test]
+		public void TestPadBits ([Values] CodePath path, [Values (1, 2)] int padding,
+			[Values (1, 2, 3, 15, 16, 17, 31, 32, 33, 4096)] int chunkSize)
+		{
+			for (int rank = 0; rank < Base64Alphabet.Length; rank++) {
+				foreach (int prefix in new[] { 0, 12, 28, 60 }) {
+					foreach (string whitespace in new[] { "", " \t\r\n" + new string (' ', 64) + "\r\n\t" }) {
+						string text = new string ('A', prefix + 3 - padding) + Base64Alphabet[rank] +
+							whitespace + new string ('=', padding);
+						var issues = Validate (path, Encoding.ASCII.GetBytes (text), chunkSize, 100, 7);
+						bool canonical = rank % (padding == 2 ? 16 : 4) == 0;
+						string label = $"rank={rank}, prefix={prefix}, whitespace={whitespace.Length}";
+
+						Assert.That (issues, Has.Count.EqualTo (canonical ? 0 : 1), label);
+						if (canonical)
+							continue;
+
+						int offset = text.IndexOf ('=');
+						int lineBegin = text.LastIndexOf ('\n', offset) + 1;
+						var issue = issues[0];
+						Assert.That (issue.Violation, Is.EqualTo (MimeComplianceViolation.InvalidBase64Padding), label);
+						Assert.That (issue.StreamOffset, Is.EqualTo (100 + offset), label);
+						Assert.That (issue.LineNumber, Is.EqualTo (whitespace.Length == 0 ? 7 : 9), label);
+						Assert.That (issue.ColumnNumber, Is.EqualTo (offset - lineBegin + 1), label);
+					}
+				}
+			}
+		}
+
+		[Test]
+		public void TestPadBitsAcrossSlicedWrites ([Values] CodePath path, [Values ("Zg", "Zh")] string tail)
+		{
+			var logger = new TestMimeComplianceLogger ();
+			var validator = CreateValidator (path, logger, 100, 7);
+			var alphabet = Encoding.ASCII.GetBytes (tail);
+			var whitespace = Encoding.ASCII.GetBytes ("B \t\r\n A");
+			var padding = Encoding.ASCII.GetBytes ("B \r\n==A");
+
+			validator.Write (alphabet, 0, alphabet.Length);
+			validator.Write (whitespace, 1, 5);
+			validator.Write (Array.Empty<byte> (), 0, 0);
+			validator.Write (padding, 1, 5);
+			validator.Flush ();
+
+			var expected = new List<MimeComplianceIssue> ();
+			if (tail == "Zh")
+				expected.Add (new MimeComplianceIssue (MimeComplianceContext.Transport,
+					MimeComplianceViolation.InvalidBase64Padding, 110, 9, 1));
+			AssertInvalidInput (logger, expected);
+		}
+
+		[Test]
+		public void TestPadBitsPreserveOtherDiagnostics ([Values] CodePath path, [Values (1, 4096)] int chunkSize)
+		{
+			var cases = new[] {
+				("Zh=", MimeComplianceViolation.IncompleteBase64Quantum, 3),
+				("Zh==!", MimeComplianceViolation.Base64CharactersAfterPadding, 4),
+				("Zh===", MimeComplianceViolation.InvalidBase64Padding, 4)
+			};
+
+			foreach (var (text, violation, offset) in cases) {
+				var issues = Validate (path, Encoding.ASCII.GetBytes (text), chunkSize);
+				var expected = new[] {
+					new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Padding, 2, 1, 3),
+					new MimeComplianceIssue (MimeComplianceContext.Transport, violation, offset, 1, offset + 1)
+				};
+				Assert.That (issues, Is.EqualTo (expected), text);
+			}
+
+			var garbage = Validate (path, Encoding.ASCII.GetBytes ("Zh%*\r\n=="), chunkSize);
+			Assert.That (garbage, Is.EqualTo (new[] {
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Character, 2, 1, 3),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.ObsoleteBase64Comment, 3, 1, 4),
+				new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Padding, 6, 2, 1)
+			}));
+		}
+
+		[Test]
+		public unsafe void TestPadBitsAtGuardPages ([Values] CodePath path, [Values] bool alignEnd)
+		{
+			var encoded = Encoding.ASCII.GetBytes (new string ('A', 60) + "Zh \r\n==");
+			foreach (int chunkSize in new[] { 1, 2, 15, 16, 17, 31, 32, 33, 64, encoded.Length }) {
+				var logger = new TestMimeComplianceLogger ();
+				var validator = CreateValidator (path, logger);
+
+				for (int index = 0; index < encoded.Length; index += chunkSize) {
+					int length = Math.Min (chunkSize, encoded.Length - index);
+					using var input = new GuardedMemory (length, alignEnd);
+					encoded.AsSpan (index, length).CopyTo (new Span<byte> (input.Start, length));
+					validator.Write (input.Start, length);
+				}
+
+				validator.Flush ();
+				AssertInvalidInput (logger, new List<MimeComplianceIssue> {
+					new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.InvalidBase64Padding, 65, 2, 1)
+				});
+			}
+		}
+
 		static readonly object[] LineFormats = {
 			new object[] { 1, "\r\n" },
 			new object[] { 3, "\n" },

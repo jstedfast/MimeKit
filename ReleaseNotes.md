@@ -80,6 +80,9 @@ Reduced scanning and allocation overhead in optional encoded-word and MIME param
 compliance validation, without changing reported diagnostics.
 Reduced `MimeReader` instance size by compacting header tracking and content-length state,
 without changing parsing or compliance reporting.
+Compliance validation now reports nonzero Base64 pad bits in encoded words and MIME part
+content as `InvalidEncodedWord` and `InvalidBase64Padding`, respectively. Tolerant decoding
+is unchanged.
 
 Improved AVX2 Base64 decoding throughput for standard 76-character MIME lines with CRLF or LF
 line endings, while preserving permissive decoding and in-place operation.

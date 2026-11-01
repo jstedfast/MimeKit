@@ -47,6 +47,10 @@ namespace UnitTests {
 				("=?utf-8?B?YQ==?=", 0),
 				("=?utf-8?b?YWI=?=", 0),
 				("=?utf-8?B?YWJj?=", 0),
+				("=?utf-8?B?Zh==?=", 1),
+				("=?utf-8?b?Zm9=?=", 1),
+				("=?utf-8?B?AAA/?=", 0),
+				("=?utf-8?Q?Zh=3D=3D?=", 0),
 				("=?x-unknown*en?Q?hello?=", 0),
 				("=?utf-8*?Q?hello?=", 0),
 				("=?utf-8?Q?first?=\r\n\t=?utf-8?Q?second?=", 0),
@@ -98,6 +102,12 @@ namespace UnitTests {
 			var cases = new (string Value, int Invalid, int Placement)[] {
 				("=?utf-8?Q?hello_world?= <a@example.com>", 0, 0),
 				("=?utf-8?B?YQ==?= <a@example.com>", 0, 0),
+				("=?utf-8?B?Zh==?= <a@example.com>", 1, 0),
+				("=?utf-8?B?Zm9=?= <a@example.com>", 1, 0),
+				("a@example.com (=?utf-8?B?Zh==?=)", 1, 0),
+				("a@example.com (=?utf-8?B?Zm9=?=)", 1, 0),
+				("\"=?utf-8?B?Zh==?=\" <a@example.com>", 1, 1),
+				("\"=?utf-8?B?Zm9=?=\" <a@example.com>", 1, 1),
 				("=?utf-8?Q?group?= : a@example.com;", 0, 0),
 				("a@example.com (=?utf-8?Q?hello?=)", 0, 0),
 				("(outer (=?utf-8?Q?hello?=)) a@example.com", 0, 0),
@@ -189,6 +199,81 @@ namespace UnitTests {
 		const string Preserved = "Subject: =?utf-8?Q?bad=GG?=\r\n" +
 			"To: =?x-unknown?Q?hello?= <a@example.com>, \"=?utf-8?Q?other?=\" <b@example.com>\r\n" +
 			"To: =?utf-8?Q?ignored=GG?= <ignored@example.com>\r\n\r\nbody\r\n";
+
+		[Test]
+		public void TestBase64PadBits ([Values (1, 2)] int padding)
+		{
+			const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			for (int rank = 0; rank < alphabet.Length; rank++) {
+				string word = "=?utf-8?B?" + new string ('A', 3 - padding) + alphabet[rank] +
+					new string ('=', padding) + "?=";
+				var bytes = Encoding.ASCII.GetBytes ("xx" + word + "yy");
+				var logger = new TestMimeComplianceLogger ();
+				var validator = new EncodedWordValidator (logger, MimeComplianceContext.Storage,
+					bytes, 2, word.Length, 100, 5, 7);
+				validator.Validate (2 + word.Length, EncodedWordContext.Text);
+
+				bool canonical = rank % (padding == 2 ? 16 : 4) == 0;
+				AssertWords (logger.Issues, canonical ? 0 : 1, 0);
+				if (canonical)
+					continue;
+
+				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (100));
+				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (5));
+				Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (7));
+			}
+		}
+
+		[Test]
+		public async Task TestBase64PadBitsGatingAndRecovery ([Values (false, true)] bool chunked,
+			[Values (false, true)] bool async)
+		{
+			const string text = "Subject: =?utf-8?B?Zh==?=\r\n" +
+				"To: =?utf-8?B?Zm9=?= <a@example.com>\r\n" +
+				"Content-Type: application/octet-stream\r\n" +
+				"Content-Transfer-Encoding: base64\r\n\r\nZm9=\r\n";
+			byte[] expected = null;
+
+			foreach (var validators in new[] { MimeComplianceValidators.None, MimeComplianceValidators.Base64,
+				MimeComplianceValidators.EncodedWords, MimeComplianceValidators.All,
+				MimeComplianceValidators.All & ~MimeComplianceValidators.Base64,
+				MimeComplianceValidators.All & ~MimeComplianceValidators.EncodedWords }) {
+				foreach (bool logging in new[] { false, true }) {
+					using var stream = CreateStream (text, chunked);
+					var logger = new TestMimeComplianceLogger ();
+					var parser = new MimeParser (stream) {
+						ComplianceLogger = logging ? logger : null,
+						ComplianceOptions = new MimeComplianceOptions { EnabledValidators = validators }
+					};
+					using var message = async ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+					Assert.That (message.Subject, Is.EqualTo ("f"));
+					Assert.That (((MailboxAddress) message.To[0]).Name, Is.EqualTo ("fo"));
+					using var decoded = new MemoryStream ();
+					((MimePart) message.Body).Content.DecodeTo (decoded);
+					Assert.That (Encoding.ASCII.GetString (decoded.ToArray ()), Is.EqualTo ("fo"));
+
+					using var output = new MemoryStream ();
+					if (async)
+						await message.WriteToAsync (output);
+					else
+						message.WriteTo (output);
+					var actual = output.ToArray ();
+					expected ??= actual;
+					Assert.That (actual, Is.EqualTo (expected));
+
+					bool words = logging && (validators & MimeComplianceValidators.EncodedWords) != 0;
+					bool body = logging && (validators & MimeComplianceValidators.Base64) != 0;
+					AssertWords (logger.Issues, words ? 2 : 0, 0);
+					var padding = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.InvalidBase64Padding).ToList ();
+					Assert.That (padding, Has.Count.EqualTo (body ? 1 : 0));
+					if (body) {
+						Assert.That (padding[0].StreamOffset, Is.EqualTo (text.LastIndexOf ('=')));
+						Assert.That (padding[0].LineNumber, Is.EqualTo (6));
+						Assert.That (padding[0].ColumnNumber, Is.EqualTo (4));
+					}
+				}
+			}
+		}
 
 		[Test]
 		public async Task TestGatingAndRecovery ([Values (false, true)] bool chunked, [Values (false, true)] bool async)

@@ -26,6 +26,7 @@
 
 using System;
 
+using MimeKit.Encodings;
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -118,6 +119,13 @@ namespace MimeKit {
 
 					if (at == payload || hex != 0 || (base64 && ((at - payload) % 4 != 0 || padding > 2)))
 						valid = false;
+
+					if (valid && base64 && padding > 0) {
+						int mask = padding == 2 ? 0x0f : 0x03;
+
+						if ((Base64Decoder.GetRank (text[at - padding - 1]) & mask) != 0)
+							valid = false;
+					}
 
 					return valid;
 				}
