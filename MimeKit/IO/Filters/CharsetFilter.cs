@@ -184,7 +184,8 @@ namespace MimeKit.IO.Filters {
 				charsLeft = chars.Length;
 				charIndex = 0;
 
-				if (!decoded && inputLeft > 0) {
+				// The decoder may still have buffered input even when inputLeft is zero.
+				if (!decoded) {
 					decoder.Convert (input, inputIndex, inputLeft, chars, charIndex, charsLeft, flush, out nread, out nwritten, out decoded);
 					if (nwritten > 0)
 						encoded = false;

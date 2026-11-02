@@ -459,6 +459,105 @@ namespace UnitTests.IO.Filters {
 			}
 		}
 
+		[Test]
+		public void TestCharsetFilterFlushPendingDecoderState (
+			[Values ("utf-8", "utf-16", "utf-32")] string charset,
+			[Values (1, 2, 3, 4)] int trailingBytes,
+			[Values (false, true)] bool emptyFlush,
+			[Values (1, 1024, 4096)] int chunkSize)
+		{
+			var source = Encoding.GetEncoding (charset, EncoderFallback.ExceptionFallback, new DecoderReplacementFallback ("\uFFFD"));
+			var input = source.GetBytes (new string ('a', 1023) + "\u00e9\U0001F600");
+			Array.Resize (ref input, input.Length - (4 - trailingBytes));
+			var expected = Encoding.UTF8.GetBytes (source.GetString (input));
+			var filter = new CharsetFilter (source, Encoding.UTF8);
+			int endIndex = emptyFlush ? input.Length : Math.Max (0, input.Length - chunkSize);
+
+			for (int iteration = 0; iteration < 2; iteration++) {
+				using (var stream = new MemoryStream ()) {
+					for (int index = 0; index < endIndex;) {
+						int count = Math.Min (chunkSize, endIndex - index);
+						var output = filter.Filter (input, index, count, out int outputIndex, out int outputLength);
+						stream.Write (output, outputIndex, outputLength);
+						index += count;
+					}
+
+					filter.Filter (Array.Empty<byte> (), 0, 0, out _, out int emptyLength);
+					Assert.That (emptyLength, Is.Zero, "An empty non-final buffer must not flush decoder state.");
+
+					var flushed = filter.Flush (input, endIndex, input.Length - endIndex, out int flushedIndex, out int flushedLength);
+					stream.Write (flushed, flushedIndex, flushedLength);
+					Assert.That (stream.ToArray (), Is.EqualTo (expected));
+
+					filter.Flush (Array.Empty<byte> (), 0, 0, out _, out emptyLength);
+					Assert.That (emptyLength, Is.Zero, "Repeated flushing must not duplicate output.");
+				}
+
+				filter.Reset ();
+			}
+		}
+
+		[Test]
+		public void TestCharsetFilterFlushPendingDecoderException (
+			[Values ("utf-8", "utf-16", "utf-32")] string charset,
+			[Values (1, 2, 3)] int trailingBytes)
+		{
+			var source = Encoding.GetEncoding (charset, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+			var input = source.GetBytes ("\U0001F600");
+			var filter = new CharsetFilter (source, Encoding.UTF8);
+
+			filter.Filter (input, 0, trailingBytes, out _, out _);
+			Assert.Throws<DecoderFallbackException> (() => filter.Flush (Array.Empty<byte> (), 0, 0, out _, out _));
+
+			filter.Reset ();
+			filter.Flush (Array.Empty<byte> (), 0, 0, out _, out int outputLength);
+			Assert.That (outputLength, Is.Zero);
+		}
+
+		[Test]
+		public void TestCharsetFilterEndOfStream ([Values (false, true)] bool reading)
+		{
+			var input = new byte[] { (byte) 'a', 0xe2, 0x82 };
+
+			using (var output = new MemoryStream ()) {
+				using (var source = new MemoryStream (input)) {
+					using (var filtered = new FilteredStream (reading ? source : output)) {
+						filtered.Add (new CharsetFilter (Encoding.UTF8, Encoding.UTF8));
+						if (reading) {
+							filtered.CopyTo (output);
+						} else {
+							filtered.Write (input, 0, input.Length);
+							filtered.Flush ();
+						}
+
+						Assert.That (output.ToArray (), Is.EqualTo (Encoding.UTF8.GetBytes ("a\uFFFD")));
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestCharsetFilterEndOfStreamAsync ([Values (false, true)] bool reading)
+		{
+			var input = new byte[] { (byte) 'a', 0xe2, 0x82 };
+
+			using (var output = new MemoryStream ()) {
+				using (var source = new MemoryStream (input)) {
+					using (var filtered = new FilteredStream (reading ? source : output)) {
+						filtered.Add (new CharsetFilter (Encoding.UTF8, Encoding.UTF8));
+						if (reading) {
+							await filtered.CopyToAsync (output);
+						} else {
+							await filtered.WriteAsync (input, 0, input.Length);
+							await filtered.FlushAsync ();
+						}
+
+						Assert.That (output.ToArray (), Is.EqualTo (Encoding.UTF8.GetBytes ("a\uFFFD")));
+					}
+				}
+			}
+		}
+
 		static void TestOpenPgpBlockFilter (OpenPgpBlockFilter filter, byte[] buffer, string expected, int increment)
 		{
 			using (var stream = new MemoryStream ()) {

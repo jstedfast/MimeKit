@@ -538,6 +538,8 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   long line lengths, and loss of the initial yEnc escape character in single-part framed content.
 * Fixed `FilteredStream` reads to flush filters at end of input and avoid reporting end-of-stream
   prematurely when a filter buffers an entire chunk.
+* Fixed `CharsetFilter` to flush buffered decoder state even when the final input buffer is empty,
+  preserving replacement characters and reporting strict decoding errors for truncated input.
 * Fixed trailing carriage-return handling in `Dos2UnixFilter`, split-CRLF line lengths in
   `BestEncodingFilter`, and chunk-dependent offsets and exceptions in `OpenPgpDetectionFilter`.
 * Fixed `RtfCompressedToRtf.IsValidCrc32` incorrectly accepting truncated headers.
