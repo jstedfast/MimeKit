@@ -430,7 +430,7 @@ namespace MimeKit.Encodings {
 		/// <param name="input">A pointer to the beginning of the input buffer.</param>
 		/// <param name="length">The length of the input buffer.</param>
 		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		public unsafe int Decode (byte* input, int length, byte* output)
+		unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
 			byte* outptr = output;
@@ -519,6 +519,38 @@ namespace MimeKit.Encodings {
 					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decode the final input, discarding incomplete framing and a dangling escape.
+		/// </summary>
+		/// <remarks>
+		/// <para>The running <see cref="Checksum"/> is preserved after flushing.</para>
+		/// <para>Use <see cref="EstimateOutputLength"/> to size the output buffer.
+		/// Call <see cref="Reset"/> before decoding another stream.</para>
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> or <paramref name="output"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify a valid input range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is smaller than <see cref="EstimateOutputLength"/> requires.
+		/// </exception>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			int count = Decode (input, startIndex, length, output);
+
+			state = YEncDecoderState.Ended;
+			escaped = false;
+
+			return count;
 		}
 
 		/// <summary>

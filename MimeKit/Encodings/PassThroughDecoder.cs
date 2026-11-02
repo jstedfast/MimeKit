@@ -110,28 +110,6 @@ namespace MimeKit.Encodings {
 		/// Copies the input buffer into the output buffer, verbatim.
 		/// </remarks>
 		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name="input">A pointer to the beginning of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		public unsafe int Decode (byte* input, int length, byte* output)
-		{
-			byte* inend = input + length;
-			byte* outptr = output;
-			byte* inptr = input;
-
-			while (inptr < inend)
-				*outptr++ = *inptr++;
-
-			return length;
-		}
-
-		/// <summary>
-		/// Decode the specified input into the output buffer.
-		/// </summary>
-		/// <remarks>
-		/// Copies the input buffer into the output buffer, verbatim.
-		/// </remarks>
-		/// <returns>The number of bytes written to the output buffer.</returns>
 		/// <param name="input">The input buffer.</param>
 		/// <param name="startIndex">The starting index of the input buffer.</param>
 		/// <param name="length">The length of the input buffer.</param>
@@ -160,11 +138,43 @@ namespace MimeKit.Encodings {
 			return length;
 #else
 			unsafe {
-				fixed (byte* inptr = input, outptr = output) {
-					return Decode (inptr + startIndex, length, outptr);
+				fixed (byte* inbuf = input, outbuf = output) {
+					byte* inptr = inbuf + startIndex;
+					byte* inend = inptr + length;
+					byte* outptr = outbuf;
+
+					while (inptr < inend)
+						*outptr++ = *inptr++;
+
+					return length;
 				}
 			}
 #endif
+		}
+
+		/// <summary>
+		/// Decode the final input into the output buffer.
+		/// </summary>
+		/// <remarks>
+		/// Copies the input verbatim. This decoder has no buffered input.
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> or <paramref name="output"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify a valid input range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is smaller than <see cref="EstimateOutputLength"/> requires.
+		/// </exception>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			return Decode (input, startIndex, length, output);
 		}
 
 		/// <summary>

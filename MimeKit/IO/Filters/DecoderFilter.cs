@@ -139,7 +139,10 @@ namespace MimeKit.IO.Filters {
 		{
 			EnsureOutputSize (Decoder.EstimateOutputLength (length), false);
 
-			outputLength = Decoder.Decode (input, startIndex, length, OutputBuffer);
+			if (flush)
+				outputLength = Decoder.Flush (input, startIndex, length, OutputBuffer);
+			else
+				outputLength = Decoder.Decode (input, startIndex, length, OutputBuffer);
 			outputIndex = 0;
 
 			return OutputBuffer;

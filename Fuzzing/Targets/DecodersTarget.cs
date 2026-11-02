@@ -73,25 +73,29 @@ namespace MimeKit.Fuzzing.Targets {
 			var decoder = CreateDecoder (kind);
 			var name = decoder.GetType ().Name + (kind is 2 or 4 or 6 ? " (variant)" : string.Empty);
 
-			var whole = Decode (decoder, input, 0, input.Length, name);
-			decoder.Reset ();
-			var again = Decode (decoder, input, 0, input.Length, name);
+			for (int finalize = 0; finalize < 2; finalize++) {
+				bool flush = finalize != 0;
+				decoder.Reset ();
+				var whole = Decode (decoder, input, 0, input.Length, name, flush);
+				decoder.Reset ();
+				var again = Decode (decoder, input, 0, input.Length, name, flush);
 
-			Fuzz.Equal (whole, again, $"{name} after Reset");
+				Fuzz.Equal (whole, again, $"{name} after Reset (flush={flush})");
 
-			decoder.Reset ();
-			var first = Decode (decoder, input, 0, split, name);
-			var clone = decoder.Clone ();
-			var second = Decode (decoder, input, split, input.Length - split, name);
-			var cloned = Decode (clone, input, split, input.Length - split, name);
+				decoder.Reset ();
+				var first = Decode (decoder, input, 0, split, name);
+				var clone = decoder.Clone ();
+				var second = Decode (decoder, input, split, input.Length - split, name, flush);
+				var cloned = Decode (clone, input, split, input.Length - split, name, flush);
 
-			Fuzz.Equal (second, cloned, $"{name} clone vs original after {split} bytes");
+				Fuzz.Equal (second, cloned, $"{name} clone vs original after {split} bytes (flush={flush})");
 
-			var chunked = new byte[first.Length + second.Length];
-			first.CopyTo (chunked, 0);
-			second.CopyTo (chunked, first.Length);
+				var chunked = new byte[first.Length + second.Length];
+				first.CopyTo (chunked, 0);
+				second.CopyTo (chunked, first.Length);
 
-			Fuzz.Equal (whole, chunked, $"{name} whole vs split at {split}");
+				Fuzz.Equal (whole, chunked, $"{name} whole vs split at {split} (flush={flush})");
+			}
 
 			var newLineFormat = (data[0] & 0x80) != 0 ? NewLineFormat.Unix : NewLineFormat.Dos;
 
@@ -103,10 +107,13 @@ namespace MimeKit.Fuzzing.Targets {
 
 		// Note: The array-based Decode() methods of some decoders (e.g. Base64Decoder and UUDecoder) use SIMD kernels
 		// that are allowed to use the entire output array as scratch space, so the guard bytes are only checked when
-		// decoding via the (scalar) pointer-based API using a clone of the decoder (which also verifies that the
+		// decoding via the internal scalar entry points using a clone of the decoder (which also verifies that the
 		// hardware-accelerated and scalar code paths agree).
-		static unsafe byte[] Decode (IMimeDecoder decoder, byte[] input, int startIndex, int length, string name)
+		static byte[] Decode (IMimeDecoder decoder, byte[] input, int startIndex, int length, string name, bool flush = false)
 		{
+			if (flush)
+				return Flush (decoder, input, startIndex, length, name);
+
 			int estimate = decoder.EstimateOutputLength (length);
 			var scalar = decoder.Clone ();
 			var output = new byte[estimate];
@@ -116,21 +123,49 @@ namespace MimeKit.Fuzzing.Targets {
 			Fuzz.Check (n >= 0 && n <= estimate, $"{name}.Decode returned {n} bytes but EstimateOutputLength ({length}) was {estimate}");
 
 			var guarded = new byte[estimate + GuardLength];
-			int m;
-
 			Array.Fill (guarded, Guard);
 
-			fixed (byte* inptr = input, outptr = guarded)
-				m = scalar.Decode (inptr + startIndex, length, outptr);
+			int m = scalar switch {
+				Base64Decoder base64 => base64.ScalarDecode (input, startIndex, length, guarded),
+				UUDecoder uu => uu.ScalarDecode (input, startIndex, length, guarded),
+				_ => scalar.Decode (input, startIndex, length, guarded)
+			};
 
-			Fuzz.Check (m == n, $"{name}.Decode (byte*) returned {m} bytes but Decode (byte[]) returned {n} bytes");
+			Fuzz.Check (m == n, $"{name} scalar Decode returned {m} bytes but Decode returned {n} bytes");
 			CheckGuard (guarded, estimate, $"{name}.Decode overran its output estimate of {estimate} bytes for {length} bytes of input");
 
 			var result = output.AsSpan (0, n).ToArray ();
 
-			Fuzz.Equal (result, guarded.AsSpan (0, m), $"{name}.Decode (byte*) vs Decode (byte[])");
+			Fuzz.Equal (result, guarded.AsSpan (0, m), $"{name} scalar Decode vs Decode");
 
 			return result;
+		}
+
+		static byte[] Flush (IMimeDecoder decoder, byte[] input, int startIndex, int length, string name)
+		{
+			int estimate = decoder.EstimateOutputLength (length);
+			var clone = decoder.Clone ();
+			var output = new byte[estimate];
+			int count = decoder.Flush (input, startIndex, length, output);
+
+			Fuzz.Check (count >= 0 && count <= estimate, $"{name}.Flush exceeded its output estimate");
+
+			var first = Decode (clone, input, startIndex, length, name);
+			estimate = clone.EstimateOutputLength (0);
+			var tail = new byte[estimate + GuardLength];
+			Array.Fill (tail, Guard);
+			int pending = clone.Flush (Array.Empty<byte> (), 0, 0, tail);
+
+			Fuzz.Check (pending >= 0 && pending <= estimate, $"{name}.Flush exceeded its pending output estimate");
+			CheckGuard (tail, estimate, $"{name}.Flush overran its pending output estimate");
+			Fuzz.Check (count == first.Length + pending, $"{name}.Flush vs Decode then empty Flush length");
+			Fuzz.Equal (output.AsSpan (0, first.Length), first, $"{name}.Flush decoded prefix");
+			Fuzz.Equal (output.AsSpan (first.Length, pending), tail.AsSpan (0, pending), $"{name}.Flush decoded tail");
+
+			var empty = new byte[decoder.EstimateOutputLength (0)];
+			Fuzz.Check (decoder.Flush (Array.Empty<byte> (), 0, 0, empty) == 0, $"{name}.Flush emitted its tail again");
+
+			return output.AsSpan (0, count).ToArray ();
 		}
 
 		static void CheckGuard (byte[] output, int estimate, string message)
@@ -164,7 +199,7 @@ namespace MimeKit.Fuzzing.Targets {
 			encoded.Write (output, 0, n);
 
 			var bytes = encoded.ToArray ();
-			var decoded = Decode (decoder, bytes, 0, bytes.Length, decoder.GetType ().Name);
+			var decoded = Decode (decoder, bytes, 0, bytes.Length, decoder.GetType ().Name, true);
 
 			// Quoted-printable hard line breaks use the requested newline format; bare CRs remain data.
 			var expected = encoder is QuotedPrintableEncoder ? Fuzz.CanonicalizeLineBreaks (input, newLineFormat) : input;

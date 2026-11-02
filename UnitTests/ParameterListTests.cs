@@ -311,6 +311,18 @@ namespace UnitTests {
 			AssertParameterValue (text, expected, RfcComplianceMode.Strict);
 		}
 
+		[TestCase ("name*=utf-8''file%", "file%")]
+		[TestCase ("name*=utf-8''file%2", "file%2")]
+		[TestCase ("name*0*=utf-8''file%; name*1*=2Ezip", "file.zip")]
+		[TestCase ("name*0*=utf-8''file%2; name*1*=Ezip", "file.zip")]
+		[TestCase ("name*0*=utf-8''file%2; name*1=Ezip", "file%2Ezip")]
+		[TestCase ("name*0*=utf-8''file; name*1*=%2", "file%2")]
+		public void TestRfc2231Flush (string text, string expected)
+		{
+			AssertParameterValue (text, expected, RfcComplianceMode.Loose);
+			AssertParameterValue (text, expected, RfcComplianceMode.Strict);
+		}
+
 		// Regression cases inspired by https://github.com/noxxi/mime-is-broken.
 		[TestCase ("name=value(comment)", "value")]
 		[TestCase ("name=value (comment) (another)", "value")]

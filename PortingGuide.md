@@ -338,6 +338,34 @@ quoted-printable and uuencoded bodies now produce those line endings directly, r
 through a second conversion filter. Already encoded bodies and unencoded text retain newline
 normalization.
 
+### Content decoder finalization
+
+`IMimeDecoder` now requires `Flush (byte[], int, int, byte[])`, and the pointer-based
+`Decode (byte*, int, byte*)` overloads are no longer public. Use the array overloads and
+size the output with `EstimateOutputLength` on the same decoder before each call.
+Custom implementations must implement `Flush` and include pending output in their estimates.
+
+Keep using `Decode` for intermediate chunks. At EOF, call `Flush` with either the final chunk
+or an empty array if all input has already been passed to `Decode`:
+
+```csharp
+var output = new byte[decoder.EstimateOutputLength (0)];
+int count = decoder.Flush (Array.Empty<byte> (), 0, 0, output);
+destination.Write (output, 0, count);
+```
+
+Finalization is tolerant: base64 and uuencode recover complete bytes from partial groups,
+quoted-printable and RFC2231 percent decoding preserve incomplete escapes literally, and
+fragments that cannot produce a byte are discarded (including a dangling yEnc escape).
+This is recovery, not validation of malformed encoded content.
+
+`DecoderFilter` handles finalization automatically, including when a `FilteredStream` read
+reaches EOF or a filtered write is flushed. RFC2047 and RFC2231 decoding also finalize buffered
+input at their existing encoded-run boundaries, preserving continuation handling.
+
+Repeated empty flushes produce no additional output. Call `Reset` before reusing a decoder
+for another stream. `YEncDecoder.Flush` preserves the checksum; `Reset` clears it.
+
 ### yEnc codecs and standalone framing
 
 `MimeKit.Encodings.YEncoder` and `YDecoder` have been renamed to `YEncEncoder` and

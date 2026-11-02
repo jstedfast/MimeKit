@@ -44,6 +44,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   stream behavior are unchanged; the old type name is no longer available.
 * Renamed `MimeKit.Encodings.YEncoder` and `YDecoder` to `YEncEncoder` and `YEncDecoder`.
   Update references to the new names; the low-level checksum representation is unchanged.
+* `IMimeDecoder` now requires `Flush (byte[], int, int, byte[])` to finalize buffered input.
+  The public pointer-based `Decode` overloads have been removed. `DecoderFilter` finalizes
+  automatically; direct callers should flush at EOF and reset before decoding another stream.
+  Finalization recovers complete bytes from partial base64/uuencode groups and preserves
+  incomplete quoted-printable/percent escapes literally instead of dropping them.
 * `Base64Encoder`, `QuotedPrintableEncoder`, `UUEncoder`, `YEncEncoder` and `EncoderFilter.Create`
   now default to CRLF line endings. New overloads accept `NewLineFormat.Dos` or
   `NewLineFormat.Unix`; `Mixed` is rejected. Specify `Unix` to retain the previous LF output.

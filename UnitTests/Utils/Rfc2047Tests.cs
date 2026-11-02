@@ -125,6 +125,25 @@ namespace UnitTests.Utils {
 			Assert.That (Rfc2047.DecodeText (ParserOptions.Default, empty, 0, 0, out _), Is.EqualTo (string.Empty));
 		}
 
+		[TestCase ("=?utf-8?b?TQ?=", "M")]
+		[TestCase ("=?utf-8?b?TWE?=", "Ma")]
+		[TestCase ("=?utf-8?b?TQ=?=", "M")]
+		[TestCase ("=?utf-8?q?abc=?=", "abc=")]
+		[TestCase ("=?utf-8?q?abc=4?=", "abc=4")]
+		[TestCase ("=?utf-8?q?=4?= =?utf-8?q?1?=", "A")]
+		[TestCase ("=?utf-8?b?TW?= =?utf-8?b?Fu?=", "Man")]
+		[TestCase ("=?utf-8?q?abc=?= =?utf-8?b?TQ?=", "abc=M")]
+		[TestCase ("=?utf-8?b?TQ?= =?iso-8859-1?b?TWE?=", "MMa")]
+		[TestCase ("=?utf-8?q?abc=?= text", "abc= text")]
+		[TestCase ("prefix =?utf-8?b?TQ?= suffix", "prefix M suffix")]
+		public void TestDecodeEncodedWordFlush (string text, string expected)
+		{
+			var input = Encoding.ASCII.GetBytes (text);
+
+			Assert.That (Rfc2047.DecodeText (input), Is.EqualTo (expected));
+			Assert.That (Rfc2047.DecodePhrase (input), Is.EqualTo (expected));
+		}
+
 		[Test]
 		public void TestDecodeEncodedWordEmptyCharset ()
 		{

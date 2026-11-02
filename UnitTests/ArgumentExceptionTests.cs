@@ -41,6 +41,26 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		[Test]
+		public void TestMimeDecoderFlushArguments ()
+		{
+			var decoders = new IMimeDecoder[] { new Base64Decoder (), new QuotedPrintableDecoder (),
+				new QuotedPrintableDecoder (true), new Rfc2231Decoder (), new UUDecoder (), new UUDecoder (true),
+				new YEncDecoder (), new YEncDecoder (true), new PassThroughDecoder (ContentEncoding.Unspecified) };
+			var input = new byte[4];
+			var output = new byte[16];
+
+			foreach (var decoder in decoders) {
+				Assert.Throws<ArgumentNullException> (() => decoder.Flush (null, 0, 0, output));
+				Assert.Throws<ArgumentNullException> (() => decoder.Flush (input, 0, input.Length, null));
+				Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Flush (input, -1, 0, output));
+				Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Flush (input, input.Length + 1, 0, output));
+				Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Flush (input, 0, -1, output));
+				Assert.Throws<ArgumentOutOfRangeException> (() => decoder.Flush (input, 1, input.Length, output));
+				Assert.Throws<ArgumentException> (() => decoder.Flush (input, 0, input.Length, Array.Empty<byte> ()));
+			}
+		}
+
 		static IMimeParser CreateStorageParser (int overload, ParserOptions options, Stream stream, MimeContentStorage storage)
 		{
 			switch (overload) {

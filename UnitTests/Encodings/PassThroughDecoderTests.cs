@@ -80,16 +80,12 @@ namespace UnitTests.Encodings {
 
 				decoder.Reset ();
 
-				unsafe {
-					fixed (byte* inbuf = input, outbuf = output) {
-						n = decoder.Decode (inbuf, input.Length, outbuf);
+				n = decoder.Flush (input, 0, input.Length, output);
 
-						Assert.That (n, Is.EqualTo (input.Length));
+				Assert.That (n, Is.EqualTo (input.Length));
 
-						for (int i = 0; i < n; i++)
-							Assert.That (output[i], Is.EqualTo (input[i]));
-					}
-				}
+				for (int i = 0; i < n; i++)
+					Assert.That (output[i], Is.EqualTo (input[i]));
 			} finally {
 				ArrayPool<byte>.Shared.Return (output);
 				ArrayPool<byte>.Shared.Return (input);

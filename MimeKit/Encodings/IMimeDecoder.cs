@@ -55,7 +55,8 @@ namespace MimeKit.Encodings {
 		/// Estimate the length of the output.
 		/// </summary>
 		/// <remarks>
-		/// Estimates the number of bytes needed to decode the specified number of input bytes.
+		/// Estimates the number of bytes needed to decode the specified number of input bytes,
+		/// including any buffered input emitted by <see cref="Flush"/>.
 		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name="inputLength">The input length.</param>
@@ -63,21 +64,6 @@ namespace MimeKit.Encodings {
 		/// The estimated output length is too large to be represented as an <see cref="System.Int32"/>.
 		/// </exception>
 		int EstimateOutputLength (int inputLength);
-
-		/// <summary>
-		/// Decode the specified input into the output buffer.
-		/// </summary>
-		/// <remarks>
-		/// <para>Decodes the specified input into the output buffer.</para>
-		/// <para>The output buffer should be large enough to hold all the
-		/// decoded input. For estimating the size needed for the output buffer,
-		/// see <see cref="EstimateOutputLength"/>.</para>
-		/// </remarks>
-		/// <returns>The number of bytes written to the output buffer.</returns>
-		/// <param name="input">A pointer to the beginning of the input buffer.</param>
-		/// <param name="length">The length of the input buffer.</param>
-		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		unsafe int Decode (byte* input, int length, byte* output);
 
 		/// <summary>
 		/// Decode the specified input into the output buffer.
@@ -108,6 +94,34 @@ namespace MimeKit.Encodings {
 		/// necessary length of the <paramref name="output"/> byte array.</para>
 		/// </exception>
 		int Decode (byte[] input, int startIndex, int length, byte[] output);
+
+		/// <summary>
+		/// Decode the final input, flushing any buffered input to the output.
+		/// </summary>
+		/// <remarks>
+		/// <para>Call this method at the end of the encoded content, even if the final input is empty.
+		/// Recoverable bytes are decoded and incomplete quoted-printable or percent escapes are
+		/// preserved literally. Fragments that cannot produce a byte are discarded.</para>
+		/// <para>Use <see cref="EstimateOutputLength"/> to size the output buffer, including any
+		/// buffered input. Repeated calls with empty input produce no additional output.
+		/// Call <see cref="Reset"/> before decoding another stream.</para>
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> or <paramref name="output"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify
+		/// a valid range in the <paramref name="input"/> byte array.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is smaller than <see cref="EstimateOutputLength"/> requires.
+		/// </exception>
+		int Flush (byte[] input, int startIndex, int length, byte[] output);
 
 		/// <summary>
 		/// Reset the decoder.

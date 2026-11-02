@@ -151,7 +151,7 @@ namespace MimeKit.Encodings {
 		/// <param name="input">A pointer to the beginning of the input buffer.</param>
 		/// <param name="length">The length of the input buffer.</param>
 		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		public unsafe int Decode (byte* input, int length, byte* output)
+		internal unsafe int Decode (byte* input, int length, byte* output)
 		{
 			byte* inend = input + length;
 			byte* outptr = output;
@@ -301,6 +301,57 @@ namespace MimeKit.Encodings {
 					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decode the final input, flushing any buffered input to the output.
+		/// </summary>
+		/// <remarks>
+		/// <para>Incomplete escapes, including a trailing equals sign, hex digit or carriage return,
+		/// are preserved literally.</para>
+		/// <para>Use <see cref="EstimateOutputLength"/> to size the output buffer, including buffered input.
+		/// Call <see cref="Reset"/> before decoding another stream.</para>
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> or <paramref name="output"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify a valid input range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is smaller than <see cref="EstimateOutputLength"/> requires.
+		/// </exception>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			int count = Decode (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* outptr = output)
+					return count + Flush (outptr + count);
+			}
+		}
+
+		internal unsafe int Flush (byte* output)
+		{
+			int count = 0;
+
+			if (state != QpDecoderState.PassThrough) {
+				output[count++] = (byte) '=';
+
+				if (state == QpDecoderState.DecodeByte)
+					output[count++] = saved;
+				else if (state == QpDecoderState.SoftBreak)
+					output[count++] = (byte) '\r';
+			}
+
+			Reset ();
+
+			return count;
 		}
 
 		/// <summary>

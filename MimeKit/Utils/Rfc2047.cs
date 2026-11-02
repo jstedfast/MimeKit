@@ -197,7 +197,9 @@ namespace MimeKit.Utils {
 					AddCodePage (curCodepage);
 
 					fixed (byte* inbuf = input, outbuf = scratch) {
-						int n = decoder.Decode (inbuf + token.StartIndex, token.Length, outbuf + scratchLength);
+						int n = encoding == 'Q'
+							? qp!.Decode (inbuf + token.StartIndex, token.Length, outbuf + scratchLength)
+							: base64!.Decode (inbuf + token.StartIndex, token.Length, outbuf + scratchLength);
 						scratchLength += n;
 					}
 				} else if (token.Is8bit) {
@@ -206,15 +208,19 @@ namespace MimeKit.Utils {
 				} else {
 					// pure 7bit ascii, a breath of fresh air...
 					int endIndex = token.StartIndex + token.Length;
+
 					for (int i = token.StartIndex; i < endIndex; i++)
 						output.Append ((char) input[i]);
 				}
 			}
 
-			public void Flush (ref ValueStringBuilder output)
+			public unsafe void Flush (ref ValueStringBuilder output)
 			{
-				// Reset any base64/quoted-printable decoder state
-				decoder?.Reset ();
+				if (decoder != null) {
+					fixed (byte* outbuf = scratch)
+						scratchLength += encoding == 'Q' ? qp!.Flush (outbuf + scratchLength) : base64!.Flush (outbuf + scratchLength);
+				}
+
 				decoder = null;
 
 				if (scratchLength > 0) {

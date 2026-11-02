@@ -316,7 +316,7 @@ namespace MimeKit.Encodings {
 		/// <param name="input">A pointer to the beginning of the input buffer.</param>
 		/// <param name="length">The length of the input buffer.</param>
 		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		public unsafe int Decode (byte* input, int length, byte* output)
+		unsafe int Decode (byte* input, int length, byte* output)
 		{
 			if (state == UUDecoderState.Ended)
 				return 0;
@@ -872,6 +872,52 @@ namespace MimeKit.Encodings {
 					return Decode (inptr + startIndex, length, outptr);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decode the final input, flushing any buffered input to the output.
+		/// </summary>
+		/// <remarks>
+		/// <para>Complete bytes in a partial payload quartet are decoded up to the declared line length.
+		/// Incomplete framing and fragments that cannot produce a byte are discarded.</para>
+		/// <para>Use <see cref="EstimateOutputLength"/> to size the output buffer, including buffered input.
+		/// Call <see cref="Reset"/> before decoding another stream.</para>
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> or <paramref name="output"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify a valid input range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is smaller than <see cref="EstimateOutputLength"/> requires.
+		/// </exception>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			int count = Decode (input, startIndex, length, output);
+
+			if (state == UUDecoderState.Payload && nsaved >= 2 && uulen > 0) {
+				int shift = (nsaved - 2) * 8;
+				byte first = uudecode_rank[(byte) (saved >> (shift + 8))];
+				byte second = uudecode_rank[(byte) (saved >> shift)];
+
+				output[count++] = (byte) (first << 2 | second >> 4);
+
+				if (nsaved == 3 && uulen > 1)
+					output[count++] = (byte) (second << 4 | uudecode_rank[(byte) saved] >> 2);
+			}
+
+			state = UUDecoderState.Ended;
+			nsaved = 0;
+			saved = 0;
+			uulen = 0;
+
+			return count;
 		}
 
 		/// <summary>

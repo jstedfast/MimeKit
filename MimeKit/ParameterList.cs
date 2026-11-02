@@ -966,7 +966,7 @@ namespace MimeKit {
 
 			try {
 				// hex decode...
-				length = hex.Decode (text, index, length, decoded);
+				length = flush ? hex.Flush (text, index, length, decoded) : hex.Decode (text, index, length, decoded);
 
 				int outLength = decoder.GetCharCount (decoded, 0, length, flush);
 				var output = ArrayPool<char>.Shared.Rent (outLength);

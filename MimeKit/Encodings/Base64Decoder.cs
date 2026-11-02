@@ -160,8 +160,8 @@ namespace MimeKit.Encodings {
 		/// <param name="inputLength">The input length.</param>
 		public int EstimateOutputLength (int inputLength)
 		{
-			// decoding base64 converts 4 bytes of input into 3 bytes of output
-			return ((inputLength / 4) * 3) + 3;
+			// Allow for buffered sextets and complete bytes from a final partial quartet.
+			return ((inputLength / 4) * 3) + 4;
 		}
 
 		void ValidateArguments (byte[] input, int startIndex, int length, byte[] output)
@@ -232,7 +232,7 @@ namespace MimeKit.Encodings {
 		/// <param name="input">A pointer to the beginning of the input buffer.</param>
 		/// <param name="length">The length of the input buffer.</param>
 		/// <param name="output">A pointer to the beginning of the output buffer.</param>
-		public unsafe int Decode (byte* input, int length, byte* output)
+		internal unsafe int Decode (byte* input, int length, byte* output)
 		{
 			ref byte table = ref MemoryMarshal.GetReference (base64_rank);
 
@@ -600,6 +600,59 @@ namespace MimeKit.Encodings {
 #endif
 				}
 			}
+		}
+
+		/// <summary>
+		/// Decode the final input, flushing any buffered input to the output.
+		/// </summary>
+		/// <remarks>
+		/// <para>Complete bytes in an unpadded final quartet are decoded. A lone sextet is discarded.</para>
+		/// <para>Use <see cref="EstimateOutputLength"/> to size the output buffer, including buffered input.
+		/// Call <see cref="Reset"/> before decoding another stream.</para>
+		/// </remarks>
+		/// <returns>The number of bytes written to the output buffer.</returns>
+		/// <param name="input">The input buffer.</param>
+		/// <param name="startIndex">The starting index of the input buffer.</param>
+		/// <param name="length">The length of the input buffer.</param>
+		/// <param name="output">The output buffer.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="input"/> or <paramref name="output"/> is <see langword="null"/>.
+		/// </exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">
+		/// <paramref name="startIndex"/> and <paramref name="length"/> do not specify a valid input range.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="output"/> is smaller than <see cref="EstimateOutputLength"/> requires.
+		/// </exception>
+		public int Flush (byte[] input, int startIndex, int length, byte[] output)
+		{
+			int count = Decode (input, startIndex, length, output);
+
+			unsafe {
+				fixed (byte* outptr = output)
+					return count + Flush (outptr + count);
+			}
+		}
+
+		internal unsafe int Flush (byte* output)
+		{
+			int count = 0;
+
+			if (bytes >= 2) {
+				int first = (previous >> ((bytes - 1) * 8)) & 0xff;
+				int second = (previous >> ((bytes - 2) * 8)) & 0xff;
+
+				if (first != '=' && second != '=') {
+					output[count++] = (byte) (saved >> ((bytes - 2) * 6 + 4));
+
+					if (bytes == 3 && (previous & 0xff) != '=')
+						output[count++] = (byte) (saved >> 2);
+				}
+			}
+
+			Reset ();
+
+			return count;
 		}
 
 		/// <summary>
