@@ -33,6 +33,28 @@ namespace UnitTests.Tnef {
 	[TestFixture]
 	public class RtfCompressedToRtfTests
 	{
+		[TestCase (0)]
+		[TestCase (208)]
+		[TestCase (4094)]
+		[TestCase (4095)]
+		public void TestResetClearsDictionary (int offset)
+		{
+			var previous = new RtfCompressedBuilder ().WriteLiterals (Encoding.ASCII.GetBytes (new string ('x', RtfCompressedBuilder.DictionarySize))).WriteEndOfStream ().ToArray ();
+			var builder = new RtfCompressedBuilder ().WriteReference (offset, 2).WriteEndOfStream ();
+			var input = builder.ToArray ();
+			var filter = new RtfCompressedToRtf ();
+
+			for (int iteration = 0; iteration < 2; iteration++) {
+				filter.Filter (previous, 0, previous.Length, out _, out _);
+				filter.Reset ();
+
+				var output = filter.Flush (input, 0, input.Length, out int outputIndex, out int outputLength);
+				Assert.That (output.AsSpan (outputIndex, outputLength).ToArray (), Is.EqualTo (builder.GetDecompressed ()));
+				Assert.That (filter.IsValidCrc32, Is.True);
+				filter.Reset ();
+			}
+		}
+
 		[Test]
 		public void TestRtfCompressedToRtfUnknownCompressionType ()
 		{

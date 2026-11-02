@@ -360,6 +360,7 @@ namespace MimeKit.Tnef {
 		{
 			dictWriteOffset = (short) DictionaryInitializer.Length; // 207
 			DictionaryInitializer.CopyTo (dict);
+			Array.Clear (dict, dictWriteOffset, dict.Length - dictWriteOffset);
 			state = FilterState.CompressedSize;
 			CompressionMode = RtfCompressionMode.Unknown;
 			uncompressedSize = 0;

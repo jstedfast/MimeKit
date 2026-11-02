@@ -540,9 +540,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   prematurely when a filter buffers an entire chunk.
 * Fixed `CharsetFilter` to flush buffered decoder state even when the final input buffer is empty,
   preserving replacement characters and reporting strict decoding errors for truncated input.
-* Fixed trailing carriage-return handling in `Dos2UnixFilter`, split-CRLF line lengths in
-  `BestEncodingFilter`, and chunk-dependent offsets and exceptions in `OpenPgpDetectionFilter`.
-* Fixed `RtfCompressedToRtf.IsValidCrc32` incorrectly accepting truncated headers.
+* Fixed trailing carriage-return handling in `Dos2UnixFilter`, split-CRLF line lengths and
+  unterminated `From ` line detection in `BestEncodingFilter`, and chunk-dependent offsets and
+  exceptions in `OpenPgpDetectionFilter`.
+* Fixed `RtfCompressedToRtf.IsValidCrc32` incorrectly accepting truncated headers and
+  `RtfCompressedToRtf.Reset()` retaining dictionary bytes from the previous stream.
 * Improved HTML tokenization and serialization of malformed tags, comments, DOCTYPEs, character
   references and truncated input. Corrected cases where markup could be hidden from
   `HtmlToHtml.HtmlTagCallback` or created accidentally when filtered output was parsed again.

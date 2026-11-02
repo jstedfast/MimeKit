@@ -29,8 +29,10 @@ using System.Text;
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.Utils;
+using MimeKit.Encodings;
 using MimeKit.IO.Filters;
 using MimeKit.Cryptography;
+using MimeKit.Tnef;
 
 namespace UnitTests.IO.Filters {
 	[TestFixture]
@@ -48,6 +50,220 @@ namespace UnitTests.IO.Filters {
 			Assert.Throws<ArgumentNullException> (() => filter.Flush (null, 0, 0, out outputIndex, out outputLength));
 			Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (buffer, -1, 0, out outputIndex, out outputLength));
 			Assert.Throws<ArgumentOutOfRangeException> (() => filter.Flush (buffer, 0, 20, out outputIndex, out outputLength));
+		}
+
+		static byte[] EncodeBoundaryInput (IMimeEncoder encoder, byte[] input)
+		{
+			var output = new byte[encoder.EstimateOutputLength (input.Length)];
+			int length = encoder.Flush (input, 0, input.Length, output);
+			Array.Resize (ref output, length);
+			return output;
+		}
+
+		static IEnumerable<TestCaseData> StatefulFilterCases ()
+		{
+			var text = Encoding.ASCII.GetBytes ("From x\r\nFrom \nFr\r\nbody \t\r \tx\r\n\t\r\nFro");
+			var binary = Enumerable.Range (0, 256).Select (x => (byte) x).ToArray ();
+			var armor = Encoding.ASCII.GetBytes ("ignored\r\n-----BEGIN PGP MESSAGE-----\r\nYWJj\r\n-----END PGP MESSAGE-----\r\nignored");
+			var rtf = new UnitTests.Tnef.RtfCompressedBuilder ().WriteLiterals (text).WriteReference (0, 17).WriteEndOfStream ().ToArray ();
+			var uu = EncodeBoundaryInput (new UUEncoder (), binary);
+			var yenc = EncodeBoundaryInput (new YEncEncoder (), binary);
+			var cases = new (string Name, Func<IMimeFilter> Create, byte[] Input)[] {
+				("Unix2Dos", () => new Unix2DosFilter (), text),
+				("Unix2DosEnsureNewLine", () => new Unix2DosFilter (true), text),
+				("Dos2Unix", () => new Dos2UnixFilter (), text),
+				("Dos2UnixEnsureNewLine", () => new Dos2UnixFilter (true), text),
+				("TrailingWhitespace", () => new TrailingWhitespaceFilter (), text),
+				("MboxFrom", () => new MboxFromFilter (), text),
+				("ArmoredFrom", () => new ArmoredFromFilter (), text),
+				("BestEncoding", () => new BestEncodingFilter (), text),
+				("DkimSimple", () => new DkimSimpleBodyFilter (), text),
+				("DkimRelaxed", () => new DkimRelaxedBodyFilter (), text),
+				("OpenPgpBlock", () => new OpenPgpBlockFilter ("-----BEGIN PGP MESSAGE-----", "-----END PGP MESSAGE-----"), armor),
+				("OpenPgpDetection", () => new OpenPgpDetectionFilter (), armor),
+				("RtfCompressed", () => new RtfCompressedToRtf (), rtf),
+				("Base64Decoder", () => new DecoderFilter (new Base64Decoder ()), Encoding.ASCII.GetBytes (Convert.ToBase64String (binary) + "\r\n!YQ==Zg")),
+				("QuotedPrintableDecoder", () => new DecoderFilter (new QuotedPrintableDecoder ()), Encoding.ASCII.GetBytes ("abc=20=3D=\r\n_=QX==\rZ=4G=41=\r")),
+				("EncodedWordDecoder", () => new DecoderFilter (new QuotedPrintableDecoder (true)), Encoding.ASCII.GetBytes ("abc_def=20=3D=QX==\rZ=4G=41=")),
+				("Rfc2231Decoder", () => new DecoderFilter (new Rfc2231Decoder ()), Encoding.ASCII.GetBytes ("abc%20%3D%QX%%41%4G%")),
+				("UUDecoder", () => new DecoderFilter (new UUDecoder (true)), uu),
+				("UUDecoderFramed", () => new DecoderFilter (new UUDecoder ()), Encoding.ASCII.GetBytes ("ignored\nbegin 644 file\n").Concat (uu).Concat ("end\n"u8.ToArray ()).ToArray ()),
+				("YEncDecoder", () => new DecoderFilter (new YEncDecoder (true)), yenc),
+				("YEncDecoderFramed", () => new DecoderFilter (new YEncDecoder ()), Encoding.ASCII.GetBytes ("ignored\n=ybegin line=128 size=256 name=file\n").Concat (yenc).Concat ("=yend size=256\n"u8.ToArray ()).ToArray ()),
+				("Base64EncoderUnix", () => new EncoderFilter (new Base64Encoder (NewLineFormat.Unix)), binary),
+				("QuotedPrintableEncoderUnix", () => new EncoderFilter (new QuotedPrintableEncoder (NewLineFormat.Unix)), text.Concat (binary).ToArray ()),
+				("UUEncoderUnix", () => new EncoderFilter (new UUEncoder (NewLineFormat.Unix)), binary),
+				("YEncEncoderUnix", () => new EncoderFilter (new YEncEncoder (NewLineFormat.Unix)), binary),
+				("Base64EncoderDos", () => new EncoderFilter (new Base64Encoder (NewLineFormat.Dos)), binary),
+				("QuotedPrintableEncoderDos", () => new EncoderFilter (new QuotedPrintableEncoder (NewLineFormat.Dos)), text.Concat (binary).ToArray ()),
+				("UUEncoderDos", () => new EncoderFilter (new UUEncoder (NewLineFormat.Dos)), binary),
+				("YEncEncoderDos", () => new EncoderFilter (new YEncEncoder (NewLineFormat.Dos)), binary)
+			};
+
+			foreach (var item in cases)
+				yield return new TestCaseData (item.Create, item.Input).SetName ($"{{m}}({item.Name})");
+		}
+
+		static byte[] FilterInChunks (IMimeFilter filter, byte[] input, int chunkSize, bool emptyFlush)
+		{
+			var padded = new byte[input.Length + 2];
+			input.CopyTo (padded, 1);
+			int end = emptyFlush ? input.Length : Math.Max (0, input.Length - chunkSize);
+
+			using (var stream = new MemoryStream ()) {
+				for (int index = 0; index < end;) {
+					int count = Math.Min (chunkSize, end - index);
+					var output = filter.Filter (padded, index + 1, count, out int outputIndex, out int outputLength);
+					stream.Write (output, outputIndex, outputLength);
+					index += count;
+
+					output = filter.Filter (Array.Empty<byte> (), 0, 0, out outputIndex, out outputLength);
+					stream.Write (output, outputIndex, outputLength);
+				}
+
+				var finalInput = emptyFlush ? Array.Empty<byte> () : padded;
+				var flushed = filter.Flush (finalInput, emptyFlush ? 0 : end + 1, input.Length - end, out int flushedIndex, out int flushedLength);
+				stream.Write (flushed, flushedIndex, flushedLength);
+				return stream.ToArray ();
+			}
+		}
+
+		static object GetFilterState (IMimeFilter filter)
+		{
+			return filter switch {
+				BestEncodingFilter best => (best.GetBestEncoding (EncodingConstraint.SevenBit), best.GetBestEncoding (EncodingConstraint.EightBit), best.GetBestEncoding (EncodingConstraint.None)),
+				OpenPgpDetectionFilter pgp => (pgp.DataType, pgp.BeginOffset, pgp.EndOffset),
+				DkimBodyFilter dkim => dkim.LastWasNewLine,
+				RtfCompressedToRtf rtf => (rtf.CompressionMode, rtf.IsValidCrc32),
+				DecoderFilter { Decoder: YEncDecoder yenc } => yenc.Checksum,
+				EncoderFilter { Encoder: YEncEncoder yenc } => yenc.Checksum,
+				EncoderFilter encoder => encoder.HasOutput,
+				_ => null
+			};
+		}
+
+		[TestCaseSource (nameof (StatefulFilterCases))]
+		public void TestStatefulFilterBoundaries (Func<IMimeFilter> create, byte[] data)
+		{
+			var fullOutput = FilterInChunks (create (), data, data.Length + 1, false);
+
+			for (int length = 0; length <= data.Length; length++) {
+				var input = data.AsSpan (0, length).ToArray ();
+				var reference = create ();
+				var expected = FilterInChunks (reference, input, data.Length + 1, false);
+				var expectedState = GetFilterState (reference);
+
+				foreach (int chunkSize in new[] { 1, 2, 3, 7, 16, 31, 64, 4096 }) {
+					foreach (bool emptyFlush in new[] { false, true }) {
+						var filter = create ();
+						for (int iteration = 0; iteration < 2; iteration++) {
+							var actual = FilterInChunks (filter, input, chunkSize, emptyFlush);
+							string context = $"length={length}, chunkSize={chunkSize}, emptyFlush={emptyFlush}, iteration={iteration}";
+							Assert.That (actual, Is.EqualTo (expected), context);
+							Assert.That (GetFilterState (filter), Is.EqualTo (expectedState), context);
+
+							// UUEncoder.Flush also writes the terminator for an empty encoded stream.
+							if (filter is not EncoderFilter { Encoder: UUEncoder }) {
+								filter.Flush (Array.Empty<byte> (), 0, 0, out _, out int outputLength);
+								Assert.That (outputLength, Is.Zero, "Repeated flush");
+							}
+
+							filter.Reset ();
+						}
+
+						filter.Filter (data, 0, length, out _, out _);
+						filter.Reset ();
+						Assert.That (FilterInChunks (filter, data, chunkSize, emptyFlush), Is.EqualTo (fullOutput), "Reset with pending input");
+					}
+				}
+			}
+		}
+
+		[TestCaseSource (nameof (StatefulFilterCases))]
+		public void TestStatefulFilterEndOfStream (Func<IMimeFilter> create, byte[] data)
+		{
+			var reference = create ();
+			var expected = FilterInChunks (reference, data, data.Length + 1, false);
+
+			foreach (int chunkSize in new[] { 1, 7, 4096 }) {
+				foreach (bool read in new[] { false, true }) {
+					var filter = create ();
+					using (var input = new ChunkedReadStream (data, chunkSize))
+					using (var output = new MemoryStream ())
+					using (var filtered = new FilteredStream (read ? input : output)) {
+						filtered.Add (filter);
+						if (read) {
+							filtered.CopyTo (output);
+							Assert.That (filtered.ReadByte (), Is.EqualTo (-1));
+						} else {
+							for (int index = 0; index < data.Length; index += chunkSize)
+								filtered.Write (data, index, Math.Min (chunkSize, data.Length - index));
+							filtered.Flush ();
+							filtered.Flush ();
+						}
+
+						Assert.That (output.ToArray (), Is.EqualTo (expected), $"chunkSize={chunkSize}, read={read}");
+						Assert.That (GetFilterState (filter), Is.EqualTo (GetFilterState (reference)));
+					}
+				}
+			}
+		}
+
+		[TestCaseSource (nameof (StatefulFilterCases))]
+		public async Task TestStatefulFilterEndOfStreamAsync (Func<IMimeFilter> create, byte[] data)
+		{
+			var reference = create ();
+			var expected = FilterInChunks (reference, data, data.Length + 1, false);
+
+			foreach (int chunkSize in new[] { 1, 7, 4096 }) {
+				foreach (bool read in new[] { false, true }) {
+					var filter = create ();
+					using (var input = new ChunkedReadStream (data, chunkSize))
+					using (var output = new MemoryStream ())
+					using (var filtered = new FilteredStream (read ? input : output)) {
+						filtered.Add (filter);
+						if (read) {
+							await filtered.CopyToAsync (output);
+							Assert.That (await filtered.ReadAsync (new byte[1], 0, 1), Is.Zero);
+						} else {
+							for (int index = 0; index < data.Length; index += chunkSize)
+								await filtered.WriteAsync (data, index, Math.Min (chunkSize, data.Length - index));
+							await filtered.FlushAsync ();
+							await filtered.FlushAsync ();
+						}
+
+						Assert.That (output.ToArray (), Is.EqualTo (expected), $"chunkSize={chunkSize}, read={read}");
+						Assert.That (GetFilterState (filter), Is.EqualTo (GetFilterState (reference)));
+					}
+				}
+			}
+		}
+
+		[TestCase ("From ", ContentEncoding.QuotedPrintable)]
+		[TestCase ("From sender", ContentEncoding.QuotedPrintable)]
+		[TestCase ("prefix\r\nFrom sender", ContentEncoding.QuotedPrintable)]
+		[TestCase ("From sender\r\n", ContentEncoding.QuotedPrintable)]
+		[TestCase ("From", ContentEncoding.SevenBit)]
+		[TestCase ("Not From sender", ContentEncoding.SevenBit)]
+		public void TestBestEncodingFilterUnterminatedFromLine (string text, ContentEncoding expected)
+		{
+			var input = Encoding.ASCII.GetBytes (text);
+
+			foreach (int chunkSize in new[] { 1, 3, 4096 }) {
+				var filter = new BestEncodingFilter ();
+				Assert.That (FilterInChunks (filter, input, chunkSize, true), Is.EqualTo (input));
+
+				foreach (var constraint in new[] { EncodingConstraint.SevenBit, EncodingConstraint.EightBit, EncodingConstraint.None })
+					Assert.That (filter.GetBestEncoding (constraint), Is.EqualTo (expected));
+
+				filter.Reset ();
+				filter.Filter (input, 0, input.Length, out _, out _);
+				Assert.That (filter.GetBestEncoding (EncodingConstraint.SevenBit), Is.EqualTo (expected), "Before flushing");
+
+				filter.Reset ();
+				filter.Filter ("other"u8.ToArray (), 0, 5, out _, out _);
+				Assert.That (filter.GetBestEncoding (EncodingConstraint.SevenBit), Is.EqualTo (ContentEncoding.SevenBit), "Reset");
+			}
 		}
 
 		[Test]

@@ -164,6 +164,10 @@ namespace MimeKit.IO.Filters {
 					pc = c;
 				}
 
+				// check our from-save buffer even if this line is unterminated
+				if (!hasMarker && markerLength == 5 && IsMboxMarker (marker))
+					hasMarker = true;
+
 				if (c == (byte) '\n') {
 					if (pc == (byte) '\r')
 						linelen--;
@@ -171,10 +175,6 @@ namespace MimeKit.IO.Filters {
 					maxline = Math.Max (maxline, linelen);
 					linelen = 0;
 					pc = c;
-
-					// check our from-save buffer for "From "
-					if (!hasMarker && markerLength == 5 && IsMboxMarker (marker))
-						hasMarker = true;
 
 					markerLength = 0;
 				}
