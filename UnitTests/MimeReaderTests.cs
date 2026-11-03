@@ -1150,10 +1150,10 @@ ABC
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (4), "ColumnNumber #1");
 
 			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.UnexpectedNullBytesInHeader), FormatIssues (logger));
-			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (0), "StreamOffset #2");
+			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (3), "StreamOffset #2");
 			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (1), "LineNumber #2");
-			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (1), "ColumnNumber #2");
-			Assert.That (logger.Issues[1].PositionKind, Is.EqualTo (MimeCompliancePositionKind.LineStart), "PositionKind #2");
+			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (4), "ColumnNumber #2");
+			Assert.That (logger.Issues[1].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "PositionKind #2");
 		}
 
 		static string FormatIssues (TestMimeComplianceLogger logger)
@@ -1278,16 +1278,16 @@ ABC
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (1), "ColumnNumber #1");
 
 			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.UnexpectedNullBytesInHeader), "Violation #2");
-			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (MessageHeaders.Length + 84), "StreamOffset #2");
+			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (MessageHeaders.Length + 85), "StreamOffset #2");
 			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (MessageHeaderLines + 6), "LineNumber #2");
-			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (1), "ColumnNumber #2");
-			Assert.That (logger.Issues[1].PositionKind, Is.EqualTo (MimeCompliancePositionKind.LineStart), "PositionKind #2");
+			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (2), "ColumnNumber #2");
+			Assert.That (logger.Issues[1].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "PositionKind #2");
 
 			Assert.That (logger.Issues[2].Violation, Is.EqualTo (MimeComplianceViolation.Unexpected8BitBytesInHeader), "Violation #3");
 			Assert.That (logger.Issues[2].StreamOffset, Is.EqualTo (MessageHeaders.Length + 84), "StreamOffset #3");
 			Assert.That (logger.Issues[2].LineNumber, Is.EqualTo (MessageHeaderLines + 6), "LineNumber #3");
 			Assert.That (logger.Issues[2].ColumnNumber, Is.EqualTo (1), "ColumnNumber #3");
-			Assert.That (logger.Issues[2].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "PositionKind #3");
+			Assert.That (logger.Issues[2].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "PositionKind #3");
 
 			Assert.That (logger.Issues[3].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation #4");
 			Assert.That (logger.Issues[3].StreamOffset, Is.EqualTo (MessageHeaders.Length + 91), "StreamOffset #4");
@@ -2233,7 +2233,7 @@ This is the second inner message body.
 		public void TestMimeComplianceUnexpected8BitBytesInHeader ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 10, MimeCompliancePositionKind.Exact)
 			};
 
 			AssertMimeComplianceViolations ("raw-koi8r-header.eml", issues);
@@ -2243,7 +2243,7 @@ This is the second inner message body.
 		public Task TestMimeComplianceUnexpected8BitBytesInHeaderAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 10, MimeCompliancePositionKind.Exact)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("raw-koi8r-header.eml", issues);
@@ -2266,13 +2266,12 @@ This is the second inner message body.
 		}
 
 		// Note: The 8-bit bytes live on a folded continuation line rather than on the line that
-		// starts the header. The violation is still attributed to the beginning of the header,
-		// because the value can only be validated once it has been unfolded in its entirety.
+		// starts the header. Retain their position while waiting to validate the complete value.
 		[Test]
 		public void TestMimeComplianceUnexpected8BitBytesInFoldedHeader ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 4, 2, MimeCompliancePositionKind.Exact)
 			};
 
 			AssertMimeComplianceViolations ("8bit-folded-header.eml", issues);
@@ -2282,7 +2281,7 @@ This is the second inner message body.
 		public Task TestMimeComplianceUnexpected8BitBytesInFoldedHeaderAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 3, 1, MimeCompliancePositionKind.ElementStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInHeader, 4, 2, MimeCompliancePositionKind.Exact)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("8bit-folded-header.eml", issues);
@@ -2370,10 +2369,134 @@ This is the second inner message body.
 		public void TestMimeComplianceUnexpectedNullBytesInHeader ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1, MimeCompliancePositionKind.LineStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 36, MimeCompliancePositionKind.Exact)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-null-bytes-in-headers.eml", issues);
+		}
+
+		static IEnumerable<TestCaseData> HeaderByteDetectionCases ()
+		{
+			foreach (string newline in new[] { "\n", "\r\n" }) {
+				foreach (int padding in new[] { 0, 15, 31, 63, 127, 4090 }) {
+					foreach (bool folded in new[] { false, true }) {
+						string prefix = "X-First: ascii" + newline + "Subject: " + new string ('a', padding) + (folded ? newline + "\t" : "");
+						string text = prefix + "\0hello\u00ffworld\0\u00fe" + newline + "X-Last: ascii" + newline + newline + "body\0\u00ff" + newline;
+
+						yield return new TestCaseData (text, new[] { prefix.Length }, new[] { prefix.Length + 6 })
+							.SetName ($"{{m}}(newline={newline.Length},padding={padding},folded={folded})");
+					}
+				}
+			}
+
+			yield return new TestCaseData ("Subject: \0\u00ff", new[] { 9 }, new[] { 10 }).SetName ("{m}(EOF)");
+			yield return new TestCaseData ("\u00ef\u00bb\u00bfSubject: \0\u00ff\r\n\r\n", new[] { 12 }, new[] { 13 }).SetName ("{m}(BOM)");
+			yield return new TestCaseData ("\u00ef\u00bb\u00bfSubject: caf\u00c3\u00a9\r\n \u00ff\r\n\r\n", Array.Empty<int> (), new[] { 20 }).SetName ("{m}(BOM-folded)");
+			yield return new TestCaseData ("A: x\0\u00ff\0\u00fe\r\nB: y\0\u00fe\0\u00ff\r\n\r\n", new[] { 4, 14 }, new[] { 5, 15 }).SetName ("{m}(each-header)");
+			yield return new TestCaseData ("A: ok\r\nBad\0\u00ff: value\r\n\r\n", new[] { 10 }, new[] { 11 }).SetName ("{m}(invalid-field)");
+			yield return new TestCaseData ("Subject: \u00c3\u00a9\0\u00f0\u009f\u0098\u0080\r\n\r\n", new[] { 11 }, Array.Empty<int> ()).SetName ("{m}(valid-UTF8)");
+			yield return new TestCaseData ("Subject: \u00c3\u00a9\r\n \u00ff\r\n\r\n", Array.Empty<int> (), new[] { 14 }).SetName ("{m}(UTF8-before-invalid-byte)");
+			yield return new TestCaseData ("From: a@\u00ff.example\r\n\r\n", Array.Empty<int> (), Array.Empty<int> ()).SetName ("{m}(address-validator)");
+			yield return new TestCaseData ("Subject: ascii\r\n\r\nbody\0\u00ff\r\n", Array.Empty<int> (), Array.Empty<int> ()).SetName ("{m}(body-only)");
+
+			var malformed = new[] {
+				"\u00ff", "\u0080", "\u00c0\u00af", "\u00e0\u0080\u0080",
+				"\u00ed\u00a0\u0080", "\u00f4\u0090\u0080\u0080",
+				"\u00c2!", "\u00e2\u0082!", "\u00f0\u0090\u0080!", "\u00e2", "\u00f0\u0090"
+			};
+
+			foreach (string newline in new[] { "\n", "\r\n" }) {
+				foreach (int padding in new[] { 0, 31, 4090 }) {
+					// These Latin-1 strings describe the raw UTF-8 bytes used by the test.
+					string prefix = "X-First: ascii" + newline + "Subject: \u00c3\u00a9 \u00e6\u0097\u00a5 \u00f0\u009f\u0098\u0080"
+						+ newline + "\t" + new string ('a', padding);
+
+					for (int i = 0; i < malformed.Length; i++) {
+						string text = prefix + malformed[i] + newline + "X-Last: ascii" + newline + newline;
+
+						yield return new TestCaseData (text, Array.Empty<int> (), new[] { prefix.Length })
+							.SetName ($"{{m}}(invalid-UTF8={i},newline={newline.Length},padding={padding})");
+					}
+				}
+			}
+
+			const string utf8Prefix = "Subject: \u00c3\u00a9 \u00f0\u009f\u0098\u0080 ";
+			yield return new TestCaseData (utf8Prefix + "\u00e2\u0082", Array.Empty<int> (), new[] { utf8Prefix.Length }).SetName ("{m}(truncated-UTF8-at-EOF)");
+			yield return new TestCaseData (utf8Prefix + "\u00c3\r\n \u00a9\r\n\r\n", Array.Empty<int> (), new[] { utf8Prefix.Length }).SetName ("{m}(UTF8-interrupted-by-fold)");
+			yield return new TestCaseData (utf8Prefix + "\u00ff\u00fe\r\n\r\n", Array.Empty<int> (), new[] { utf8Prefix.Length }).SetName ("{m}(first-invalid-sequence)");
+			const string invalidFieldPrefix = "X-First: ascii\r\nBad-\u00c3\u00a9-";
+			yield return new TestCaseData (invalidFieldPrefix + "\u00ff: value\r\n\r\n", Array.Empty<int> (), new[] { invalidFieldPrefix.Length }).SetName ("{m}(invalid-UTF8-in-field)");
+			const string nestedPrefix = "Content-Type: multipart/mixed; boundary=x\r\n\r\n--x\r\nX-Name: \u00c3\u00a9\r\n \u00f0\u009f\u0098\u0080 ";
+			yield return new TestCaseData (nestedPrefix + "\u00ff\r\n\r\nbody\r\n--x--\r\n", Array.Empty<int> (), new[] { nestedPrefix.Length }).SetName ("{m}(invalid-UTF8-in-part-header)");
+		}
+
+		static IEnumerable<(Stream Stream, string Label)> CreateHeaderByteDetectionStreams (byte[] data)
+		{
+			if (data.Length < 256) {
+				foreach (var stream in CreateBareCarriageReturnStreams (data))
+					yield return stream;
+			} else {
+				yield return (new MemoryStream (data, false), "unchunked");
+				foreach (int size in new[] { 1, 2, 3, 7, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 1023, 1024, 4095, 4096 })
+					yield return (new ChunkedReadStream (data, size), $"chunkSize={size}");
+			}
+		}
+
+		static void AssertHeaderBytePositions (byte[] data, int[] nullOffsets, int[] eightBitOffsets, TestMimeComplianceLogger logger, string label)
+		{
+			var nulls = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.UnexpectedNullBytesInHeader).ToList ();
+			var eightBits = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.Unexpected8BitBytesInHeader).ToList ();
+
+			Assert.That (nulls.Select (x => x.StreamOffset), Is.EqualTo (nullOffsets.Select (x => (long) x)), $"{label}: {FormatIssues (logger)}");
+			Assert.That (eightBits.Select (x => x.StreamOffset), Is.EqualTo (eightBitOffsets.Select (x => (long) x)), $"{label}: {FormatIssues (logger)}");
+
+			foreach (var issue in nulls.Concat (eightBits)) {
+				int offset = (int) issue.StreamOffset;
+				int lineStart = offset == 0 ? 0 : Array.LastIndexOf (data, (byte) '\n', offset - 1) + 1;
+				int lineNumber = data.Take (offset).Count (c => c == (byte) '\n') + 1;
+
+				Assert.That (issue.LineNumber, Is.EqualTo (lineNumber), $"{label}: LineNumber");
+				Assert.That (issue.ColumnNumber, Is.EqualTo (offset - lineStart + 1), $"{label}: ColumnNumber");
+				Assert.That (issue.PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), $"{label}: PositionKind");
+				if (issue.Violation == MimeComplianceViolation.UnexpectedNullBytesInHeader)
+					Assert.That (data[offset], Is.Zero, $"{label}: byte at StreamOffset");
+				else
+					Assert.That (data[offset], Is.GreaterThanOrEqualTo (0x80), $"{label}: byte at StreamOffset");
+			}
+		}
+
+		[TestCaseSource (nameof (HeaderByteDetectionCases))]
+		public void TestMimeComplianceHeaderBytePositions (string text, int[] nullOffsets, int[] eightBitOffsets)
+		{
+			var data = Encoding.Latin1.GetBytes (text);
+
+			foreach (var (stream, label) in CreateHeaderByteDetectionStreams (data)) {
+				using (stream) {
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+					reader.ReadMessage ();
+
+					AssertHeaderBytePositions (data, nullOffsets, eightBitOffsets, logger, label);
+				}
+			}
+		}
+
+		[TestCaseSource (nameof (HeaderByteDetectionCases))]
+		public async Task TestMimeComplianceHeaderBytePositionsAsync (string text, int[] nullOffsets, int[] eightBitOffsets)
+		{
+			var data = Encoding.Latin1.GetBytes (text);
+
+			foreach (var (stream, label) in CreateHeaderByteDetectionStreams (data)) {
+				using (stream) {
+					var logger = new TestMimeComplianceLogger ();
+					var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+					await reader.ReadMessageAsync ();
+
+					AssertHeaderBytePositions (data, nullOffsets, eightBitOffsets, logger, label);
+				}
+			}
 		}
 
 		static readonly object[] BareCarriageReturnInHeaderCases = {
@@ -2555,7 +2678,7 @@ This is the second inner message body.
 		public Task TestMimeComplianceUnexpectedNullBytesInHeaderAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 1, MimeCompliancePositionKind.LineStart)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInHeader, 5, 36, MimeCompliancePositionKind.Exact)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-null-bytes-in-headers.eml", issues);

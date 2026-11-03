@@ -43,6 +43,195 @@ namespace MimeKit.Utils {
 		static readonly Vector<byte> VectorZero = Vector<byte>.Zero;
 #endif
 
+		// Return the first LF and the first requested special bytes preceding it, all relative to searchSpace.
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static unsafe int IndexOfLineFeed (byte* searchSpace, int length, ByteDetectionOptions options, out int nullIndex, out int eightBitIndex)
+		{
+#if NET8_0_OR_GREATER
+			if (Vector256.IsHardwareAccelerated && length >= Vector256<byte>.Count)
+				return IndexOfLineFeedVector256 (searchSpace, length, options, out nullIndex, out eightBitIndex);
+			if (Vector128.IsHardwareAccelerated && length >= Vector128<byte>.Count)
+				return IndexOfLineFeedVector128 (searchSpace, length, options, out nullIndex, out eightBitIndex);
+#endif
+			return IndexOfLineFeedScalar (searchSpace, length, options, out nullIndex, out eightBitIndex);
+		}
+
+#if NET8_0_OR_GREATER
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static unsafe int IndexOfLineFeedVector256 (byte* searchSpace, int length, ByteDetectionOptions options, out int nullIndex, out int eightBitIndex)
+		{
+			var lineFeed = Vector256.Create ((byte) '\n');
+			uint nullMask = (options & ByteDetectionOptions.DetectNulls) != 0 ? uint.MaxValue : 0;
+			uint eightBitMask = (options & ByteDetectionOptions.Detect8Bit) != 0 ? uint.MaxValue : 0;
+			int offset = 0;
+
+			nullIndex = eightBitIndex = -1;
+
+			while (offset <= length - Vector256<byte>.Count) {
+				var block = Vector256.Load (searchSpace + offset);
+				uint matches = Vector256.Equals (block, lineFeed).ExtractMostSignificantBits ();
+				uint nulls = Vector256.Equals (block, Vector256<byte>.Zero).ExtractMostSignificantBits () & nullMask;
+				uint eightBits = block.ExtractMostSignificantBits () & eightBitMask;
+
+				if ((matches | nulls | eightBits) != 0) {
+					if (matches != 0) {
+						// Include only lanes preceding the first LF (which cannot itself be NUL or 8-bit).
+						uint before = matches ^ (matches - 1);
+						nulls &= before;
+						eightBits &= before;
+					}
+
+					if (nulls != 0) {
+						nullIndex = offset + BitOperations.TrailingZeroCount (nulls);
+						options &= ~ByteDetectionOptions.DetectNulls;
+						nullMask = 0;
+					}
+
+					if (eightBits != 0) {
+						eightBitIndex = offset + BitOperations.TrailingZeroCount (eightBits);
+						options &= ~ByteDetectionOptions.Detect8Bit;
+						eightBitMask = 0;
+					}
+
+					if (matches != 0)
+						return offset + BitOperations.TrailingZeroCount (matches);
+				}
+
+				offset += Vector256<byte>.Count;
+			}
+
+			return IndexOfLineFeedTail (searchSpace, length, offset, options, ref nullIndex, ref eightBitIndex);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static unsafe int IndexOfLineFeedVector128 (byte* searchSpace, int length, ByteDetectionOptions options, out int nullIndex, out int eightBitIndex)
+		{
+			var lineFeed = Vector128.Create ((byte) '\n');
+			uint nullMask = (options & ByteDetectionOptions.DetectNulls) != 0 ? uint.MaxValue : 0;
+			uint eightBitMask = (options & ByteDetectionOptions.Detect8Bit) != 0 ? uint.MaxValue : 0;
+			int offset = 0;
+
+			nullIndex = eightBitIndex = -1;
+
+			while (offset <= length - Vector128<byte>.Count) {
+				var block = Vector128.Load (searchSpace + offset);
+				uint matches = Vector128.Equals (block, lineFeed).ExtractMostSignificantBits ();
+				uint nulls = Vector128.Equals (block, Vector128<byte>.Zero).ExtractMostSignificantBits () & nullMask;
+				uint eightBits = block.ExtractMostSignificantBits () & eightBitMask;
+
+				if ((matches | nulls | eightBits) != 0) {
+					if (matches != 0) {
+						uint before = matches ^ (matches - 1);
+						nulls &= before;
+						eightBits &= before;
+					}
+
+					if (nulls != 0) {
+						nullIndex = offset + BitOperations.TrailingZeroCount (nulls);
+						options &= ~ByteDetectionOptions.DetectNulls;
+						nullMask = 0;
+					}
+
+					if (eightBits != 0) {
+						eightBitIndex = offset + BitOperations.TrailingZeroCount (eightBits);
+						options &= ~ByteDetectionOptions.Detect8Bit;
+						eightBitMask = 0;
+					}
+
+					if (matches != 0)
+						return offset + BitOperations.TrailingZeroCount (matches);
+				}
+
+				offset += Vector128<byte>.Count;
+			}
+
+			return IndexOfLineFeedTail (searchSpace, length, offset, options, ref nullIndex, ref eightBitIndex);
+		}
+#endif
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static unsafe int IndexOfLineFeedScalar (byte* searchSpace, int length, ByteDetectionOptions options, out int nullIndex, out int eightBitIndex)
+		{
+			nullIndex = eightBitIndex = -1;
+			return IndexOfLineFeedTail (searchSpace, length, 0, options, ref nullIndex, ref eightBitIndex);
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static unsafe int IndexOfLineFeedTail (byte* searchSpace, int length, int offset, ByteDetectionOptions options, ref int nullIndex, ref int eightBitIndex)
+		{
+			while (offset < length && (((nint) (searchSpace + offset)) & (sizeof (nuint) - 1)) != 0) {
+				byte value = searchSpace[offset];
+
+				if (value == (byte) '\n')
+					return offset;
+
+				DetectHeaderByte (value, offset++, ref options, ref nullIndex, ref eightBitIndex);
+			}
+
+			nuint ones = ~(nuint) 0 / 255;
+			nuint highBits = ones * 128;
+
+			while (offset <= length - sizeof (nuint)) {
+				nuint word = *(nuint*) (searchSpace + offset);
+				nuint xor = word ^ (ones * 10);
+				nuint matches = (xor - ones) & ~xor & highBits;
+				nuint nulls = (word - ones) & ~word & highBits;
+				nuint eightBits = word & highBits;
+
+				if ((matches | nulls | eightBits) != 0) {
+					if (matches != 0)
+						break;
+
+					if (nulls != 0 && (options & ByteDetectionOptions.DetectNulls) != 0) {
+						int index = 0;
+
+						while (searchSpace[offset + index] != 0)
+							index++;
+
+						nullIndex = offset + index;
+						options &= ~ByteDetectionOptions.DetectNulls;
+					}
+
+					if (eightBits != 0 && (options & ByteDetectionOptions.Detect8Bit) != 0) {
+						int index = 0;
+
+						while (searchSpace[offset + index] < 0x80)
+							index++;
+
+						eightBitIndex = offset + index;
+						options &= ~ByteDetectionOptions.Detect8Bit;
+					}
+				}
+
+				offset += sizeof (nuint);
+			}
+
+			while (offset < length) {
+				byte value = searchSpace[offset];
+
+				if (value == (byte) '\n')
+					return offset;
+
+				DetectHeaderByte (value, offset++, ref options, ref nullIndex, ref eightBitIndex);
+			}
+
+			return -1;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		static void DetectHeaderByte (byte value, int offset, ref ByteDetectionOptions options, ref int nullIndex, ref int eightBitIndex)
+		{
+			if (value == 0 && (options & ByteDetectionOptions.DetectNulls) != 0) {
+				nullIndex = offset;
+				options &= ~ByteDetectionOptions.DetectNulls;
+			}
+
+			if (value >= 0x80 && (options & ByteDetectionOptions.Detect8Bit) != 0) {
+				eightBitIndex = offset;
+				options &= ~ByteDetectionOptions.Detect8Bit;
+			}
+		}
+
 		/// <summary>
 		/// A very fast implementation of an IndexOf()-style method that can also detect bytes with a high bit set or null-bytes along the way.
 		/// </summary>

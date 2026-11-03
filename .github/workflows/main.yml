@@ -8,7 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, ubuntu-latest ]
+        # macos-15 runs natively on ARM64, exercising the AdvSIMD implementations.
+        os: [ windows-latest, ubuntu-latest, macos-15 ]
         build-configuration: [ Debug, Release ]
     outputs:
       latest-version: ${{ steps.semantic_version.outputs.version_num }}
@@ -19,6 +20,7 @@ jobs:
       BUILD_CONFIGURATION: ${{ matrix.build-configuration }}
       GENERATE_CODE_COVERAGE: ${{ matrix.os == 'windows-latest' && matrix.build-configuration == 'Debug' }}
       MONO_RUNTIME: ${{ matrix.os != 'windows-latest' }}
+      MIMEKIT_REQUIRE_ARM64_SIMD: ${{ matrix.os == 'macos-15' && '1' || '0' }}
       PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.os == 'windows-latest' && matrix.build-configuration == 'Release' }}
 
     steps:

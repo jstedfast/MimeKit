@@ -24,7 +24,10 @@
 // THE SOFTWARE.
 //
 
+using System.Buffers;
 using System.Text;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
 
 using MimeKit.Utils;
 
@@ -39,11 +42,140 @@ namespace UnitTests.Utils {
 		static void AssertIsValid (byte[] value, bool expected, string message)
 		{
 			Assert.That (Utf8.IsValidCore (value), Is.EqualTo (expected), message);
+			Assert.That (Utf8.IsValid (value), Is.EqualTo (expected), message);
+			AssertInvalidSequenceIndex (value, IndexOfInvalidSequence (value), message);
 
 #if NET8_0_OR_GREATER
 			// Make sure the managed fallback agrees with the framework implementation.
 			Assert.That (Utf8.IsValidCore (value), Is.EqualTo (System.Text.Unicode.Utf8.IsValid (value)), $"{message} (does not match System.Text.Unicode.Utf8.IsValid)");
 #endif
+		}
+
+		static int IndexOfInvalidSequence (ReadOnlySpan<byte> value)
+		{
+			int index = 0;
+
+			while (index < value.Length) {
+				if (Rune.DecodeFromUtf8 (value.Slice (index), out _, out int consumed) != OperationStatus.Done)
+					return index;
+
+				index += consumed;
+			}
+
+			return -1;
+		}
+
+		static void AssertInvalidSequenceIndex (ReadOnlySpan<byte> value, int expected, string message)
+		{
+			Assert.That (Utf8.IndexOfInvalidSequenceCore (value), Is.EqualTo (expected), $"{message} (scalar)");
+			Assert.That (Utf8.IndexOfInvalidSequence (value), Is.EqualTo (expected), $"{message} (dispatcher)");
+			if (Avx2.IsSupported)
+				Assert.That (Utf8.IndexOfInvalidSequenceAvx2 (value), Is.EqualTo (expected), $"{message} (AVX2)");
+			if (Ssse3.IsSupported && Sse41.IsSupported)
+				Assert.That (Utf8.IndexOfInvalidSequenceSse (value), Is.EqualTo (expected), $"{message} (SSE)");
+			if (AdvSimd.Arm64.IsSupported && BitConverter.IsLittleEndian)
+				Assert.That (Utf8.IndexOfInvalidSequenceArm64 (value), Is.EqualTo (expected), $"{message} (ARM64)");
+		}
+
+		[Test]
+		public void TestRequiredArm64SimdSupport ()
+		{
+			if (Environment.GetEnvironmentVariable ("MIMEKIT_REQUIRE_ARM64_SIMD") != "1")
+				Assert.Ignore ("This run does not require ARM64 SIMD.");
+
+			Assert.That (AdvSimd.Arm64.IsSupported, Is.True, "The ARM64 CI job must execute the AdvSIMD implementations.");
+			Assert.That (BitConverter.IsLittleEndian, Is.True, "The ARM64 UTF-8 implementation requires little-endian byte order.");
+		}
+
+		[TestCase ("a")]
+		[TestCase ("\u00e9")]
+		[TestCase ("\u65e5")]
+		[TestCase ("\U0001f600")]
+		[TestCase ("ascii \u00e9 \u65e5\U0001f600")]
+		public void TestIndexOfInvalidSequenceVectorBoundaries (string text)
+		{
+			var source = Encoding.UTF8.GetBytes (string.Concat (Enumerable.Repeat (text, 1024)));
+			var bytes = new byte[1056];
+			var substitutions = new byte[] { 0, 0x7f, 0x80, 0xbf, 0xc0, 0xc2, 0xdf, 0xe0, 0xed, 0xef, 0xf0, 0xf4, 0xf5, 0xff };
+
+			for (int alignment = 0; alignment < 32; alignment++) {
+				Array.Fill (bytes, (byte) 0xff);
+				source.AsSpan (0, 1024).CopyTo (bytes.AsSpan (alignment));
+				for (int length = 0; length <= 1024; length++) {
+					var value = bytes.AsSpan (alignment, length);
+					AssertInvalidSequenceIndex (value, IndexOfInvalidSequence (value), $"alignment={alignment}, length={length}");
+				}
+			}
+
+			foreach (int length in new[] { 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 511, 512 }) {
+				source.AsSpan (0, length).CopyTo (bytes.AsSpan (1));
+				for (int index = 0; index < length; index++) {
+					byte saved = bytes[index + 1];
+					foreach (byte replacement in substitutions) {
+						bytes[index + 1] = replacement;
+						var value = bytes.AsSpan (1, length);
+						AssertInvalidSequenceIndex (value, IndexOfInvalidSequence (value), $"length={length}, index={index}, byte={replacement:X2}");
+					}
+					bytes[index + 1] = saved;
+				}
+			}
+		}
+
+		[TestCase (new byte[] { 0x80 })]
+		[TestCase (new byte[] { 0xFF })]
+		[TestCase (new byte[] { 0xC0, 0xAF })]
+		[TestCase (new byte[] { 0xE0, 0x80, 0x80 })]
+		[TestCase (new byte[] { 0xED, 0xA0, 0x80 })]
+		[TestCase (new byte[] { 0xF0, 0x80, 0x80, 0x80 })]
+		[TestCase (new byte[] { 0xF4, 0x90, 0x80, 0x80 })]
+		[TestCase (new byte[] { 0xC2, 0x21 })]
+		[TestCase (new byte[] { 0xE2, 0x21, 0x80 })]
+		[TestCase (new byte[] { 0xE2, 0x82, 0x21 })]
+		[TestCase (new byte[] { 0xF0, 0x21, 0x80, 0x80 })]
+		[TestCase (new byte[] { 0xF0, 0x90, 0x21, 0x80 })]
+		[TestCase (new byte[] { 0xF0, 0x90, 0x80, 0x21 })]
+		[TestCase (new byte[] { 0xC2 })]
+		[TestCase (new byte[] { 0xE2, 0x82 })]
+		[TestCase (new byte[] { 0xF0, 0x90, 0x80 })]
+		public void TestIndexOfInvalidSequenceAfterValidPrefix (byte[] malformed)
+		{
+			foreach (int padding in new[] { 0, 15, 16, 31, 32, 127, 4096 }) {
+				var prefix = Encoding.UTF8.GetBytes (new string ('a', padding) + "\0\u00e9\r\n \u65e5\U0001f600");
+				var bytes = new byte[prefix.Length + malformed.Length + 2];
+				bytes[0] = bytes[bytes.Length - 1] = 0xFF;
+				prefix.CopyTo (bytes, 1);
+				malformed.CopyTo (bytes, prefix.Length + 1);
+
+				AssertInvalidSequenceIndex (bytes.AsSpan (1, prefix.Length), -1, $"valid prefix, padding={padding}");
+				AssertInvalidSequenceIndex (bytes.AsSpan (1, bytes.Length - 2), prefix.Length, $"padding={padding}");
+
+				// Keep malformed sequences inside full vectors, not just in the scalar tail.
+				var withSuffix = new byte[bytes.Length + 128];
+				Array.Fill (withSuffix, (byte) 'a');
+				bytes.AsSpan (0, bytes.Length - 1).CopyTo (withSuffix);
+				withSuffix[withSuffix.Length - 1] = 0xff;
+				AssertInvalidSequenceIndex (withSuffix.AsSpan (1, withSuffix.Length - 2), prefix.Length, $"padding={padding}, ASCII suffix");
+			}
+
+			AssertInvalidSequenceIndex (malformed, 0, "no prefix");
+		}
+
+		[Test]
+		public void TestIndexOfInvalidSequenceRandomInput ()
+		{
+			var random = new Random (2083);
+			var prefix = Encoding.UTF8.GetBytes ("ascii\0\u00e9\r\n \u65e5\U0001f600");
+			var bytes = new byte[256];
+
+			for (int i = 0; i < 4096; i++) {
+				random.NextBytes (bytes);
+				int offset = random.Next (32);
+				prefix.CopyTo (bytes, offset);
+				int length = random.Next (bytes.Length - offset + 1);
+				var value = bytes.AsSpan (offset, length);
+
+				AssertInvalidSequenceIndex (value, IndexOfInvalidSequence (value), $"iteration={i}");
+			}
 		}
 
 		[Test]

@@ -265,6 +265,12 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   to an `IMimeComplianceLogger` implementation to receive `MimeComplianceIssue` diagnostics with
   the violation, stream offset, line and column numbers, and `MimeCompliancePositionKind`.
   Reporting does not change tolerant parsing or decoding.
+* Header NUL and malformed UTF-8 diagnostics identify the exact byte offset, line and byte column
+  of the first NUL or malformed sequence in each header, including folded headers. Validated header
+  scanning now collects these positions while scanning for line endings, improving performance.
+* Accelerated UTF-8 header validation using AVX2, SSSE3/SSE4.1, or ARM64 AdvSIMD on .NET 8 and later,
+  preserving exact malformed sequence positions. Short values and unsupported hardware retain the
+  existing fallback.
 * Violations are classified along two axes: a `MimeComplianceSeverity` and a set of
   `MimeComplianceCategories` (`Interoperability`, `DataLoss` and `Security`). Severity is further
   qualified by the `MimeComplianceContext` (`Transport` or `Storage`), since defects such as a bare

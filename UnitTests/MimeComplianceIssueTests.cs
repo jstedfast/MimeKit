@@ -155,9 +155,7 @@ namespace UnitTests {
 		[Test]
 		public void TestMimeReaderRecordsWhatThePositionRefersTo ()
 		{
-			// Note: A bare linefeed is found at a known byte, so its position is exact. The 8-bit
-			// bytes below are only validated once the whole (potentially folded) value has been
-			// gathered, so that position is the start of the header instead.
+			// The malformed UTF-8 sequence has an exact position even though validation waits for the full header.
 			var text = new List<byte> ();
 			void Add (string s) => text.AddRange (Encoding.ASCII.GetBytes (s));
 
@@ -180,11 +178,12 @@ namespace UnitTests {
 			var oversized = logger.Issues.First (i => i.Violation == MimeComplianceViolation.OversizedLine);
 
 			Assert.That (bareLinefeed.PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "BareLinefeedInHeader");
-			Assert.That (eightBit.PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "Unexpected8BitBytesInHeader");
+			Assert.That (eightBit.PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact), "Unexpected8BitBytesInHeader");
 			Assert.That (oversized.PositionKind, Is.EqualTo (MimeCompliancePositionKind.LineStart), "OversizedLine");
 
 			// The 8-bit bytes are on line 3, but the header they belong to starts on line 2.
-			Assert.That (eightBit.LineNumber, Is.EqualTo (2), "Unexpected8BitBytesInHeader LineNumber");
+			Assert.That (eightBit.LineNumber, Is.EqualTo (3), "Unexpected8BitBytesInHeader LineNumber");
+			Assert.That (eightBit.ColumnNumber, Is.EqualTo (2), "Unexpected8BitBytesInHeader ColumnNumber");
 		}
 
 		[Test]

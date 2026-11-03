@@ -124,6 +124,9 @@ namespace MimeKit {
 		/// specification.</para>
 		/// <note type="note">This violation will only be raised if the 8-bit text in the header value is
 		/// not valid UTF-8.</note>
+		/// <para>The position identifies the start of the first malformed UTF-8 sequence, with an exact
+		/// stream offset and byte column. For a missing or invalid continuation byte, the position
+		/// identifies the sequence's leading byte.</para>
 		/// </remarks>
 		Unexpected8BitBytesInHeader                 = 5,
 
@@ -145,6 +148,7 @@ namespace MimeKit {
 		/// MIME parsers, such as those written in languages like C or C++ which tend to use the null byte
 		/// to mark the end of a buffer, from discovering content after the null byte. This technique can
 		/// be used to smuggle viruses or other malicious content past content scanners.
+		/// Only the first null byte in each header is reported, with an exact stream offset and byte column.
 		/// </remarks>
 		UnexpectedNullBytesInHeader                 = 7,
 
@@ -974,7 +978,7 @@ namespace MimeKit {
 		/// <c>user@example.com</c> by another.</para>
 		/// <para>That disagreement is the whole point of the construct: a filter, an audit log and the delivering agent can
 		/// each be made to see a different mailbox from the same header. Note that this is reported in addition to
-		/// <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null byte appeared on.</para>
+		/// <see cref="UnexpectedNullBytesInHeader"/>, which reports the first null byte in the header.</para>
 		/// </remarks>
 		NullByteInAddress                           = 77,
 
@@ -988,8 +992,8 @@ namespace MimeKit {
 		/// <para>The danger is correspondingly different rather than smaller. The mailbox is unambiguous, but a client that
 		/// stops at the <c>NUL</c> shows a different name than one that does not, so <c>Bank&lt;NUL&gt;evil</c> can be made
 		/// to read as <c>Bank</c> in the message list and as something else in a filter or an audit log. Note that this is
-		/// reported in addition to <see cref="UnexpectedNullBytesInHeader"/>, which identifies only the line that the null
-		/// byte appeared on.</para>
+		/// reported in addition to <see cref="UnexpectedNullBytesInHeader"/>, which reports the first null byte in the
+		/// header.</para>
 		/// </remarks>
 		NullByteInDisplayName                       = 78,
 

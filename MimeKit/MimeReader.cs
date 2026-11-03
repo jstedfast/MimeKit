@@ -2169,7 +2169,7 @@ namespace MimeKit {
 			return inptr == inend;
 		}
 
-		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool ascii, ref bool blankLine)
+		unsafe bool StepHeaderValue (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref int firstEightBitIndex, ref bool blankLine)
 		{
 			byte* start = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
@@ -2187,18 +2187,20 @@ namespace MimeKit {
 				byte* lineStart = inptr;
 
 				if ((byteOptions & ByteDetectionOptions.IndexOfMask) != 0) {
-					inptr = ParseUtils.EndOfLine (inptr, inend + 1, byteOptions & ByteDetectionOptions.IndexOfMask, out var detected);
+					inptr += Memory.IndexOfLineFeed (inptr, (int) (inend - inptr) + 1, byteOptions & ByteDetectionOptions.IndexOfMask, out int nullIndex, out int eightBitIndex);
 
-					if ((detected & ByteDetectionResults.Detected8Bit) != 0) {
+					if (eightBitIndex >= 0) {
 						// Note: we don't emit Unexpected8BitBytesInHeader here because 8-bit might only indicate UTF-8 which is valid in headers
 						// according to RFC 6532. Instead, we'll just track that this header value contains non-ASCII text and check for valid UTF-8
 						// once we've got the full value.
 						byteOptions &= ~ByteDetectionOptions.Detect8Bit;
-						ascii = false;
+
+						firstEightBitIndex = headerIndex + (int) (lineStart - start) + eightBitIndex;
 					}
 
-					if ((detected & ByteDetectionResults.DetectedNulls) != 0) {
-						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.UnexpectedNullBytesInHeader, lineBeginOffset, lineNumber, 1, MimeCompliancePositionKind.LineStart));
+					if (nullIndex >= 0) {
+						int detectedIndex = (int) (lineStart - inbuf) + nullIndex;
+						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.UnexpectedNullBytesInHeader, GetOffset (detectedIndex), lineNumber, GetColumnNumber (detectedIndex)));
 						byteOptions &= ~ByteDetectionOptions.DetectNulls;
 					}
 				} else {
@@ -2385,7 +2387,28 @@ namespace MimeKit {
 			}
 		}
 
-		Header CreateHeader (long beginOffset, int beginLineNumber, int fieldNameLength, int headerFieldLength, bool invalid, bool ascii)
+		void CheckHeaderEncoding (long beginOffset, int beginLineNumber, int beginColumnNumber, int firstEightBitIndex)
+		{
+			int index = Utf8.IndexOfInvalidSequence (new ReadOnlySpan<byte> (headerBuffer, firstEightBitIndex, headerIndex - firstEightBitIndex));
+
+			if (index < 0)
+				return;
+
+			index += firstEightBitIndex;
+			int line = beginLineNumber;
+			int lineStart = 1 - beginColumnNumber;
+
+			for (int i = 0; i < index; i++) {
+				if (headerBuffer[i] == (byte) '\n') {
+					lineStart = i + 1;
+					line++;
+				}
+			}
+
+			complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset + index, line, index - lineStart + 1));
+		}
+
+		Header CreateHeader (long beginOffset, int beginLineNumber, int beginColumnNumber, int fieldNameLength, int headerFieldLength, bool invalid, int firstEightBitIndex)
 		{
 			byte[] field, value;
 
@@ -2406,18 +2429,20 @@ namespace MimeKit {
 			};
 
 			if (complianceLogger != null) {
+				bool ascii = firstEightBitIndex < 0;
+
 				if (invalid) {
 					// This means that the field name itself contains all of the data and is invalid. Check for non-UTF-8 text.
-					if (!Utf8.IsValid (field))
-						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					if (!ascii)
+						CheckHeaderEncoding (beginOffset, beginLineNumber, beginColumnNumber, firstEightBitIndex);
 				} else {
 					bool isAddressHeader = IsAddressHeader (header.Id);
 
 					// Note: For address headers, the AddressValidator reports the more specific (and more
 					// serious) Invalid8BitAddress violation instead, since 8-bit bytes in an address may
 					// change which mailbox it names rather than merely how it displays.
-					if (!ascii && !isAddressHeader && !Utf8.IsValid (value))
-						complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInHeader, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					if (!ascii && !isAddressHeader)
+						CheckHeaderEncoding (beginOffset, beginLineNumber, beginColumnNumber, firstEightBitIndex);
 
 					if (isAddressHeader && value.Length > 0 && (enabledValidators & (MimeComplianceValidators.Address | MimeComplianceValidators.EncodedWords)) != 0) {
 						// Note: beginOffset is the start of the header, and therefore the start of a line,
@@ -2495,6 +2520,7 @@ namespace MimeKit {
 				var byteOptions = complianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls | ByteDetectionOptions.DetectBareCarriageReturns : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
+				var beginColumnNumber = GetColumnNumber (inputIndex);
 				int left = inputEnd - inputIndex;
 				int headerFieldLength;
 				int fieldNameLength;
@@ -2611,10 +2637,10 @@ namespace MimeKit {
 
 				bool blankLine = false;
 				bool midline = true;
-				bool ascii = true;
+				int firstEightBitIndex = -1;
 
 				// Consume the header value.
-				while (!StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii, ref blankLine)) {
+				while (!StepHeaderValue (inbuf, ref byteOptions, ref midline, ref firstEightBitIndex, ref blankLine)) {
 					CheckHeaderLength (beginOffset);
 
 					if (ReadAhead (1, 0, cancellationToken) == 0) {
@@ -2650,7 +2676,7 @@ namespace MimeKit {
 
 				CheckHeaderLength (beginOffset);
 
-				var header = CreateHeader (beginOffset, beginLineNumber, fieldNameLength, headerFieldLength, invalid, ascii);
+				var header = CreateHeader (beginOffset, beginLineNumber, beginColumnNumber, fieldNameLength, headerFieldLength, invalid, firstEightBitIndex);
 
 				OnHeaderRead (header, beginLineNumber, cancellationToken);
 			} while (!eof);

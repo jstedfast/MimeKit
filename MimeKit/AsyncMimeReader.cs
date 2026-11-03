@@ -179,6 +179,7 @@ namespace MimeKit {
 				var byteOptions = complianceLogger != null ? ByteDetectionOptions.Detect8Bit | ByteDetectionOptions.DetectNulls | ByteDetectionOptions.DetectBareCarriageReturns : ByteDetectionOptions.None;
 				var beginOffset = GetOffset (inputIndex);
 				var beginLineNumber = lineNumber;
+				var beginColumnNumber = GetColumnNumber (inputIndex);
 				int left = inputEnd - inputIndex;
 				int headerFieldLength;
 				int fieldNameLength;
@@ -314,15 +315,15 @@ namespace MimeKit {
 					StepHeaderField (headerFieldLength);
 				}
 
+				int firstEightBitIndex = -1;
 				bool blankLine = false;
 				bool midline = true;
-				bool ascii = true;
 
 				// Consume the header value.
 				do {
 					unsafe {
 						fixed (byte* inbuf = input) {
-							if (StepHeaderValue (inbuf, ref byteOptions, ref midline, ref ascii, ref blankLine))
+							if (StepHeaderValue (inbuf, ref byteOptions, ref midline, ref firstEightBitIndex, ref blankLine))
 								break;
 						}
 					}
@@ -362,7 +363,7 @@ namespace MimeKit {
 
 				CheckHeaderLength (beginOffset);
 
-				var header = CreateHeader (beginOffset, beginLineNumber, fieldNameLength, headerFieldLength, invalid, ascii);
+				var header = CreateHeader (beginOffset, beginLineNumber, beginColumnNumber, fieldNameLength, headerFieldLength, invalid, firstEightBitIndex);
 
 				await OnHeaderReadAsync (header, beginLineNumber, cancellationToken).ConfigureAwait (false);
 			} while (!eof);

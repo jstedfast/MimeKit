@@ -220,15 +220,9 @@ namespace MimeAnalyzerExample
 			Predicate<byte> match;
 
 			switch (issue.Violation) {
-			case MimeComplianceViolation.Unexpected8BitBytesInHeader:
 			case MimeComplianceViolation.Unexpected8BitBytesInBody:
-				// Note: The parser detects these by checking whether the value is valid UTF-8, but the
-				// byte where UTF-8 validation *fails* is an artifact of how the following bytes happen
-				// to combine and can land in the middle of a run of 8-bit bytes. The first non-ASCII
-				// byte is where the charset mistake actually begins.
 				match = static c => c > 0x7F;
 				break;
-			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 				match = static c => c == 0;
 				break;
@@ -247,8 +241,8 @@ namespace MimeAnalyzerExample
 			if (issue.PositionKind == MimeCompliancePositionKind.LineStart) {
 				endIndex = issue.LineNumber < lineOffsets.Count ? lineOffsets[issue.LineNumber] : content.Length;
 			} else {
-				// Note: The element may be a header folded over several lines or an entire body part, so
-				// scan forward. The detection that produced the issue guarantees that a matching byte
+				// Note: The element may be an entire body part, so scan forward.
+				// The detection that produced the issue guarantees that a matching byte
 				// exists within the element, so the first match cannot belong to a later one.
 				endIndex = content.Length;
 			}

@@ -48,6 +48,109 @@ namespace UnitTests.Utils {
 
 		const int BufferLength = 1000;
 
+		public enum HeaderScanKernel
+		{
+			Dispatch,
+			Scalar,
+			Vector128,
+			Vector256
+		}
+
+		unsafe delegate int HeaderScanFunc (byte* input, int length, ByteDetectionOptions options, out int nullIndex, out int eightBitIndex);
+
+		static unsafe HeaderScanFunc GetHeaderScanKernel (HeaderScanKernel kernel)
+		{
+			switch (kernel) {
+			case HeaderScanKernel.Vector256:
+				if (!Vector256.IsHardwareAccelerated)
+					Assert.Ignore ("Vector256 is not hardware accelerated on this machine.");
+				return Memory.IndexOfLineFeedVector256;
+			case HeaderScanKernel.Vector128:
+				if (!Vector128.IsHardwareAccelerated)
+					Assert.Ignore ("Vector128 is not hardware accelerated on this machine.");
+				return Memory.IndexOfLineFeedVector128;
+			case HeaderScanKernel.Scalar:
+				return Memory.IndexOfLineFeedScalar;
+			default:
+				return Memory.IndexOfLineFeed;
+			}
+		}
+
+		static unsafe void AssertHeaderScan (HeaderScanFunc scan, byte[] data, int start, int length, ByteDetectionOptions options)
+		{
+			int expectedNull = -1, expectedEightBit = -1, expectedLineFeed = -1;
+
+			for (int i = 0; i < length; i++) {
+				byte value = data[start + i];
+				if (value == (byte) '\n') {
+					expectedLineFeed = i;
+					break;
+				}
+				if (value == 0 && expectedNull == -1 && (options & ByteDetectionOptions.DetectNulls) != 0)
+					expectedNull = i;
+				if (value >= 0x80 && expectedEightBit == -1 && (options & ByteDetectionOptions.Detect8Bit) != 0)
+					expectedEightBit = i;
+			}
+
+			fixed (byte* input = data) {
+				int lineFeed = scan (input + start, length, options, out int nullIndex, out int eightBitIndex);
+
+				if (lineFeed != expectedLineFeed || nullIndex != expectedNull || eightBitIndex != expectedEightBit)
+					Assert.Fail ($"start={start}, length={length}, options={options}: expected LF/NUL/8bit={expectedLineFeed}/{expectedNull}/{expectedEightBit}, actual={lineFeed}/{nullIndex}/{eightBitIndex}");
+			}
+		}
+
+		[Test]
+		public unsafe void TestHeaderLineScannerBytePositions ([Values] HeaderScanKernel kind, [Values (0, 1, 2, 3)] int flags)
+		{
+			var scan = GetHeaderScanKernel (kind);
+			var options = (ByteDetectionOptions) flags;
+			var data = new byte[160];
+			int[] lineFeeds = { -1, 0, 1, 15, 16, 31, 32, 63, 64, 95 };
+
+			for (int start = 0; start < 32; start++) {
+				foreach (int lineFeed in lineFeeds) {
+					for (int special = 0; special < 96; special++) {
+						data.AsSpan ().Fill (0xff);
+						data.AsSpan (start, 96).Fill ((byte) 'a');
+						data[start + special] = 0;
+						data[start + (special + 37) % 96] = 0x80;
+						data[start + (special + 7) % 96] = 0;
+						data[start + (special + 53) % 96] = 0xff;
+						data[start + 96] = 0;
+						data[start + 97] = (byte) '\n';
+						if (lineFeed >= 0)
+							data[start + lineFeed] = (byte) '\n';
+
+						AssertHeaderScan (scan, data, start, 96, options);
+					}
+				}
+			}
+		}
+
+		[Test]
+		public unsafe void TestHeaderLineScannerBoundsAndRandomData ([Values] HeaderScanKernel kind)
+		{
+			var scan = GetHeaderScanKernel (kind);
+			var random = new Random (7319);
+			var data = new byte[576];
+
+			for (int iteration = 0; iteration < 20000; iteration++) {
+				int start = random.Next (32);
+				int length = iteration < 513 ? iteration : random.Next (513);
+				random.NextBytes (data);
+				if ((iteration & 1) == 0)
+					data.AsSpan (start, length).Fill ((byte) 'a');
+
+				// Poison bytes outside the bounded search, including an LF that must never match.
+				data[start + length] = 0;
+				data[start + length + 1] = 0xff;
+				data[start + length + 2] = (byte) '\n';
+				for (int flags = 0; flags < 4; flags++)
+					AssertHeaderScan (scan, data, start, length, (ByteDetectionOptions) flags);
+			}
+		}
+
 		[TestCase ((int) ByteDetectionOptions.None, TestName = "TestIndexOfOptions_None")]
 		[TestCase ((int) ByteDetectionOptions.Detect8Bit, TestName = "TestIndexOfOptions_Detect8Bit")]
 		[TestCase ((int) ByteDetectionOptions.DetectNulls, TestName = "TestIndexOfOptions_DetectNulls")]
