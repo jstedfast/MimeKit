@@ -271,6 +271,8 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Accelerated UTF-8 header validation using AVX2, SSSE3/SSE4.1, or ARM64 AdvSIMD on .NET 8 and later,
   preserving exact malformed sequence positions. Short values and unsupported hardware retain the
   existing fallback.
+* Improved content scanning performance with compliance reporting enabled by reusing the combined
+  linefeed, NUL, and 8-bit byte scanner.
 * Violations are classified along two axes: a `MimeComplianceSeverity` and a set of
   `MimeComplianceCategories` (`Interoperability`, `DataLoss` and `Security`). Severity is further
   qualified by the `MimeComplianceContext` (`Transport` or `Storage`), since defects such as a bare

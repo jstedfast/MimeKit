@@ -471,6 +471,65 @@ namespace UnitTests {
 
 		static readonly int[] ChunkSizes = { 1, 2, 3, 7, 31, 33, 64, 4096 };
 
+		static byte[] CreateByteDetectionMessage (string encoding, int padding, bool nullFirst)
+		{
+			string prefix = new string ('x', padding);
+			string first = nullFirst ? "\0" : "\u00ff";
+			string second = nullFirst ? "\u00ff" : "\0";
+			string text = "Content-Type: text/plain\r\nContent-Transfer-Encoding: " + encoding + "\r\n\r\n" +
+				prefix + "\r\n" + prefix + first + "\r\n" + prefix + second + "\r\n" + first + second;
+
+			return Encoding.Latin1.GetBytes (text);
+		}
+
+		static void AssertByteDetections (TestMimeComplianceLogger logger, string encoding, bool nullFirst)
+		{
+			var nulls = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.UnexpectedNullBytesInBody).ToList ();
+			var eightBits = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.Unexpected8BitBytesInBody).ToList ();
+
+			Assert.That (nulls.Count, Is.EqualTo (encoding == "binary" ? 0 : 1), "NUL issue count");
+			Assert.That (eightBits.Count, Is.EqualTo (encoding == "7bit" ? 1 : 0), "8-bit issue count");
+
+			if (nulls.Count > 0)
+				Assert.That (nulls[0].LineNumber, Is.EqualTo (nullFirst ? 5 : 6), "NUL issue line");
+			if (eightBits.Count > 0)
+				Assert.That (eightBits[0].LineNumber, Is.EqualTo (nullFirst ? 6 : 5), "8-bit issue line");
+		}
+
+		[Test]
+		public void TestContentByteDetection ([Values ("7bit", "8bit", "binary")] string encoding,
+			[Values (0, 15, 16, 31, 32, 63, 64, 997, 4095)] int padding, [Values] bool nullFirst)
+		{
+			var data = CreateByteDetectionMessage (encoding, padding, nullFirst);
+
+			foreach (int chunkSize in ChunkSizes.Append (data.Length)) {
+				using var stream = new ChunkedReadStream (data, chunkSize);
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				reader.ReadMessage ();
+
+				AssertByteDetections (logger, encoding, nullFirst);
+			}
+		}
+
+		[Test]
+		public async Task TestContentByteDetectionAsync ([Values ("7bit", "8bit", "binary")] string encoding,
+			[Values (0, 15, 16, 31, 32, 63, 64, 997, 4095)] int padding, [Values] bool nullFirst)
+		{
+			var data = CreateByteDetectionMessage (encoding, padding, nullFirst);
+
+			foreach (int chunkSize in ChunkSizes.Append (data.Length)) {
+				using var stream = new ChunkedReadStream (data, chunkSize);
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+				await reader.ReadMessageAsync ();
+
+				AssertByteDetections (logger, encoding, nullFirst);
+			}
+		}
+
 		[Test]
 		public void TestGeneratedMessagesFastPathMatchesPerLinePath ([Values (MimeFormat.Entity, MimeFormat.Mbox)] MimeFormat format)
 		{

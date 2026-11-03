@@ -3274,14 +3274,14 @@ namespace MimeKit {
 				}
 #endif
 				if (byteOptions != ByteDetectionOptions.None) {
-					inptr = ParseUtils.EndOfLine (start, inend + 1, byteOptions, out var detected);
+					inptr = start + Memory.IndexOfLineFeed (start, (int) (inend + 1 - start), byteOptions, out int nullIndex, out int eightBitIndex);
 
-					if ((detected & ByteDetectionResults.Detected8Bit) != 0) {
+					if (eightBitIndex != -1) {
 						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInBody, GetOffset (startIndex), lineNumber, GetColumnNumber (startIndex)));
 						byteOptions &= ~ByteDetectionOptions.Detect8Bit;
 					}
 
-					if ((detected & ByteDetectionResults.DetectedNulls) != 0) {
+					if (nullIndex != -1) {
 						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.UnexpectedNullBytesInBody, GetOffset (startIndex), lineNumber, GetColumnNumber (startIndex)));
 						byteOptions &= ~ByteDetectionOptions.DetectNulls;
 					}

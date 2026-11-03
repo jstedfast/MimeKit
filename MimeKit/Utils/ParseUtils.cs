@@ -107,16 +107,6 @@ namespace MimeKit.Utils {
 #endif
 		}
 
-		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		public static unsafe byte* EndOfLine (byte* inptr, byte* inend, ByteDetectionOptions options, out ByteDetectionResults detected)
-		{
-			// Note: callers are expected to set a '\n' sentinel at *inend and then pass inend + 1,
-			// which guarantees that IndexOf() always finds a match within the buffer.
-			Debug.Assert (inend[-1] == (byte) '\n', "EndOfLine() requires the caller to set a '\\n' sentinel at inend[-1].");
-
-			return inptr + Memory.IndexOf (inptr, (int) (inend - inptr), (byte) '\n', options, out detected);
-		}
-
 		public static bool TryParseInt32 (byte[] text, ref int index, int endIndex, out int value)
 		{
 			int startIndex = index;
