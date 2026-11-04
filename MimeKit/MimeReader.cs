@@ -65,6 +65,9 @@ namespace MimeKit {
 		const string ValidBoundaryChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'()+_,-./:=? ";
 #if NET8_0_OR_GREATER
 		static readonly SearchValues<char> ValidBoundaryCharsSV = SearchValues.Create (ValidBoundaryChars);
+
+		// Allows differential tests to select the per-line scanner or narrower SIMD kernels.
+		internal byte MaxContentVectorSize = Vector256.IsHardwareAccelerated ? (byte) 32 : Vector128.IsHardwareAccelerated ? (byte) 16 : (byte) 0;
 #endif
 		static ReadOnlySpan<byte> UTF8ByteOrderMark => new byte[] { 0xEF, 0xBB, 0xBF };
 		static ReadOnlySpan<byte> MboxFromMarker => "From "u8;
@@ -3193,6 +3196,255 @@ namespace MimeKit {
 			return resume;
 		}
 
+		// Value-type specialization keeps encoding dispatch outside the SIMD loop.
+		struct ContentValidation { }
+		struct Base64ContentValidation { }
+		struct QuotedPrintableContentValidation { }
+
+		static unsafe byte* SkipValidatedUULines (byte* inptr, byte* inend, byte c1, int vectorSize, int remaining, long lineLength, bool midlineCr, out int lines)
+		{
+			lines = 0;
+
+			while (inptr < inend) {
+				byte* payload = inptr;
+				int count = remaining;
+
+				if (remaining < 0) {
+					int decoded = *inptr - 32;
+
+					// Leave boundary candidates, wrappers and the zero-length terminator to the usual paths.
+					if (*inptr == (byte) '-' || *inptr == c1 || decoded < 1 || decoded > 45)
+						break;
+
+					count = 4 * ((decoded + 2) / 3);
+					payload++;
+				}
+
+				byte* end = payload + count;
+				int newlineLength = remaining == 0 && midlineCr ? 1 : 2;
+
+				if (inend - end < newlineLength || end[newlineLength - 1] != (byte) '\n' ||
+					(newlineLength == 2 && *end != (byte) '\r') || lineLength + (end + newlineLength - inptr) > SmtpMaxLineLength)
+					break;
+
+				if (vectorSize >= 32 && count >= 32) {
+					if (!UUValidator.IsContent (Vector256.Load (payload)) || !UUValidator.IsContent (Vector256.Load (end - 32)))
+						break;
+				} else if (count >= 16) {
+					while (payload + 16 < end && UUValidator.IsContent (Vector128.Load (payload)))
+						payload += 16;
+
+					if (payload + 16 < end || !UUValidator.IsContent (Vector128.Load (end - 16)))
+						break;
+				} else {
+					while (payload < end && *payload >= 33 && *payload <= 96)
+						payload++;
+
+					if (payload != end)
+						break;
+				}
+
+				inptr = end + newlineLength;
+				remaining = -1;
+				midlineCr = false;
+				lineLength = 0;
+				lines++;
+			}
+
+			return inptr;
+		}
+
+		static unsafe byte* SkipValidatedLinesVector128<TValidation> (byte* inptr, byte* inend, byte c1, byte c2, ByteDetectionOptions options, long lineLength, bool midlineCr,
+			out int lines, out uint alphabetCount, out byte* examined) where TValidation : struct
+		{
+			bool validateBase64 = typeof (TValidation) == typeof (Base64ContentValidation);
+			bool validateQuotedPrintable = typeof (TValidation) == typeof (QuotedPrintableContentValidation);
+			byte* resume = inptr;
+			uint crCarry = midlineCr ? 1u : 0;
+			uint scannedAlphabet = 0;
+			alphabetCount = 0;
+			lines = 0;
+
+			while (inptr + Vector128<byte>.Count + 1 <= inend) {
+				var block = Vector128.Load (inptr);
+
+				if (!validateBase64 && (((options & ByteDetectionOptions.Detect8Bit) != 0 && block.ExtractMostSignificantBits () != 0) ||
+					((options & ByteDetectionOptions.DetectNulls) != 0 && Vector128.EqualsAny (block, Vector128<byte>.Zero))))
+					break;
+
+				uint alphabet = validateBase64 ? Base64Validator.IsAlphabet (block).ExtractMostSignificantBits () : 0;
+
+				if (validateBase64 && alphabet == 0xFFFF) {
+					if (lineLength + (inptr + Vector128<byte>.Count - resume) > SmtpMaxLineLength)
+						break;
+
+					scannedAlphabet += (uint) Vector128<byte>.Count;
+					inptr += Vector128<byte>.Count;
+					crCarry = 0;
+					continue;
+				}
+
+				uint lf = Vector128.Equals (block, Vector128.Create ((byte) '\n')).ExtractMostSignificantBits ();
+				uint cr = Vector128.Equals (block, Vector128.Create ((byte) '\r')).ExtractMostSignificantBits ();
+
+				if (validateQuotedPrintable) {
+					uint equals = Vector128.Equals (block, Vector128.Create ((byte) '=')).ExtractMostSignificantBits ();
+
+					if (equals != 0 && !QuotedPrintableValidator.AreEscapesValid (inptr, inend, equals, QuotedPrintableValidator.HexDigits (block), cr, lf, 16))
+						break;
+				}
+
+				if (validateBase64) {
+					uint whitespace = (Vector128.Equals (block, Vector128.Create ((byte) ' ')) |
+						Vector128.Equals (block, Vector128.Create ((byte) '\t'))).ExtractMostSignificantBits ();
+
+					if ((alphabet | lf | cr | whitespace) != 0xFFFF)
+						break;
+				}
+
+				if (lf != 0) {
+					// Only clean, complete lines are committed. Leave exceptional lines to the per-line scanner.
+					if ((lf & ~((cr << 1) | crCarry)) != 0 ||
+						lineLength + (inptr + BitOperations.TrailingZeroCount (lf) + 1 - resume) > SmtpMaxLineLength)
+						break;
+
+					uint candidates = 0;
+
+					// '-' is not Base64 alphabet or whitespace, but an mbox "From " prefix can be.
+					if (!validateBase64 || c1 != (byte) '-') {
+						var n1 = Vector128.Load (inptr + 1);
+						var n2 = Vector128.Load (inptr + 2);
+						var possible = (Vector128.Equals (n1, Vector128.Create ((byte) '-')) & Vector128.Equals (n2, Vector128.Create ((byte) '-')))
+							| (Vector128.Equals (n1, Vector128.Create (c1)) & Vector128.Equals (n2, Vector128.Create (c2)));
+
+						candidates = lf & possible.ExtractMostSignificantBits ();
+					}
+
+					if (candidates != 0)
+						lf &= (2u << BitOperations.TrailingZeroCount (candidates)) - 1;
+
+					lines += BitOperations.PopCount (lf);
+					int last = 31 - BitOperations.LeadingZeroCount (lf);
+					resume = inptr + last + 1;
+					lineLength = 0;
+
+					if (validateBase64)
+						alphabetCount = scannedAlphabet + (uint) BitOperations.PopCount (alphabet & ((2u << last) - 1));
+
+					if (candidates != 0)
+						break;
+				} else if (lineLength + (inptr + Vector128<byte>.Count - resume) > SmtpMaxLineLength) {
+					break;
+				}
+
+				crCarry = cr >> (Vector128<byte>.Count - 1);
+
+				if (validateBase64)
+					scannedAlphabet += (uint) BitOperations.PopCount (alphabet);
+
+				inptr += Vector128<byte>.Count;
+			}
+
+			// Only fully accepted blocks can contribute a newline-free prefix to the fallback scan.
+			examined = inptr > resume ? inptr : resume;
+
+			return resume;
+		}
+
+		static unsafe byte* SkipValidatedLinesVector256<TValidation> (byte* inptr, byte* inend, byte c1, byte c2, ByteDetectionOptions options, long lineLength, bool midlineCr,
+			out int lines, out uint alphabetCount, out byte* examined) where TValidation : struct
+		{
+			bool validateBase64 = typeof (TValidation) == typeof (Base64ContentValidation);
+			bool validateQuotedPrintable = typeof (TValidation) == typeof (QuotedPrintableContentValidation);
+			byte* resume = inptr;
+			uint crCarry = midlineCr ? 1u : 0;
+			uint scannedAlphabet = 0;
+			alphabetCount = 0;
+			lines = 0;
+
+			while (inptr + Vector256<byte>.Count + 1 <= inend) {
+				var block = Vector256.Load (inptr);
+
+				if (!validateBase64 && (((options & ByteDetectionOptions.Detect8Bit) != 0 && block.ExtractMostSignificantBits () != 0) ||
+					((options & ByteDetectionOptions.DetectNulls) != 0 && Vector256.EqualsAny (block, Vector256<byte>.Zero))))
+					break;
+
+				uint alphabet = validateBase64 ? Base64Validator.IsAlphabet (block).ExtractMostSignificantBits () : 0;
+
+				if (validateBase64 && alphabet == uint.MaxValue) {
+					if (lineLength + (inptr + Vector256<byte>.Count - resume) > SmtpMaxLineLength)
+						break;
+
+					scannedAlphabet += (uint) Vector256<byte>.Count;
+					inptr += Vector256<byte>.Count;
+					crCarry = 0;
+					continue;
+				}
+
+				uint lf = Vector256.Equals (block, Vector256.Create ((byte) '\n')).ExtractMostSignificantBits ();
+				uint cr = Vector256.Equals (block, Vector256.Create ((byte) '\r')).ExtractMostSignificantBits ();
+
+				if (validateQuotedPrintable) {
+					uint equals = Vector256.Equals (block, Vector256.Create ((byte) '=')).ExtractMostSignificantBits ();
+
+					if (equals != 0 && !QuotedPrintableValidator.AreEscapesValid (inptr, inend, equals, QuotedPrintableValidator.HexDigits (block), cr, lf, 32))
+						break;
+				}
+
+				if (validateBase64) {
+					uint whitespace = (Vector256.Equals (block, Vector256.Create ((byte) ' ')) |
+						Vector256.Equals (block, Vector256.Create ((byte) '\t'))).ExtractMostSignificantBits ();
+
+					if ((alphabet | lf | cr | whitespace) != uint.MaxValue)
+						break;
+				}
+
+				if (lf != 0) {
+					if ((lf & ~((cr << 1) | crCarry)) != 0 ||
+						lineLength + (inptr + BitOperations.TrailingZeroCount (lf) + 1 - resume) > SmtpMaxLineLength)
+						break;
+
+					uint candidates = 0;
+
+					if (!validateBase64 || c1 != (byte) '-') {
+						var n1 = Vector256.Load (inptr + 1);
+						var n2 = Vector256.Load (inptr + 2);
+						var possible = (Vector256.Equals (n1, Vector256.Create ((byte) '-')) & Vector256.Equals (n2, Vector256.Create ((byte) '-')))
+							| (Vector256.Equals (n1, Vector256.Create (c1)) & Vector256.Equals (n2, Vector256.Create (c2)));
+
+						candidates = lf & possible.ExtractMostSignificantBits ();
+					}
+
+					if (candidates != 0)
+						lf &= (2u << BitOperations.TrailingZeroCount (candidates)) - 1;
+
+					lines += BitOperations.PopCount (lf);
+					int last = 31 - BitOperations.LeadingZeroCount (lf);
+					resume = inptr + last + 1;
+					lineLength = 0;
+
+					if (validateBase64)
+						alphabetCount = scannedAlphabet + (uint) BitOperations.PopCount (alphabet & ((2u << last) - 1));
+
+					if (candidates != 0)
+						break;
+				} else if (lineLength + (inptr + Vector256<byte>.Count - resume) > SmtpMaxLineLength) {
+					break;
+				}
+
+				crCarry = cr >> (Vector256<byte>.Count - 1);
+
+				if (validateBase64)
+					scannedAlphabet += (uint) BitOperations.PopCount (alphabet);
+
+				inptr += Vector256<byte>.Count;
+			}
+
+			examined = inptr > resume ? inptr : resume;
+
+			return resume;
+		}
+
 		/// <summary>
 		/// Skip over complete lines that cannot possibly be a boundary marker.
 		/// </summary>
@@ -3225,31 +3477,81 @@ namespace MimeKit {
 		}
 #endif
 
-		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool midlineCr, ref bool[] formats)
+#if NET8_0_OR_GREATER
+		[SkipLocalsInit]
+#endif
+		unsafe bool ScanContent (byte* inbuf, ref ByteDetectionOptions byteOptions, ref bool midline, ref bool midlineCr, ref bool[] formats,
+			ContentEncoding encoding, IEncodingValidator? validator, out int validatedLength)
 		{
 			byte* inptr = inbuf + inputIndex;
 			byte* inend = inbuf + inputEnd;
 			int startIndex = inputIndex;
 			bool incomplete = false;
+			validatedLength = 0;
 
 			*inend = (byte) '\n';
 
 #if NET8_0_OR_GREATER
-			// Note: The fast path skips the per-line compliance checks, so it can only be used when there is no compliance logger.
-			bool fastSkip = complianceLogger == null && Vector128.IsHardwareAccelerated;
+			bool fastSkip = MaxContentVectorSize >= 16;
 			byte c1 = format == MimeFormat.Mbox ? MboxFromMarker[0] : (byte) '-';
 			byte c2 = format == MimeFormat.Mbox ? MboxFromMarker[1] : (byte) '-';
+			bool validate = fastSkip && validator != null && validator.CanConsumeCleanContent;
 #endif
 
 			while (inptr < inend) {
+				byte* searchStart = inptr;
 				byte* start = inptr;
 				int length;
 
 #if NET8_0_OR_GREATER
 				// Only lines that begin with "--" (or "From " in Mbox format) can be boundary markers, so skip
 				// over all complete lines up until the next line that might be one.
-				if (fastSkip && !midline && *inptr != (byte) '-' && *inptr != c1) {
-					byte* next = SkipNonBoundaryLines (inptr, inend, c1, c2, out int lines, out bool dos, out bool unix);
+				if (fastSkip && ((midline && complianceLogger != null) || (!midline && *inptr != (byte) '-' && *inptr != c1))) {
+					bool dos, unix;
+					byte* next;
+					int lines;
+
+					if (complianceLogger != null) {
+						uint alphabetCount;
+
+						if (validate) {
+							switch (encoding) {
+							case ContentEncoding.Base64:
+								next = MaxContentVectorSize >= 32
+									? SkipValidatedLinesVector256<Base64ContentValidation> (inptr, inend, c1, c2, byteOptions, GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines, out alphabetCount, out searchStart)
+									: SkipValidatedLinesVector128<Base64ContentValidation> (inptr, inend, c1, c2, byteOptions, GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines, out alphabetCount, out searchStart);
+								break;
+							case ContentEncoding.QuotedPrintable:
+								next = MaxContentVectorSize >= 32
+									? SkipValidatedLinesVector256<QuotedPrintableContentValidation> (inptr, inend, c1, c2, byteOptions, GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines, out alphabetCount, out searchStart)
+									: SkipValidatedLinesVector128<QuotedPrintableContentValidation> (inptr, inend, c1, c2, byteOptions, GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines, out alphabetCount, out searchStart);
+								break;
+							case ContentEncoding.UUEncode:
+							default: // Note: the only encoding left that can be validated is UUEncode, but the default case is here to avoid a compiler warning.
+								next = SkipValidatedUULines (inptr, inend, c1, MaxContentVectorSize, validator!.CleanContentRemaining,
+									GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines);
+								searchStart = next;
+								alphabetCount = 0;
+								break;
+							}
+
+							if (next > inptr) {
+								int count = (int) (next - inptr);
+
+								validator!.ConsumeCleanContent (inptr, count, alphabetCount, lines);
+								validatedLength += count;
+							}
+						} else {
+							next = MaxContentVectorSize >= 32
+								? SkipValidatedLinesVector256<ContentValidation> (inptr, inend, c1, c2, byteOptions, GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines, out alphabetCount, out searchStart)
+								: SkipValidatedLinesVector128<ContentValidation> (inptr, inend, c1, c2, byteOptions, GetOffset (startIndex) - lineBeginOffset, midline && midlineCr, out lines, out alphabetCount, out searchStart);
+						}
+
+						dos = next > inptr;
+						unix = false;
+					} else {
+						next = SkipNonBoundaryLines (inptr, inend, c1, c2, out lines, out dos, out unix);
+					}
 
 					if (next > inptr) {
 						if (dos)
@@ -3269,12 +3571,22 @@ namespace MimeKit {
 						lineBeginOffset = GetOffset (startIndex);
 						lineNumber += lines;
 						inptr = next;
-						continue;
+						midline = false;
+
+						if (complianceLogger == null)
+							continue;
+
+						// The validated scan already examined the tail. Do not retry it before falling back.
+						if (inptr == inend)
+							break;
+
+						start = inptr;
 					}
 				}
 #endif
+
 				if (byteOptions != ByteDetectionOptions.None) {
-					inptr = start + Memory.IndexOfLineFeed (start, (int) (inend + 1 - start), byteOptions, out int nullIndex, out int eightBitIndex);
+					inptr = searchStart + Memory.IndexOfLineFeed (searchStart, (int) (inend + 1 - searchStart), byteOptions, out int nullIndex, out int eightBitIndex);
 
 					if (eightBitIndex != -1) {
 						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInBody, GetOffset (startIndex), lineNumber, GetColumnNumber (startIndex)));
@@ -3286,7 +3598,7 @@ namespace MimeKit {
 						byteOptions &= ~ByteDetectionOptions.DetectNulls;
 					}
 				} else {
-					inptr = ParseUtils.EndOfLine (start, inend + 1);
+					inptr = ParseUtils.EndOfLine (searchStart, inend + 1);
 				}
 
 				length = (int) (inptr - start);
@@ -3306,6 +3618,11 @@ namespace MimeKit {
 
 						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInBody, GetOffset (linefeedIndex), lineNumber, GetColumnNumber (linefeedIndex)));
 						formats[(int) NewLineFormat.Unix] = true;
+#if NET8_0_OR_GREATER
+						// Avoid retrying the clean-CRLF fast path on every line of LF-only content.
+						if (complianceLogger != null)
+							fastSkip = false;
+#endif
 					}
 
 					midline = false;
@@ -3313,6 +3630,18 @@ namespace MimeKit {
 					inptr++;
 
 					IncrementLineNumber ((int) (inptr - inbuf));
+#if NET8_0_OR_GREATER
+					if (validate) {
+						// A rejected boundary candidate need not end the clean prefix. Only advance
+						// over valid QP lines; defer any encoding issues until after the structural scan.
+						if (encoding == ContentEncoding.QuotedPrintable && QuotedPrintableValidator.IsLineValid (start, length)) {
+							validator!.ConsumeCleanContent (start, length, 0, 1);
+							validatedLength += length;
+						} else {
+							validate = false;
+						}
+					}
+#endif
 				} else {
 					// didn't find the end of the line...
 					if (eos) {
@@ -3456,6 +3785,7 @@ namespace MimeKit {
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
+			ContentEncoding encoding;
 			var formats = new bool[2];
 			long contentLength = 0;
 			long scannedLength = 0;
@@ -3464,8 +3794,12 @@ namespace MimeKit {
 			bool midline = false;
 			int pending = 0;
 
-			if (type == ScanContentType.MimeContent && currentEncoding.HasValue)
+			if (type == ScanContentType.MimeContent && currentEncoding.HasValue) {
 				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
+				encoding = currentEncoding.Value;
+			} else {
+				encoding = ContentEncoding.Unspecified;
+			}
 
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
@@ -3479,10 +3813,10 @@ namespace MimeKit {
 				int contentIndex = inputIndex - pending;
 				int scanIndex = inputIndex;
 
-				incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref midlineCr, ref formats);
+				incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref midlineCr, ref formats, encoding, validator, out int validatedLength);
 
 				if (scanIndex < inputIndex) {
-					validator?.Write (input, scanIndex, inputIndex - scanIndex);
+					validator?.Write (input, scanIndex + validatedLength, inputIndex - scanIndex - validatedLength);
 					scannedLength += inputIndex - scanIndex;
 				}
 

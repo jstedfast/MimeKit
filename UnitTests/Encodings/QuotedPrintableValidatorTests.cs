@@ -58,6 +58,33 @@ namespace UnitTests.Encodings {
 			TestValidator (logger, new QuotedPrintableValidator (logger, MimeComplianceContext.Transport, 0, 1), "wikipedia.qp", wikipedia_unix, bufferSize);
 		}
 
+		[TestCase ("", false)]
+		[TestCase ("\n", true)]
+		[TestCase ("\r\n", true)]
+		[TestCase ("---\r\n", true)]
+		[TestCase ("---literal=20text=3Dvalue\r\n", true)]
+		[TestCase ("=c3=a9=E6=97=A5=\r\n", true)]
+		[TestCase ("---\n", true)]
+		[TestCase ("---literal=20text=3Dvalue\n", true)]
+		[TestCase ("=c3=a9=E6=97=A5=\n", true)]
+		[TestCase ("=\n", true)]
+		[TestCase ("=0G\n", false)]
+		[TestCase ("=\rX\n", false)]
+		[TestCase ("=A\n", false)]
+		[TestCase ("==\n", false)]
+		[TestCase ("=0G\r\n", false)]
+		[TestCase ("=\rX\r\n", false)]
+		[TestCase ("=A\r\n", false)]
+		[TestCase ("=\r", false)]
+		[TestCase ("=", false)]
+		public unsafe void TestIsLineValid (string text, bool expected)
+		{
+			var data = Encoding.ASCII.GetBytes (text);
+
+			fixed (byte* input = data)
+				Assert.That (QuotedPrintableValidator.IsLineValid (input, data.Length), Is.EqualTo (expected));
+		}
+
 		[TestCase (4096)]
 		[TestCase (1024)]
 		[TestCase (16)]

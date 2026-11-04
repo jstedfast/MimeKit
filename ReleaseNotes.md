@@ -273,6 +273,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   existing fallback.
 * Improved content scanning performance with compliance reporting enabled by reusing the combined
   linefeed, NUL, and 8-bit byte scanner.
+* Added multi-line SIMD scanning of clean CRLF content with compliance reporting on .NET 8 and later.
+  Base64, quoted-printable and uuencode validation share the scan for clean content prefixes,
+  retaining the existing diagnostic positions, reporting order, and scalar fallbacks.
 * Violations are classified along two axes: a `MimeComplianceSeverity` and a set of
   `MimeComplianceCategories` (`Interoperability`, `DataLoss` and `Security`). Severity is further
   qualified by the `MimeComplianceContext` (`Transport` or `Storage`), since defects such as a bare
@@ -500,10 +503,79 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Fixed quadratic buffer growth when parsing long or heavily folded headers in both MIME parsers.
 * Accelerated `MimeReader` content scanning with SIMD on .NET 8 and later when compliance reporting
   is disabled.
+* Quoted-printable compliance validation can resume fused scanning after rejecting a possible
+  boundary marker, avoiding a separate validation pass over subsequent clean content. Clean
+  LF-terminated QP lines also avoid the ordinary encoding-validation pass without suppressing
+  bare-LF diagnostics.
 * Fixed quadratic processing of unclosed elements in `HtmlToHtml` and `HtmlTextPreviewer`.
   Bulk scanning and allocation reductions also improve ordinary HTML processing: compared with
   4.18.1, the benchmarked documents tokenize about 15-25% faster with 34-39% fewer allocations;
   `HtmlToHtml` uses 25-52% fewer allocations and is about 7-20% faster with `TextWriter` output.
+
+#### MIME parsing benchmarks: 4.18.1 vs. 5.0
+
+In this comparison, the 5.0 `MimeParser` was faster than 4.18.1 on 21 of 23 workloads with
+compliance reporting disabled in both runs, and on 10 or 11 of 23 with all compliance validators
+enabled, depending on the run. Compliance reporting is not free: dense quoted-printable
+content, LF-only messages, and some header-heavy workloads still cost more to validate than
+4.18.1 costs to parse without validation.
+
+These are pre-release measurements from November 4, 2026, comparing the published MimeKit 4.18.1
+NuGet binary with the 5.0 working tree based on commit `be783d00`, including fused content
+validation and quoted-printable boundary-recovery and LF-line optimizations. Both used their
+.NET 10 builds on .NET 10.0.14, Windows x64, with an Intel Core Ultra 7 268V processor.
+
+* **Equivalent content storage:** 4.18.1 used `persistent: true`; 5.0 used
+  `MimeContentStorage.Source`. Both reference content in the seekable input stream rather than
+  copying it. These results do not represent the default `Memory` storage mode.
+* **Compliance on:** all validators enabled, `MaxIssuesPerViolation = 1`, and a counting logger.
+  Validation and logger callbacks are included; formatting, retaining, or writing diagnostics
+  is not. Compliance off means `ComplianceLogger = null`.
+* **Timing:** synchronous message parsing from preloaded bytes, including construction of a fresh
+  parser and disposal of each message. Each workload used a five-second warmup followed by
+  15 balanced, mirrored rounds across the five modes, with approximately 20 ms timing blocks.
+  Disk I/O and serialization were outside the timed region.
+
+Throughput is in **MiB/s (higher is better)**. Each value is the arithmetic mean of the two runs'
+median throughputs, rounded to the nearest MiB/s. The `MimeReader` columns measure scanning and
+optional validation only: unlike `MimeParser`, the reader does not construct a MIME object tree.
+Absolute throughput varied between runs; comparisons with older benchmark sessions should not
+be used to isolate the effect of an individual optimization.
+
+| Workload | 4.18.1 parser | 5.0 parser, off | 5.0 parser, on | 5.0 reader, off | 5.0 reader, on |
+|---|---:|---:|---:|---:|---:|
+| Short message | 167 | 202 | 175 | 306 | 253 |
+| Header stress | 365 | 516 | 328 | 717 | 410 |
+| UTF-8 headers | 511 | 1,206 | 887 | 1,616 | 1,104 |
+| Star Trek | 4,097 | 7,939 | 5,931 | 9,769 | 6,881 |
+| 7bit body, 64 KiB | 6,330 | 10,404 | 7,279 | 11,819 | 8,119 |
+| Base64 body, 64 KiB | 7,590 | 13,032 | 9,263 | 14,892 | 10,118 |
+| Literal QP body, 64 KiB | 7,562 | 12,802 | 8,749 | 14,823 | 9,834 |
+| 32-character lines | 4,490 | 11,438 | 7,295 | 12,420 | 7,726 |
+| 998-character lines | 19,525 | 16,136 | 11,657 | 17,711 | 12,544 |
+| QP, occasional escapes | 7,456 | 14,051 | 8,093 | 15,515 | 8,628 |
+| QP, dense UTF-8 escapes | 7,106 | 13,640 | 803 | 14,968 | 815 |
+| UUencoded body, full lines | 6,661 | 11,605 | 8,036 | 11,863 | 7,856 |
+| Attachments, CRLF | 6,292 | 10,284 | 7,106 | 10,839 | 7,367 |
+| Attachments, LF | 6,195 | 10,161 | 2,562 | 10,775 | 2,613 |
+| Dash-heavy content | 3,396 | 3,232 | 2,855 | 3,353 | 2,864 |
+| Enron | 478 | 621 | 427 | 859 | 543 |
+| Forwarded messages | 773 | 889 | 700 | 1,356 | 990 |
+| Modern headers | 1,187 | 1,584 | 1,117 | 2,134 | 1,447 |
+| Newsletters, CRLF | 3,618 | 4,753 | 2,182 | 5,169 | 2,375 |
+| Newsletters, LF | 3,235 | 4,406 | 999 | 4,995 | 1,032 |
+| Large plain text | 5,571 | 9,316 | 6,499 | 9,457 | 6,540 |
+| Test suite, CRLF | 271 | 300 | 229 | 470 | 326 |
+| Test suite, LF | 204 | 231 | 167 | 366 | 235 |
+
+Only inputs accepted by both versions were timed: 3,300 fixture entries across the workloads.
+Four entries were excluded from both sides: two Enron messages that exceeded 5.0's default
+header-length limit of 16K, and one malformed message in each test-suite newline variant.
+Accepted inputs included 115 cross-version serialization differences; the comparison does not
+imply identical behavior between releases. Within 5.0, enabling compliance reporting did not
+change serialized output. Results depend on message structure, encoding, newline format,
+hardware, runtime, and storage mode; the workload counts above are not an aggregate speedup
+or a guarantee for other inputs.
 
 ### Bug Fixes
 

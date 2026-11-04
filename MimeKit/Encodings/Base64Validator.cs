@@ -154,7 +154,7 @@ namespace MimeKit.Encodings {
 		// start of the range to sbyte.MinValue and then doing a single signed comparison against the end of the range.
 		// OR'ing with 0x20 maps 'A'-'Z' to 'a'-'z' without mapping any other byte into that range.
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static Vector256<byte> IsAlphabet (Vector256<byte> block)
+		internal static Vector256<byte> IsAlphabet (Vector256<byte> block)
 		{
 			var letters = Vector256.LessThan (((block | Vector256.Create ((byte) 0x20)) + Vector256.Create (unchecked ((byte) (0x80 - 'a')))).AsSByte (), Vector256.Create ((sbyte) (-128 + 26)));
 			var digits = Vector256.LessThan ((block + Vector256.Create (unchecked ((byte) (0x80 - '0')))).AsSByte (), Vector256.Create ((sbyte) (-128 + 10)));
@@ -166,7 +166,7 @@ namespace MimeKit.Encodings {
 
 		// See IsAlphabet(Vector256<byte>) for an explanation of how this works.
 		[MethodImpl (MethodImplOptions.AggressiveInlining)]
-		static Vector128<byte> IsAlphabet (Vector128<byte> block)
+		internal static Vector128<byte> IsAlphabet (Vector128<byte> block)
 		{
 			var letters = Vector128.LessThan (((block | Vector128.Create ((byte) 0x20)) + Vector128.Create (unchecked ((byte) (0x80 - 'a')))).AsSByte (), Vector128.Create ((sbyte) (-128 + 26)));
 			var digits = Vector128.LessThan ((block + Vector128.Create (unchecked ((byte) (0x80 - '0')))).AsSByte (), Vector128.Create ((sbyte) (-128 + 10)));
@@ -174,6 +174,47 @@ namespace MimeKit.Encodings {
 			return letters.AsByte () | digits.AsByte ()
 				| Vector128.Equals (block, Vector128.Create ((byte) '+'))
 				| Vector128.Equals (block, Vector128.Create ((byte) '/'));
+		}
+
+		/// <summary>
+		/// Get whether the current state permits consuming prevalidated content.
+		/// </summary>
+		public bool CanConsumeCleanContent => !invalid && padding == 0;
+
+		/// <summary>
+		/// Get the number of encoded payload bytes remaining in the current UU line.
+		/// </summary>
+		/// <remarks>
+		/// For UU encoding, -1 indicates a new length byte is expected, while 0
+		/// indicates only the line ending remains. Other encodings return 0,
+		/// and the reader does not use this property for those encodings.
+		/// </remarks>
+		public int CleanContentRemaining => 0;
+
+		/// <summary>
+		/// Advance the validator state over a prevalidated content prefix.
+		/// </summary>
+		/// <remarks>
+		/// The caller must validate the content for this encoding and end the range
+		/// immediately after an LF. This method does not report diagnostics.
+		/// </remarks>
+		/// <param name="input">The prevalidated content.</param>
+		/// <param name="length">The number of bytes to consume.</param>
+		/// <param name="alphabetCount">The number of Base64 alphabet bytes, ignored by other encodings.</param>
+		/// <param name="lines">The number of line feeds in the content.</param>
+		public unsafe void ConsumeCleanContent (byte* input, int length, uint alphabetCount, int lines)
+		{
+			total += alphabetCount;
+			if (total % 4 >= 2 && alphabetCount != 0) {
+				ref byte table = ref MemoryMarshal.GetReference (base64_class);
+				lastAlphabet = GetLastAlphabet (ref table, input, input + length);
+			}
+
+			streamOffset += length;
+			lineBeginOffset = streamOffset;
+			lineNumber += lines;
+			reportedInvalidCharacter = false;
+			reportedComment = false;
 		}
 
 		// Validates 32-byte blocks consisting of base64 alphabet characters, line feeds and whitespace. Stops at

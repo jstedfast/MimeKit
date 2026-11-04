@@ -26,6 +26,10 @@
 
 using System;
 using System.Runtime.CompilerServices;
+#if NET8_0_OR_GREATER
+using System.Numerics;
+using System.Runtime.Intrinsics;
+#endif
 
 using MimeKit.Utils;
 
@@ -103,6 +107,114 @@ namespace MimeKit.Encodings {
 		public ContentEncoding Encoding {
 			get { return ContentEncoding.QuotedPrintable; }
 		}
+
+#if NET8_0_OR_GREATER
+		/// <summary>
+		/// Get whether the current state permits consuming prevalidated content.
+		/// </summary>
+		public bool CanConsumeCleanContent => state == QpValidatorState.PassThrough;
+
+		/// <summary>
+		/// Get the number of encoded payload bytes remaining in the current UU line.
+		/// </summary>
+		/// <remarks>
+		/// For UU encoding, -1 indicates a new length byte is expected, while 0
+		/// indicates only the line ending remains. Other encodings return 0,
+		/// and the reader does not use this property for those encodings.
+		/// </remarks>
+		public int CleanContentRemaining => 0;
+
+		/// <summary>
+		/// Advance the validator state over a prevalidated content prefix.
+		/// </summary>
+		/// <remarks>
+		/// The caller must validate the content for this encoding and end the range
+		/// immediately after an LF. This method does not report diagnostics.
+		/// </remarks>
+		/// <param name="input">The prevalidated content.</param>
+		/// <param name="length">The number of bytes to consume.</param>
+		/// <param name="alphabetCount">The number of Base64 alphabet bytes, ignored by other encodings.</param>
+		/// <param name="lines">The number of line feeds in the content.</param>
+		public unsafe void ConsumeCleanContent (byte* input, int length, uint alphabetCount, int lines)
+		{
+			streamOffset += length;
+			lineBeginOffset = streamOffset;
+			lineNumber += lines;
+			reportedInvalidEncoding = false;
+			reportedInvalidSoftBreak = false;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static uint HexDigits (Vector128<byte> block)
+		{
+			var letters = Vector128.LessThan (((block | Vector128.Create ((byte) 0x20)) + Vector128.Create (unchecked ((byte) (0x80 - 'a')))).AsSByte (), Vector128.Create ((sbyte) (-128 + 6)));
+			var digits = Vector128.LessThan ((block + Vector128.Create (unchecked ((byte) (0x80 - '0')))).AsSByte (), Vector128.Create ((sbyte) (-128 + 10)));
+
+			return (letters | digits).ExtractMostSignificantBits ();
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static uint HexDigits (Vector256<byte> block)
+		{
+			var letters = Vector256.LessThan (((block | Vector256.Create ((byte) 0x20)) + Vector256.Create (unchecked ((byte) (0x80 - 'a')))).AsSByte (), Vector256.Create ((sbyte) (-128 + 6)));
+			var digits = Vector256.LessThan ((block + Vector256.Create (unchecked ((byte) (0x80 - '0')))).AsSByte (), Vector256.Create ((sbyte) (-128 + 10)));
+
+			return (letters | digits).ExtractMostSignificantBits ();
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
+		internal static unsafe bool AreEscapesValid (byte* input, byte* end, uint equals, uint hex, uint cr, uint lf, int width)
+		{
+			uint tail = equals & (3u << (width - 2));
+			uint valid = ((hex >> 1) & (hex >> 2)) | ((cr >> 1) & (lf >> 2));
+
+			if ((equals & ~tail & ~valid) != 0)
+				return false;
+
+			// Escapes crossing a vector edge need real input, not the reader's LF sentinel.
+			while (tail != 0) {
+				byte* escape = input + BitOperations.TrailingZeroCount (tail);
+
+				if (end - escape < 3 || !((escape[1].IsXDigit () && escape[2].IsXDigit ()) ||
+					(escape[1] == (byte) '\r' && escape[2] == (byte) '\n')))
+					return false;
+
+				tail &= tail - 1;
+			}
+
+			return true;
+		}
+
+		// The input must be a single line, starting in PassThrough state. Check without reporting
+		// so the reader can resume fused validation without moving encoding issues ahead of structural issues.
+		internal static unsafe bool IsLineValid (byte* input, int length)
+		{
+			byte* end = input + length;
+
+			if (length < 1 || end[-1] != (byte) '\n')
+				return false;
+
+			while (input < end) {
+				int index = new ReadOnlySpan<byte> (input, (int) (end - input)).IndexOf ((byte) '=');
+
+				if (index == -1)
+					return true;
+
+				input += index;
+
+				if (end - input == 2 && input[1] == (byte) '\n')
+					return true;
+
+				if (end - input < 3 || !((input[1].IsXDigit () && input[2].IsXDigit ()) ||
+					(input[1] == (byte) '\r' && input[2] == (byte) '\n')))
+					return false;
+
+				input += 3;
+			}
+
+			return true;
+		}
+#endif
 
 #if NET6_0_OR_GREATER
 		[SkipLocalsInit]

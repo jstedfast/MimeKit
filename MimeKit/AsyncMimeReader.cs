@@ -452,6 +452,7 @@ namespace MimeKit {
 		{
 			int maxBoundaryLength = Math.Max (ReadAheadSize, GetMaxBoundaryLength ());
 			IEncodingValidator? validator = null;
+			ContentEncoding encoding;
 			var formats = new bool[2];
 			long contentLength = 0;
 			long scannedLength = 0;
@@ -460,8 +461,12 @@ namespace MimeKit {
 			bool midline = false;
 			int pending = 0;
 
-			if (type == ScanContentType.MimeContent && currentEncoding.HasValue)
+			if (type == ScanContentType.MimeContent && currentEncoding.HasValue) {
 				validator = GetEncodingValidator (currentEncoding.Value, beginOffset, beginLineNumber);
+				encoding = currentEncoding.Value;
+			} else {
+				encoding = ContentEncoding.Unspecified;
+			}
 
 			do {
 				int atleast = incomplete ? Math.Max (maxBoundaryLength, (inputEnd - inputIndex) + 1) : maxBoundaryLength;
@@ -474,15 +479,16 @@ namespace MimeKit {
 
 				int contentIndex = inputIndex - pending;
 				int scanIndex = inputIndex;
+				int validatedLength;
 
 				unsafe {
 					fixed (byte* inbuf = input) {
-						incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref midlineCr, ref formats);
+						incomplete = ScanContent (inbuf, ref byteOptions, ref midline, ref midlineCr, ref formats, encoding, validator, out validatedLength);
 					}
 				}
 
 				if (scanIndex < inputIndex) {
-					validator?.Write (input, scanIndex, inputIndex - scanIndex);
+					validator?.Write (input, scanIndex + validatedLength, inputIndex - scanIndex - validatedLength);
 					scannedLength += inputIndex - scanIndex;
 				}
 

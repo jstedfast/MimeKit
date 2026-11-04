@@ -35,6 +35,71 @@ using MimeKit.Text;
 namespace AotCompatibility {
     class Program
     {
+        sealed class ComplianceLogger : IMimeComplianceLogger
+        {
+            public readonly List<MimeComplianceIssue> Issues = new List<MimeComplianceIssue> ();
+
+            public void Log (in MimeComplianceIssue issue)
+            {
+                Issues.Add (issue);
+            }
+        }
+
+        static void CheckValidatedContent (bool doAsync, ContentEncoding encoding)
+        {
+            string transferEncoding, line, ending;
+            MimeComplianceViolation violation;
+            int column;
+
+            switch (encoding) {
+            case ContentEncoding.QuotedPrintable:
+                transferEncoding = "quoted-printable";
+                line = "literal=20text=3Dvalue=E6=97=A5=\r\n";
+                ending = "=0G\r\n";
+                violation = MimeComplianceViolation.InvalidQuotedPrintableEncoding;
+                column = 3;
+                break;
+            case ContentEncoding.UUEncode:
+                transferEncoding = "x-uuencode";
+                line = "M" + new string ('A', 60) + "\r\n";
+                ending = "M" + new string ('A', 59) + "~\r\n";
+                violation = MimeComplianceViolation.InvalidUUEncodedContent;
+                column = 61;
+                break;
+            default:
+                transferEncoding = "base64";
+                line = new string ('A', 76) + "\r\n";
+                ending = "AB==\r\n";
+                violation = MimeComplianceViolation.InvalidBase64Padding;
+                column = 3;
+                break;
+            }
+
+            var text = new StringBuilder ("From: a@example.com\r\nTo: b@example.com\r\n" +
+                "MIME-Version: 1.0\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: " + transferEncoding + "\r\n\r\n");
+            if (encoding == ContentEncoding.UUEncode)
+                text.Append ("begin 644 file.bin\r\n");
+            for (int i = 0; i < 128; i++)
+                text.Append (line);
+            long expectedOffset = text.Length + column - 1;
+            text.Append (ending);
+
+            var data = Encoding.ASCII.GetBytes (text.ToString ());
+            using var stream = new MemoryStream (data);
+            var logger = new ComplianceLogger ();
+            var reader = new MimeReader (stream) { ComplianceLogger = logger };
+            reader.ComplianceOptions.EnabledValidators = MimeComplianceValidators.All;
+
+            if (doAsync)
+                reader.ReadMessageAsync ().GetAwaiter ().GetResult ();
+            else
+                reader.ReadMessage ();
+
+            var issues = logger.Issues.Where (issue => issue.Violation == violation).ToArray ();
+            if (issues.Length != 1 || issues[0].StreamOffset != expectedOffset || issues[0].ColumnNumber != column)
+                throw new InvalidOperationException ("Unexpected " + transferEncoding + " compliance diagnostic after bulk content scanning.");
+        }
+
         static int Main (string[] args)
         {
             var location = System.AppContext.BaseDirectory;
@@ -48,6 +113,10 @@ namespace AotCompatibility {
             try {
                 Encoding.RegisterProvider (CodePagesEncodingProvider.Instance);
                 CryptographyModule.Initialize ();
+                foreach (var encoding in new[] { ContentEncoding.Base64, ContentEncoding.QuotedPrintable, ContentEncoding.UUEncode }) {
+                    CheckValidatedContent (false, encoding);
+                    CheckValidatedContent (true, encoding);
+                }
 
                 var htmlToText = new HtmlToText ();
                 var plainText = htmlToText.Convert ("<h1>Title</h1><ul><li>one<li>two</ul>");

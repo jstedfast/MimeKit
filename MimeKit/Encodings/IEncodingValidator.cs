@@ -44,6 +44,36 @@ namespace MimeKit.Encodings {
 		/// <value>The encoding.</value>
 		ContentEncoding Encoding { get; }
 
+#if NET8_0_OR_GREATER
+		/// <summary>
+		/// Get whether the current state permits consuming prevalidated content.
+		/// </summary>
+		bool CanConsumeCleanContent { get; }
+
+		/// <summary>
+		/// Get the number of encoded payload bytes remaining in the current UU line.
+		/// </summary>
+		/// <remarks>
+		/// For UU encoding, -1 indicates a new length byte is expected, while 0
+		/// indicates only the line ending remains. Other encodings return 0,
+		/// and the reader does not use this property for those encodings.
+		/// </remarks>
+		int CleanContentRemaining { get; }
+
+		/// <summary>
+		/// Advance the validator state over a prevalidated content prefix.
+		/// </summary>
+		/// <remarks>
+		/// The caller must validate the content for this encoding and end the range
+		/// immediately after an LF. This method does not report diagnostics.
+		/// </remarks>
+		/// <param name="input">The prevalidated content.</param>
+		/// <param name="length">The number of bytes to consume.</param>
+		/// <param name="alphabetCount">The number of Base64 alphabet bytes, ignored by other encodings.</param>
+		/// <param name="lines">The number of line feeds in the content.</param>
+		unsafe void ConsumeCleanContent (byte* input, int length, uint alphabetCount, int lines);
+#endif
+
 		/// <summary>
 		/// Write a sequence of bytes to the validator.
 		/// </summary>

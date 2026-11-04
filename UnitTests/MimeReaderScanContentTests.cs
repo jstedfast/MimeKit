@@ -293,14 +293,16 @@ namespace UnitTests {
 			}
 		}
 
-		// Note: Setting a compliance logger disables the fast path, so the results with and without a logger must be identical.
+		// Compare the unvalidated fast path with the original, per-line compliance path.
 		static List<string> Record (byte[] data, MimeFormat format, int chunkSize, bool fastPath)
 		{
 			using (var stream = new ChunkedReadStream (data, chunkSize)) {
 				var reader = new RecordingReader (stream, format);
 
-				if (!fastPath)
+				if (!fastPath) {
 					reader.ComplianceLogger = new NullComplianceLogger ();
+					reader.MaxContentVectorSize = 0;
+				}
 
 				try {
 					do {
@@ -319,8 +321,10 @@ namespace UnitTests {
 			using (var stream = new ChunkedReadStream (data, chunkSize)) {
 				var reader = new RecordingReader (stream, format);
 
-				if (!fastPath)
+				if (!fastPath) {
 					reader.ComplianceLogger = new NullComplianceLogger ();
+					reader.MaxContentVectorSize = 0;
+				}
 
 				try {
 					do {
@@ -470,6 +474,297 @@ namespace UnitTests {
 		}
 
 		static readonly int[] ChunkSizes = { 1, 2, 3, 7, 31, 33, 64, 4096 };
+
+		static async Task<(List<string> Events, List<MimeComplianceIssue> Issues)> RecordValidated (byte[] data, MimeFormat format,
+			int chunkSize, int vectorSize, int maxIssues, bool doAsync)
+		{
+			using var stream = new ChunkedReadStream (data, chunkSize);
+			var logger = new TestMimeComplianceLogger ();
+			var reader = new RecordingReader (stream, format) {
+				ComplianceLogger = logger,
+				MaxContentVectorSize = (byte) vectorSize
+			};
+			reader.ComplianceOptions.EnabledValidators = MimeComplianceValidators.All;
+			reader.ComplianceOptions.MaxIssuesPerViolation = maxIssues;
+
+			try {
+				do {
+					if (doAsync)
+						await reader.ReadMessageAsync ();
+					else
+						reader.ReadMessage ();
+				} while (format == MimeFormat.Mbox && !reader.IsEndOfStream);
+			} catch (FormatException ex) {
+				reader.Events.Add (ex.GetType ().Name + ": " + ex.Message);
+			}
+
+			return (reader.Events, logger.Issues);
+		}
+
+		static async Task AssertValidatedPaths (byte[] data, MimeFormat format, int chunkSize, int maxIssues, bool doAsync, string label)
+		{
+			var expected = await RecordValidated (data, format, chunkSize, 0, maxIssues, doAsync);
+
+			foreach (int vectorSize in new[] { 16, 32 }) {
+				if (vectorSize == 32 ? !Vector256.IsHardwareAccelerated : !Vector128.IsHardwareAccelerated)
+					continue;
+
+				var actual = await RecordValidated (data, format, chunkSize, vectorSize, maxIssues, doAsync);
+				AssertEventsEqual (expected.Events, actual.Events, label);
+				Assert.That (actual.Issues, Is.EqualTo (expected.Issues), $"{label}: vectorSize={vectorSize}, issues");
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedCorpusMatchesPerLinePath ([Values (false, true)] bool doAsync, [Values (0, 1)] int maxIssues)
+		{
+			foreach (var (path, format) in CorpusFiles ()) {
+				var data = File.ReadAllBytes (path);
+				await AssertValidatedPaths (data, format, 4096, maxIssues, doAsync, Path.GetFileName (path));
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedGeneratedMessagesMatchPerLinePath ([Values (false, true)] bool doAsync)
+		{
+			var random = new Random (5271);
+
+			for (int i = 0; i < 300; i++) {
+				var format = (i & 1) == 0 ? MimeFormat.Entity : MimeFormat.Mbox;
+				var data = format == MimeFormat.Mbox ? GenerateMbox (random) : Encoding.Latin1.GetBytes (GenerateMessage (random));
+
+				if (random.Next (4) == 0)
+					data = data.AsSpan (0, random.Next (data.Length + 1)).ToArray ();
+
+				await AssertValidatedPaths (data, format, ChunkSizes[i % ChunkSizes.Length], i % 3 == 0 ? 1 : 0, doAsync, $"message {i}");
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedContentEdges ([Values (false, true)] bool doAsync,
+			[Values ("7bit", "8bit", "binary", "base64", "quoted-printable", "x-uuencode")] string encoding)
+		{
+			string header = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\nContent-Type: text/plain\r\n" +
+				"Content-Transfer-Encoding: " + encoding + "\r\n\r\n";
+			string prefix = string.Concat (Enumerable.Repeat (new string ('A', 76) + "\r\n", 60));
+			var endings = new[] { "\0\r\n", "\u00ff\r\n", "\n", "\r\n--b--\r\n", "\r\n--b--", "\r", "",
+				"AA==\r\n", "AB==\r\n", "AAA=\r\n", "AAB=\r\n", "A\r\n", "AA\r\n", "AAA\r\n",
+				"AA==\r\nAAAA\r\n", "* comment *\r\n", "=0G\r\n", "=\rX\r\n", "=", "=A" };
+
+			foreach (int padding in new[] { 0, 1, 14, 15, 16, 30, 31, 32, 63, 997, 998, 999, 1000, 4095 }) {
+				foreach (string ending in endings) {
+					var data = Encoding.Latin1.GetBytes (header + prefix + new string ('A', padding) + ending);
+					foreach (int chunkSize in new[] { 31, 64, 1021, 4096 })
+						await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, 0, doAsync, $"{encoding}/{padding}/{ending}/{chunkSize}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedExaminedTail ([Values (false, true)] bool doAsync,
+			[Values ("7bit", "binary", "base64")] string encoding)
+		{
+			string header = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\nContent-Type: text/plain\r\n" +
+				"Content-Transfer-Encoding: " + encoding + "\r\n\r\n";
+			string prefix = string.Concat (Enumerable.Repeat (new string ('A', 76) + "\r\n", 60));
+			var endings = new[] { "\0\u00ff\r\n", "\u00ff\0\n", "\n", "\r\n", "AB==\r\n", "*\r\n", "", "\r" };
+
+			foreach (int width in new[] { 80, 998, 1001, 8192 }) {
+				foreach (string ending in endings) {
+					for (int padding = 0; padding < 32; padding++) {
+						string body = new string ('A', padding) + "\r\n" + prefix + new string ('A', width) + ending;
+						foreach (string boundary in new[] { "", "--b--\r\n" }) {
+							var data = Encoding.Latin1.GetBytes (header + body + boundary);
+							foreach (int chunkSize in new[] { 64, 1021, 4096 })
+								await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, 0, doAsync, $"tail/{encoding}/{width}/{padding}/{ending}/{boundary}/{chunkSize}");
+						}
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedPreviousLinePosition ([Values (false, true)] bool doAsync,
+			[Values ("7bit", "base64")] string encoding)
+		{
+			string header = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\nContent-Type: text/plain\r\n" +
+				"Content-Transfer-Encoding: " + encoding + "\r\n\r\n";
+
+			foreach (int width in new[] { 0, 1, 14, 15, 16, 30, 31, 32, 76, 997, 998 }) {
+				for (int padding = 0; padding < 32; padding++) {
+					string body = new string ('A', padding) + "\r\n" +
+						string.Concat (Enumerable.Repeat (new string ('A', width) + "\r\n", 12));
+					var data = Encoding.ASCII.GetBytes (header + body + "--b--\r\n");
+
+					foreach (int chunkSize in new[] { 33, 64, 1021, 4096 })
+						await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, 0, doAsync, $"previous/{encoding}/{width}/{padding}/{chunkSize}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedQuotedPrintable ([Values (false, true)] bool doAsync, [Values (0, 1)] int maxIssues)
+		{
+			const string header = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\nContent-Type: text/plain\r\n" +
+				"Content-Transfer-Encoding: quoted-printable\r\n\r\n";
+			var lines = new[] {
+				new string ('x', 76), "literal=20text=3Dvalue", "=c3=a9=E6=97=A5=E6=9C=AC",
+				new string ('x', 72) + "=", "=41=42=43=", "", "=0G", "=\rX"
+			};
+			var endings = new[] { "=0G\r\n", "=\rX\r\n", "=A\n", "=\n", "=\r", "=", "=A",
+				"\0\u00ff\r\n", "\r\n--b--\r\n", "" };
+
+			foreach (string line in lines) {
+				string prefix = string.Concat (Enumerable.Repeat (line + "\r\n", 70));
+				for (int padding = 0; padding < 32; padding++) {
+					foreach (string ending in endings) {
+						var data = Encoding.Latin1.GetBytes (header + new string ('x', padding) + prefix + ending);
+						foreach (int chunkSize in new[] { 33, 64, 1021, 4096 })
+							await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, maxIssues, doAsync, $"qp/{line}/{padding}/{ending}/{chunkSize}");
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedQuotedPrintableEscapeBytes ([Values (false, true)] bool doAsync)
+		{
+			const string header = "Content-Type: text/plain\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n";
+
+			for (int value = 0; value < 256; value++) {
+				for (int padding = 0; padding < 32; padding++) {
+					string escapes = "=" + (char) value + "A\r\n=A" + (char) value + "\r\n";
+					var data = Encoding.Latin1.GetBytes (header + new string ('x', padding) + "\r\n" + string.Concat (Enumerable.Repeat (escapes, 400)));
+					await AssertValidatedPaths (data, MimeFormat.Entity, 4096, 0, doAsync, $"qp-byte/{value}/{padding}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedQuotedPrintableBoundaryCandidates ([Values (false, true)] bool doAsync,
+			[Values (0, 1)] int maxIssues, [Values ("\r\n", "\n")] string newline)
+		{
+			const string header = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\nContent-Type: text/plain\r\n" +
+				"Content-Transfer-Encoding: quoted-printable\r\n\r\n";
+			string clean = string.Concat (Enumerable.Repeat ("text=20=c3=a9=E6=97=A5=\r\n", 12));
+			var candidates = new[] { "---\r\n", "--bX=20value\r\n", "--b--X=\r\n", "---=0G\r\n", "---=\rX\r\n",
+				"---=A\r\n", "---=A\n", "---\0\u00ff\r\n", "---" + new string ('x', 998) + "\r\n" };
+
+			foreach (string candidate in candidates) {
+				for (int padding = 0; padding < 32; padding++) {
+					string body = new string ('x', padding) + "\r\n" + clean + candidate + clean + candidate + clean +
+						"=0G\r\n---\r\n=\rX\r\n\0\u00ff\n" + clean;
+					foreach (string ending in new[] { "--b--\r\n", "---=", "---=\r", "---=A", "--b" }) {
+						var data = Encoding.Latin1.GetBytes ((header + body + ending).Replace ("\r\n", newline));
+						foreach (int chunkSize in new[] { 1, 33, 64, 1021, 4096 })
+							await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, maxIssues, doAsync, $"qp-boundary/{candidate}/{padding}/{ending}/{chunkSize}");
+					}
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedUU ([Values (false, true)] bool doAsync, [Values (0, 1)] int maxIssues)
+		{
+			const string header = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\nContent-Type: application/octet-stream\r\n" +
+				"Content-Transfer-Encoding: x-uuencode\r\n\r\nbegin 644 file.bin\r\n";
+			string prefix = string.Concat (Enumerable.Repeat ("M" + new string ('A', 60) + "\r\n", 80));
+			var endings = new[] { "`\r\nend\r\n", "`\r\nend", "", "M!!!\r\n", "M" + new string ('A', 61) + "\r\n",
+				" \r\n`\r\nend\r\n", "\0\u00ff\r\n", "\r\n--b--\r\n", "`\r\nend\r\n--b--\r\n", "M!!!\n" };
+
+			for (int decoded = 1; decoded <= 45; decoded++) {
+				string line = (char) (32 + decoded) + new string ('!', 4 * ((decoded + 2) / 3)) + "\r\n";
+				foreach (string ending in endings) {
+					var data = Encoding.Latin1.GetBytes (header + prefix + string.Concat (Enumerable.Repeat (line, 80)) + ending);
+					foreach (int chunkSize in new[] { 33, 64, 1021, 4096 })
+						await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, maxIssues, doAsync, $"uu/{decoded}/{ending}/{chunkSize}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedUUPayloadBytes ([Values (false, true)] bool doAsync)
+		{
+			const string header = "Content-Type: application/octet-stream\r\nContent-Transfer-Encoding: x-uuencode\r\n\r\nbegin 644 file.bin\r\n";
+			string prefix = string.Concat (Enumerable.Repeat ("M" + new string ('A', 60) + "\r\n", 80));
+
+			for (int value = 0; value < 256; value++) {
+				foreach (int position in new[] { 0, 15, 16, 28, 31, 32, 44, 47, 48, 59 }) {
+					string line = "M" + new string ('A', position) + (char) value + new string ('A', 59 - position) + "\r\n";
+					var data = Encoding.Latin1.GetBytes (header + prefix + string.Concat (Enumerable.Repeat (line, 80)) + "`\r\nend\r\n");
+					await AssertValidatedPaths (data, MimeFormat.Entity, 4096, 0, doAsync, $"uu-byte/{value}/{position}");
+				}
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedEncodedMbox ([Values (false, true)] bool doAsync,
+			[Values ("quoted-printable", "x-uuencode")] string encoding)
+		{
+			const string marker = "From mimekit@example.org Fri Jan  1 00:00:00 2026\r\n";
+			string header = "From: mimekit@example.org\r\nContent-Type: text/plain\r\nContent-Transfer-Encoding: " + encoding + "\r\n\r\n";
+			string body = encoding == "quoted-printable"
+				? string.Concat (Enumerable.Repeat ("literal=20text=3Dvalue=\r\n", 300))
+				: "begin 644 file.bin\r\n" + string.Concat (Enumerable.Repeat ("M" + new string ('A', 60) + "\r\n", 100)) + "`\r\nend\r\n";
+
+			for (int padding = 0; padding < 32; padding++) {
+				var data = Encoding.ASCII.GetBytes (marker + header + new string (' ', padding) + "\r\n" + body + marker + header + body);
+				foreach (int chunkSize in new[] { 33, 1021, 4096 })
+					await AssertValidatedPaths (data, MimeFormat.Mbox, chunkSize, 0, doAsync, $"encoded-mbox/{encoding}/{padding}/{chunkSize}");
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedBase64Mbox ([Values (false, true)] bool doAsync, [Values (0, 1)] int maxIssues)
+		{
+			const string marker = "From mimekit@example.org Fri Jan  1 00:00:00 2026\r\n";
+			const string header = "From: mimekit@example.org\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n";
+			string prefix = string.Concat (Enumerable.Repeat (new string ('Z', 76) + "\r\n", 60));
+
+			for (int padding = 0; padding < 64; padding++) {
+				var data = Encoding.ASCII.GetBytes (marker + header + prefix + new string ('Z', padding) + "\r\n" +
+					marker + header + prefix + "AA==\r\n");
+
+				foreach (int chunkSize in new[] { 33, 1021, 4096 })
+					await AssertValidatedPaths (data, MimeFormat.Mbox, chunkSize, maxIssues, doAsync, $"mbox/{padding}/{chunkSize}");
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedQuotedPrintableMboxCandidates ([Values (false, true)] bool doAsync,
+			[Values (0, 1)] int maxIssues, [Values ("\r\n", "\n")] string newline)
+		{
+			const string marker = "From mimekit@example.org Fri Jan  1 00:00:00 2026\r\n";
+			const string header = "From: mimekit@example.org\r\nContent-Type: text/plain\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n";
+			string clean = string.Concat (Enumerable.Repeat ("literal=20text=3Dvalue=\r\n", 12));
+			string body = clean + "Fromage=20value\r\n" + clean + "---=\r\n" + clean +
+				"Fro=0G\r\n" + clean + "=\rX\r\n\0\u00ff\n";
+
+			for (int padding = 0; padding < 32; padding++) {
+				var data = Encoding.Latin1.GetBytes ((marker + header + new string ('x', padding) + "\r\n" + body + marker + header + body).Replace ("\r\n", newline));
+				foreach (int chunkSize in new[] { 1, 33, 64, 1021, 4096 })
+					await AssertValidatedPaths (data, MimeFormat.Mbox, chunkSize, maxIssues, doAsync, $"qp-mbox/{padding}/{chunkSize}");
+			}
+		}
+
+		[Test]
+		public async Task TestValidatedBase64PartialQuantum ([Values (false, true)] bool doAsync)
+		{
+			const string header = "Content-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n";
+			const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+			foreach (int width in new[] { 1, 2, 3, 15, 16, 31, 32, 75, 76, 77, 998, 999 }) {
+				var text = new StringBuilder (header);
+				for (int i = 0; i < 100; i++)
+					text.Append (new string (alphabet[i % alphabet.Length], width)).Append ("\t \r\n");
+
+				foreach (string suffix in new[] { "=\r\n", "==\r\n", "\r\n", "AA==\r\nA\r\n", "\0\u00ff\r\n", "*\r\n" }) {
+					var data = Encoding.Latin1.GetBytes (text.ToString () + suffix);
+					foreach (int chunkSize in new[] { 64, 1021, 4096 })
+						await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, 0, doAsync, $"quantum/{width}/{suffix}/{chunkSize}");
+				}
+			}
+		}
 
 		static byte[] CreateByteDetectionMessage (string encoding, int padding, bool nullFirst)
 		{
