@@ -239,10 +239,8 @@ namespace UnitTests.Encodings {
 				typeof (UUDecoder), typeof (YEncDecoder), typeof (PassThroughDecoder), typeof (Rfc2231Decoder) };
 
 			foreach (var type in types) {
-				foreach (var method in type.GetMethods ()) {
-					if (method.Name == nameof (IMimeDecoder.Decode))
-						Assert.That (method.GetParameters ().Any (parameter => parameter.ParameterType.IsPointer), Is.False, type.Name);
-				}
+				foreach (var method in type.GetMethods ().Where (method => method.Name == nameof (IMimeDecoder.Decode)))
+					Assert.That (method.GetParameters ().Any (parameter => parameter.ParameterType.IsPointer), Is.False, type.Name);
 			}
 		}
 	}

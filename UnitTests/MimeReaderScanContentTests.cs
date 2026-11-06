@@ -758,14 +758,16 @@ namespace UnitTests {
 		{
 			const string header = "Content-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n";
 			const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			var text = new StringBuilder ();
 
 			foreach (int width in new[] { 1, 2, 3, 15, 16, 31, 32, 75, 76, 77, 998, 999 }) {
-				var text = new StringBuilder (header);
+				text.Clear ().Append (header);
 				for (int i = 0; i < 100; i++)
 					text.Append (new string (alphabet[i % alphabet.Length], width)).Append ("\t \r\n");
 
+				string prefix = text.ToString ();
 				foreach (string suffix in new[] { "=\r\n", "==\r\n", "\r\n", "AA==\r\nA\r\n", "\0\u00ff\r\n", "*\r\n" }) {
-					var data = Encoding.Latin1.GetBytes (text.ToString () + suffix);
+					var data = Encoding.Latin1.GetBytes (prefix + suffix);
 					foreach (int chunkSize in new[] { 64, 1021, 4096 })
 						await AssertValidatedPaths (data, MimeFormat.Entity, chunkSize, 0, doAsync, $"quantum/{width}/{suffix}/{chunkSize}");
 				}

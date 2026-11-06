@@ -1557,14 +1557,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				try {
-					var parser = new MimeParser (memory, MimeFormat.Entity);
-					using var message = parser.ParseMessage ();
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				using var message = parser.ParseMessage ();
 
-					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
-				} catch (Exception ex) {
-					Assert.Fail ($"Failed to parse message: {ex}");
-				}
+				Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 			}
 		}
 
@@ -1574,14 +1570,10 @@ namespace UnitTests {
 			var bytes = Encoding.ASCII.GetBytes ("\r\n");
 
 			using (var memory = new MemoryStream (bytes, false)) {
-				try {
-					var parser = new MimeParser (memory, MimeFormat.Entity);
-					using var message = await parser.ParseMessageAsync ();
+				var parser = new MimeParser (memory, MimeFormat.Entity);
+				using var message = await parser.ParseMessageAsync ();
 
-					Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
-				} catch (Exception ex) {
-					Assert.Fail ($"Failed to parse message: {ex}");
-				}
+				Assert.That (message.Headers.Count, Is.EqualTo (0), "Unexpected header count.");
 			}
 		}
 
@@ -4432,20 +4424,31 @@ This is the second part.
 			("invalid?", "invalid?--", false),
 		};
 
+		static string WrapInMultipart (string text, int wrappers)
+		{
+			var builder = new StringBuilder ();
+
+			for (int i = wrappers - 1; i >= 0; i--)
+				builder.Append ($"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n");
+			builder.Append (text);
+			for (int i = 0; i < wrappers; i++)
+				builder.Append ($"--wrapper{i}--\r\n");
+
+			return builder.ToString ();
+		}
+
 		[Test]
 		public async Task TestBoundaryIndexTransitions ([Values (1, 4096)] int chunkSize, [Values (false, true)] bool doAsync)
 		{
-			string text = "Content-Type: multipart/mixed; boundary=outer\r\n\r\n";
+			var builder = new StringBuilder ("Content-Type: multipart/mixed; boundary=outer\r\n\r\n");
 			for (int i = 0; i < 4; i++) {
-				text += "--outer\r\nContent-Type: multipart/mixed; boundary=inner\r\n\r\n--inner\r\n" +
+				builder.Append ("--outer\r\nContent-Type: multipart/mixed; boundary=inner\r\n\r\n--inner\r\n" +
 					"Content-Type: multipart/mixed; boundary=leaf\r\n\r\n--leaf\r\n\r\n" +
-					$"part{i}\r\n--leaf--\r\n--inner--\r\n";
+					$"part{i}\r\n--leaf--\r\n--inner--\r\n");
 			}
-			text += "--outer--\r\n";
-			for (int i = 0; i < 3; i++)
-				text = $"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n" + text + $"--wrapper{i}--\r\n";
+			builder.Append ("--outer--\r\n");
 
-			var data = Encoding.ASCII.GetBytes (text);
+			var data = Encoding.ASCII.GetBytes (WrapInMultipart (builder.ToString (), 3));
 			using var stream = new ChunkedReadStream (data, chunkSize);
 			var parser = new MimeParser (stream, MimeFormat.Entity);
 			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
@@ -4468,11 +4471,12 @@ This is the second part.
 		public async Task TestMboxUnwindsAncestorBoundaryIndex ([Values (1, 4096)] int chunkSize, [Values (false, true)] bool doAsync)
 		{
 			const string separator = "From sender@example.org Wed Nov  4 12:00:00 2026\r\n";
-			string prefix = "", suffix = "";
-			for (int i = 0; i < 4; i++) {
-				prefix += $"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n";
-				suffix = $"--wrapper{i}--\r\n" + suffix;
-			}
+			var prefix = new StringBuilder ();
+			var suffix = new StringBuilder ();
+			for (int i = 0; i < 4; i++)
+				prefix.Append ($"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n");
+			for (int i = 3; i >= 0; i--)
+				suffix.Append ($"--wrapper{i}--\r\n");
 			string text = separator + prefix +
 				"Content-Type: multipart/mixed; boundary=old\r\n\r\n--old\r\n" +
 				"Content-Type: multipart/mixed; boundary=inner\r\n\r\n--inner\r\n\r\nfirst\r\n" +
@@ -4524,10 +4528,7 @@ This is the second part.
 				text += $"\r\nsecond\r\n--{middleName}--\r\n";
 			text += $"--{outerName}--\r\n";
 
-			for (int i = 0; i < wrappers; i++)
-				text = $"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n" + text + $"--wrapper{i}--\r\n";
-
-			var data = Encoding.UTF8.GetBytes (text.Replace ("\r\n", newline));
+			var data = Encoding.UTF8.GetBytes (WrapInMultipart (text, wrappers).Replace ("\r\n", newline));
 			using var stream = new ChunkedReadStream (data, chunkSize);
 			var parser = new MimeParser (stream, MimeFormat.Entity) {
 				ComplianceLogger = new TestMimeComplianceLogger ()
