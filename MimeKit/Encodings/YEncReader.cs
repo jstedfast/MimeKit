@@ -534,6 +534,7 @@ namespace MimeKit.Encodings {
 		/// Leaves the destination open. Discard its output if the operation fails.
 		/// Absent checksums are accepted; whole-file checksums of partial ranges remain unverified metadata.
 		/// </remarks>
+		/// <returns>An awaitable task.</returns>
 		/// <param name="destination">The writable destination.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <exception cref="ArgumentNullException">
