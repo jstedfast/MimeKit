@@ -3080,21 +3080,23 @@ namespace MimeKit {
 			uint dosBits = 0, unixBits = 0;
 			byte* resume = inptr;
 			byte* p = inptr;
-			uint crCarry = 0;
 			int count = 0;
 
 			// Note: The (p + 1) and (p + 2) loads read up to and including the '\n' sentinel at inend.
 			while (p + Vector128<byte>.Count + 1 <= inend) {
 				var v = Vector128.Load (p);
 				uint lf = Vector128.ExtractMostSignificantBits (Vector128.Equals (v, vlf));
-				uint cr = Vector128.ExtractMostSignificantBits (Vector128.Equals (v, vcr));
 
 				if (lf != 0) {
+					uint cr = Vector128.ExtractMostSignificantBits (Vector128.Equals (v, vcr));
 					var n1 = Vector128.Load (p + 1);
 					var n2 = Vector128.Load (p + 2);
 					var possible = (Vector128.Equals (n1, vdash) & Vector128.Equals (n2, vdash)) | (Vector128.Equals (n1, vc1) & Vector128.Equals (n2, vc2));
 					uint candidates = lf & Vector128.ExtractMostSignificantBits (possible);
-					uint crlf = lf & ((cr << 1) | crCarry);
+					uint crlf = lf & (cr << 1);
+
+					if ((lf & 1) != 0 && p > inptr && p[-1] == (byte) '\r')
+						crlf |= 1;
 
 					if (candidates != 0) {
 						int index = BitOperations.TrailingZeroCount (candidates);
@@ -3118,7 +3120,6 @@ namespace MimeKit {
 					resume = p + (31 - BitOperations.LeadingZeroCount (lf)) + 1;
 				}
 
-				crCarry = cr >> (Vector128<byte>.Count - 1);
 				p += Vector128<byte>.Count;
 			}
 
@@ -3146,21 +3147,23 @@ namespace MimeKit {
 			uint dosBits = 0, unixBits = 0;
 			byte* resume = inptr;
 			byte* p = inptr;
-			uint crCarry = 0;
 			int count = 0;
 
 			// Note: The (p + 1) and (p + 2) loads read up to and including the '\n' sentinel at inend.
 			while (p + Vector256<byte>.Count + 1 <= inend) {
 				var v = Vector256.Load (p);
 				uint lf = Vector256.ExtractMostSignificantBits (Vector256.Equals (v, vlf));
-				uint cr = Vector256.ExtractMostSignificantBits (Vector256.Equals (v, vcr));
 
 				if (lf != 0) {
+					uint cr = Vector256.ExtractMostSignificantBits (Vector256.Equals (v, vcr));
 					var n1 = Vector256.Load (p + 1);
 					var n2 = Vector256.Load (p + 2);
 					var possible = (Vector256.Equals (n1, vdash) & Vector256.Equals (n2, vdash)) | (Vector256.Equals (n1, vc1) & Vector256.Equals (n2, vc2));
 					uint candidates = lf & Vector256.ExtractMostSignificantBits (possible);
-					uint crlf = lf & ((cr << 1) | crCarry);
+					uint crlf = lf & (cr << 1);
+
+					if ((lf & 1) != 0 && p > inptr && p[-1] == (byte) '\r')
+						crlf |= 1;
 
 					if (candidates != 0) {
 						int index = BitOperations.TrailingZeroCount (candidates);
@@ -3186,7 +3189,6 @@ namespace MimeKit {
 					resume = p + (31 - BitOperations.LeadingZeroCount (lf)) + 1;
 				}
 
-				crCarry = cr >> (Vector256<byte>.Count - 1);
 				p += Vector256<byte>.Count;
 			}
 

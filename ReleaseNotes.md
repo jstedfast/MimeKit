@@ -505,7 +505,7 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   instead of walking the boundary stack for every candidate line. Ancestor lookup is logarithmic
   in nesting depth, with no per-lookup allocations; shallow nesting retains a bounded linear path.
 * Accelerated `MimeReader` content scanning with SIMD on .NET 8 and later when compliance reporting
-  is disabled.
+  is disabled, including skipping CR detection in newline-free vector blocks.
 * Quoted-printable compliance validation can resume fused scanning after rejecting a possible
   boundary marker, avoiding a separate validation pass over subsequent clean content. Clean
   LF-terminated QP lines also avoid the ordinary encoding-validation pass without suppressing

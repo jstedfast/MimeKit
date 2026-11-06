@@ -217,6 +217,12 @@ namespace UnitTests {
 				new string ('a', 100) + "\n-",
 				new string ('a', 100) + "\n--",
 				new string ('a', 1000),
+				"\n" + new string ('a', 1000),
+				new string ('a', 127) + "\r\n--boundary\n" + new string ('a', 40),
+				new string ('a', 127) + "\r\n" + new string ('a', 127) + "\n" + new string ('a', 40),
+				"short\r\n" + new string ('a', 1024) + "\r\n--boundary\r\n" + new string ('a', 40),
+				"short\r\n" + new string ('a', 1024) + "\r\nshort\r\n" + new string ('a', 40),
+				"short\r\n" + new string ('a', 1024) + "\r\n" + new string ('a', 1024) + "\nshort\n",
 			};
 
 			foreach (var input in inputs) {
