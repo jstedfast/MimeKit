@@ -3115,6 +3115,36 @@ This is the second inner message body.
 		const string TextPlainMessage = "From: mimekit@example.org\r\nContent-Type: text/plain\r\n\r\nbody\r\n";
 
 		[Test]
+		public async Task TestBoundaryIndexResetAfterFailure ([Values (false, true)] bool doAsync)
+		{
+			var source = GenerateExtremelyNestedMessage (true, 20);
+			using var stream = new MemoryStream (source, false);
+			var reader = new ThrowingMimeReader (stream) { ThrowOnMimePartBegin = true };
+
+			if (doAsync)
+				Assert.ThrowsAsync<InvalidOperationException> (() => reader.ReadMessageAsync ());
+			else
+				Assert.Throws<InvalidOperationException> (() => reader.ReadMessage ());
+
+			var field = typeof (MimeReader).GetField ("boundaryIndex", BindingFlags.Instance | BindingFlags.NonPublic);
+			var index = (MimeBoundaryIndex) field.GetValue (reader);
+			var boundaries = typeof (MimeReader).GetField ("boundaries", BindingFlags.Instance | BindingFlags.NonPublic);
+			var ancestor = ((MimeBoundary) boundaries.GetValue (reader)).Next;
+			Assert.That (index.TryGetBoundary (ancestor.Marker, 0, ancestor.Length, out _, out _), Is.True);
+
+			reader.ThrowOnMimePartBegin = false;
+			using var next = new MemoryStream (source, false);
+			reader.SetStream (next);
+			Assert.That (index.TryGetBoundary (ancestor.Marker, 0, ancestor.Length, out _, out _), Is.False, "reset");
+
+			if (doAsync)
+				await reader.ReadMessageAsync ();
+			else
+				reader.ReadMessage ();
+			Assert.That (index.TryGetBoundary (ancestor.Marker, 0, ancestor.Length, out _, out _), Is.False, "unwound");
+		}
+
+		[Test]
 		public void TestEntityFramesAreReleasedWhenParsingFails ()
 		{
 			var source = GenerateExtremelyNestedMessage (true, 20);

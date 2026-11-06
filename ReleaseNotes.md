@@ -501,6 +501,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 * Reduced allocations for message and header bookkeeping, and removed no-op finalizers that
   needlessly placed managed objects on the GC finalization queue.
 * Fixed quadratic buffer growth when parsing long or heavily folded headers in both MIME parsers.
+* `MimeReader` and `MimeParser` now index ancestor multipart boundaries for deeply nested messages
+  instead of walking the boundary stack for every candidate line. Ancestor lookup is logarithmic
+  in nesting depth, with no per-lookup allocations; shallow nesting retains a bounded linear path.
 * Accelerated `MimeReader` content scanning with SIMD on .NET 8 and later when compliance reporting
   is disabled.
 * Quoted-printable compliance validation can resume fused scanning after rejecting a possible

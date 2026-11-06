@@ -91,9 +91,13 @@ namespace MimeKit {
 		int validHeaderCount;
 
 		// boundary state
+		const int BoundaryIndexThreshold = 4;
+		MimeBoundaryIndex? boundaryIndex;
 		MimeBoundary? boundaries;
 		MimeBoundary? currentBoundary;
+		MimeBoundary? mboxBoundary;
 		MimeBoundaryType boundaryType;
+		int boundaryDepth;
 
 		ContentType? currentContentType;
 		int currentContentTypeLineNumber;
@@ -325,11 +329,10 @@ namespace MimeKit {
 			toplevel = false;
 			eos = false;
 
-			if (format == MimeFormat.Mbox) {
-				boundaries = MimeBoundary.CreateMboxBoundary ();
-			} else {
-				boundaries = null;
-			}
+			mboxBoundary = format == MimeFormat.Mbox ? MimeBoundary.CreateMboxBoundary () : null;
+			boundaries = mboxBoundary;
+			boundaryIndex?.Clear ();
+			boundaryDepth = 0;
 
 			state = MimeParserState.Initialized;
 			boundaryType = MimeBoundaryType.None;
@@ -2865,16 +2868,21 @@ namespace MimeKit {
 					if (IsBoundary (start, matchLength, currentBoundary, out final))
 						return final ? MimeBoundaryType.ImmediateEndBoundary : MimeBoundaryType.ImmediateBoundary;
 
-					currentBoundary = currentBoundary.Next;
-
-					// check parent boundaries
-					while (currentBoundary != null && !currentBoundary.IsMboxMarker) {
-						if (IsBoundary (start, matchLength, currentBoundary, out final))
+					if (boundaryDepth > BoundaryIndexThreshold) {
+						if (boundaryIndex!.TryGetBoundary (input, startIndex, matchLength, out currentBoundary, out final))
 							return final ? MimeBoundaryType.ParentEndBoundary : MimeBoundaryType.ParentBoundary;
-
+					} else {
+						// A bounded walk avoids index overhead for shallow multiparts.
 						currentBoundary = currentBoundary.Next;
+						while (currentBoundary != null && !currentBoundary.IsMboxMarker) {
+							if (IsBoundary (start, matchLength, currentBoundary, out final))
+								return final ? MimeBoundaryType.ParentEndBoundary : MimeBoundaryType.ParentBoundary;
+							currentBoundary = currentBoundary.Next;
+						}
 					}
 				}
+
+				currentBoundary = mboxBoundary;
 
 				if (currentBoundary != null) {
 					// now it is time to check the mbox From-marker
@@ -4079,12 +4087,37 @@ namespace MimeKit {
 
 		void PushBoundary (string boundary)
 		{
-			boundaries = new MimeBoundary (boundary, boundaries);
+			var next = new MimeBoundary (boundary, boundaries);
+
+			if (boundaryDepth == BoundaryIndexThreshold) {
+				boundaryIndex ??= new MimeBoundaryIndex ();
+				var ancestors = new Stack<MimeBoundary> (BoundaryIndexThreshold);
+				var ancestor = boundaries;
+
+				for (int i = 0; i < BoundaryIndexThreshold; i++) {
+					ancestors.Push (ancestor!);
+					ancestor = ancestor!.Next;
+				}
+
+				foreach (var item in ancestors)
+					boundaryIndex.Add (item);
+			} else if (boundaryDepth > BoundaryIndexThreshold) {
+				boundaryIndex!.Add (boundaries!);
+			}
+
+			boundaries = next;
+			boundaryDepth++;
 		}
 
 		void PopBoundary ()
 		{
 			boundaries = boundaries!.Next;
+			boundaryDepth--;
+
+			if (boundaryDepth == BoundaryIndexThreshold)
+				boundaryIndex!.Clear ();
+			else if (boundaryDepth > BoundaryIndexThreshold)
+				boundaryIndex!.Remove (boundaries!);
 
 			switch (boundaryType) {
 			case MimeBoundaryType.ParentEndBoundary:

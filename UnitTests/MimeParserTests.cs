@@ -4423,6 +4423,135 @@ This is the second part.
 			}
 		}
 
+		static readonly (string Outer, string Middle, bool Closing)[] AncestorBoundaryCases = {
+			("b", "b--", false),
+			("b--", "b", true),
+			("b", "b", false),
+			("b", "b", true),
+			("\u00e9", "\u00e9--", false),
+			("invalid?", "invalid?--", false),
+		};
+
+		[Test]
+		public async Task TestBoundaryIndexTransitions ([Values (1, 4096)] int chunkSize, [Values (false, true)] bool doAsync)
+		{
+			string text = "Content-Type: multipart/mixed; boundary=outer\r\n\r\n";
+			for (int i = 0; i < 4; i++) {
+				text += "--outer\r\nContent-Type: multipart/mixed; boundary=inner\r\n\r\n--inner\r\n" +
+					"Content-Type: multipart/mixed; boundary=leaf\r\n\r\n--leaf\r\n\r\n" +
+					$"part{i}\r\n--leaf--\r\n--inner--\r\n";
+			}
+			text += "--outer--\r\n";
+			for (int i = 0; i < 3; i++)
+				text = $"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n" + text + $"--wrapper{i}--\r\n";
+
+			var data = Encoding.ASCII.GetBytes (text);
+			using var stream = new ChunkedReadStream (data, chunkSize);
+			var parser = new MimeParser (stream, MimeFormat.Entity);
+			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
+			var outer = (Multipart) entity;
+			for (int i = 0; i < 3; i++) {
+				Assert.That (outer.Count, Is.EqualTo (1));
+				outer = (Multipart) outer[0];
+			}
+			Assert.That (outer.Count, Is.EqualTo (4));
+			for (int i = 0; i < 4; i++) {
+				var inner = (Multipart) outer[i];
+				Assert.That (inner.Count, Is.EqualTo (1));
+				var leaf = (Multipart) inner[0];
+				Assert.That (leaf.Count, Is.EqualTo (1));
+				Assert.That (((TextPart) leaf[0]).Text, Is.EqualTo ($"part{i}"));
+			}
+		}
+
+		[Test]
+		public async Task TestMboxUnwindsAncestorBoundaryIndex ([Values (1, 4096)] int chunkSize, [Values (false, true)] bool doAsync)
+		{
+			const string separator = "From sender@example.org Wed Nov  4 12:00:00 2026\r\n";
+			string prefix = "", suffix = "";
+			for (int i = 0; i < 4; i++) {
+				prefix += $"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n";
+				suffix = $"--wrapper{i}--\r\n" + suffix;
+			}
+			string text = separator + prefix +
+				"Content-Type: multipart/mixed; boundary=old\r\n\r\n--old\r\n" +
+				"Content-Type: multipart/mixed; boundary=inner\r\n\r\n--inner\r\n\r\nfirst\r\n" +
+				separator + prefix +
+				"Content-Type: multipart/mixed; boundary=new\r\n\r\n--new\r\n" +
+				"Content-Type: multipart/mixed; boundary=other\r\n\r\n--other\r\n\r\n--old\r\nsecond\r\n" +
+				"--other--\r\n--new--\r\n" + suffix;
+			var data = Encoding.ASCII.GetBytes (text);
+			using var stream = new ChunkedReadStream (data, chunkSize);
+			var parser = new MimeParser (stream, MimeFormat.Mbox);
+			using var first = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+			using var second = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+
+			var outer = (Multipart) first.Body;
+			for (int i = 0; i < 4; i++) {
+				Assert.That (outer.Count, Is.EqualTo (1));
+				outer = (Multipart) outer[0];
+			}
+			Assert.That (outer.Count, Is.EqualTo (1));
+			var inner = (Multipart) outer[0];
+			Assert.That (inner.Count, Is.EqualTo (1));
+			Assert.That (((TextPart) inner[0]).Text, Is.EqualTo ("first"));
+			outer = (Multipart) second.Body;
+			for (int i = 0; i < 4; i++) {
+				Assert.That (outer.Count, Is.EqualTo (1));
+				outer = (Multipart) outer[0];
+			}
+			Assert.That (outer.Count, Is.EqualTo (1));
+			inner = (Multipart) outer[0];
+			Assert.That (inner.Count, Is.EqualTo (1));
+			Assert.That (((TextPart) inner[0]).Text, Is.EqualTo ("--old\r\nsecond"));
+			Assert.That (parser.Position, Is.EqualTo (data.Length));
+		}
+
+		[Test]
+		public async Task TestAncestorBoundaryPrecedence ([Values (0, 1, 2, 3, 4, 5)] int caseIndex,
+			[Values (0, 4)] int wrappers, [Values (1, 7, 4096)] int chunkSize,
+			[Values ("\r\n", "\n")] string newline, [Values (false, true)] bool doAsync)
+		{
+			var (outerName, middleName, closing) = AncestorBoundaryCases[caseIndex];
+			string text = $"Content-Type: multipart/mixed; boundary=\"{outerName}\"\r\n\r\n--{outerName}\r\n" +
+				$"Content-Type: multipart/mixed; boundary=\"{middleName}\"\r\n\r\n--{middleName}\r\n" +
+				"Content-Type: multipart/mixed; boundary=\"inner\"\r\n\r\n--inner\r\n\r\nfirst\r\n" +
+				$"--{middleName}{(closing ? "--" : "")}\t \r\n";
+
+			if (closing)
+				text += "epilogue\r\n";
+			else
+				text += $"\r\nsecond\r\n--{middleName}--\r\n";
+			text += $"--{outerName}--\r\n";
+
+			for (int i = 0; i < wrappers; i++)
+				text = $"Content-Type: multipart/mixed; boundary=wrapper{i}\r\n\r\n--wrapper{i}\r\n" + text + $"--wrapper{i}--\r\n";
+
+			var data = Encoding.UTF8.GetBytes (text.Replace ("\r\n", newline));
+			using var stream = new ChunkedReadStream (data, chunkSize);
+			var parser = new MimeParser (stream, MimeFormat.Entity) {
+				ComplianceLogger = new TestMimeComplianceLogger ()
+			};
+			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
+			var outer = (Multipart) entity;
+			for (int i = 0; i < wrappers; i++) {
+				Assert.That (outer.Count, Is.EqualTo (1));
+				outer = (Multipart) outer[0];
+			}
+
+			Assert.That (outer.Count, Is.EqualTo (1), "outer children");
+			var middle = (Multipart) outer[0];
+			Assert.That (middle.Count, Is.EqualTo (closing ? 1 : 2), "nearest ancestor must win");
+			var inner = (Multipart) middle[0];
+			Assert.That (inner.Count, Is.EqualTo (1));
+			Assert.That (((TextPart) inner[0]).Text, Is.EqualTo ("first"));
+			if (closing)
+				Assert.That (middle.Epilogue, Does.Contain ("epilogue"));
+			else
+				Assert.That (((TextPart) middle[1]).Text, Is.EqualTo ("second"));
+			Assert.That (parser.Position, Is.EqualTo (data.Length));
+		}
+
 		[Test]
 		public void TestMultipartDoubleBoundaryParentBoundary ()
 		{
