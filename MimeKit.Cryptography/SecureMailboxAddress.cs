@@ -63,6 +63,9 @@ namespace MimeKit.Cryptography {
 		/// <para>-or-</para>
 		/// <para><paramref name="fingerprint"/> is <see langword="null"/>.</para>
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="route"/> contains a null, empty or syntactically invalid domain.
+		/// </exception>
 		public SecureMailboxAddress (Encoding encoding, string name, IEnumerable<string> route, string address, string fingerprint) : base (encoding, name, route, address)
 		{
 			ValidateFingerprint (fingerprint);
@@ -86,6 +89,9 @@ namespace MimeKit.Cryptography {
 		/// <para><paramref name="address"/> is <see langword="null"/>.</para>
 		/// <para>-or-</para>
 		/// <para><paramref name="fingerprint"/> is <see langword="null"/>.</para>
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="route"/> contains a null, empty or syntactically invalid domain.
 		/// </exception>
 		public SecureMailboxAddress (string name, IEnumerable<string> route, string address, string fingerprint) : base (name, route, address)
 		{

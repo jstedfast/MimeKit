@@ -41,6 +41,88 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		[TestCase ("")]
+		[TestCase (" text")]
+		[TestCase ("text ")]
+		[TestCase ("text/plain")]
+		[TestCase ("plain; charset=utf-8")]
+		[TestCase ("\"plain\"")]
+		[TestCase ("pl\u00e4in")]
+		[TestCase ("plain\r\nX-Injected: yes")]
+		[TestCase ("\u0100")]
+		public void TestContentTypeTokenArguments (string invalid)
+		{
+			var contentType = new ContentType ("text", "plain");
+			int changed = 0;
+			contentType.Changed += (sender, args) => changed++;
+
+			Assert.That (Assert.Throws<ArgumentException> (() => new ContentType (invalid, "plain")).ParamName, Is.EqualTo ("mediaType"));
+			Assert.That (Assert.Throws<ArgumentException> (() => new ContentType ("text", invalid)).ParamName, Is.EqualTo ("mediaSubtype"));
+			Assert.That (Assert.Throws<ArgumentException> (() => contentType.MediaType = invalid).ParamName, Is.EqualTo ("value"));
+			Assert.That (Assert.Throws<ArgumentException> (() => contentType.MediaSubtype = invalid).ParamName, Is.EqualTo ("value"));
+			Assert.That (contentType.MimeType, Is.EqualTo ("text/plain"));
+			Assert.That (changed, Is.Zero);
+		}
+
+		[Test]
+		public void TestContentTypeNullArguments ()
+		{
+			Assert.That (Assert.Throws<ArgumentNullException> (() => new ContentType (null, "plain")).ParamName, Is.EqualTo ("mediaType"));
+			Assert.That (Assert.Throws<ArgumentNullException> (() => new ContentType ("text", null)).ParamName, Is.EqualTo ("mediaSubtype"));
+		}
+
+		[TestCase ("")]
+		[TestCase (" \t")]
+		[TestCase (" example.com")]
+		[TestCase ("example.com ")]
+		[TestCase ("example..com")]
+		[TestCase (".example.com")]
+		[TestCase ("example.com.")]
+		[TestCase ("@example.com")]
+		[TestCase ("user@example.com")]
+		[TestCase ("example.com,other.example")]
+		[TestCase ("example.com:")]
+		[TestCase ("example(comment).com")]
+		[TestCase ("[127.0.0.1")]
+		[TestCase ("[127.0.0.1]extra")]
+		[TestCase ("[a\\b]")]
+		[TestCase ("[a b]")]
+		[TestCase ("[a[b]]")]
+		[TestCase ("exam\u2008ple.com")]
+		[TestCase ("example.com\r\nX-Injected: yes")]
+		[TestCase ("a\0b")]
+		[TestCase ("a\u007fb")]
+		[TestCase ("a\u0085b")]
+		public void TestDomainListSyntaxArguments (string invalid)
+		{
+			var list = new DomainList (new[] { "example.com" });
+			int changed = 0;
+			list.Changed += (sender, args) => changed++;
+
+			Assert.That (Assert.Throws<ArgumentException> (() => new DomainList (new[] { "example.com", invalid })).ParamName, Is.EqualTo ("domains"));
+			Assert.That (Assert.Throws<ArgumentException> (() => list.Add (invalid)).ParamName, Is.EqualTo ("domain"));
+			Assert.That (Assert.Throws<ArgumentException> (() => list.Insert (0, invalid)).ParamName, Is.EqualTo ("domain"));
+			Assert.That (Assert.Throws<ArgumentException> (() => list[0] = invalid).ParamName, Is.EqualTo ("value"));
+			Assert.That (list.ToArray (), Is.EqualTo (new[] { "example.com" }));
+			Assert.That (changed, Is.Zero);
+			Assert.That (list.Contains (invalid), Is.False);
+			Assert.That (list.IndexOf (invalid), Is.EqualTo (-1));
+			Assert.That (list.Remove (invalid), Is.False);
+		}
+
+		[TestCase (0xd800)]
+		[TestCase (0xdc00)]
+		public void TestDomainListUnpairedSurrogate (int surrogate)
+		{
+			TestDomainListSyntaxArguments ("a" + (char) surrogate + "b");
+		}
+
+		[Test]
+		public void TestDomainListNullElement ()
+		{
+			Assert.That (Assert.Throws<ArgumentException> (() => new DomainList (new string[] { "example.com", null })).ParamName, Is.EqualTo ("domains"));
+		}
+
 		[Test]
 		public void TestMimeDecoderFlushArguments ()
 		{

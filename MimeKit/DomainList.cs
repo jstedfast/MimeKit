@@ -49,18 +49,94 @@ namespace MimeKit {
 		/// Initialize a new instance of the <see cref="DomainList"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Creates a new <see cref="DomainList"/> based on the domains provided.
+		/// <para>Creates a new <see cref="DomainList"/> based on the domains provided.</para>
+		/// <para>Each entry must be a nonempty dot-atom or bracketed domain literal, without whitespace
+		/// or control characters. Internationalized domains and single-label names are supported.
+		/// Values are not trimmed or checked against DNS.</para>
 		/// </remarks>
 		/// <param name="domains">A domain list.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domains"/> is <see langword="null"/>.
 		/// </exception>
-		public DomainList (IEnumerable<string> domains)
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="domains"/> contains a null, empty or syntactically invalid domain.
+		/// </exception>
+		public DomainList (IEnumerable<string> domains) : this (domains, true)
+		{
+		}
+
+		internal DomainList (IEnumerable<string> domains, bool validate)
 		{
 			if (domains is null)
 				throw new ArgumentNullException (nameof (domains));
 
-			this.domains = new List<string> (domains);
+			var list = new List<string> (domains);
+
+			if (validate) {
+				foreach (var domain in list) {
+					if (!IsValidDomain (domain))
+						throw new ArgumentException ("The list contains an invalid domain.", nameof (domains));
+				}
+			}
+
+			this.domains = list;
+		}
+
+		static bool IsValidDomain (string? domain)
+		{
+			if (string.IsNullOrEmpty (domain))
+				return false;
+
+			bool literal = domain[0] == '[';
+			int endIndex = domain.Length;
+			int atomLength = 0;
+
+			if (literal) {
+				if (domain[endIndex - 1] != ']')
+					return false;
+
+				endIndex--;
+			}
+
+			for (int i = literal ? 1 : 0; i < endIndex; i++) {
+				char c = domain[i];
+
+				if (!literal && c == '.') {
+					if (atomLength == 0)
+						return false;
+
+					atomLength = 0;
+					continue;
+				}
+
+				if (c < 128) {
+					if (literal ? !((byte) c).IsDomain () : !((byte) c).IsAtom ())
+						return false;
+				} else {
+					if (char.IsWhiteSpace (c) || char.IsControl (c))
+						return false;
+
+					if (char.IsSurrogate (c)) {
+						if (!char.IsHighSurrogate (c) || i + 1 >= endIndex || !char.IsLowSurrogate (domain[i + 1]))
+							return false;
+
+						i++;
+					}
+				}
+
+				atomLength++;
+			}
+
+			return literal || atomLength > 0;
+		}
+
+		static void ValidateDomain (string domain, string parameterName)
+		{
+			if (domain is null)
+				throw new ArgumentNullException (parameterName);
+
+			if (!IsValidDomain (domain))
+				throw new ArgumentException ("Invalid domain syntax.", parameterName);
 		}
 
 		/// <summary>
@@ -115,10 +191,12 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="domain"/> is empty or syntactically invalid.
+		/// </exception>
 		public void Insert (int index, string domain)
 		{
-			if (domain is null)
-				throw new ArgumentNullException (nameof (domain));
+			ValidateDomain (domain, nameof (domain));
 
 			EnsureAllocated ();
 			domains.Insert (index, domain);
@@ -155,11 +233,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// <paramref name="index"/> is out of range.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty or syntactically invalid.
+		/// </exception>
 		public string this [int index] {
 			get { return domains[index]; }
 			set {
-				if (value is null)
-					throw new ArgumentNullException (nameof (value));
+				ValidateDomain (value, nameof (value));
 
 				if (domains[index] == value)
 					return;
@@ -183,10 +263,12 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="domain"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="domain"/> is empty or syntactically invalid.
+		/// </exception>
 		public void Add (string domain)
 		{
-			if (domain is null)
-				throw new ArgumentNullException (nameof (domain));
+			ValidateDomain (domain, nameof (domain));
 
 			EnsureAllocated ();
 			domains.Add (domain);
@@ -446,7 +528,7 @@ namespace MimeKit {
 					return false;
 			} while (index < buffer.Length && buffer[index] == (byte) '@');
 
-			route = new DomainList (domains);
+			route = new DomainList (domains, false);
 
 			return true;
 		}

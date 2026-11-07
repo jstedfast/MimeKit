@@ -142,11 +142,10 @@ namespace UnitTests {
 		}
 
 		[Test]
-		public void TestEncodeSkipsWhitespaceDomainsAndIdnEncodes ()
+		public void TestEncodeIdnDomains ()
 		{
 			var mailbox = new MailboxAddress ("", "user@example.com") {
 				Route = {
-					"  \t ",
 					"bücher.example",
 					"example.net"
 				}
@@ -248,11 +247,48 @@ namespace UnitTests {
 		{
 			var route = new DomainList {
 				"route1",
-				"  \t\t ",
 				"route2"
 			};
 
 			Assert.That (route.ToString (), Is.EqualTo ("@route1,@route2"));
+		}
+
+		[TestCase ("localhost")]
+		[TestCase ("example.com")]
+		[TestCase ("b\u00fccher.example")]
+		[TestCase ("xn--bcher-kva.example")]
+		[TestCase ("mail_host.example")]
+		[TestCase ("[127.0.0.1]")]
+		[TestCase ("[IPv6:2001:db8::1]")]
+		[TestCase ("[opaque-literal]")]
+		[TestCase ("[]")]
+		[TestCase ("\ud83d\ude00.example")]
+		public void TestValidDomains (string domain)
+		{
+			var list = new DomainList (new[] { domain });
+
+			list.Add (domain);
+			list.Insert (0, domain);
+			list[1] = "other.example";
+			list[1] = domain;
+			Assert.That (list.ToArray (), Is.EqualTo (new[] { domain, domain, domain }));
+		}
+
+		[Test]
+		public void TestParseAndCloneRecoveredDomain ()
+		{
+			const string domain = "exam\u2008ple.com";
+			Assert.That (DomainList.TryParse ("@" + domain, out var route), Is.True);
+			Assert.That (route[0], Is.EqualTo (domain));
+			Assert.Throws<ArgumentException> (() => new DomainList (route));
+
+			var mailbox = MailboxAddress.Parse ("<@" + domain + ":user@example.com>");
+			var clone = (MailboxAddress) mailbox.Clone ();
+
+			Assert.That (clone.Route.ToArray (), Is.EqualTo (new[] { domain }));
+			Assert.That (clone.ToString (), Is.EqualTo (mailbox.ToString ()));
+			clone.Route[0] = "other.example";
+			Assert.That (mailbox.Route[0], Is.EqualTo (domain));
 		}
 	}
 }

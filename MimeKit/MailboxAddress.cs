@@ -71,7 +71,7 @@ namespace MimeKit {
 
 		internal MailboxAddress (Encoding encoding, string? name, IEnumerable<string> route, string address, int at) : base (encoding, name)
 		{
-			Route = new DomainList (route);
+			Route = new DomainList (route, false);
 			Route.Changed += RouteChanged;
 
 			this.address = address;
@@ -108,6 +108,9 @@ namespace MimeKit {
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="route"/> contains a null, empty or syntactically invalid domain.
+		/// </exception>
 		public MailboxAddress (Encoding encoding, string? name, IEnumerable<string> route, string address) : base (encoding, name)
 		{
 			if (address is null)
@@ -134,6 +137,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="ParseException">
 		/// <paramref name="address"/> is malformed.
+		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="route"/> contains a null, empty or syntactically invalid domain.
 		/// </exception>
 		public MailboxAddress (string? name, IEnumerable<string> route, string address) : this (Encoding.UTF8, name, route, address)
 		{
@@ -194,7 +200,7 @@ namespace MimeKit {
 		/// <returns>The cloned mailbox address.</returns>
 		public override InternetAddress Clone ()
 		{
-			return new MailboxAddress (Encoding, Name, Route, Address);
+			return new MailboxAddress (Encoding, Name, Route, Address, at);
 		}
 
 		/// <summary>

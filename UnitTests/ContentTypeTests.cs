@@ -64,6 +64,38 @@ namespace UnitTests {
 			Assert.That (clone.Name, Is.EqualTo (original.Name), "Name");
 		}
 
+		[TestCase ("application", "vnd.example+json")]
+		[TestCase ("X-Custom", "X-Custom.Subtype")]
+		[TestCase ("application", "!#$%&'*+-.^_`{|}~0123456789")]
+		public void TestValidTokens (string mediaType, string mediaSubtype)
+		{
+			var contentType = new ContentType (mediaType, mediaSubtype);
+
+			Assert.That (contentType.MimeType, Is.EqualTo (mediaType + "/" + mediaSubtype));
+			contentType.MediaType = mediaSubtype;
+			contentType.MediaSubtype = mediaType;
+			Assert.That (contentType.MimeType, Is.EqualTo (mediaSubtype + "/" + mediaType));
+		}
+
+		[Test]
+		public void TestRejectControlCharactersAndTokenSeparators ()
+		{
+			var invalid = new StringBuilder ("()<>@,;:\\\"/[]?= ");
+			var contentType = new ContentType ("text", "plain");
+
+			for (int c = 0; c < 32; c++)
+				invalid.Append ((char) c);
+			invalid.Append ('\x7f');
+
+			foreach (char c in invalid.ToString ()) {
+				string token = "a" + c + "b";
+				Assert.Throws<ArgumentException> (() => new ContentType (token, "plain"), $"Type: {(int) c}");
+				Assert.Throws<ArgumentException> (() => new ContentType ("text", token), $"Subtype: {(int) c}");
+				Assert.Throws<ArgumentException> (() => contentType.MediaType = token);
+				Assert.Throws<ArgumentException> (() => contentType.MediaSubtype = token);
+			}
+		}
+
 		[Test]
 		public void TestChangedEvents ()
 		{
@@ -805,6 +837,12 @@ namespace UnitTests {
 			Assert.That (contentType.MediaType, Is.EqualTo ("multipart"), "MediaType");
 			Assert.That (contentType.MediaSubtype, Is.EqualTo ("multipart/mixed"), "MediaSubtype");
 			Assert.That (contentType.Boundary, Is.EqualTo ("boundary-marker"), "Boundary");
+			Assert.That (ContentType.Parse (input).MediaSubtype, Is.EqualTo ("multipart/mixed"));
+
+			var clone = contentType.Clone ();
+			Assert.That (clone.ToString (), Is.EqualTo (contentType.ToString ()));
+			clone.Boundary = "cloned-boundary";
+			Assert.That (contentType.Boundary, Is.EqualTo ("boundary-marker"));
 		}
 	}
 }

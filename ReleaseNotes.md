@@ -10,6 +10,11 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
 
 ### Breaking Changes
 
+* `ContentType` constructors and the `MediaType`/`MediaSubtype` setters now require nonempty
+  ASCII MIME tokens. `DomainList` construction and mutation reject null elements, empty domains
+  and invalid domain syntax; internationalized domains, single-label names and domain literals
+  remain supported. Invalid values throw `ArgumentException` instead of being stored or silently
+  omitted during serialization. Parsing and cloning retain their existing recovery behavior.
 * Replaced the `persistent` boolean in `MimeParser`, `IMimeParser.SetStream` and
   `MimeMessage`/`MimeEntity` stream `Load` and `LoadAsync` APIs with `MimeContentStorage`.
   `Memory` (0) is the default and copies part content; `Source` (1) references the caller-owned

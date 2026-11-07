@@ -61,17 +61,37 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="mediaSubtype"/> is <see langword="null"/>.</para>
 		/// </exception>
-		public ContentType (string mediaType, string mediaSubtype)
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="mediaType"/> or <paramref name="mediaSubtype"/> is empty or is not an ASCII MIME token.
+		/// </exception>
+		public ContentType (string mediaType, string mediaSubtype) : this (mediaType, mediaSubtype, true)
 		{
-			if (mediaType is null)
-				throw new ArgumentNullException (nameof (mediaType));
+		}
 
-			if (mediaSubtype is null)
-				throw new ArgumentNullException (nameof (mediaSubtype));
+		ContentType (string mediaType, string mediaSubtype, bool validate)
+		{
+			if (validate) {
+				ValidateToken (mediaType, nameof (mediaType));
+				ValidateToken (mediaSubtype, nameof (mediaSubtype));
+			}
 
 			Parameters = new ParameterList ();
 			subtype = mediaSubtype;
 			type = mediaType;
+		}
+
+		static void ValidateToken (string value, string parameterName)
+		{
+			if (value is null)
+				throw new ArgumentNullException (parameterName);
+
+			if (value.Length == 0)
+				throw new ArgumentException ("Media types and subtypes cannot be empty.", parameterName);
+
+			for (int i = 0; i < value.Length; i++) {
+				if (value[i] > 127 || !((byte) value[i]).IsToken ())
+					throw new ArgumentException ("Illegal characters in media type or subtype.", parameterName);
+			}
 		}
 
 		/// <summary>
@@ -86,11 +106,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty or is not an ASCII MIME token.
+		/// </exception>
 		public string MediaType {
 			get { return type; }
 			set {
-				if (value is null)
-					throw new ArgumentNullException (nameof (value));
+				ValidateToken (value, nameof (value));
 
 				if (type == value)
 					return;
@@ -113,11 +135,13 @@ namespace MimeKit {
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="value"/> is <see langword="null"/>.
 		/// </exception>
+		/// <exception cref="System.ArgumentException">
+		/// <paramref name="value"/> is empty or is not an ASCII MIME token.
+		/// </exception>
 		public string MediaSubtype {
 			get { return subtype; }
 			set {
-				if (value is null)
-					throw new ArgumentNullException (nameof (value));
+				ValidateToken (value, nameof (value));
 
 				if (subtype == value)
 					return;
@@ -273,7 +297,7 @@ namespace MimeKit {
 		/// <returns>The cloned content type.</returns>
 		public ContentType Clone ()
 		{
-			var contentType = new ContentType (type, subtype);
+			var contentType = new ContentType (type, subtype, false);
 
 			foreach (var parameter in parameters)
 				contentType.Parameters.Add (parameter.Clone ());
@@ -506,7 +530,7 @@ namespace MimeKit {
 			if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 				return false;
 
-			contentType = new ContentType (type, subtype);
+			contentType = new ContentType (type, subtype, false);
 
 			// Distinguish malformed media types from failures in the parameter list.
 			invalidMimeType = index < endIndex && text[index] != (byte) ';';
