@@ -254,7 +254,26 @@ namespace MimeKit.Encodings {
 					currentLineLength = 0;
 				} else {
 					if (saved != -1) {
-						outptr = WriteSaved (outptr, false, false);
+						byte b = (byte) saved;
+
+						// The previous iteration left room for a literal and a soft break.
+						if (b.IsQpSafe ()) {
+							*outptr++ = b;
+							currentLineLength++;
+						} else {
+							if (currentLineLength + 4 > maxLineLength) {
+								*outptr++ = (byte) '=';
+								if (newLineFormat == NewLineFormat.Dos)
+									*outptr++ = (byte) '\r';
+								*outptr++ = (byte) '\n';
+								currentLineLength = 0;
+							}
+
+							*outptr++ = (byte) '=';
+							*outptr++ = hex_alphabet[(b >> 4) & 0x0f];
+							*outptr++ = hex_alphabet[b & 0x0f];
+							currentLineLength += 3;
+						}
 
 						if (currentLineLength + 1 >= maxLineLength) {
 							*outptr++ = (byte) '=';

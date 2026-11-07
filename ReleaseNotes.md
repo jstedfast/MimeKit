@@ -491,6 +491,8 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   for malformed input. Both expose an `EnableHardwareAcceleration` property.
 * Improved quoted-printable decoding throughput by scanning and copying literal runs in bulk,
   particularly for mostly-ASCII content.
+* Reduced per-byte quoted-printable encoding overhead while preserving line wrapping and
+  streaming output.
 * DKIM and ARC signed-header selection now indexes headers once and consumes repeated fields in
   linear time, avoiding quadratic work on large signed-header lists.
 * `MimeIterator.MoveTo ()` now navigates directly to the specified entity in time proportional to its depth,

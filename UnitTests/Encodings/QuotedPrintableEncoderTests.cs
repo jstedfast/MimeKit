@@ -254,6 +254,35 @@ namespace UnitTests.Encodings {
 				Assert.That (line.TrimEnd ('\r').Length, Is.LessThanOrEqualTo (maxLineLength), $"Line too long: {line}");
 		}
 
+		[Test]
+		public void TestEncodeLineBoundary ([Range (60, 76)] int maxLineLength, [Values (NewLineFormat.Dos, NewLineFormat.Unix)] NewLineFormat newLineFormat)
+		{
+			var cases = new (int Remaining, string Input, string Output)[] {
+				(2, "Xb\n", "X=\nb\n"),
+				(3, "\u00ffb\n", "=\n=FFb\n"),
+				(4, "\u00ffb\n", "=FF=\nb\n"),
+				(3, "\u00ff\n", "=FF\n"),
+				(3, "\u00ff\r\n", "=FF\n"),
+				(3, " \nb", "=20\nb=\n"),
+				(3, "\tb\n", "\tb\n"),
+				(4, "\u00ff\rb\n", "=FF=\n=0Db\n"),
+				(3, "X\rb\n", "X=\n=0Db\n"),
+				(3, "\rXb\n", "=\n=0DXb\n"),
+			};
+			var newLine = newLineFormat == NewLineFormat.Dos ? "\r\n" : "\n";
+
+			foreach (var test in cases) {
+				var prefix = new string ('a', maxLineLength - test.Remaining);
+				var input = Encoding.Latin1.GetBytes (prefix + test.Input);
+				var expected = prefix + test.Output.Replace ("\n", newLine);
+				var encoder = new QuotedPrintableEncoder (newLineFormat, maxLineLength);
+
+				Assert.That (Encode (encoder, input, false), Is.EqualTo (expected), $"Flush: {test}");
+				Assert.That (Encode (encoder, input, true), Is.EqualTo (expected), $"Chunked: {test}");
+				AssertLineLengths (expected, maxLineLength);
+			}
+		}
+
 		[TestCase ("\n", false)]
 		[TestCase ("\n", true)]
 		[TestCase ("\r\n", false)]
