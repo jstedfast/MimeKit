@@ -4507,7 +4507,7 @@ This is the second part.
 			Assert.That (outer.Count, Is.EqualTo (1));
 			inner = (Multipart) outer[0];
 			Assert.That (inner.Count, Is.EqualTo (1));
-			Assert.That (((TextPart) inner[0]).Text, Is.EqualTo ("--old\r\nsecond"));
+			Assert.That (((TextPart) inner[0]).Text, Is.EqualTo ("--old" + Environment.NewLine + "second"));
 			Assert.That (parser.Position, Is.EqualTo (data.Length));
 		}
 
