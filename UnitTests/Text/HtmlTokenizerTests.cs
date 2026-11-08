@@ -3595,12 +3595,13 @@ namespace UnitTests.Text {
 			const string content = "<noscript>";
 			var tokenizer = CreateTokenizer (content);
 
+			Assert.That (tokenizer.ScriptingEnabled, Is.False);
 			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
 			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
 			var tag = (HtmlTagToken) token;
 			Assert.That (tag.Name, Is.EqualTo ("noscript"));
 			Assert.That (tag.Id, Is.EqualTo (HtmlTagId.NoScript));
-			Assert.That (tokenizer.TokenizerState, Is.EqualTo (HtmlTokenizerState.RawText));
+			Assert.That (tokenizer.TokenizerState, Is.EqualTo (HtmlTokenizerState.Data));
 		}
 
 		[Test]
@@ -3609,7 +3610,7 @@ namespace UnitTests.Text {
 			const string content = "<noscript><b>bold</b></noscript>";
 			var tokenizer = CreateTokenizer (content);
 
-			Assert.That (tokenizer.ScriptingEnabled, Is.True);
+			tokenizer.ScriptingEnabled = true;
 
 			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
 			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
@@ -3632,12 +3633,13 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
-		public void TestNoScriptScriptingDisabled ()
+		public void TestNoScriptScriptingDisabled ([Values (false, true)] bool explicitlyDisabled)
 		{
 			const string content = "<noscript><b>bold</b></noscript>";
 			var tokenizer = CreateTokenizer (content);
 
-			tokenizer.ScriptingEnabled = false;
+			if (explicitlyDisabled)
+				tokenizer.ScriptingEnabled = false;
 
 			Assert.That (tokenizer.ReadNextToken (out HtmlToken token), Is.True);
 			Assert.That (token.Kind, Is.EqualTo (HtmlTokenKind.Tag));
@@ -3720,7 +3722,7 @@ namespace UnitTests.Text {
 		{
 			var tokenizer = CreateTokenizer (content);
 
-			Assert.That (tokenizer.ScriptingEnabled, Is.True);
+			tokenizer.ScriptingEnabled = true;
 			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
 		}
 
@@ -3764,7 +3766,7 @@ namespace UnitTests.Text {
 		{
 			var tokenizer = CreateTokenizer (content);
 
-			Assert.That (tokenizer.ScriptingEnabled, Is.True);
+			tokenizer.ScriptingEnabled = true;
 			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
 		}
 
@@ -3990,8 +3992,11 @@ namespace UnitTests.Text {
 		{
 			var content = $"<{name}/><!--</{name}><img>-->";
 			var expected = $"Tag({name}/) Data(<!--) EndTag({name}) Tag(img) Data(-->)";
+			var tokenizer = CreateTokenizer (content);
 
-			Assert.That (DescribeTokens (content), Is.EqualTo (expected));
+			tokenizer.ScriptingEnabled = true;
+
+			Assert.That (DescribeTokens (tokenizer), Is.EqualTo (expected));
 		}
 
 		[Test]

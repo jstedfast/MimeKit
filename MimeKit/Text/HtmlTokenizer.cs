@@ -382,6 +382,7 @@ namespace MimeKit.Text {
 		/// </summary>
 		/// <remarks>
 		/// <para>Gets or sets whether the tokenizer should behave as if scripting is enabled.</para>
+		/// <para>The default is <see langword="false" />, matching typical email renderers.</para>
 		/// <para>This corresponds to the scripting flag described in the HTML5 specification and controls
 		/// how the content of <c>&lt;noscript&gt;</c> elements is tokenized. When scripting is enabled, the
 		/// content of a <c>&lt;noscript&gt;</c> element is treated as raw text and emitted as an

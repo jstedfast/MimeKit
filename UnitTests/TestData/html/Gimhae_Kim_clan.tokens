@@ -1727,7 +1727,7 @@ Data: \n
 Tag: </div>
 Comment: esi <esi:include src="/esitest-fa8a495983347898/content" /> 
 Tag: <noscript>
-Data: <img src="//en.wikipedia.org/wiki/Special:CentralAutoLogin/start?type=1x1" alt="" title="" width="1" height="1" style="border: none; position: absolute;" />
+Tag: <img src="//en.wikipedia.org/wiki/Special:CentralAutoLogin/start?type=1x1" alt="" title="" width="1" height="1" style="border: none; position: absolute;"/>
 Tag: </noscript>
 Data: \n
 Tag: <div class="printfooter" data-nosnippet="">

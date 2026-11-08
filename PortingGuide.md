@@ -429,6 +429,10 @@ Treat filenames as untrusted metadata, never as ready-to-use filesystem paths.
 
 ### Semantic changes
 
+- **Tokenizer scripting is disabled by default.** `HtmlTokenizer.ScriptingEnabled` defaults to `false`,
+  so `<noscript>` content is tokenized as markup rather than raw text. Set it to `true` before reading
+  tokens to retain the 4.x behavior. When filtering HTML, match the renderer's scripting mode as
+  described in the property's documentation. HTML text previews also interpret this content as markup.
 - **`<noscript>` is now filtered.** By default (`HtmlNoScriptHandling.Unwrap`), `HtmlToHtml` tokenizes the
   content of `<noscript>` elements as markup, passes it to your `HtmlTagCallback` and removes the
   `<noscript>` tags themselves. In 4.x the content was copied verbatim without being passed to the callback,

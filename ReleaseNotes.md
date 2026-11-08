@@ -448,8 +448,9 @@ See the [Porting Guide](PortingGuide.md) for help migrating from MimeKit 4.x.
   transitions and depth limits, with character offsets and line and column numbers.
   `HtmlComplianceOptions` supports per-violation report caps. Reporting does not change the output.
 * Added `HtmlTokenizer.ScriptingEnabled`, which corresponds to the HTML5 scripting flag and controls whether
-  `<noscript>` content is tokenized as raw text (`true`, the default and previous behavior) or as normal
-  markup (`false`).
+  `<noscript>` content is tokenized as raw text (`true`, the previous behavior) or as normal
+  markup (`false`, the new default). Set it to `true` to retain the previous tokenization behavior.
+  HTML text previews now interpret `<noscript>` content as markup rather than displaying its literal tags.
 * Added `HtmlToHtml.NoScriptHandling`. Previously, `<noscript>` content was always treated as raw text and was
   never passed to the `HtmlToHtml.HtmlTagCallback`, so markup such as tracking images inside `<noscript>`
   elements bypassed any filtering when the output was rendered with scripting disabled (as is typical for email).

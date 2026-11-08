@@ -139,6 +139,7 @@ namespace UnitTests.Text {
 		[TestCase ("<body><b>a<script>b<i>c</b>d</script>e</i>f", "aef")]
 		[TestCase ("<body><table><td>a</table>b<tr>c</td>d</tr>e", "abe")]
 		[TestCase ("<body>a</body>b<body>c", "ac")]
+		[TestCase ("<body><noscript><b>Fallback &amp; text</b></noscript></body>", "Fallback & text")]
 		public void TestNestedAndMisnestedElements (string input, string expected)
 		{
 			var previewer = new HtmlTextPreviewer ();

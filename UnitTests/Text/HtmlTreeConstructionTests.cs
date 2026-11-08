@@ -40,6 +40,7 @@ namespace UnitTests.Text {
 		[TestCase ("script", HtmlTokenizerState.ScriptData)]
 		[TestCase ("plaintext", HtmlTokenizerState.PlainText)]
 		[TestCase ("div", HtmlTokenizerState.Data)]
+		[TestCase ("noscript", HtmlTokenizerState.Data)]
 		public void TestContentState (string name, HtmlTokenizerState expected)
 		{
 			foreach (bool selfClosing in new[] { false, true }) {

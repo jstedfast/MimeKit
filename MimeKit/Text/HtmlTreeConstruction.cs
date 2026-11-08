@@ -325,10 +325,11 @@ namespace MimeKit.Text {
 		/// <remarks>
 		/// When scripting is disabled, a <c>&lt;noscript&gt;</c> element within the <c>&lt;head&gt;</c> gets processed
 		/// using the "in head noscript" insertion mode rather than as a normal element.
+		/// The default is <see langword="false" />.
 		/// </remarks>
 		public bool ScriptingEnabled {
 			get; set;
-		} = true;
+		}
 
 		/// <summary>
 		/// Get whether the tree builder needs to be told about character data.
