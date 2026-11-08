@@ -102,10 +102,22 @@ function Get-LibFuzzer {
 
         Write-Host "Downloading $url..."
         New-Item -ItemType Directory -Force -Path $ToolsDirectory | Out-Null
-        Invoke-WebRequest -Uri $url -OutFile $path
+        $download = "$path.download"
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $download -MaximumRetryCount 3 -RetryIntervalSec 5
 
-        if (-not $IsWindows) {
-            & chmod +x $path | Out-Null
+            if (-not $IsWindows) {
+                & chmod +x $download | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Making libfuzzer-dotnet executable failed (exit code $LASTEXITCODE)."
+                }
+            }
+
+            Move-Item -Path $download -Destination $path
+        } finally {
+            if (Test-Path $download) {
+                Remove-Item -Path $download
+            }
         }
     }
 
