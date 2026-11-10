@@ -414,6 +414,9 @@ namespace UnitTests.Text {
 		[TestCase ("<div><template></template></div><frameset><d>x</d>", false, "<div><template></template></div><d>x</d>")]
 		[TestCase ("<div><template></template></div><frameset><d>x</d>", true, "<div><template></template></div><d>x</d>")]
 		[TestCase ("x<frameset><d>y</d></frameset>", false, "x<d>y</d></frameset>")]
+		[TestCase ("<frameset></frameset><<frameset>>", false, "<frameset></frameset>&lt;>")]
+		[TestCase ("<frameset></frameset><<frameset>>", true, "<frameset></frameset>&lt;>")]
+		[TestCase ("<frameset></frameset></html><frameset>", false, "<frameset></frameset>")]
 		[TestCase ("<frameset><frame><frameset><frame></frameset></frameset>", true, "<frameset><frame><frameset><frame></frameset></frameset>")]
 		public void TestIgnoredFramesetStartTag (string input, bool fragment, string expected)
 		{

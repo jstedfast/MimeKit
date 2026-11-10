@@ -538,6 +538,28 @@ namespace UnitTests.Utils {
 		}
 
 		[Test]
+		public void TestEncodeLiteralEncodedWordAtLineBoundary ([Values (60, 78)] int maxLineLength, [Values (false, true)] bool phrase)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.MaxLineLength = maxLineLength;
+
+			for (int length = 0; length < maxLineLength * 2; length++) {
+				var text = ":" + new string ('a', length) + "=?utf-8?q?hello?=";
+				var encoded = phrase ? Rfc2047.EncodePhrase (options, Encoding.UTF8, text) : Rfc2047.EncodeText (options, Encoding.UTF8, text);
+				var decoded = phrase ? Rfc2047.DecodePhrase (encoded) : Rfc2047.DecodeText (encoded);
+
+				Assert.That (decoded, Is.EqualTo (text), $"Prefix length: {length}");
+
+				if (phrase) {
+					var mailbox = new MailboxAddress (text, "user@example.com");
+
+					Assert.That (MailboxAddress.TryParse (mailbox.ToString (options, true), out var parsed), Is.True);
+					Assert.That (parsed.Name, Is.EqualTo (text), $"Mailbox prefix length: {length}");
+				}
+			}
+		}
+
+		[Test]
 		public void TestEncodePhraseLongSentenceWithCommas ()
 		{
 			const string expected = "\"Once upon a time, back when things that are old now were new, there lived a man with a very particular set of skills.\"";

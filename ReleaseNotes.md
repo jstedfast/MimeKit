@@ -610,6 +610,8 @@ or a guarantee for other inputs.
   charset cannot represent the value, rather than losing characters.
 * Fixed RFC 2047 handling of literal encoded-word-like text, backslashes in Q-encoded values,
   malformed words preceding valid words, and quotes and backslashes in encoded group names.
+  Literal `=?` prefixes split across internal word boundaries no longer corrupt display names
+  when serialized and parsed again.
 * Fixed RFC 2231 decoding with empty charset fields and encoding of supplementary Unicode
   characters across continuation segments.
 * Fixed parameter round-tripping for empty values, literal `=?` text, and RFC 2047-encoded UTF-8.
@@ -647,6 +649,8 @@ or a guarantee for other inputs.
 * HTML tokenization now accounts for SVG/MathML foreign content, CDATA, self-closing raw-text
   elements, forms, framesets and misnested formatting. `HtmlToHtml` and `HtmlTextPreviewer` handle
   the corresponding content suppression and element closures consistently.
+  `HtmlToHtml` also drops ignored frameset start tags after the outermost frameset closes,
+  preventing them from taking effect when earlier frameset markup is removed.
 * Fixed HTML attribute and DOCTYPE identifier quoting, and escaping of literal `<` characters
   adjacent to removed markup.
 * Improved URL detection in `TextToHtml` and `FlowedToHtml`, including culture-independent matching,

@@ -1338,9 +1338,9 @@ namespace MimeKit.Utils {
 							word.Encoding = (WordEncoding) Math.Max ((int) word.Encoding, (int) WordEncoding.Latin1);
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount++;
-						} else if (c == '?' && i - 2 >= word.StartIndex && text[i - 2] == '=') {
+						} else if (c == '?' && i - 2 >= startIndex && text[i - 2] == '=') {
 							// Note: Text that looks like the start of an encoded-word must be encoded, otherwise it
-							// would be decoded as an encoded-word.
+							// would be decoded as an encoded-word. The '=' may be at the end of the previous split word.
 							word.Type = WordType.EncodedWord;
 							word.EncodeCount += 2;
 						} else if (phrase && !IsAtom (c)) {
