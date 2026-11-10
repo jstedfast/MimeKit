@@ -1,6 +1,6 @@
 # Release Notes
 
-## MimeKit 5.0.0 (unreleased)
+## MimeKit 5.0.0 (2026-11-10)
 
 MimeKit 5.0 is a major release containing a number of breaking changes. The headline changes are
 the split of the cryptography support into its own assembly, the promotion of the new MIME parser,
