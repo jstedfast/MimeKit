@@ -866,9 +866,6 @@ namespace MimeKit {
 		/// <returns><see langword="true" /> if the address was successfully parsed; otherwise, <see langword="false" />.</returns>
 		/// <param name="text">The text.</param>
 		/// <param name="mailbox">The parsed mailbox address.</param>
-		/// <exception cref="System.ArgumentNullException">
-		/// <paramref name="text"/> is <see langword="null"/>.
-		/// </exception>
 		public static bool TryParse (string? text, [NotNullWhen (true)] out MailboxAddress? mailbox)
 		{
 			return TryParse (ParserOptions.Default, text, out mailbox);
