@@ -38,8 +38,9 @@ namespace MimeKit.Utils {
 	/// characters. An internationalized domain must therefore be expressed using A-labels (such as
 	/// <c>user@xn--gr-zia.example.com</c>), which are permitted. An address that would be valid if it were not
 	/// for its non-ASCII characters is rejected with <see cref="SmtpAddressError.NonAscii"/>, which indicates that
-	/// the address requires the <c>SMTPUTF8</c> extension. Such addresses can be validated using the
-	/// <see cref="SmtpUtf8AddressValidator"/>.</para>
+	/// the address requires the <c>SMTPUTF8</c> extension. Such addresses can be checked using
+	/// <see cref="SmtpUtf8AddressValidator"/>, which also applies additional restrictions intended for
+	/// message-header addresses and can reject addresses that SMTPUTF8 itself permits.</para>
 	/// <para>The length limits defined in rfc5321 are only enforced when
 	/// <see cref="SmtpAddressValidationOptions.EnforceLengthLimits"/> is specified.</para>
 	/// </remarks>

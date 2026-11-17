@@ -37,16 +37,20 @@ namespace MimeKit.Utils {
 	public enum SmtpUtf8AddressValidationOptions
 	{
 		/// <summary>
-		/// Validate the address exactly as written. A domain label that is an A-label (i.e. begins with
-		/// <c>xn--</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/>.
+		/// Validate the address exactly as written. An atom in the local-part or a domain label that begins with
+		/// <c>xn--</c> is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> under the draft's header-address
+		/// restrictions, even though SMTP permits A-labels in domain names.
 		/// </summary>
 		None = 0,
 
 		/// <summary>
 		/// <para>Decode each A-label in the domain into its Unicode form (U-label) before validating the address.</para>
-		/// <para>The decoded domain is subject to all of the code point, contextual and script rules, which makes
+		/// <para>The decoded domain is subject to all of the code point, contextual, normalization and script rules, which makes
 		/// this option useful for checking whether an address that will be displayed to a user (in its decoded
 		/// form) might be an attempt to spoof another address.</para>
+		/// <para>Decoding is only performed for validation; the supplied string or <see cref="MailboxAddress"/>
+		/// is not modified. Success validates the decoded form, not the original A-label form for use in message headers
+		/// under the draft's restrictions.</para>
 		/// <para>A-labels are decoded using MimeKit's own implementation of the Punycode algorithm described in
 		/// <a href="https://www.rfc-editor.org/rfc/rfc3492">rfc3492</a> rather than
 		/// <see cref="System.Globalization.IdnMapping"/>, so the results are the same on every platform and

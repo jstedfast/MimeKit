@@ -33,11 +33,15 @@ namespace MimeKit.Utils {
 	/// A validator for internationalized (SMTPUTF8) email addresses.
 	/// </summary>
 	/// <remarks>
-	/// <para>Validates email addresses according to the rules defined in
+	/// <para>Validates SMTP mailbox syntax and applies the additional address restrictions in
 	/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
-	/// which restricts the code points that may be used in an internationalized email address in order to
-	/// prevent addresses that render identically to (or deceptively similar to) other addresses.</para>
-	/// <para>An address is valid if and only if:</para>
+	/// which aims to reduce the risk of confusing or deceptive rendering of internationalized email addresses.</para>
+	/// <para>The draft's restrictions apply to addresses generated in message headers, not to SMTP envelope
+	/// addresses in general. In particular,
+	/// <a href="https://www.rfc-editor.org/rfc/rfc6531#section-3.2">rfc6531</a> permits domain names in
+	/// <c>MAIL FROM</c> and <c>RCPT TO</c> addresses to use either A-labels or U-labels. Rejection by this
+	/// validator does not necessarily mean that an address is invalid for an SMTPUTF8 transaction.</para>
+	/// <para>With the default options, an address is valid if and only if:</para>
 	/// <list type="number">
 	/// <item>It matches the <c>Mailbox</c> syntax defined in
 	/// <a href="https://www.rfc-editor.org/rfc/rfc5321#section-4.1.2">rfc5321</a> as extended by
@@ -54,17 +58,23 @@ namespace MimeKit.Utils {
 	/// and <c>Katakana</c> count as a single script (as used in Japanese), as do <c>Han</c> and <c>Hangul</c>,
 	/// and <c>Han</c> and <c>Bopomofo</c>.</item>
 	/// </list>
+	/// <para>For U+00B7 MIDDLE DOT, this validator accepts either lowercase <c>l</c> or uppercase <c>L</c>
+	/// on each side. This is an adaptation of the lowercase-only rule in rfc5892 Appendix A.3 for email
+	/// addresses, which are not case-folded. For example, <c>cel&#x00B7;la@example.com</c> and
+	/// <c>CEL&#x00B7;LA@example.com</c> are both accepted.</para>
 	/// <para>The length limits
 	/// defined in rfc5321 are only enforced when <see cref="SmtpUtf8AddressValidationOptions.EnforceLengthLimits"/>
 	/// is specified.</para>
+	/// <para>Validation does not modify or normalize the supplied address. The draft does not require receivers
+	/// to reject, alter or normalize nonconforming addresses in received or stored messages. Applications can
+	/// use this validator to check addresses before generating message headers or to warn users when displaying
+	/// existing addresses; parsing and serialization do not automatically enforce these restrictions.</para>
 	/// <para>This validator has two primary uses:</para>
 	/// <list type="bullet">
-	/// <item>Validating addresses that will be used in their internationalized (UTF-8) form, such as the
-	/// addresses in the <c>MAIL FROM</c> and <c>RCPT TO</c> commands of an SMTP transaction that uses the
-	/// <c>SMTPUTF8</c> extension, or addresses that are being created or registered. SMTPUTF8 addresses must
-	/// use U-labels, so by default an IDN-encoded domain such as <c>user@xn--gr-zia.example.com</c> is
-	/// rejected (even though it is the correct way to express an internationalized domain in a context that
-	/// only supports ASCII).</item>
+	/// <item>Validating addresses for use in internationalized message headers, or applying the same restrictions
+	/// when creating or registering addresses. By default, an IDN-encoded domain such as
+	/// <c>user@xn--gr-zia.example.com</c> is rejected because the draft prohibits A-labels, not because
+	/// the <c>SMTPUTF8</c> extension prohibits them.</item>
 	/// <item>Detecting addresses that may be an attempt to spoof another address, such as addresses that
 	/// mix scripts or that contain invisible or otherwise problematic code points, so that an application
 	/// can warn the user. For this purpose, use <see cref="SmtpUtf8AddressValidationOptions.DecodeIdn"/> so
@@ -100,9 +110,8 @@ namespace MimeKit.Utils {
 		/// Check whether an address is a valid SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Checks whether an <c>addr-spec</c> (such as <c>user@example.com</c>) is a valid
-		/// SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>.</para>
+		/// <para>Checks whether an <c>addr-spec</c> (such as <c>user@example.com</c>) satisfies the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>.</para>
 		/// <para>The address must not include a display name, angle brackets, comments, or folding whitespace.</para>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
@@ -119,10 +128,8 @@ namespace MimeKit.Utils {
 		/// Check whether an address is a valid SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Checks whether an <c>addr-spec</c> (such as <c>user@example.com</c>) is a valid
-		/// SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
-		/// using the specified options.</para>
+		/// <para>Checks whether an <c>addr-spec</c> (such as <c>user@example.com</c>) satisfies the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>, using the specified options.</para>
 		/// <para>The address must not include a display name, angle brackets, comments, or folding whitespace.</para>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
@@ -140,9 +147,8 @@ namespace MimeKit.Utils {
 		/// Check whether a mailbox address is a valid SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Checks whether the <see cref="MailboxAddress.Address"/> of the mailbox is a valid
-		/// SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>.
+		/// <para>Checks whether the <see cref="MailboxAddress.Address"/> of the mailbox satisfies the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>.
 		/// The display name and the route of the mailbox are not validated.</para>
 		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
 		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
@@ -163,9 +169,8 @@ namespace MimeKit.Utils {
 		/// Check whether a mailbox address is a valid SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Checks whether the <see cref="MailboxAddress.Address"/> of the mailbox is a valid
-		/// SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
+		/// <para>Checks whether the <see cref="MailboxAddress.Address"/> of the mailbox satisfies the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>,
 		/// using the specified options. The display name and the route of the mailbox are not validated.</para>
 		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
 		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
@@ -187,8 +192,8 @@ namespace MimeKit.Utils {
 		/// Validate an address as an SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Validates an <c>addr-spec</c> (such as <c>user@example.com</c>) as an SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>.</para>
+		/// <para>Validates an <c>addr-spec</c> (such as <c>user@example.com</c>) against the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>.</para>
 		/// <para>The address must not include a display name, angle brackets, comments, or folding whitespace.</para>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
@@ -206,9 +211,8 @@ namespace MimeKit.Utils {
 		/// Validate an address as an SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Validates an <c>addr-spec</c> (such as <c>user@example.com</c>) as an SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
-		/// using the specified options.</para>
+		/// <para>Validates an <c>addr-spec</c> (such as <c>user@example.com</c>) against the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>, using the specified options.</para>
 		/// <para>The address must not include a display name, angle brackets, comments, or folding whitespace.</para>
 		/// </remarks>
 		/// <returns><see langword="true" /> if the address is valid; otherwise, <see langword="false" />.</returns>
@@ -232,8 +236,8 @@ namespace MimeKit.Utils {
 		/// Validate a mailbox address as an SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox as an SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>.
+		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox against the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>.
 		/// The display name and the route of the mailbox are not validated.</para>
 		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
 		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
@@ -255,8 +259,8 @@ namespace MimeKit.Utils {
 		/// Validate a mailbox address as an SMTPUTF8 address.
 		/// </summary>
 		/// <remarks>
-		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox as an SMTPUTF8 address as defined by
-		/// <a href="https://datatracker.ietf.org/doc/draft-ietf-mailmaint-smtputf8-syntax/">draft-ietf-mailmaint-smtputf8-syntax</a>,
+		/// <para>Validates the <see cref="MailboxAddress.Address"/> of the mailbox against the syntax and
+		/// header-address restrictions described by <see cref="SmtpUtf8AddressValidator"/>,
 		/// using the specified options. The display name and the route of the mailbox are not validated.</para>
 		/// <note type="note">The address is validated exactly as it was parsed or set, so an IDN-encoded domain (such as
 		/// <c>xn--gr-zia.example.com</c>) is rejected with <see cref="SmtpUtf8AddressError.ALabel"/> unless
