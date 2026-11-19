@@ -6867,16 +6867,42 @@ ABC
 		}
 
 		[Test]
+		public void TestMaxHeaderLengthDefault ([Values (false, true)] bool chunked)
+		{
+			var data = CreateMessageWithHugeFoldedHeader (1000, out var expectedRawValue, out var subjectOffset);
+
+			using (var stream = CreateStream (data, chunked)) {
+				var parser = new LegacyMimeParser (stream, MimeFormat.Entity);
+				var message = parser.ParseMessage ();
+
+				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, 1000);
+			}
+		}
+
+		[Test]
+		public async Task TestMaxHeaderLengthDefaultAsync ([Values (false, true)] bool chunked)
+		{
+			var data = CreateMessageWithHugeFoldedHeader (1000, out var expectedRawValue, out var subjectOffset);
+
+			using (var stream = CreateStream (data, chunked)) {
+				var parser = new LegacyMimeParser (stream, MimeFormat.Entity);
+				var message = await parser.ParseMessageAsync ();
+
+				AssertHugeFoldedHeader (message, expectedRawValue, subjectOffset, 1000);
+			}
+		}
+
+		[Test]
 		public void TestMaxHeaderLengthExceeded ([Values (false, true)] bool chunked)
 		{
-			var data = CreateMessageWithHugeFoldedHeader (1000, out _, out _);
+			var data = CreateMessageWithHugeFoldedHeader (2000, out _, out _);
 			var options = new ParserOptions ();
 
 			using (var stream = CreateStream (data, chunked)) {
 				var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity);
 				var ex = Assert.Throws<FormatException> (() => parser.ParseMessage ());
 
-				AssertExcessiveHeaderLength (ex, 26, 16 * 1024);
+				AssertExcessiveHeaderLength (ex, 26, 32 * 1024);
 
 				// The parser should have stopped reading shortly after exceeding the limit.
 				Assert.That (stream.Position, Is.LessThan (data.Length));
@@ -6886,14 +6912,14 @@ ABC
 		[Test]
 		public async Task TestMaxHeaderLengthExceededAsync ([Values (false, true)] bool chunked)
 		{
-			var data = CreateMessageWithHugeFoldedHeader (1000, out _, out _);
+			var data = CreateMessageWithHugeFoldedHeader (2000, out _, out _);
 			var options = new ParserOptions ();
 
 			using (var stream = CreateStream (data, chunked)) {
 				var parser = new LegacyMimeParser (options, stream, MimeFormat.Entity);
 				var ex = Assert.ThrowsAsync<FormatException> (() => parser.ParseMessageAsync ());
 
-				AssertExcessiveHeaderLength (ex, 26, 16 * 1024);
+				AssertExcessiveHeaderLength (ex, 26, 32 * 1024);
 
 				// The parser should have stopped reading shortly after exceeding the limit.
 				Assert.That (stream.Position, Is.LessThan (data.Length));

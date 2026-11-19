@@ -1116,7 +1116,7 @@ X-Exchange-MIME-Skeleton-Content-Id: <embedded@example.com>
 
 		static async Task ConvertLongSubject (NewLineFormat newLineFormat, bool doAsync)
 		{
-			var subject = new string ('\u00e9', 6000);
+			var subject = new string ('\u00e9', 12000);
 			var builder = new TnefBuilder ().WriteTnefVersion ().WriteOemCodepage (1252)
 				.WriteAttribute (TnefAttributeLevel.Message, TnefAttributeTag.Subject, Encoding.Latin1.GetBytes (subject + "\0"));
 
