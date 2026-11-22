@@ -217,7 +217,7 @@ From - Tue May 28 11:02:16 1996
 From: Ray2@FrontierTech.com
 To: smime-dev@RSA.COM
 Subject: Frontier Technologies testing, here's my cert
-Date: Tue, 28 May 1996 12:24:23 +0000
+Date: Tue, 28 May 1996 12:24:23 -0600
 Content-Type: Application/x-pkcs7-mime
 
 From - Mon Jun 10 11:45:25 1996
