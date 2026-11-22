@@ -100,8 +100,17 @@ namespace MimeKit.Text {
 		readonly HtmlOpenElementStack stack;
 		HtmlFormattingTracker? tracker;
 
-		// Opt in before parsing. The prototype cap is independent of the public open-stack limit.
-		internal HtmlFormattingTracker EnableFormattingPrototype (int capacity = 32)
+		internal bool FormattingRecoveryEnabled {
+			get { return tracker != null; }
+			set {
+				if (value && tracker == null)
+					EnableFormattingTracker ();
+				else if (!value)
+					tracker = null;
+			}
+		}
+
+		internal HtmlFormattingTracker EnableFormattingTracker (int capacity = 16)
 		{
 			return tracker = new HtmlFormattingTracker (capacity);
 		}

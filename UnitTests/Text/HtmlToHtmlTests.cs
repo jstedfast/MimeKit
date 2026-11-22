@@ -99,7 +99,7 @@ namespace UnitTests.Text {
 		{
 			const string tail = "<p>footer</p>";
 			const string prefix = "<font><p><custom-note></font>";
-			var converter = new HtmlToHtml { EnableFormattingPrototype = true, NoScriptHandling = mode };
+			var converter = new HtmlToHtml { EnableFormattingRecovery = true, NoScriptHandling = mode };
 			Assert.That (converter.Convert (prefix + tail), Does.EndWith (HtmlUtils.HtmlEncode (tail)));
 			converter.LimitExceededBehavior = HtmlLimitExceededBehavior.Throw;
 			Assert.Throws<FormatException> (() => converter.Convert (prefix + tail));

@@ -96,6 +96,7 @@ namespace MimeKit.Text {
 		bool isEndTag;
 		bool bang;
 		bool literalRemainder;
+		bool started;
 		bool eof;
 
 		/// <summary>
@@ -244,10 +245,43 @@ namespace MimeKit.Text {
 			}
 		}
 
-		/// <summary>Get or set how the tokenizer handles an exceeded structural limit.</summary>
-		/// <remarks>The default is <see cref="HtmlLimitExceededBehavior.LiteralText"/>.</remarks>
-		/// <value>The behavior to use when <see cref="MaxElementDepth"/> is exceeded.</value>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a defined behavior.</exception>
+		/// <summary>
+		/// Get or set whether to track formatting that a browser may reconstruct.
+		/// </summary>
+		/// <remarks>
+		/// <para>In malformed HTML, closing a paragraph can implicitly close an unclosed formatting element
+		/// such as <c>&lt;i&gt;</c>. A browser may reopen that element when it encounters more text. Enable
+		/// this option to follow that formatting context more closely when deciding whether subsequent input
+		/// is text or markup. Reconstructed elements do not produce extra tokens.</para>
+		/// <para>Recovery uses bounded additional state and does not implement full browser tree construction.
+		/// If the tokenizer cannot recover within its limits, <see cref="LimitExceededBehavior"/> determines
+		/// whether it reads the remainder as literal text or throws. <see cref="MaxElementDepth"/> applies
+		/// independently. Set this option before the first call to <see cref="ReadNextToken"/>.</para>
+		/// </remarks>
+		/// <value><see langword="true"/> to enable formatting recovery; otherwise, <see langword="false"/> (the default).</value>
+		/// <exception cref="InvalidOperationException">
+		/// The value was changed after tokenization began.
+		/// </exception>
+		public bool EnableFormattingRecovery {
+			get { return treeConstruction.FormattingRecoveryEnabled; }
+			set {
+				if (started && value != EnableFormattingRecovery)
+					throw new InvalidOperationException ("Formatting recovery cannot be changed after tokenization has begun.");
+
+				treeConstruction.FormattingRecoveryEnabled = value;
+			}
+		}
+
+		/// <summary>
+		/// Get or set how the tokenizer handles an exceeded structural limit.
+		/// </summary>
+		/// <remarks>
+		/// The default is <see cref="HtmlLimitExceededBehavior.LiteralText"/>.
+		/// </remarks>
+		/// <value>The behavior to use when the element depth or formatting recovery limit is exceeded.</value>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a defined behavior.
+		/// </exception>
 		public HtmlLimitExceededBehavior LimitExceededBehavior {
 			get { return limitExceededBehavior; }
 			set {
@@ -3678,6 +3712,8 @@ namespace MimeKit.Text {
 		/// is <see cref="HtmlLimitExceededBehavior.Throw"/>.</exception>
 		public bool ReadNextToken ([NotNullWhen (true)] out HtmlToken? token)
 		{
+			started = true;
+
 			do {
 				switch (TokenizerState) {
 				case HtmlTokenizerState.Data:

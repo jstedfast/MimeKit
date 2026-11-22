@@ -106,7 +106,7 @@ namespace MimeKit.Fuzzing {
 							ScriptingEnabled = scripting,
 							LimitExceededBehavior = HtmlLimitExceededBehavior.Throw
 						};
-						var tracker = capacity == 0 ? null : tokenizer.TreeConstruction.EnableFormattingPrototype (capacity);
+						var tracker = capacity == 0 ? null : tokenizer.TreeConstruction.EnableFormattingTracker (capacity);
 						string outcome;
 						int remaining = 0;
 						try {

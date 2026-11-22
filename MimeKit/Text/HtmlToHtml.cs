@@ -44,7 +44,6 @@ namespace MimeKit.Text {
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
 		HtmlLimitExceededBehavior limitExceededBehavior;
-		internal bool EnableFormattingPrototype { get; set; }
 		HtmlComplianceOptions complianceOptions = HtmlComplianceOptions.Default.Clone ();
 
 		/// <summary>
@@ -153,12 +152,35 @@ namespace MimeKit.Text {
 			}
 		}
 
-		/// <summary>Get or set how the converter handles an exceeded structural limit.</summary>
-		/// <remarks>The default is <see cref="HtmlLimitExceededBehavior.LiteralText"/>. In
-		/// <see cref="HtmlLimitExceededBehavior.Throw"/> mode conversion stops with a <see cref="FormatException"/>.
-		/// Output already written to the destination is not rolled back.</remarks>
-		/// <value>The behavior to use when <see cref="MaxElementDepth"/> is exceeded.</value>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a defined behavior.</exception>
+		/// <summary>
+		/// Get or set whether to track formatting that a browser may reconstruct.
+		/// </summary>
+		/// <remarks>
+		/// <para>Enable this option when rewriting malformed HTML to recognize markup that a browser would
+		/// see after implicitly closing and reopening a formatting element such as <c>&lt;i&gt;</c>.
+		/// The converter tracks these elements to interpret the input; it does not invoke
+		/// <see cref="HtmlTagCallback"/> for reconstructed start tags.</para>
+		/// <para>Recovery uses bounded additional state and does not guarantee browser-equivalent parsing.
+		/// If recovery cannot continue, the default behavior is to write the remaining visible input as
+		/// literal text (so tags appear as text). Set <see cref="LimitExceededBehavior"/> to
+		/// <see cref="HtmlLimitExceededBehavior.Throw"/> to stop conversion instead. <see cref="MaxElementDepth"/>
+		/// applies whether or not formatting recovery is enabled.</para>
+		/// </remarks>
+		/// <value><see langword="true"/> to enable formatting recovery; otherwise, <see langword="false"/> (the default).</value>
+		public bool EnableFormattingRecovery { get; set; }
+
+		/// <summary>
+		/// Get or set how the converter handles an exceeded structural limit.
+		/// </summary>
+		/// <remarks>
+		/// The default is <see cref="HtmlLimitExceededBehavior.LiteralText"/>. In <see cref="HtmlLimitExceededBehavior.Throw"/>
+		/// mode, conversion stops with a <see cref="FormatException"/>. Output already written to the destination is not rolled
+		/// back.
+		/// </remarks>
+		/// <value>The behavior to use when the element depth or formatting recovery limit is exceeded.</value>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// <paramref name="value"/> is not a defined behavior.
+		/// </exception>
 		public HtmlLimitExceededBehavior LimitExceededBehavior {
 			get { return limitExceededBehavior; }
 			set {
@@ -411,6 +433,7 @@ namespace MimeKit.Text {
 					ScriptingEnabled = noScriptHandling == HtmlNoScriptHandling.ScriptingEnabled,
 					IgnoreTruncatedTags = true,
 					MaxElementDepth = maxElementDepth,
+					EnableFormattingRecovery = EnableFormattingRecovery,
 					LimitExceededBehavior = limitExceededBehavior,
 					StreamLiteralText = true,
 					ComplianceLogger = ComplianceLogger,
@@ -425,9 +448,6 @@ namespace MimeKit.Text {
 				HtmlToHtmlTagContext? ctx;
 
 				treeConstruction.TrackClosedElements = true;
-
-				if (EnableFormattingPrototype)
-					treeConstruction.EnableFormattingPrototype ();
 
 				// Note: When outputting a fragment, the content of the <head> element is removed. Browsers implicitly close the
 				// <head> element when they encounter a start tag or non-whitespace text that does not belong in the <head> (and

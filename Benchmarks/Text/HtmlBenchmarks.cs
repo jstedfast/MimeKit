@@ -24,13 +24,76 @@
 // THE SOFTWARE.
 //
 
+using System;
 using System.IO;
+using System.Globalization;
+using System.Text;
 
 using BenchmarkDotNet.Attributes;
 
 using MimeKit.Text;
 
 namespace Benchmarks.Text {
+	[MemoryDiagnoser]
+	public class HtmlFormattingScalingBenchmarks
+	{
+		[Params (256, 512, 1024)]
+		public int Sections { get; set; }
+
+		string html = string.Empty;
+
+		static int Read (HtmlTokenizer tokenizer)
+		{
+			int count = 0;
+			while (tokenizer.ReadNextToken (out _))
+				count++;
+			return count;
+		}
+		[GlobalSetup]
+		public void Setup ()
+		{
+			var builder = new StringBuilder ();
+			// Fifteen distinct formatting entries stay open; each section uses the sixteenth slot.
+			for (int i = 0; i < 15; i++)
+				builder.Append ("<i title='").Append (i.ToString (CultureInfo.InvariantCulture)).Append ("'>");
+			for (int i = 0; i < Sections; i++)
+				builder.Append ("<b>word</b>");
+			for (int i = 0; i < 15; i++)
+				builder.Append ("</i>");
+			html = builder.ToString ();
+
+			var tokenizer = new HtmlTokenizer (new StringReader (html));
+			var tracker = tokenizer.TreeConstruction.EnableFormattingTracker ();
+			if (Read (tokenizer) != 30 + 3 * Sections || tracker.Exceeded || tracker.PeakCount != 16)
+				throw new InvalidOperationException ("Unexpected occupancy, fallback or token count in scaling workload.");
+		}
+
+		[Benchmark (Baseline = true)]
+		public int RecoveryDisabled () => Read (new HtmlTokenizer (new StringReader (html)));
+
+		[Benchmark]
+		public int RecoveryEnabled () => Read (new HtmlTokenizer (new StringReader (html)) { EnableFormattingRecovery = true });
+	}
+
+	[MemoryDiagnoser]
+	public class HtmlFormattingNewsletterBenchmarks
+	{
+		string html = string.Empty;
+
+		[GlobalSetup]
+		public void Setup ()
+		{
+			html = File.ReadAllText (Path.Combine (BenchmarkHelper.UnitTestsDir, "TestData", "text", "planet-fitness.html"));
+			new HtmlToHtml { EnableFormattingRecovery = true, LimitExceededBehavior = HtmlLimitExceededBehavior.Throw }.Convert (html);
+		}
+
+		[Benchmark (Baseline = true)]
+		public string RecoveryDisabled () => new HtmlToHtml ().Convert (html);
+
+		[Benchmark]
+		public string RecoveryEnabled () => new HtmlToHtml { EnableFormattingRecovery = true }.Convert (html);
+	}
+
 	/// <summary>
 	/// Benchmarks for the HTML tokenizer and the HTML-to-HTML converter.
 	/// </summary>

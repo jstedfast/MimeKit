@@ -206,7 +206,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeReconstructsAtMathTextIntegrationPoint ([Values (false, true)] bool explicitlyClosed)
 		{
 			var tree = new HtmlTreeConstruction (32);
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "p", "i" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			if (explicitlyClosed)
@@ -222,7 +222,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeFormattingCannotEscapeCell ()
 		{
 			var tree = new HtmlTreeConstruction (32);
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "table", "td", "i" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			tree.ProcessTag (new HtmlTagToken ("table", true));
@@ -234,7 +234,7 @@ namespace UnitTests.Text {
 		public void TestPrototypePreservesBlockOnFormattingClose ([Values ("p", "div")] string block)
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "font", "font", block })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 
@@ -253,7 +253,7 @@ namespace UnitTests.Text {
 		public void TestPrototypePreservesTwoBlocks ([Values ("li", "center")] string block)
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "font", block, "p" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			tree.ProcessTag (new HtmlTagToken ("font", true));
@@ -269,7 +269,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeReconstructsPoppedInlineDescendant ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "a", "p", "font" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			tree.ProcessTag (new HtmlTagToken ("a", true));
@@ -287,7 +287,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeNestedAnchorRestoresFormattingBeforeOpeningReplacement ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "a", "p", "font", "a" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
@@ -303,7 +303,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeFoldedSpansCloseWithoutClosingParagraph ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
-			tree.EnableFormattingPrototype ();
+			tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "math", "mtext", "font", "p", "span", "span", "span" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			tree.ProcessTag (new HtmlTagToken ("font", true));
@@ -320,7 +320,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeDoesNotDiscardAdditionalBlockDescendants ()
 		{
 			var tree = new HtmlTreeConstruction (32);
-			var tracker = tree.EnableFormattingPrototype ();
+			var tracker = tree.EnableFormattingTracker ();
 			foreach (var name in new[] { "font", "p", "span", "small" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 			tree.ProcessTag (new HtmlTagToken ("font", true));
@@ -333,7 +333,7 @@ namespace UnitTests.Text {
 			const string equal = "<font COLOR=red size=2><font size='2' color='red'><font color=r&#101;d size=2><font size=2 color=red COLOR=blue>";
 			foreach (var extra in new[] { "", "<font color=RED size=2>", "<font color=red size=2 title>" }) {
 				var tokenizer = new HtmlTokenizer (new StringReader (equal + extra));
-				var tracker = tokenizer.TreeConstruction.EnableFormattingPrototype (3);
+				var tracker = tokenizer.TreeConstruction.EnableFormattingTracker (3);
 				while (tokenizer.ReadNextToken (out _)) {
 				}
 				Assert.That (tracker.Reason, Is.EqualTo (extra.Length == 0 ?
@@ -346,7 +346,7 @@ namespace UnitTests.Text {
 		{
 			foreach (int capacity in new[] { 2, 8 }) {
 				var tokenizer = new HtmlTokenizer (new StringReader (string.Concat (Enumerable.Repeat ("<i a b c d e>", 4))));
-				var tracker = tokenizer.TreeConstruction.EnableFormattingPrototype (capacity);
+				var tracker = tokenizer.TreeConstruction.EnableFormattingTracker (capacity);
 				while (tokenizer.ReadNextToken (out _)) {
 				}
 				Assert.That (tracker.PeakCount, Is.EqualTo (capacity == 2 ? 2 : 3));
@@ -359,7 +359,7 @@ namespace UnitTests.Text {
 		public void TestPrototypeBudgetHonorsPolicy ([Values (HtmlLimitExceededBehavior.Throw, HtmlLimitExceededBehavior.LiteralText)] HtmlLimitExceededBehavior policy)
 		{
 			var tokenizer = new HtmlTokenizer (new StringReader (string.Concat (Enumerable.Repeat ("<i a b c d e>", 4)) + "<p>tail")) { LimitExceededBehavior = policy };
-			tokenizer.TreeConstruction.EnableFormattingPrototype ();
+			tokenizer.EnableFormattingRecovery = true;
 			var logger = new TestHtmlComplianceLogger ();
 			tokenizer.ComplianceLogger = logger;
 
@@ -385,7 +385,7 @@ namespace UnitTests.Text {
 				LimitExceededBehavior = behavior,
 				DecodeCharacterReferences = true
 			};
-			tokenizer.TreeConstruction.EnableFormattingPrototype ();
+			tokenizer.EnableFormattingRecovery = true;
 			var logger = new TestHtmlComplianceLogger ();
 			tokenizer.ComplianceLogger = logger;
 			for (int i = 0; i < 5; i++)

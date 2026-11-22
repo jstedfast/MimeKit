@@ -47,11 +47,20 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestCannotChangeFormattingRecoveryAfterReading ([Values (false, true)] bool enabled)
+		{
+			var tokenizer = new HtmlTokenizer (new StringReader ("<p>text</p>")) { EnableFormattingRecovery = enabled };
+			Assert.That (tokenizer.ReadNextToken (out _), Is.True);
+			Assert.Throws<InvalidOperationException> (() => tokenizer.EnableFormattingRecovery = !enabled);
+			Assert.That (tokenizer.EnableFormattingRecovery, Is.EqualTo (enabled));
+		}
+
+		[Test]
 		public void TestReconstructedFormattingAtMathTextIntegrationPoint ()
 		{
 			const string html = "<svg><![CDATA[diagram]]></svg><math><mtext><p><i></p> &#32;<![CDATA[note]]><h5>Title</h5>";
 			var tokenizer = new HtmlTokenizer (new StringReader (html)) { LimitExceededBehavior = HtmlLimitExceededBehavior.Throw };
-			tokenizer.TreeConstruction.EnableFormattingPrototype ();
+			tokenizer.EnableFormattingRecovery = true;
 			var starts = new List<string> ();
 			var cdata = new List<string> ();
 			int bogusComments = 0;
@@ -75,7 +84,7 @@ namespace UnitTests.Text {
 		{
 			const string tail = "note</custom-note></p><p>footer</p>";
 			var tokenizer = new HtmlTokenizer (new StringReader ("<font><p><custom-note></font>" + tail));
-			var tracker = tokenizer.TreeConstruction.EnableFormattingPrototype ();
+			var tracker = tokenizer.TreeConstruction.EnableFormattingTracker ();
 			var starts = new List<string> ();
 			var data = new StringBuilder ();
 			while (tokenizer.ReadNextToken (out var token)) {
