@@ -83,6 +83,17 @@ namespace UnitTests.Text {
 			Assert.That (converter.OutputStreamBufferSize, Is.EqualTo (4096), "OutputStreamBufferSize");
 		}
 
+		[TestCase ("<math><mtext>", "</mtext></math>")]
+		[TestCase ("<svg><text>", "</text></svg>")]
+		public void TestCDataWrittenAsText (string start, string end)
+		{
+			var converter = new HtmlToHtml ();
+			var output = converter.Convert (start + "<![CDATA[<h5> &amp;]]>" + end);
+
+			Assert.That (output, Is.EqualTo (start + "&lt;h5&gt; &amp;amp;" + end));
+			Assert.That (converter.Convert (output), Is.EqualTo (output));
+		}
+
 		void ReplaceUrlsWithFileNames (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
 			if (ctx.TagId == HtmlTagId.Image) {

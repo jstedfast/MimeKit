@@ -791,12 +791,17 @@ namespace MimeKit.Text {
 			if (value is null)
 				throw new ArgumentNullException (nameof (value));
 
+			WriteText (value.AsSpan ());
+		}
+
+		internal void WriteText (ReadOnlySpan<char> value)
+		{
 			CheckDisposed ();
 
 			FlushWriterState ();
 
 			if (value.Length > 0)
-				HtmlUtils.HtmlEncode (html, value.ToCharArray (), 0, value.Length);
+				HtmlUtils.HtmlEncode (html, value);
 		}
 
 		/// <summary>

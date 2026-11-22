@@ -476,6 +476,11 @@ namespace MimeKit.Text {
 						if (!stack.SuppressContent)
 							htmlWriter.WriteToken (token);
 						break;
+					case HtmlTokenKind.CData:
+						// A renderer may be in HTML rather than foreign content here. Keep the payload text in either case.
+						if (!stack.SuppressContent)
+							htmlWriter.WriteText (((HtmlDataToken) token).DataSpan);
+						break;
 					case HtmlTokenKind.Comment:
 						if (!FilterComments && !stack.SuppressContent)
 							htmlWriter.WriteToken (token);
