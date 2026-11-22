@@ -44,6 +44,9 @@ jobs:
     needs: targets
     runs-on: ubuntu-26.04
     timeout-minutes: 360
+    permissions:
+      contents: read
+      issues: write
     strategy:
       fail-fast: false
       matrix:
@@ -77,6 +80,7 @@ jobs:
         run: google-chrome --version || npx --yes playwright@1.63.0 install --with-deps chromium
 
       - name: Fuzz ${{ matrix.target }}
+        id: fuzz
         shell: pwsh
         run: ./scripts/fuzz.ps1 -Target ${{ matrix.target }} -Duration $env:DURATION
 
@@ -88,6 +92,7 @@ jobs:
           key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
 
       - name: Upload the crashing inputs
+        id: crashes
         if: failure() || cancelled()
         uses: actions/upload-artifact@v7
         with:
@@ -97,3 +102,57 @@ jobs:
             artifacts/fuzz/${{ matrix.target }}/fuzz.log*
           if-no-files-found: ignore
           retention-days: 30
+
+      - name: Report fuzzing failures
+        if: failure() && !cancelled() && steps.fuzz.outcome == 'failure'
+        uses: actions/github-script@v8
+        env:
+          FUZZ_TARGET: ${{ matrix.target }}
+          CRASH_ARTIFACT_URL: ${{ steps.crashes.outputs.artifact-url }}
+        with:
+          script: |
+            const fs = require('fs');
+            const target = process.env.FUZZ_TARGET;
+            const directory = `artifacts/fuzz/${target}/crashes`;
+            if (!fs.existsSync(directory)) {
+              core.info('No crashing inputs; skipping issue reporting.');
+              return;
+            }
+
+            const crashes = fs.readdirSync(directory, { withFileTypes: true })
+              .filter(entry => entry.isFile() && /^(crash-|deadly-signal|timeout-|oom-)/.test(entry.name));
+            if (crashes.length === 0) {
+              core.info('No crashing inputs; skipping issue reporting.');
+              return;
+            }
+
+            const { owner, repo } = context.repo;
+            const marker = `<!-- mimekit-fuzz:${target} -->`;
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}/attempts/${process.env.GITHUB_RUN_ATTEMPT}`;
+            const artifactUrl = process.env.CRASH_ARTIFACT_URL;
+            const body = [
+              marker,
+              `Fuzzing found ${crashes.length} failing input(s) for **${target}**.`,
+              '',
+              `Commit: ${context.sha}`,
+              `Workflow run: ${runUrl}`,
+              artifactUrl
+                ? `Crashing inputs and logs: ${artifactUrl} (retained for 30 days).`
+                : 'Crash artifact upload was unsuccessful; see the workflow logs.'
+            ].join('\n');
+
+            for await (const { data: issues } of github.paginate.iterator(github.rest.issues.listForRepo, {
+              owner, repo, state: 'open', per_page: 100
+            })) {
+              const issue = issues.find(issue => !issue.pull_request && issue.body?.includes(marker));
+              if (issue) {
+                await github.rest.issues.createComment({ owner, repo, issue_number: issue.number, body });
+                core.info(`Updated ${issue.html_url}`);
+                return;
+              }
+            }
+
+            const { data: issue } = await github.rest.issues.create({
+              owner, repo, title: `Fuzzing failure: ${target}`, body
+            });
+            core.info(`Created ${issue.html_url}`);
