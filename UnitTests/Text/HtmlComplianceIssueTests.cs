@@ -81,7 +81,7 @@ namespace UnitTests.Text {
 			// both must be updated to match.
 			var max = Enum.GetValues<HtmlComplianceViolation> ().Where (v => v != HtmlComplianceViolation.TooManyComplianceIssues).Max ();
 
-			Assert.That (max, Is.EqualTo (HtmlComplianceViolation.AttributesMergedIntoExistingElement));
+			Assert.That (max, Is.EqualTo (HtmlComplianceViolation.FormattingRecoveryLimitExceeded));
 		}
 
 		[Test]
@@ -153,6 +153,7 @@ namespace UnitTests.Text {
 			// Note: Content that went unprocessed because of a limit is content that went unscanned.
 			var limits = new[] {
 				HtmlComplianceViolation.ElementDepthLimitExceeded,
+				HtmlComplianceViolation.FormattingRecoveryLimitExceeded,
 			};
 
 			foreach (var violation in limits) {

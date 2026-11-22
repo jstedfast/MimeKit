@@ -98,6 +98,15 @@ namespace MimeKit.Text {
 		}
 
 		readonly HtmlOpenElementStack stack;
+		HtmlFormattingTracker? tracker;
+
+		// Opt in before parsing. The prototype cap is independent of the public open-stack limit.
+		internal HtmlFormattingTracker EnableFormattingPrototype (int capacity = 32)
+		{
+			return tracker = new HtmlFormattingTracker (capacity);
+		}
+
+		internal bool FormattingRecoveryExceeded => tracker?.Exceeded == true;
 		bool poppedThrough;
 		InsertionMode mode;
 
@@ -179,7 +188,7 @@ namespace MimeKit.Text {
 			}
 
 			// Once structural tracking has failed, the remaining input must be emitted as literal text.
-			if (DepthExceeded)
+			if (DepthExceeded || FormattingRecoveryExceeded)
 				state = HtmlTokenizerState.PlainText;
 
 			LastTag = new TagResult (state, disposition, BrokeOutOfForeignContent);
@@ -221,6 +230,7 @@ namespace MimeKit.Text {
 		void PopAbove (int index)
 		{
 			stack.PopAbove (index);
+			tracker?.Popped (stack);
 
 			if (formPointerIndex >= stack.Count)
 				formPointerIndex = -1;
@@ -230,6 +240,7 @@ namespace MimeKit.Text {
 		{
 			poppedThrough = true;
 			stack.PopThrough (index);
+			tracker?.Popped (stack);
 
 			if (formPointerIndex >= stack.Count)
 				formPointerIndex = -1;
@@ -238,6 +249,9 @@ namespace MimeKit.Text {
 		void RemoveEntry (int index)
 		{
 			poppedThrough = true;
+			tracker?.BeforeMiddleRemoval (index);
+			if (FormattingRecoveryExceeded)
+				return;
 			stack.RemoveEntry (index);
 		}
 
@@ -340,8 +354,10 @@ namespace MimeKit.Text {
 		/// has inserted the document's <c>&lt;body&gt;</c> and the frameset-ok flag has been set to "not ok".
 		/// </remarks>
 		public bool TracksCharacterData {
-			get { return !inFrameset && (mode != InsertionMode.AfterHead || framesetOk || !bodyCreated); }
+			get { return !inFrameset && (mode != InsertionMode.AfterHead || framesetOk || !bodyCreated || ReconstructsOnCharacters); }
 		}
+
+		bool ReconstructsOnCharacters => tracker?.Pending == true && stack.TopHtmlOrIntegrationPoint == stack.Top;
 
 		/// <summary>
 		/// Get whether the tree builder is in the "in frameset", "after frameset" or "after after frameset" insertion mode.
@@ -386,6 +402,23 @@ namespace MimeKit.Text {
 
 			if (c != '\0')
 				framesetOk = false;
+		}
+
+		internal void ProcessCharacters (ReadOnlySpan<char> characters)
+		{
+			foreach (char c in characters) {
+				if (!TracksCharacterData)
+					break;
+
+				if (c != '\0' && ReconstructsOnCharacters) {
+					tracker!.Reconstruct (stack);
+					if (DepthExceeded)
+						break;
+				}
+
+				if (c != ' ' && c != '\t' && c != '\n' && c != '\f' && c != '\r')
+					ProcessCharacterData (c);
+			}
 		}
 
 		// Inserts the <body> element for a token that is processed using the "anything else" rules of the "after head" insertion
@@ -890,6 +923,15 @@ namespace MimeKit.Text {
 		void PushHtml (HtmlTagToken tag)
 		{
 			stack.Push (tag.Name, tag.Id, HtmlNamespace.Html, GetHtmlFlags (tag.Id, tag.Name));
+			if (tracker == null)
+				return;
+
+			if (tag.Id.IsFormattingElement ())
+				tracker.Push (tag.Id, tag.Attributes, stack);
+			else if (tag.Id == HtmlTagId.TD || tag.Id == HtmlTagId.TH || tag.Id == HtmlTagId.Caption ||
+				tag.Id == HtmlTagId.Marquee || tag.Id == HtmlTagId.Object || tag.Id == HtmlTagId.Applet ||
+				(tag.Id == HtmlTagId.Unknown && tag.Name.Equals ("template", StringComparison.OrdinalIgnoreCase)))
+				tracker.Push (HtmlTagId.Unknown, null, stack);
 		}
 
 		void PushImplied (HtmlTagId id)
@@ -964,6 +1006,8 @@ namespace MimeKit.Text {
 			case HtmlTagId.Section: case HtmlTagId.Summary: case HtmlTagId.UL: case HtmlTagId.Pre:
 			case HtmlTagId.Listing: case HtmlTagId.PlainText: case HtmlTagId.Xmp:
 				ClosePInButtonScope ();
+				if (id == HtmlTagId.Xmp)
+					tracker?.Reconstruct (stack);
 				PushHtml (tag);
 				return;
 			case HtmlTagId.Form:
@@ -998,9 +1042,18 @@ namespace MimeKit.Text {
 				if (InScope (index, stack.TopScope))
 					PopThrough (index);
 
+				tracker?.Reconstruct (stack);
 				PushHtml (tag);
 				return;
 			case HtmlTagId.A:
+				if (tracker != null) {
+					CloseTrackedFormatting (id, nestedAnchor: true);
+					if (tracker.Exceeded)
+						return;
+					tracker.Reconstruct (stack);
+					PushHtml (tag);
+					return;
+				}
 				// Approximates the adoption agency algorithm being run for a nested <a>: when there is no
 				// special element above the open <a>, the open <a> gets popped.
 				index = stack.IndexOf (HtmlTagId.A);
@@ -1015,6 +1068,7 @@ namespace MimeKit.Text {
 				if (stack.IsTopHtml (HtmlTagId.Option))
 					PopThrough (stack.Top);
 
+				tracker?.Reconstruct (stack);
 				PushHtml (tag);
 				return;
 			case HtmlTagId.Table:
@@ -1042,12 +1096,14 @@ namespace MimeKit.Text {
 				return;
 			case HtmlTagId.Unknown:
 				if (tag.Name.Equals ("svg", StringComparison.OrdinalIgnoreCase)) {
+					tracker?.Reconstruct (stack);
 					if (!tag.IsEmptyElement)
 						stack.Push (tag.Name, HtmlTagId.Unknown, HtmlNamespace.Svg, ElementFlags.None);
 					return;
 				}
 
 				if (tag.Name.Equals ("math", StringComparison.OrdinalIgnoreCase)) {
+					tracker?.Reconstruct (stack);
 					if (!tag.IsEmptyElement)
 						stack.Push (tag.Name, HtmlTagId.Unknown, HtmlNamespace.MathML, ElementFlags.None);
 					return;
@@ -1062,8 +1118,33 @@ namespace MimeKit.Text {
 			}
 
 			// Note: The self-closing flag is ignored for HTML elements that are not void elements.
+			if (tracker?.Pending == true && ReconstructsBeforeStartTag (tag))
+				tracker.Reconstruct (stack);
+			if (tracker != null && id == HtmlTagId.NoBR && InScope (stack.IndexOf (id), stack.TopScope)) {
+				ProcessFormattingEndTag (id);
+				if (tracker.Exceeded)
+					return;
+				tracker.Reconstruct (stack);
+			}
 			if (!IsVoidElement (id, tag.Name))
 				PushHtml (tag);
+		}
+
+		bool ReconstructsBeforeStartTag (HtmlTagToken tag)
+		{
+			switch (tag.Id) {
+			case HtmlTagId.Base: case HtmlTagId.BaseFont: case HtmlTagId.BGSound: case HtmlTagId.Link: case HtmlTagId.Meta:
+			case HtmlTagId.Script: case HtmlTagId.Style: case HtmlTagId.Title: case HtmlTagId.NoFrames:
+			case HtmlTagId.TextArea: case HtmlTagId.IFrame: case HtmlTagId.NoEmbed:
+			case HtmlTagId.Param: case HtmlTagId.Source: case HtmlTagId.Track: case HtmlTagId.RP: case HtmlTagId.RT:
+				return false;
+			case HtmlTagId.NoScript:
+				return !ScriptingEnabled && bodyCreated;
+			case HtmlTagId.Unknown:
+				return !tag.Name.Equals ("template", StringComparison.OrdinalIgnoreCase) && !tag.Name.Equals ("rb", StringComparison.OrdinalIgnoreCase) && !tag.Name.Equals ("rtc", StringComparison.OrdinalIgnoreCase);
+			default:
+				return true;
+			}
 		}
 
 		void ProcessFormStartTag (HtmlTagToken tag)
@@ -1294,10 +1375,32 @@ namespace MimeKit.Text {
 				RemoveEntry (index);
 		}
 
+		void CloseTrackedFormatting (HtmlTagId id, bool nestedAnchor = false)
+		{
+			var action = tracker!.Close (id, stack, nestedAnchor);
+			switch (action) {
+			case HtmlFormattingTracker.CloseAction.PopThrough:
+				PopThrough (stack.IndexOf (id));
+				break;
+			case HtmlFormattingTracker.CloseAction.PopInlineThenRemoveBelowBlock:
+				PopAbove (stack.Top - 1);
+				goto case HtmlFormattingTracker.CloseAction.RemoveBelowBlock;
+			case HtmlFormattingTracker.CloseAction.RemoveBelowTwoBlocks:
+			case HtmlFormattingTracker.CloseAction.RemoveBelowBlock:
+				stack.RemoveBelowTop (action == HtmlFormattingTracker.CloseAction.RemoveBelowTwoBlocks);
+				poppedThrough = true;
+				break;
+			}
+		}
+
 		void ProcessFormattingEndTag (HtmlTagId id)
 		{
-			int index = stack.IndexOf (id);
+			if (tracker != null) {
+				CloseTrackedFormatting (id);
+				return;
+			}
 
+			int index = stack.IndexOf (id);
 			if (!InScope (index, stack.TopScope))
 				return;
 

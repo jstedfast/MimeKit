@@ -85,6 +85,7 @@ namespace UnitTests.Text {
 			{ HtmlComplianceViolation.IgnoredStartTag, 47 },
 			{ HtmlComplianceViolation.ForeignContentBreakout, 48 },
 			{ HtmlComplianceViolation.AttributesMergedIntoExistingElement, 49 },
+			{ HtmlComplianceViolation.FormattingRecoveryLimitExceeded, 50 },
 			{ HtmlComplianceViolation.TooManyComplianceIssues, int.MaxValue },
 		};
 

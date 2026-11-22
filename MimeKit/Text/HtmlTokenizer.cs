@@ -72,7 +72,6 @@ namespace MimeKit.Text {
 		HtmlComplianceOptions complianceOptions = HtmlComplianceOptions.Default.Clone ();
 		HtmlCappedComplianceLogger? cappedLogger;
 		IHtmlComplianceLogger? logger;
-		bool reportedElementDepthLimitExceeded;
 		HtmlLimitExceededBehavior limitExceededBehavior;
 		bool nestedComment;
 		HashSet<string>? attributeNames;
@@ -96,6 +95,7 @@ namespace MimeKit.Text {
 		bool detectByteOrderMark;
 		bool isEndTag;
 		bool bang;
+		bool literalRemainder;
 		bool eof;
 
 		/// <summary>
@@ -1056,6 +1056,34 @@ namespace MimeKit.Text {
 				LogIssueAtPreviousCharacter (HtmlComplianceViolation.EndTagWithTrailingSolidus, '>');
 		}
 
+		void ProcessCharacters (ReadOnlySpan<char> characters)
+		{
+			treeConstruction.ProcessCharacters (characters);
+
+			if (treeConstruction.DepthExceeded)
+				OnLimitExceeded (HtmlComplianceViolation.ElementDepthLimitExceeded, false);
+		}
+
+		void OnLimitExceeded (HtmlComplianceViolation violation, bool afterTag)
+		{
+			TokenizerState = HtmlTokenizerState.PlainText;
+			literalRemainder = true;
+
+			if (logger != null) {
+				if (afterTag)
+					LogIssueAtPreviousCharacter (violation, '>');
+				else
+					LogIssueAtCurrentPosition (violation);
+			}
+
+			if (LimitExceededBehavior == HtmlLimitExceededBehavior.Throw) {
+				TokenizerState = HtmlTokenizerState.EndOfFile;
+
+				throw new FormatException (violation == HtmlComplianceViolation.ElementDepthLimitExceeded ?
+					$"HTML element depth exceeded MaxElementDepth ({MaxElementDepth})." : "HTML formatting recovery budget exceeded.");
+			}
+		}
+
 		HtmlToken EmitTagToken ()
 		{
 			var token = tag!;
@@ -1064,9 +1092,7 @@ namespace MimeKit.Text {
 				ValidateEndTag ();
 
 			var result = treeConstruction.ProcessTag (token);
-
 			TokenizerState = result.TokenizerState;
-
 			if (TokenizerState == HtmlTokenizerState.RawText || TokenizerState == HtmlTokenizerState.RcData)
 				activeTagName = token.Id.ToHtmlTagName ();
 
@@ -1085,17 +1111,10 @@ namespace MimeKit.Text {
 			// Note: If the stack of open elements overflowed, the tokenizer can no longer tell how a browser would tokenize the rest
 			// of the input (e.g. an untracked <svg> would change how <style> or <![CDATA[ are handled), so fail closed by treating
 			// the remainder of the input as literal text.
-			if (treeConstruction.DepthExceeded) {
-				if (logger != null && !reportedElementDepthLimitExceeded) {
-					LogIssueAtPreviousCharacter (HtmlComplianceViolation.ElementDepthLimitExceeded, '>');
-					reportedElementDepthLimitExceeded = true;
-				}
-
-				if (LimitExceededBehavior == HtmlLimitExceededBehavior.Throw) {
-					TokenizerState = HtmlTokenizerState.EndOfFile;
-					throw new FormatException ($"HTML element depth exceeded MaxElementDepth ({MaxElementDepth}).");
-				}
-			}
+			if (treeConstruction.DepthExceeded)
+				OnLimitExceeded (HtmlComplianceViolation.ElementDepthLimitExceeded, true);
+			else if (treeConstruction.FormattingRecoveryExceeded)
+				OnLimitExceeded (HtmlComplianceViolation.FormattingRecoveryLimitExceeded, true);
 
 			data.Length = 0;
 			tag = null;
@@ -1115,6 +1134,9 @@ namespace MimeKit.Text {
 				TokenizerState = HtmlTokenizerState.EndOfFile;
 				data.Append ('&');
 
+				if (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)
+					OnSingleCharacter ('&');
+
 				return EmitDataToken (decode, false);
 			}
 
@@ -1125,7 +1147,7 @@ namespace MimeKit.Text {
 				data.Append ('&');
 
 				if (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)
-					treeConstruction.ProcessCharacterData ('&');
+					ProcessCharacters ("&".AsSpan ());
 
 				return null;
 			}
@@ -1150,10 +1172,20 @@ namespace MimeKit.Text {
 
 				if (!TryPeek (out c)) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
+
 					if (logger != null)
 						ValidateCharacterReference (false, '\0');
-					if (decode)
-						data.Append (entity.GetValue ());
+
+					if (decode || (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)) {
+						var value = entity.GetValue ();
+
+						if (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)
+							ProcessCharacters (value.AsSpan ());
+
+						if (decode)
+							data.Append (value);
+					}
+
 					entity.Reset ();
 
 					return EmitDataToken (decode, false);
@@ -1168,7 +1200,7 @@ namespace MimeKit.Text {
 				var value = entity.GetValue ();
 
 				if (next == HtmlTokenizerState.Data && treeConstruction.TracksCharacterData)
-					ProcessCharacterData (value);
+					ProcessCharacters (value.AsSpan ());
 
 				if (decode)
 					data.Append (value);
@@ -1324,29 +1356,6 @@ namespace MimeKit.Text {
 		static readonly char[] LoggedDataSpecials = new char[] { '\0', '&', '<' };
 #endif
 
-		// Lets the stack of open elements know about character data in the data state (or in a CDATA section) that is not
-		// whitespace, which closes the <head> element (and any <noscript> element within it) and, unless it is U+0000, sets
-		// the frameset-ok flag to "not ok".
-		void ProcessCharacterData (int startIndex)
-		{
-			for (int i = startIndex; i < data.Length && treeConstruction.TracksCharacterData; i++) {
-				if (!IsHtmlWhiteSpace (data[i]))
-					treeConstruction.ProcessCharacterData (data[i]);
-			}
-		}
-
-		void ProcessCharacterData (string value)
-		{
-			for (int i = 0; i < value.Length && treeConstruction.TracksCharacterData; i++) {
-				if (!IsHtmlWhiteSpace (value[i]))
-					treeConstruction.ProcessCharacterData (value[i]);
-			}
-		}
-
-		static bool IsHtmlWhiteSpace (char c)
-		{
-			return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r';
-		}
 
 		// 8.2.4.1 Data state
 		HtmlToken? ReadData ()
@@ -1355,14 +1364,22 @@ namespace MimeKit.Text {
 
 			do {
 				int startIndex = data.Length;
+				bool foundSpecial;
 
-				if (!TryReadDataUntil (specials, out char c)) {
+				foundSpecial = TryReadDataUntil (specials, out char c);
+
+				if (treeConstruction.TracksCharacterData)
+					ProcessCharacters (data.AsSpan ().Slice (startIndex));
+
+				if (!foundSpecial) {
 					TokenizerState = HtmlTokenizerState.EndOfFile;
 					break;
 				}
 
-				if (treeConstruction.TracksCharacterData)
-					ProcessCharacterData (startIndex);
+				if (literalRemainder) {
+					data.Append (c);
+					return EmitDataToken (true, false);
+				}
 
 				switch (c) {
 				case '&':
@@ -1394,7 +1411,7 @@ namespace MimeKit.Text {
 				default:
 					// Note: The special characters are never whitespace.
 					if (treeConstruction.TracksCharacterData)
-						treeConstruction.ProcessCharacterData (c);
+						OnSingleCharacter (c);
 
 					data.Append (c);
 					break;
@@ -1407,6 +1424,11 @@ namespace MimeKit.Text {
 				dataToken.IsDataState = true;
 
 			return token;
+		}
+
+		void OnSingleCharacter (char c)
+		{
+			ProcessCharacters (stackalloc char[] { c });
 		}
 
 		// 8.2.4.2 Character reference in data state
@@ -1528,7 +1550,7 @@ namespace MimeKit.Text {
 		HtmlToken? ReadPlainText ()
 		{
 			// The converter can consume a run incrementally. Preserve token boundaries for public tokenizer callers.
-			if (treeConstruction.DepthExceeded && StreamLiteralText) {
+			if (literalRemainder && StreamLiteralText) {
 				while (data.Length < 4096 && TryRead (out char c)) {
 					if (c == '\0') {
 						LogNullCharacter ();
@@ -1557,7 +1579,7 @@ namespace MimeKit.Text {
 
 			// Note: If the depth limit was exceeded, then the remaining input is not the content of a <plaintext> element and
 			// so needs to be encoded when written as HTML.
-			return EmitDataToken (treeConstruction.DepthExceeded, false);
+			return EmitDataToken (literalRemainder, false);
 		}
 
 		// 8.2.4.8 Tag open state
@@ -3620,7 +3642,7 @@ namespace MimeKit.Text {
 						cdataIndex = 0;
 
 						if (treeConstruction.TracksCharacterData)
-							ProcessCharacterData (0);
+							ProcessCharacters (data.AsSpan ());
 
 						return EmitCDataToken ();
 					}
@@ -3636,7 +3658,7 @@ namespace MimeKit.Text {
 			cdataIndex = 0;
 
 			if (treeConstruction.TracksCharacterData)
-				ProcessCharacterData (0);
+				ProcessCharacters (data.AsSpan ());
 
 			return EmitCDataToken ();
 		}

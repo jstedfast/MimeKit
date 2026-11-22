@@ -84,6 +84,16 @@ namespace MimeKit.Fuzzing.Helpers {
 
 		public static void Check (string html, bool scriptingEnabled, string what)
 		{
+			var tokenizer = new HtmlTokenizer (new StringReader (html)) {
+				MaxElementDepth = 1 << 20,
+				ScriptingEnabled = scriptingEnabled
+			};
+			Check (html, tokenizer, what);
+		}
+
+		internal static void Check (string html, HtmlTokenizer tokenizer, string what)
+		{
+			bool scriptingEnabled = tokenizer.ScriptingEnabled;
 			var created = new List<CreatedElement> ();
 			var options = new HtmlParserOptions {
 				IsKeepingSourceReferences = true,
@@ -104,7 +114,7 @@ namespace MimeKit.Fuzzing.Helpers {
 			};
 
 			var document = new HtmlParser (options).ParseDocument (html);
-			var tags = Tokenize (html, scriptingEnabled, out bool inFrameset);
+			var tags = Tokenize (html, tokenizer, out bool inFrameset);
 			var failure = Compare (document, created, tags, inFrameset);
 
 			if (failure is null)
@@ -193,12 +203,8 @@ namespace MimeKit.Fuzzing.Helpers {
 		}
 
 		// Returns the start tags that HtmlTokenizer emits, keyed by the offset of their '<'.
-		static Dictionary<int, HtmlTagToken> Tokenize (string html, bool scriptingEnabled, out bool inFrameset)
+		static Dictionary<int, HtmlTagToken> Tokenize (string html, HtmlTokenizer tokenizer, out bool inFrameset)
 		{
-			var tokenizer = new HtmlTokenizer (new StringReader (html)) {
-				MaxElementDepth = 1 << 20,
-				ScriptingEnabled = scriptingEnabled
-			};
 			var tags = new Dictionary<int, HtmlTagToken> ();
 			var lineStarts = new List<int> { 0 };
 			int previousEnd = 0;

@@ -67,7 +67,7 @@ namespace MimeKit.Text {
 		{
 			// Note: TooManyComplianceIssues is not part of the contiguous range of defects, so it is
 			// checked separately.
-			if ((violation <= HtmlComplianceViolation.None || violation > HtmlComplianceViolation.AttributesMergedIntoExistingElement) && violation != HtmlComplianceViolation.TooManyComplianceIssues)
+			if ((violation <= HtmlComplianceViolation.None || violation > HtmlComplianceViolation.FormattingRecoveryLimitExceeded) && violation != HtmlComplianceViolation.TooManyComplianceIssues)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
 			if (offset < 0)
@@ -321,6 +321,7 @@ namespace MimeKit.Text {
 			// what a filter or scanner examined may not be what the recipient sees, or content that was lost.
 			case HtmlComplianceViolation.EofInTag:
 			case HtmlComplianceViolation.ElementDepthLimitExceeded:
+			case HtmlComplianceViolation.FormattingRecoveryLimitExceeded:
 			case HtmlComplianceViolation.UnexpectedSolidusInTag:
 			case HtmlComplianceViolation.DuplicateAttribute:
 			case HtmlComplianceViolation.MissingWhitespaceBetweenAttributes:
@@ -402,6 +403,7 @@ namespace MimeKit.Text {
 			// Note: Content that was lost or went unprocessed is content that went unscanned.
 			case HtmlComplianceViolation.EofInTag:
 			case HtmlComplianceViolation.ElementDepthLimitExceeded:
+			case HtmlComplianceViolation.FormattingRecoveryLimitExceeded:
 				return DataLoss | Security;
 
 			// Note: Different HTML processors may disagree about the structure of the document, so what a
@@ -552,6 +554,8 @@ namespace MimeKit.Text {
 				return "The input contained a U+0000 NULL character.";
 			case HtmlComplianceViolation.ElementDepthLimitExceeded:
 				return "Elements were nested more deeply than the configured limit.";
+			case HtmlComplianceViolation.FormattingRecoveryLimitExceeded:
+				return "The active formatting recovery budget was exceeded.";
 			case HtmlComplianceViolation.IgnoredStartTag:
 				return "A start tag was ignored.";
 			case HtmlComplianceViolation.ForeignContentBreakout:
@@ -672,6 +676,8 @@ namespace MimeKit.Text {
 				return "NULL characters are not allowed in HTML. Depending on where they appear, browsers either ignore them or replace them with U+FFFD REPLACEMENT CHARACTER, while other HTML processors may truncate the content at the NULL.";
 			case HtmlComplianceViolation.ElementDepthLimitExceeded:
 				return "This is not a defect in the document, but the remainder of the input was treated as text rather than markup.";
+			case HtmlComplianceViolation.FormattingRecoveryLimitExceeded:
+				return "The parser stopped interpreting markup rather than guessing which formatting elements to reconstruct.";
 			case HtmlComplianceViolation.IgnoredStartTag:
 				return "Browsers do not insert an element for some start tags that appear where they are not allowed, e.g. a second <head>, a <frameset> after the body content has started, a nested <form>, a table structure start tag such as <tr> outside of a table, or any start tag other than <html>, <frameset>, <frame> or <noframes> in a frameset document. Since the ignored start tag does not change how the content that follows it gets tokenized, other HTML processors that do honor it may disagree about the structure of the document.";
 			case HtmlComplianceViolation.ForeignContentBreakout:

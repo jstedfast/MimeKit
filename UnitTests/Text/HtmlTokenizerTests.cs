@@ -46,6 +46,49 @@ namespace UnitTests.Text {
 			var utf8Tokenizer = new HtmlTokenizer (Stream.Null, Encoding.UTF8);
 		}
 
+		[Test]
+		public void TestReconstructedFormattingAtMathTextIntegrationPoint ()
+		{
+			const string html = "<svg><![CDATA[diagram]]></svg><math><mtext><p><i></p> &#32;<![CDATA[note]]><h5>Title</h5>";
+			var tokenizer = new HtmlTokenizer (new StringReader (html)) { LimitExceededBehavior = HtmlLimitExceededBehavior.Throw };
+			tokenizer.TreeConstruction.EnableFormattingPrototype ();
+			var starts = new List<string> ();
+			var cdata = new List<string> ();
+			int bogusComments = 0;
+
+			while (tokenizer.ReadNextToken (out var token)) {
+				if (token is HtmlTagToken tag && !tag.IsEndTag)
+					starts.Add (tag.Name);
+				else if (token is HtmlCDataToken section)
+					cdata.Add (section.Data);
+				else if (token is HtmlCommentToken comment && comment.IsBogusComment)
+					bogusComments++;
+			}
+
+			Assert.That (starts, Is.EqualTo (new[] { "svg", "math", "mtext", "p", "i", "h5" }));
+			Assert.That (cdata, Is.EqualTo (new[] { "diagram" }));
+			Assert.That (bogusComments, Is.EqualTo (1));
+		}
+
+		[Test]
+		public void TestUnsupportedFormattingDescendantPreservesLiteralTail ()
+		{
+			const string tail = "note</custom-note></p><p>footer</p>";
+			var tokenizer = new HtmlTokenizer (new StringReader ("<font><p><custom-note></font>" + tail));
+			var tracker = tokenizer.TreeConstruction.EnableFormattingPrototype ();
+			var starts = new List<string> ();
+			var data = new StringBuilder ();
+			while (tokenizer.ReadNextToken (out var token)) {
+				if (token is HtmlTagToken tag && !tag.IsEndTag)
+					starts.Add (tag.Name);
+				else if (token is HtmlDataToken text)
+					data.Append (text.Data);
+			}
+			Assert.That (tracker.Reason, Is.EqualTo (HtmlFormattingTracker.StopReason.ComplexAdoption));
+			Assert.That (starts, Is.EqualTo (new[] { "font", "p", "custom-note" }));
+			Assert.That (data.ToString (), Is.EqualTo (tail));
+		}
+
 		[TestCase ("<html>", HtmlNamespace.Html)]
 		[TestCase ("<html xmlns=\"http://www.w3.org/2000/svg\">", HtmlNamespace.Svg)]
 		[TestCase ("<html xmlns=\"http://www.w3.org/1998/Math/MathML\">", HtmlNamespace.MathML)]

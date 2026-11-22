@@ -428,6 +428,32 @@ namespace MimeKit.Text {
 			return entries;
 		}
 
+		// Remove one physical node below one or two surviving blocks, refreshing their
+		// cached indexes without reporting them as implicitly closed.
+		public void RemoveBelowTop (bool twoBlocks)
+		{
+			var top = EntryAt (count - 1);
+
+			RemoveTopEntry ();
+
+			var lower = default (Entry);
+
+			if (twoBlocks) {
+				lower = EntryAt (count - 1);
+				RemoveTopEntry ();
+			}
+
+			if (EntryAt (count - 1).Count > 1)
+				EntryAt (count - 1).Count--;
+			else
+				RemoveTopEntry ();
+
+			if (twoBlocks)
+				PushEntry (lower);
+
+			PushEntry (top);
+		}
+
 		// Remove (one instance of) the element at the specified index without popping the elements above it.
 		//
 		// Note: The entries above it cache the indexes of the entries below them, so they get removed and pushed again.

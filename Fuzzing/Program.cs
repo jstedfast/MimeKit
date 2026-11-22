@@ -27,6 +27,7 @@
 using System.Diagnostics;
 
 using SharpFuzz;
+using MimeKit.Text;
 
 namespace MimeKit.Fuzzing {
 	// Entry point for the coverage-guided fuzzing harness.
@@ -35,6 +36,7 @@ namespace MimeKit.Fuzzing {
 	//   (no arguments)                   Run under libfuzzer-dotnet. The target is selected by the
 	//                                    MIMEKIT_FUZZ_TARGET environment variable.
 	//   --list                           Print "name<TAB>max_len" for every target (consumed by scripts/fuzz.ps1).
+	//   --measure-html-formatting <file>...   Compare internal recovery budgets on HTML text fixtures.
 	//   --replay <target> <path>...      Run files (or every file in directories) through a target without
 	//                                    instrumentation. Used to reproduce crashes and to smoke-test seeds.
 	//   --extract-rtf <bin-dir> <rtf-dir> <path>...
@@ -59,6 +61,9 @@ namespace MimeKit.Fuzzing {
 			if (args.Length > 0 && args[0] == "--replay")
 				return Replay (args);
 
+			if (args.Length > 0 && args[0] == "--measure-html-formatting")
+				return MeasureHtmlFormatting (args);
+
 			if (args.Length > 0 && args[0] == "--extract-rtf")
 				return Helpers.RtfSeedExtractor.Run (args);
 
@@ -82,6 +87,41 @@ namespace MimeKit.Fuzzing {
 			Fuzzer.LibFuzzer.Run (fuzzTarget.Run);
 
 			return 0;
+		}
+
+		static int MeasureHtmlFormatting (string[] args)
+		{
+			if (args.Length < 2) {
+				Console.Error.WriteLine ("Usage: MimeKit.Fuzzing --measure-html-formatting <file>...");
+				return 2;
+			}
+
+			Console.WriteLine ("file\tscripting\tcapacity\tpeak\toutcome");
+			int failures = 0;
+			foreach (var path in args.Skip (1)) {
+				var html = Helpers.HtmlOracle.Normalize (File.ReadAllText (path));
+				foreach (bool scripting in new[] { false, true }) {
+					foreach (int capacity in new[] { 0, 16, 32, 64 }) {
+						var tokenizer = new HtmlTokenizer (new StringReader (html)) {
+							ScriptingEnabled = scripting,
+							LimitExceededBehavior = HtmlLimitExceededBehavior.Throw
+						};
+						var tracker = capacity == 0 ? null : tokenizer.TreeConstruction.EnableFormattingPrototype (capacity);
+						string outcome;
+						try {
+							Helpers.HtmlOracle.Check (html, tokenizer, path);
+							outcome = "agreement";
+						} catch (FormatException) when (tokenizer.TreeConstruction.DepthExceeded || tracker?.Exceeded == true) {
+							outcome = tokenizer.TreeConstruction.DepthExceeded ? "Depth" : tracker!.Reason.ToString ();
+						} catch (FuzzInvariantException ex) {
+							outcome = ex.Message;
+							failures++;
+						}
+						Console.WriteLine ($"{path}\t{scripting}\t{capacity}\t{tracker?.PeakCount}\t{outcome}");
+					}
+				}
+			}
+			return failures == 0 ? 0 : 1;
 		}
 
 		static int Replay (string[] args)

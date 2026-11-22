@@ -527,10 +527,21 @@ namespace MimeKit.Text {
 		/// Elements were nested more deeply than the configured limit.
 		/// </summary>
 		/// <remarks>
-		/// This is not a defect in the document, but the remainder of the input was treated as text rather than
-		/// markup.
+		/// This limit does not indicate a defect in the document. By default, the tokenizer treats the remaining
+		/// input as literal text. If <see cref="HtmlTokenizer.LimitExceededBehavior"/> is set to
+		/// <see cref="HtmlLimitExceededBehavior.Throw"/>, it throws a <see cref="System.FormatException"/> instead.
 		/// </remarks>
 		ElementDepthLimitExceeded                               = 46,
+
+		/// <summary>
+		/// Tracking active formatting reliably would exceed the recovery budget.
+		/// </summary>
+		/// <remarks>
+		/// This limit does not indicate a defect in the document. By default, the tokenizer treats the remaining
+		/// input as literal text. If <see cref="HtmlTokenizer.LimitExceededBehavior"/> is set to
+		/// <see cref="HtmlLimitExceededBehavior.Throw"/>, it throws a <see cref="System.FormatException"/> instead.
+		/// </remarks>
+		FormattingRecoveryLimitExceeded                         = 50,
 
 		#endregion
 
