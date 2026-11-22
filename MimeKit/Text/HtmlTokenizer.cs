@@ -73,6 +73,7 @@ namespace MimeKit.Text {
 		HtmlCappedComplianceLogger? cappedLogger;
 		IHtmlComplianceLogger? logger;
 		bool reportedElementDepthLimitExceeded;
+		HtmlLimitExceededBehavior limitExceededBehavior;
 		bool nestedComment;
 		HashSet<string>? attributeNames;
 		long markOffset;
@@ -226,8 +227,8 @@ namespace MimeKit.Text {
 		/// towards this limit.</para>
 		/// <para>Once a start tag exceeds this limit, the tokenizer can no longer reliably determine how the
 		/// remainder of the document would be tokenized by a web browser. To avoid misinterpreting markup that
-		/// follows, that start tag is the last tag token returned; the remainder of the input is returned as
-		/// <see cref="HtmlDataToken"/>s containing literal text.</para>
+		/// follows, the default behavior returns that start tag and treats the remainder as literal text.
+		/// See <see cref="LimitExceededBehavior"/>.</para>
 		/// </remarks>
 		/// <value>The maximum element depth.</value>
 		/// <exception cref="System.ArgumentOutOfRangeException">
@@ -240,6 +241,20 @@ namespace MimeKit.Text {
 					throw new ArgumentOutOfRangeException (nameof (value));
 
 				treeConstruction.MaxDepth = value;
+			}
+		}
+
+		/// <summary>Get or set how the tokenizer handles an exceeded structural limit.</summary>
+		/// <remarks>The default is <see cref="HtmlLimitExceededBehavior.LiteralText"/>.</remarks>
+		/// <value>The behavior to use when <see cref="MaxElementDepth"/> is exceeded.</value>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a defined behavior.</exception>
+		public HtmlLimitExceededBehavior LimitExceededBehavior {
+			get { return limitExceededBehavior; }
+			set {
+				if (value != HtmlLimitExceededBehavior.LiteralText && value != HtmlLimitExceededBehavior.Throw)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				limitExceededBehavior = value;
 			}
 		}
 
@@ -376,6 +391,8 @@ namespace MimeKit.Text {
 		internal HtmlTreeConstruction TreeConstruction {
 			get { return treeConstruction; }
 		}
+
+		internal bool StreamLiteralText { get; set; }
 
 		/// <summary>
 		/// Get or set whether the tokenizer should behave as if scripting is enabled.
@@ -1073,6 +1090,11 @@ namespace MimeKit.Text {
 					LogIssueAtPreviousCharacter (HtmlComplianceViolation.ElementDepthLimitExceeded, '>');
 					reportedElementDepthLimitExceeded = true;
 				}
+
+				if (LimitExceededBehavior == HtmlLimitExceededBehavior.Throw) {
+					TokenizerState = HtmlTokenizerState.EndOfFile;
+					throw new FormatException ($"HTML element depth exceeded MaxElementDepth ({MaxElementDepth}).");
+				}
 			}
 
 			data.Length = 0;
@@ -1505,6 +1527,27 @@ namespace MimeKit.Text {
 		// 8.2.4.7 PLAINTEXT state
 		HtmlToken? ReadPlainText ()
 		{
+			// The converter can consume a run incrementally. Preserve token boundaries for public tokenizer callers.
+			if (treeConstruction.DepthExceeded && StreamLiteralText) {
+				while (data.Length < 4096 && TryRead (out char c)) {
+					if (c == '\0') {
+						LogNullCharacter ();
+						c = '\uFFFD';
+					}
+
+					data.Append (c);
+				}
+
+				if (eof) {
+					TokenizerState = HtmlTokenizerState.EndOfFile;
+				} else if (char.IsHighSurrogate (data[data.Length - 1]) && TryPeek (out char low) && char.IsLowSurrogate (low)) {
+					ConsumeCharacter (low);
+					data.Append (low);
+				}
+
+				return EmitDataToken (true, false);
+			}
+
 			while (TryReadDataUntil (PlainTextSpecials, out _)) {
 				LogNullCharacter ();
 				data.Append ('\uFFFD');
@@ -3609,6 +3652,8 @@ namespace MimeKit.Text {
 		/// </example>
 		/// <returns><see langword="true" /> if the next token was read; otherwise, <see langword="false" />.</returns>
 		/// <param name="token">The token that was read.</param>
+		/// <exception cref="FormatException">A structural limit was exceeded and <see cref="LimitExceededBehavior"/>
+		/// is <see cref="HtmlLimitExceededBehavior.Throw"/>.</exception>
 		public bool ReadNextToken ([NotNullWhen (true)] out HtmlToken? token)
 		{
 			do {

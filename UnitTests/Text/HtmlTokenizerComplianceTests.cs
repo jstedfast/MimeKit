@@ -267,6 +267,21 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestDepthLimitThrowsAfterReporting ()
+		{
+			var logger = new TestHtmlComplianceLogger ();
+			var tokenizer = CreateTokenizer ("<div><span>tail", true, logger);
+			tokenizer.MaxElementDepth = 1;
+			tokenizer.LimitExceededBehavior = HtmlLimitExceededBehavior.Throw;
+
+			Assert.That (tokenizer.ReadNextToken (out _), Is.True);
+			var ex = Assert.Throws<FormatException> (() => tokenizer.ReadNextToken (out _));
+			Assert.That (ex.Message, Does.Contain ("MaxElementDepth (1)"));
+			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
+			Assert.That (logger.Issues.Select (x => x.ToString ()), Is.EqualTo (new[] { "ElementDepthLimitExceeded at line 1, position 11 (offset 10)" }));
+		}
+
+		[Test]
 		public void TestElementDepthLimitExceededIsReportedOnce ()
 		{
 			var issues = Tokenize ("<a><b><c><d><e>", maxElementDepth: 2);

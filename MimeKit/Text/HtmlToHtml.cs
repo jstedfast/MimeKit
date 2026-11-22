@@ -43,6 +43,7 @@ namespace MimeKit.Text {
 	{
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
+		HtmlLimitExceededBehavior limitExceededBehavior;
 		HtmlComplianceOptions complianceOptions = HtmlComplianceOptions.Default.Clone ();
 
 		/// <summary>
@@ -133,7 +134,7 @@ namespace MimeKit.Text {
 		/// <para>Gets or sets the maximum number of distinct nested elements that will be tracked while
 		/// tokenizing the HTML (see <see cref="HtmlTokenizer.MaxElementDepth"/>).</para>
 		/// <para>Consecutive nested elements that are identical share a single entry, so arbitrarily deep nesting
-		/// of the same element does not count towards this limit. If a start tag exceeds this limit, then it is the
+		/// of the same element does not count towards this limit. By default, if a start tag exceeds this limit, it is the
 		/// last tag passed to the <see cref="HtmlTagCallback"/> and the remainder of the input is written to the
 		/// output as encoded text.</para>
 		/// </remarks>
@@ -148,6 +149,22 @@ namespace MimeKit.Text {
 					throw new ArgumentOutOfRangeException (nameof (value));
 
 				maxElementDepth = value;
+			}
+		}
+
+		/// <summary>Get or set how the converter handles an exceeded structural limit.</summary>
+		/// <remarks>The default is <see cref="HtmlLimitExceededBehavior.LiteralText"/>. In
+		/// <see cref="HtmlLimitExceededBehavior.Throw"/> mode conversion stops with a <see cref="FormatException"/>.
+		/// Output already written to the destination is not rolled back.</remarks>
+		/// <value>The behavior to use when <see cref="MaxElementDepth"/> is exceeded.</value>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a defined behavior.</exception>
+		public HtmlLimitExceededBehavior LimitExceededBehavior {
+			get { return limitExceededBehavior; }
+			set {
+				if (value != HtmlLimitExceededBehavior.LiteralText && value != HtmlLimitExceededBehavior.Throw)
+					throw new ArgumentOutOfRangeException (nameof (value));
+
+				limitExceededBehavior = value;
 			}
 		}
 
@@ -393,6 +410,8 @@ namespace MimeKit.Text {
 					ScriptingEnabled = noScriptHandling == HtmlNoScriptHandling.ScriptingEnabled,
 					IgnoreTruncatedTags = true,
 					MaxElementDepth = maxElementDepth,
+					LimitExceededBehavior = limitExceededBehavior,
+					StreamLiteralText = true,
 					ComplianceLogger = ComplianceLogger,
 					ComplianceOptions = complianceOptions,
 					ReuseDataTokens = true

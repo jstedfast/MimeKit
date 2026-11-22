@@ -94,6 +94,20 @@ namespace UnitTests.Text {
 			Assert.That (converter.Convert (output), Is.EqualTo (output));
 		}
 
+		[Test]
+		public void TestDepthLimitBehavior ()
+		{
+			var converter = new HtmlToHtml { MaxElementDepth = 1 };
+			const string prefix = "<div><span>";
+			var tail = new string ('x', 4095) + "\U0001F600\0<em>&";
+
+			Assert.That (converter.Convert (prefix + tail), Is.EqualTo (prefix + HtmlUtils.HtmlEncode (tail.Replace ('\0', '\uFFFD'))));
+
+			converter.LimitExceededBehavior = HtmlLimitExceededBehavior.Throw;
+			Assert.Throws<FormatException> (() => converter.Convert (prefix + tail));
+			Assert.That (converter.Convert ("<div>ok</div>"), Is.EqualTo ("<div>ok</div>"));
+		}
+
 		void ReplaceUrlsWithFileNames (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
 			if (ctx.TagId == HtmlTagId.Image) {

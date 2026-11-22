@@ -41,6 +41,16 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		[TestCase (-1)]
+		[TestCase (2)]
+		public void TestInvalidHtmlLimitExceededBehavior (int value)
+		{
+			var tokenizer = new HtmlTokenizer (TextReader.Null);
+			var converter = new HtmlToHtml ();
+			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.LimitExceededBehavior = (HtmlLimitExceededBehavior) value);
+			Assert.Throws<ArgumentOutOfRangeException> (() => converter.LimitExceededBehavior = (HtmlLimitExceededBehavior) value);
+		}
+
 		[TestCase ("")]
 		[TestCase (" text")]
 		[TestCase ("text ")]
