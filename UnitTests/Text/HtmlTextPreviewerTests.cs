@@ -64,6 +64,14 @@ namespace UnitTests.Text {
 			}
 		}
 
+		[Test]
+		public void TestReplacesEmbeddedNull ()
+		{
+			var previewer = new HtmlTextPreviewer ();
+
+			Assert.That (previewer.GetPreviewText ("<body>A\0B</body>"), Is.EqualTo ("A\uFFFDB"));
+		}
+
 		static void AssertPreviewText (string path, string expected, int maxPreviewLen)
 		{
 			var previewer = new HtmlTextPreviewer { MaximumPreviewLength = maxPreviewLen };

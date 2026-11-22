@@ -72,13 +72,15 @@ namespace MimeKit.Text {
 			int i;
 
 			for (i = 0; i < value.Length && previewLength < preview.Length; i++) {
-				if (IsWhiteSpace (value[i])) {
+				char c = value[i];
+
+				if (IsWhiteSpace (c)) {
 					if (!lwsp) {
 						preview[previewLength++] = ' ';
 						lwsp = true;
 					}
 				} else {
-					preview[previewLength++] = value[i];
+					preview[previewLength++] = c == '\0' ? '\uFFFD' : c;
 					lwsp = false;
 				}
 			}
