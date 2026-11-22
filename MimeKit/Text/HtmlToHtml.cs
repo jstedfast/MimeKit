@@ -44,6 +44,7 @@ namespace MimeKit.Text {
 		HtmlNoScriptHandling noScriptHandling = HtmlNoScriptHandling.Unwrap;
 		int maxElementDepth = HtmlTokenizer.DefaultMaxElementDepth;
 		HtmlLimitExceededBehavior limitExceededBehavior;
+		internal bool EnableFormattingPrototype { get; set; }
 		HtmlComplianceOptions complianceOptions = HtmlComplianceOptions.Default.Clone ();
 
 		/// <summary>
@@ -424,6 +425,9 @@ namespace MimeKit.Text {
 				HtmlToHtmlTagContext? ctx;
 
 				treeConstruction.TrackClosedElements = true;
+
+				if (EnableFormattingPrototype)
+					treeConstruction.EnableFormattingPrototype ();
 
 				// Note: When outputting a fragment, the content of the <head> element is removed. Browsers implicitly close the
 				// <head> element when they encounter a start tag or non-whitespace text that does not belong in the <head> (and

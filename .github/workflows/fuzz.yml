@@ -19,6 +19,34 @@ permissions:
   contents: read
 
 jobs:
+  formatting-regressions:
+    if: github.event_name == 'schedule' || inputs.target == 'all' || inputs.target == 'html-tokenizer'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Ensure a browser is installed
+        run: google-chrome --version || npx --yes playwright@1.63.0 install --with-deps chromium
+      - name: Compare fixed HTML fixtures with the parsing oracle
+        run: |
+          set -o pipefail
+          dotnet run --project Fuzzing/MimeKit.Fuzzing.csproj -c Release -- --measure-html-formatting \
+            UnitTests/TestData/text/{planet-fitness,homedepot-check-inside-now,mimekit.net}.html \
+            Fuzzing/Fixtures/formatting-fallback.html | tee formatting-results.tsv
+      - name: Publish comparison results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: formatting-regression-results
+          path: formatting-results.tsv
+      - name: Check converter recovery and literal fallback
+        run: dotnet test UnitTests/UnitTests.csproj -p:MonoRuntime=true --filter FullyQualifiedName~TestFormattingPrototypeFallback
+
   targets:
     runs-on: ubuntu-26.04
     outputs:

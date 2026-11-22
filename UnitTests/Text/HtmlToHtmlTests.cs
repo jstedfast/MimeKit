@@ -95,6 +95,18 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestFormattingPrototypeFallback ([Values (HtmlNoScriptHandling.ScriptingDisabled, HtmlNoScriptHandling.ScriptingEnabled)] HtmlNoScriptHandling mode)
+		{
+			const string tail = "<p>footer</p>";
+			const string prefix = "<font><p><custom-note></font>";
+			var converter = new HtmlToHtml { EnableFormattingPrototype = true, NoScriptHandling = mode };
+			Assert.That (converter.Convert (prefix + tail), Does.EndWith (HtmlUtils.HtmlEncode (tail)));
+			converter.LimitExceededBehavior = HtmlLimitExceededBehavior.Throw;
+			Assert.Throws<FormatException> (() => converter.Convert (prefix + tail));
+			Assert.That (converter.Convert ("<font><p>one</font> two</p>"), Does.Contain (" two</p>"));
+		}
+
+		[Test]
 		public void TestDepthLimitBehavior ()
 		{
 			var converter = new HtmlToHtml { MaxElementDepth = 1 };

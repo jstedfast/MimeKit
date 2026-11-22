@@ -96,7 +96,7 @@ namespace MimeKit.Fuzzing {
 				return 2;
 			}
 
-			Console.WriteLine ("file\tscripting\tcapacity\tpeak\toutcome");
+			Console.WriteLine ("file\tscripting\tcapacity\tpeak\toutcome\tremainingUtf16");
 			int failures = 0;
 			foreach (var path in args.Skip (1)) {
 				var html = Helpers.HtmlOracle.Normalize (File.ReadAllText (path));
@@ -108,16 +108,21 @@ namespace MimeKit.Fuzzing {
 						};
 						var tracker = capacity == 0 ? null : tokenizer.TreeConstruction.EnableFormattingPrototype (capacity);
 						string outcome;
+						int remaining = 0;
 						try {
 							Helpers.HtmlOracle.Check (html, tokenizer, path);
 							outcome = "agreement";
 						} catch (FormatException) when (tokenizer.TreeConstruction.DepthExceeded || tracker?.Exceeded == true) {
-							outcome = tokenizer.TreeConstruction.DepthExceeded ? "Depth" : tracker!.Reason.ToString ();
+							outcome = "fallback:" + (tokenizer.TreeConstruction.DepthExceeded ? "Depth" : tracker!.Reason.ToString ());
+							int lineStart = 0;
+							for (int line = 1; line < tokenizer.LineNumber; line++)
+								lineStart = html.IndexOf ('\n', lineStart) + 1;
+							remaining = html.Length - (lineStart + tokenizer.LinePosition - 1);
 						} catch (FuzzInvariantException ex) {
 							outcome = ex.Message;
 							failures++;
 						}
-						Console.WriteLine ($"{path}\t{scripting}\t{capacity}\t{tracker?.PeakCount}\t{outcome}");
+						Console.WriteLine ($"{path}\t{scripting}\t{capacity}\t{tracker?.PeakCount}\t{outcome}\t{remaining}");
 					}
 				}
 			}
