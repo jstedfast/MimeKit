@@ -99,7 +99,7 @@ namespace MimeKit.Utils {
 		internal static readonly DateTime UnixEpoch = new DateTime (1970, 1, 1, 0, 0, 0, 0);
 		const string MonthCharacters = "JanuaryFebruaryMarchAprilMayJuneJulyAugustSeptemberOctoberNovemberDecember";
 		const string WeekdayCharacters = "SundayMondayTuesdayWednesdayThursdayFridaySaturday";
-		const string AlphaZoneCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		const string AlphaZoneCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		const string NumericZoneCharacters = "+-0123456789";
 		const string NumericCharacters = "0123456789";
 		const string TimeCharacters = "0123456789:";
@@ -118,7 +118,7 @@ namespace MimeKit.Utils {
 
 		static DateUtils ()
 		{
-			timezones = new Dictionary<string, int> (StringComparer.Ordinal) {
+			timezones = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase) {
 				{ "UT",       0 }, { "UTC",      0 }, { "GMT",      0 },
 				{ "EDT",   -400 }, { "EST",   -500 },
 				{ "CDT",   -500 }, { "CST",   -600 },

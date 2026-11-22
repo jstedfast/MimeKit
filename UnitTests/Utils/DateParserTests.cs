@@ -79,7 +79,10 @@ namespace UnitTests.Utils {
 			"Fri, 28 Feb 2025 22:59:60 -0500", // leap second only valid if time is 23:59:60
 			"Fri, 28 Feb 2025 23:60:59 -0500", // too many minutes
 			"31 Dec 2024 10:15:00 AM", // missing timezone info after AM time
-			"31 Dec 2024 10:15:00 PM" // missing timezone info after PM time
+			"31 Dec 2024 10:15:00 PM", // missing timezone info after PM time
+			"Sat Mar 24 21:23:03 edt 2007", // lowercase timezone name with non-standard format
+			"Fri, 28 Feb 2025 11:30:00 pm -0500", // lowercase pm but otherwise standard format
+			"Feb 28 2025 12:15:00 am -0500" // lowercase am with non-standard format
 		};
 
 		static readonly string[] expected = {
@@ -129,7 +132,10 @@ namespace UnitTests.Utils {
 			"Fri, 28 Feb 2025 00:00:00 -0500",
 			"Fri, 28 Feb 2025 00:00:00 -0500",
 			"Tue, 31 Dec 2024 10:15:00 +0000",
-			"Tue, 31 Dec 2024 22:15:00 +0000"
+			"Tue, 31 Dec 2024 22:15:00 +0000",
+			"Sat, 24 Mar 2007 21:23:03 -0400",
+			"Fri, 28 Feb 2025 23:30:00 -0500",
+			"Fri, 28 Feb 2025 00:15:00 -0500"
 		};
 
 		[Test]
@@ -264,6 +270,13 @@ namespace UnitTests.Utils {
 		[TestCase ("Z", 0)]
 		[TestCase ("JST", 900)]
 		[TestCase ("KST", 900)]
+		[TestCase ("gmt", 0)]
+		[TestCase ("edt", -400)]
+		[TestCase ("Cst", -600)]
+		[TestCase ("pSt", -800)]
+		[TestCase ("jst", 900)]
+		[TestCase ("r", -500)]
+		[TestCase ("z", 0)]
 		public void TestTimezones (string zone, int expectedOffset)
 		{
 			TimeSpan tzone = new TimeSpan (expectedOffset / 100, Math.Abs (expectedOffset % 100), 0);
