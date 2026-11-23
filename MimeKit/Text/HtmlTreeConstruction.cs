@@ -1387,6 +1387,7 @@ namespace MimeKit.Text {
 		void CloseTrackedFormatting (HtmlTagId id, bool nestedAnchor = false)
 		{
 			var action = tracker!.Close (id, stack, nestedAnchor);
+
 			switch (action) {
 			case HtmlFormattingTracker.CloseAction.PopThrough:
 				PopThrough (stack.IndexOf (id));
