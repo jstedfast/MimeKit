@@ -75,7 +75,7 @@ namespace MimeKit.Fuzzing.Targets {
 
 			// Note: The element depth limit makes HtmlTokenizer stop modeling the tree, so it cannot match a browser.
 			if ((selector & 8) == 0)
-				HtmlOracle.Check (HtmlOracle.Normalize (text), (selector & 1) != 0, "Input");
+				HtmlOracle.CheckInput (data, text, (selector & 1) != 0);
 		}
 
 		static HtmlTokenizer CreateTokenizer (HtmlTokenizer tokenizer, uint selector)

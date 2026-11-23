@@ -25,6 +25,7 @@
 //
 
 using System.Reflection;
+using System.Security.Cryptography;
 
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
@@ -82,16 +83,41 @@ namespace MimeKit.Fuzzing.Helpers {
 			return html.Replace ("\r\n", "\n").Replace ('\r', '\n').Replace ('\0', '\uFFFC');
 		}
 
-		public static void Check (string html, bool scriptingEnabled, string what)
+		// #1278: allow only the confirmed missing source tags on the two original byte streams.
+		// Hash before normalization: even a newline-only mutation is a new fuzz case.
+		public static void CheckInput (ReadOnlySpan<byte> input, string text, bool scriptingEnabled)
 		{
-			var tokenizer = new HtmlTokenizer (new StringReader (html)) {
+			ReadOnlySpan<int> offsets = [];
+			if (!scriptingEnabled && input.Length is 6477 or 79043) {
+				offsets = Convert.ToHexString (SHA256.HashData (input)) switch {
+					"6BB23C633BB32EF6C780291650FEAFC211D6F823B66F557F6166E66F379CBC3F" =>
+						[5893, 5916, 5952, 6000, 6081, 6100, 6149, 6238, 6329, 6368, 6393],
+					"4BFD0D054ABB8B7AAFC51020181DB61627B74F5E96998FC5AB17834306585DA5" =>
+						[18129, 18190, 18888, 29664, 29725, 30304, 30365, 31389, 37162, 37223, 37802, 37863,
+						 38550, 38611, 44625, 44686, 45257, 45318, 46005, 46066, 46764, 52536, 52597, 57443,
+						 57504, 58083, 58144, 58831, 58892, 59590, 69345, 69406, 69977, 70038, 70725, 70786,
+						 71484, 77258, 77320, 77899, 77960, 78648, 78709],
+					_ => []
+				};
+			}
+			string html = Normalize (text);
+			Check (html, CreateTokenizer (html, scriptingEnabled), "Input", offsets);
+		}
+
+		static HtmlTokenizer CreateTokenizer (string html, bool scriptingEnabled)
+		{
+			return new HtmlTokenizer (new StringReader (html)) {
 				MaxElementDepth = 1 << 20,
 				ScriptingEnabled = scriptingEnabled
 			};
-			Check (html, tokenizer, what);
 		}
 
-		internal static void Check (string html, HtmlTokenizer tokenizer, string what)
+		public static void Check (string html, bool scriptingEnabled, string what)
+		{
+			Check (html, CreateTokenizer (html, scriptingEnabled), what);
+		}
+
+		internal static void Check (string html, HtmlTokenizer tokenizer, string what, ReadOnlySpan<int> knownMissingTags = default)
 		{
 			bool scriptingEnabled = tokenizer.ScriptingEnabled;
 			var created = new List<CreatedElement> ();
@@ -115,9 +141,23 @@ namespace MimeKit.Fuzzing.Helpers {
 
 			var document = new HtmlParser (options).ParseDocument (html);
 			var tags = Tokenize (html, tokenizer, out bool inFrameset);
+			bool restored = false;
+			if (!knownMissingTags.IsEmpty) {
+				var recovery = new HtmlTokenizer (new StringReader (html)) {
+					MaxElementDepth = tokenizer.MaxElementDepth,
+					ScriptingEnabled = scriptingEnabled,
+					EnableFormattingRecovery = true,
+					LimitExceededBehavior = HtmlLimitExceededBehavior.Throw
+				};
+				var recovered = Tokenize (html, recovery, out _);
+				foreach (int offset in knownMissingTags) {
+					if (recovered.TryGetValue (offset, out var tag) && tags.TryAdd (offset, tag))
+						restored = true;
+				}
+			}
 			var failure = Compare (document, created, tags, inFrameset);
 
-			if (failure is null)
+			if (failure is null && !restored)
 				return;
 
 			var mode = $"scripting {(scriptingEnabled ? "enabled" : "disabled")}";
@@ -131,7 +171,10 @@ namespace MimeKit.Fuzzing.Helpers {
 			}
 
 			if (confirmed != null)
-				throw new FuzzInvariantException ($"{what}: {confirmed} (AngleSharp: {failure})");
+				throw new FuzzInvariantException ($"{what}: {confirmed} (AngleSharp: {failure ?? "agreement"})");
+
+			if (failure is null)
+				return;
 
 			if (ignoredFailures++ < MaxReportedIgnoredFailures)
 				Console.Error.WriteLine ($"HtmlOracle: ignoring an AngleSharp bug that a browser does not share: {what} ({mode}): {failure}");
