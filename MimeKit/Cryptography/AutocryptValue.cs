@@ -230,7 +230,7 @@ namespace MimeKit.Cryptography {
 						return false;
 					}
 				} else if (attr.Equals ("keydata"u8, StringComparison.OrdinalIgnoreCase)) {
-					if (key != null || valueLength == 0)
+					if (index != end || valueLength == 0)
 						return false;
 
 					try {
@@ -312,8 +312,19 @@ namespace MimeKit.Cryptography {
 			raw.Append (options.NewLine);
 
 			var bytes = CharsetUtils.UTF8.GetBytes (raw.ToString ());
+			int wireLength = bytes.Length;
 
-			if (bytes.Length > MaxSize - field.Length - 1)
+			// LF output can later be written with CRLF, including the final newline.
+			if (options.NewLineFormat == NewLineFormat.Unix) {
+				int index = 0, next;
+
+				while ((next = bytes.AsSpan (index).IndexOf ((byte) '\n')) != -1) {
+					wireLength++;
+					index += next + 1;
+				}
+			}
+
+			if (wireLength > MaxSize - field.Length - 1)
 				throw new FormatException ("Autocrypt field exceeds 10 KiB.");
 
 			var header = new Header (ParserOptions.Default, id, field, bytes);

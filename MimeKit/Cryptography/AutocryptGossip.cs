@@ -246,7 +246,7 @@ namespace MimeKit.Cryptography {
 		/// Format an Autocrypt-Gossip header, folding the Base64 key data.
 		/// </summary>
 		/// <remarks>
-		/// The 10 KiB field limit includes the field name and the whitespace used for folding.
+		/// The 10 KiB wire limit includes the field name and counts line endings as CRLF even when formatting with LF.
 		/// </remarks>
 		/// <param name="options">The formatting options to use for line endings and folding.</param>
 		/// <returns>A new Autocrypt-Gossip header for the root of the encrypted payload.</returns>

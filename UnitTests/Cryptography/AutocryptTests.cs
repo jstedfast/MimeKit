@@ -295,20 +295,37 @@ namespace UnitTests.Cryptography {
 			const string address = "alice@autocrypt.example";
 			const string exampleCode = "1742-0185-6197-1303-7016-8412-3581-4441-0597";
 			var password = "new local protection".ToCharArray ();
-			var recovered = AutocryptSetupMessage.Recover (message, address, exampleCode, password);
+			var attachment = (MimePart) ((Multipart) message.Body)[1];
+			using var stream = new UnitTests.IO.CancellableMemoryStream ();
+
+			using (var decoded = attachment.Content.Open ())
+				decoded.CopyTo (stream);
+
+			attachment.Content = new MimeContent (stream);
+
+			using var cancellation = new CancellationTokenSource ();
+			var recovered = AutocryptSetupMessage.Recover (message, address, exampleCode, password, cancellationToken: cancellation.Token);
+
+			Assert.That (stream.LastReadToken, Is.EqualTo (cancellation.Token));
 			Assert.That (recovered.Preference, Is.EqualTo (AutocryptPreference.Mutual));
 			Assert.That (recovered.Key.KeyData.ToArray (), Is.EqualTo (Convert.FromBase64String (Alice)));
+
 			foreach (var secret in recovered.KeyRing.GetSecretKeys ()) {
 				Assert.That (secret.KeyEncryptionAlgorithm, Is.EqualTo (SymmetricKeyAlgorithmTag.Aes256));
 				Assert.That (secret.ExtractPrivateKeyUtf8 (password), Is.Not.Null);
 			}
+
 			Assert.Throws<FormatException> (() => AutocryptSetupMessage.Recover (message, "other@example.org", exampleCode, password));
 			Assert.Throws<FormatException> (() => AutocryptSetupMessage.Recover (message, address, exampleCode, password, 512));
 			Assert.Throws<OperationCanceledException> (() => AutocryptSetupMessage.Recover (message, address, exampleCode, password, cancellationToken: new CancellationToken (true)));
+
 			message.Headers[HeaderId.AutocryptSetupMessage] = "v2";
+
 			Assert.Throws<FormatException> (() => AutocryptSetupMessage.Recover (message, address, exampleCode, password));
+
 			message.Headers[HeaderId.AutocryptSetupMessage] = "v1";
 			message.Headers.Add (HeaderId.AutocryptSetupMessage, "v1");
+
 			Assert.Throws<FormatException> (() => AutocryptSetupMessage.Recover (message, address, exampleCode, password));
 		}
 
@@ -512,6 +529,8 @@ namespace UnitTests.Cryptography {
 		[TestCase ("addr=Alice <alice@example.org>; keydata=YQ==")]
 		[TestCase ("addr=a@b; ADDR=a@b; keydata=YQ==")]
 		[TestCase ("addr=a@b; unknown=x; keydata=YQ==")]
+		[TestCase ("keydata=YQ==; addr=a@b")]
+		[TestCase ("addr=a@b; keydata=YQ==; _x=1")]
 		[TestCase ("addr=a@b; keydata=YW!j")]
 		[TestCase ("addr=a@b; keydata=")]
 		[TestCase ("addr=a@b;\r\nkeydata=YQ==")]
@@ -520,6 +539,17 @@ namespace UnitTests.Cryptography {
 		{
 			Assert.That (Autocrypt.TryParse (text, out _), Is.False);
 			Assert.That (AutocryptGossip.TryParse (Encoding.UTF8.GetBytes (text), out _), Is.False);
+		}
+
+		[Test]
+		public void TestWireLimitCountsCrlf ([Values (NewLineFormat.Unix, NewLineFormat.Dos)] NewLineFormat newLineFormat)
+		{
+			var options = new FormatOptions { NewLineFormat = newLineFormat };
+			// This key fits with LF folds, but exceeds 10 KiB on the wire with CRLF.
+			var key = new byte[7400];
+
+			Assert.Throws<FormatException> (() => new Autocrypt ("alice@example.org", key).ToHeader (options));
+			Assert.Throws<FormatException> (() => new AutocryptGossip ("alice@example.org", key).ToHeader (options));
 		}
 
 		[Test]

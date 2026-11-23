@@ -37,6 +37,8 @@ using Org.BouncyCastle.Bcpg.OpenPgp;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
+using MimeKit.IO;
+
 namespace MimeKit.Cryptography {
 	/// <summary>
 	/// Create an Autocrypt Level 1 setup message or recover its account data.
@@ -263,10 +265,20 @@ namespace MimeKit.Cryptography {
 			var buffer = new byte[4096];
 
 			try {
-				int n;
+				var cancellable = input as ICancellableStream;
 
-				while ((n = input.Read (buffer, 0, buffer.Length)) > 0) {
+				while (true) {
+					int n;
+
 					cancellationToken.ThrowIfCancellationRequested ();
+
+					if (cancellable != null)
+						n = cancellable.Read (buffer, 0, buffer.Length, cancellationToken);
+					else
+						n = input.Read (buffer, 0, buffer.Length);
+
+					if (n == 0)
+						break;
 
 					if (output.Length + n > limit)
 						throw new FormatException ("Setup payload exceeds the configured limit.");
