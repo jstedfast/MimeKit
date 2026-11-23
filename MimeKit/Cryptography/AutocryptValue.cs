@@ -136,6 +136,68 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+		// Read one name=value pair at a time, e.g. addr="a;b"@example.org; prefer-encrypt=mutual; keydata=AQID
+		// The value excludes surrounding whitespace but retains quotes, escapes and internal folding.
+		static bool TryReadAttribute (byte[] bytes, ref int index, int end, out ReadOnlySpan<byte> name, out int valueStart, out int valueLength)
+		{
+			valueStart = valueLength = 0;
+
+			// skip to the beginning of the attribute name
+			while (index < end && bytes[index].IsWhitespace ())
+				index++;
+
+			int start = index;
+
+			// scan over the name
+			while (index < end && bytes[index].IsToken () && bytes[index] != '=')
+				index++;
+
+			name = bytes.AsSpan (start, index - start);
+
+			if (name.IsEmpty)
+				return false;
+
+			// skip over any whitespace after the name
+			while (index < end && bytes[index].IsWhitespace ())
+				index++;
+
+			if (index == end || bytes[index++] != '=')
+				return false;
+
+			// skip whitespace after the '='
+			while (index < end && bytes[index].IsWhitespace ())
+				index++;
+
+			valueStart = index;
+			bool quoted = false;
+
+			// A semicolon inside a quoted local part belongs to the address, not the attribute list.
+			while (index < end && (quoted || bytes[index] != ';')) {
+				byte b = bytes[index++];
+
+				if (quoted && b == '\\' && index < end)
+					index++;
+				else if (b == '"')
+					quoted = !quoted;
+			}
+
+			if (quoted)
+				return false;
+
+			// trim trailing whitespace from the value
+			int last = index;
+			while (last > valueStart && bytes[last - 1].IsWhitespace ())
+				last--;
+
+			valueLength = last - valueStart;
+
+			// Consume the separator for the next call; a trailing semicolon would introduce an empty attribute.
+			if (index < end && ++index == end)
+				return false;
+
+			return true;
+		}
+
 		internal static bool TryParse (HeaderId id, byte[]? bytes, int start, int length, [NotNullWhen (true)] out AutocryptValue? value)
 		{
 			value = null;
@@ -154,101 +216,46 @@ namespace MimeKit.Cryptography {
 			byte[]? key = null;
 
 			while (index < end) {
-				while (index < end && bytes[index].IsWhitespace ())
-					index++;
-
-				int name = index;
-
-				while (index < end && bytes[index].IsToken () && bytes[index] != '=')
-					index++;
-
-				if (index == name)
+				if (!TryReadAttribute (bytes, ref index, end, out var attr, out int valueStart, out int valueLength))
 					return false;
 
-				var attr = bytes.AsSpan (name, index - name);
-
-				while (index < end && bytes[index].IsWhitespace ())
-					index++;
-
-				if (index == end || bytes[index++] != '=')
-					return false;
-
-				while (index < end && bytes[index].IsWhitespace ())
-					index++;
-
-				int first = index;
-				bool quoted = false;
-
-				// A semicolon inside a quoted local part belongs to the address, not the attribute list.
-				while (index < end && (quoted || bytes[index] != ';')) {
-					byte b = bytes[index++];
-
-					if (quoted && b == '\\' && index < end)
-						index++;
-					else if (b == '"')
-						quoted = !quoted;
-				}
-
-				if (quoted)
-					return false;
-
-				int last = index;
-
-				while (last > first && bytes[last - 1].IsWhitespace ())
-					last--;
-
-				if (Matches (attr, "addr")) {
+				if (attr.Equals ("addr"u8, StringComparison.OrdinalIgnoreCase)) {
 					if (address != null)
 						return false;
 
 					try {
-						if (!TryCanonicalize (CharsetUtils.UTF8.GetString (bytes, first, last - first), out address))
+						if (!TryCanonicalize (CharsetUtils.UTF8.GetString (bytes, valueStart, valueLength), out address))
 							return false;
 					} catch (DecoderFallbackException) {
 						return false;
 					}
-				} else if (Matches (attr, "keydata")) {
-					if (key != null || last == first)
+				} else if (attr.Equals ("keydata"u8, StringComparison.OrdinalIgnoreCase)) {
+					if (key != null || valueLength == 0)
 						return false;
 
 					try {
 						// FromBase64String ignores folding whitespace, even in the middle of a Base64 quartet.
-						key = Convert.FromBase64String (Encoding.ASCII.GetString (bytes, first, last - first));
+						key = Convert.FromBase64String (Encoding.ASCII.GetString (bytes, valueStart, valueLength));
 					} catch (FormatException) {
 						return false;
 					}
-				} else if (Matches (attr, "prefer-encrypt")) {
+				} else if (attr.Equals ("prefer-encrypt"u8, StringComparison.OrdinalIgnoreCase)) {
 					if (preference.HasValue)
 						return false;
 
 					// An unrecognized preference still counts as present: a second prefer-encrypt is a duplicate.
-					preference = Matches (bytes.AsSpan (first, last - first), "mutual") ? AutocryptPreference.Mutual : AutocryptPreference.NoPreference;
+					ReadOnlySpan<byte> token = bytes.AsSpan (valueStart, valueLength);
+					preference = token.Equals ("mutual"u8, StringComparison.OrdinalIgnoreCase) ? AutocryptPreference.Mutual : AutocryptPreference.NoPreference;
 				} else if (attr[0] != '_') {
 					// Only underscore-prefixed extensions are noncritical; other unknown attributes invalidate the field.
 					return false;
 				}
-
-				if (index < end && ++index == end)
-					return false;
 			}
 
 			if (address is null || key is null)
 				return false;
 
 			value = new AutocryptValue (address, key, preference ?? AutocryptPreference.NoPreference);
-
-			return true;
-		}
-
-		static bool Matches (ReadOnlySpan<byte> bytes, string ascii)
-		{
-			if (bytes.Length != ascii.Length)
-				return false;
-
-			for (int i = 0; i < bytes.Length; i++) {
-				if ((bytes[i] | 32) != ascii[i])
-					return false;
-			}
 
 			return true;
 		}
