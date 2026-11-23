@@ -888,8 +888,15 @@ namespace MimeKit.Cryptography {
 				if ((password = GetPasswordForKey (key)) == null)
 					throw new OperationCanceledException ();
 
+				var passphrase = password.ToCharArray ();
 				try {
-					var privateKey = key.ExtractPrivateKey (password.ToCharArray ());
+					PgpPrivateKey privateKey;
+					try {
+						privateKey = key.ExtractPrivateKeyUtf8 (passphrase);
+					} catch (PgpException) when (Array.Exists (passphrase, c => c > 127)) {
+						// Older callers may have protected their key with Bouncy Castle's single-byte encoding.
+						privateKey = key.ExtractPrivateKey (passphrase);
+					}
 
 					// Note: the private key will be null if the private key is empty.
 					if (privateKey == null)
@@ -898,6 +905,8 @@ namespace MimeKit.Cryptography {
 					return privateKey;
 				} catch (PgpException ex) {
 					Debug.WriteLine (string.Format ("Failed to extract secret key: {0}", ex));
+				} finally {
+					Array.Clear (passphrase, 0, passphrase.Length);
 				}
 
 				attempts++;

@@ -41,12 +41,124 @@ namespace UnitTests {
 	[TestFixture]
 	public class ArgumentExceptionTests
 	{
+		[Test]
+		public void TestAutocryptArguments ()
+		{
+			Assert.Throws<ArgumentNullException> (() => AutocryptKey.Export (null, "user", [1], default));
+			Assert.Throws<ArgumentNullException> (() => new Autocrypt (null, [1]));
+			Assert.Throws<ArgumentNullException> (() => new AutocryptGossip ("a@b", null));
+			Assert.Throws<ArgumentException> (() => new Autocrypt ("a\r\nX: injected@b", [1]));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new Autocrypt ("a@b", [1], (AutocryptPreference) 2));
+			Assert.Throws<ArgumentOutOfRangeException> (() => Autocrypt.Parse ([1], 0, -1));
+			Assert.Throws<ArgumentNullException> (() => AutocryptGossip.Parse ((string) null));
+			Assert.That (AutocryptGossip.TryParse ([1], -1, 1, out _), Is.False);
+			Assert.Throws<ArgumentNullException> (() => new Autocrypt ("a@b", [1]).ToHeader (null));
+			Assert.Throws<ArgumentNullException> (() => AutocryptExtensions.GetAutocryptObservation (null, default));
+
+			using var message = new MimeMessage ();
+
+			Assert.Throws<ArgumentNullException> (() => message.GetAutocryptGossip (null));
+		}
+
+		[Test]
+		public void TestAutocryptPeerStateArguments ()
+		{
+			var state = new AutocryptPeerState ("a@b");
+			var date = DateTimeOffset.UnixEpoch;
+
+			Assert.Throws<ArgumentNullException> (() => new AutocryptPeerState (null));
+			Assert.Throws<ArgumentException> (() => new AutocryptPeerState ("not a mailbox"));
+			Assert.Throws<ArgumentException> (() => new AutocryptPeerState ("a@b", directTimestamp: date));
+			Assert.Throws<ArgumentException> (() => new AutocryptPeerState ("a@b", gossipTimestamp: date));
+			Assert.Throws<ArgumentException> (() => new AutocryptPeerState ("a@b", preference: AutocryptPreference.Mutual));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new AutocryptPeerState ("a@b", preference: (AutocryptPreference) 2));
+			Assert.Throws<ArgumentException> (() => state.ApplyDirect (new AutocryptObservation ("c@d", date, null)));
+			Assert.Throws<ArgumentNullException> (() => state.ApplyGossip (null, date));
+			Assert.Throws<ArgumentException> (() => state.ApplyGossip (new AutocryptGossip ("c@d", [1]), date));
+		}
+
+		[Test]
+		public void TestAutocryptSetupArguments ()
+		{
+			using var message = new MimeMessage ();
+			var ring = Cryptography.AutocryptTests.SenderKeys.Value;
+			var account = Cryptography.AutocryptTests.Bind (ring, DateTimeOffset.UtcNow.AddMinutes (1));
+			var pass = "local".ToCharArray ();
+			Assert.Throws<ArgumentNullException> (() => AutocryptSetupMessage.Create (null, pass, out _));
+			Assert.Throws<ArgumentNullException> (() => AutocryptSetupMessage.Create (account, null, out _));
+			Assert.Throws<ArgumentNullException> (() => AutocryptSetupMessage.Recover (null, account.Address, "code", pass));
+			Assert.Throws<ArgumentNullException> (() => AutocryptSetupMessage.Recover (message, null, "code", pass));
+			Assert.Throws<ArgumentException> (() => AutocryptSetupMessage.Recover (message, "not an address", "code", pass));
+			Assert.Throws<ArgumentNullException> (() => AutocryptSetupMessage.Recover (message, account.Address, null, pass));
+			Assert.Throws<ArgumentException> (() => AutocryptSetupMessage.Recover (message, account.Address, "", pass));
+			Assert.Throws<ArgumentNullException> (() => AutocryptSetupMessage.Recover (message, account.Address, "code", null));
+			Assert.Throws<ArgumentException> (() => AutocryptSetupMessage.Recover (message, account.Address, "code", []));
+			Assert.Throws<ArgumentOutOfRangeException> (() => AutocryptSetupMessage.Recover (message, account.Address, "code", pass, 0));
+			Assert.ThrowsAsync<ArgumentOutOfRangeException> (() => AutocryptSetupMessage.RecoverAsync (message, account.Address, "code", pass, 0));
+		}
+
+		[Test]
+		public void TestAutocryptGenerateArguments ()
+		{
+			Assert.Throws<ArgumentNullException> (() => AutocryptAccount.Generate (null, default, ['x'], out _));
+			Assert.Throws<ArgumentException> (() => AutocryptAccount.Generate ("not an address", default, ['x'], out _));
+			Assert.Throws<ArgumentOutOfRangeException> (() => AutocryptAccount.Generate ("a@b", (AutocryptPreference) 2, ['x'], out _));
+			Assert.Throws<ArgumentNullException> (() => AutocryptAccount.Generate ("a@b", default, null, out _));
+			Assert.Throws<ArgumentException> (() => AutocryptAccount.Generate ("a@b", default, [], out _));
+		}
+
+		[Test]
+		public void TestAutocryptAccountArguments ()
+		{
+			var ring = Cryptography.AutocryptTests.SenderKeys.Value;
+			var time = DateTimeOffset.UtcNow.AddMinutes (1);
+			var account = Cryptography.AutocryptTests.Bind (ring, time);
+			var address = account.Address;
+			var fingerprint = account.Key.EncryptionKey.GetFingerprint ();
+
+			Assert.Throws<ArgumentNullException> (() => new AutocryptAccount (null, default, ring, address, fingerprint, time));
+			Assert.Throws<ArgumentException> (() => new AutocryptAccount ("invalid", default, ring, address, fingerprint, time));
+			Assert.Throws<ArgumentOutOfRangeException> (() => new AutocryptAccount (address, (AutocryptPreference) 2, ring, address, fingerprint, time));
+			Assert.Throws<ArgumentNullException> (() => new AutocryptAccount (address, default, null, address, fingerprint, time));
+			Assert.Throws<ArgumentNullException> (() => new AutocryptAccount (address, default, ring, null, fingerprint, time));
+			Assert.Throws<ArgumentNullException> (() => new AutocryptAccount (address, default, ring, address, null, time));
+			Assert.Throws<ArgumentException> (() => new AutocryptAccount (address, default, ring, address, account.Key.PrimaryKey.GetFingerprint (), time));
+			Assert.Throws<ArgumentNullException> (() => account.Advertise (null, time));
+
+			using var ctx = new Cryptography.DummyOpenPgpContext (Path.Combine (Path.GetTempPath (), Guid.NewGuid ().ToString ()));
+			using var message = new MimeMessage ();
+			var peers = new Dictionary<string, AutocryptPeerState> ();
+
+			Assert.Throws<ArgumentNullException> (() => account.SignAndEncrypt (null, message, [], peers, time));
+			Assert.Throws<ArgumentNullException> (() => account.SignAndEncrypt (ctx, null, [], peers, time));
+			Assert.Throws<ArgumentNullException> (() => account.SignAndEncrypt (ctx, message, null, peers, time));
+			Assert.Throws<ArgumentNullException> (() => account.SignAndEncrypt (ctx, message, [], null, time));
+			Assert.ThrowsAsync<ArgumentNullException> (() => account.SignAndEncryptAsync (null, message, [], peers, time));
+			Assert.ThrowsAsync<ArgumentNullException> (() => account.SignAndEncryptAsync (ctx, null, [], peers, time));
+			Assert.ThrowsAsync<ArgumentNullException> (() => account.SignAndEncryptAsync (ctx, message, null, peers, time));
+			Assert.ThrowsAsync<ArgumentNullException> (() => account.SignAndEncryptAsync (ctx, message, [], null, time));
+		}
+
+		[Test]
+		public void TestAutocryptRecommendationArguments ()
+		{
+			var recipient = MailboxAddress.Parse ("alice@example.org");
+			var peers = new Dictionary<string, AutocryptPeerState> { { recipient.Address, new AutocryptPeerState ("bob@example.org") } };
+
+			Assert.Throws<ArgumentNullException> (() => AutocryptRecommendation.Evaluate (default, null, peers, default, false));
+			Assert.Throws<ArgumentNullException> (() => AutocryptRecommendation.Evaluate (default, [], null, default, false));
+			Assert.Throws<ArgumentOutOfRangeException> (() => AutocryptRecommendation.Evaluate ((AutocryptPreference) 2, [], peers, default, false));
+			Assert.Throws<ArgumentException> (() => AutocryptRecommendation.Evaluate (default, [null], peers, default, false));
+			Assert.Throws<ArgumentException> (() => AutocryptRecommendation.Evaluate (default, [recipient], peers, default, false));
+		}
+
 		[TestCase (-1)]
 		[TestCase (2)]
 		public void TestInvalidHtmlLimitExceededBehavior (int value)
 		{
 			var tokenizer = new HtmlTokenizer (TextReader.Null);
 			var converter = new HtmlToHtml ();
+
 			Assert.Throws<ArgumentOutOfRangeException> (() => tokenizer.LimitExceededBehavior = (HtmlLimitExceededBehavior) value);
 			Assert.Throws<ArgumentOutOfRangeException> (() => converter.LimitExceededBehavior = (HtmlLimitExceededBehavior) value);
 		}

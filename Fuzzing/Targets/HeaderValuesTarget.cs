@@ -25,6 +25,7 @@
 //
 
 using MimeKit.Fuzzing.Helpers;
+using MimeKit.Cryptography;
 using MimeKit.Utils;
 
 namespace MimeKit.Fuzzing.Targets {
@@ -53,6 +54,37 @@ namespace MimeKit.Fuzzing.Targets {
 			CheckDate (input);
 			CheckMessageIds (input);
 			CheckHeader (options, input);
+			CheckAutocrypt (format, input);
+		}
+
+		static Header? FormatAutocrypt (FormatOptions format, Func<FormatOptions, Header> toHeader)
+		{
+			try {
+				return toHeader (format);
+			} catch (FormatException ex) when (ex.Message == "Autocrypt field exceeds 10 KiB.") {
+				// Canonical folding can take an otherwise valid field over the wire limit.
+				return null;
+			}
+		}
+
+		static void CheckAutocrypt (FormatOptions format, byte[] input)
+		{
+			if (Autocrypt.TryParse (input, out var direct) && FormatAutocrypt (format, direct.ToHeader) is Header header) {
+				var reparsed = Autocrypt.Parse (header.RawValue);
+
+				Fuzz.Equal (direct.Address, reparsed.Address, "Autocrypt address");
+				Fuzz.Check (direct.Preference == reparsed.Preference, "Autocrypt preference changed on round trip");
+				Fuzz.Equal (direct.KeyData.Span, reparsed.KeyData.Span, "Autocrypt key data");
+				Fuzz.Equal (header.RawValue, reparsed.ToHeader (format).RawValue, "Autocrypt canonical field value");
+			}
+
+			if (AutocryptGossip.TryParse (input, out var gossip) && FormatAutocrypt (format, gossip.ToHeader) is Header gossipHeader) {
+				var reparsed = AutocryptGossip.Parse (gossipHeader.RawValue);
+
+				Fuzz.Equal (gossip.Address, reparsed.Address, "Autocrypt-Gossip address");
+				Fuzz.Equal (gossip.KeyData.Span, reparsed.KeyData.Span, "Autocrypt-Gossip key data");
+				Fuzz.Equal (gossipHeader.RawValue, reparsed.ToHeader (format).RawValue, "Autocrypt-Gossip canonical field value");
+			}
 		}
 
 		static string StripPrefix (string value, string prefix)
