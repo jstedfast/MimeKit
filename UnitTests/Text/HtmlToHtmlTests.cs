@@ -406,6 +406,18 @@ namespace UnitTests.Text {
 			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
 		}
 
+		[Test]
+		public void TestOutputHtmlFragmentKeepsMovedFormattingElementOpen ()
+		{
+			const string input = "<a><div><div><div><div><div><div><div><noscript><svg></a><p>";
+			const string expected = "<a><div><div><div><div><div><div><div><svg></svg><p>";
+			var converter = new HtmlToHtml { OutputHtmlFragment = true };
+			var result = converter.Convert (input);
+
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
+		}
+
 		static void RemoveFramesetTagsCallback (HtmlTagContext ctx, HtmlWriter htmlWriter)
 		{
 			if (ctx.TagId == HtmlTagId.FrameSet) {

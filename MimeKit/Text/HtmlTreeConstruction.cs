@@ -1469,8 +1469,8 @@ namespace MimeKit.Text {
 
 				// Non-formatting inner nodes and formatting nodes beyond the first three are removed
 				// together, so a long inner loop does not repeatedly rebuild the same suffix.
+				// Moving the formatting element leaves it open, even on the last iteration.
 				stack.ReplaceRange (index, block - index + 1, replacement, count);
-				poppedThrough = true;
 
 				if (formPointerIndex >= index)
 					formPointerIndex = stack.IndexOf (HtmlTagId.Form);
