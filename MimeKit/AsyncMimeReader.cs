@@ -607,7 +607,7 @@ namespace MimeKit {
 						// either the current stream offset is >= contentEnd -or- RespectContentLength is false. It will
 						// *never* be an Mbox "From " marker in Entity mode.
 						if ((boundaryType = CheckBoundary (inputIndex, start, (int) (inptr - start))) != MimeBoundaryType.None) {
-							if (complianceLogger != null && (inptr == start || inptr[-1] != (byte) '\r'))
+							if (complianceLogger != null && !currentBoundary!.IsMboxMarker && inptr < inend && (inptr == start || inptr[-1] != (byte) '\r'))
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.BareLinefeedInBody, beginOffset + (int) (inptr - start), beginLineNumber, (int) (inptr - start) + 1));
 
 							frame.Lines = GetLineCount (beginLineNumber, beginOffset, GetEndOffset (inputIndex, beginOffset));

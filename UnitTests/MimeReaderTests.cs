@@ -1082,6 +1082,50 @@ ABC
 		const string MessageHeaders = "From: mimekit@example.org\r\nDate: Tue, 12 Nov 2013 09:12:42 -0500\r\nMessage-Id: <123@example.org>\r\nMIME-Version: 1.0\r\n";
 		const int MessageHeaderLines = 4;
 
+		static (MimeReader Reader, TestMimeComplianceLogger Logger, Stream Stream, int Offset) CreateMboxEnvelopeTest (bool chunked)
+		{
+			var text = "From one\r\nContent-Type: message/rfc822\r\n\r\nFrom two " + new string ('x', 160) + "\nSubject: two\r\n\r\nbody\n";
+			var bytes = Encoding.ASCII.GetBytes (text);
+			Stream stream = chunked ? new ChunkedReadStream (bytes, 1) : new MemoryStream (bytes, false);
+			var logger = new TestMimeComplianceLogger ();
+
+			return (new MimeReader (stream, MimeFormat.Mbox) { ComplianceLogger = logger }, logger, stream, bytes.Length - 1);
+		}
+
+		static void AssertMboxBodyLinefeed (TestMimeComplianceLogger logger, int offset)
+		{
+			var issues = logger.Issues.Where (issue => issue.Violation == MimeComplianceViolation.BareLinefeedInBody).ToArray ();
+
+			Assert.That (issues, Has.Length.EqualTo (1));
+			Assert.That (issues[0].StreamOffset, Is.EqualTo (offset));
+			Assert.That (issues[0].LineNumber, Is.EqualTo (7));
+			Assert.That (issues[0].ColumnNumber, Is.EqualTo (5));
+		}
+
+		[Test]
+		public void TestMboxEnvelopeBodyLinefeed ([Values (false, true)] bool chunked)
+		{
+			var (reader, logger, stream, offset) = CreateMboxEnvelopeTest (chunked);
+
+			using (stream) {
+				reader.ReadMessage ();
+				reader.ReadMessage ();
+				AssertMboxBodyLinefeed (logger, offset);
+			}
+		}
+
+		[Test]
+		public async Task TestMboxEnvelopeBodyLinefeedAsync ([Values (false, true)] bool chunked)
+		{
+			var (reader, logger, stream, offset) = CreateMboxEnvelopeTest (chunked);
+
+			using (stream) {
+				await reader.ReadMessageAsync ();
+				await reader.ReadMessageAsync ();
+				AssertMboxBodyLinefeed (logger, offset);
+			}
+		}
+
 		const string BareLinefeedsInBodyText = "From: mimekit@example.org\r\n" +
 			"To: mimekit@example.org\r\n" +
 			"Subject: bare linefeeds in the body\r\n" +
