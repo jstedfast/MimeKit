@@ -160,6 +160,9 @@ namespace MimeKit.Text {
 		/// see after implicitly closing and reopening a formatting element such as <c>&lt;i&gt;</c>.
 		/// The converter tracks these elements to interpret the input; it does not invoke
 		/// <see cref="HtmlTagCallback"/> for reconstructed start tags.</para>
+		/// <para>With recovery disabled, malformed input that mixes formatting with SVG or MathML can
+		/// cause a source tag to be read as text or part of a comment. In that case the callback does
+		/// not see the tag, even if a browser recognizes it in the original input.</para>
 		/// <para>Recovery uses bounded additional state and does not guarantee browser-equivalent parsing.
 		/// If recovery cannot continue, the default behavior is to write the remaining visible input as
 		/// literal text (so tags appear as text). Set <see cref="LimitExceededBehavior"/> to

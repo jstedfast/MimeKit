@@ -317,6 +317,43 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestAdoptionRetainsFoldedFormattingAcrossBlocks ()
+		{
+			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+			tree.EnableFormattingTracker ();
+			foreach (var name in new[] { "math", "mtext", "i", "a", "i", "i", "div", "div", "h2", "svg", "g" })
+				tree.ProcessTag (new HtmlTagToken (name, false));
+
+			tree.ProcessTag (new HtmlTagToken ("a", true));
+			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
+			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "g", "svg" }));
+			tree.ProcessTag (new HtmlTagToken ("h2", true));
+			tree.ProcessTag (new HtmlTagToken ("div", true));
+			tree.ProcessTag (new HtmlTagToken ("div", true));
+			// Removing the anchor merged its italic descendants with the preceding italic.
+			for (int i = 0; i < 3; i++) {
+				Assert.That (tree.IsInForeignContent, Is.False);
+				tree.ProcessTag (new HtmlTagToken ("i", true));
+			}
+			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
+			tree.ProcessCharacters ("text".AsSpan ());
+			Assert.That (tree.IsInForeignContent, Is.True);
+		}
+
+		[TestCase (7, false)]
+		[TestCase (8, true)]
+		public void TestNestedAnchorCountsPhysicalBlocks (int count, bool fallback)
+		{
+			var tree = new HtmlTreeConstruction (32);
+			tree.EnableFormattingTracker ();
+			tree.ProcessTag (new HtmlTagToken ("a", false));
+			for (int i = 0; i < count; i++)
+				tree.ProcessTag (new HtmlTagToken ("div", false));
+			tree.ProcessTag (new HtmlTagToken ("a", false));
+			Assert.That (tree.FormattingRecoveryExceeded, Is.EqualTo (fallback));
+		}
+
+		[Test]
 		public void TestPrototypeDoesNotDiscardAdditionalBlockDescendants ()
 		{
 			var tree = new HtmlTreeConstruction (32);

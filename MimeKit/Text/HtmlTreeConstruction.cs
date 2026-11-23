@@ -1391,6 +1391,13 @@ namespace MimeKit.Text {
 			case HtmlFormattingTracker.CloseAction.PopThrough:
 				PopThrough (stack.IndexOf (id));
 				break;
+			case HtmlFormattingTracker.CloseAction.RemoveBelowTrackedFormatting:
+				if (stack.Top > stack.TopSpecial)
+					PopAbove (stack.TopSpecial);
+
+				tracker.RemoveBelowTrackedFormatting (stack, stack.IndexOf (id));
+				poppedThrough = true;
+				break;
 			case HtmlFormattingTracker.CloseAction.PopInlineThenRemoveBelowBlock:
 				PopAbove (stack.Top - 1);
 				goto case HtmlFormattingTracker.CloseAction.RemoveBelowBlock;

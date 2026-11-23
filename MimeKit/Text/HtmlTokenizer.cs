@@ -253,6 +253,9 @@ namespace MimeKit.Text {
 		/// such as <c>&lt;i&gt;</c>. A browser may reopen that element when it encounters more text. Enable
 		/// this option to follow that formatting context more closely when deciding whether subsequent input
 		/// is text or markup. Reconstructed elements do not produce extra tokens.</para>
+		/// <para>By default, the tokenizer does not remember formatting elements after they leave the
+		/// stack of open elements. In malformed HTML that mixes formatting with SVG or MathML, this can
+		/// cause it to read a source tag as text or part of a comment where a browser recognizes markup.</para>
 		/// <para>Recovery uses bounded additional state and does not implement full browser tree construction.
 		/// If the tokenizer cannot recover within its limits, <see cref="LimitExceededBehavior"/> determines
 		/// whether it reads the remainder as literal text or throws. <see cref="MaxElementDepth"/> applies
