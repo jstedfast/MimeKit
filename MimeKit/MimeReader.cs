@@ -2708,11 +2708,17 @@ namespace MimeKit {
 
 			*inend = (byte) '\n';
 
+			// Report on consumption, never on a speculative match or while unwinding to an ancestor.
+			var boundary = currentBoundary!;
+
+			if (complianceLogger != null && (endBoundary ? boundary.AmbiguousClose : boundary.AmbiguousOpen))
+				complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.AmbiguousMultipartBoundary, GetOffset (inputIndex), lineNumber, 1));
+
 			// skip over the boundary marker
 			if (endBoundary)
-				inptr += currentBoundary!.FinalLength;
+				inptr += boundary.FinalLength;
 			else
-				inptr += currentBoundary!.Length;
+				inptr += boundary.Length;
 
 			// skip over any trailing whitespace
 			inptr = ParseUtils.EndOfLine (inptr, inend + 1);
@@ -4110,6 +4116,9 @@ namespace MimeKit {
 			} else if (boundaryDepth > BoundaryIndexThreshold) {
 				boundaryIndex!.Add (boundaries!);
 			}
+
+			if (complianceLogger != null && boundaryDepth > 0)
+				next.CheckAmbiguity (boundaryDepth >= BoundaryIndexThreshold ? boundaryIndex : null);
 
 			boundaries = next;
 			boundaryDepth++;

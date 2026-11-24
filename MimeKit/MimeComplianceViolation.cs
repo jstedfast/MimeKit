@@ -1118,6 +1118,17 @@ namespace MimeKit {
 		MissingMultipartBoundary                    = 85,
 
 		/// <summary>
+		/// A delimiter line matched more than one active multipart boundary.
+		/// </summary>
+		/// <remarks>
+		/// Nested multiparts can use identical boundary values, or the opening delimiter of one
+		/// can be the closing delimiter of another. MimeKit uses the innermost matching boundary;
+		/// other parsers may assign the following content to a different part or to the epilogue.
+		/// Reported at the first hyphen of the ambiguous delimiter, not at the boundary declaration.
+		/// </remarks>
+		AmbiguousMultipartBoundary                  = 104,
+
+		/// <summary>
 		/// The stream ended before a multipart's closing boundary.
 		/// </summary>
 		/// <remarks>

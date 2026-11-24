@@ -92,7 +92,7 @@ namespace MimeKit {
 
 			// Note: TooManyComplianceIssues is not part of the contiguous range of defects, so it is
 			// checked separately.
-			if ((violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.EofBeforeBodySeparator) && violation != MimeComplianceViolation.TooManyComplianceIssues)
+			if ((violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.AmbiguousMultipartBoundary) && violation != MimeComplianceViolation.TooManyComplianceIssues)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
 			if (positionKind < MimeCompliancePositionKind.Exact || positionKind > MimeCompliancePositionKind.ElementStart)
@@ -401,6 +401,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.RepeatedContentType:
 			case MimeComplianceViolation.RepeatedContentTransferEncoding:
 			case MimeComplianceViolation.RepeatedBoundaryParameter:
+			case MimeComplianceViolation.AmbiguousMultipartBoundary:
 			case MimeComplianceViolation.UnexpectedNullBytesInHeader:
 			case MimeComplianceViolation.UnexpectedNullBytesInBody:
 			// Note: Parsers disagree about whether a bare CR ends a line, so a bare CR can make a
@@ -686,6 +687,7 @@ namespace MimeKit {
 			// Note: A boundary that needed to be repaired may be repaired differently elsewhere,
 			// which changes which bytes belong to which part.
 			case MimeComplianceViolation.InvalidMultipartBoundaryParameter:
+			case MimeComplianceViolation.AmbiguousMultipartBoundary:
 				return Interop | DataLoss | Security;
 
 			// Note: Unencoded 8-bit bytes carry no charset information, so the text is decoded by
@@ -1060,6 +1062,8 @@ namespace MimeKit {
 				return "The stream ended before the empty line terminating the MIME header block.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return "A multipart boundary was missing.";
+			case MimeComplianceViolation.AmbiguousMultipartBoundary:
+				return "A delimiter line matched more than one active multipart boundary.";
 			case MimeComplianceViolation.MessageTruncated:
 				return "The stream ended before the multipart closing boundary.";
 			case MimeComplianceViolation.MimeDepthLimitExceeded:
@@ -1286,6 +1290,8 @@ namespace MimeKit {
 				return "The Internet Message Format specifications require that an empty line separate the headers from the body of a message. This empty line serves as a clear delimiter between the headers and the body, allowing MIME parsers to correctly identify where the headers end and the body begins. A missing body separator can lead to ambiguity when parsing the message.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return "An enclosing boundary was encountered before the multipart's closing boundary.";
+			case MimeComplianceViolation.AmbiguousMultipartBoundary:
+				return "MimeKit uses the innermost matching boundary. A parser that uses an enclosing boundary instead can assign the following content to a different part or treat it as epilogue.";
 			case MimeComplianceViolation.MessageTruncated:
 				return "The message may have been truncated, or the closing boundary may have been omitted or malformed.";
 			case MimeComplianceViolation.EofBeforeBodySeparator:

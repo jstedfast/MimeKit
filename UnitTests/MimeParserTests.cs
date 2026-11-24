@@ -4447,14 +4447,35 @@ This is the second part.
 			}
 		}
 
-		static readonly (string Outer, string Middle, bool Closing)[] AncestorBoundaryCases = {
-			("b", "b--", false),
-			("b--", "b", true),
-			("b", "b", false),
-			("b", "b", true),
-			("\u00e9", "\u00e9--", false),
-			("invalid?", "invalid?--", false),
+		static readonly (string Outer, string Middle, bool Closing, int[] AmbiguousLines)[] AncestorBoundaryCases = {
+			("b", "b--", false, [6, 12]),
+			("b--", "b", true, [12]),
+			("b", "b", false, [6, 12, 15]),
+			("b", "b", true, [6, 12]),
+			("\u00e9", "\u00e9--", false, [6, 12]),
+			("invalid?", "invalid?--", false, [6, 12]),
+			("b", "b-longer", false, []),
+			("b", "B--", false, []),
 		};
+
+		static void AssertAmbiguousBoundaryLines (TestMimeComplianceLogger logger, byte[] data, params int[] lines)
+		{
+			var expected = new List<MimeComplianceIssue> ();
+			int line = 1, offset = 0;
+
+			foreach (int target in lines) {
+				while (line < target) {
+					int newline = Array.IndexOf (data, (byte) '\n', offset);
+					Assert.That (newline, Is.Not.EqualTo (-1));
+					offset = newline + 1;
+					line++;
+				}
+
+				expected.Add (new MimeComplianceIssue (MimeComplianceContext.Transport, MimeComplianceViolation.AmbiguousMultipartBoundary, offset, line, 1));
+			}
+
+			Assert.That (logger.Issues.Where (issue => issue.Violation == MimeComplianceViolation.AmbiguousMultipartBoundary), Is.EqualTo (expected));
+		}
 
 		static string WrapInMultipart (string text, int wrappers)
 		{
@@ -4482,8 +4503,10 @@ This is the second part.
 
 			var data = Encoding.ASCII.GetBytes (WrapInMultipart (builder.ToString (), 3));
 			using var stream = new ChunkedReadStream (data, chunkSize);
-			var parser = new MimeParser (stream, MimeFormat.Entity);
+			var logger = new TestMimeComplianceLogger ();
+			var parser = new MimeParser (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
+			AssertAmbiguousBoundaryLines (logger, data);
 			var outer = (Multipart) entity;
 			for (int i = 0; i < 3; i++) {
 				Assert.That (outer.Count, Is.EqualTo (1));
@@ -4544,11 +4567,11 @@ This is the second part.
 		}
 
 		[Test]
-		public async Task TestAncestorBoundaryPrecedence ([Values (0, 1, 2, 3, 4, 5)] int caseIndex,
+		public async Task TestAncestorBoundaryPrecedence ([Values (0, 1, 2, 3, 4, 5, 6, 7)] int caseIndex,
 			[Values (0, 4)] int wrappers, [Values (1, 7, 4096)] int chunkSize,
 			[Values ("\r\n", "\n")] string newline, [Values (false, true)] bool doAsync)
 		{
-			var (outerName, middleName, closing) = AncestorBoundaryCases[caseIndex];
+			var (outerName, middleName, closing, ambiguousLines) = AncestorBoundaryCases[caseIndex];
 			string text = $"Content-Type: multipart/mixed; boundary=\"{outerName}\"\r\n\r\n--{outerName}\r\n" +
 				$"Content-Type: multipart/mixed; boundary=\"{middleName}\"\r\n\r\n--{middleName}\r\n" +
 				"Content-Type: multipart/mixed; boundary=\"inner\"\r\n\r\n--inner\r\n\r\nfirst\r\n" +
@@ -4562,10 +4585,10 @@ This is the second part.
 
 			var data = Encoding.UTF8.GetBytes (WrapInMultipart (text, wrappers).Replace ("\r\n", newline));
 			using var stream = new ChunkedReadStream (data, chunkSize);
-			var parser = new MimeParser (stream, MimeFormat.Entity) {
-				ComplianceLogger = new TestMimeComplianceLogger ()
-			};
+			var logger = new TestMimeComplianceLogger ();
+			var parser = new MimeParser (stream, MimeFormat.Entity) { ComplianceLogger = logger };
 			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
+			AssertAmbiguousBoundaryLines (logger, data, ambiguousLines.Select (line => line + wrappers * 3).ToArray ());
 			var outer = (Multipart) entity;
 			for (int i = 0; i < wrappers; i++) {
 				Assert.That (outer.Count, Is.EqualTo (1));
@@ -4583,6 +4606,49 @@ This is the second part.
 			else
 				Assert.That (((TextPart) middle[1]).Text, Is.EqualTo ("second"));
 			Assert.That (parser.Position, Is.EqualTo (data.Length));
+		}
+
+		[Test]
+		public async Task TestAmbiguousBoundaryReportedOnlyOnUse ([Values (false, true)] bool consume, [Values (0, 4)] int wrappers,
+			[Values (1, 4096)] int chunkSize, [Values (false, true)] bool doAsync)
+		{
+			const string prefix = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\n" +
+				"Content-Type: multipart/mixed; boundary=b--\r\n\r\n";
+			const string tail = "--b--\r\nContent-Type: multipart/mixed; boundary=b--\r\n\r\n" +
+				"--b--\r\n\r\nleaf\r\n--b----\r\n--b----\r\n--b--\r\n";
+			var data = Encoding.ASCII.GetBytes (WrapInMultipart (consume ? prefix + tail : prefix, wrappers));
+			using var stream = new ChunkedReadStream (data, chunkSize);
+			var logger = new TestMimeComplianceLogger ();
+			var parser = new MimeParser (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
+
+			int n = wrappers * 3;
+			// Line 9 matches all three levels. Only the first of the two identical closing lines is ambiguous.
+			AssertAmbiguousBoundaryLines (logger, data, consume ? [n + 6, n + 9, n + 12] : []);
+		}
+
+		[Test]
+		public async Task TestThreeIdenticalMultipartBoundaries ([Values (0, 4)] int wrappers,
+			[Values (1, 4096)] int chunkSize, [Values (false, true)] bool doAsync)
+		{
+			const string level = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\n";
+			const string text = level + level + level + "\r\nbody\r\n--b--\r\n--b--\r\n--b--\r\n";
+			var data = Encoding.ASCII.GetBytes (WrapInMultipart (text, wrappers));
+			using var stream = new ChunkedReadStream (data, chunkSize);
+			var logger = new TestMimeComplianceLogger ();
+			var parser = new MimeParser (stream, MimeFormat.Entity) { ComplianceLogger = logger };
+			using var entity = doAsync ? await parser.ParseEntityAsync () : parser.ParseEntity ();
+
+			int n = wrappers * 3;
+			AssertAmbiguousBoundaryLines (logger, data, n + 6, n + 9, n + 12, n + 13);
+
+			var part = entity;
+			for (int i = 0; i < wrappers + 3; i++) {
+				var multipart = (Multipart) part;
+				Assert.That (multipart.Count, Is.EqualTo (1));
+				part = multipart[0];
+			}
+			Assert.That (((TextPart) part).Text, Is.EqualTo ("body"));
 		}
 
 		[Test]

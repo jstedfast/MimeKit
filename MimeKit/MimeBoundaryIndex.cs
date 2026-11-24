@@ -94,6 +94,14 @@ namespace MimeKit {
 			depth--;
 		}
 
+		public bool ContainsMarker (byte[] marker, int length)
+		{
+			lookup.Marker = new ReadOnlyMemory<byte> (marker, 0, length);
+			bool found = markers.ContainsKey (lookup);
+			lookup.Marker = default;
+			return found;
+		}
+
 		public bool TryGetBoundary (byte[] buffer, int startIndex, int length, out MimeBoundary? boundary, out bool final)
 		{
 			lookup.Marker = new ReadOnlyMemory<byte> (buffer, startIndex, length);

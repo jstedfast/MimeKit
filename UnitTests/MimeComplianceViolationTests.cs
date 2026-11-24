@@ -150,6 +150,7 @@ namespace UnitTests {
 			{ MimeComplianceViolation.IncompleteUUEncodedContent, 101 },
 			{ MimeComplianceViolation.MessageTruncated, 102 },
 			{ MimeComplianceViolation.EofBeforeBodySeparator, 103 },
+			{ MimeComplianceViolation.AmbiguousMultipartBoundary, 104 },
 			{ MimeComplianceViolation.TooManyComplianceIssues, int.MaxValue },
 		};
 

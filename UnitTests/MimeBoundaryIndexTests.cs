@@ -121,7 +121,9 @@ namespace UnitTests {
 				index.Add (boundary);
 			}
 
+			var candidate = new MimeBoundary (prefix + "000064--", boundaries.Peek ());
 			for (int i = 0; i < 100; i++) {
+				candidate.CheckAmbiguity (index);
 				index.TryGetBoundary (missing, 0, missing.Length, out _, out _);
 				index.TryGetBoundary (closing, 0, closing.Length, out _, out _);
 			}
@@ -129,6 +131,7 @@ namespace UnitTests {
 			long before = GC.GetAllocatedBytesForCurrentThread ();
 			int matches = 0;
 			for (int i = 0; i < 1000; i++) {
+				candidate.CheckAmbiguity (index);
 				if (index.TryGetBoundary (missing, 0, missing.Length, out _, out _))
 					matches++;
 				if (index.TryGetBoundary (closing, 0, closing.Length, out _, out bool final) && final)
@@ -136,6 +139,8 @@ namespace UnitTests {
 			}
 			long allocated = GC.GetAllocatedBytesForCurrentThread () - before;
 
+			Assert.That (candidate.AmbiguousOpen, Is.True);
+			Assert.That (candidate.AmbiguousClose, Is.False);
 			Assert.That (matches, Is.EqualTo (1000));
 			if (!TestHelper.IsCodeCoverageEnabled)
 				Assert.That (allocated, Is.Zero);

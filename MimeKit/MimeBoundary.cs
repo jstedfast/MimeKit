@@ -51,6 +51,37 @@ namespace MimeKit {
 		public int Length { get; private set; }
 		public int MaxLength { get; private set; }
 		public bool IsMboxMarker { get { return Marker == MboxFrom; } }
+		public bool AmbiguousOpen { get; private set; }
+		public bool AmbiguousClose { get; private set; }
+
+		public void CheckAmbiguity (MimeBoundaryIndex? index)
+		{
+			var open = Marker.AsSpan (0, Length);
+
+			// The index contains only ancestor opening markers. Marker already contains
+			// the closing "--", so all three possible keys are slices of the same array.
+			if (index != null) {
+				if (index.ContainsMarker (Marker, Length)) {
+					AmbiguousOpen = AmbiguousClose = true;
+				} else {
+					AmbiguousOpen = open.EndsWith ("--"u8) && index.ContainsMarker (Marker, Length - 2);
+					AmbiguousClose = index.ContainsMarker (Marker, FinalLength);
+				}
+				return;
+			}
+
+			for (var ancestor = Next; ancestor != null && !ancestor.IsMboxMarker; ancestor = ancestor.Next) {
+				var ancestorOpen = ancestor.Marker.AsSpan (0, ancestor.Length);
+
+				if (open.SequenceEqual (ancestorOpen)) {
+					AmbiguousOpen = AmbiguousClose = true;
+					break;
+				}
+
+				AmbiguousOpen |= open.SequenceEqual (ancestor.Marker);
+				AmbiguousClose |= ancestorOpen.SequenceEqual (Marker);
+			}
+		}
 
 		public MimeBoundary (string boundary, MimeBoundary? parent)
 		{
