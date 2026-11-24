@@ -1439,7 +1439,7 @@ ABC
 			Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (MessageHeaderLines + 1), "LineNumber #1");
 			Assert.That (logger.Issues[0].ColumnNumber, Is.EqualTo (1), "ColumnNumber #1");
 			Assert.That (logger.Issues[0].PositionKind, Is.EqualTo (MimeCompliancePositionKind.ElementStart), "PositionKind #1");
-			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.MissingMultipartBoundary), "Violation #2");
+			Assert.That (logger.Issues[1].Violation, Is.EqualTo (MimeComplianceViolation.MessageTruncated), "Violation #2");
 			Assert.That (logger.Issues[1].StreamOffset, Is.EqualTo (missingBoundaryOffset), "StreamOffset #2");
 			Assert.That (logger.Issues[1].LineNumber, Is.EqualTo (MessageHeaderLines + 4), "LineNumber #2");
 			Assert.That (logger.Issues[1].ColumnNumber, Is.EqualTo (1), "ColumnNumber #2");
@@ -2197,40 +2197,42 @@ This is the second inner message body.
 		public void TestMimeComplianceMissingMultipartBoundary ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 13, 1)
 			};
 
-			AssertMimeComplianceViolations ("missing-multipart-boundary.eml", issues);
+			AssertMimeComplianceViolations ("missing-inner-multipart-boundary.eml", issues);
 		}
 
 		[Test]
 		public Task TestMimeComplianceMissingMultipartBoundaryAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 13, 1)
 			};
 
-			return AssertMimeComplianceViolationsAsync ("missing-multipart-boundary.eml", issues);
+			return AssertMimeComplianceViolationsAsync ("missing-inner-multipart-boundary.eml", issues);
 		}
 
-		[Test]
-		public void TestMimeComplianceMissingMultipartEndBoundary ()
+		[TestCase ("missing-multipart-boundary.eml")]
+		[TestCase ("missing-multipart-end-boundary.eml")]
+		public void TestMimeComplianceMessageTruncated (string fileName)
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MessageTruncated, 19, 1)
 			};
 
-			AssertMimeComplianceViolations ("missing-multipart-end-boundary.eml", issues);
+			AssertMimeComplianceViolations (fileName, issues);
 		}
 
-		[Test]
-		public Task TestMimeComplianceMissingMultipartEndBoundaryAsync ()
+		[TestCase ("missing-multipart-boundary.eml")]
+		[TestCase ("missing-multipart-end-boundary.eml")]
+		public Task TestMimeComplianceMessageTruncatedAsync (string fileName)
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingMultipartBoundary, 19, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MessageTruncated, 19, 1)
 			};
 
-			return AssertMimeComplianceViolationsAsync ("missing-multipart-end-boundary.eml", issues);
+			return AssertMimeComplianceViolationsAsync (fileName, issues);
 		}
 
 		[Test]

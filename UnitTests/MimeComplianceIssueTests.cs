@@ -195,7 +195,7 @@ namespace UnitTests {
 			// constructor checks for it separately.
 			var max = Enum.GetValues<MimeComplianceViolation> ().Where (v => v != MimeComplianceViolation.TooManyComplianceIssues).Max ();
 
-			Assert.That (max, Is.EqualTo (MimeComplianceViolation.IncompleteUUEncodedContent));
+			Assert.That (max, Is.EqualTo (MimeComplianceViolation.MessageTruncated));
 		}
 
 		[Test]
@@ -569,6 +569,7 @@ namespace UnitTests {
 				{ MimeComplianceViolation.MissingMultipartBoundaryParameter, Interop | DataLoss },
 				{ MimeComplianceViolation.InvalidMultipartBoundaryParameter, Interop | DataLoss | Security },
 				{ MimeComplianceViolation.MissingMultipartBoundary, Interop | DataLoss },
+				{ MimeComplianceViolation.MessageTruncated, Interop | DataLoss },
 				{ MimeComplianceViolation.MimeDepthLimitExceeded, DataLoss | Security },
 				{ MimeComplianceViolation.Unexpected8BitBytesInHeader, Interop | DataLoss },
 				{ MimeComplianceViolation.Unexpected8BitBytesInBody, Interop | DataLoss },

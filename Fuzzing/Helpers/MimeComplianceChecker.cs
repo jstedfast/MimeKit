@@ -31,7 +31,7 @@ namespace MimeKit.Fuzzing.Helpers {
 	// that the issues reported by different code paths (sync vs async) can be compared.
 	sealed class MimeComplianceChecker : IMimeComplianceLogger
 	{
-		readonly int[] counts = new int[(int) MimeComplianceViolation.IncompleteUUEncodedContent + 1];
+		readonly int[] counts = new int[(int) MimeComplianceViolation.MessageTruncated + 1];
 		readonly StringBuilder trace = new StringBuilder ();
 		readonly MimeComplianceContext context;
 		readonly long streamLength;

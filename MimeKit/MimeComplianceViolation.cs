@@ -1102,11 +1102,19 @@ namespace MimeKit {
 		/// A multipart boundary was missing.
 		/// </summary>
 		/// <remarks>
-		/// When a multipart does not contain any boundary markers within its content, it can lead to ambiguity
-		/// and inconsistent behavior among different MIME parser implementations which may opt to treat the content
-		/// as a single part rather than a multipart message.
+		/// An enclosing boundary was encountered before the multipart's closing boundary.
+		/// If the stream ends instead, <see cref="MessageTruncated"/> is reported.
 		/// </remarks>
 		MissingMultipartBoundary                    = 85,
+
+		/// <summary>
+		/// The stream ended before a multipart's closing boundary.
+		/// </summary>
+		/// <remarks>
+		/// The message may have been truncated, or the closing boundary may have been omitted or malformed.
+		/// The end of a non-multipart body is not by itself evidence of truncation.
+		/// </remarks>
+		MessageTruncated                            = 102,
 
 		/// <summary>
 		/// The MIME structure was nested more deeply than the parser allows.

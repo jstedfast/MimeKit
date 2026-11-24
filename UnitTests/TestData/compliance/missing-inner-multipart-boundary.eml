@@ -1,0 +1,13 @@
+From: unit-tests@mimekit.net
+Message-Id: <test@example.org>
+Date: Tue, 12 Nov 2013 09:12:42 -0500
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=outer
+
+--outer
+Content-Type: multipart/alternative; boundary=inner
+
+--inner
+
+Plain text
+--outer--

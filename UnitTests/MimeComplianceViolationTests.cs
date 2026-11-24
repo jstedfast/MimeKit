@@ -148,6 +148,7 @@ namespace UnitTests {
 			{ MimeComplianceViolation.InvalidUUEncodedLineExtraData, 99 },
 			{ MimeComplianceViolation.InvalidUUEncodeEndMarker, 100 },
 			{ MimeComplianceViolation.IncompleteUUEncodedContent, 101 },
+			{ MimeComplianceViolation.MessageTruncated, 102 },
 			{ MimeComplianceViolation.TooManyComplianceIssues, int.MaxValue },
 		};
 

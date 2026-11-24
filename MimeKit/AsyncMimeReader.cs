@@ -720,9 +720,7 @@ namespace MimeKit {
 
 				await MultipartScanEpilogueAsync (frame.ByteOptions, cancellationToken).ConfigureAwait (false);
 			} else {
-				// We either found the end of the stream or we found a parent's boundary
-				complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMultipartBoundary, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
-
+				ReportMissingMultipartBoundary ();
 				PopBoundary ();
 			}
 

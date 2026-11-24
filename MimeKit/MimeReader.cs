@@ -4199,6 +4199,13 @@ namespace MimeKit {
 			return false;
 		}
 
+		void ReportMissingMultipartBoundary ()
+		{
+			complianceLogger?.Log (new MimeComplianceIssue (complianceContext,
+				boundaryType == MimeBoundaryType.Eos ? MimeComplianceViolation.MessageTruncated : MimeComplianceViolation.MissingMultipartBoundary,
+				GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+		}
+
 		unsafe void MultipartEnd (EntityFrame frame, byte* inbuf, CancellationToken cancellationToken)
 		{
 			if (boundaryType == MimeBoundaryType.ImmediateEndBoundary) {
@@ -4209,9 +4216,7 @@ namespace MimeKit {
 
 				MultipartScanEpilogue (inbuf, frame.ByteOptions, cancellationToken);
 			} else {
-				// We either found the end of the stream or we found a parent's boundary
-				complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingMultipartBoundary, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
-
+				ReportMissingMultipartBoundary ();
 				PopBoundary ();
 			}
 
