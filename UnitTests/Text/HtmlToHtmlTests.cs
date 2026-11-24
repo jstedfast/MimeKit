@@ -690,6 +690,48 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestParagraphClosesAnchorBeforeSvg ([Values (false, true)] bool recover)
+		{
+			const string input = "<p><a><p><svg></a><title>sample</title>";
+			var converter = new HtmlToHtml { EnableFormattingRecovery = recover };
+			var output = converter.Convert (input);
+
+			var expected = recover ? "<p><a><p><svg></svg></a><title>sample</title>" : "<p><a></a><p><svg></a><title>sample</title>";
+			Assert.That (output, Is.EqualTo (expected));
+			Assert.That (converter.Convert (output), Is.EqualTo (output), "Convert again");
+
+			var tokenizer = new HtmlTokenizer (new StringReader (output)) { EnableFormattingRecovery = recover };
+			while (tokenizer.ReadNextToken (out var token)) {
+				if (token is HtmlTagToken tag && !tag.IsEndTag && tag.Id == HtmlTagId.Title) {
+					// HTML title uses RCDATA; SVG title remains in the data state.
+					Assert.That (tokenizer.TokenizerState, Is.EqualTo (recover ? HtmlTokenizerState.RcData : HtmlTokenizerState.Data));
+					return;
+				}
+			}
+
+			Assert.Fail ("Missing title start tag");
+		}
+
+		[Test]
+		public void TestParagraphPreservesDeletedAnchorEndTag ([Values (false, true)] bool suppress)
+		{
+			var converter = new HtmlToHtml {
+				HtmlTagCallback = (ctx, writer) => {
+					if (!ctx.IsEndTag && ctx.TagId == HtmlTagId.A) {
+						ctx.DeleteTag = true;
+						ctx.DeleteEndTag = true;
+						ctx.SuppressInnerContent = suppress;
+					} else {
+						ctx.WriteTag (writer, true);
+					}
+				}
+			};
+
+			var output = converter.Convert ("<p><a>one<p>two</a>three");
+			Assert.That (output, Is.EqualTo (suppress ? "<p>three" : "<p>one<p>twothree"));
+		}
+
+		[Test]
 		public void TestAdoptionAgencyClosesForeignContent ([Values (false, true)] bool deleteFormatting)
 		{
 			const string input = "<a><p><svg></a><script><!--</script><script></script>";

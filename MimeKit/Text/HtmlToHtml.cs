@@ -560,6 +560,15 @@ namespace MimeKit.Text {
 								ProcessEndTag (endTag, true);
 						}
 
+						// A new paragraph can pop an HTML anchor that a browser will reconstruct before a
+						// later <svg>. Without recovery, explicitly close the anchor while it is still in scope.
+						if (!tag.IsEndTag && tag.Id == HtmlTagId.P && !tokenizer.EnableFormattingRecovery && !stack.SuppressContent) {
+							for (int i = lastForeign + 1; i < closed.Count; i++) {
+								if (closed[i].Name.Equals ("a", StringComparison.OrdinalIgnoreCase) && stack.Peek ("a")?.DeleteEndTag != true)
+									ProcessEndTag (new HtmlTagToken (closed[i].Name, true), true);
+							}
+						}
+
 						treeConstruction.ClearClosedElements ();
 
 						// Note: Browsers ignore every tag in a frameset document other than the frameset, frame and noframes tags (and
