@@ -128,6 +128,24 @@ namespace UnitTests.Cryptography {
 		}
 
 		[Test]
+		public void TestCurrentFormatCertificate ()
+		{
+			var original = Bind (SenderKeys.Value, DateTimeOffset.UtcNow.AddMinutes (1)).Key;
+			using var input = new BcpgInputStream (new MemoryStream (original.KeyData.ToArray ()));
+			using var encoded = new MemoryStream ();
+
+			using (var output = new BcpgOutputStream (encoded, PacketFormat.Current)) {
+				while (input.ReadPacket () is ContainedPacket packet)
+					output.WritePacket (packet);
+			}
+
+			Assert.That (AutocryptKey.TryParse (encoded.ToArray (), out var parsed), Is.True);
+			Assert.That (parsed.UserId, Is.EqualTo (original.UserId));
+			Assert.That (parsed.PrimaryKey.GetFingerprint (), Is.EqualTo (original.PrimaryKey.GetFingerprint ()));
+			Assert.That (parsed.EncryptionKey.GetFingerprint (), Is.EqualTo (original.EncryptionKey.GetFingerprint ()));
+		}
+
+		[Test]
 		public void TestDirectPeerUpdates ()
 		{
 			var empty = new AutocryptPeerState ("Alice@example.org");
@@ -417,17 +435,39 @@ namespace UnitTests.Cryptography {
 			var time = DateTimeOffset.UtcNow.AddMinutes (1);
 			var account = Bind (SenderKeys.Value, time);
 			using var message = new MimeMessage ();
+			
 			message.From.Add (MailboxAddress.Parse (account.Address));
 			message.Body = new TextPart { Text = "cleartext" };
 			account.Advertise (message, time);
 			account.Advertise (message, time);
+			
 			var value = message.GetAutocryptObservation (time).Advertisement;
+			
 			Assert.That (value.KeyData.ToArray (), Is.EqualTo (account.Key.KeyData.ToArray ()));
 			Assert.That (value.Preference, Is.EqualTo (account.Preference));
 			Assert.That (message.TextBody, Is.EqualTo ("cleartext"));
+			
 			message.From.Clear ();
 			message.From.Add (MailboxAddress.Parse ("different@example.org"));
+			
 			Assert.Throws<InvalidOperationException> (() => account.Advertise (message, time));
+		}
+
+		[Test]
+		public void TestAdvertiseRejectsMisplacedHeaders ([Values (HeaderId.ResentFrom, HeaderId.AutocryptGossip, HeaderId.Bcc)] HeaderId header)
+		{
+			var time = DateTimeOffset.UtcNow.AddMinutes (1);
+			var account = Bind (SenderKeys.Value, time);
+			using var message = new MimeMessage { Body = new TextPart { Text = "draft" } };
+
+			message.From.Add (MailboxAddress.Parse (account.Address));
+			
+			var headers = header == HeaderId.Bcc ? message.Body.Headers : message.Headers;
+			headers.Add (header, "other@example.org");
+
+			Assert.Throws<InvalidOperationException> (() => account.Advertise (message, time));
+			Assert.That (message.Headers.Contains (HeaderId.Autocrypt), Is.False);
+			Assert.That (headers.Contains (header), Is.True);
 		}
 
 		[Test]
@@ -449,16 +489,30 @@ namespace UnitTests.Cryptography {
 			using var visibleContext = new RecipientContext (visibleRing, sender.Key);
 			using var message = new MimeMessage ();
 			using var original = new TextPart { Text = "private content" };
+
 			message.Body = original;
 			message.From.Add (MailboxAddress.Parse (sender.Address));
 			message.To.Add (MailboxAddress.Parse ("visible@example.org"));
 			message.Bcc.Add (MailboxAddress.Parse (hidden.Address));
+
 			var envelope = message.GetRecipients ();
 			var visibleKey = Bind (visibleRing, time).Key;
 			var visible = new AutocryptPeerState ("visible@example.org", time, visibleKey, time);
 			var blind = new AutocryptPeerState (hidden.Address, time, hidden.Key, time);
 			var peers = new [] { visible, blind }.ToDictionary (state => state.Address);
+
 			Assert.That (AutocryptRecommendation.Evaluate (sender.Preference, envelope, peers, time, false).Level, Is.EqualTo (AutocryptRecommendationLevel.Available));
+
+			// A complete peer store is not a substitute for the actual delivery envelope.
+			foreach (var incomplete in new [] { Array.Empty<MailboxAddress> (), message.To.Mailboxes.ToArray () }) {
+				if (doAsync)
+					Assert.ThrowsAsync<InvalidOperationException> (() => sender.SignAndEncryptAsync (senderContext, message, incomplete, peers, time));
+				else
+					Assert.Throws<InvalidOperationException> (() => sender.SignAndEncrypt (senderContext, message, incomplete, peers, time));
+
+				Assert.That (message.Body, Is.SameAs (original));
+				Assert.That (message.Bcc.Count, Is.EqualTo (1));
+			}
 
 			peers.Remove (hidden.Address);
 			if (doAsync)
@@ -485,13 +539,17 @@ namespace UnitTests.Cryptography {
 			Assert.That (message.GetAutocryptObservation (time).Advertisement.KeyData.ToArray (), Is.EqualTo (sender.Key.KeyData.ToArray ()));
 			Assert.That (message.Headers.Contains (HeaderId.Bcc), Is.False);
 			Assert.That (message.Headers.Contains (HeaderId.AutocryptGossip), Is.False);
+
 			var encrypted = (MultipartEncrypted) message.Body;
 			foreach (var context in new [] { senderContext, visibleContext, blindContext }) {
 				using var decrypted = encrypted.Decrypt (context, out var signatures);
+
 				Assert.That (signatures.Single ().Verify (), Is.True);
 				Assert.That (((TextPart) decrypted).Text.TrimEnd (), Is.EqualTo ("private content"));
+
 				var fields = decrypted.Headers.Where (header => header.Id == HeaderId.AutocryptGossip).ToArray ();
 				var gossip = AutocryptGossip.Parse (fields.Single ().RawValue);
+
 				Assert.That (gossip.Address, Is.EqualTo (visible.Address));
 				Assert.That (gossip.KeyData.ToArray (), Is.EqualTo (visibleKey.KeyData.ToArray ()));
 			}
@@ -525,7 +583,23 @@ namespace UnitTests.Cryptography {
 			Assert.That (Autocrypt.Parse (Advertisement.Replace ("mutual", "other")).Preference, Is.EqualTo (AutocryptPreference.NoPreference));
 		}
 
+		[Test]
+		public void TestQuotedAndFoldedAttributes ()
+		{
+			const string text = "ADDR \r\n\t= \"A;B\"@Example.org ; _note=\"one\\\";two\"; KEYDATA = YQ==";
+			var direct = Autocrypt.Parse (text);
+			var gossip = AutocryptGossip.Parse (text);
+
+			Assert.That (direct.Address, Is.EqualTo ("\"a;b\"@example.org"));
+			Assert.That (gossip.Address, Is.EqualTo (direct.Address));
+			Assert.That (direct.KeyData.ToArray (), Is.EqualTo ("a"u8.ToArray ()));
+			Assert.That (gossip.KeyData.ToArray (), Is.EqualTo (direct.KeyData.ToArray ()));
+		}
+
 		[TestCase ("addr=alice; keydata=YQ==")]
+		[TestCase ("addr=a@b; _note=\"unterminated; keydata=YQ==")]
+		[TestCase ("addr=a@b; prefer-encrypt=unknown; PREFER-ENCRYPT=mutual; keydata=YQ==")]
+		[TestCase ("addr=a@b; keydata=YQ==;")]
 		[TestCase ("addr=Alice <alice@example.org>; keydata=YQ==")]
 		[TestCase ("addr=a@b; ADDR=a@b; keydata=YQ==")]
 		[TestCase ("addr=a@b; unknown=x; keydata=YQ==")]
@@ -561,6 +635,60 @@ namespace UnitTests.Cryptography {
 			Assert.That (Autocrypt.TryParse (exact + " ", out _), Is.False);
 			Assert.That (AutocryptGossip.TryParse (exact, out _), Is.False);
 			Assert.Throws<FormatException> (() => new Autocrypt ("alice@example.org", new byte[7600]).ToHeader ());
+		}
+
+		[Test]
+		public void TestFormatAtWireLimit ()
+		{
+			const string address = "abcdefghijk@example.org";
+			var key = new byte[7356];
+			var options = new FormatOptions { NewLineFormat = NewLineFormat.Dos };
+			var header = new Autocrypt (address, key).ToHeader (options);
+
+			Assert.That (header.Field.Length + 1 + header.RawValue.Length, Is.EqualTo (10 * 1024));
+
+			var reparsed = Autocrypt.Parse (header.RawValue);
+
+			Assert.That (reparsed.Address, Is.EqualTo (address));
+			Assert.That (reparsed.KeyData.ToArray (), Is.EqualTo (key));
+			Assert.Throws<FormatException> (() => new Autocrypt ("x" + address, key).ToHeader (options));
+		}
+
+		[Test]
+		public void TestSenderDoesNotOverrideFrom ()
+		{
+			using var message = new MimeMessage ();
+			var alice = MailboxAddress.Parse ("alice@example.org");
+			var bob = MailboxAddress.Parse ("bob@example.org");
+			var received = DateTimeOffset.UtcNow;
+
+			message.From.Add (bob);
+			message.Sender = alice;
+			message.Headers.Add (new Autocrypt (alice.Address, [1]).ToHeader ());
+
+			var observed = message.GetAutocryptObservation (received);
+
+			Assert.That (observed.Address, Is.EqualTo (bob.Address));
+			Assert.That (observed.Advertisement, Is.Null);
+
+			message.From.Add (alice);
+			Assert.That (message.GetAutocryptObservation (received), Is.Null);
+		}
+
+		[Test]
+		public void TestUnsupportedAdvertisementDoesNotMaskValidKey ([Values (false, true)] bool validFirst)
+		{
+			const string valid = "addr=alice@example.org; keydata=YQ==";
+			const string unsupported = "addr=alice@example.org; required=yes; keydata=Yg==";
+			using var message = new MimeMessage ();
+			message.From.Add (MailboxAddress.Parse ("alice@example.org"));
+			message.Headers.Add (HeaderId.Autocrypt, validFirst ? valid : unsupported);
+			message.Headers.Add (HeaderId.Autocrypt, validFirst ? unsupported : valid);
+
+			var observed = message.GetAutocryptObservation (DateTimeOffset.UtcNow);
+
+			Assert.That (observed.Advertisement, Is.Not.Null);
+			Assert.That (observed.Advertisement.KeyData.ToArray (), Is.EqualTo ("a"u8.ToArray ()));
 		}
 
 		[Test]
