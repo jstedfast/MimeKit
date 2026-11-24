@@ -75,6 +75,7 @@ namespace UnitTests.Text {
 			var tree = new HtmlTreeConstruction (32);
 
 			tree.ProcessTag (new HtmlTagToken ("svg", false));
+
 			var result = tree.ProcessTag (new HtmlTagToken ("style", false));
 
 			Assert.That (tree.IsInForeignContent, Is.True);
@@ -95,6 +96,7 @@ namespace UnitTests.Text {
 			var tree = new HtmlTreeConstruction (32);
 
 			tree.ProcessTag (new HtmlTagToken ("frameset", false));
+
 			var result = tree.ProcessTag (new HtmlTagToken ("style", false));
 
 			Assert.That (tree.IsInFrameset, Is.True);
@@ -113,6 +115,7 @@ namespace UnitTests.Text {
 			var tree = new HtmlTreeConstruction (32);
 
 			tree.ProcessTag (new HtmlTagToken ("body", false));
+
 			var tag = new HtmlTagToken ("body", new[] { new HtmlAttribute ("class", "example") }, false);
 			var result = tree.ProcessTag (tag);
 
@@ -132,6 +135,7 @@ namespace UnitTests.Text {
 			tree.ProcessTag (new HtmlTagToken ("math", false));
 			tree.ProcessTag (new HtmlTagToken ("mi", false));
 			tree.ProcessTag (new HtmlTagToken ("span", false));
+
 			var result = tree.ProcessTag (new HtmlTagToken ("mi", true));
 
 			Assert.That (result.Disposition, Is.EqualTo (HtmlTreeConstruction.TagDisposition.Ignored));
@@ -151,6 +155,7 @@ namespace UnitTests.Text {
 			tree.ProcessTag (new HtmlTagToken ("svg", false));
 			tree.ProcessTag (new HtmlTagToken ("g", false));
 			tree.ProcessTag (new HtmlTagToken ("g", false));
+
 			var result = tree.ProcessTag (new HtmlTagToken ("div", false));
 
 			Assert.That (result.BrokeOutOfForeignContent, Is.True);
@@ -175,6 +180,7 @@ namespace UnitTests.Text {
 			tree.ProcessTag (new HtmlTagToken ("form", false));
 			tree.ProcessTag (new HtmlTagToken ("svg", false));
 			tree.ProcessTag (new HtmlTagToken ("style", false));
+
 			var result = tree.ProcessTag (new HtmlTagToken ("form", true));
 
 			Assert.That (result.Disposition, Is.EqualTo (HtmlTreeConstruction.TagDisposition.Normal));
@@ -207,14 +213,19 @@ namespace UnitTests.Text {
 		{
 			var tree = new HtmlTreeConstruction (32);
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "p", "i" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			if (explicitlyClosed)
 				tree.ProcessTag (new HtmlTagToken ("i", true));
+
 			tree.ProcessTag (new HtmlTagToken ("p", true));
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 
 			tree.ProcessCharacters (" ".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.EqualTo (explicitlyClosed));
 		}
 
@@ -223,10 +234,13 @@ namespace UnitTests.Text {
 		{
 			var tree = new HtmlTreeConstruction (32);
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "table", "td", "i" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			tree.ProcessTag (new HtmlTagToken ("table", true));
 			tree.ProcessCharacters ("text".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
 
@@ -234,18 +248,25 @@ namespace UnitTests.Text {
 		public void TestPrototypePreservesBlockOnFormattingClose ([Values ("p", "div")] string block)
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "font", "font", block })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 
 			// Remove only the inner font; neither the surviving block nor the outer font is closed.
 			tree.ProcessTag (new HtmlTagToken ("font", true));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
 			Assert.That (tree.ClosedElements, Is.Empty);
+
 			tree.ProcessTag (new HtmlTagToken (block, true));
+
 			Assert.That (tree.IsInForeignContent, Is.False);
+
 			tree.ProcessTag (new HtmlTagToken ("font", true));
 			tree.ProcessCharacters ("text".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
 
@@ -254,14 +275,21 @@ namespace UnitTests.Text {
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "font", block, "p" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			tree.ProcessTag (new HtmlTagToken ("font", true));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
 			Assert.That (tree.ClosedElements, Is.Empty);
+
 			tree.ProcessTag (new HtmlTagToken (block, true));
+
 			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "p" }));
+
 			tree.ProcessCharacters ("more".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
 
@@ -269,17 +297,27 @@ namespace UnitTests.Text {
 		public void TestPrototypeReconstructsPoppedInlineDescendant ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "a", "p", "font" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			tree.ProcessTag (new HtmlTagToken ("a", true));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
 			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "font" }));
+
 			tree.ProcessTag (new HtmlTagToken ("p", true));
+
 			Assert.That (tree.IsInForeignContent, Is.True);
+
 			tree.ProcessCharacters ("text".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.False);
+
 			tree.ProcessTag (new HtmlTagToken ("font", true));
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
 
@@ -287,14 +325,18 @@ namespace UnitTests.Text {
 		public void TestPrototypeNestedAnchorRestoresFormattingBeforeOpeningReplacement ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "a", "p", "font", "a" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
 			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "font" }));
 
 			// Closing the paragraph must pop the replacement anchor above the reconstructed font.
 			tree.ProcessTag (new HtmlTagToken ("p", true));
+
 			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "a", "font" }));
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
@@ -303,16 +345,22 @@ namespace UnitTests.Text {
 		public void TestPrototypeFoldedSpansCloseWithoutClosingParagraph ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "font", "p", "span", "span", "span" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			tree.ProcessTag (new HtmlTagToken ("font", true));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
 			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "span" }));
 			Assert.That (tree.ClosedElements[0].Count, Is.EqualTo (3));
 			Assert.That (tree.IsInForeignContent, Is.False);
+
 			tree.ProcessTag (new HtmlTagToken ("p", true));
 			tree.ProcessCharacters ("text".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
 
@@ -320,23 +368,32 @@ namespace UnitTests.Text {
 		public void TestAdoptionRetainsFoldedFormattingAcrossBlocks ()
 		{
 			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+
 			tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "math", "mtext", "i", "a", "i", "i", "div", "div", "h2", "svg", "g" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
 
 			tree.ProcessTag (new HtmlTagToken ("a", true));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
 			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (new[] { "g", "svg" }));
+
 			tree.ProcessTag (new HtmlTagToken ("h2", true));
 			tree.ProcessTag (new HtmlTagToken ("div", true));
 			tree.ProcessTag (new HtmlTagToken ("div", true));
+
 			// Removing the anchor merged its italic descendants with the preceding italic.
 			for (int i = 0; i < 3; i++) {
 				Assert.That (tree.IsInForeignContent, Is.False);
+
 				tree.ProcessTag (new HtmlTagToken ("i", true));
 			}
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.False);
+
 			tree.ProcessCharacters ("text".AsSpan ());
+
 			Assert.That (tree.IsInForeignContent, Is.True);
 		}
 
@@ -345,11 +402,15 @@ namespace UnitTests.Text {
 		public void TestNestedAnchorCountsPhysicalBlocks (int count, bool fallback)
 		{
 			var tree = new HtmlTreeConstruction (32);
+
 			tree.EnableFormattingTracker ();
 			tree.ProcessTag (new HtmlTagToken ("a", false));
+
 			for (int i = 0; i < count; i++)
 				tree.ProcessTag (new HtmlTagToken ("div", false));
+
 			tree.ProcessTag (new HtmlTagToken ("a", false));
+
 			Assert.That (tree.FormattingRecoveryExceeded, Is.EqualTo (fallback));
 		}
 
@@ -358,23 +419,34 @@ namespace UnitTests.Text {
 		{
 			var tree = new HtmlTreeConstruction (32);
 			var tracker = tree.EnableFormattingTracker ();
+
 			foreach (var name in new[] { "font", "p", "span", "small" })
 				tree.ProcessTag (new HtmlTagToken (name, false));
+
 			tree.ProcessTag (new HtmlTagToken ("font", true));
+
 			Assert.That (tracker.Reason, Is.EqualTo (HtmlFormattingTracker.StopReason.ComplexAdoption));
+		}
+
+		static void ReadToEnd (HtmlTokenizer tokenizer)
+		{
+			while (tokenizer.ReadNextToken (out _)) {
+				// Reading advances the formatting tracker; these tests inspect its final state, not the tokens.
+			}
 		}
 
 		[Test]
 		public void TestPrototypeComparesParsedFormattingAttributes ()
 		{
 			const string equal = "<font COLOR=red size=2><font size='2' color='red'><font color=r&#101;d size=2><font size=2 color=red COLOR=blue>";
+
 			foreach (var extra in new[] { "", "<font color=RED size=2>", "<font color=red size=2 title>" }) {
 				var tokenizer = new HtmlTokenizer (new StringReader (equal + extra));
 				var tracker = tokenizer.TreeConstruction.EnableFormattingTracker (3);
-				while (tokenizer.ReadNextToken (out _)) {
-				}
-				Assert.That (tracker.Reason, Is.EqualTo (extra.Length == 0 ?
-					HtmlFormattingTracker.StopReason.None : HtmlFormattingTracker.StopReason.Capacity));
+
+				ReadToEnd (tokenizer);
+
+				Assert.That (tracker.Reason, Is.EqualTo (extra.Length == 0 ? HtmlFormattingTracker.StopReason.None : HtmlFormattingTracker.StopReason.Capacity));
 			}
 		}
 
@@ -384,24 +456,28 @@ namespace UnitTests.Text {
 			foreach (int capacity in new[] { 2, 8 }) {
 				var tokenizer = new HtmlTokenizer (new StringReader (string.Concat (Enumerable.Repeat ("<i a b c d e>", 4))));
 				var tracker = tokenizer.TreeConstruction.EnableFormattingTracker (capacity);
-				while (tokenizer.ReadNextToken (out _)) {
-				}
+
+				ReadToEnd (tokenizer);
+
 				Assert.That (tracker.PeakCount, Is.EqualTo (capacity == 2 ? 2 : 3));
-				Assert.That (tracker.Reason, Is.EqualTo (capacity == 2 ?
-					HtmlFormattingTracker.StopReason.Capacity : HtmlFormattingTracker.StopReason.AttributeEquivalence));
+				Assert.That (tracker.Reason, Is.EqualTo (capacity == 2 ? HtmlFormattingTracker.StopReason.Capacity : HtmlFormattingTracker.StopReason.AttributeEquivalence));
 			}
 		}
 
 		[Test]
 		public void TestPrototypeBudgetHonorsPolicy ([Values (HtmlLimitExceededBehavior.Throw, HtmlLimitExceededBehavior.LiteralText)] HtmlLimitExceededBehavior policy)
 		{
-			var tokenizer = new HtmlTokenizer (new StringReader (string.Concat (Enumerable.Repeat ("<i a b c d e>", 4)) + "<p>tail")) { LimitExceededBehavior = policy };
-			tokenizer.EnableFormattingRecovery = true;
+			var tokenizer = new HtmlTokenizer (new StringReader (string.Concat (Enumerable.Repeat ("<i a b c d e>", 4)) + "<p>tail")) {
+				EnableFormattingRecovery = true,
+				LimitExceededBehavior = policy,
+			};
 			var logger = new TestHtmlComplianceLogger ();
+
 			tokenizer.ComplianceLogger = logger;
 
 			for (int i = 0; i < 3; i++)
 				Assert.That (tokenizer.ReadNextToken (out _), Is.True);
+
 			if (policy == HtmlLimitExceededBehavior.Throw) {
 				Assert.Throws<FormatException> (() => tokenizer.ReadNextToken (out _));
 			} else {
@@ -409,6 +485,7 @@ namespace UnitTests.Text {
 				Assert.That (tokenizer.ReadNextToken (out var tail), Is.True);
 				Assert.That (((HtmlDataToken) tail).Data, Is.EqualTo ("<p>tail"));
 			}
+
 			Assert.That (logger.Issues.Select (x => x.Violation), Is.EqualTo (new[] { HtmlComplianceViolation.FormattingRecoveryLimitExceeded }));
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
@@ -420,11 +497,13 @@ namespace UnitTests.Text {
 			var tokenizer = new HtmlTokenizer (new StringReader ("<p><i></p><div><section>" + run + "<br>")) {
 				MaxElementDepth = 2,
 				LimitExceededBehavior = behavior,
-				DecodeCharacterReferences = true
+				DecodeCharacterReferences = true,
+				EnableFormattingRecovery = true
 			};
-			tokenizer.EnableFormattingRecovery = true;
 			var logger = new TestHtmlComplianceLogger ();
+
 			tokenizer.ComplianceLogger = logger;
+
 			for (int i = 0; i < 5; i++)
 				Assert.That (tokenizer.ReadNextToken (out _), Is.True);
 
@@ -432,10 +511,13 @@ namespace UnitTests.Text {
 				Assert.Throws<FormatException> (() => tokenizer.ReadNextToken (out _));
 			} else {
 				var tail = new System.Text.StringBuilder ();
+
 				while (tokenizer.ReadNextToken (out var token))
 					tail.Append (((HtmlDataToken) token).Data);
+
 				Assert.That (tail.ToString (), Is.EqualTo ((run == "x" ? "x" : " ") + "<br>"));
 			}
+
 			Assert.That (logger.Issues.Count (x => x.Violation == HtmlComplianceViolation.ElementDepthLimitExceeded), Is.EqualTo (1));
 			Assert.That (tokenizer.ReadNextToken (out _), Is.False);
 		}
@@ -446,6 +528,7 @@ namespace UnitTests.Text {
 			var tree = new HtmlTreeConstruction (1);
 
 			tree.ProcessTag (new HtmlTagToken ("div", false));
+
 			var result = tree.ProcessTag (new HtmlTagToken ("style", false));
 
 			Assert.That (tree.DepthExceeded, Is.True);

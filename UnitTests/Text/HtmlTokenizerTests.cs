@@ -44,6 +44,9 @@ namespace UnitTests.Text {
 
 			var nullTokenizer = new HtmlTokenizer (Stream.Null);
 			var utf8Tokenizer = new HtmlTokenizer (Stream.Null, Encoding.UTF8);
+
+			Assert.That (nullTokenizer.ReadNextToken (out _), Is.False);
+			Assert.That (utf8Tokenizer.ReadNextToken (out _), Is.False);
 		}
 
 		[Test]
