@@ -23,7 +23,7 @@ Run the full test suite the way CI does:
 ```
 
 `scripts/test.ps1` reads `UnitTests/UnitTests.csproj` to locate the build output, optionally
-instruments it with AltCover in-place, then runs `dotnet nunit UnitTests/bin/<Config>/net8.0/UnitTests.dll`.
+instruments it with AltCover in-place, then runs `dotnet test --no-build` and writes NUnit XML next to `UnitTests.dll`.
 Because AltCover instruments *in place*, always rebuild before a non-coverage run if you previously
 ran with `-GenerateCodeCoverage true`.
 
@@ -34,7 +34,7 @@ dotnet test UnitTests\UnitTests.csproj --filter "FullyQualifiedName~MimeParserTe
 dotnet test UnitTests\UnitTests.csproj --filter "FullyQualifiedName~UnitTests.MimeParserTests"
 
 # or, against an already-built test assembly (no rebuild):
-dotnet nunit UnitTests\bin\Debug\net8.0\UnitTests.dll --where "class =~ /MimeParserTests/" --noresult
+dotnet test UnitTests\UnitTests.csproj --no-build --filter "FullyQualifiedName~UnitTests.MimeParserTests"
 ```
 
 The full suite takes several minutes. A couple of hundred skipped tests is normal; they depend
@@ -68,7 +68,7 @@ editing `NoWarn`.
 | `MimeKit/` | `MimeKit.Core` | The whole MIME object model and parser. No crypto dependencies beyond BouncyCastle. |
 | `MimeKit.Cryptography/` | `MimeKit.Cryptography` | S/MIME, PGP/MIME, DKIM, ARC, X.509 certificate databases. References `MimeKit.Core`. |
 | `nuget/MimeKit.nuspec` | `MimeKit` | Meta-package pulling in both of the above. |
-| `UnitTests/` | — | NUnit 4, `net8.0` only, references both libraries. |
+| `UnitTests/` | — | NUnit 4, `net10.0` only, references both libraries. |
 | `AotCompatibility/`, `Benchmarks/` | — | Native-AOT publish probe and BenchmarkDotNet suite. |
 | `Fuzzing/` | — | SharpFuzz/libFuzzer harness (`IFuzzTarget` implementations in `Fuzzing/Targets/`), run nightly by `.github/workflows/fuzz.yml`. See `FuzzingPlan.md`. The HTML targets cross-check `HtmlTokenizer` against AngleSharp and confirm disagreements with Chromium (via Playwright). |
 | `samples/` | — | Standalone sample apps, not part of `MimeKit.sln`'s test flow. |

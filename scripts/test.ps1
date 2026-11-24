@@ -16,15 +16,16 @@ Write-Output ""
 # Get the OutputPath
 $targetFramework = $project.SelectSingleNode("/Project/PropertyGroup/TargetFramework")
 $OutputDir = Join-Path "UnitTests" "bin" $Configuration $targetFramework.InnerText
-$UnitTestsAssembly = Join-Path $OutputDir "UnitTests.dll"
 
 if ($GenerateCodeCoverage -eq 'true') {
     Write-Output "Instrumenting code..."
 
     & dotnet AltCover -i="$OutputDir" --inplace -s="System.*" -s="Microsoft.*" -s="BouncyCastle.*" -s="NUnit*" -s="Moq*" -s="AltCover.*" -s="testhost" -s="UnitTests"
-    # & dotnet AltCover Runner --recorderDirectory=$OutputDir --executable=$NUnitConsoleRunner --summary=O -- --domain:single $UnitTestsAssembly
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
 Write-Output "Running the UnitTests"
 
-dotnet nunit $UnitTestsAssembly
+$resultDir = (Resolve-Path $OutputDir).Path
+dotnet test UnitTests\UnitTests.csproj --configuration $Configuration --no-build -- "NUnit.TestOutputXml=$resultDir"
+exit $LASTEXITCODE

@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: MimeKit.${{ steps.semantic_version.outputs.version_num }}.${{ github.run_number }}-${{ matrix.os }}-${{ matrix.build-configuration }}-TestResults.xml
-          path: TestResult.xml
+          path: UnitTests/bin/${{ matrix.build-configuration }}/net10.0/UnitTests.xml
 
       - if: ${{ env.GENERATE_CODE_COVERAGE == 'true' }}
         name: Upload code coverage data to coveralls.io
