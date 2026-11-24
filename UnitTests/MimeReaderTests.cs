@@ -1044,7 +1044,7 @@ ABC
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
 				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
-				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.EofBeforeBodySeparator), "Violation");
 				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
 				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (4), "LineNumber");
 			}
@@ -1065,7 +1065,7 @@ ABC
 
 				Assert.That (lines, Is.EqualTo (0), "Line count");
 				Assert.That (logger.Issues.Count, Is.EqualTo (1), "ComplianceViolations");
-				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.MissingBodySeparator), "Violation");
+				Assert.That (logger.Issues[0].Violation, Is.EqualTo (MimeComplianceViolation.EofBeforeBodySeparator), "Violation");
 				Assert.That (logger.Issues[0].StreamOffset, Is.EqualTo (text.Length), "StreamOffset");
 				Assert.That (logger.Issues[0].LineNumber, Is.EqualTo (4), "LineNumber");
 			}
@@ -2154,20 +2154,20 @@ This is the second inner message body.
 		}
 
 		[Test]
-		public void TestMimeComplianceMissingBodySeparator ()
+		public void TestMimeComplianceEofBeforeBodySeparator ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 8, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.EofBeforeBodySeparator, 8, 1),
 			};
 
 			AssertMimeComplianceViolations ("missing-body-separator.eml", issues);
 		}
 
 		[Test]
-		public Task TestMimeComplianceMissingBodySeparatorAsync ()
+		public Task TestMimeComplianceEofBeforeBodySeparatorAsync ()
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.MissingBodySeparator, 8, 1),
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.EofBeforeBodySeparator, 8, 1),
 			};
 
 			return AssertMimeComplianceViolationsAsync ("missing-body-separator.eml", issues);
@@ -2775,6 +2775,66 @@ This is the second inner message body.
 		}
 
 		const string MissingAllHeadersText = "Subject: missing headers\r\nContent-Type: text/plain\r\n\r\nbody\r\n";
+
+		static IEnumerable<TestCaseData> EofInHeadersCases ()
+		{
+			const string child = MessageHeaders + "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b\r\n";
+			const string field = "X: a";
+			const string line = field + "\r\n";
+			const string name = "X-Test";
+
+			static MimeComplianceIssue Issue (MimeComplianceViolation violation, int offset, int lineNumber, int column = 1,
+				MimeCompliancePositionKind kind = MimeCompliancePositionKind.Exact) =>
+				new MimeComplianceIssue (MimeComplianceContext.Transport, violation, offset, lineNumber, column, kind);
+
+			foreach (int chunk in new[] { 1, 4096 }) {
+				TestCaseData Case (string label, string text, params MimeComplianceIssue[] issues) =>
+					new TestCaseData (text, chunk, issues).SetName ($"{{m}}({label},chunk={chunk})");
+
+				yield return Case ("top-level header", MessageHeaders,
+					Issue (MimeComplianceViolation.EofBeforeBodySeparator, MessageHeaders.Length, 5));
+				yield return Case ("empty body", MessageHeaders + "\r\n");
+				yield return Case ("opening delimiter", child,
+					Issue (MimeComplianceViolation.EofBeforeBodySeparator, child.Length, 8),
+					Issue (MimeComplianceViolation.MessageTruncated, child.Length, 8));
+				yield return Case ("complete child header", child + line,
+					Issue (MimeComplianceViolation.EofBeforeBodySeparator, child.Length + line.Length, 9),
+					Issue (MimeComplianceViolation.MessageTruncated, child.Length + line.Length, 9));
+				yield return Case ("unfinished field name", child + name,
+					Issue (MimeComplianceViolation.InvalidHeader, child.Length, 8, kind: MimeCompliancePositionKind.ElementStart),
+					Issue (MimeComplianceViolation.IncompleteHeader, child.Length + name.Length, 8, 7),
+					Issue (MimeComplianceViolation.MessageTruncated, child.Length + name.Length, 8, 7));
+				yield return Case ("unfinished field value", child + field,
+					Issue (MimeComplianceViolation.IncompleteHeader, child.Length + field.Length, 8, 5),
+					Issue (MimeComplianceViolation.MessageTruncated, child.Length + field.Length, 8, 5));
+				yield return Case ("enclosing delimiter", child + line + "--b--\r\n",
+					Issue (MimeComplianceViolation.MissingBodySeparator, child.Length + line.Length, 9, kind: MimeCompliancePositionKind.ElementStart));
+			}
+		}
+
+		[TestCaseSource (nameof (EofInHeadersCases))]
+		public void TestEofInHeaders (string text, int chunk, MimeComplianceIssue[] expected)
+		{
+			using var stream = new ChunkedReadStream (Encoding.ASCII.GetBytes (text), chunk);
+			var logger = new TestMimeComplianceLogger ();
+			var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+			reader.ReadMessage ();
+
+			Assert.That (logger.Issues, Is.EqualTo (expected), FormatIssues (logger));
+		}
+
+		[TestCaseSource (nameof (EofInHeadersCases))]
+		public async Task TestEofInHeadersAsync (string text, int chunk, MimeComplianceIssue[] expected)
+		{
+			using var stream = new ChunkedReadStream (Encoding.ASCII.GetBytes (text), chunk);
+			var logger = new TestMimeComplianceLogger ();
+			var reader = new MimeReader (stream) { ComplianceLogger = logger };
+
+			await reader.ReadMessageAsync ();
+
+			Assert.That (logger.Issues, Is.EqualTo (expected), FormatIssues (logger));
+		}
 
 		static void AssertMissingAllHeaders (TestMimeComplianceLogger logger)
 		{

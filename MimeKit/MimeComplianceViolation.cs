@@ -1099,6 +1099,16 @@ namespace MimeKit {
 		MissingBodySeparator                        = 84,
 
 		/// <summary>
+		/// The stream ended before the empty line terminating a MIME header block.
+		/// </summary>
+		/// <remarks>
+		/// Reported at EOF when the reader expects another header or the empty separator line.
+		/// This does not establish why the stream ended. If a header line itself was unfinished,
+		/// <see cref="IncompleteHeader"/> is reported instead.
+		/// </remarks>
+		EofBeforeBodySeparator                      = 103,
+
+		/// <summary>
 		/// A multipart boundary was missing.
 		/// </summary>
 		/// <remarks>

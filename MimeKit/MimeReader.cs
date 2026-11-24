@@ -2487,6 +2487,11 @@ namespace MimeKit {
 			return header;
 		}
 
+		void ReportEofBeforeBodySeparator ()
+		{
+			complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.EofBeforeBodySeparator, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+		}
+
 		unsafe void StepHeaders (byte* inbuf, CancellationToken cancellationToken)
 		{
 			int headersBeginLineNumber = lineNumber;
@@ -2552,8 +2557,7 @@ namespace MimeKit {
 						return;
 					}
 
-					// Note: This can happen if a message is truncated immediately after a boundary marker (e.g. where subpart headers would begin).
-					complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingBodySeparator, beginOffset, beginLineNumber, 1, MimeCompliancePositionKind.ElementStart));
+					ReportEofBeforeBodySeparator ();
 
 					state = MimeParserState.Content;
 					break;
@@ -2660,7 +2664,7 @@ namespace MimeKit {
 
 								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.IncompleteHeader, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
 							} else {
-								complianceLogger.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.MissingBodySeparator, GetOffset (inputIndex), lineNumber, GetColumnNumber (inputIndex)));
+								ReportEofBeforeBodySeparator ();
 							}
 						}
 						state = MimeParserState.Content;

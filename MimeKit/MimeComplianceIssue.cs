@@ -92,7 +92,7 @@ namespace MimeKit {
 
 			// Note: TooManyComplianceIssues is not part of the contiguous range of defects, so it is
 			// checked separately.
-			if ((violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.MessageTruncated) && violation != MimeComplianceViolation.TooManyComplianceIssues)
+			if ((violation <= MimeComplianceViolation.None || violation > MimeComplianceViolation.EofBeforeBodySeparator) && violation != MimeComplianceViolation.TooManyComplianceIssues)
 				throw new ArgumentOutOfRangeException (nameof (violation));
 
 			if (positionKind < MimeCompliancePositionKind.Exact || positionKind > MimeCompliancePositionKind.ElementStart)
@@ -432,6 +432,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.InvalidEncodedWordPlacement:
 			case MimeComplianceViolation.InvalidHeader:
 			case MimeComplianceViolation.IncompleteHeader:
+			case MimeComplianceViolation.EofBeforeBodySeparator:
 			case MimeComplianceViolation.BlankHeaderContinuationLine:
 			case MimeComplianceViolation.InvalidContentType:
 			case MimeComplianceViolation.InvalidContentTransferEncoding:
@@ -674,6 +675,7 @@ namespace MimeKit {
 			case MimeComplianceViolation.MissingMultipartBoundaryParameter:
 			case MimeComplianceViolation.MissingMultipartBoundary:
 			case MimeComplianceViolation.MessageTruncated:
+			case MimeComplianceViolation.EofBeforeBodySeparator:
 				return Interop | DataLoss;
 
 			// Note: The entities nested beyond the limit were not parsed, so a content scanner that
@@ -1054,6 +1056,8 @@ namespace MimeKit {
 				return "An address group was nested inside another address group.";
 			case MimeComplianceViolation.MissingBodySeparator:
 				return "An empty line separating the headers from the body was missing.";
+			case MimeComplianceViolation.EofBeforeBodySeparator:
+				return "The stream ended before the empty line terminating the MIME header block.";
 			case MimeComplianceViolation.MissingMultipartBoundary:
 				return "A multipart boundary was missing.";
 			case MimeComplianceViolation.MessageTruncated:
@@ -1284,6 +1288,8 @@ namespace MimeKit {
 				return "An enclosing boundary was encountered before the multipart's closing boundary.";
 			case MimeComplianceViolation.MessageTruncated:
 				return "The message may have been truncated, or the closing boundary may have been omitted or malformed.";
+			case MimeComplianceViolation.EofBeforeBodySeparator:
+				return "The reader was expecting another header or the empty separator line. The separator may have been omitted, or the stream may have ended prematurely.";
 			case MimeComplianceViolation.MimeDepthLimitExceeded:
 				return "This is not necessarily a defect in the message, but a multipart or message part nested beyond the configured limit (ParserOptions.MaxMimeDepth) was parsed as an opaque MIME part, so the entities within it were not parsed. A content scanner that relies on the result has not examined them, while a mail client with a higher limit (or none) may still render them.";
 			case MimeComplianceViolation.IncompleteBase64Quantum:
