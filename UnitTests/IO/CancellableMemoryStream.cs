@@ -35,6 +35,8 @@ namespace UnitTests.IO {
 	{
 		public int CancellableReads { get; private set; }
 
+		public CancellationToken LastReadToken { get; private set; }
+
 		public int CancellableWrites { get; private set; }
 
 		public int CancellableFlushes { get; private set; }
@@ -42,6 +44,7 @@ namespace UnitTests.IO {
 		public int Read (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
+			LastReadToken = cancellationToken;
 			CancellableReads++;
 
 			return base.Read (buffer, offset, count);

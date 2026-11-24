@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -104,6 +105,45 @@ namespace MimeKit.Cryptography {
 				visitor.VisitMultipart (this);
 		}
 
+		static void WriteSignedContent (MimeEntity entity, Stream stream, HeaderList? additionalHeaders, CancellationToken cancellationToken)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			// Prepend protected root fields without modifying the caller's MIME entity.
+			additionalHeaders?.WriteTo (options, stream, cancellationToken);
+			entity.WriteTo (options, stream, cancellationToken);
+		}
+
+		static async Task WriteSignedContentAsync (MimeEntity entity, Stream stream, HeaderList? additionalHeaders, CancellationToken cancellationToken)
+		{
+			var options = FormatOptions.Default.Clone ();
+			options.NewLineFormat = NewLineFormat.Dos;
+
+			if (additionalHeaders != null)
+				await additionalHeaders.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+
+			await entity.WriteToAsync (options, stream, cancellationToken).ConfigureAwait (false);
+		}
+
+		static void WriteContent (MimeEntity entity, Stream stream, CancellationToken cancellationToken)
+		{
+			using var filtered = new FilteredStream (stream);
+
+			filtered.Add (new Unix2DosFilter ());
+			entity.WriteTo (filtered, cancellationToken);
+			filtered.Flush (cancellationToken);
+		}
+
+		static async Task WriteContentAsync (MimeEntity entity, Stream stream, CancellationToken cancellationToken)
+		{
+			using var filtered = new FilteredStream (stream);
+
+			filtered.Add (new Unix2DosFilter ());
+			await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
+			await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
+		}
+
 		static MultipartEncrypted CreateMultipartEncrypted (OpenPgpContext ctx, MimeEntity part)
 		{
 			var encrypted = new MultipartEncrypted ();
@@ -117,41 +157,6 @@ namespace MimeKit.Cryptography {
 			encrypted.Add (part);
 
 			return encrypted;
-		}
-
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
-		{
-			if (ctx == null)
-				throw new ArgumentNullException (nameof (ctx));
-
-			if (signer == null)
-				throw new ArgumentNullException (nameof (signer));
-
-			if (recipients == null)
-				throw new ArgumentNullException (nameof (recipients));
-
-			if (entity == null)
-				throw new ArgumentNullException (nameof (entity));
-
-			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
-
-				if (doAsync)
-					await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
-				else
-					entity.WriteTo (options, memory, cancellationToken);
-				memory.Position = 0;
-
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
-
-				return CreateMultipartEncrypted (ctx, part);
-			}
 		}
 
 		/// <summary>
@@ -207,7 +212,26 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteSignedContent (entity, memory, null, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -261,12 +285,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
-		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, true, cancellationToken);
-		}
-
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -281,21 +300,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
-
-				if (doAsync)
-					await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
-				else
-					entity.WriteTo (options, memory, cancellationToken);
+				await WriteSignedContentAsync (entity, memory, null, cancellationToken).ConfigureAwait (false);
 				memory.Position = 0;
 
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
+				var part = await ctx.SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
 
 				return CreateMultipartEncrypted (ctx, part);
 			}
@@ -344,7 +352,26 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteSignedContent (entity, memory, null, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -388,9 +415,28 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, MailboxAddress signer, DigestAlgorithm digestAlgo, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, true, cancellationToken);
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				await WriteSignedContentAsync (entity, memory, null, cancellationToken).ConfigureAwait (false);
+				memory.Position = 0;
+
+				var part = await ctx.SignAndEncryptAsync (signer, digestAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -631,7 +677,7 @@ namespace MimeKit.Cryptography {
 				return await SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		internal static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, HeaderList? additionalHeaders, CancellationToken cancellationToken)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -646,21 +692,34 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
-
-				if (doAsync)
-					await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
-				else
-					entity.WriteTo (options, memory, cancellationToken);
+				WriteSignedContent (entity, memory, additionalHeaders, cancellationToken);
 				memory.Position = 0;
 
-				MimePart part;
+				var part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
 
-				if (doAsync)
-					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.SignAndEncrypt (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken);
+				return CreateMultipartEncrypted (ctx, part);
+			}
+		}
+
+		internal static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, HeaderList? additionalHeaders, CancellationToken cancellationToken)
+		{
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				await WriteSignedContentAsync (entity, memory, additionalHeaders, cancellationToken).ConfigureAwait (false);
+				memory.Position = 0;
+
+				var part = await ctx.SignAndEncryptAsync (signer, digestAlgo, cipherAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
 
 				return CreateMultipartEncrypted (ctx, part);
 			}
@@ -719,7 +778,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			return SignAndEncrypt (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, null, cancellationToken);
 		}
 
 		/// <summary>
@@ -775,42 +834,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, EncryptionAlgorithm cipherAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, true, cancellationToken);
-		}
-
-		static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
-		{
-			if (ctx == null)
-				throw new ArgumentNullException (nameof (ctx));
-
-			if (signer == null)
-				throw new ArgumentNullException (nameof (signer));
-
-			if (recipients == null)
-				throw new ArgumentNullException (nameof (recipients));
-
-			if (entity == null)
-				throw new ArgumentNullException (nameof (entity));
-
-			using (var memory = new MemoryBlockStream ()) {
-				var options = FormatOptions.Default.Clone ();
-				options.NewLineFormat = NewLineFormat.Dos;
-
-				if (doAsync)
-					await entity.WriteToAsync (options, memory, cancellationToken).ConfigureAwait (false);
-				else
-					entity.WriteTo (options, memory, cancellationToken);
-				memory.Position = 0;
-
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.SignAndEncryptAsync (signer, digestAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
-
-				return CreateMultipartEncrypted (ctx, part);
-			}
+			return SignAndEncryptAsync (ctx, signer, digestAlgo, cipherAlgo, recipients, entity, null, cancellationToken);
 		}
 
 		/// <summary>
@@ -863,7 +887,26 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted SignAndEncrypt (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteSignedContent (entity, memory, null, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.SignAndEncrypt (signer, digestAlgo, recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -914,9 +957,28 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// 3 bad attempts were made to unlock the secret key.
 		/// </exception>
-		public static Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static async Task<MultipartEncrypted> SignAndEncryptAsync (OpenPgpContext ctx, PgpSecretKey signer, DigestAlgorithm digestAlgo, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, true, cancellationToken);
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (signer == null)
+				throw new ArgumentNullException (nameof (signer));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				await WriteSignedContentAsync (entity, memory, null, cancellationToken).ConfigureAwait (false);
+				memory.Position = 0;
+
+				var part = await ctx.SignAndEncryptAsync (signer, digestAlgo, recipients, memory, cancellationToken).ConfigureAwait (false);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -1173,43 +1235,6 @@ namespace MimeKit.Cryptography {
 				return await SignAndEncryptAsync (ctx, signer, digestAlgo, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
-		{
-			if (ctx == null)
-				throw new ArgumentNullException (nameof (ctx));
-
-			if (recipients == null)
-				throw new ArgumentNullException (nameof (recipients));
-
-			if (entity == null)
-				throw new ArgumentNullException (nameof (entity));
-
-			using (var memory = new MemoryBlockStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new Unix2DosFilter ());
-
-					if (doAsync) {
-						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
-						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
-					} else {
-						entity.WriteTo (filtered, cancellationToken);
-						filtered.Flush (cancellationToken);
-					}
-				}
-
-				memory.Position = 0;
-
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.EncryptAsync (algorithm, recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
-
-				return CreateMultipartEncrypted (ctx, part);
-			}
-		}
-
 		/// <summary>
 		/// Create a multipart/encrypted MIME part by encrypting the specified entity.
 		/// </summary>
@@ -1245,7 +1270,23 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return EncryptAsync (ctx, algorithm, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteContent (entity, memory, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -1281,12 +1322,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
-		{
-			return EncryptAsync (ctx, algorithm, recipients, entity, true, cancellationToken);
-		}
-
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		public static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1298,26 +1334,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new Unix2DosFilter ());
-
-					if (doAsync) {
-						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
-						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
-					} else {
-						entity.WriteTo (filtered, cancellationToken);
-						filtered.Flush (cancellationToken);
-					}
-				}
-
+				await WriteContentAsync (entity, memory, cancellationToken).ConfigureAwait (false);
 				memory.Position = 0;
 
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.EncryptAsync (recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.Encrypt (recipients, memory, cancellationToken);
+				var part = await ctx.EncryptAsync (algorithm, recipients, memory, cancellationToken).ConfigureAwait (false);
 
 				return CreateMultipartEncrypted (ctx, part);
 			}
@@ -1354,7 +1374,23 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return EncryptAsync (ctx, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteContent (entity, memory, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.Encrypt (recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -1386,9 +1422,25 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="PublicKeyNotFoundException">
 		/// A public key for one or more of the <paramref name="recipients"/> could not be found.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<MailboxAddress> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return EncryptAsync (ctx, recipients, entity, true, cancellationToken);
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				await WriteContentAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+				memory.Position = 0;
+
+				var part = await ctx.EncryptAsync (recipients, memory, cancellationToken).ConfigureAwait (false);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -1561,43 +1613,6 @@ namespace MimeKit.Cryptography {
 				return await EncryptAsync (ctx, recipients, entity, cancellationToken).ConfigureAwait (false);
 		}
 
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
-		{
-			if (ctx == null)
-				throw new ArgumentNullException (nameof (ctx));
-
-			if (recipients == null)
-				throw new ArgumentNullException (nameof (recipients));
-
-			if (entity == null)
-				throw new ArgumentNullException (nameof (entity));
-
-			using (var memory = new MemoryBlockStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new Unix2DosFilter ());
-
-					if (doAsync) {
-						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
-						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
-					} else {
-						entity.WriteTo (filtered, cancellationToken);
-						filtered.Flush (cancellationToken);
-					}
-				}
-
-				memory.Position = 0;
-
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.EncryptAsync (algorithm, recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
-
-				return CreateMultipartEncrypted (ctx, part);
-			}
-		}
-
 		/// <summary>
 		/// Create a multipart/encrypted MIME part by encrypting the specified entity.
 		/// </summary>
@@ -1633,7 +1648,23 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return EncryptAsync (ctx, algorithm, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteContent (entity, memory, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.Encrypt (algorithm, recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -1669,12 +1700,7 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
-		{
-			return EncryptAsync (ctx, algorithm, recipients, entity, true, cancellationToken);
-		}
-
-		static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, bool doAsync, CancellationToken cancellationToken)
+		public static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, EncryptionAlgorithm algorithm, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
 			if (ctx == null)
 				throw new ArgumentNullException (nameof (ctx));
@@ -1686,26 +1712,10 @@ namespace MimeKit.Cryptography {
 				throw new ArgumentNullException (nameof (entity));
 
 			using (var memory = new MemoryBlockStream ()) {
-				using (var filtered = new FilteredStream (memory)) {
-					filtered.Add (new Unix2DosFilter ());
-
-					if (doAsync) {
-						await entity.WriteToAsync (filtered, cancellationToken).ConfigureAwait (false);
-						await filtered.FlushAsync (cancellationToken).ConfigureAwait (false);
-					} else {
-						entity.WriteTo (filtered, cancellationToken);
-						filtered.Flush (cancellationToken);
-					}
-				}
-
+				await WriteContentAsync (entity, memory, cancellationToken).ConfigureAwait (false);
 				memory.Position = 0;
 
-				MimePart part;
-
-				if (doAsync)
-					part = await ctx.EncryptAsync (recipients, memory, cancellationToken).ConfigureAwait (false);
-				else
-					part = ctx.Encrypt (recipients, memory, cancellationToken);
+				var part = await ctx.EncryptAsync (algorithm, recipients, memory, cancellationToken).ConfigureAwait (false);
 
 				return CreateMultipartEncrypted (ctx, part);
 			}
@@ -1742,7 +1752,23 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public static MultipartEncrypted Encrypt (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return EncryptAsync (ctx, recipients, entity, false, cancellationToken).GetAwaiter ().GetResult ();
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				WriteContent (entity, memory, cancellationToken);
+				memory.Position = 0;
+
+				var part = ctx.Encrypt (recipients, memory, cancellationToken);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
@@ -1774,9 +1800,25 @@ namespace MimeKit.Cryptography {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
-		public static Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
+		public static async Task<MultipartEncrypted> EncryptAsync (OpenPgpContext ctx, IEnumerable<PgpPublicKey> recipients, MimeEntity entity, CancellationToken cancellationToken = default)
 		{
-			return EncryptAsync (ctx, recipients, entity, true, cancellationToken);
+			if (ctx == null)
+				throw new ArgumentNullException (nameof (ctx));
+
+			if (recipients == null)
+				throw new ArgumentNullException (nameof (recipients));
+
+			if (entity == null)
+				throw new ArgumentNullException (nameof (entity));
+
+			using (var memory = new MemoryBlockStream ()) {
+				await WriteContentAsync (entity, memory, cancellationToken).ConfigureAwait (false);
+				memory.Position = 0;
+
+				var part = await ctx.EncryptAsync (recipients, memory, cancellationToken).ConfigureAwait (false);
+
+				return CreateMultipartEncrypted (ctx, part);
+			}
 		}
 
 		/// <summary>
