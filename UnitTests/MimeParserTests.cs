@@ -3495,6 +3495,38 @@ This is the second part.
 			}
 		}
 
+		static Stream CreateBoundaryPaddingStream (char padding)
+		{
+			var text = "Content-Type: multipart/mixed; boundary=b\r\n\r\n--b \t\r\nContent-Type: text/plain\r\n\r\n" +
+				$"one\r\n--b{padding}\t\r\ntwo\r\n--b-- {padding}\r\nthree\r\n--b--\t \r\n";
+
+			return CreateStream (Encoding.ASCII.GetBytes (text), true);
+		}
+
+		static void AssertBoundaryPadding (MimeMessage message, char padding)
+		{
+			var multipart = (Multipart) message.Body;
+			Assert.That (multipart.Count, Is.EqualTo (1));
+			Assert.That (((TextPart) multipart[0]).Text.Replace ("\r\n", "\n"),
+				Is.EqualTo ($"one\n--b{padding}\t\ntwo\n--b-- {padding}\nthree"));
+		}
+
+		[Test]
+		public void TestMultipartBoundaryPadding ([Values (false, true)] bool legacy, [Values ('\v', '\f')] char padding)
+		{
+			using var stream = CreateBoundaryPaddingStream (padding);
+			using var message = CreateParser (stream, MimeFormat.Entity, legacy).ParseMessage ();
+			AssertBoundaryPadding (message, padding);
+		}
+
+		[Test]
+		public async Task TestMultipartBoundaryPaddingAsync ([Values (false, true)] bool legacy, [Values ('\v', '\f')] char padding)
+		{
+			using var stream = CreateBoundaryPaddingStream (padding);
+			using var message = await CreateParser (stream, MimeFormat.Entity, legacy).ParseMessageAsync ();
+			AssertBoundaryPadding (message, padding);
+		}
+
 		[Test]
 		public void TestMultipartBoundaryLineWithTrailingSpaces ()
 		{
