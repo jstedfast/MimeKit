@@ -1,5 +1,28 @@
 # Release Notes
 
+## MimeKit 5.1.0 (unreleased)
+
+* Added Autocrypt Level 1.1 support: read and write `Autocrypt` and `Autocrypt-Gossip` headers,
+  validate OpenPGP keys, compute peer-state updates and encryption recommendations, and create
+  and import setup messages. Applications retain control of key and peer-state storage.
+  See the [Autocrypt sample](samples/Autocrypt/README.md).
+* Raised the default `ParserOptions.MaxHeaderLength` from 16 KiB to 32 KiB.
+* MIME compliance reporting now distinguishes two end-of-stream conditions: `MessageTruncated`
+  when a multipart lacks its closing delimiter, and `EofBeforeBodySeparator` when input ends
+  between header fields before the blank line that starts the body. An unfinished header field
+  still reports `IncompleteHeader`.
+* Added `AmbiguousMultipartBoundary` for delimiter lines that match more than one active
+  multipart. Parsing is unchanged: the innermost matching multipart takes precedence.
+* `HtmlTokenizer` and `HtmlToHtml` can now recover misnested formatting elements with
+  `EnableFormattingRecovery` (off by default). Set `LimitExceededBehavior` to
+  `HtmlLimitExceededBehavior.Throw` to throw `FormatException` on a structural limit instead
+  of treating the remaining input as literal text.
+* `HtmlToHtml` now escapes CDATA text so it cannot become markup and, with formatting recovery
+  disabled, closes links that would otherwise extend into the next paragraph. `HtmlTextPreviewer`
+  now replaces embedded NUL characters with U+FFFD.
+* Fixed date parsing for lowercase and mixed-case time zone names and AM/PM markers.
+* Fixed spurious MIME body line-ending diagnostics caused by mbox envelope lines.
+
 ## MimeKit 5.0.0 (2026-11-10)
 
 MimeKit 5.0 is a major release containing a number of breaking changes. The headline changes are
