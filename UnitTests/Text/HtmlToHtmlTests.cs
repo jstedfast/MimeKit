@@ -406,6 +406,33 @@ namespace UnitTests.Text {
 			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
 		}
 
+		[TestCase ("</a><p>")]
+		[TestCase ("</a></a><p>")]
+		public void TestNoScriptUnwrapMovedAnchor (string tail)
+		{
+			const string prefix = "<a><div><div><div><ul><ul><noscript><ul><div><p>";
+			const string expected = "<a><div><div><div><ul><ul><ul><div><p></a></a><p>";
+			var converter = new HtmlToHtml ();
+
+			// The first </a> moves the anchor across eight emitted blocks; the next </a> or <p> closes it.
+			var result = converter.Convert (prefix + tail);
+
+			Assert.That (result, Is.EqualTo (expected));
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
+		}
+
+		[Test]
+		public void TestNoScriptUnwrapClosesAnchorAfterSevenBlocks ()
+		{
+			const string prefix = "<a><div><div><div><div><div><div><div>";
+			var converter = new HtmlToHtml ();
+
+			var result = converter.Convert (prefix + "<noscript><noscript><i><noscript></a>note");
+
+			Assert.That (result, Is.EqualTo (prefix + "<i></a>note"));
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
+		}
+
 		[Test]
 		public void TestOutputHtmlFragmentKeepsMovedFormattingElementOpen ()
 		{

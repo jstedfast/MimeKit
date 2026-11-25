@@ -451,6 +451,7 @@ namespace MimeKit.Text {
 				HtmlToHtmlTagContext? ctx;
 
 				treeConstruction.TrackClosedElements = true;
+				treeConstruction.UnwrapNoScript = unwrapNoScript;
 
 				// Note: When outputting a fragment, the content of the <head> element is removed. Browsers implicitly close the
 				// <head> element when they encounter a start tag or non-whitespace text that does not belong in the <head> (and
@@ -474,15 +475,14 @@ namespace MimeKit.Text {
 					if (unwrapNoScript && tag.Id == HtmlTagId.NoScript)
 						return;
 
-					// Note: If the tokenizer ignored the end tag, then the element is still open (and so is the case for browsers),
-					// so leave its context on the stack. Otherwise, the wrong context would get popped (or none at all) when the
-					// element eventually gets closed, causing the wrong end tags to be written.
-					if (!implicitlyClosed && treeConstruction.LastTag.Disposition == HtmlTreeConstruction.TagDisposition.Ignored) {
+					// Ignoring an end tag or moving a formatting element leaves its callback context open.
+					var disposition = treeConstruction.LastTag.Disposition;
+					if (!implicitlyClosed && disposition is HtmlTreeConstruction.TagDisposition.Ignored or HtmlTreeConstruction.TagDisposition.FormattingMoved) {
 						// Note: The end tag may have been ignored because the <noscript> element (which is in the "special" category)
 						// was in the way (e.g. </span> in <span><noscript><svg></span>). Since the <noscript> tags are not written
 						// when unwrapping, the end tag would no longer be ignored when the output is parsed (implicitly closing any
 						// SVG or MathML elements), so drop it.
-						if (unwrapNoScript && treeConstruction.IsNoScriptOpen)
+						if (disposition == HtmlTreeConstruction.TagDisposition.Ignored && unwrapNoScript && treeConstruction.IsNoScriptOpen)
 							return;
 
 						ctx = stack.Peek (tag.Name);

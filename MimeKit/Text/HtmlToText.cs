@@ -738,7 +738,7 @@ namespace MimeKit.Text {
 						previousCR = skipPreNewLine = false;
 
 					if (token is HtmlTagToken tag) {
-						if (tree.LastTag.Disposition == HtmlTreeConstruction.TagDisposition.Ignored)
+						if (tree.LastTag.Disposition is HtmlTreeConstruction.TagDisposition.Ignored or HtmlTreeConstruction.TagDisposition.FormattingMoved)
 							continue;
 
 						if (tag.IsEndTag) {

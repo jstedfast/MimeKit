@@ -62,12 +62,12 @@ namespace MimeKit.Text {
 	/// </remarks>
 	sealed class HtmlTreeConstruction
 	{
-		// Normal means that a tag was neither ignored nor merged, not necessarily that an element was inserted.
 		public enum TagDisposition : byte
 		{
 			Normal,
 			Ignored,
-			AttributesMerged
+			AttributesMerged,
+			FormattingMoved
 		}
 
 		/// <summary>
@@ -158,6 +158,8 @@ namespace MimeKit.Text {
 			set { stack.TrackClosedElements = value; }
 		}
 
+		internal bool UnwrapNoScript { get; set; }
+
 		public IReadOnlyList<HtmlOpenElementStack.ClosedElement> ClosedElements {
 			get { return stack.ClosedElements; }
 		}
@@ -188,7 +190,7 @@ namespace MimeKit.Text {
 
 			if (tag.IsEndTag) {
 				ProcessEndTag (tag);
-				disposition = EndTagIgnored ? TagDisposition.Ignored : TagDisposition.Normal;
+				disposition = EndTagDisposition;
 				state = HtmlTokenizerState.Data;
 			} else {
 				state = ProcessStartTag (tag);
@@ -264,15 +266,7 @@ namespace MimeKit.Text {
 			stack.RemoveEntry (index);
 		}
 
-		/// <summary>
-		/// Get whether the most recently processed end tag was ignored.
-		/// </summary>
-		/// <remarks>
-		/// An end tag is ignored if it did not close an element even though an element with the same name is open
-		/// (e.g. <c>&lt;/mi&gt;</c> when an HTML element is the current node and a special element such as the
-		/// MathML <c>&lt;mi&gt;</c> is in the way).
-		/// </remarks>
-		bool EndTagIgnored {
+		TagDisposition EndTagDisposition {
 			get; set;
 		}
 
@@ -1265,6 +1259,7 @@ namespace MimeKit.Text {
 		void ProcessEndTag (HtmlTagToken tag)
 		{
 			BrokeOutOfForeignContent = false;
+			EndTagDisposition = TagDisposition.Normal;
 			poppedThrough = false;
 
 			// Note: In the "before html" insertion mode, only </head>, </body>, </html> and </br> create the <html> element.
@@ -1276,7 +1271,6 @@ namespace MimeKit.Text {
 				if (tag.Id == HtmlTagId.FrameSet && framesetDepth > 0)
 					framesetDepth--;
 
-				EndTagIgnored = false;
 				return;
 			}
 
@@ -1294,8 +1288,10 @@ namespace MimeKit.Text {
 			ProcessEndTagInternal (tag);
 
 			// Note: </html>, </head>, </body> and </br> never close an element, so they are not considered to have been ignored.
-			EndTagIgnored = !poppedThrough && tag.Id != HtmlTagId.Html && tag.Id != HtmlTagId.Head && tag.Id != HtmlTagId.Body && tag.Id != HtmlTagId.Br &&
-				(stack.IndexOf (HtmlNamespace.Html, tag.Id, tag.Name) >= 0 || stack.IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, tag.Name) >= 0);
+			if (EndTagDisposition == TagDisposition.Normal && !poppedThrough && tag.Id != HtmlTagId.Html && tag.Id != HtmlTagId.Head &&
+				tag.Id != HtmlTagId.Body && tag.Id != HtmlTagId.Br && (stack.IndexOf (HtmlNamespace.Html, tag.Id, tag.Name) >= 0 ||
+				stack.IndexOf (HtmlNamespace.Svg, HtmlTagId.Unknown, tag.Name) >= 0))
+				EndTagDisposition = TagDisposition.Ignored;
 		}
 
 		// Updates the insertion mode for an end tag that is processed before the body.
@@ -1422,6 +1418,7 @@ namespace MimeKit.Text {
 				return;
 
 			HtmlOpenElementStack.Entry[]? replacement = null;
+			bool unwrap = UnwrapNoScript && !IsInForeignContent;
 
 			// Model the stack effects, not the DOM reparenting. As elsewhere in this controller, formatting
 			// elements are looked up on the stack rather than reconstructed from an active formatting list.
@@ -1431,15 +1428,11 @@ namespace MimeKit.Text {
 					return;
 				}
 
-				int block = index + 1;
-
-				while ((stack[block].Flags & ElementFlags.Special) == 0)
-					block++;
-
 				replacement ??= new HtmlOpenElementStack.Entry[7];
 				var formatting = stack[index];
-				var furthestBlock = stack[block];
-				int count = 0;
+				HtmlOpenElementStack.Entry furthestBlock;
+				int block = index, count = 0;
+				bool omitted;
 
 				// A folded entry can contain more than one physical node. Only the last formatting node
 				// moves, and only the first special node is the furthest block.
@@ -1448,29 +1441,43 @@ namespace MimeKit.Text {
 					replacement[count++].Count--;
 				}
 
-				int first = count;
-				int remaining = 3;
+				// Only emitted blocks count toward the eight moves. Cross omitted HTML noscript
+				// wrappers in the same pass so they do not each trigger a rebuild of the stack suffix.
+				do {
+					int previous = block++;
+					while ((stack[block].Flags & ElementFlags.Special) == 0)
+						block++;
 
-				for (int i = block - 1; i > index && remaining > 0; i--) {
-					var node = stack[i];
-					int retained = Math.Min (remaining, node.Count);
+					furthestBlock = stack[block];
+					omitted = unwrap && furthestBlock.Namespace == HtmlNamespace.Html && furthestBlock.Id == HtmlTagId.NoScript;
+					if (replacement.Length - count < 6)
+						Array.Resize (ref replacement, replacement.Length * 2);
 
-					remaining -= retained;
+					int first = count;
+					int remaining = 3;
 
-					if (node.Namespace == HtmlNamespace.Html && node.Id.IsFormattingElement ()) {
-						node.Count = retained;
-						replacement[count++] = node;
+					for (int i = block - 1; i > previous && remaining > 0; i--) {
+						var node = stack[i];
+						int retained = Math.Min (remaining, node.Count);
+
+						remaining -= retained;
+
+						if (node.Namespace == HtmlNamespace.Html && node.Id.IsFormattingElement ()) {
+							node.Count = retained;
+							replacement[count++] = node;
+						}
 					}
-				}
 
-				// The inner loop visits nodes backwards, but their stack order does not change.
-				Array.Reverse (replacement, first, count - first);
-				replacement[count] = furthestBlock;
-				replacement[count++].Count = 1;
+					// The inner loop visits nodes backwards, but their stack order does not change.
+					Array.Reverse (replacement, first, count - first);
+					replacement[count] = furthestBlock;
+					replacement[count++].Count = omitted ? furthestBlock.Count : 1;
+				} while (omitted && block < stack.TopSpecial);
+
 				replacement[count] = formatting;
 				replacement[count++].Count = 1;
 
-				if (furthestBlock.Count > 1) {
+				if (!omitted && furthestBlock.Count > 1) {
 					replacement[count] = furthestBlock;
 					replacement[count++].Count--;
 				}
@@ -1487,7 +1494,15 @@ namespace MimeKit.Text {
 					return;
 
 				index = stack.IndexOf (id);
+				if (omitted) {
+					// No emitted block remains above the formatting element.
+					PopThrough (index);
+					return;
+				}
 			}
+
+			if (unwrap)
+				EndTagDisposition = TagDisposition.FormattingMoved;
 		}
 
 		void ProcessHtmlEndTag (HtmlTagToken tag)
