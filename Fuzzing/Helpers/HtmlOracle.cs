@@ -83,7 +83,7 @@ namespace MimeKit.Fuzzing.Helpers {
 			return html.Replace ("\r\n", "\n").Replace ('\r', '\n').Replace ('\0', '\uFFFC');
 		}
 
-		// #1278: allow only the confirmed missing source tags on the two original byte streams.
+		// #1278 and #1284: allow only the confirmed missing source tags in the original inputs and scripting modes.
 		// Hash before normalization: even a newline-only mutation is a new fuzz case.
 		public static void CheckInput (ReadOnlySpan<byte> input, string text, bool scriptingEnabled)
 		{
@@ -99,6 +99,9 @@ namespace MimeKit.Fuzzing.Helpers {
 						 71484, 77258, 77320, 77899, 77960, 78648, 78709],
 					_ => []
 				};
+			} else if (scriptingEnabled && input.Length == 16057 &&
+				Convert.ToHexString (SHA256.HashData (input)) == "0240BDF2FA04F9EA3F91279271A329636962FFF83C537740D63763D34B1FCCD1") {
+				offsets = [11270];
 			}
 			string html = Normalize (text);
 			Check (html, CreateTokenizer (html, scriptingEnabled), "Input", offsets);

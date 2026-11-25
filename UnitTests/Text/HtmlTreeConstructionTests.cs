@@ -230,6 +230,27 @@ namespace UnitTests.Text {
 		}
 
 		[Test]
+		public void TestFormattingRecoveryRestoresAnchorBeforeSvg ([Values (false, true)] bool explicitlyClosed)
+		{
+			var tree = new HtmlTreeConstruction (32) { TrackClosedElements = true };
+			tree.EnableFormattingTracker ();
+
+			foreach (var name in new[] { "div", "p", "a" })
+				tree.ProcessTag (new HtmlTagToken (name, false));
+
+			if (explicitlyClosed)
+				tree.ProcessTag (new HtmlTagToken ("a", true));
+			tree.ProcessTag (new HtmlTagToken ("p", true));
+
+			tree.ProcessTag (new HtmlTagToken ("svg", false));
+			tree.ProcessTag (new HtmlTagToken ("svg", true));
+			tree.ProcessTag (new HtmlTagToken ("div", true));
+
+			// Closing the div also closes the reconstructed anchor, if one was still active.
+			Assert.That (tree.ClosedElements.Select (e => e.Name), Is.EqualTo (explicitlyClosed ? Array.Empty<string> () : new[] { "a" }));
+		}
+
+		[Test]
 		public void TestPrototypeFormattingCannotEscapeCell ()
 		{
 			var tree = new HtmlTreeConstruction (32);
