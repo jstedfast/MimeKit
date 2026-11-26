@@ -699,19 +699,15 @@ namespace UnitTests {
 				stream.Write (content, 0, content.Length);
 				stream.Position = 0;
 
-				// FIXME: Fix LegacyMimeParser to handle this as well as MimeParser?
 				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox);
-				//var message = parser.ParseMessage ();
-
-				//Assert.That (message.Headers.Count, Is.EqualTo (3));
-				//Assert.That (parser.MboxMarker, Is.EqualTo (marker));
-
-				Assert.Throws<FormatException> (() => parser.ParseMessage ());
+				using var message = parser.ParseMessage ();
+				Assert.That (message.Headers.Count, Is.EqualTo (3));
+				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
 			}
 		}
 
 		[Test]
-		public void TestReallyLongMboxMarkerAsync ()
+		public async Task TestReallyLongMboxMarkerAsync ()
 		{
 			var content = Encoding.ASCII.GetBytes ("\r\nFrom: sender@example.com\r\nTo: recipient@example.com\r\nSubject: test message\r\n\r\nBody text\r\n");
 			var marker = "From " + new string ('X', 4092);
@@ -722,14 +718,10 @@ namespace UnitTests {
 				stream.Write (content, 0, content.Length);
 				stream.Position = 0;
 
-				// FIXME: Fix LegacyMimeParser to handle this as well as MimeParser?
 				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox);
-				//var message = await parser.ParseMessageAsync ();
-
-				//Assert.That (message.Headers.Count, Is.EqualTo (3));
-				//Assert.That (parser.MboxMarker, Is.EqualTo (marker));
-
-				Assert.ThrowsAsync<FormatException> (async () => await parser.ParseMessageAsync ());
+				using var message = await parser.ParseMessageAsync ();
+				Assert.That (message.Headers.Count, Is.EqualTo (3));
+				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
 			}
 		}
 

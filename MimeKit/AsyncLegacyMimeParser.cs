@@ -84,7 +84,7 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 
 			do {
-				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left), 0, cancellationToken).ConfigureAwait (false);
+				var available = await ReadAheadAsync (Math.Max (ReadAheadSize, left + 1), 0, cancellationToken).ConfigureAwait (false);
 
 				if (available <= left) {
 					// failed to find a From line; EOF reached

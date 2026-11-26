@@ -8881,6 +8881,38 @@ Content-Type: text/plain; charset=utf-8
 
 		const string MessagePartMboxMarker = "From sender Sat Jan  1 00:00:00 2000";
 
+		static async Task AssertLongMboxSeparator (bool legacy, bool doAsync)
+		{
+			var marker = "From " + new string ('x', 1100);
+			var bytes = Encoding.ASCII.GetBytes (MessagePartMboxMarker + "\r\nSubject: first\r\n\r\none\r\n" +
+				marker + "\r\nSubject: second\r\n\r\ntwo");
+
+			foreach (int chunkSize in new[] { 4096, 7, 1 }) {
+				using var stream = new ChunkedReadStream (bytes, chunkSize);
+				var parser = CreateParser (stream, MimeFormat.Mbox, legacy);
+
+				using var first = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+				Assert.That (first.TextBody, Is.EqualTo ("one"), $"first body, chunk size {chunkSize}");
+				using var second = doAsync ? await parser.ParseMessageAsync () : parser.ParseMessage ();
+				Assert.That (parser.MboxMarker, Is.EqualTo (marker));
+				Assert.That (second.Subject, Is.EqualTo ("second"));
+				Assert.That (second.TextBody, Is.EqualTo ("two"));
+				Assert.That (parser.IsEndOfStream, Is.True);
+			}
+		}
+
+		[Test]
+		public Task TestLongMboxSeparator ([Values (false, true)] bool legacy)
+		{
+			return AssertLongMboxSeparator (legacy, false);
+		}
+
+		[Test]
+		public Task TestLongMboxSeparatorAsync ([Values (false, true)] bool legacy)
+		{
+			return AssertLongMboxSeparator (legacy, true);
+		}
+
 		static void AssertMessagePartTextBody (MimeMessage message, string expected)
 		{
 			Assert.That (message.Subject, Is.EqualTo ("inner"));

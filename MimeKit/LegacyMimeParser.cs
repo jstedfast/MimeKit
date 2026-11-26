@@ -834,7 +834,7 @@ namespace MimeKit {
 			mboxMarkerLength = 0;
 
 			do {
-				var available = ReadAhead (Math.Max (ReadAheadSize, left), 0, cancellationToken);
+				var available = ReadAhead (Math.Max (ReadAheadSize, left + 1), 0, cancellationToken);
 
 				if (available <= left) {
 					// failed to find a From line; EOF reached
@@ -1309,7 +1309,7 @@ namespace MimeKit {
 					// now it is time to check the mbox From-marker
 					long curOffset = contentEnd > 0 ? GetOffset (startIndex) : contentEnd;
 
-					if (curOffset >= contentEnd && IsBoundary (start, matchLength, currentBoundary, out final))
+					if (curOffset >= contentEnd && IsBoundary (start, length, currentBoundary, out final))
 						return MimeBoundaryType.ParentEndBoundary;
 				}
 			}
@@ -1364,10 +1364,13 @@ namespace MimeKit {
 				inptr = EndOfLine (inptr, inend + 1);
 				length = (int) (inptr - start);
 
-				if (inptr < inend) {
-					if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
-						break;
+				// An mbox separator is identified by its "From " prefix, even if the rest of the line
+				// is not buffered yet. A MIME delimiter needs the full line to rule out trailing text.
+				if (!midline && (inptr < inend || eos || (format == MimeFormat.Mbox && *start == (byte) 'F')) &&
+					(boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
+					break;
 
+				if (inptr < inend) {
 					if (length > 0 && *(inptr - 1) == (byte) '\r')
 						formats[(int) NewLineFormat.Dos] = true;
 					else
@@ -1383,15 +1386,11 @@ namespace MimeKit {
 				} else {
 					// didn't find the end of the line...
 					if (eos) {
-						// Only consume this (incomplete) line of data if it *doesn't* match a boundary marker.
-						if (!midline && (boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
-							break;
-
 						incomplete = false;
 						midline = false;
 					} else if (length >= SmtpMaxLineLength) {
 						// This line exceeds the maximum allowed length for SMTP. It should be safe to assume that
-						// this line does not contain a (valid) MIME (or mbox) boundary. Consume the (incomplete)
+						// this line does not contain a (valid) MIME boundary. Consume the (incomplete)
 						// line data and update our midline state so that we don't do any boundary checks in our
 						// next pass until we have found the start of the next line.
 						midline = true;
