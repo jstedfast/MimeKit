@@ -146,114 +146,6 @@ namespace MimeAnalyzerExample
 
 			return true;
 		}
-
-		/// <summary>
-		/// Map a zero-based index into the content onto a one-based line and column number.
-		/// </summary>
-		bool TryGetPosition (int index, out int lineNumber, out int columnNumber)
-		{
-			lineNumber = 0;
-			columnNumber = 0;
-
-			if (index < 0 || index >= content.Length)
-				return false;
-
-			// Binary search for the last line that begins at or before the index.
-			int lo = 0, hi = lineOffsets.Count - 1;
-
-			while (lo < hi) {
-				int mid = (lo + hi + 1) / 2;
-
-				if (lineOffsets[mid] <= index)
-					lo = mid;
-				else
-					hi = mid - 1;
-			}
-
-			lineNumber = lo + 1;
-			columnNumber = (index - lineOffsets[lo]) + 1;
-
-			return true;
-		}
-
-		/// <summary>
-		/// Narrow an approximate position down to the byte that actually triggered the violation.
-		/// </summary>
-		/// <remarks>
-		/// <para>Some violations are reported with a <see cref="MimeCompliancePositionKind"/> other than
-		/// <see cref="MimeCompliancePositionKind.Exact"/>, meaning that the parser gave us the start of
-		/// the offending line or element rather than the offending byte. Finding that byte means
-		/// re-scanning input that the parser has already moved past, which is why the parser does not
-		/// do it - but we only have to pay for it on the issues we are about to print.</para>
-		/// <para>Returns <c>false</c> if the position is already exact, if the violation is a property of
-		/// the element as a whole (in which case no single byte is to blame), or if the search comes up
-		/// empty.</para>
-		/// </remarks>
-		public bool TryLocateOffendingByte (in MimeComplianceIssue issue, out int lineNumber, out int columnNumber)
-		{
-			lineNumber = issue.LineNumber;
-			columnNumber = issue.ColumnNumber;
-
-			if (issue.PositionKind == MimeCompliancePositionKind.Exact)
-				return false;
-
-			if (issue.Violation == MimeComplianceViolation.BlankHeaderContinuationLine) {
-				// Note: Every byte on the line is blank, so point at the end of the line instead: the CR of a CRLF,
-				// the LF, or the end of the stream if the line is unterminated.
-				if (issue.LineNumber < 1 || issue.LineNumber > lineOffsets.Count)
-					return false;
-
-				int lineStart = lineOffsets[issue.LineNumber - 1];
-				int lineEnd = issue.LineNumber < lineOffsets.Count ? lineOffsets[issue.LineNumber] : content.Length;
-
-				if (lineEnd > lineStart && content[lineEnd - 1] == (byte) '\n')
-					lineEnd--;
-
-				if (lineEnd > lineStart && content[lineEnd - 1] == (byte) '\r')
-					lineEnd--;
-
-				columnNumber = (lineEnd - lineStart) + 1;
-
-				return true;
-			}
-
-			Predicate<byte> match;
-
-			switch (issue.Violation) {
-			case MimeComplianceViolation.Unexpected8BitBytesInBody:
-				match = static c => c > 0x7F;
-				break;
-			case MimeComplianceViolation.UnexpectedNullBytesInBody:
-				match = static c => c == 0;
-				break;
-			default:
-				// The violation describes the element as a whole (an unparsable Content-Type, a repeated
-				// header, a missing boundary parameter...), so there is no offending byte to point at.
-				return false;
-			}
-
-			if (issue.StreamOffset < 0 || issue.StreamOffset >= content.Length)
-				return false;
-
-			int startIndex = (int) issue.StreamOffset;
-			int endIndex;
-
-			if (issue.PositionKind == MimeCompliancePositionKind.LineStart) {
-				endIndex = issue.LineNumber < lineOffsets.Count ? lineOffsets[issue.LineNumber] : content.Length;
-			} else {
-				// Note: The element may be an entire body part, so scan forward.
-				// The detection that produced the issue guarantees that a matching byte
-				// exists within the element, so the first match cannot belong to a later one.
-				endIndex = content.Length;
-			}
-
-			for (int i = startIndex; i < endIndex; i++) {
-				if (match (content[i]))
-					return TryGetPosition (i, out lineNumber, out columnNumber);
-			}
-
-			return false;
-		}
 	}
 
 	enum DiagnosticLevel
@@ -497,20 +389,20 @@ namespace MimeAnalyzerExample
 			var level = GetLevel (issue.Severity, warningsAreErrors);
 			var foreground = GetColor (level);
 
-			// The parser reports the position it already knew. If that is only the start of the
-			// offending line or element, narrow it down to the offending byte ourselves - we are
-			// about to print this issue, so we are the ones who should pay for the search.
-			if (!source.TryLocateOffendingByte (issue, out int lineNumber, out int columnNumber)) {
-				lineNumber = issue.LineNumber;
-				columnNumber = issue.ColumnNumber;
-			}
+			int lineNumber = issue.LineNumber;
+			int columnNumber = issue.ColumnNumber;
+			bool hasLine = source.TryGetLine (lineNumber, out var line);
+
+			// A whitespace-only continuation has no single offending byte; point just past its whitespace.
+			if (hasLine && issue.PositionKind == MimeCompliancePositionKind.LineStart && issue.Violation == MimeComplianceViolation.BlankHeaderContinuationLine)
+				columnNumber = line.Count + 1;
 
 			Write (string.Format ("{0}:{1}:{2}: ", fileName, lineNumber, columnNumber), ConsoleColor.Gray, true);
 			Write (GetLabel (level) + ": ", foreground, true);
 			Write (issue.Description, ConsoleColor.Gray, true);
 			Write (" [" + issue.Violation + "]" + Environment.NewLine, ConsoleColor.DarkGray);
 
-			if (ShowSourceLine && source.TryGetLine (lineNumber, out var line)) {
+			if (ShowSourceLine && hasLine) {
 				var text = RenderLine (line, columnNumber, out int caretColumn);
 
 				text = Elide (text, ref caretColumn, MaxLineWidth);
@@ -836,12 +728,7 @@ namespace MimeAnalyzerExample
 					else
 						notes++;
 
-					// Note: Narrowing an approximate position may move the diagnostic onto a later
-					// line (a folded header, for example), so measure the position we will print.
-					if (!source.TryLocateOffendingByte (issue, out int lineNumber, out _))
-						lineNumber = issue.LineNumber;
-
-					widest = Math.Max (widest, lineNumber.ToString ().Length);
+					widest = Math.Max (widest, issue.LineNumber.ToString ().Length);
 				}
 
 				writer.GutterWidth = widest;

@@ -2735,7 +2735,7 @@ This is the second inner message body.
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
 				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 18, 1),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 19, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 19, 118, MimeCompliancePositionKind.Exact)
 			};
 
 			AssertMimeComplianceViolations ("unexpected-null-bytes-in-body.eml", issues);
@@ -2746,7 +2746,7 @@ This is the second inner message body.
 		{
 			var issues = new ExpectedMimeComplianceIssue[] {
 				new ExpectedMimeComplianceIssue (MimeComplianceViolation.UnexpectedNullBytesInBody, 18, 1),
-				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 19, 1)
+				new ExpectedMimeComplianceIssue (MimeComplianceViolation.Unexpected8BitBytesInBody, 19, 118, MimeCompliancePositionKind.Exact)
 			};
 
 			return AssertMimeComplianceViolationsAsync ("unexpected-null-bytes-in-body.eml", issues);

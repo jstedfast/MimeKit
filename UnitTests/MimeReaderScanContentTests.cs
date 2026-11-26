@@ -780,23 +780,26 @@ namespace UnitTests {
 			string first = nullFirst ? "\0" : "\u00ff";
 			string second = nullFirst ? "\u00ff" : "\0";
 			string text = "Content-Type: text/plain\r\nContent-Transfer-Encoding: " + encoding + "\r\n\r\n" +
-				prefix + "\r\n" + prefix + first + "\r\n" + prefix + second + "\r\n" + first + second;
+				prefix + "\r\n" + prefix + first + "x" + second + "\r\n" + first + second;
 
 			return Encoding.Latin1.GetBytes (text);
 		}
 
-		static void AssertByteDetections (TestMimeComplianceLogger logger, string encoding, bool nullFirst)
+		static void AssertByteDetections (TestMimeComplianceLogger logger, byte[] data, string encoding, int padding, bool nullFirst)
 		{
-			var nulls = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.UnexpectedNullBytesInBody).ToList ();
-			var eightBits = logger.Issues.Where (x => x.Violation == MimeComplianceViolation.Unexpected8BitBytesInBody).ToList ();
+			var issues = logger.Issues.Where (x => x.Violation is MimeComplianceViolation.UnexpectedNullBytesInBody or MimeComplianceViolation.Unexpected8BitBytesInBody).ToArray ();
+			var expected = encoding == "binary" ? Array.Empty<byte> () : encoding == "8bit" ? new byte[] { 0 } :
+				nullFirst ? new byte[] { 0, 255 } : new byte[] { 255, 0 };
 
-			Assert.That (nulls.Count, Is.EqualTo (encoding == "binary" ? 0 : 1), "NUL issue count");
-			Assert.That (eightBits.Count, Is.EqualTo (encoding == "7bit" ? 1 : 0), "8-bit issue count");
-
-			if (nulls.Count > 0)
-				Assert.That (nulls[0].LineNumber, Is.EqualTo (nullFirst ? 5 : 6), "NUL issue line");
-			if (eightBits.Count > 0)
-				Assert.That (eightBits[0].LineNumber, Is.EqualTo (nullFirst ? 6 : 5), "8-bit issue line");
+			Assert.That (issues, Has.Length.EqualTo (expected.Length));
+			for (int i = 0; i < expected.Length; i++) {
+				bool isNull = expected[i] == 0;
+				Assert.That (issues[i].Violation, Is.EqualTo (isNull ? MimeComplianceViolation.UnexpectedNullBytesInBody : MimeComplianceViolation.Unexpected8BitBytesInBody));
+				Assert.That (issues[i].StreamOffset, Is.EqualTo (Array.IndexOf (data, expected[i])));
+				Assert.That (issues[i].LineNumber, Is.EqualTo (5));
+				Assert.That (issues[i].ColumnNumber, Is.EqualTo (padding + (isNull == nullFirst ? 1 : 3)));
+				Assert.That (issues[i].PositionKind, Is.EqualTo (MimeCompliancePositionKind.Exact));
+			}
 		}
 
 		[Test]
@@ -812,7 +815,7 @@ namespace UnitTests {
 
 				reader.ReadMessage ();
 
-				AssertByteDetections (logger, encoding, nullFirst);
+				AssertByteDetections (logger, data, encoding, padding, nullFirst);
 			}
 		}
 
@@ -829,7 +832,27 @@ namespace UnitTests {
 
 				await reader.ReadMessageAsync ();
 
-				AssertByteDetections (logger, encoding, nullFirst);
+				AssertByteDetections (logger, data, encoding, padding, nullFirst);
+			}
+		}
+
+		[Test]
+		public async Task TestMboxMarkerBytesAreNotBodyBytes ([Values (false, true)] bool doAsync)
+		{
+			var data = Encoding.Latin1.GetBytes ("From sender\r\nSubject: first\r\n\r\nclean\r\nFrom sender\0\u00ff\r\nSubject: next\r\n\r\nok");
+
+			foreach (int chunkSize in new[] { 1, 7, data.Length }) {
+				using var stream = new ChunkedReadStream (data, chunkSize);
+				var logger = new TestMimeComplianceLogger ();
+				var reader = new MimeReader (stream, MimeFormat.Mbox) { ComplianceLogger = logger };
+
+				if (doAsync)
+					await reader.ReadMessageAsync ();
+				else
+					reader.ReadMessage ();
+
+				Assert.That (logger.Issues.Select (x => x.Violation), Does.Not.Contain (MimeComplianceViolation.UnexpectedNullBytesInBody));
+				Assert.That (logger.Issues.Select (x => x.Violation), Does.Not.Contain (MimeComplianceViolation.Unexpected8BitBytesInBody));
 			}
 		}
 

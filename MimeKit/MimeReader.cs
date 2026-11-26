@@ -3497,6 +3497,29 @@ namespace MimeKit {
 		}
 #endif
 
+		void ReportUnexpectedBodyBytes (int searchIndex, int nullIndex, int eightBitIndex, ref ByteDetectionOptions byteOptions)
+		{
+			// Report in wire order, whether the two bytes arrived in one read or two.
+			while (nullIndex >= 0 || eightBitIndex >= 0) {
+				MimeComplianceViolation violation;
+				int index;
+
+				if (eightBitIndex < 0 || (nullIndex >= 0 && nullIndex < eightBitIndex)) {
+					index = searchIndex + nullIndex;
+					violation = MimeComplianceViolation.UnexpectedNullBytesInBody;
+					byteOptions &= ~ByteDetectionOptions.DetectNulls;
+					nullIndex = -1;
+				} else {
+					index = searchIndex + eightBitIndex;
+					violation = MimeComplianceViolation.Unexpected8BitBytesInBody;
+					byteOptions &= ~ByteDetectionOptions.Detect8Bit;
+					eightBitIndex = -1;
+				}
+
+				complianceLogger?.Log (new MimeComplianceIssue (complianceContext, violation, GetOffset (index), lineNumber, GetColumnNumber (index)));
+			}
+		}
+
 #if NET8_0_OR_GREATER
 		[SkipLocalsInit]
 #endif
@@ -3605,29 +3628,30 @@ namespace MimeKit {
 				}
 #endif
 
-				if (byteOptions != ByteDetectionOptions.None) {
-					inptr = searchStart + Memory.IndexOfLineFeed (searchStart, (int) (inend + 1 - searchStart), byteOptions, out int nullIndex, out int eightBitIndex);
+				int nullIndex = -1, eightBitIndex = -1;
 
-					if (eightBitIndex != -1) {
-						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.Unexpected8BitBytesInBody, GetOffset (startIndex), lineNumber, GetColumnNumber (startIndex)));
-						byteOptions &= ~ByteDetectionOptions.Detect8Bit;
-					}
-
-					if (nullIndex != -1) {
-						complianceLogger?.Log (new MimeComplianceIssue (complianceContext, MimeComplianceViolation.UnexpectedNullBytesInBody, GetOffset (startIndex), lineNumber, GetColumnNumber (startIndex)));
-						byteOptions &= ~ByteDetectionOptions.DetectNulls;
-					}
-				} else {
+				if (byteOptions != ByteDetectionOptions.None)
+					inptr = searchStart + Memory.IndexOfLineFeed (searchStart, (int) (inend + 1 - searchStart), byteOptions, out nullIndex, out eightBitIndex);
+				else
 					inptr = ParseUtils.EndOfLine (searchStart, inend + 1);
-				}
 
 				length = (int) (inptr - start);
 
 				// An mbox separator is identified by its "From " prefix, even if the rest of the line
 				// is not buffered yet. A MIME delimiter needs the full line to rule out trailing text.
-				if (!midline && (inptr < inend || eos || (format == MimeFormat.Mbox && *start == (byte) 'F')) &&
-					(boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
-					break;
+				if (!midline) {
+					if ((inptr < inend || eos || (format == MimeFormat.Mbox && *start == (byte) 'F')) &&
+						(boundaryType = CheckBoundary (startIndex, start, length)) != MimeBoundaryType.None)
+						break;
+
+					if (inptr == inend && !eos && length < SmtpMaxLineLength && IsPartialBoundary (startIndex, start, length)) {
+						incomplete = true;
+						break;
+					}
+				}
+
+				if (nullIndex >= 0 || eightBitIndex >= 0)
+					ReportUnexpectedBodyBytes ((int) (searchStart - inbuf), nullIndex, eightBitIndex, ref byteOptions);
 
 				if (inptr < inend) {
 					// Note: If the '\r' of a "\r\n" sequence was the last byte of a partial line consumed in a previous pass,
@@ -3677,25 +3701,10 @@ namespace MimeKit {
 
 						incomplete = false;
 						midline = false;
-					} else if (length >= SmtpMaxLineLength) {
-						// This line exceeds the maximum allowed length for SMTP. It should be safe to assume that
-						// this line does not contain a (valid) MIME boundary. Consume the (incomplete)
-						// line data and update our midline state so that we don't do any boundary checks in our
-						// next pass until we have found the start of the next line.
-						midline = true;
-					} else if (!midline && IsPartialBoundary (startIndex, start, length)) {
-						// We have an incomplete line that looks like a partial boundary marker.
-						// Refill the buffer and try again.
-						incomplete = true;
-						break;
 					} else {
-						// It is not possible for this line to be a boundary marker. Consume the (incomplete) line
-						// data. We'll finish processing it in our next pass.
 						midline = true;
-					}
-
-					if (midline)
 						midlineCr = *(inptr - 1) == (byte) '\r';
+					}
 
 					startIndex += length;
 					break;

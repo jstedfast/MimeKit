@@ -169,14 +169,10 @@ Severity is mapped onto the familiar diagnostic levels:
 | `Major` | `warning` | yellow |
 | `Minor` | `note` | cyan |
 
-### Narrowing an approximate position
+### Diagnostic positions
 
-Not every violation can be pinned to a single byte while parsing. Some describe an element as a
-whole — an unparsable `Content-Type`, a repeated header — and others could only be narrowed
-further by re-scanning input the parser has already moved past. Making every parse pay for that
-would be a poor trade when most callers never look at the positions.
-
-So each issue also carries a `PositionKind` saying what its position actually refers to:
+Not every violation has a single offending byte. Each issue carries a `PositionKind` that
+describes what its line and column refer to:
 
 | `MimeCompliancePositionKind` | Meaning |
 | ---------------------------- | ------- |
@@ -184,28 +180,13 @@ So each issue also carries a `PositionKind` saying what its position actually re
 | `LineStart` | the violation is somewhere on this line |
 | `ElementStart` | the violation is somewhere in this header or body part |
 
-This lets the cost be shifted to the tool, which pays it only for the issues it actually prints.
-`SourceText.TryLocateOffendingByte` does exactly that: for the 8-bit and null-byte violations it
-scans forward from the reported position for the first byte to blame, then maps that back onto a
-line and column.
+`MimeReader` reports unexpected NUL and 8-bit bytes in headers and bodies at their exact
+positions. MimeAnalyzer uses those positions directly, even when the byte is on a folded
+header's continuation line.
 
-The difference is easiest to see on a *folded* header, where the parser reports the start of the
-header but the bad bytes are on a continuation line:
-
-```
-8bit-folded-header.eml:4:2: note: A MIME part or message header contained 8-bit bytes where only 7-bit bytes were expected. [Unexpected8BitBytesInHeader]
-4 |         \xEF\xD4\xCB\xD5\xC4\xC1 folded
-  |         ^
-```
-
-Without narrowing, that diagnostic would point at column 1 of line 3 — at the `Subject:` field
-name, a line above the actual problem.
-
-Note that for the 8-bit violations the sample looks for the first **non-ASCII** byte rather than
-the byte where UTF-8 validation fails. The two are not the same: in koi8-r text such as
-`EF D4 CB`, `0xEF` opens what *looks* like a three-byte UTF-8 sequence, so where validation gives
-up depends on how the following bytes happen to combine and the caret can land mid-run. The first
-non-ASCII byte is where the charset mistake actually begins.
+The only display adjustment is for `BlankHeaderContinuationLine`: the reader reports the start
+of the whitespace-only line, and the sample points just past its last space or tab to show
+where the line ends.
 
 ### Rendering the source line
 
