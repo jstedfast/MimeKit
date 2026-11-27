@@ -6,13 +6,13 @@ If you believe you have found a security vulnerability in the MimeKit repository
 
 ## Supported Versions
 
-Due to the fact that the MimeKit team is small (currently only myself), I can
-only support security fixes for the latest version.
+Only the latest MimeKit 5.x release receives security fixes. Fixes are not
+backported to 4.x or earlier releases.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 4.x     | :white_check_mark: |
-| < 4.0   | :x:                |
+| 5.x     | :white_check_mark: |
+| < 5.0   | :x:                |
 
 ## Reporting a Vulnerability
 
