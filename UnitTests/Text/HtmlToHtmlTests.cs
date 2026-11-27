@@ -433,6 +433,21 @@ namespace UnitTests.Text {
 			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
 		}
 
+		[TestCase (2, "</svg></a>")]
+		[TestCase (7, "</svg></a>")]
+		[TestCase (8, "</a>")]
+		public void TestAnchorMovesAcrossFoldedBlocksAtDepthLimit (int blocks, string endTags)
+		{
+			var prefix = "<li><a>" + string.Concat (Enumerable.Repeat ("<div>", blocks)) + "<svg>sample";
+			var converter = new HtmlToHtml { MaxElementDepth = 4, LimitExceededBehavior = HtmlLimitExceededBehavior.Throw };
+
+			var result = converter.Convert (prefix + "</a>");
+			Assert.That (result, Is.EqualTo (prefix + endTags));
+
+			converter.MaxElementDepth = 4096;
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "converted again");
+		}
+
 		[Test]
 		public void TestOutputHtmlFragmentKeepsMovedFormattingElementOpen ()
 		{

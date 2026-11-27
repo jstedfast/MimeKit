@@ -1051,12 +1051,15 @@ namespace MimeKit.Text {
 			case HtmlTagId.A:
 				if (tracker != null) {
 					CloseTrackedFormatting (id, nestedAnchor: true);
+
 					if (tracker.Exceeded)
 						return;
+
 					tracker.Reconstruct (stack);
 					PushHtml (tag);
 					return;
 				}
+
 				// Approximates the adoption agency algorithm being run for a nested <a>: when there is no
 				// special element above the open <a>, the open <a> gets popped.
 				index = stack.IndexOf (HtmlTagId.A);
@@ -1100,15 +1103,19 @@ namespace MimeKit.Text {
 			case HtmlTagId.Unknown:
 				if (tag.Name.Equals ("svg", StringComparison.OrdinalIgnoreCase)) {
 					tracker?.Reconstruct (stack);
+
 					if (!tag.IsEmptyElement)
 						stack.Push (tag.Name, HtmlTagId.Unknown, HtmlNamespace.Svg, ElementFlags.None);
+
 					return;
 				}
 
 				if (tag.Name.Equals ("math", StringComparison.OrdinalIgnoreCase)) {
 					tracker?.Reconstruct (stack);
+
 					if (!tag.IsEmptyElement)
 						stack.Push (tag.Name, HtmlTagId.Unknown, HtmlNamespace.MathML, ElementFlags.None);
+
 					return;
 				}
 
@@ -1117,18 +1124,23 @@ namespace MimeKit.Text {
 					PushHtml (tag);
 					return;
 				}
+
 				break;
 			}
 
 			// Note: The self-closing flag is ignored for HTML elements that are not void elements.
 			if (tracker?.Pending == true && ReconstructsBeforeStartTag (tag))
 				tracker.Reconstruct (stack);
+
 			if (tracker != null && id == HtmlTagId.NoBR && InScope (stack.IndexOf (id), stack.TopScope)) {
 				ProcessFormattingEndTag (id);
+
 				if (tracker.Exceeded)
 					return;
+
 				tracker.Reconstruct (stack);
 			}
+
 			if (!IsVoidElement (id, tag.Name))
 				PushHtml (tag);
 		}
@@ -1422,20 +1434,20 @@ namespace MimeKit.Text {
 
 			// Model the stack effects, not the DOM reparenting. As elsewhere in this controller, formatting
 			// elements are looked up on the stack rather than reconstructed from an active formatting list.
-			for (int outer = 0; outer < 8; outer++) {
+			for (int movesLeft = 8; movesLeft > 0;) {
 				if (stack.TopSpecial < index) {
 					PopThrough (index);
 					return;
 				}
 
 				replacement ??= new HtmlOpenElementStack.Entry[7];
+
 				var formatting = stack[index];
 				HtmlOpenElementStack.Entry furthestBlock;
-				int block = index, count = 0;
+				int block = index, count = 0, crossed;
 				bool omitted;
 
-				// A folded entry can contain more than one physical node. Only the last formatting node
-				// moves, and only the first special node is the furthest block.
+				// Only the last formatting node in a folded entry moves.
 				if (formatting.Count > 1) {
 					replacement[count] = formatting;
 					replacement[count++].Count--;
@@ -1445,11 +1457,13 @@ namespace MimeKit.Text {
 				// wrappers in the same pass so they do not each trigger a rebuild of the stack suffix.
 				do {
 					int previous = block++;
+
 					while ((stack[block].Flags & ElementFlags.Special) == 0)
 						block++;
 
 					furthestBlock = stack[block];
 					omitted = unwrap && furthestBlock.Namespace == HtmlNamespace.Html && furthestBlock.Id == HtmlTagId.NoScript;
+
 					if (replacement.Length - count < 6)
 						Array.Resize (ref replacement, replacement.Length * 2);
 
@@ -1470,16 +1484,20 @@ namespace MimeKit.Text {
 
 					// The inner loop visits nodes backwards, but their stack order does not change.
 					Array.Reverse (replacement, first, count - first);
+
+					// Move across identical blocks together. Splitting the run after every move can
+					// temporarily exceed the depth limit even when the resulting stack fits.
+					crossed = omitted ? furthestBlock.Count : Math.Min (furthestBlock.Count, movesLeft);
 					replacement[count] = furthestBlock;
-					replacement[count++].Count = omitted ? furthestBlock.Count : 1;
+					replacement[count++].Count = crossed;
 				} while (omitted && block < stack.TopSpecial);
 
 				replacement[count] = formatting;
 				replacement[count++].Count = 1;
 
-				if (!omitted && furthestBlock.Count > 1) {
+				if (crossed < furthestBlock.Count) {
 					replacement[count] = furthestBlock;
-					replacement[count++].Count--;
+					replacement[count++].Count -= crossed;
 				}
 
 				// Non-formatting inner nodes and formatting nodes beyond the first three are removed
@@ -1499,6 +1517,8 @@ namespace MimeKit.Text {
 					PopThrough (index);
 					return;
 				}
+
+				movesLeft -= crossed;
 			}
 
 			if (unwrap)
