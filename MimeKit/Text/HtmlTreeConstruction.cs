@@ -62,6 +62,8 @@ namespace MimeKit.Text {
 	/// </remarks>
 	sealed class HtmlTreeConstruction
 	{
+		internal const int FormattingMoveLimit = 8;
+
 		public enum TagDisposition : byte
 		{
 			Normal,
@@ -1434,7 +1436,7 @@ namespace MimeKit.Text {
 
 			// Model the stack effects, not the DOM reparenting. As elsewhere in this controller, formatting
 			// elements are looked up on the stack rather than reconstructed from an active formatting list.
-			for (int movesLeft = 8; movesLeft > 0;) {
+			for (int movesLeft = FormattingMoveLimit; movesLeft > 0;) {
 				if (stack.TopSpecial < index) {
 					PopThrough (index);
 					return;

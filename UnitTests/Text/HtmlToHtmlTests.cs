@@ -754,6 +754,47 @@ namespace UnitTests.Text {
 			Assert.Fail ("Missing title start tag");
 		}
 
+		[TestCase (7, 1)]
+		[TestCase (8, 2)]
+		[TestCase (16, 3)]
+		public void TestParagraphClosesAnchorAcrossBlocks (int blocks, int closures)
+		{
+			var prefix = "<p><a>" + string.Concat (Enumerable.Repeat ("<noscript>", blocks));
+			var input = prefix + "<p>";
+			var expected = prefix + string.Concat (Enumerable.Repeat ("</a>", closures)) + "<p>";
+			var converter = new HtmlToHtml {
+				NoScriptHandling = HtmlNoScriptHandling.ScriptingDisabled,
+				HtmlTagCallback = (ctx, writer) => {
+					if (ctx.TagId == HtmlTagId.A) {
+						if (ctx.IsEndTag)
+							Assert.That (ctx.InvokeCallbackForEndTag, Is.True, "Anchor context lost before the final end tag");
+						else
+							ctx.InvokeCallbackForEndTag = true;
+					}
+
+					ctx.WriteTag (writer, true);
+				}
+			};
+
+			Assert.That (converter.Convert (input), Is.EqualTo (expected));
+			Assert.That (converter.Convert (expected), Is.EqualTo (expected), "Convert again");
+
+			converter.NoScriptHandling = HtmlNoScriptHandling.Unwrap;
+			Assert.That (converter.Convert (input), Is.EqualTo ("<p><a></a><p>"));
+		}
+
+		[Test]
+		public void TestParagraphClosesNestedAnchorsAcrossSharedBlocks ()
+		{
+			var blocks = string.Concat (Enumerable.Repeat ("<noscript>", 8));
+			var prefix = "<p><a><noscript><a>" + blocks;
+			var converter = new HtmlToHtml { NoScriptHandling = HtmlNoScriptHandling.ScriptingDisabled };
+			var result = converter.Convert (prefix + "<p>");
+
+			Assert.That (result, Is.EqualTo (prefix + string.Concat (Enumerable.Repeat ("</noscript>", 8)) + "</a></a><p>"));
+			Assert.That (converter.Convert (result), Is.EqualTo (result), "Convert again");
+		}
+
 		[Test]
 		public void TestParagraphPreservesDeletedAnchorEndTag ([Values (false, true)] bool suppress)
 		{

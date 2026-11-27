@@ -468,7 +468,7 @@ namespace MimeKit.Text {
 					headDone = true;
 				}
 
-				void ProcessEndTag (HtmlTagToken tag, bool implicitlyClosed)
+				void ProcessEndTag (HtmlTagToken tag, HtmlTreeConstruction.TagDisposition disposition)
 				{
 					// Note: The <noscript> start tags are never written when unwrapping, so don't write the end tags either, even
 					// for a <noscript> element within SVG or MathML content that gets implicitly closed.
@@ -476,8 +476,7 @@ namespace MimeKit.Text {
 						return;
 
 					// Ignoring an end tag or moving a formatting element leaves its callback context open.
-					var disposition = treeConstruction.LastTag.Disposition;
-					if (!implicitlyClosed && disposition is HtmlTreeConstruction.TagDisposition.Ignored or HtmlTreeConstruction.TagDisposition.FormattingMoved) {
+					if (disposition is HtmlTreeConstruction.TagDisposition.Ignored or HtmlTreeConstruction.TagDisposition.FormattingMoved) {
 						// Note: The end tag may have been ignored because the <noscript> element (which is in the "special" category)
 						// was in the way (e.g. </span> in <span><noscript><svg></span>). Since the <noscript> tags are not written
 						// when unwrapping, the end tag would no longer be ignored when the output is parsed (implicitly closing any
@@ -510,6 +509,62 @@ namespace MimeKit.Text {
 						// otherwise the end tags written for the foreign elements beneath it would be ignored.
 						ctx = new HtmlToHtmlTagContext (tag);
 						callback (ctx, htmlWriter);
+					}
+				}
+
+				void WriteImplicitEndTags (HtmlOpenElementStack.ClosedElement element)
+				{
+					var endTag = new HtmlTagToken (element.Name, true);
+
+					for (int n = 0; n < element.Count; n++)
+						ProcessEndTag (endTag, HtmlTreeConstruction.TagDisposition.Normal);
+				}
+
+				bool IsRetainedBlock (HtmlOpenElementStack.ClosedElement element)
+				{
+					return element.IsSpecial && !(unwrapNoScript && element.Id == HtmlTagId.NoScript);
+				}
+
+				void CloseParagraphAnchors (int first)
+				{
+					var closed = treeConstruction.ClosedElements;
+					int lastAnchor = closed.Count - 1;
+					long blocks = 0;
+
+					while (lastAnchor >= first && closed[lastAnchor].Id != HtmlTagId.A)
+						lastAnchor--;
+
+					for (int i = first; i <= lastAnchor; i++) {
+						var element = closed[i];
+
+						if (IsRetainedBlock (element))
+							blocks += element.Count;
+
+						if (element.Id != HtmlTagId.A || stack.Peek ("a")?.DeleteEndTag == true)
+							continue;
+
+						// Don't move every nested anchor across the same blocks. Close shared blocks
+						// once instead, so the number of synthesized tags stays linear in the input.
+						if (blocks >= HtmlTreeConstruction.FormattingMoveLimit && (i < lastAnchor || element.Count > 1)) {
+							for (int j = first; j < i; j++) {
+								if (IsRetainedBlock (closed[j]))
+									WriteImplicitEndTags (closed[j]);
+							}
+
+							first = i + 1;
+							blocks = 0;
+						}
+
+						var endTag = new HtmlTagToken (element.Name, true);
+
+						for (int n = 0; n < element.Count && stack.Peek ("a")?.DeleteEndTag != true; n++) {
+							// Each full group consumes an end tag just to move the anchor on reparse.
+							// Only the final end tag closes it and pops the callback context.
+							for (long moves = blocks / HtmlTreeConstruction.FormattingMoveLimit; moves > 0; moves--)
+								ProcessEndTag (endTag, HtmlTreeConstruction.TagDisposition.FormattingMoved);
+
+							ProcessEndTag (endTag, HtmlTreeConstruction.TagDisposition.Normal);
+						}
 					}
 				}
 
@@ -553,21 +608,13 @@ namespace MimeKit.Text {
 						while (lastForeign >= 0 && !closed[lastForeign].IsForeign)
 							lastForeign--;
 
-						for (int i = 0; i <= lastForeign; i++) {
-							var endTag = new HtmlTagToken (closed[i].Name, true);
-
-							for (int n = 0; n < closed[i].Count; n++)
-								ProcessEndTag (endTag, true);
-						}
+						for (int i = 0; i <= lastForeign; i++)
+							WriteImplicitEndTags (closed[i]);
 
 						// A new paragraph can pop an HTML anchor that a browser will reconstruct before a
 						// later <svg>. Without recovery, explicitly close the anchor while it is still in scope.
-						if (!tag.IsEndTag && tag.Id == HtmlTagId.P && !tokenizer.EnableFormattingRecovery && !stack.SuppressContent) {
-							for (int i = lastForeign + 1; i < closed.Count; i++) {
-								if (closed[i].Name.Equals ("a", StringComparison.OrdinalIgnoreCase) && stack.Peek ("a")?.DeleteEndTag != true)
-									ProcessEndTag (new HtmlTagToken (closed[i].Name, true), true);
-							}
-						}
+						if (!tag.IsEndTag && tag.Id == HtmlTagId.P && !tokenizer.EnableFormattingRecovery && !stack.SuppressContent)
+							CloseParagraphAnchors (lastForeign + 1);
 
 						treeConstruction.ClearClosedElements ();
 
@@ -651,7 +698,7 @@ namespace MimeKit.Text {
 									else if (tag.Id == HtmlTagId.Head)
 										break;
 								} else if (tag.Id == HtmlTagId.Head) {
-									ProcessEndTag (tag, false);
+									ProcessEndTag (tag, treeConstruction.LastTag.Disposition);
 									headCtx = null;
 									headDone = true;
 									break;
@@ -660,7 +707,7 @@ namespace MimeKit.Text {
 								}
 							}
 
-							ProcessEndTag (tag, false);
+							ProcessEndTag (tag, treeConstruction.LastTag.Disposition);
 						}
 						break;
 					}

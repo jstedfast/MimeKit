@@ -152,13 +152,17 @@ namespace MimeKit.Text {
 		{
 			public readonly string Name;
 			public readonly int Count;
+			public readonly HtmlTagId Id;
 			public readonly bool IsForeign;
+			public readonly bool IsSpecial;
 
-			public ClosedElement (string name, int count, bool isForeign)
+			public ClosedElement (in Entry entry)
 			{
-				Name = name;
-				Count = count;
-				IsForeign = isForeign;
+				Name = entry.Name;
+				Count = entry.Count;
+				Id = entry.Id;
+				IsForeign = entry.Namespace != HtmlNamespace.Html;
+				IsSpecial = (entry.Flags & ElementFlags.Special) != 0;
 			}
 		}
 
@@ -400,7 +404,7 @@ namespace MimeKit.Text {
 				if (closedElements != null) {
 					ref var entry = ref EntryAt (count - 1);
 
-					closedElements.Add (new ClosedElement (entry.Name, entry.Count, entry.Namespace != HtmlNamespace.Html));
+					closedElements.Add (new ClosedElement (entry));
 				}
 
 				RemoveTopEntry ();
