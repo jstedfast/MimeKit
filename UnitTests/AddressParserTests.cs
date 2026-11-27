@@ -157,6 +157,75 @@ namespace UnitTests {
 			return byteInput ? InternetAddressList.Parse (Encoding.UTF8.GetBytes (text)) : InternetAddressList.Parse (text);
 		}
 
+		readonly struct ObservedPhraseInput : IAddressParserInput
+		{
+			readonly StringAddressInput input;
+			readonly Action<int> observe;
+
+			public ObservedPhraseInput (string text, Action<int> observe)
+			{
+				input = new StringAddressInput (text);
+				this.observe = observe;
+			}
+
+			public bool IsPhraseAtom (int index)
+			{
+				observe (index);
+				return input.IsPhraseAtom (index);
+			}
+
+			public char this[int index] => input[index];
+			public int Length => input.Length;
+			public bool IsAsciiAtom (int index) => input.IsAsciiAtom (index);
+			public bool IsAtom (int index) => input.IsAtom (index);
+			public bool IsBlank (int index) => input.IsBlank (index);
+			public bool IsWhitespace (int index) => input.IsWhitespace (index);
+			public bool IsDomain (int index) => input.IsDomain (index);
+			public int GetByteOffset (int index) => input.GetByteOffset (index);
+			public char GetErrorCharacter (int index) => input.GetErrorCharacter (index);
+			public string GetUtf8String (int startIndex, int length) => input.GetUtf8String (startIndex, length);
+			public string GetLatin1String (int startIndex, int length) => input.GetLatin1String (startIndex, length);
+			public string DecodePhrase (ParserOptions options, int startIndex, int length, out int codepage) => input.DecodePhrase (options, startIndex, length, out codepage);
+			public string DecodeComment (ParserOptions options, int startIndex, int length) => input.DecodeComment (options, startIndex, length);
+		}
+
+		[TestCase ("sales", false)]
+		[TestCase ("sales@example.org", false)]
+		[TestCase ("sales (unfinished", true)]
+		public void TestListReusesPhraseLookahead (string last, bool invalid)
+		{
+			const string prefix = "postmaster, (on call, today) support, billing, ";
+			int visits = 0;
+			var input = new ObservedPhraseInput (prefix + last, index => {
+				if (index == prefix.Length + 1)
+					visits++;
+			});
+			var options = TestHelper.CreateLegacyAddressOptions ();
+			var parser = new AddressParser<ObservedPhraseInput> (options, input, 0, input.Length);
+
+			Assert.That (parser.TryParseList (AddressParserFlags.InternalTryParse, false, 0, out var list), Is.True);
+			Assert.That (parser.Position, Is.EqualTo (input.Length));
+			if (invalid)
+				Assert.That (list, Is.Empty);
+			else
+				Assert.That (list.Cast<MailboxAddress> ().Select (m => m.Address), Is.EqualTo (new[] { "postmaster", "support", "billing", last }));
+
+			// The initial lookahead and the final recipient itself may each examine this word.
+			Assert.That (visits, Is.LessThanOrEqualTo (2));
+		}
+
+		[Test]
+		public void TestPhraseLookaheadInMixedAddressList ([Values (false, true)] bool byteInput)
+		{
+			const string text = "sales, support, b@example.org, Doe, Jane <jane@example.org>, c, d, e";
+			var options = TestHelper.CreateLegacyAddressOptions ();
+			var list = byteInput ? InternetAddressList.Parse (options, Encoding.UTF8.GetBytes (text)) : InternetAddressList.Parse (options, text);
+
+			Assert.That (list.Cast<MailboxAddress> ().Select (mailbox => mailbox.Address),
+				Is.EqualTo (new[] { "sales", "support", "b@example.org", "jane@example.org", "c", "d", "e" }));
+			Assert.That (list[3].Name, Is.EqualTo ("Doe, Jane"));
+		}
+
 		[Test]
 		[NonParallelizable]
 		public void TestReusesEncodingWithinParse (
@@ -317,7 +386,9 @@ namespace UnitTests {
 						AddressParserComplianceMode = compliance,
 						Rfc2047ComplianceMode = encodedWords,
 						AllowUnquotedCommasInAddresses = unquotedCommas,
+#pragma warning disable CS0618 // Exercise both policies.
 						AllowAddressesWithoutDomain = allowLocal,
+#pragma warning restore CS0618
 						CharsetEncoding = charset
 					};
 
@@ -795,8 +866,7 @@ namespace UnitTests {
 		{
 			const string text = "first@example.com, \"Last, First\" (no address), last@example.com";
 			var options = new ParserOptions {
-				AddressParserComplianceMode = RfcComplianceMode.Strict,
-				AllowAddressesWithoutDomain = false
+				AddressParserComplianceMode = RfcComplianceMode.Strict
 			};
 			var buffer = Encoding.UTF8.GetBytes ("###" + text + "###");
 			int index = 3;
@@ -941,8 +1011,7 @@ namespace UnitTests {
 			const string text = "\"bad, name\" (no address); next@example.com";
 			var buffer = Encoding.UTF8.GetBytes (text);
 			var options = new ParserOptions {
-				AddressParserComplianceMode = RfcComplianceMode.Strict,
-				AllowAddressesWithoutDomain = false
+				AddressParserComplianceMode = RfcComplianceMode.Strict
 			};
 			int index = 0;
 

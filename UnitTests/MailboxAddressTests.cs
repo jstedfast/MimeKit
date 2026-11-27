@@ -672,7 +672,7 @@ namespace UnitTests {
 		{
 			const string text = "jeff";
 
-			AssertParse (text);
+			AssertParseFailure (text, false, 0, text.Length);
 		}
 
 		[Test]
@@ -683,7 +683,8 @@ namespace UnitTests {
 			int errorIndex = text.Length - 1;
 
 			AssertParseFailure (text, false, tokenIndex, errorIndex, RfcComplianceMode.Strict);
-			AssertParse (text);
+			AssertParseFailure (text, false, tokenIndex, errorIndex);
+			Assert.That (MailboxAddress.Parse (TestHelper.CreateLegacyAddressOptions (), text).Address, Is.EqualTo ("jeff"));
 		}
 
 		[Test]
@@ -701,9 +702,9 @@ namespace UnitTests {
 		{
 			const string text = "jeff (Jeffrey Stedfast)";
 
-			AssertParse (text);
+			AssertParseFailure (text, false, 0, text.Length);
 
-			var mailbox = MailboxAddress.Parse (text);
+			var mailbox = MailboxAddress.Parse (TestHelper.CreateLegacyAddressOptions (), text);
 
 			Assert.That (mailbox.Name, Is.EqualTo ("Jeffrey Stedfast"));
 			Assert.That (mailbox.Address, Is.EqualTo ("jeff"));
@@ -713,12 +714,13 @@ namespace UnitTests {
 		[TestCase ("jeff@xamarin.com (Jeffrey\tStedfast)", "jeff@xamarin.com")]
 		public void TestParseAddrspecWithCommentContainingTab (string text, string address)
 		{
-			var mailbox = MailboxAddress.Parse (text);
+			var options = address.Contains ('@') ? ParserOptions.Default : TestHelper.CreateLegacyAddressOptions ();
+			var mailbox = MailboxAddress.Parse (options, text);
 
 			Assert.That (mailbox.Name, Is.EqualTo ("Jeffrey Stedfast"));
 			Assert.That (mailbox.Address, Is.EqualTo (address));
 
-			var list = InternetAddressList.Parse (text);
+			var list = InternetAddressList.Parse (options, text);
 
 			Assert.That (list.Mailboxes.First ().Name, Is.EqualTo ("Jeffrey Stedfast"));
 		}
@@ -759,10 +761,9 @@ namespace UnitTests {
 			mailbox = MailboxAddress.Parse (text);
 			Assert.That (mailbox.Name, Is.EqualTo ("Worthington, Warren"));
 
-			// this should fail when we allow mailbox addresses w/o a domain
+			// With unquoted commas disabled, the first word is not a complete mailbox.
 			var options = ParserOptions.Default.Clone ();
 			options.AllowUnquotedCommasInAddresses = false;
-			options.AllowAddressesWithoutDomain = false;
 
 			try {
 				mailbox = MailboxAddress.Parse (options, text);
@@ -787,7 +788,6 @@ namespace UnitTests {
 		public void TestEncodeMailboxWithoutDomain ()
 		{
 			var options = ParserOptions.Default.Clone ();
-			options.AllowAddressesWithoutDomain = false;
 
 			var mailbox = MailboxAddress.Parse (options, "<hammer>");
 

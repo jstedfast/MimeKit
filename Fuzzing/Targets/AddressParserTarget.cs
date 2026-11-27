@@ -47,7 +47,9 @@ namespace MimeKit.Fuzzing.Targets {
 					1 => RfcComplianceMode.Loose,
 					_ => RfcComplianceMode.Looser,
 				},
+#pragma warning disable CS0618 // Keep covering the legacy opt-in until it is removed.
 				AllowAddressesWithoutDomain = (selector & 4) != 0,
+#pragma warning restore CS0618
 				AllowUnquotedCommasInAddresses = (selector & 8) != 0,
 				MaxAddressGroupDepth = 4,
 			};

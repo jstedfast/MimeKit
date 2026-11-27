@@ -69,6 +69,20 @@ namespace UnitTests {
 		}
 
 		[Test]
+		public void TestBareLocalMailboxRequiresOptIn ()
+		{
+			const string mixed = "postmaster, support@example.org";
+			var options = new ParserOptions ();
+
+			Assert.That (MailboxAddress.TryParse ("postmaster", out _), Is.False);
+			Assert.That (InternetAddressList.TryParse (options, mixed, out _), Is.False);
+			Assert.Throws<ParseException> (() => InternetAddressList.Parse (options, mixed));
+
+			var list = InternetAddressList.Parse (TestHelper.CreateLegacyAddressOptions ().Clone (), mixed);
+			Assert.That (list.Mailboxes.Select (m => m.Address), Is.EqualTo (new[] { "postmaster", "support@example.org" }));
+		}
+
+		[Test]
 		public void TestMaxHeaderLength ()
 		{
 			var options = new ParserOptions ();

@@ -26,6 +26,7 @@
 
 using System.Text;
 
+using MimeKit;
 using MimeKit.Utils;
 using MimeKit.Cryptography;
 
@@ -34,6 +35,15 @@ namespace UnitTests {
 	static class TestHelper
 	{
 		public static readonly string ProjectDir;
+
+		public static ParserOptions CreateLegacyAddressOptions ()
+		{
+			var options = ParserOptions.Default.Clone ();
+#pragma warning disable CS0618 // Exercise the legacy opt-in until it is removed.
+			options.AllowAddressesWithoutDomain = true;
+#pragma warning restore CS0618
+			return options;
+		}
 
 		/// <summary>
 		/// Whether the MimeKit assemblies have been instrumented by AltCover for code coverage.

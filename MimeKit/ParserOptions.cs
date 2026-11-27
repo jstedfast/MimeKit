@@ -86,18 +86,23 @@ namespace MimeKit {
 		/// <value><see langword="true" /> if the address parser should ignore unquoted commas in address names; otherwise, <see langword="false" />.</value>
 		public bool AllowUnquotedCommasInAddresses { get; set; }
 
+		internal bool AllowBareLocalAddresses { get; private set; }
+
 		/// <summary>
-		/// Get or set whether the rfc822 address parser should allow addresses without a domain.
+		/// Get or set whether the address parser accepts bare mailbox addresses without a domain.
 		/// </summary>
 		/// <remarks>
-		/// <para>In general, you'll probably want this value to be <see langword="true" /> (the default) as it allows
-		/// maximum interoperability with older email messages that may contain local UNIX addresses.</para>
-		/// <para>This option exists in order to allow parsing of mailbox addresses that do not have an
-		/// @domain component. These types of addresses are rare and were typically only used when sending
-		/// mail to other users on the same UNIX system.</para>
+		/// <para>The default is <see langword="false" />. Set this to <see langword="true" /> only when
+		/// reading legacy mail that uses bare local UNIX mailbox names. This option does not affect
+		/// addresses enclosed in angle brackets.</para>
+		/// <para>This property is scheduled for removal in MimeKit 6.0. Use fully qualified addresses instead.</para>
 		/// </remarks>
 		/// <value><see langword="true" /> if the address parser should allow mailbox addresses without a domain; otherwise, <see langword="false" />.</value>
-		public bool AllowAddressesWithoutDomain { get; set; }
+		[Obsolete ("Use fully qualified mailbox addresses instead. This property will be removed in MimeKit 6.0.")]
+		public bool AllowAddressesWithoutDomain {
+			get { return AllowBareLocalAddresses; }
+			set { AllowBareLocalAddresses = value; }
+		}
 
 		/// <summary>
 		/// Get or set the maximum address group depth the parser should accept.
@@ -218,7 +223,6 @@ namespace MimeKit {
 			Rfc2047ComplianceMode = RfcComplianceMode.Loose;
 			CharsetEncoding = CharsetUtils.UTF8;
 			AllowUnquotedCommasInAddresses = true;
-			AllowAddressesWithoutDomain = true;
 			RespectContentLength = false;
 			MaxAddressGroupDepth = 3;
 			MaxMimeDepth = 1024;
@@ -238,7 +242,7 @@ namespace MimeKit {
 			var options = new ParserOptions {
 				AddressParserComplianceMode = AddressParserComplianceMode,
 				AllowUnquotedCommasInAddresses = AllowUnquotedCommasInAddresses,
-				AllowAddressesWithoutDomain = AllowAddressesWithoutDomain,
+				AllowBareLocalAddresses = AllowBareLocalAddresses,
 				ParameterComplianceMode = ParameterComplianceMode,
 				Rfc2047ComplianceMode = Rfc2047ComplianceMode,
 				MaxAddressGroupDepth = MaxAddressGroupDepth,

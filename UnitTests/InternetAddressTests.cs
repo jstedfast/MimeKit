@@ -342,7 +342,7 @@ namespace UnitTests {
 		{
 			const string text = "jeff";
 
-			AssertParse (text);
+			AssertParseFailure (text, false, 0, text.Length);
 		}
 
 		[Test]
@@ -350,7 +350,8 @@ namespace UnitTests {
 		{
 			const string text = "jeff>";
 
-			AssertParse (text);
+			AssertParseFailure (text, false, 0, text.IndexOf ('>'));
+			Assert.That (InternetAddress.Parse (TestHelper.CreateLegacyAddressOptions (), text), Is.InstanceOf<MailboxAddress> ());
 		}
 
 		[Test]
@@ -368,9 +369,9 @@ namespace UnitTests {
 		{
 			const string text = "jeff (Jeffrey Stedfast)";
 
-			AssertParse (text);
+			AssertParseFailure (text, false, 0, text.Length);
 
-			var mailbox = MailboxAddress.Parse (text);
+			var mailbox = (MailboxAddress) InternetAddress.Parse (TestHelper.CreateLegacyAddressOptions (), text);
 
 			Assert.That (mailbox.Name, Is.EqualTo ("Jeffrey Stedfast"));
 			Assert.That (mailbox.Address, Is.EqualTo ("jeff"));
@@ -412,10 +413,9 @@ namespace UnitTests {
 			addr = InternetAddress.Parse (text);
 			Assert.That (addr.Name, Is.EqualTo ("Worthington, Warren"));
 
-			// this should fail when we allow mailbox addresses w/o a domain
+			// With unquoted commas disabled, the first word is not a complete mailbox.
 			var options = ParserOptions.Default.Clone ();
 			options.AllowUnquotedCommasInAddresses = false;
-			options.AllowAddressesWithoutDomain = false;
 
 			try {
 				addr = InternetAddress.Parse (options, text);
@@ -434,7 +434,6 @@ namespace UnitTests {
 			const string input = "Cut the fat, today <5aOJlOFqZs@eachuniverse.host>";
 			var options = new ParserOptions {
 				AddressParserComplianceMode = RfcComplianceMode.Strict,
-				AllowAddressesWithoutDomain = false,
 				AllowUnquotedCommasInAddresses = false,
 				Rfc2047ComplianceMode = RfcComplianceMode.Strict
 			};
@@ -654,9 +653,8 @@ namespace UnitTests {
 		[Test]
 		public void TestParseStrictUnexpectedGreaterThanAfterDomainlessAddress ()
 		{
-			var options = ParserOptions.Default.Clone ();
+			var options = TestHelper.CreateLegacyAddressOptions ();
 			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
-			options.AllowAddressesWithoutDomain = true;
 
 			var ex = Assert.Throws<ParseException> (() => InternetAddress.Parse (options, "local>"));
 

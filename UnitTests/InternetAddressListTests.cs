@@ -292,7 +292,8 @@ namespace UnitTests {
 
 			text = "fejj";
 			mailbox.Address = "fejj";
-			AssertParseAndTryParse (text, "<fejj>", expected);
+			AssertParseAndTryParseFail (text);
+			AssertParseAndTryParse ("<fejj>", "<fejj>", expected);
 		}
 
 		[Test]
@@ -429,9 +430,8 @@ namespace UnitTests {
 				})
 			};
 
-			AssertTryParse (text, encoded, expected);
-
-			//Assert.Throws<ParseException> (() => InternetAddressList.Parse (text), "Parsing should have failed.");
+			Assert.That (InternetAddressList.TryParse (TestHelper.CreateLegacyAddressOptions (), text, out var list), Is.True);
+			AssertInternetAddressListsEqual (encoded, expected, list);
 		}
 
 		[Test]
@@ -903,7 +903,6 @@ namespace UnitTests {
 
 			options.AddressParserComplianceMode = RfcComplianceMode.Strict;
 			options.AllowUnquotedCommasInAddresses = false;
-			options.AllowAddressesWithoutDomain = false;
 
 			InternetAddressList.TryParse (AddressParserFlags.InternalTryParse, options, rawValue, ref index, length, false, 0, out var parsed);
 

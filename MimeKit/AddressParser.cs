@@ -42,6 +42,9 @@ namespace MimeKit {
 		readonly int endIndex;
 		Encoding? cachedEncoding;
 		int cachedCodepage;
+		int nextPhraseStart;
+		int cachedPhraseEnd;
+		int cachedPhraseDelimiter;
 		int index;
 
 		internal AddressParser (ParserOptions options, TInput text, int startIndex, int endIndex)
@@ -51,6 +54,9 @@ namespace MimeKit {
 			this.endIndex = endIndex;
 			cachedEncoding = null;
 			cachedCodepage = 0;
+			nextPhraseStart = -1;
+			cachedPhraseEnd = 0;
+			cachedPhraseDelimiter = 0;
 			index = startIndex;
 		}
 
@@ -553,7 +559,22 @@ namespace MimeKit {
 
 		bool TryScanPhrase (bool throwOnError, out AddressPhrase phrase)
 		{
+			bool success = TryScanPhrase (throwOnError, out phrase, out int nextStart);
+
+			nextPhraseStart = nextStart;
+
+			if (nextStart != -1) {
+				cachedPhraseEnd = success ? phrase.StartIndex + phrase.Length : -1;
+				cachedPhraseDelimiter = index;
+			}
+
+			return success;
+		}
+
+		bool TryScanPhrase (bool throwOnError, out AddressPhrase phrase, out int nextStart)
+		{
 			phrase = default;
+			nextStart = -1;
 
 			// keep track of the start & length of the phrase
 			bool trimLeadingQuote = false;
@@ -612,6 +633,24 @@ namespace MimeKit {
 
 					if (!ParseUtils.SkipCommentsAndWhiteSpace (text, ref index, endIndex, throwOnError))
 						return false;
+
+					// A list may consume only the first mailbox in this provisional phrase.
+					// Remember where the next entry starts, outside quotes and comments. When
+					// it is parsed, scan up to its own first comma and reuse the known suffix.
+					if (nextStart == -1) {
+						nextStart = index;
+
+						if (startIndex == nextPhraseStart) {
+							index = cachedPhraseDelimiter;
+
+							if (cachedPhraseEnd == -1)
+								return false;
+
+							phrase = new AddressPhrase (startIndex, cachedPhraseEnd - startIndex, trimLeadingQuote);
+
+							return true;
+						}
+					}
 				}
 			}
 
@@ -619,6 +658,7 @@ namespace MimeKit {
 				return false;
 
 			phrase = new AddressPhrase (startIndex, length, trimLeadingQuote);
+
 			return true;
 		}
 
@@ -644,6 +684,17 @@ namespace MimeKit {
 			return name;
 		}
 
+		bool AllowBareLocalMailbox (int startIndex, bool throwOnError)
+		{
+			if (options.AllowBareLocalAddresses)
+				return true;
+
+			if (throwOnError)
+				throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
+
+			return false;
+		}
+
 		bool TryParseLocalMailbox (AddressParserFlags flags, int startIndex, bool throwOnError, [NotNullWhen (true)] out InternetAddress? address)
 		{
 			address = null;
@@ -659,12 +710,8 @@ namespace MimeKit {
 				return false;
 			}
 
-			if (!options.AllowAddressesWithoutDomain) {
-				if (throwOnError)
-					throw new ParseException (string.Format (CultureInfo.InvariantCulture, "Incomplete addr-spec token at offset {0}", text.GetByteOffset (startIndex)), text.GetByteOffset (startIndex), text.GetByteOffset (index));
-
+			if (!AllowBareLocalMailbox (startIndex, throwOnError))
 				return false;
-			}
 
 			// rewind back to the beginning of the local-part
 			index = startIndex;
@@ -722,6 +769,10 @@ namespace MimeKit {
 			index = startIndex;
 
 			if (!TryParseAddrspec (CommaGreaterThanOrSemiColon, options.AddressParserComplianceMode, throwOnError, out var addrspec, out int at))
+				return false;
+
+			// The '@' seen by phrase lookahead may belong to a later list entry.
+			if (at == -1 && !AllowBareLocalMailbox (startIndex, throwOnError))
 				return false;
 
 			ParseUtils.SkipWhiteSpace (text, ref index, endIndex);

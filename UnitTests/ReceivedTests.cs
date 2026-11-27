@@ -173,9 +173,9 @@ namespace UnitTests {
 			}
 		}
 
-		static void AssertClauseId (string keyword, ReceivedClauseId expected)
+		static void AssertClauseId (string keyword, ReceivedClauseId expected, string value = "value")
 		{
-			var clause = new ReceivedClause (keyword, "value", "comment");
+			var clause = new ReceivedClause (keyword, value, "comment");
 
 			Assert.That (clause.Id, Is.EqualTo (expected), keyword);
 			Assert.That (clause.Comments.Count, Is.EqualTo (1), "Comments.Count");
@@ -203,7 +203,7 @@ namespace UnitTests {
 			AssertClauseId ("via", ReceivedClauseId.Via);
 			AssertClauseId ("with", ReceivedClauseId.With);
 			AssertClauseId ("id", ReceivedClauseId.Id);
-			AssertClauseId ("for", ReceivedClauseId.For);
+			AssertClauseId ("for", ReceivedClauseId.For, "user@example.org");
 		}
 
 		[Test]

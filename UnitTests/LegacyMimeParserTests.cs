@@ -5779,13 +5779,13 @@ This is the message body.
 		[Test]
 		public void TestJwzMbox ()
 		{
-			TestMbox (null, "jwz");
+			TestMbox (TestHelper.CreateLegacyAddressOptions (), "jwz");
 		}
 
 		[Test]
 		public async Task TestJwzMboxAsync ()
 		{
-			await TestMboxAsync (null, "jwz");
+			await TestMboxAsync (TestHelper.CreateLegacyAddressOptions (), "jwz");
 		}
 
 		[Test]
@@ -5795,7 +5795,7 @@ This is the message body.
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox, true);
+				var parser = new LegacyMimeParser (TestHelper.CreateLegacyAddressOptions (), stream, MimeFormat.Mbox, true);
 
 				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
 				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
@@ -5837,7 +5837,7 @@ This is the message body.
 			var builder = new StringBuilder ();
 
 			using (var stream = File.OpenRead (Path.Combine (MboxDataDir, "jwz.mbox.txt"))) {
-				var parser = new LegacyMimeParser (stream, MimeFormat.Mbox, true);
+				var parser = new LegacyMimeParser (TestHelper.CreateLegacyAddressOptions (), stream, MimeFormat.Mbox, true);
 
 				Assert.That (parser.MboxMarkerOffset, Is.EqualTo (-1), "Initial MboxMarkerOffset");
 				Assert.That (parser.MboxMarker, Is.Null, "Initial MboxMarker");
